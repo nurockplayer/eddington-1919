@@ -33,3 +33,19 @@
 - **What changed and why**
 - **What was actually verified**
 - **Risks/reversibility and linked commit / issue / playtest**
+
+## D006 — First playable slice design (Game Director, 2026-10-19)
+- **What changed and why**
+  - **Engine and look.** Godot **4.7.2 stable**, GDScript, Forward+. The scene is built in code from primitives: no imported assets, so there are no licensing questions, and the build is reproducible from a fresh clone.
+  - **Camera.** First-person, because looking up at the cloud over the Sun *is* the core action.
+  - **Loop.** Prepare the station (three optional tasks under a countdown) → call exposures through a drifting cloud field during 302 s of totality, compressed ×2.5 → inspect plates rendered from what each exposure actually recorded → select plates before seeing values, then measure → choose a telegram and a reason → Eddington and Cottingham react → ending with the historical record → replay with the same or a new sky.
+  - **The sky is the evidence.** One cloud texture feeds both the sky shader and the simulation's sample at the Sun. What the player sees is exactly what the plate receives, so there is no hidden dice roll.
+  - **Player role.** The player is a fictional "cloud caller". Cottingham keeps the hand-held screen and Eddington keeps changing plates, matching the record, so no real person's contribution is displaced.
+  - **Judgment.** The telegram is graded against the evidence class (none / favors 1.75″ / favors 0.87″ / ambiguous) and against selection integrity (omitted good plates, included trailed or fogged plates, re-selecting after seeing values). The point is calibrated claims, not "pick Einstein".
+  - **Co-op boundary.** `scripts/eclipse_sim.gd` holds all shared observation and decision state with no nodes. Input, camera and UI stay local. There is no networking.
+- **What was actually verified:** 151 headless logic checks pass. Three autoplay strategies (careful / rushed / cherry-pick) reach three different endings through real input events, with screenshots. The macOS universal export launches. **No human playtest yet.**
+- **Risks and reversibility:**
+  - Exposure difficulty, prep timing (150 s) and gap readability are tuned only by bot runs and need human tuning.
+  - The art is primitive.
+  - The measurement model is illustrative.
+  - All of these are isolated in a few files and easy to change.

@@ -1,6 +1,31 @@
 # Game Director Handoff
 
-**Latest setup: 2026-10-19 JST** | Status: **reference pack written; no runnable Godot game, no gameplay PASS yet**.
+**Latest: 2026-10-19 JST** | Status: **v0.1 playable slice delivered**. The complete loop is verified by automated real-input runs. **There has been no human playtest yet.**
+
+## Current verified state (v0.1)
+- **Build.** Godot **4.7.2.stable**.
+  - Run: `godot --path .`
+  - Export: `godot --headless --path . --export-release "macOS" build/Eddington1919-macOS.zip`
+  - Tests: `godot --headless --path . --script res://tests/test_sim.gd`
+  - Autoplay: `godot --path . --always-on-top -- --autoplay=careful|rushed|cherry --shots=DIR [--seed=N] [--speed=2]`
+- **Play.** About 6–10 min, first person.
+  - **Prep:** brief with Eddington, fetch plate holders, wind and rate-check the coelostat drive with Cottingham.
+  - **Totality:** call exposures through a drifting cloud field (302 s compressed ×2.5).
+  - **Night:** developed plates show stars, fog and trailing from what you did. You choose plates *before* the values appear, then measure.
+  - **Judgment:** pick a telegram and a reason. Eddington reacts to calibration and selection integrity.
+  - **End:** the historical epilogue, then replay with the same or a new sky.
+- **Evidence:** [docs/PLAYTEST.md](PLAYTEST.md) (screenshots and bot JSON in `docs/playtest/`); history and fiction labels in [docs/PROVENANCE.md](PROVENANCE.md); design decision [D006](DECISIONS.md).
+- **Code map.**
+  - `scripts/eclipse_sim.gd`: shared state and model.
+  - `scripts/judgment.gd`: grading and Eddington's lines.
+  - `scripts/main.gd`: phase flow.
+  - `scripts/world_builder.gd`: procedural site.
+  - `scripts/ui.gd` and `scripts/chart.gd`: HUD, dialogue, plate viewer, endings.
+  - `shaders/eclipse_sky.gdshader`: sky that shares the cloud texture with the sim.
+  - `tests/`: logic tests and the autoplay bot.
+
+## Next single highest-value step
+**A human playtest of v0.1**, about 15 minutes, using the five questions in [PLAYTEST.md](PLAYTEST.md). Then tune gap readability, prep pressure and exposure difficulty from what the player actually does. Do not expand the scope before that.
 
 ## Canonical GitHub reporting entry
 
@@ -41,5 +66,8 @@ Update this file with the latest verified state, link to playable scene/build an
 - **Existing Web work elsewhere**: [unnamed-disease](https://github.com/nurockplayer/unnamed-disease) continues with the active Opus workstream, not interrupted by this new 3D request.
 - Do not claim collaboration, ownership transfer, delegated agent runs or a build that has not actually occurred.
 
-## First next action
-Opus inspects available Godot build/test tools, chooses the smallest playable path and records a first succinct plan on Issue #1, then **implements and actually plays** that path. Avoid spending the first work session on more abstract architecture.
+## History
+- 2026-10-19: the reference pack was written. Opus then built v0.1 (plan, delivery and evidence are in Issue #1).
+  - **Fact check:** a Sonnet 5.5 subagent checked the history used in the game.
+  - **Review:** Codex (gpt-6-astra) ran a fresh, read-only review; its findings were fixed in `f107a85`.
+  - **Not used:** gpt-6.1-sol, gpt-6-luna and haiku-5.5 were not used.
