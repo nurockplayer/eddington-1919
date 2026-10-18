@@ -99,10 +99,25 @@ func build() -> Dictionary:
 	_plantation_house()
 	_vegetation()
 	_props()
+	_bounds()
+	randomize()  # vegetation reseeded the global RNG; don't leak that into "new sky" restarts
 	out.eddington = npc("Eddington", Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
 	out.cottingham = npc("Cottingham", Vector3(1.35, 0, -6.1), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
 	out.cottingham.rotation.y = deg_to_rad(-60)
 	return out
+
+
+## Invisible walls so the player cannot walk off the island.
+func _bounds() -> void:
+	for w in [[Vector3(0, 2, -42), Vector3(90, 4, 1)], [Vector3(0, 2, 42), Vector3(90, 4, 1)], [Vector3(-42, 2, 0), Vector3(1, 4, 90)], [Vector3(42, 2, 0), Vector3(1, 4, 90)]]:
+		var body := StaticBody3D.new()
+		var cs := CollisionShape3D.new()
+		var sh := BoxShape3D.new()
+		sh.size = w[1]
+		cs.shape = sh
+		body.add_child(cs)
+		body.position = w[0]
+		root.add_child(body)
 
 
 func _ground() -> void:

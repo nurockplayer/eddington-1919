@@ -59,6 +59,7 @@ var _choice_buttons: Array[Button] = []
 var _viewer_sel := -1
 var _viewer_plates: Array = []
 var _viewer_locked := false
+var pause_enabled := false
 
 
 func _ready() -> void:
@@ -333,7 +334,11 @@ func _advance() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not dialog_panel.visible:
+	if event.is_action_pressed("pause") and pause_enabled:
+		get_viewport().set_input_as_handled()
+		toggle_pause()
+		return
+	if get_tree().paused or not dialog_panel.visible:
 		return
 	var e: Dictionary = _seq[_seq_i]
 	var has_choices := e.has("choices")

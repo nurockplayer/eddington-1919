@@ -51,9 +51,10 @@ var bot: Node
 func _ready() -> void:
 	_ensure_inputs()
 	var args := _user_args()
-	var seed_ := int(args.get("seed", "-1"))
+	# A restart's chosen sky wins over the command line, which only seeds the first run.
+	var seed_ := next_seed if next_seed >= 0 else int(args.get("seed", "-1"))
 	if seed_ < 0:
-		seed_ = next_seed if next_seed >= 0 else randi() % 100000
+		seed_ = randi() % 100000
 	sim = Sim.new(seed_)
 	_build_environment()
 	world = World.new(self).build()
@@ -81,7 +82,11 @@ func _ready() -> void:
 	ui.hud.visible = false
 	_update_sky_prep()
 	if args.has("autoplay"):
-		bot = load("res://tests/autoplay_bot.gd").new()
+		var bot_script: Script = load("res://tests/autoplay_bot.gd")
+		if bot_script == null:
+			push_warning("autoplay unavailable in this build")
+			return
+		bot = bot_script.new()
 		bot.main = self
 		bot.scenario = args.autoplay
 		bot.shots_dir = args.get("shots", "")
@@ -249,6 +254,7 @@ func _build_audio() -> void:
 
 func _start_game() -> void:
 	ui.hide_title()
+	ui.pause_enabled = true
 	ui.hud.visible = true
 	phase = Phase.PREP
 	player.can_move = true
@@ -265,6 +271,10 @@ func _restart(same_sky: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	if player.global_position.y < -3.0:
+		player.velocity = Vector3.ZERO
+		player.global_position = (world.darkroom_spot if phase == Phase.NIGHT else Vector3(2.6, 0, 4.2)) + Vector3(0, 0.1, 0)
+		ui.show_toast("你繞回了觀測站。")
 	match phase:
 		Phase.PREP:
 			_process_prep(delta)
@@ -282,10 +292,6 @@ func _ui_free() -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause") and phase != Phase.TITLE and phase != Phase.ENDING:
-		ui.toggle_pause()
-		get_viewport().set_input_as_handled()
-		return
 	if phase == Phase.TOTALITY and _ui_free() and not tot_done:
 		if event.is_action_pressed("shutter") or event.is_action_pressed("interact"):
 			_toggle_shutter()
@@ -679,6 +685,10 @@ func _on_plate_toggled(i: int, on: bool) -> void:
 
 
 func _on_measure() -> void:
+	var sel: Array = sim.plates.filter(func(p): return p.included).map(func(p): return p.number)
+	if sim.measured_selection != null and sel != sim.measured_selection:
+		sim.reselected_after_seeing = true
+	sim.measured_selection = sel
 	sim.measured = true
 	ui.set_viewer_locked(true)
 	_refresh_viewer()
@@ -687,7 +697,6 @@ func _on_measure() -> void:
 
 func _on_reselect() -> void:
 	sim.measured = false
-	sim.reselected_after_seeing = true
 	ui.set_viewer_locked(false)
 	_refresh_viewer()
 	_refresh_objectives()
@@ -728,6 +737,7 @@ func _after_judgment(results: Dictionary) -> void:
 
 func _show_ending() -> void:
 	phase = Phase.ENDING
+	ui.pause_enabled = false
 	ui.hud.visible = false
 	player.can_move = false
 	var c: Dictionary = sim.combined()

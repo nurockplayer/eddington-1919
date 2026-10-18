@@ -7,6 +7,9 @@ extends Node
 ## Run: godot --path . -- --autoplay=careful --shots=/tmp/shots [--seed=N] [--speed=2]
 ## Scenarios: careful | rushed | cherry
 
+static var runs := 0
+static var first_seed := -1
+
 var main
 var scenario := "careful"
 var shots_dir := ""
@@ -174,6 +177,18 @@ const TABLE_SPOT := Vector3(-1.8, 0, -2.45)
 
 
 func _run() -> void:
+	runs += 1
+	if runs > 1:
+		# We are inside a restarted scene: verify the restart and stop.
+		_log("restart run %d: seed %d (first run seed %d) title_visible=%s" % [runs, main.sim.run_seed, first_seed, main.ui.title_panel.visible])
+		await _wait(1.0)
+		await shot("11_after_restart")
+		var f := FileAccess.open(shots_dir.path_join("restart_%s.json" % scenario), FileAccess.WRITE)
+		f.store_string(JSON.stringify({"first_seed": first_seed, "new_seed": main.sim.run_seed, "differs": main.sim.run_seed != first_seed, "title_visible": main.ui.title_panel.visible}))
+		f.close()
+		get_tree().quit()
+		return
+	first_seed = main.sim.run_seed
 	_log("seed %d" % main.sim.run_seed)
 	await _wait(1.0)
 	await shot("00_title")
@@ -188,6 +203,15 @@ func _run() -> void:
 	var id := await interact(EDD_HEAD)
 	_log("interact -> %s" % id)
 	await shot("02_briefing")
+	# Pause mid-dialogue: E presses must not advance it; Esc resumes.
+	var before: int = main.ui._seq_i
+	await _tap(KEY_ESCAPE)
+	var paused_ok: bool = get_tree().paused
+	await _tap(KEY_E)
+	await _tap(KEY_E)
+	var held: bool = main.ui._seq_i == before
+	await _tap(KEY_ESCAPE)
+	_log("pause check: paused=%s dialogue_held=%s resumed=%s" % [paused_ok, held, not get_tree().paused])
 	await talk([1])
 	if scenario == "rushed":
 		# Straight to totality: no plates fetched, drive left to Cottingham alone.
@@ -322,7 +346,11 @@ func _night() -> void:
 	await _click(main.ui.viewer_button_center("measure"))
 	await _wait(0.4)
 	if scenario == "cherry":
+		# Seeing the values, change the selection: add back the omitted plate.
 		await _click(main.ui.viewer_button_center("reselect"))
+		if omitted >= 0:
+			await _click(main.ui.thumb_center(omitted))
+			await _click(main.ui.viewer_button_center("include"))
 		await _click(main.ui.viewer_button_center("measure"))
 		await _wait(0.3)
 	await shot("09_viewer_measured")
@@ -367,4 +395,19 @@ func _finish() -> void:
 		f.close()
 	_log("DONE ending=%s evidence=%s score=%s stuck=%d" % [result.ending_title, result.evidence, result.score, stuck])
 	await _wait(0.5)
+	if scenario == "careful":
+		# Press 「新的天空」 on the ending screen; the restarted scene continues in _run().
+		var btns: Array = main.ui.ending_panel.find_children("*", "Button", true, false)
+		for b in btns:
+			if b.text == "新的天空":
+				# Press and release without awaiting: the scene (and this bot) is freed on reload.
+				var pos: Vector2 = b.get_global_rect().get_center()
+				for pressed in [true, false]:
+					var ev := InputEventMouseButton.new()
+					ev.button_index = MOUSE_BUTTON_LEFT
+					ev.position = pos
+					ev.global_position = pos
+					ev.pressed = pressed
+					Input.parse_input_event(ev)
+				return
 	get_tree().quit()

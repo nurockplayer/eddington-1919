@@ -37,12 +37,14 @@ const REASON_FIT := {
 static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var ev: String = sim.evidence_class()
 	var fit: int = FIT[ev][telegram_id]
-	var reason_ok: bool = reason_id in REASON_FIT[ev]
 	var any_usable: bool = sim.plates.any(func(p): return p.usable)
+	var reason_ok: bool = reason_id in REASON_FIT[ev]
+	if reason_id == "nostars" and any_usable:
+		reason_ok = false  # the stars are there, just not measured
 	if ev == "none" and telegram_id == "none" and any_usable:
 		fit = 0  # usable plates exist, they just weren't measured
 	var sel: Dictionary = sim.selection_report()
-	var clean: bool = sel.omitted_good.is_empty() and sel.included_poor.is_empty() and not sel.reselected
+	var clean: bool = sel.omitted_good.is_empty() and sel.included_poor.is_empty() and sel.included_unusable.is_empty() and not sel.reselected
 	var lines: Array[String] = []
 	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, sim))
 	lines.append(_reason_line(ev, reason_id, reason_ok))
@@ -64,7 +66,7 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, sim) -> Arr
 				out.append("我和你一樣懷著希望。可是一夜、幾張底片、在帳篷裡量的數字——這還不是證明。")
 			else:
 				out.append("「證實」？我們手上的星像撐不起這兩個字。")
-			out.append("比對底片在牛津，Sobral 的結果我們還不知道。電報發出去就收不回來了。")
+			out.append("完整的量測要回國後才做得完，比例尺和校驗片都還得一張張比；Sobral 的結果我們也還不知道。電報發出去就收不回來了。")
 		"hopeful":
 			match ev:
 				"favors_e":
@@ -123,6 +125,8 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		out.append("第 %s 號底片的星像很清楚，你沒有量它。若它的數字不合我們的期望，那更應該量。" % _nums(sel.omitted_good))
 	if not sel.included_poor.is_empty():
 		out.append("第 %s 號的星像拖長了或被雲霧蓋住。和好片一起平均，會把誤差帶進結論。" % _nums(sel.included_poor))
+	if not sel.included_unusable.is_empty():
+		out.append("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。" % _nums(sel.included_unusable))
 	if sel.reselected:
 		out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
 	if clean and sim.included_usable().size() > 0:

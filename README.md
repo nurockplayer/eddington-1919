@@ -2,7 +2,28 @@
 
 **Godot 3D 歷史懸疑冒險遊戲原型**。背景是 1919 年 5 月 29 日的日食觀測；玩家作為虛構觀測助手，在有限時間、天候與不完整證據中行動和判斷。
 
-> 狀態：**新建專案／尚無 Godot 可玩版本**。這裡的設定、畫面和玩法是創作方向，不是已驗收的作品。正式遊戲名稱尚未決定。
+> 狀態：**第一個可玩切片已完成（v0.1，2026-10-19）**。可以從頭玩到結局，也可以重玩。完整流程已用自動化輸入走過，**真人試玩尚未進行**。詳見 [試玩紀錄](docs/PLAYTEST.md)。正式遊戲名稱尚未決定。
+
+## 怎麼玩（Godot 4.7.2）
+
+```bash
+# 從原始碼直接執行（需要 Godot 4.7.2 stable）
+godot --path .
+# 匯出 macOS 版（需要 4.7.2 匯出範本）→ build/Eddington1919-macOS.zip
+godot --headless --path . --export-release "macOS" build/Eddington1919-macOS.zip
+# 邏輯測試（無視窗）
+godot --headless --path . --script res://tests/test_sim.gd
+# 自動化走完整流程並截圖（不能取代真人試玩）
+godot --path . --always-on-top -- --autoplay=careful --shots=/tmp/e1919 --speed=2
+```
+
+**流程（約 6–10 分鐘）**
+1. 準備：在 Roça Sundy 觀測站向 Eddington 報到，從暗房搬底片匣，再幫 Cottingham 上發條、對天文鐘校走速。倒數在對話時暫停。
+2. 全食（302 秒，時間壓縮）：抬頭看漂移的雲，按空白鍵喊「開始」或「停」。雲在太陽上的厚薄，就是底片實際收到的光。
+3. 夜晚：在暗房檢視沖洗出來的底片，看星點數、雲霧和星像拖線。先決定要量哪幾張，再看數值。
+4. 判斷：選一封電報和一個理由，Eddington 會依你的證據和選片方式回應。結局附上史實對照，可以用同一片雲或新的天空重玩。
+
+操作：WASD 移動、滑鼠或方向鍵觀看、Shift 跑、E 互動（按住＝持續動作）、空白鍵／E／左鍵 在全食時喊開始或停、Esc 暫停。
 
 ## 已確定的方向（Owner，2026-10-19 JST）
 
@@ -18,6 +39,8 @@
 - [Game Director Handoff](docs/HANDOFF.md)：接手、里程碑與真正可玩證據的回報約定。
 - [1919 歷史背景與查核邊界](docs/HISTORY_1919.md)：用於創作的史料錨點、事實與虛構界線。
 - [決策紀錄](docs/DECISIONS.md)：Owner 已定方向與 Game Director 可自行調整的選擇。
+- [素材溯源](docs/PROVENANCE.md)：遊戲中每項史實、重建與虛構的標記和來源。
+- [試玩紀錄](docs/PLAYTEST.md)：實際測過什麼、沒測過什麼。
 - [先前 Notion 的日食互動切片草案](https://app.notion.com/p/3fdd7d8b39078183a159e6bd58fc0b7e)：**僅為舊提案**；其中「固定 2D 視角」「原型必做 Hub」「底片一律數日後沖洗」等項目**不構成新需求**，且需依史料修正。
 - [系列構想整理](https://app.notion.com/p/3f9d7d8b390781ec8049f6533b1760b4)：長期歷史題材版圖／尚未批准的構想混合資料。
 

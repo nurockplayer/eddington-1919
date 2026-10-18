@@ -12,7 +12,7 @@ const TOTALITY_S := 302.0        # HISTORICAL_RECORD: ~302 s of totality at Prí
 const TIME_SCALE := 2.5          # game compresses totality ×2.5 (~2 real minutes)
 const TEX_SIZE := 256
 const CLOUD_SCALE := 0.35        # sky-plane → cloud texture scale (shared with sky shader)
-const SUN_R := 0.03              # visual solar radius in radians (exaggerated ~4× for readability)
+const SUN_R := 0.03              # visual solar radius in radians (exaggerated ~6× for readability)
 const STAR_COUNT := 12
 const EINSTEIN := 1.75           # arcsec at the limb, full deflection
 const HALF := 0.87               # arcsec, the "Newtonian" half value
@@ -45,6 +45,7 @@ var _open: Dictionary = {}    # exposure in progress
 # --- analysis/judgment state ------------------------------------------------
 var measured := false
 var reselected_after_seeing := false
+var measured_selection = null    # plate numbers included at the last measurement
 
 
 func _init(p_seed: int = 1919) -> void:
@@ -246,15 +247,15 @@ func develop(raw: Dictionary, index: int) -> Dictionary:
 		p.quality = "good"
 	else:
 		p.quality = "poor"
-	# Illustrative measurement model. Truth is the full deflection; trailing smears
-	# images and (in this simplified model) biases the fit low; fog and few stars
-	# widen the error.
+	# Illustrative measurement model. Truth is the full deflection; visible trailing
+	# smears images and (in this simplified model) biases the fit low; fog and few
+	# stars widen the error.
 	var r := RandomNumberGenerator.new()
 	r.seed = hash([run_seed, index])
-	var z := clampf(r.randfn(), -1.6, 1.6)
-	var sigma := 0.30 * sqrt(5.0 / maxf(stars, 1)) * (1.0 + 0.9 * fog) * (1.0 + 2.0 * trail)
+	var z := clampf(r.randfn(), -1.3, 1.3)
+	var sigma := 0.25 * sqrt(5.0 / maxf(stars, 1)) * (1.0 + 0.9 * fog) * (1.0 + 2.0 * trail)
 	p.sigma = sigma
-	p.value = EINSTEIN - 0.9 * minf(trail, 1.2) + sigma * z
+	p.value = EINSTEIN - 0.9 * clampf(trail - 0.2, 0.0, 1.0) + sigma * z
 	p.included = false
 	return p
 
@@ -286,7 +287,7 @@ func evidence_class() -> String:
 		return "none"
 	var de: float = absf(c.value - EINSTEIN) / c.sigma
 	var dh: float = absf(c.value - HALF) / c.sigma
-	if c.sigma <= 0.40 and de <= 2.0 and dh > 2.0:
+	if de <= 2.0 and dh > 2.0:
 		return "favors_e"
 	if dh <= 2.0 and de > 2.0:
 		return "favors_half"

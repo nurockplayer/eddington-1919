@@ -112,6 +112,33 @@ func _init() -> void:
 	check(rep.reselected, "reselection reported")
 	check(not Judgment.grade(sim4, "hopeful", "measured").clean, "reselection breaks a clean selection")
 
+	# Careful play (checked drive, exposures inside the late gap) should not point
+	# to the half value by noise alone.
+	var misled := 0
+	for s in range(100, 160):
+		var cs = Sim.new(s)
+		cs.drive_wound = true
+		cs.drive_rate_checked = true
+		var lg: Dictionary = cs.gaps[2]
+		var a: Dictionary = expose(cs, lg.t + 0.5, minf(lg.d - 1.0, 12.0))
+		a.included = a.usable
+		if cs.evidence_class() == "favors_half":
+			misled += 1
+	check(misled <= 3, "careful single-plate play rarely favors 0.87″ (%d/60)" % misled)
+
+	# Regressions from the 2026-10-19 Codex review.
+	var rs = Sim.new(3)
+	rs.plates = [
+		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 2.0, "sigma": 0.41},
+		{"number": 2, "usable": false, "quality": "unusable", "included": false, "value": 0.0, "sigma": 1.0},
+	]
+	check(rs.evidence_class() == "favors_e", "2.00±0.41 is favors_e, not ambiguous (%s)" % rs.evidence_class())
+	rs.plates[1].included = true
+	check(not Judgment.grade(rs, "hopeful", "measured").clean, "including an unusable plate is not a clean selection")
+	rs.plates[0].included = false
+	rs.plates[1].included = false
+	check(not Judgment.grade(rs, "none", "nostars").reason_ok, "'no stars' is not accepted when a usable plate exists")
+
 	# Every telegram × reason × evidence combination produces text.
 	for t in Judgment.TELEGRAMS:
 		for r in Judgment.REASONS:
