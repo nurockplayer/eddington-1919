@@ -21,6 +21,7 @@ var _room_draw_calls := 0
 var _input_retries := 0
 var _speaker_watched := false
 var _speaker_shots: Dictionary = {}
+var _choice_shots: Dictionary = {}
 
 
 func _ready() -> void:
@@ -248,6 +249,14 @@ func talk(choices: Array = []) -> void:
 		guard -= 1
 		var entry: Dictionary = main.ui._seq[main.ui._seq_i]
 		if entry.has("choices"):
+			await frames(3)
+			if main.ui.dialog_panel.get_global_rect().end.y > get_viewport().get_visible_rect().end.y + 1.0:
+				failures.append("dialogue choices extend below the viewport")
+			var choice_label: String = main.Beat.keys()[main.beat].to_lower() + "_" + str(main._pending)
+			if not _choice_shots.has(choice_label):
+				_choice_shots[choice_label] = true
+				await _wait_for_camera_settle()
+				await shot("choice_" + choice_label)
 			var choice: int = int(choices[index]) if index < choices.size() else 0
 			index += 1
 			await tap(KEY_1 + choice)
@@ -300,6 +309,13 @@ func _run() -> void:
 	await shot("01b_log")
 	await tap(KEY_TAB)
 	await talk()
+	if scenario == "honest":
+		await walk(Vector3(2.7, 0, 1.7))
+		await interact("kit")
+		await _wait_for_camera_settle()
+		await shot("close_kit")
+		await talk()
+		await walk(Vector3(0, 0, 2.35))
 	await look(main.world.targets.lightbox)
 	await shot("investigate_room")
 	await look(Vector3(0, 1.4, 3.1))

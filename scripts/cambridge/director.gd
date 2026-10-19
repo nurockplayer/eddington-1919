@@ -215,8 +215,11 @@ func _frame_speaker(speaker: String) -> void:
 		_camera_turn.kill()
 	var to_actor: Vector3 = actor.global_position - player.global_position
 	actor.rotation.y = atan2(-to_actor.x, -to_actor.z) + PI
-	# Aim below the face so both the face and the figure fit above the dialogue.
-	var target := actor.global_position + Vector3(0, 0.85, 0)
+	# Show the standing figure at conversation distance; keep the face in frame
+	# when a player talks from close to the actor's collision capsule.
+	var distance: float = Vector2(to_actor.x, to_actor.z).length()
+	var focus_height := lerpf(1.5, 0.85, smoothstep(1.0, 2.5, distance))
+	var target := actor.global_position + Vector3(0, focus_height, 0)
 	var direction: Vector3 = target - player.camera.global_position
 	var yaw: float = player.yaw + wrapf(atan2(-direction.x, -direction.z) - player.yaw, -PI, PI)
 	var pitch := atan2(direction.y, Vector2(direction.x, direction.z).length())

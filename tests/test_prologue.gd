@@ -8,6 +8,7 @@ const ReportSheet = preload("res://scripts/cambridge/report_sheet.gd")
 const PlanBoard = preload("res://scripts/cambridge/plan_board.gd")
 const C17 = preload("res://scripts/cambridge/content_1917.gd")
 const UI = preload("res://scripts/ui.gd")
+const Room = preload("res://scripts/cambridge/room_builder.gd")
 
 var failures := 0
 var checks := 0
@@ -295,6 +296,17 @@ func _test_dialogue_history() -> void:
 	ui._choose(1)
 	check(speakers == ["Ashby", "Kit", "Eddington"], "dialogue_entry reports each displayed speaker across a selected choice branch")
 	ui._advance()
+	# The authored three-choice trial must grow upward from the Cambridge bottom edge.
+	ui.dialog_panel.offset_top = -214
+	ui.dialog_panel.offset_bottom = -18
+	ui.dialog_panel.custom_minimum_size.y = 196
+	ui.play([C17.trial_task()[3]])
+	for _i in 4:
+		await process_frame
+	var within_view: bool = ui.dialog_panel.get_global_rect().end.y <= root.get_visible_rect().end.y
+	for button in ui._choice_buttons:
+		within_view = within_view and button.get_global_rect().end.y <= root.get_visible_rect().end.y
+	check(within_view, "authored three-choice dialogue and all buttons stay above the viewport bottom")
 	ui.queue_free()
 	await process_frame
 	check(not is_instance_valid(ui), "dialogue UI queue_free releases its controls")
@@ -325,8 +337,24 @@ func _test_viewer_hint_progress() -> void:
 	await process_frame
 
 
+func _test_room_north_boundary() -> void:
+	var room := Node3D.new()
+	root.add_child(room)
+	Room.build(room)
+	await physics_frame
+	await physics_frame
+	# Standing-height rays must hit the wall beside the sash and curtain.
+	# The original left pier ended at x=-2.5 while the sill began at -1.45.
+	for x in [-2.4, -2.0, -1.6]:
+		var query := PhysicsRayQueryParameters3D.create(Vector3(x, 0.9, -2.65), Vector3(x, 0.9, -3.3))
+		var hit := room.get_world_3d().direct_space_state.intersect_ray(query)
+		check(not hit.is_empty(), "north wall stops a player at x=%.1f beside the window" % x)
+	room.free()
+
+
 func _run() -> void:
 	await process_frame
+	await _test_room_north_boundary()
 	_test_overlay_math()
 	_test_report_gating()
 	_test_plan_rules()

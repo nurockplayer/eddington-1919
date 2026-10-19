@@ -26,15 +26,27 @@ The baseline is an actual honest run from unmodified `6318681`, not a reference 
 
 Additional evidence: `honest_interlude_room.png` (grey window, lamp off), `honest_investigate_door.png`, `honest_08_report.png`, `honest_05_aligned.png`, and `honest_speaker_<beat>_<actor>.png` in the after directory. The 1280×720 run is under `/tmp/m1p-720/`, including the report and plan.
 
+## Follow-up defects reproduced and repaired
+
+A standing-height physics audit found the left north-wall pier ended at x=-2.5 while the sill began at -1.45, leaving a player-width gap. Three boundary regressions fail before the repair and pass after extending the pier and its plaster facing. A layout regression also proves the authored three-choice trial extended below the viewport; the dialogue panel now grows upward from its bottom edge. Speaker focus rises at close range so a nearby conversation keeps the face visible. Native input captures now include choice layouts and a close Kit conversation.
+
+The first Oracle/Ego-lite review returned "No blocking findings" on `e34f7b6`, but explicitly could not independently verify containment or every dynamic choice layout. These follow-up checks supplement those limits; the repaired candidate receives a separate exact-commit review. Receipts: `/tmp/m1p-oracle-e34-review.txt` and `/tmp/m1p-oracle-final-review.txt` (the latter is written after the repair commit).
+
 ## Validation
 
-The final frozen-source import and logic runs pass: simulation 155 checks / 0 failures; prologue 178 checks / 0 failures. The final honest route reaches PREP with 17 matches, bias blocked, 41 captures and no failures. One input retry was needed and succeeded through the normal click path. The free-investigation draw-call sample was 114 maximum versus 122 in the unmodified baseline. This is not an FPS or performance-regression claim.
+Godot 4.7.2 stable (`ed1daf0bf`), Metal Forward+ on Apple M2 Pro. Final frozen-source import succeeds; simulation 155 checks / 0 failures; prologue 182 checks / 0 failures. The four added checks cover three north-wall rays and the authored three-choice dialogue bounds, with RED and GREEN logs retained under `/tmp`.
 
-Implementation-engineer visual readback: opening/mentor/exam/trial/coda have visible full speaking figures in the staged route; room planes, shelves, hearth and corridor door are readable. The daylight establishing capture shows a grey window and unlit lamp. Both evidence layers remain distinct and bright, and selection marks/borders remain visible on the paper forms. The renewed 1280×720 run also reaches PREP with 41 valid captures and no failures; its report, board, and standing figures were inspected at native capture size. All four prologue receipts have exactly 17 matches and the bias gate blocked. The accuse receipt confirms report revision. Príncipe careful reaches ENDING, `favors_e`, score 4, stuck 0; the new-sky restart returns to a visible title with a different seed.
+| Native run | Result | Valid PNGs |
+|---|---|---|
+| honest | PREP, 17 matches, bias blocked, no failures; includes close Kit and choice captures | 49 |
+| accuse | PREP, 17 matches, report revised, bias blocked, no failures | 50 |
+| tidy | PREP, 17 matches, bias blocked, no failures | 48 |
+| honest at 1280×720 | PREP, 17 matches, bias blocked, no failures | 49 |
+| careful at speed 2 | ENDING, favors_e, score 4, stuck 0; new-sky restart shows the title with a different seed | ending and restart captured |
 
-Full logs: `/tmp/m1p-import.log`, `/tmp/m1p-test-sim.log`, `/tmp/m1p-test-prologue.log`, `/tmp/m1p-honest.log`, `/tmp/m1p-accuse.log`, `/tmp/m1p-tidy.log`, `/tmp/m1p-careful.log`, `/tmp/m1p-720.log`.
+All 196 prologue capture files decode at the expected native resolution. The after captures were inspected beat by beat, including the grey window with lamp off, paper forms at both resolutions, choice buttons, and close conversation. Observed free-investigation draw-call maxima are 114–124; the original baseline sample was 122. The new route adds a close conversation and different camera views, so this is a budget observation, not a controlled performance comparison or FPS claim.
 
-Final command tails (ANSI removed):
+Full logs are `/tmp/m1p-{import,test-sim,test-prologue,honest,accuse,tidy,careful,720}.log`. Exact command tails (ANSI removed):
 
 ```text
 import:
@@ -48,35 +60,37 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 test-prologue:
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
-178 checks, 0 failures
+182 checks, 0 failures
 
 honest:
 [PROLOGUE INPUT] click 　　量之前先寫下：什麼樣的底片不能用 [P: (120.0, 388.5), S: (674.0, 125.0)] attempt=1
 [PROLOGUE INPUT] click 完成計畫 [P: (746.0, 794.5), S: (108.0, 47.0)] attempt=1
-[PROLOGUE honest] PREP matched=17 bias_blocked=true screenshots=41 failures=[]
+[PROLOGUE honest] PREP matched=17 bias_blocked=true screenshots=49 failures=[]
 
 accuse:
 [PROLOGUE INPUT] click 　　量之前先寫下：什麼樣的底片不能用 [P: (120.0, 388.5), S: (674.0, 125.0)] attempt=1
 [PROLOGUE INPUT] click 完成計畫 [P: (746.0, 794.5), S: (108.0, 47.0)] attempt=1
-[PROLOGUE accuse] PREP matched=17 bias_blocked=true screenshots=43 failures=[]
+[PROLOGUE accuse] PREP matched=17 bias_blocked=true screenshots=50 failures=[]
 
 tidy:
-[PROLOGUE INPUT] click 　　量之前先寫下：什麼樣的底片不能用 [P: (120.0, 388.5), S: (674.0, 125.0)] attempt=1
-[PROLOGUE INPUT] click 完成計畫 [P: (746.0, 794.5), S: (108.0, 47.0)] attempt=1
-[PROLOGUE tidy] PREP matched=17 bias_blocked=true screenshots=41 failures=[]
+[PROLOGUE tidy] PREP matched=17 bias_blocked=true screenshots=48 failures=[]
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
 
 careful:
 [BOT careful] DONE ending=雲層之後的希望 evidence=favors_e score=4 stuck=0
-[BOT careful] restart run 2: seed 93801 (first run seed 18643) title_visible=true
+[BOT careful] restart run 2: seed 76766 (first run seed 88446) title_visible=true
 [BOT careful] shot 11_after_restart
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
 
 720:
 [PROLOGUE INPUT] click 　　量之前先寫下：什麼樣的底片不能用 [P: (120.0, 388.5), S: (674.0, 125.0)] attempt=1
 [PROLOGUE INPUT] click 完成計畫 [P: (746.0, 794.5), S: (108.0, 47.0)] attempt=1
-[PROLOGUE honest] PREP matched=17 bias_blocked=true screenshots=41 failures=[]
+[PROLOGUE honest] PREP matched=17 bias_blocked=true screenshots=49 failures=[]
 ```
 
-The final logs contain no Godot script errors or engine warnings. Native macOS launches print an IMK mach-port notice, also present in the baseline.
+No final run logged a Godot script error. Some exit paths logged `2 ObjectDB instances were leaked at exit`; the unmodified baseline also emitted that warning. This is not diagnosed here as a runtime leak. Native macOS launches also print the baseline IMK mach-port notice.
 
 ## Limits
 

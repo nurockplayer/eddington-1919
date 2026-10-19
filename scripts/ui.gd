@@ -263,6 +263,8 @@ func show_caption(text: String, seconds := 3.0) -> Tween:
 
 func _build_dialog(root: Control) -> void:
 	dialog_panel = PanelContainer.new()
+	# Keep long authored choices on screen as the panel grows from its bottom edge.
+	dialog_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	dialog_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.07, 0.06, 0.05, 0.9), Color(0.5, 0.4, 0.26)))
 	dialog_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	dialog_panel.position = Vector2(-560, -300)

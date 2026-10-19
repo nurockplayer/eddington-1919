@@ -28,7 +28,8 @@ static func build(root: Node3D) -> Dictionary:
 	w.box(Vector3(0.14, ROOM_H, ROOM_D), Vector3(-4.43, 1.8, 0), dark_wood)
 	w.box(Vector3(0.14, ROOM_H, ROOM_D), Vector3(4.43, 1.8, 0), dark_wood)
 	# North wall is framed around the sash opening, so the cold pane remains visible.
-	w.box(Vector3(2.0, ROOM_H, 0.14), Vector3(-3.5, 1.8, -2.93), dark_wood)
+	# The left pier meets the sash; leaving it at x=-2.5 opened a player-width gap.
+	w.box(Vector3(3.1, ROOM_H, 0.14), Vector3(-2.95, 1.8, -2.93), dark_wood)
 	w.box(Vector3(2.0, ROOM_H, 0.14), Vector3(3.5, 1.8, -2.93), dark_wood)
 	w.box(Vector3(4.0, 1.05, 0.14), Vector3(0.55, 0.525, -2.93), dark_wood)
 	w.box(Vector3(4.0, 0.575, 0.14), Vector3(0.55, 3.3125, -2.93), dark_wood)
@@ -61,7 +62,9 @@ static func build(root: Node3D) -> Dictionary:
 	for x in [-4.34, 4.34]:
 		w.box(Vector3(0.025, 2.15, 5.8), Vector3(x, 2.375, 0), plaster, null, false)
 	for x in [-3.5, 3.5]:
-		w.box(Vector3(1.85, 2.15, 0.025), Vector3(x, 2.375, -2.84), plaster, null, false)
+		var north_width := 3.0 if x < 0 else 1.85
+		var north_center := -2.95 if x < 0 else 3.5
+		w.box(Vector3(north_width, 2.15, 0.025), Vector3(north_center, 2.375, -2.84), plaster, null, false)
 		w.box(Vector3(3.7, 2.15, 0.025), Vector3(x * 0.743, 2.375, 2.84), plaster, null, false)
 	# Door jambs and skirting keep the corridor legible in the south wall.
 	for x in [-0.75, 0.75]:
