@@ -1,8 +1,19 @@
 # M1 Cambridge prologue — engineering verification
 
-Local candidate on `m1/cambridge-prologue`; Godot **4.7.2.stable.official.ed1daf0bf**, Apple M2 Pro, Metal Forward+.
-Gameplay commits: `4b21f88` (implementation), `847af08` (evidence lighting, camera framing and modal clue feedback).
-All required commands below exited 0. No push, branch change, merge, or human playtest was performed.
+**Current status (round 3, `4831a61` + Director content `8b1f2de`).** The sections below "Results" are the
+round-1 receipt (`847af08`), kept for history. Current numbers from Sol's round-3 run (all exit 0):
+
+| Check | Result |
+|---|---|
+| `test_sim.gd` | 155 checks, 0 failures |
+| `test_prologue.gd` | 267 checks, 0 failures |
+| `test_report_review.gd` (all 320 report × state combinations produce a valid mentor review) | 649 checks, 0 failures |
+| `test_overlay_hits.gd` (clue hit areas cover rendered arrows/labels) | 56 checks, 0 failures |
+| `test_plaster_material.gd` | PASS |
+| Prologue routes honest / tidy / accuse (real input, windowed) | all reach 1919 PREP, 17 matches, bias card blocked, 0 failures |
+| careful autoplay after prologue changes | ending 雲層之後的希望, favors_e, score 4, stuck 0 |
+
+Merged-`main` verification is recorded in Issue #1 and HANDOFF, not here. **No human has played the prologue.**
 
 ## Run and reproduce
 
@@ -30,7 +41,7 @@ In Cambridge: WASD/mouse, E to interact; overlay drag/flip/Q/E/rotation buttons;
 | `scripts/cambridge/room_builder.gd` | Procedural room using WorldBuilder helpers/NPCs, no indoor hats, graded warm lamp/cold window lighting, rain streak MultiMesh, enclosed corridor. |
 | `scripts/cambridge/overlay_math.gd`, `overlay_viewer.gd` | Real one-to-one geometric matching, mirrored tracing, dragging/rotation/snap, difference arrows, clue details, unresolved loupe and inactivity hint ladder. |
 | `scripts/cambridge/report_sheet.gd`, `plan_board.gd` | Data-gated report choices, four plan slots, eight cards, character reactions and bias-card reconsideration. |
-| `scripts/cambridge/cast.gd`, `content_1917.gd` | Replaceable role constants and all documented stub signatures/data shapes. Every temporary content line uses `［暫］`. |
+| `scripts/cambridge/cast.gd`, `content_1917.gd` | Replaceable role constants and all documented stub signatures/data shapes. Dialogue written by the Director (8b1f2de); names are placeholders. |
 | `scripts/story.gd`, `project.godot` | Data-only Story autoload; original main scene retained. |
 | `scripts/main.gd`, `ui.gd`, `content.gd` | First prologue button, original start button preserved, shared last-60-line Tab history, PREP bridge and two 1919 continuity hooks. |
 | `tests/test_prologue.gd`, `prologue_bot.gd` | Headless contract/mechanics checks and real-input end-to-end driver. Existing tests/autoplay files remain unchanged. |
@@ -105,4 +116,6 @@ The macOS ZIP is `60768581` bytes, SHA-256 `0edc0c400695632bb7e4008d0c4d8b3ccce8
 
 Bounded Luna workers implemented room, overlay, and content/sheets/headless tests; the lead integrated and ran all listed commands. A fresh read-only GPT-6 Sol reviewer found and rechecked fixes for provenance, report wording, report revision automation, and evidence/window contrast, then issued PASS for the inspected code/visual paths. Oracle with Ego-lite was unavailable; no Oracle review is claimed.
 
-This is an engineering milestone with deliberately short temporary dialogue and primitive NPCs. The director still needs to replace the content stub, check final historical sources, and conduct a newcomer/human playtest. The 12–18 minute experience and the four player-understanding statements remain acceptance targets, not measured results. No childhood keepsake or microimage was introduced, and the residual remains unresolved. No known engineering requirement from the M1 spec is intentionally left unimplemented.
+Round-3 review: an independent gpt-6-astra review of `6318681` found 4 P1 and 3 P2 defects. All were addressed in `8b1f2de` (content) and `4831a61` (code), with regression tests named above. The delta re-review result is in the PR.
+
+Remaining gates: a newcomer/human playtest ([PLAYTEST_NEWCOMER](PLAYTEST_NEWCOMER.md)). The 12–18 minute experience and the four player-understanding statements are acceptance targets, not measured results. Figures are primitive. No childhood keepsake or microimage was introduced, and the residual stays unresolved by design.

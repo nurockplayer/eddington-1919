@@ -1,16 +1,35 @@
 # Game Director Handoff
 
-## M1 engineering candidate | 2026-10-20
+## Director sprint status — M1 Cambridge 1917 prologue | 2026-10-20 JST (Opus 5.5)
 
-Implementation branch `m1/cambridge-prologue` in the assigned `m1-sol` worktree. This is a local engineering candidate; no push, merge or production-main verification is claimed.
+**State:** M1 is playable on branch `m1/cambridge-prologue` and goes to `main` via PR. It is the first part of the 72-hour Director sprint (Issue #1). The last good `main` before M1 is `e55417d`, which includes PR #8: the bot drive and hold at low FPS.
 
-- Entry: `godot --path .`, choose the first prologue button. Existing 1919 `ui.start_btn`, main scene, benchmark and grading remain in place.
-- Files: `scenes/cambridge.tscn`, `scripts/cambridge/{director,room_builder,overlay_math,overlay_viewer,report_sheet,plan_board,cast,content_1917}.gd`, data-only `Story` autoload, shared UI history and two Príncipe continuity hooks.
-- Content handoff: replace `content_1917.gd` wholesale using its documented signatures and row/card/state data contracts. All current content is explicitly temporary. Replaceable role names stay in `cast.gd`. Optional mentor-review `revise_report` choice 0 reopens the report; absent/1 continues.
-- Automated entry: `--prologue-autoplay=honest|tidy|accuse --shots=DIR`. Uses actual input events, world movement, dialogue and modal controls; scene changes and Story readback are included in its JSON receipt. Test scripts remain excluded from export.
-- New 1917 fiction/reconstruction boundaries are recorded in `PROVENANCE.md`. Historical source rechecking and final narrative belong to the director. No human playtest, newcomer understanding or 12–18 minute pacing result is claimed.
-- Bounded implementation support: GPT-6 Luna workers for room, geometry/viewer, and sheets/content/tests. Fresh Sol code review substitutes for unavailable Oracle/Ego-lite review tooling; no Oracle review is claimed.
-- Verification details and receipts: see `M1_VERIFICATION.md`.
+- **Play:** `godot --path .` → 「序章　劍橋，1917」 (about 12–18 min, target; not measured with a human). It flows into the unchanged 1919 slice. 「普林西比，1919」 still starts the slice directly.
+- **What the player does:**
+  - Find why a 1915 tracing does not match its plate: it was mirrored and rotated. One residual stays honestly unresolved.
+  - Have Kit check independently.
+  - Write a report: the "fraud" option is offered and challenged; revision is always possible.
+  - Hear Dyson's 1917 proposal and answer Eddington's two questions.
+  - Build a fair test plan: core / helpful / bias cards.
+  - Take on the trial task (the Hyades list), then Kit's evening coda (the childhood star-map echo) and a tagged history/fiction montage.
+- **Ownership:**
+  - Dialogue: Director, `scripts/cambridge/content_1917.gd`.
+  - Names are placeholders in `cast.gd` (Kit, Ashby 先生).
+  - Code: gpt-6.1-sol in 3 rounds.
+  - Review: gpt-6-astra (independent, read-only). astra-6-gps was not accessible; nothing is claimed for it.
+- **History/fiction:** see the M1 table in [PROVENANCE](PROVENANCE.md) and the "Fact-check applied" section of [the M1 spec](design/M1_CAMBRIDGE_PROLOGUE.md).
+- **Tests:** see [M1_VERIFICATION](M1_VERIFICATION.md).
+- **Automated routes:** `--prologue-autoplay=honest|tidy|accuse --shots=DIR`.
+- **Not done / open:**
+  - No human playtest yet. Run [PLAYTEST_NEWCOMER](PLAYTEST_NEWCOMER.md) and post the results to Issue #1. This is the most valuable next input.
+  - The childhood keepsake/microimage is untouched. Its canon is open and must not be invented.
+  - Figures are primitive. MPFB people still need the Owner's OK.
+- **Next milestone:** M2, the departure interlude (March 1919). The spec and implementation contract are in [M2_DEPARTURE](design/M2_DEPARTURE.md), with Director dialogue drafted. Build it after M1 is merged and played.
+- **Resume recipe:**
+  - Worktrees live under `~/Developer/eddington-1919-wt/`.
+  - Codex runs with `codex exec -m <model> --dangerously-bypass-approvals-and-sandbox -C <wt> -o <out> "<prompt>" < /dev/null`, in at most 3 parallel jobs.
+  - Windowed Godot runs need `--always-on-top`.
+  - There is no `timeout` command on this Mac.
 
 ## Current production handoff | 2026-10-20 JST
 
