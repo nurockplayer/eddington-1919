@@ -161,7 +161,7 @@ static func report_rows() -> Array:
 			{"id": "new_object", "text": "寫上「可能是新天體」"},
 		]},
 		{"id": "kit_credited", "text": "複核", "options": [
-			{"id": "credited", "text": "註明：%s獨立複核過一次" % K, "needs": ["kit_checked"]},
+			{"id": "credited", "text": "註明：%s 獨立複核過一次" % K, "needs": ["kit_checked"]},
 		]},
 	]
 
@@ -440,15 +440,13 @@ static func kit_coda(report: Dictionary, state: Dictionary) -> Array:
 	]
 
 
-## Captions over black between 1917 and 1919. tag: HISTORICAL or FICTION.
+## Captions over black between 1917 and the M2 departure night (1918 bridge). The tail into
+## Príncipe lives in content_departure.gd montage(). tag: HISTORICAL or FICTION.
 static func montage() -> Array:
 	return [
 		{"t": "1917 年 11 月 10 日，聯合常設日食委員會決定：如果可能，派隊到巴西的 Sobral 和非洲西岸外海的普林西比島。", "tag": "HISTORICAL"},
 		{"t": "你的清單交了出去。後來又交了兩份。", "tag": "FICTION"},
 		{"t": "1918 年 11 月，停戰。", "tag": "HISTORICAL"},
-		{"t": "1919 年 3 月，兩支隊伍從英國出發。", "tag": "HISTORICAL"},
-		{"t": "歷史上，普林西比的觀測者是 Eddington 與 Cottingham 兩人。你和他們同行——這是虛構的。", "tag": "FICTION"},
-		{"t": "1919 年 5 月 29 日・普林西比", "tag": "HISTORICAL"},
 	]
 
 
