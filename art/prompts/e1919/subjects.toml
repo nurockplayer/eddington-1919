@@ -85,3 +85,47 @@ planed pine boards with visible plank seams, darker battens across the ends, \
 simple iron corner straps and rope handles, lid nailed shut. No lettering. \
 Three-quarter view from slightly above, centered, whole object visible, \
 plain neutral light-grey studio background, soft even lighting."""
+
+# r04: shelter + tube + foliage kit. Dimensions come from the gameplay layout in
+# scripts/world_builder.gd (_shelter_and_instrument, _vegetation); RECONSTRUCTION.
+
+[sun_shelter]
+version = "v1"
+kind = "asset"
+text = """
+A single object, a 1919 open-sided field sun-shelter for a telescope, no walls. \
+Parts, bottom to top: four round weathered teak posts about 14 cm thick and 2.9 m tall \
+on a rectangle 4.6 m wide and 6.3 m long; a squared timber tie beam joining the post tops \
+on every side, the rear beam heavier; a taut bleached canvas roof, 5.2 m by 7 m, almost flat \
+with a gentle slope, lashed to the beams with ropes; a short canvas valance hanging \
+35 cm down along the front edge; at the rear beam a loose roll of spare canvas tied with rope, \
+where the roof is rolled back to open the sky. Empty floor of red earth. \
+Three-quarter view from slightly above, centered, whole object visible, \
+plain neutral light-grey studio background, soft even lighting, no cast shadows on the background."""
+
+[horizontal_tube]
+version = "v1"
+kind = "asset"
+text = """
+A single object, a 1919 horizontal eclipse telescope with no mount and no eyepiece: \
+a long straight square-section tube of dark painted sheet iron with riveted bands, \
+46 cm by 46 cm and 3.5 m long, lying level at 1.35 m height on two plain timber trestles \
+(A-frame legs, 70 cm wide, 1.1 m tall) placed under the front and rear thirds. \
+At the far end a round brass lens cell 50 cm across and 14 cm deep holds the object glass. \
+At the near end a square dark teak plate-carrier box 60 by 60 cm and 18 cm deep, \
+with a slot on its side for wooden plate holders. \
+Side three-quarter view from slightly above, centered, whole object visible, \
+plain neutral light-grey studio background, soft even lighting, no cast shadows on the background."""
+
+[foliage_kit]
+version = "v1"
+kind = "asset"
+text = """
+An asset sheet of two separate low-poly tropical plants side by side for a game kit: \
+left, a rounded young cocoa shrub about 2 m tall, a short brown trunk and a few chunky \
+faceted clumps of large dark olive leaves; right, a banana clump about 2.8 m tall, \
+three short green pseudo-stems with six long broad paddle leaves arching outward, \
+a few torn edges suggested by the faceted shape only. Very few polygons, large flat facets, \
+two greens only (deep olive and light olive), brown stems. \
+Side view, centered, both plants fully visible, plain neutral light-grey studio background, \
+soft even lighting, no cast shadows on the background."""

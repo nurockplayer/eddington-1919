@@ -1,0 +1,124 @@
+{
+  "asset": "sun_shelter",
+  "file": "assets/models/sun_shelter.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 1480,
+      "max": 3000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_canvas",
+        "E1919_pine",
+        "E1919_teak",
+        "E1919_teak_dark"
+      ],
+      "max": 4,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        5.4,
+        7.0,
+        3.44
+      ],
+      "target": [
+        5.4,
+        7.0,
+        3.43
+      ],
+      "tolerance": 0.08,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "sun_shelter": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "sun_shelter_roll": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "sun_shelter_roof": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "sun_shelter",
+        "sun_shelter_roll",
+        "sun_shelter_roof"
+      ],
+      "ok": true
+    }
+  }
+}

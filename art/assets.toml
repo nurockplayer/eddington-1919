@@ -35,3 +35,69 @@ max_materials = 3               # pine, teak_dark battens, iron straps
 max_texture_px = 512
 history = "RECONSTRUCTION: generic period wooden packing case; stencil text is added in-engine (Label3D) so it stays editable."
 status = "in-game"
+
+# r04 foliage kit: replaces the 70 default SphereMesh shrubs (G4 attribution run
+# art/validation/g4-r04-noshrubs: they were 55–81% of all primitives per bookmark).
+# Drawn with MultiMeshInstance3D in world_builder.gd, scaled 0.8–1.8 per instance,
+# so the budget is per instance and deliberately far below kit_prop's 600.
+[asset.shrub_cocoa]
+category = "kit_prop"
+source = "blender_procedural"   # tripo when TRIPO_API_KEY is available (organic, BIBLE §3)
+build = "art/pipeline/blender/build_foliage.py"
+export = "assets/models/shrub_cocoa.glb"
+concept = "art/runs/r04-shelter-foliage/foliage_kit-E-gpt-1.jpg"
+dims_m = [2.0, 2.0, 1.6]
+dims_tolerance = 0.15
+tri_budget = 300
+max_materials = 3               # foliage_deep, foliage_light, teak_dark (trunk)
+max_texture_px = 0
+history = "RECONSTRUCTION: generic young cocoa / undergrowth shrub around a Príncipe roça clearing."
+status = "in-game"
+
+[asset.banana_clump]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_foliage.py"
+export = "assets/models/banana_clump.glb"
+concept = "art/runs/r04-shelter-foliage/foliage_kit-E-gpt-1.jpg"
+dims_m = [2.6, 2.6, 2.6]   # r04: v2 leaves arch outward; measured 2.76 × 2.44 × 2.48
+dims_tolerance = 0.15
+tri_budget = 300
+max_materials = 2               # foliage_deep, foliage_light
+max_texture_px = 0
+history = "RECONSTRUCTION: banana clumps are typical shade plants on São Tomé and Príncipe cocoa roças."
+status = "in-game"
+
+# r04 shelter + tube. Layout from scripts/world_builder.gd _shelter_and_instrument:
+# both models are placed at (0, 0, -3.75) in Godot (centre of the post rectangle /
+# centre of the tube). Colliders and interaction hotspots stay in code (BIBLE §6).
+[asset.sun_shelter]
+category = "architecture"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_shelter_tube.py"
+export = "assets/models/sun_shelter.glb"
+concept = "art/runs/r04-shelter-foliage/sun_shelter-E-gpt-2.jpg"
+dims_m = [5.4, 7.0, 3.43]
+dims_tolerance = 0.08
+# Three objects, all with origin at (0,0,0): sun_shelter (posts, beams; static),
+# sun_shelter_roof (canvas + valance; hidden at totality, the game's `roof` node),
+# sun_shelter_roll (the rolled-back canvas; shown only while the roof is hidden).
+tri_budget = 3000
+max_materials = 4               # teak posts, teak_dark beams, canvas, pine rope
+max_texture_px = 0
+history = "RECONSTRUCTION: no in-situ photograph of the Príncipe station is known (docs/PROVENANCE.md); open timber shelter with a canvas roof rolled back before totality."
+status = "in-game"
+
+[asset.horizontal_tube]
+category = "hero_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_shelter_tube.py"
+export = "assets/models/horizontal_tube.glb"
+concept = "art/runs/r04-shelter-foliage/horizontal_tube-E-gpt-1.jpg"
+dims_m = [0.77, 3.81, 1.60]
+dims_tolerance = 0.08
+tri_budget = 6000
+max_materials = 5               # iron tube, brass cell, ebonite object-glass face, teak trestles, teak_dark carrier
+max_texture_px = 0
+history = "RECONSTRUCTION: horizontal tube fed by the coelostat, with the Oxford astrographic object glass (13 in, stopped to 8 in; HISTORICAL_RECORD, docs/PROVENANCE.md); tube construction, trestles and carrier are invented."
+status = "in-game"

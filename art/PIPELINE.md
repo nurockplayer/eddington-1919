@@ -86,12 +86,16 @@ godot --path . --always-on-top res://scenes/lookdev.tscn -- --capture=$PWD/art/v
 # G4 in-game benchmark: 7 bookmarks × game lighting states + render stats (fixed seed)
 godot --path . --always-on-top -- --benchmark=$PWD/art/validation/g4-<label> --seed=7
 python3 art/pipeline/compare.py art/validation/g4-baseline-v0.1 art/validation/g4-<label> --out art/validation/g4-<label>/compare.jpg
+# Cost attribution: hide scene groups (veg_shrub, veg_palm, ...) and compare two runs
+godot --path . --always-on-top -- --benchmark=$PWD/art/validation/g4-<label>-noX --seed=7 --bench-hide=veg_shrub
 # Gameplay must be unchanged
 godot --headless --path . --script res://tests/test_sim.gd
 godot --path . --always-on-top -- --autoplay=careful --shots=/tmp/e1919 --speed=2
 ```
 
 `--always-on-top` is required on macOS; a hidden window never finishes drawing.
+
+Lookdev frames prop-sized rows with fixed cameras. Bigger rows, such as architecture, pull the cameras back automatically (`frame_scale` in `lookdev.json`). Capture architecture and props separately, e.g. `--assets=sun_shelter` and then `--assets=horizontal_tube`.
 
 **G3 passes when:**
 - the measured dimensions in `lookdev.json` match the spec
