@@ -172,6 +172,15 @@ func _test_report_ui() -> void:
 	var accuse: Button = sheet.option_buttons["cause/accuse"]
 	accuse.button_pressed = true
 	accuse.pressed.emit()
+	check(accuse.text.begins_with("✓"), "selected report option has a visible check mark")
+	var accuse_style := accuse.get_theme_stylebox("pressed") as StyleBoxFlat
+	check(accuse_style != null and accuse_style.border_width_left >= 2, "selected report option has a strong paper border")
+	var unknown: Button = sheet.option_buttons["cause/unknown"]
+	unknown.button_pressed = true
+	unknown.pressed.emit()
+	check(unknown.text.begins_with("✓") and not accuse.text.begins_with("✓"), "report mark follows the active choice when selection changes")
+	accuse.button_pressed = true
+	accuse.pressed.emit()
 	var emissions: Array = []
 	sheet.submitted.connect(func(report: Dictionary): emissions.append({"report": report, "hidden": not sheet.visible}))
 	sheet.submit_btn.pressed.emit()
@@ -210,14 +219,21 @@ func _test_plan_ui() -> void:
 		button.button_pressed = true
 		button.pressed.emit()
 	check(board.selected.size() == 3 and reactions.size() == 3, "selecting plan cards fills slots and emits reactions (selected=%d reactions=%d)" % [board.selected.size(), reactions.size()])
+	var discard: Button = board.card_buttons["keep_agreeing"]
+	var selected_style := discard.get_theme_stylebox("pressed") as StyleBoxFlat
+	check(discard.text.begins_with("✓") and selected_style != null and selected_style.border_width_left >= 3, "selected plan card has a visible check mark and heavy border")
+	var slot_one := board.find_child("PlanSlot1", true, false) as Label
+	var slot_three := board.find_child("PlanSlot3", true, false) as Label
+	check(slot_one != null and slot_one.text.contains("比對片") and slot_three != null and slot_three.text.contains("只留下"), "plan slots show selected card text in order")
 	board.finish_btn.pressed.emit()
 	check(blocked_events.size() == 1 and finished_events.is_empty(), "biased plan emits blocked and does not finish")
-	var discard: Button = board.card_buttons["keep_agreeing"]
 	discard.button_pressed = false
 	discard.pressed.emit()
+	check(not discard.text.begins_with("✓"), "deselected plan card loses its selection mark")
 	var helpful: Button = board.card_buttons["conditions"]
 	helpful.button_pressed = true
 	helpful.pressed.emit()
+	check(helpful.text.begins_with("✓") and slot_three.text.contains("狀況"), "replacement plan card gains its mark and replaces the numbered slot text")
 	board.finish_btn.pressed.emit()
 	check(finished_events.size() == 1 and finished_events[0].size() == 3, "removing bias allows a valid three-card plan to finish")
 	board.queue_free()
@@ -269,6 +285,16 @@ func _test_dialogue_history() -> void:
 	await _send_tab(ui)
 	check(not ui.log_open() and ui._seq_i == 60, "Tab closes populated history without advancing the final dialogue line")
 	ui.history.clear()
+	var speakers: Array[String] = []
+	ui.dialogue_entry.connect(func(speaker: String): speakers.append(speaker))
+	ui.play([
+		{"s": "Ashby", "t": "Opening line."},
+		{"s": "Kit", "t": "A question.", "choices": ["First", "Second"], "then": [[{"s": "Kit", "t": "First branch."}], [{"s": "Eddington", "t": "Second branch."}]]},
+	])
+	ui._advance()
+	ui._choose(1)
+	check(speakers == ["Ashby", "Kit", "Eddington"], "dialogue_entry reports each displayed speaker across a selected choice branch")
+	ui._advance()
 	ui.queue_free()
 	await process_frame
 	check(not is_instance_valid(ui), "dialogue UI queue_free releases its controls")

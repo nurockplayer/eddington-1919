@@ -9,6 +9,7 @@ signal hint_requested
 const MathModel = preload("res://scripts/cambridge/overlay_math.gd")
 const PAPER := Color(0.79, 0.785, 0.75)
 const PAPER_LIGHT := Color(0.88, 0.875, 0.84)
+const GLASS := Color(0.66, 0.74, 0.76)
 const INK := Color(0.10, 0.105, 0.10)
 const GOLD := Color(0.83, 0.67, 0.40)
 const MUTED := Color(0.71, 0.69, 0.63)
@@ -319,14 +320,17 @@ func _draw() -> void:
 	var viewport_size := get_viewport_rect().size
 	draw_rect(Rect2(Vector2.ZERO, viewport_size), Color(0.025, 0.028, 0.031, 0.995), true)
 	var rect := canvas_rect()
-	# A restrained pool of light behind the archival plate keeps the evidence readable.
-	draw_rect(Rect2(rect.position - Vector2(16, 14), rect.size + Vector2(32, 28)), Color(0.12, 0.115, 0.10, 0.92), true)
-	draw_rect(rect, Color(0.36, 0.355, 0.325), true)
-	draw_rect(rect.grow(-8), PAPER, true)
-	for i in 36:
-		var x := rect.position.x + fposmod(float(i * 73 + 31), rect.size.x)
-		var y := rect.position.y + fposmod(float(i * 47 + 19), rect.size.y)
-		draw_circle(Vector2(x, y), 0.65, Color(0.42, 0.405, 0.37, 0.10))
+	# The fixed glass plate has a cool body, raised edge, and a restrained emulsion grain.
+	draw_rect(Rect2(rect.position - Vector2(20, 18), rect.size + Vector2(40, 36)), Color(0.12, 0.115, 0.10, 0.92), true)
+	draw_rect(rect, Color(0.29, 0.37, 0.39), true)
+	draw_rect(rect.grow(-4), Color(0.80, 0.85, 0.84), true)
+	draw_rect(rect.grow(-9), GLASS, true)
+	draw_rect(Rect2(rect.position + Vector2(10, 10), Vector2(rect.size.x - 20, 8)), Color(0.93, 0.96, 0.93, 0.28), true)
+	draw_line(rect.position + Vector2(8, 8), rect.position + Vector2(8, rect.size.y - 8), Color(0.92, 0.95, 0.92, 0.38), 2.0)
+	for i in 72:
+		var x := rect.position.x + 16 + fposmod(float(i * 73 + 31), rect.size.x - 32)
+		var y := rect.position.y + 16 + fposmod(float(i * 47 + 19), rect.size.y - 32)
+		draw_circle(Vector2(x, y), 0.65 if i % 3 else 1.0, Color(0.24, 0.32, 0.34, 0.12))
 	_draw_difference_arrows()
 	_draw_plate_stars()
 	_draw_speck()
@@ -374,8 +378,15 @@ func _draw_copy_layer() -> void:
 	var transformed: Array[Vector2] = []
 	for corner in corners:
 		transformed.append(_point_to_pixel(_copy_point(corner)))
+	var paper_shadow: Array[Vector2] = []
+	for point in transformed:
+		paper_shadow.append(point + Vector2(4, 5))
+	draw_colored_polygon(paper_shadow, Color(0.12, 0.13, 0.12, 0.22))
+	draw_colored_polygon(transformed, Color(0.88, 0.81, 0.67, 0.36))
 	for i in 4:
-		draw_line(transformed[i], transformed[(i + 1) % 4], Color(0.24, 0.22, 0.18, 0.35), 1.1)
+		draw_line(transformed[i], transformed[(i + 1) % 4], Color(0.36, 0.28, 0.18, 0.62), 1.2)
+	# A fine top edge catches the light so the tracing sheet separates from the glass.
+	draw_line(transformed[0], transformed[1], Color(1.0, 0.94, 0.78, 0.52), 1.2)
 	# The tracing paper grid is aligned to its own paper edge.
 	for n in range(-3, 4):
 		var u := float(n) * 0.095
@@ -383,8 +394,8 @@ func _draw_copy_layer() -> void:
 		var b := _point_to_pixel(_copy_point(Vector2(u, 0.34)))
 		var c := _point_to_pixel(_copy_point(Vector2(-0.395, u * 0.86)))
 		var d := _point_to_pixel(_copy_point(Vector2(0.395, u * 0.86)))
-		draw_line(a, b, Color(0.20, 0.25, 0.23, 0.12), 0.8)
-		draw_line(c, d, Color(0.20, 0.25, 0.23, 0.12), 0.8)
+		draw_line(a, b, Color(0.35, 0.27, 0.18, 0.18), 0.8)
+		draw_line(c, d, Color(0.35, 0.27, 0.18, 0.18), 0.8)
 	var copy_stars := MathModel.transformed_copy(flipped, angle_deg, offset)
 	for i in copy_stars.size():
 		var p := _point_to_pixel(copy_stars[i])

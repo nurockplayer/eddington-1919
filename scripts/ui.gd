@@ -2,6 +2,7 @@ extends CanvasLayer
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
 signal dialogue_done(results: Dictionary)
+signal dialogue_entry(speaker: String)
 signal prologue_pressed
 signal log_toggled(open: bool)
 signal start_pressed
@@ -322,6 +323,7 @@ func _show_entry() -> void:
 		b.pressed.connect(_choose.bind(i))
 		choice_box.add_child(b)
 		_choice_buttons.append(b)
+	dialogue_entry.emit(str(e.get("s", "")))
 
 
 func _choose(i: int) -> void:

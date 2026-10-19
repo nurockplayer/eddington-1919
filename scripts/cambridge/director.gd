@@ -27,6 +27,11 @@ var guess_offered := false
 var _pending := ""
 var _busy := true
 var _clock_t := 0.0
+var _light_t := 0.0
+var _daylight := false
+var _camera_turn: Tween
+var _speaker_fill: OmniLight3D
+var _last_speaker := ""
 var tick: AudioStreamPlayer
 var click: AudioStreamPlayer
 
@@ -56,6 +61,20 @@ func _ready() -> void:
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(func(_same): get_tree().paused = false; get_tree().reload_current_scene())
 	ui.dialogue_done.connect(_dialogue_done)
+	ui.dialogue_entry.connect(_frame_speaker)
+	# Cambridge dialogue stays below the standing figures, including at 720p.
+	ui.dialog_panel.offset_top = -214
+	ui.dialog_panel.offset_bottom = -18
+	ui.dialog_panel.custom_minimum_size.y = 196
+	_speaker_fill = OmniLight3D.new()
+	_speaker_fill.name = "DialogueBounce"
+	_speaker_fill.light_color = Color(1.0, 0.86, 0.69)
+	_speaker_fill.omni_range = 4.0
+	_speaker_fill.omni_attenuation = 1.3
+	_speaker_fill.light_specular = 0.0
+	_speaker_fill.shadow_enabled = false
+	_speaker_fill.light_energy = 0.0
+	add_child(_speaker_fill)
 	ui.log_toggled.connect(func(_open): _sync_player())
 	var layer := CanvasLayer.new()
 	layer.layer = 9
@@ -111,6 +130,9 @@ func _sync_player() -> void:
 
 
 func _process(delta: float) -> void:
+	_light_t += delta
+	# Slow overlapping waves: a quiet coal fire, without particles or shadow redraw.
+	world.fire_light.light_energy = (0.48 if _daylight else 1.0) * (1.0 + 0.055 * sin(_light_t * 2.3) + 0.025 * sin(_light_t * 5.7))
 	_clock_t += delta
 	if _clock_t >= 1.0:
 		_clock_t -= 1.0
@@ -178,7 +200,39 @@ func _say(seq: Array, purpose: String) -> void:
 	_sync_player()
 
 
+func _frame_speaker(speaker: String) -> void:
+	var actor: Node3D
+	match speaker:
+		Cast.KIT: actor = world.kit
+		Cast.MENTOR: actor = world.mentor
+		Cast.EDDINGTON: actor = world.eddington
+	if not is_instance_valid(actor) or not actor.visible:
+		return
+	if _last_speaker == speaker and _camera_turn and _camera_turn.is_running():
+		return
+	_last_speaker = speaker
+	if _camera_turn:
+		_camera_turn.kill()
+	var to_actor: Vector3 = actor.global_position - player.global_position
+	actor.rotation.y = atan2(-to_actor.x, -to_actor.z) + PI
+	# Aim below the face so both the face and the figure fit above the dialogue.
+	var target := actor.global_position + Vector3(0, 0.85, 0)
+	var direction: Vector3 = target - player.camera.global_position
+	var yaw: float = player.yaw + wrapf(atan2(-direction.x, -direction.z) - player.yaw, -PI, PI)
+	var pitch := atan2(direction.y, Vector2(direction.x, direction.z).length())
+	_camera_turn = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_camera_turn.tween_property(player, "yaw", yaw, 0.4)
+	_camera_turn.tween_property(player, "pitch", pitch, 0.4)
+	var toward_camera: Vector3 = (player.global_position - actor.global_position).normalized()
+	_speaker_fill.position = actor.global_position + toward_camera * 1.0 + Vector3(0, 1.5, 0)
+	_speaker_fill.light_color = Color(0.78, 0.85, 0.93) if _daylight else Color(1.0, 0.86, 0.69)
+	_speaker_fill.light_energy = 0.85
+
+
 func _dialogue_done(results: Dictionary) -> void:
+	if _camera_turn:
+		_camera_turn.kill()
+	_speaker_fill.light_energy = 0.0
 	var purpose := _pending
 	_pending = ""
 	match purpose:
@@ -242,7 +296,7 @@ func _submit_report(report: Dictionary) -> void:
 	_sync_player()
 	await create_tween().tween_property(world.mentor, "position", destination, 1.2).finished
 	_busy = false
-	player.look_at_point(world.mentor.position + Vector3(0, 1.05, 0))
+
 	_say(C17.mentor_review(Story.report), "mentor_review")
 
 
@@ -251,15 +305,20 @@ func _interlude() -> void:
 	_busy = true
 	_sync_player()
 	await ui.fade_to(1.0).finished
+	_daylight = true
 	world.lamp.light_energy = 0.0
-	world.window_light.light_energy = 1.4
+	world.floor_bounce.light_energy = 1.0
+	world.floor_bounce.light_color = Color(0.73, 0.79, 0.85)
+	world.window_light.light_energy = 2.1
 	world.window_light.light_color = Color(0.72, 0.78, 0.82)
-	world.window_glass.albedo_color = Color(0.22, 0.25, 0.28)
-	world.environment.environment.ambient_light_energy = 0.45
+	world.window_glass.albedo_color = Color(0.42, 0.47, 0.51)
+	world.environment.environment.ambient_light_energy = 0.82
 	world.eddington.show()
-	player.look_at_point(world.eddington.position + Vector3(0, 1.05, 0))
+	player.look_at_point(world.targets.lightbox)
 	await ui.show_caption(C17.interlude_caption(), 2.4).finished
 	await ui.fade_to(0.0).finished
+	# A brief daylight establishing view makes the three-day change visible.
+	await get_tree().create_timer(0.65).timeout
 	_busy = false
 	beat = Beat.EXAM
 	_say(C17.eddington_exam(Story.report, state()), "exam")
@@ -277,12 +336,15 @@ func _coda() -> void:
 	_sync_player()
 	await ui.fade_to(1.0, 0.6).finished
 	world.mentor.hide()
-	world.lamp.light_energy = 1.1
-	world.window_light.light_energy = 0.4
+	_daylight = false
+	world.lamp.light_energy = 1.5
+	world.floor_bounce.light_energy = 0.65
+	world.floor_bounce.light_color = Color(0.55, 0.69, 0.86)
+	world.window_light.light_energy = 1.1
 	world.window_light.light_color = Color(0.48, 0.65, 0.82)
 	world.window_glass.albedo_color = Color(0.12, 0.19, 0.23)
-	world.environment.environment.ambient_light_energy = 0.32
-	player.look_at_point(world.kit.position + Vector3(0, 1.5, 0))
+	world.environment.environment.ambient_light_energy = 0.62
+
 	await ui.fade_to(0.0).finished
 	_busy = false
 	_say(C17.kit_coda(Story.report, state()), "coda")

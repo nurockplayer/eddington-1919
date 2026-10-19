@@ -4,6 +4,7 @@ extends RefCounted
 
 const WorldBuilder := preload("res://scripts/world_builder.gd")
 const Look := preload("res://scripts/look.gd")
+const Figures := preload("res://scripts/cambridge/figures.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 
 const ROOM_W := 9.0
@@ -41,7 +42,33 @@ static func build(root: Node3D) -> Dictionary:
 	w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(0.82, 1.8, 5.35), dark_wood)
 	w.box(Vector3(1.7, ROOM_H, 0.14), Vector3(0, 1.8, 7.75), dark_wood)
 	w.box(Vector3(1.7, 0.16, 4.8), Vector3(0, 3.52, 5.35), dark_wood, null, false)
+	# A low-lit closed door gives the corridor a readable end rather than a black gap.
+	w.box(Vector3(1.28, 2.8, 0.08), Vector3(0, 1.4, 7.62), wood, null, false)
+	for y in [0.75, 2.0]:
+		w.box(Vector3(1.05, 0.95, 0.04), Vector3(0, y, 7.55), dark_wood, null, false)
+	w.cyl(0.04, 0.07, Vector3(0.45, 1.2, 7.48), brass, null, false, Vector3(deg_to_rad(90), 0, 0))
+	var hall_fill := OmniLight3D.new()
+	hall_fill.name = "CorridorBounce"
+	hall_fill.position = Vector3(0, 2.4, 5.6)
+	hall_fill.light_color = Color(0.90, 0.78, 0.59)
+	hall_fill.light_energy = 0.8
+	hall_fill.omni_range = 5.0
+	hall_fill.omni_attenuation = 1.3
+	hall_fill.light_specular = 0.0
+	hall_fill.shadow_enabled = false
+	root.add_child(hall_fill)
 	w.box(Vector3(ROOM_W, 0.16, ROOM_D), Vector3(0, 3.52, 0), dark_wood, null, false)
+	for x in [-4.34, 4.34]:
+		w.box(Vector3(0.025, 2.15, 5.8), Vector3(x, 2.375, 0), plaster, null, false)
+	for x in [-3.5, 3.5]:
+		w.box(Vector3(1.85, 2.15, 0.025), Vector3(x, 2.375, -2.84), plaster, null, false)
+		w.box(Vector3(3.7, 2.15, 0.025), Vector3(x * 0.743, 2.375, 2.84), plaster, null, false)
+	# Door jambs and skirting keep the corridor legible in the south wall.
+	for x in [-0.75, 0.75]:
+		w.box(Vector3(0.1, 3.1, 0.18), Vector3(x, 1.55, 2.83), wood, null, false)
+	w.box(Vector3(1.6, 0.1, 0.18), Vector3(0, 3.1, 2.83), wood, null, false)
+	for x in [-4.3, 4.3]:
+		w.box(Vector3(0.06, 0.14, 5.8), Vector3(x, 0.14, 0), wood, null, false)
 	# Dark rafters break up the ceiling plane and give the room a human scale.
 	for x in [-3.3, -1.1, 1.1, 3.3]:
 		w.box(Vector3(0.12, 0.2, 5.8), Vector3(x, 3.38, 0), wood, null, false)
@@ -68,7 +95,7 @@ static func build(root: Node3D) -> Dictionary:
 	var rain_positions: Array[Vector3] = []
 	for i in range(36):
 		var x := -0.02 + float(i % 9) * 0.235
-		var y := 1.25 + float((i * 17) % 17) * 0.098
+		var y := 1.25 + float((i * 7) % 17) * 0.098
 		rain_positions.append(Vector3(x, y, -2.79))
 	rain_mm.instance_count = rain_positions.size()
 	for i in rain_positions.size():
@@ -93,12 +120,25 @@ static func build(root: Node3D) -> Dictionary:
 	window_light.name = "ColdWindowFill"
 	window_light.position = Vector3(0.5, 2.35, -2.45)
 	window_light.light_color = Color(0.48, 0.65, 0.82)
-	window_light.light_energy = 1.0
-	window_light.omni_range = 6.5
-	window_light.omni_attenuation = 1.7
+	window_light.light_energy = 1.25
+	window_light.omni_range = 8.0
+	window_light.omni_attenuation = 1.25
 	window_light.shadow_enabled = false
 	window_light.light_specular = 0.0
 	root.add_child(window_light)
+	var floor_bounce := SpotLight3D.new()
+	floor_bounce.name = "WindowFloorBounce"
+	floor_bounce.position = Vector3(0.65, 1.35, -2.4)
+	floor_bounce.light_color = Color(0.55, 0.69, 0.86)
+	floor_bounce.light_energy = 0.65
+	floor_bounce.spot_range = 6.0
+	floor_bounce.spot_angle = 48.0
+	floor_bounce.spot_attenuation = 0.7
+	floor_bounce.light_specular = 0.0
+	floor_bounce.shadow_enabled = false
+	root.add_child(floor_bounce)
+	floor_bounce.look_at(Vector3(0.65, 0, 0.7))
+	out.floor_bounce = floor_bounce
 
 	# Central measuring table, with evidence at the near-facing edge for easy reach.
 	_table(w, Vector3(0, 0, 0), Vector3(3.5, 0.78, 1.45), wood)
@@ -165,9 +205,9 @@ static func build(root: Node3D) -> Dictionary:
 	lamp.name = "GreenShadeLamp"
 	lamp.position = Vector3(0.25, 1.14, -0.19)
 	lamp.light_color = Color(1.0, 0.73, 0.43)
-	lamp.light_energy = 1.35
-	lamp.omni_range = 4.0
-	lamp.omni_attenuation = 1.6
+	lamp.light_energy = 1.5
+	lamp.omni_range = 5.0
+	lamp.omni_attenuation = 1.35
 	lamp.shadow_enabled = true
 	root.add_child(lamp)
 	out.lamp = lamp
@@ -204,14 +244,25 @@ static func build(root: Node3D) -> Dictionary:
 	w.box(Vector3(0.18, 1.45, 1.35), Vector3(4.32, 0.73, 1.35), dark_wood)
 	w.box(Vector3(0.20, 0.13, 1.55), Vector3(4.22, 1.5, 1.35), wood, null, false)
 	w.box(Vector3(0.10, 0.72, 0.92), Vector3(4.14, 0.68, 1.35), iron, null, false)
-	w.cyl(0.12, 0.08, Vector3(4.05, 0.22, 1.35), Color(0.43, 0.15, 0.07), null, false)
+	var embers := w.box(Vector3(0.035, 0.19, 0.65), Vector3(4.07, 0.3, 1.35), Color(0.44, 0.15, 0.05), null, false)
+	var ember_mat := w.mat(Color(0.44, 0.15, 0.05)).duplicate() as StandardMaterial3D
+	ember_mat.emission_enabled = true
+	ember_mat.emission = Color(0.68, 0.19, 0.045)
+	ember_mat.emission_energy_multiplier = 0.75
+	(embers as MeshInstance3D).material_override = ember_mat
+	for z in [1.12, 1.35, 1.58]:
+		w.box(Vector3(0.05, 0.29, 0.035), Vector3(4.025, 0.35, z), iron, null, false)
 	var fire_light := OmniLight3D.new()
+	fire_light.name = "CoalFireBounce"
 	fire_light.position = Vector3(3.92, 0.48, 1.35)
-	fire_light.light_color = Color(1.0, 0.36, 0.12)
-	fire_light.light_energy = 0.38
-	fire_light.omni_range = 2.2
+	fire_light.light_color = Color(1.0, 0.57, 0.29)
+	fire_light.light_energy = 1.0
+	fire_light.omni_range = 5.2
+	fire_light.omni_attenuation = 1.3
+	fire_light.light_specular = 0.0
 	fire_light.shadow_enabled = false
 	root.add_child(fire_light)
+	out.fire_light = fire_light
 	var fire_hotspot := w.hotspot(Vector3(0.6, 0.8, 0.9), Vector3(3.45, 0.58, 1.35), "fire", "查看爐火")
 	out.targets["fire"] = fire_hotspot.position
 
@@ -223,20 +274,20 @@ static func build(root: Node3D) -> Dictionary:
 	out.targets["clock"] = clock_hotspot.position
 
 	# Kit waits at the far end of the table and is reachable from either side.
-	var kit := _npc_without_hat(w, Cast.KIT, Vector3(1.55, 0, -1.45), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit")
+	var kit := _npc_without_hat(w, Cast.KIT, Vector3(2.7, 0, 0.85), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit")
 	kit.rotation.y = deg_to_rad(155)
 	out.kit = kit
 	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position
 
 	# Late arrivals are staged by the chapter controller; no hats indoors.
-	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(-1.75, 0, -2.05), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor")
+	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(-2.65, 0, 1.25), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor")
 	out.mentor.visible = false
 	var mentor_shape := out.mentor.get_meta("room_collision_shape") as CollisionShape3D
 	mentor_shape.disabled = true
 	out.mentor.visibility_changed.connect(func(): mentor_shape.disabled = not out.mentor.visible)
 	# A plain closed journal under the mentor's arm, kept as a single prop.
 	w.box(Vector3(0.20, 0.035, 0.24), Vector3(0.27, 1.28, -0.12), Color(0.27, 0.22, 0.17), out.mentor, false)
-	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-1.1, 0, -1.65), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington")
+	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-3.35, 0, 2.35), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington")
 	out.eddington.visible = false
 	var eddington_shape := out.eddington.get_meta("room_collision_shape") as CollisionShape3D
 	eddington_shape.disabled = true
@@ -256,7 +307,7 @@ static func build(root: Node3D) -> Dictionary:
 	out.targets["cabinet"] = Vector3(-3.1, 0.9, -0.9)
 	out.targets["notebook"] = Vector3(0.72, 0.9, 0.22)
 	out.targets["window"] = Vector3(0.55, 2.05, -2.25)
-	out.spawn = Vector3(0, 0, 2.15)
+	out.spawn = Vector3(0, 0, 2.35)
 	out.window_light = window_light
 	out.environment = _environment(root)
 	return out
@@ -281,15 +332,7 @@ static func _shelf(w, pos: Vector3, wood: Color, dark_wood: Color) -> void:
 
 
 static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> Node3D:
-	var body: Node3D = w.npc(display_name, pos, coat, shirt, id)
-	# The shared site NPC helper adds era-specific outdoor hats. Remove only those
-	# top meshes; retain its human proportions, facial details, name tag and ray target.
-	for child in body.get_children():
-		if not child is MeshInstance3D or child.position.y < 1.69:
-			continue
-		if child.mesh is CylinderMesh or child.mesh is SphereMesh:
-			body.remove_child(child)
-			child.free()
+	var body: Node3D = Figures.build(w, display_name, pos, coat, shirt, id)
 	var cs := body.get_child(0) as CollisionShape3D
 	body.set_meta("room_collision_shape", cs)
 	return body
@@ -300,16 +343,18 @@ static func _environment(root: Node3D) -> WorldEnvironment:
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0.035, 0.045, 0.06)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.36, 0.39, 0.44)
-	env.ambient_light_energy = 0.32
+	env.ambient_light_color = Color(0.68, 0.71, 0.76)
+	env.ambient_light_energy = 0.62
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = 0.95
+	env.tonemap_exposure = 1.05
 	env.ssao_enabled = true
 	env.ssao_radius = 1.1
-	env.ssao_intensity = 2.2
-	env.ssao_power = 1.6
+	env.ssao_intensity = 1.25
+	env.ssao_power = 1.2
 	env.ssao_detail = 0.6
 	Look.apply_grade(env)
+	# Preserve the plate grade, with less contrast crush in this unlit interior.
+	env.adjustment_contrast = 1.035
 	var node := WorldEnvironment.new()
 	node.name = "CambridgeRoomEnvironment"
 	node.environment = env
