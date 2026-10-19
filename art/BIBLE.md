@@ -114,4 +114,5 @@ These are the states of the benchmark bookmarks in `tests/benchmark.gd`. The lig
 | Open-sided timber sun-shelter with a canvas roof, a long horizontal tube on trestles, and a coelostat on a brick pier (r01 B, r02 E). | **Observatory domes.** The first unconstrained image drew one (r00 probe), and it is historically wrong for Príncipe. Domes are banned in `base.toml`. |
 | A **windowless** darkroom lit by a lamp and a red safelight. | The r02 darkroom drew a window onto the night sky. A darkroom cannot have one. Fixed in `darkroom_night` v2. |
 | A brass cell and fork around a ~40 cm mirror. Follow the **spec** proportions. | The r03 concept drew an oversized mirror. Images are shape references only; `assets.toml` dimensions win. |
+| Banana clumps with broad leaves that **arch outward and droop** (r04 v2). Repeated foliage is one kit mesh drawn as a MultiMesh. | Upright, spiky leaves that rise as much as they reach (r04 v1 read as bare stems). Default `SphereMesh` shrubs (≈4k triangles each, 52–81 % of the scene's primitives). |
 | Warm 360° horizon glow at totality. | A clear, saturated blue sky at totality ("clear sky" is a myth the docs avoid). |

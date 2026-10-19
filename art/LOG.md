@@ -2,6 +2,41 @@
 
 Newest first. One entry per loop iteration: what was tried, what the evidence showed, and what changed. Details live in each run's `REVIEW.md`.
 
+## 2026-10-20: r04, foliage cost + shelter and tube (Opus 5.5, Game Director)
+
+**Measured first:**
+- `--bench-hide` attribution shows the 70 `SphereMesh` shrubs were 52–81 % of primitives.
+- The palms, not the shrubs, dominate draw calls: 125 of 153 in `totality_sky`.
+
+**Built:**
+- 4 procedural assets via Codex `gpt-6.1-sol` (Opus rebuilt and re-ran G2, all PASS, deterministic): `sun_shelter` (frame / roof / roll), `horizontal_tube`, `shrub_cocoa`, `banana_clump`.
+- Foliage is instanced with one MultiMesh per model.
+
+**Result vs v0.1 baseline:**
+- **Primitives:** −42 % to −73 % in 6 of 7 bookmarks (darkroom 497k → 136k).
+- **Draw calls:** −5 % to −18 % in the same 6. `totality_sky` is +17 % (within +20 %) because the instanced foliage now draws in the shadow cascades.
+- **Frame time:** ≤ 8 ms everywhere.
+- **Gameplay:**
+  - logic tests 155/155
+  - careful autoplay: same ending and score 4
+  - the roof still hides at totality, and the rolled canvas appears
+
+**Findings → changes:**
+
+| Finding | Change |
+|---|---|
+| The lookdev could not frame architecture | `lookdev.gd` auto-framing |
+| banana v1 read as spikes | leaf profile v2 and a spec height fix |
+| quadrant MultiMesh chunks pushed `totality_sky` draw calls to +21 % | one MultiMesh per model |
+
+Details: `runs/r04-shelter-foliage/REVIEW.md`.
+
+**Next:**
+- palm kit (draw calls)
+- people (still waiting on the Owner's direction check)
+- ground
+- a human playtest look at the shelter beam in the totality view
+
 ## 2026-10-19: Visual system v0.1 (Opus 5.5, Game Director)
 
 **Built:**

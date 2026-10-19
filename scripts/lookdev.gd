@@ -17,6 +17,11 @@ const CAMERAS := {
 	"silhouette": [Vector3(0.6, 0.9, 4.6), Vector3(0.6, 0.85, 0.0)],
 }
 
+## Camera framing for the placed row: 1.0 for prop-sized rows (the CAMERAS above,
+## unchanged since r03); larger rows (r04 finding: a 7 m shelter filled the frame)
+## pull every camera back along its own direction and re-centre it on the row.
+var frame_scale := 1.0
+var frame_centre_x := 0.0
 var cam: Camera3D
 var key: DirectionalLight3D
 var env: Environment
@@ -39,6 +44,12 @@ func _ready() -> void:
 	var x := 0.0
 	for id in ids:
 		x = _place_asset(id, x) + 0.5
+	var extent := maxf(x - 0.5, 0.0)
+	for a in report.assets:
+		extent = maxf(extent, maxf(a.dims_xzy_m[1], a.dims_xzy_m[2] * 1.5))
+	frame_scale = maxf(1.0, extent / 2.7)
+	frame_centre_x = (x - 0.5) / 2.0
+	report["frame_scale"] = snappedf(frame_scale, 0.01)
 	cam = Camera3D.new()
 	cam.fov = 50.0
 	add_child(cam)
@@ -221,7 +232,15 @@ func _aabb(n: Node) -> AABB:
 
 func _set_camera(name: String) -> void:
 	var c: Array = CAMERAS[name]
-	cam.look_at_from_position(c[0], c[1], Vector3.UP)
+	var pos: Vector3 = c[0]
+	var target: Vector3 = c[1]
+	if frame_scale > 1.0:
+		var t := Vector3(frame_centre_x, target.y * minf(frame_scale, 2.0), 0.0)
+		pos = t + (pos - target) * frame_scale
+		if name == "eye_level":
+			pos.y = 1.62  # stays a standing player's eye height
+		target = t
+	cam.look_at_from_position(pos, target, Vector3.UP)
 	if name == "silhouette":
 		_key_from(Vector3(0.2, 0.5, -1.0))  # backlight: shape must read with no interior detail
 		env.ambient_light_energy = 0.12

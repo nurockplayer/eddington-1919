@@ -1,0 +1,48 @@
+[BOT careful] seed 7
+[BOT careful] shot 00_title
+[BOT careful] shot 01_arrival
+[BOT careful] interact -> eddington
+[BOT careful] shot 02_briefing
+[BOT careful] pause check: paused=true dialogue_held=true resumed=true
+[BOT careful] choose 1: 為什麼要拍太陽旁邊的星？
+[BOT careful] aim at plate_box
+[BOT careful] shot 03_darkroom_box
+[BOT careful] carried 8
+[BOT careful] delivered -> available 12
+[BOT careful] shot 04_coelostat
+[BOT careful] drive wound true
+[BOT careful] rate checked true
+[BOT careful] prep left 96.9 s
+[BOT careful] choose 0: 我準備好了——就位等待全食。
+[BOT careful] shot 05_totality_start
+[BOT careful] heartbeat t=30 dens=0.93 exposing=false
+[BOT careful] heartbeat t=60 dens=0.96 exposing=false
+[BOT careful] heartbeat t=90 dens=0.98 exposing=false
+[BOT careful] heartbeat t=120 dens=0.79 exposing=false
+[BOT careful] t=125.4 dens=0.45 -> OPEN
+[BOT careful] shot 06b_totality_gap_open
+[BOT careful] t=138.8 dens=0.62 -> CLOSE
+[BOT careful] heartbeat t=150 dens=0.93 exposing=false
+[BOT careful] shot 06_totality_mid
+[BOT careful] heartbeat t=150 dens=0.93 exposing=false
+[BOT careful] heartbeat t=180 dens=0.93 exposing=false
+[BOT careful] t=203.4 dens=0.45 -> OPEN
+[BOT careful] heartbeat t=210 dens=0.13 exposing=true
+[BOT careful] t=219.5 dens=0.16 -> CLOSE
+[BOT careful] heartbeat t=240 dens=0.93 exposing=false
+[BOT careful] t=259.8 dens=0.45 -> OPEN
+[BOT careful] heartbeat t=270 dens=0.27 exposing=true
+[BOT careful] t=273.2 dens=0.63 -> CLOSE
+[BOT careful] heartbeat t=300 dens=0.94 exposing=false
+[BOT careful] shot 07_darkroom
+[BOT careful] night interact -> measure
+[BOT careful] shot 08_viewer_before
+[BOT careful] included [1, 2, 3]
+[BOT careful] shot 09_viewer_measured
+[BOT careful] evidence favors_e, combined { "n": 3, "value": 1.8033683139538, "sigma": 0.1721177740081 }
+[BOT careful] choose 1: THROUGH CLOUD. HOPEFUL.
+[BOT careful] choose 0: 量得的偏折較接近 1.75″，而且有足夠星點的底片支持。
+[BOT careful] shot 10_ending
+[BOT careful] DONE ending=雲層之後的希望 evidence=favors_e score=4 stuck=0
+[BOT careful] restart run 2: seed 98797 (first run seed 7) title_visible=true
+[BOT careful] shot 11_after_restart

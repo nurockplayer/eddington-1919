@@ -34,6 +34,39 @@ func model(id: String, pos: Vector3, rot_y_deg := 0.0, scale := 1.0) -> Node3D:
 	return inst
 
 
+## Instanced copies of an imported production model: one MultiMeshInstance3D per
+## mesh in the model, with an instance per transform. Returns them (empty if the
+## model is missing, so the caller can fall back to primitives).
+func multimesh(id: String, xforms: Array, group := "") -> Array:
+	var path := MODELS + id + ".glb"
+	var out := []
+	if xforms.is_empty() or not ResourceLoader.exists(path):
+		return out
+	var scene: Node = (load(path) as PackedScene).instantiate()
+	for node in scene.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		var local := Transform3D.IDENTITY  # the mesh's transform relative to the model root
+		var n: Node = mi
+		while n != scene:
+			local = (n as Node3D).transform * local
+			n = n.get_parent()
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = mi.mesh
+		mm.instance_count = xforms.size()
+		for i in xforms.size():
+			mm.set_instance_transform(i, xforms[i] * local)
+		var mmi := MultiMeshInstance3D.new()
+		mmi.name = "%s_multi" % id
+		mmi.multimesh = mm
+		if group:
+			mmi.add_to_group(group)
+		root.add_child(mmi)
+		out.append(mmi)
+	scene.free()
+	return out
+
+
 ## Invisible solid collider (pairs with an imported model's visual mesh).
 func collider(size: Vector3, pos: Vector3, rot_y_deg := 0.0) -> StaticBody3D:
 	var body := StaticBody3D.new()
@@ -222,17 +255,36 @@ func _shelter_and_instrument() -> Dictionary:
 	var out := {}
 	var wood := P("teak")
 	var thatch := P("canvas")
-	# Sun-shelter over the horizontal tube.
-	for x in [-2.3, 2.3]:
-		for z in [-0.6, -6.9]:
-			cyl(0.07, 2.9, Vector3(x, 1.45, z), wood, null, true)
-	# Canvas roof: rolled back before totality so the Sun can be watched.
+	# Sun-shelter over the horizontal tube. Canvas roof: rolled back before totality
+	# so the Sun can be watched (main.gd hides `roof`).
 	var roof := Node3D.new()
 	root.add_child(roof)
-	box(Vector3(5.2, 0.12, 7.0), Vector3(0, 2.95, -3.75), thatch, roof, false, Vector3(deg_to_rad(4), 0, 0))
-	box(Vector3(5.4, 0.35, 0.1), Vector3(0, 2.75, -0.25), thatch.darkened(0.2), roof, false)
 	out.roof = roof
-	box(Vector3(5.2, 0.3, 0.3), Vector3(0, 2.95, -7.1), thatch.darkened(0.25), null, false)
+	var shelter := model("sun_shelter", Vector3(0, 0, -3.75))
+	if shelter:
+		# Production model (art/assets.toml: sun_shelter). The canvas moves under `roof`
+		# so the game's existing roof toggle hides it; the rolled canvas on the rear
+		# beam shows exactly while the roof is hidden.
+		var canvas: Node3D = shelter.find_child("sun_shelter_roof", true, false)
+		var roll: Node3D = shelter.find_child("sun_shelter_roll", true, false)
+		if canvas:  # re-home under `roof` (at the origin), keeping its placement
+			var xf := shelter.transform * canvas.transform
+			canvas.get_parent().remove_child(canvas)
+			roof.add_child(canvas)
+			canvas.transform = xf
+		if roll:
+			roll.visible = not roof.visible
+			roof.visibility_changed.connect(func(): roll.visible = not roof.visible)
+		for x in [-2.3, 2.3]:
+			for z in [-0.6, -6.9]:
+				collider(Vector3(0.14, 2.9, 0.14), Vector3(x, 1.45, z))
+	else:
+		for x in [-2.3, 2.3]:
+			for z in [-0.6, -6.9]:
+				cyl(0.07, 2.9, Vector3(x, 1.45, z), wood, null, true)
+		box(Vector3(5.2, 0.12, 7.0), Vector3(0, 2.95, -3.75), thatch, roof, false, Vector3(deg_to_rad(4), 0, 0))
+		box(Vector3(5.4, 0.35, 0.1), Vector3(0, 2.75, -0.25), thatch.darkened(0.2), roof, false)
+		box(Vector3(5.2, 0.3, 0.3), Vector3(0, 2.95, -7.1), thatch.darkened(0.25), null, false)
 	# Coelostat on its pier (the mirror turns with clockwork to follow the Sun).
 	var drive: Node3D
 	var coelostat := model("coelostat", Vector3(0, 0, -6.6))
@@ -255,13 +307,20 @@ func _shelter_and_instrument() -> Dictionary:
 		interactable(drive, "drive", "時鐘驅動")
 	out.drive_pos = Vector3(0.62, 0.92, -6.6)
 	# Horizontal tube (lens near the coelostat, plate end toward the shelter front).
-	var tube_col := P("iron")
-	box(Vector3(0.46, 0.46, 3.5), Vector3(0, 1.35, -3.75), tube_col)
-	cyl(0.25, 0.14, Vector3(0, 1.35, -5.55), P("brass"), null, false, Vector3(deg_to_rad(90), 0, 0))
-	for z in [-5.0, -2.5]:
-		box(Vector3(0.7, 1.12, 0.12), Vector3(0, 0.56, z), wood)
+	var carrier: Node3D
+	if model("horizontal_tube", Vector3(0, 0, -3.75)):
+		# Production model (art/assets.toml: horizontal_tube); the same box colliders.
+		collider(Vector3(0.46, 0.46, 3.5), Vector3(0, 1.35, -3.75))
+		for z in [-5.0, -2.5]:
+			collider(Vector3(0.7, 1.12, 0.12), Vector3(0, 0.56, z))
+		carrier = collider(Vector3(0.6, 0.6, 0.18), Vector3(0, 1.35, -1.92))
+	else:
+		box(Vector3(0.46, 0.46, 3.5), Vector3(0, 1.35, -3.75), P("iron"))
+		cyl(0.25, 0.14, Vector3(0, 1.35, -5.55), P("brass"), null, false, Vector3(deg_to_rad(90), 0, 0))
+		for z in [-5.0, -2.5]:
+			box(Vector3(0.7, 1.12, 0.12), Vector3(0, 0.56, z), wood)
+		carrier = box(Vector3(0.6, 0.6, 0.18), Vector3(0, 1.35, -1.92), P("teak_dark"))
 	# Plate carrier at the eye end.
-	var carrier := box(Vector3(0.6, 0.6, 0.18), Vector3(0, 1.35, -1.92), P("teak_dark"))
 	interactable(carrier, "station", "底片架")
 	out.station_look = Vector3(0, 1.35, -1.92)
 	out.station_pos = Vector3(0.0, 0.0, -0.9)
@@ -374,6 +433,7 @@ func palm(pos: Vector3, h: float) -> void:
 	var p := Node3D.new()
 	p.position = pos
 	p.rotation = lean
+	p.add_to_group("veg_palm")  # cost attribution: benchmark --bench-hide=veg_palm
 	root.add_child(p)
 	cyl(0.16, h, Vector3(0, h * 0.5, 0), Color(0.42, 0.34, 0.24), p, false, Vector3.ZERO, 0.11)
 	for i in 8:
@@ -401,7 +461,14 @@ func _vegetation() -> void:
 		Vector3(20, 0, 2), Vector3(-18, 0, 0), Vector3(12, 0, 13), Vector3(-12, 0, 12), Vector3(24, 0, -12)]
 	for s in spots:
 		palm(s, randf_range(6.0, 9.5))
-	# Low cocoa-like shrubs and banana clumps around the edges.
+	# Low cocoa-like shrubs and banana clumps around the edges. With the foliage kit
+	# (art/assets.toml) they are instanced: one MultiMesh per model. All 70 together
+	# are ~12k triangles, so finer chunks for culling only add draw calls (r04 G4:
+	# quadrant chunks cost +26 draw calls looking up at totality). RNG use per shrub
+	# is unchanged, so the layout matches the v0.1 baseline; kind and yaw come from
+	# the index instead.
+	var kit := {}  # model id -> Array[Transform3D]
+	var spheres := []  # primitive fallback: [pos, size, tint]
 	for i in 70:
 		var a := randf() * TAU
 		var d := randf_range(13.0, 40.0)
@@ -409,13 +476,30 @@ func _vegetation() -> void:
 		if pos.distance_to(Vector3(-15, 0, -20)) < 10.0:
 			continue
 		var s := randf_range(0.8, 1.8)
+		var tint := randf() * 0.5
+		spheres.append([pos, s, tint])
+		var banana := i % 3 == 0
+		var id := "banana_clump" if banana else "shrub_cocoa"
+		var k := (0.75 + 0.25 * s) if banana else s  # banana clumps vary less in size
+		var xf := Transform3D(Basis(Vector3.UP, fmod(i * 2.39996, TAU)).scaled(Vector3.ONE * k), pos)
+		if not kit.has(id):
+			kit[id] = []
+		kit[id].append(xf)
+	var instanced := ResourceLoader.exists(MODELS + "shrub_cocoa.glb") and ResourceLoader.exists(MODELS + "banana_clump.glb")
+	if instanced:
+		for id in kit:
+			multimesh(id, kit[id], "veg_shrub")
+		return
+	for sp in spheres:
+		var s: float = sp[1]
 		var mi := MeshInstance3D.new()
 		var sm := SphereMesh.new()
 		sm.radius = s
 		sm.height = s * 1.6
 		mi.mesh = sm
-		mi.position = pos + Vector3(0, s * 0.6, 0)
-		mi.material_override = mat(P("foliage_deep").lerp(P("foliage_light"), randf() * 0.5))
+		mi.position = sp[0] + Vector3(0, s * 0.6, 0)
+		mi.material_override = mat(P("foliage_deep").lerp(P("foliage_light"), sp[2]))
+		mi.add_to_group("veg_shrub")  # cost attribution: benchmark --bench-hide=veg_shrub
 		root.add_child(mi)
 
 

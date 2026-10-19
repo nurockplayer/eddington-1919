@@ -6,6 +6,9 @@ extends Node
 ##
 ## Run: godot --path . --always-on-top -- --benchmark=art/validation/<label> [--seed=7]
 ## Use a fixed --seed so the cloud field is identical between runs.
+## Cost attribution: --bench-hide=group[,group] hides every node in those scene
+## groups (e.g. veg_shrub, veg_palm from world_builder.gd) before measuring, so
+## two runs show what a layer costs in draw calls and primitives.
 
 const SETTLE_FRAMES := 20
 const SAMPLE_FRAMES := 90
@@ -57,7 +60,20 @@ func _shot(path: String) -> void:
 	get_viewport().get_texture().get_image().save_png(path)
 
 
+func _hide_groups() -> Array:
+	var hidden := []
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--bench-hide="):
+			for g in a.trim_prefix("--bench-hide=").split(",", false):
+				var nodes := get_tree().get_nodes_in_group(g)
+				for n in nodes:
+					n.visible = false
+				hidden.append({"group": g, "nodes": nodes.size()})
+	return hidden
+
+
 func _run() -> void:
+	var hidden := _hide_groups()
 	main.ui.visible = false
 	main.player.can_move = false
 	main.player.can_look = false
@@ -102,6 +118,7 @@ func _run() -> void:
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"viewport": [get_viewport().size.x, get_viewport().size.y],
 		"seed": main.sim.run_seed,
+		"hidden_groups": hidden,
 		"bookmarks": results,
 	}
 	var f := FileAccess.open(out_dir.path_join("benchmark.json"), FileAccess.WRITE)
