@@ -9,9 +9,17 @@ extends Node
 ## Cost attribution: --bench-hide=group[,group] hides every node in those scene
 ## groups (e.g. veg_shrub, veg_palm from world_builder.gd) before measuring, so
 ## two runs show what a layer costs in draw calls and primitives.
+##
+## Timing: wall-clock frame time is capped by the display (~8.3 ms at 120 Hz on
+## the reference Mac even with vsync off), so it cannot show rendering savings.
+## Each bookmark therefore also records the viewport's measured CPU and GPU
+## render time (RenderingServer.viewport_get_measured_render_time_*), which is
+## not capped. Report geometry, draw calls and times separately; fewer
+## primitives is not, by itself, a frame-rate claim (art/PIPELINE.md G4).
 
 const SETTLE_FRAMES := 20
-const SAMPLE_FRAMES := 90
+const SAMPLE_FRAMES := 180
+const FORCED_FRAMES := 240
 
 ## name, player position, look target, lighting state
 const BOOKMARKS := [
@@ -30,6 +38,13 @@ var out_dir := ""
 
 func _ready() -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
+	# --bench-stress=N renders the 3D scene at N× resolution scale (N² pixels) so the
+	# GPU, not the display refresh, limits the frame: frame time then reflects scene cost.
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--bench-stress="):
+			get_viewport().scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+			get_viewport().scaling_3d_scale = float(a.trim_prefix("--bench-stress="))
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	_run.call_deferred()
 
@@ -58,6 +73,19 @@ func _shot(path: String) -> void:
 	while not drawn[0] and Time.get_ticks_msec() - t0 < 5000:
 		await get_tree().process_frame
 	get_viewport().get_texture().get_image().save_png(path)
+
+
+func _avg(a: PackedFloat32Array) -> float:
+	var total := 0.0
+	for v in a:
+		total += v
+	return snappedf(total / maxf(a.size(), 1), 0.01)
+
+
+func _p95(a: PackedFloat32Array) -> float:
+	var s := a.duplicate()
+	s.sort()
+	return snappedf(s[int(s.size() * 0.95)], 0.01)
 
 
 func _hide_groups() -> Array:
@@ -89,23 +117,37 @@ func _run() -> void:
 		main.player.look_at_point(target)
 		await _frames(SETTLE_FRAMES)
 		var ms := PackedFloat32Array()
+		var cpu := PackedFloat32Array()
+		var gpu := PackedFloat32Array()
+		var vp := get_viewport().get_viewport_rid()
 		var t := Time.get_ticks_usec()
 		for i in SAMPLE_FRAMES:
 			await get_tree().process_frame
 			var now := Time.get_ticks_usec()
 			ms.append((now - t) / 1000.0)
 			t = now
-		var sorted_ms := ms.duplicate()
-		sorted_ms.sort()
-		var total := 0.0
-		for v in ms:
-			total += v
+			cpu.append(RenderingServer.viewport_get_measured_render_time_cpu(vp))
+			gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(vp))
+		# Uncapped render cost: draw without presenting (swap_buffers=false), so the
+		# display refresh does not pace it. Frames in flight make single samples
+		# noisy; the average over FORCED_FRAMES is the throughput figure.
+		var forced := PackedFloat32Array()
+		for i in FORCED_FRAMES:
+			var f0 := Time.get_ticks_usec()
+			RenderingServer.force_draw(false)
+			forced.append((Time.get_ticks_usec() - f0) / 1000.0)
 		var png := "%s.png" % b[0]
 		await _shot(out_dir.path_join(png))
 		var r := {
 			"bookmark": b[0], "lighting": b[3], "screenshot": png,
-			"frame_ms_avg": snappedf(total / ms.size(), 0.01),
-			"frame_ms_p95": snappedf(sorted_ms[int(ms.size() * 0.95)], 0.01),
+			"frame_ms_avg": _avg(ms),
+			"frame_ms_p95": _p95(ms),
+			"forced_draw_ms_avg": _avg(forced),
+			"forced_draw_ms_p95": _p95(forced),
+			"render_cpu_ms_avg": _avg(cpu),
+			"render_cpu_ms_p95": _p95(cpu),
+			"render_gpu_ms_avg": _avg(gpu),
+			"render_gpu_ms_p95": _p95(gpu),
 			"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 			"primitives": Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
 			"objects": Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
@@ -119,6 +161,7 @@ func _run() -> void:
 		"viewport": [get_viewport().size.x, get_viewport().size.y],
 		"seed": main.sim.run_seed,
 		"hidden_groups": hidden,
+		"scaling_3d_scale": get_viewport().scaling_3d_scale,
 		"bookmarks": results,
 	}
 	var f := FileAccess.open(out_dir.path_join("benchmark.json"), FileAccess.WRITE)

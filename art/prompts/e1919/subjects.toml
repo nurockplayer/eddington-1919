@@ -129,3 +129,16 @@ a few torn edges suggested by the faceted shape only. Very few polygons, large f
 two greens only (deep olive and light olive), brown stems. \
 Side view, centered, both plants fully visible, plain neutral light-grey studio background, \
 soft even lighting, no cast shadows on the background."""
+
+# r05 paint-overs: the attached --ref is a real in-game benchmark screenshot.
+# The target is a lighting/atmosphere/material goal for the SAME camera and layout,
+# so composition copying (the r02 finding) is exactly what we want here.
+[paintover]
+version = "v1"
+kind = "keyframe"
+text = """
+Repaint the attached in-game screenshot as a finished frame of the same game. \
+Keep the exact camera, framing, horizon line, buildings, props, people and their positions. \
+Change only lighting, atmosphere, shadows, ground and material finish, and render the people \
+as dignified, believable Edwardian figures with natural proportions (no faces in close-up, \
+no caricature). Remove the floating name labels and any interface text."""

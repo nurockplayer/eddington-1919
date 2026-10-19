@@ -105,7 +105,12 @@ Lookdev frames prop-sized rows with fixed cameras. Bigger rows, such as architec
 
 **G4 passes when:**
 - **Readability:** in every bookmark, the evidence is still the first read (squint test) and interactables are visible.
-- **Performance:** frame time stays within **+15%** of the baseline per bookmark, and draw calls stay within +20%. Budget: avg frame ≤ 12 ms at 1600×900 on the reference Mac.
+- **Performance**, reported as separate metrics and never conflated:
+  - draw calls within +20% of the baseline per bookmark
+  - **forced-draw** (uncapped render cost) avg ≤ 6 ms and within +25% of the baseline, or the cost justified in the review
+  - wall-clock p95 ≤ 12 ms
+  - Use ≥ 3 repetitions (`art/pipeline/baseline.sh` + `perf_summary.py`) for any performance claim, with nothing else running on the machine.
+  - Wall-clock averages are display-capped (~8.3 ms), and fewer primitives is not an FPS claim ([perf-r04](validation/perf-r04/README.md)).
 - **Gameplay:** logic tests pass and the careful autoplay reaches its ending.
 - **Concept parity:** the matching concept keyframe and the in-game shot agree on mood, value structure and key forms. They need not match in detail.
 

@@ -57,3 +57,19 @@ simplified cloud shapes. Graded like an old glass-plate photograph: slightly des
 warm sepia in the shadows and midtones, cool silver highlights, very subtle grain. \
 Palette: red laterite earth, deep olive green foliage, bleached canvas, weathered teak, \
 slate grey-blue sea, silver-grey sky."""
+
+# r05 (2026-10-20): Owner tone decision — keep Diorama + Plate Grade provisionally,
+# but push toward historical gravitas, cinematic light, suspense and human emotion;
+# avoid toy-like / cartoon reads. F refines E; it does not replace the direction.
+[F_cinematic_diorama]
+version = "v1"
+status = "candidate"
+label = "Cinematic Diorama"
+style = """
+A cinematic real-time 3D game frame with a restrained, painterly-realistic finish, NOT a toy and NOT cartoon: \
+believable proportions, weathered and worn materials, simplified but solid forms. \
+Moody overcast light with a clear value structure: dark grounded shadows and contact occlusion where objects \
+meet the ground, soft directional light breaking through heavy cloud, atmospheric haze giving depth. \
+Muted, slightly desaturated period palette (red laterite earth, olive and deep greens, bleached canvas, \
+weathered teak, slate sea) with a subtle warm sepia toe like a toned glass-plate print. \
+Historical drama, quiet suspense."""
