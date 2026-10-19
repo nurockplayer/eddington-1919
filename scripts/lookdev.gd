@@ -18,10 +18,11 @@ const CAMERAS := {
 }
 
 ## Camera framing for the placed row: 1.0 for prop-sized rows (the CAMERAS above,
-## unchanged since r03); larger rows (r04 finding: a 7 m shelter filled the frame)
-## pull every camera back along its own direction and re-centre it on the row.
+## unchanged since r03). Larger rows (r04 finding: a 7 m shelter filled the frame)
+## aim every camera at the row's bounding-sphere centre from its own direction, far
+## enough back that the whole sphere fits the vertical field of view.
 var frame_scale := 1.0
-var frame_centre_x := 0.0
+var frame_bounds := AABB()
 var cam: Camera3D
 var key: DirectionalLight3D
 var env: Environment
@@ -48,7 +49,6 @@ func _ready() -> void:
 	for a in report.assets:
 		extent = maxf(extent, maxf(a.dims_xzy_m[1], a.dims_xzy_m[2] * 1.5))
 	frame_scale = maxf(1.0, extent / 2.7)
-	frame_centre_x = (x - 0.5) / 2.0
 	report["frame_scale"] = snappedf(frame_scale, 0.01)
 	cam = Camera3D.new()
 	cam.fov = 50.0
@@ -204,6 +204,8 @@ func _place_asset(id: String, x: float) -> float:
 	add_child(inst)
 	var aabb := _aabb(inst)
 	inst.position = Vector3(x - aabb.position.x, 0, 0)
+	var placed := AABB(aabb.position + inst.position, aabb.size)
+	frame_bounds = placed if frame_bounds.size == Vector3.ZERO else frame_bounds.merge(placed)
 	var tris := 0
 	var surfaces := 0
 	for mi in inst.find_children("*", "MeshInstance3D", true, false):
@@ -235,10 +237,16 @@ func _set_camera(name: String) -> void:
 	var pos: Vector3 = c[0]
 	var target: Vector3 = c[1]
 	if frame_scale > 1.0:
-		var t := Vector3(frame_centre_x, target.y * minf(frame_scale, 2.0), 0.0)
-		pos = t + (pos - target) * frame_scale
-		if name == "eye_level":
-			pos.y = 1.62  # stays a standing player's eye height
+		var t := frame_bounds.get_center()
+		var radius := frame_bounds.size.length() / 2.0
+		var dist := maxf((pos - target).length(), radius / sin(deg_to_rad(cam.fov / 2.0)) * 1.05)
+		var dir := (pos - target).normalized()
+		if name == "eye_level":  # stays a standing player's eye height
+			var flat := Vector3(dir.x, 0.0, dir.z).normalized()
+			var dy := 1.62 - t.y
+			pos = t + flat * sqrt(maxf(dist * dist - dy * dy, 1.0)) + Vector3(0, dy, 0)
+		else:
+			pos = t + dir * dist
 		target = t
 	cam.look_at_from_position(pos, target, Vector3.UP)
 	if name == "silhouette":

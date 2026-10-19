@@ -81,6 +81,20 @@ func collider(size: Vector3, pos: Vector3, rot_y_deg := 0.0) -> StaticBody3D:
 	return body
 
 
+## Invisible solid cylinder collider (same shape as cyl(..., collide = true)).
+func cyl_collider(radius: float, height: float, pos: Vector3) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var sh := CylinderShape3D.new()
+	sh.radius = radius
+	sh.height = height
+	cs.shape = sh
+	body.add_child(cs)
+	body.position = pos
+	root.add_child(body)
+	return body
+
+
 func mat(color: Color, rough := 0.85, metal := 0.0) -> StandardMaterial3D:
 	var key := "%s|%s|%s" % [color.to_html(), rough, metal]
 	if not _mats.has(key):
@@ -277,7 +291,7 @@ func _shelter_and_instrument() -> Dictionary:
 			roof.visibility_changed.connect(func(): roll.visible = not roof.visible)
 		for x in [-2.3, 2.3]:
 			for z in [-0.6, -6.9]:
-				collider(Vector3(0.14, 2.9, 0.14), Vector3(x, 1.45, z))
+				cyl_collider(0.07, 2.9, Vector3(x, 1.45, z))
 	else:
 		for x in [-2.3, 2.3]:
 			for z in [-0.6, -6.9]:
