@@ -48,7 +48,10 @@ static func build(root: Node3D) -> Dictionary:
 
 	# Tall sash window on the north wall: divided panes, wet dark glazing, half-drawn curtain.
 	var window_center := Vector3(0.55, 2.05, -2.82)
-	var glass_mat := w.mat(Color(0.12, 0.19, 0.23), 0.22)
+	var glass_mat := w.mat(Color(0.12, 0.19, 0.23), 0.8)
+	glass_mat.metallic_specular = 0.0
+	glass_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	out.window_glass = glass_mat
 	for x in [-1.25, 0.0, 1.25]:
 		var pane := w.box(Vector3(1.15, 1.75, 0.025), window_center + Vector3(x, 0, 0), Color(0.16, 0.23, 0.27), null, false)
 		(pane as MeshInstance3D).material_override = glass_mat
@@ -94,6 +97,7 @@ static func build(root: Node3D) -> Dictionary:
 	window_light.omni_range = 6.5
 	window_light.omni_attenuation = 1.7
 	window_light.shadow_enabled = false
+	window_light.light_specular = 0.0
 	root.add_child(window_light)
 
 	# Central measuring table, with evidence at the near-facing edge for easy reach.
@@ -122,7 +126,11 @@ static func build(root: Node3D) -> Dictionary:
 	(frosted as MeshInstance3D).material_override = frosted_material
 	# Plate and chart marks are explicitly evidence surfaces.
 	var plate := w.box(Vector3(0.57, 0.008, 0.38), Vector3(0, 0.05, 0), Color(0.88, 0.88, 0.84), lightbox, false)
-	(plate as MeshInstance3D).material_override = w.evidence_mat(Color(0.91, 0.91, 0.87), 0.5)
+	var plate_mat := w.evidence_mat(Color(0.91, 0.91, 0.87), 0.5).duplicate() as StandardMaterial3D
+	plate_mat.emission_enabled = true
+	plate_mat.emission = Color(0.91, 0.91, 0.88)
+	plate_mat.emission_energy_multiplier = 0.5
+	(plate as MeshInstance3D).material_override = plate_mat
 	for p in [Vector3(-0.19, 0.056, -0.10), Vector3(-0.06, 0.056, -0.11), Vector3(0.11, 0.056, -0.08), Vector3(0.20, 0.056, 0.04), Vector3(-0.12, 0.056, 0.11), Vector3(0.09, 0.056, 0.12)]:
 		var dot := w.cyl(0.018, 0.006, p, Color(0.16, 0.16, 0.15), lightbox, false)
 		(dot as MeshInstance3D).material_override = w.evidence_mat(Color(0.13, 0.13, 0.12))

@@ -48,6 +48,10 @@ func _ready() -> void:
 	add_child(ui)
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	ui.hide_title()
+	# Toasts remain visible above chapter modals while the walking HUD is hidden.
+	ui.toast.reparent(ui.hud.get_parent())
+	ui.toast.offset_top = -185
+	ui.toast.offset_bottom = -135
 	ui.pause_enabled = true
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(func(_same): get_tree().paused = false; get_tree().reload_current_scene())
@@ -235,7 +239,7 @@ func _submit_report(report: Dictionary) -> void:
 	_sync_player()
 	await create_tween().tween_property(world.mentor, "position", destination, 1.2).finished
 	_busy = false
-	player.look_at_point(world.mentor.position + Vector3(0, 1.5, 0))
+	player.look_at_point(world.mentor.position + Vector3(0, 1.05, 0))
 	_say(C17.mentor_review(Story.report), "mentor_review")
 
 
@@ -246,8 +250,11 @@ func _interlude() -> void:
 	await ui.fade_to(1.0).finished
 	world.lamp.light_energy = 0.0
 	world.window_light.light_energy = 1.4
+	world.window_light.light_color = Color(0.72, 0.78, 0.82)
+	world.window_glass.albedo_color = Color(0.22, 0.25, 0.28)
+	world.environment.environment.ambient_light_energy = 0.45
 	world.eddington.show()
-	player.look_at_point(world.eddington.position + Vector3(0, 1.5, 0))
+	player.look_at_point(world.eddington.position + Vector3(0, 1.05, 0))
 	await ui.show_caption(C17.interlude_caption(), 2.4).finished
 	await ui.fade_to(0.0).finished
 	_busy = false
@@ -269,6 +276,9 @@ func _coda() -> void:
 	world.mentor.hide()
 	world.lamp.light_energy = 1.1
 	world.window_light.light_energy = 0.4
+	world.window_light.light_color = Color(0.48, 0.65, 0.82)
+	world.window_glass.albedo_color = Color(0.12, 0.19, 0.23)
+	world.environment.environment.ambient_light_energy = 0.32
 	player.look_at_point(world.kit.position + Vector3(0, 1.5, 0))
 	await ui.fade_to(0.0).finished
 	_busy = false

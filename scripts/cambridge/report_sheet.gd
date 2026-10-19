@@ -111,7 +111,7 @@ func _add_row(page: VBoxContainer, row: Dictionary) -> void:
 	choices.add_theme_constant_override("v_separation", 8)
 	page.add_child(choices)
 	for option in available:
-		var button := Button.new()
+		var button: Button = CheckBox.new() if row.id == "kit_credited" else Button.new()
 		button.text = option.text
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size = Vector2(0, 58)
