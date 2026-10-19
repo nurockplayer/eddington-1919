@@ -49,3 +49,23 @@
   - The art is primitive.
   - The measurement model is illustrative.
   - All of these are isolated in a few files and easy to change.
+
+## D007 — Lightweight Art Bible and fast generate→Godot loop (Game Director, 2026-10-19)
+- **What changed and why:**
+  - The Owner asked for a reusable visual design system in which fast image generation is part of production, not only early reference.
+  - Direction **"Diorama + Plate Grade"** was chosen from four generated directions by a weighted scorecard ([art/BIBLE.md](../art/BIBLE.md) §2):
+    - Simplified, bevelled, flat-palette 3D forms. They are buildable, cheap and readable.
+    - A subtle toned-glass-plate grade applied in-engine. It carries the era.
+  - Series-wide principles (BIBLE §1) are kept separate from 1919-specific rules. They become series rules only after a second era uses them.
+  - Instruments and architecture are modelled procedurally in Blender to spec dimensions. Image-to-3D (Tripo) is reserved for organic props.
+- **Supersedes:** D006's "no imported assets". GLBs are now built reproducibly by committed Blender scripts (`art/pipeline/blender/`). Every primitive fallback still works if a model is missing.
+- **What was actually verified:**
+  - 25 generated images across 4 rounds, with exact prompts and timings in `art/runs/*/manifest.jsonl`.
+  - 2 production assets (coelostat, packing crate) pass the G2 mesh gate, the G3 lookdev and the G4 in-game benchmark against the v0.1 baseline (`art/validation/`).
+  - 155/155 logic checks and the careful autoplay pass after integration.
+- **Not verified:** the Tripo route (no API key), Gemini (no quota), "dot" (unidentified), and human judgment of the new look.
+- **Risks/reversibility:**
+  - The grade is one file (`scripts/look.gd`, `--no-grade` turns it off).
+  - The palette is one file (`art/palette.toml` → `scripts/palette.gd`).
+  - Models fall back to primitives.
+  - **Owner confirmation of the direction is requested** (major-direction rule); the work is not blocked on it.

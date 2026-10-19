@@ -41,6 +41,7 @@ godot --path . --always-on-top -- --autoplay=careful --shots=/tmp/e1919 --speed=
 - [決策紀錄](docs/DECISIONS.md)：Owner 已定方向與 Game Director 可自行調整的選擇。
 - [素材溯源](docs/PROVENANCE.md)：遊戲中每項史實、重建與虛構的標記和來源。
 - [試玩紀錄](docs/PLAYTEST.md)：實際測過什麼、沒測過什麼。
+- [美術聖經 Art Bible](art/BIBLE.md) 與 [美術管線](art/PIPELINE.md)：視覺方向、快速生圖→Blender→Godot 驗收閉環、提示詞與素材紀錄。
 - [先前 Notion 的日食互動切片草案](https://app.notion.com/p/3fdd7d8b39078183a159e6bd58fc0b7e)：**僅為舊提案**；其中「固定 2D 視角」「原型必做 Hub」「底片一律數日後沖洗」等項目**不構成新需求**，且需依史料修正。
 - [系列構想整理](https://app.notion.com/p/3f9d7d8b390781ec8049f6533b1760b4)：長期歷史題材版圖／尚未批准的構想混合資料。
 

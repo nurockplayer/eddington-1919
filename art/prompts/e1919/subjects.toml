@@ -1,0 +1,87 @@
+# Subject blocks for Eddington 1919. Historical constraints come from
+# docs/HISTORY_1919.md and docs/PROVENANCE.md: the Príncipe station layout is a
+# RECONSTRUCTION (no in-situ photographs are known), so subjects describe a
+# plausible stage, not a documented plan.
+
+[key_station]
+version = "v1"
+kind = "keyframe"
+text = """
+29 May 1919, late morning, Roça Sundy cocoa plantation on Príncipe island. \
+A cleared terrace of wet red earth. An open-sided timber sun-shelter with a \
+rolled-back canvas roof covers a long horizontal telescope tube on wooden trestles. \
+At the far end a flat circular coelostat mirror sits on a squat brick pier \
+with a small wooden clockwork drive box; it reflects sunlight into the tube. \
+Two Edwardian British astronomers in pale tropical clothes, one in a pith helmet, \
+work at the near end of the tube beside a plain wooden table with a chronometer. \
+Wooden packing crates. A whitewashed plantation house with a red tile roof in the background, \
+palms and cocoa trees. Heavy grey-white cumulus clouds drifting across a pale sun."""
+
+[coelostat]
+version = "v2"  # v2: explicit part list + proportions for modelling (r03)
+kind = "asset"
+text = """
+A single object, a 1919 field coelostat on its pier. Parts, bottom to top: \
+a squat square red-brick pier, 1 m wide and 1 m tall, with a stone cap slab; \
+a short cast-iron column; a cast-iron fork (U-shaped yoke) holding a flat circular \
+silvered mirror about 40 cm across in a thick brass cell, tilted up about 60 degrees; \
+beside the column, a small dark wooden clockwork drive box with a brass winding crank, \
+and a hanging weight chain. Proportions: mirror centre about 1.4 m above the ground. \
+Three-quarter view from slightly above, centered, whole object visible, \
+plain neutral light-grey studio background, soft even lighting, no cast shadows on the background."""
+
+[plate_holder]
+version = "v1"
+kind = "asset"
+text = """
+A single object, a 1919 wooden photographic double dark-slide plate holder for \
+16 x 16 cm glass plates: a flat varnished mahogany box with brass corners, \
+a black ebonite pull-out shutter slide half withdrawn, a small paper label. \
+Three-quarter view from slightly above, centered, whole object visible, \
+plain neutral light-grey studio background, soft even lighting."""
+
+[darkroom_hut]
+version = "v1"
+kind = "asset"
+text = """
+A single small field darkroom hut, about 4 m by 3.5 m, built from vertical \
+weathered timber boards on a low stone footing, a single door, no windows, \
+a sloped corrugated-iron roof with wide eaves, a red safelight lantern hanging by the door. \
+Three-quarter view, centered, whole building visible, \
+plain neutral light-grey background, soft even overcast lighting."""
+
+# r02 keyframes: one per in-game benchmark bookmark/lighting state
+# (tests/benchmark.gd), so concept targets and in-game screenshots compare 1:1.
+
+[totality_sky]
+version = "v2"  # v2: steep upward camera, no ground, no cameras/tripods (r02 #8)
+kind = "keyframe"
+text = """
+Camera pointing steeply upward at the sky, almost no ground visible, from under the \
+bare edge of an open timber frame whose canvas roof is rolled away. \
+Total solar eclipse on 29 May 1919 over a tropical island: the black disc of the Moon \
+with a thin pale silver-white corona, half veiled by drifting grey cumulus clouds with \
+one thinning gap near the Sun. A few faint stars. Dark palm-frond silhouettes at the \
+frame edges. Deep blue-grey twilight. No people, no cameras, no tripods."""
+
+[darkroom_night]
+version = "v3"  # v2: windowless (r02 #5). v3: the plate is a star-field negative (r02 #6)
+kind = "keyframe"
+text = """
+Night inside a small windowless timber field darkroom on a tropical plantation in 1919, \
+no windows and no view outside. \
+A plain wooden measuring table with a square glass negative plate lying on a white sheet: \
+the plate is clear grey glass sprinkled with tiny dark star dots and a faint dark smudge \
+of cloud fog, no picture or landscape. A brass magnifier and a notebook, lit by a warm oil lamp; \
+a dim red safelight lantern glows over shelves of developing trays at the back. \
+Rough vertical board walls, a slanted roof, deep shadows."""
+
+[packing_crate]
+version = "v1"
+kind = "asset"
+text = """
+A single object, a 1919 wooden expedition packing case, 70 x 50 x 50 cm: \
+planed pine boards with visible plank seams, darker battens across the ends, \
+simple iron corner straps and rope handles, lid nailed shut. No lettering. \
+Three-quarter view from slightly above, centered, whole object visible, \
+plain neutral light-grey studio background, soft even lighting."""

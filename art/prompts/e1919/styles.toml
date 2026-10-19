@@ -1,0 +1,59 @@
+# Era style blocks for Eddington 1919 (Príncipe).
+# Each block must open with an explicit MEDIUM sentence: r01 showed that a
+# descriptive style sentence placed after a long subject is ignored by GPT
+# image generation (all four r01 images came out photoreal). See art/runs/.
+# Status is updated after each review round (see art/runs/*/REVIEW.md).
+
+[A_silver_plate]
+version = "v2"
+status = "candidate"
+label = "Silver Plate"
+style = """
+A stylized 3D video game screenshot graded to look like a hand-tinted 1919 glass-plate photograph. \
+Near-monochrome: warm silver-sepia midtones and cool blue-grey shadows, gentle grain, \
+soft halation around highlights. Only the sky and the scientific instruments carry a faint tint. \
+Simplified low-detail geometry, not a real photograph."""
+
+[B_painted_diorama]
+version = "v2"
+status = "candidate"
+label = "Painted Diorama"
+style = """
+A stylized low-poly 3D video game screenshot, NOT photographic. \
+Chunky simplified geometry with bevelled edges, flat hand-painted textures with broad color blocks \
+and almost no fine texture noise, graphic gradient sky with soft simplified cloud shapes. \
+Muted tropical palette: red laterite earth, deep green foliage, bleached canvas, weathered teak, \
+Atlantic grey-blue sea. Soft ambient light, gentle colored shadows."""
+
+[C_naturalist_gouache]
+version = "v2"
+status = "candidate"
+label = "Naturalist Gouache"
+style = """
+An opaque gouache painting, NOT photographic, in the manner of an early twentieth-century \
+scientific expedition sketchbook: visible dry-brush strokes, simplified shapes, \
+limited earth palette of ochre, burnt sienna, sap green and Payne's grey with paper-white highlights, \
+composed like a frame from a painterly 3D game."""
+
+[D_period_realism]
+version = "v2"
+status = "candidate"
+label = "Grounded Period Realism"
+style = """
+A grounded semi-realistic real-time 3D game render (current-generation game engine look), \
+physically based materials, natural overcast tropical daylight, restrained cinematic grade, \
+documentary feeling, moderate detail."""
+
+# r02: hybrid chosen for testing after r01 review — B's buildable diorama forms
+# with A's era idea applied as a restrained grade (see art/BIBLE.md §2).
+[E_diorama_plate_grade]
+version = "v1"
+status = "candidate"
+label = "Diorama + Plate Grade"
+style = """
+A stylized low-poly 3D video game screenshot, NOT photographic: chunky simplified geometry \
+with softly bevelled edges, flat hand-painted color blocks with almost no fine texture, \
+simplified cloud shapes. Graded like an old glass-plate photograph: slightly desaturated, \
+warm sepia in the shadows and midtones, cool silver highlights, very subtle grain. \
+Palette: red laterite earth, deep olive green foliage, bleached canvas, weathered teak, \
+slate grey-blue sea, silver-grey sky."""

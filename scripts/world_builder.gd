@@ -4,12 +4,48 @@ extends RefCounted
 ## layout (sun-shelter over a horizontal tube fed by a coelostat, a darkroom hut,
 ## the plantation house) is a plausible stage, not a documented plan.
 
+const Palette := preload("res://scripts/palette.gd")
+const MODELS := "res://assets/models/"
+
 var root: Node3D
 var _mats := {}
 
 
 func _init(p_root: Node3D) -> void:
 	root = p_root
+
+
+## Palette colour by swatch name (art/palette.toml → scripts/palette.gd).
+func P(key: String) -> Color:
+	return Palette.C[key]
+
+
+## Imported production model (art/PIPELINE.md), or null so the caller can fall
+## back to primitives. Models face +Z with the origin at bottom-centre.
+func model(id: String, pos: Vector3, rot_y_deg := 0.0, scale := 1.0) -> Node3D:
+	var path := MODELS + id + ".glb"
+	if not ResourceLoader.exists(path):
+		return null
+	var inst: Node3D = (load(path) as PackedScene).instantiate()
+	inst.position = pos
+	inst.rotation.y = deg_to_rad(rot_y_deg)
+	inst.scale = Vector3.ONE * scale
+	root.add_child(inst)
+	return inst
+
+
+## Invisible solid collider (pairs with an imported model's visual mesh).
+func collider(size: Vector3, pos: Vector3, rot_y_deg := 0.0) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var sh := BoxShape3D.new()
+	sh.size = size
+	cs.shape = sh
+	body.add_child(cs)
+	body.position = pos
+	body.rotation.y = deg_to_rad(rot_y_deg)
+	root.add_child(body)
+	return body
 
 
 func mat(color: Color, rough := 0.85, metal := 0.0) -> StandardMaterial3D:
@@ -143,8 +179,8 @@ func _ground() -> void:
 	n.frequency = 0.02
 	tex.noise = n
 	var grad := Gradient.new()
-	grad.set_color(0, Color(0.20, 0.27, 0.12))
-	grad.set_color(1, Color(0.36, 0.40, 0.20))
+	grad.set_color(0, P("foliage_deep").darkened(0.15))
+	grad.set_color(1, P("foliage_light").darkened(0.1))
 	tex.color_ramp = grad
 	m.albedo_texture = tex
 	m.uv1_scale = Vector3(18, 18, 1)
@@ -153,7 +189,7 @@ func _ground() -> void:
 	body.add_child(mi)
 	root.add_child(body)
 	# Trampled red earth around the instruments and paths (wet after the storm).
-	var dirt := Color(0.40, 0.25, 0.16)
+	var dirt := P("laterite_wet")
 	box(Vector3(7.5, 0.02, 9.5), Vector3(0, 0.01, -3.6), dirt, null, false)
 	box(Vector3(10, 0.02, 1.6), Vector3(4.5, 0.012, 1.8), dirt, null, false, Vector3(0, deg_to_rad(-12), 0))
 	box(Vector3(1.6, 0.02, 16), Vector3(-6, 0.012, -10), dirt, null, false, Vector3(0, deg_to_rad(35), 0))
@@ -168,9 +204,9 @@ func _sea_and_hills() -> void:
 	pm.size = Vector2(1400, 1400)
 	sea.mesh = pm
 	sea.position.y = -0.4
-	sea.material_override = mat(Color(0.10, 0.22, 0.30), 0.12, 0.1)
+	sea.material_override = mat(P("sea_slate"), 0.12, 0.1)
 	root.add_child(sea)
-	var green := Color(0.14, 0.24, 0.12)
+	var green := P("hill_far")
 	for h in [[Vector3(-60, -6, -70), 30.0], [Vector3(25, -10, -90), 40.0], [Vector3(-95, -4, 10), 26.0], [Vector3(70, -8, -40), 30.0], [Vector3(-30, -12, -120), 50.0]]:
 		var mi := MeshInstance3D.new()
 		var sm := SphereMesh.new()
@@ -184,8 +220,8 @@ func _sea_and_hills() -> void:
 
 func _shelter_and_instrument() -> Dictionary:
 	var out := {}
-	var wood := Color(0.36, 0.25, 0.16)
-	var thatch := Color(0.52, 0.44, 0.28)
+	var wood := P("teak")
+	var thatch := P("canvas")
 	# Sun-shelter over the horizontal tube.
 	for x in [-2.3, 2.3]:
 		for z in [-0.6, -6.9]:
@@ -198,26 +234,33 @@ func _shelter_and_instrument() -> Dictionary:
 	out.roof = roof
 	box(Vector3(5.2, 0.3, 0.3), Vector3(0, 2.95, -7.1), thatch.darkened(0.25), null, false)
 	# Coelostat on its pier (the mirror turns with clockwork to follow the Sun).
-	var brick := Color(0.55, 0.36, 0.28)
-	box(Vector3(1.0, 1.05, 1.0), Vector3(0, 0.525, -6.6), brick)
-	cyl(0.08, 0.35, Vector3(0, 1.22, -6.6), Color(0.2, 0.2, 0.22))
-	var mirror := cyl(0.24, 0.05, Vector3(0, 1.4, -6.6), Color(0.85, 0.88, 0.92), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)))
-	(mirror as MeshInstance3D).material_override = mat(Color(0.8, 0.84, 0.9), 0.05, 0.95)
-	cyl(0.26, 0.07, Vector3(0, 1.4, -6.6), Color(0.25, 0.22, 0.18), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)), 0.26)
-	# Clock-drive box with winding crank.
-	var drive := box(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6), Color(0.30, 0.22, 0.14))
-	box(Vector3(0.05, 0.05, 0.2), Vector3(0.86, 0.95, -6.6), Color(0.6, 0.55, 0.4), null, false)
-	cyl(0.05, 0.6, Vector3(0.6, 0.45, -6.6), Color(0.25, 0.25, 0.25))  # weight chain housing
-	interactable(drive, "drive", "時鐘驅動")
+	var drive: Node3D
+	var coelostat := model("coelostat", Vector3(0, 0, -6.6))
+	if coelostat:
+		# Production model (art/assets.toml: coelostat). Colliders stay simple boxes.
+		collider(Vector3(1.0, 1.06, 1.0), Vector3(0, 0.53, -6.6))
+		drive = hotspot(Vector3(0.46, 0.4, 0.38), Vector3(0.62, 0.92, -6.6), "drive", "時鐘驅動")
+	else:
+		var brick := P("brick")
+		box(Vector3(1.0, 1.05, 1.0), Vector3(0, 0.525, -6.6), brick)
+		cyl(0.08, 0.35, Vector3(0, 1.22, -6.6), P("iron"))
+		var mirror := cyl(0.24, 0.05, Vector3(0, 1.4, -6.6), P("mirror"), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)))
+		(mirror as MeshInstance3D).material_override = mat(P("mirror"), 0.05, 0.95)
+		cyl(0.26, 0.07, Vector3(0, 1.4, -6.6), P("brass"), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)), 0.26)
+		# Clock-drive box with winding crank.
+		drive = box(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6), P("teak_dark"))
+		box(Vector3(0.05, 0.05, 0.2), Vector3(0.86, 0.95, -6.6), P("brass"), null, false)
+		cyl(0.05, 0.6, Vector3(0.6, 0.45, -6.6), P("iron"))  # weight chain housing
+		interactable(drive, "drive", "時鐘驅動")
 	out.drive_pos = Vector3(0.62, 0.92, -6.6)
 	# Horizontal tube (lens near the coelostat, plate end toward the shelter front).
-	var tube_col := Color(0.18, 0.16, 0.14)
+	var tube_col := P("iron")
 	box(Vector3(0.46, 0.46, 3.5), Vector3(0, 1.35, -3.75), tube_col)
-	cyl(0.25, 0.14, Vector3(0, 1.35, -5.55), Color(0.55, 0.47, 0.3), null, false, Vector3(deg_to_rad(90), 0, 0))
+	cyl(0.25, 0.14, Vector3(0, 1.35, -5.55), P("brass"), null, false, Vector3(deg_to_rad(90), 0, 0))
 	for z in [-5.0, -2.5]:
 		box(Vector3(0.7, 1.12, 0.12), Vector3(0, 0.56, z), wood)
 	# Plate carrier at the eye end.
-	var carrier := box(Vector3(0.6, 0.6, 0.18), Vector3(0, 1.35, -1.92), Color(0.28, 0.20, 0.12))
+	var carrier := box(Vector3(0.6, 0.6, 0.18), Vector3(0, 1.35, -1.92), P("teak_dark"))
 	interactable(carrier, "station", "底片架")
 	out.station_look = Vector3(0, 1.35, -1.92)
 	out.station_pos = Vector3(0.0, 0.0, -0.9)
@@ -234,7 +277,7 @@ func _shelter_and_instrument() -> Dictionary:
 	for dx in [-0.58, 0.58]:
 		for dz in [-0.3, 0.3]:
 			box(Vector3(0.06, 0.8, 0.06), Vector3(-1.9 + dx, 0.4, -3.4 + dz), wood, null, false)
-	var plan := box(Vector3(0.34, 0.03, 0.26), Vector3(-2.2, 0.845, -3.35), Color(0.82, 0.78, 0.66))
+	var plan := box(Vector3(0.34, 0.03, 0.26), Vector3(-2.2, 0.845, -3.35), P("canvas"))
 	interactable(plan, "plan", "曝光計畫")
 	var chrono := box(Vector3(0.22, 0.12, 0.22), Vector3(-1.65, 0.89, -3.45), Color(0.33, 0.22, 0.12))
 	cyl(0.08, 0.02, Vector3(-1.65, 0.96, -3.45), Color(0.92, 0.9, 0.82))
@@ -252,8 +295,8 @@ func _shelter_and_instrument() -> Dictionary:
 
 func _darkroom() -> Dictionary:
 	var out := {}
-	var wall := Color(0.55, 0.47, 0.36)
-	var roof := Color(0.30, 0.27, 0.22)
+	var wall := P("teak")
+	var roof := P("iron").lightened(0.15)  # corrugated iron (RECONSTRUCTION)
 	var c := Vector3(10.0, 0, 3.0)
 	# Walls: 4 × 3.4 footprint, door gap on the west (-x) side.
 	box(Vector3(0.12, 2.5, 3.4), c + Vector3(2.0, 1.25, 0), wall)
@@ -265,7 +308,7 @@ func _darkroom() -> Dictionary:
 	box(Vector3(4.6, 0.14, 4.0), c + Vector3(0, 2.6, 0), roof, null, false, Vector3(0, 0, deg_to_rad(-6)))
 	box(Vector3(4.0, 0.04, 3.4), c + Vector3(0, 0.02, 0), Color(0.3, 0.24, 0.18), null, false)
 	# Shelf with the plate box.
-	var shelf_wood := Color(0.34, 0.24, 0.15)
+	var shelf_wood := P("teak_dark")
 	box(Vector3(0.5, 0.05, 1.6), c + Vector3(1.65, 1.0, -0.6), shelf_wood)
 	var pbox := box(Vector3(0.36, 0.3, 0.5), c + Vector3(1.65, 1.18, -0.75), Color(0.22, 0.16, 0.1))
 	interactable(pbox, "plate_box", "底片匣箱")
@@ -302,19 +345,19 @@ func _darkroom() -> Dictionary:
 
 func _plantation_house() -> void:
 	var c := Vector3(-15, 0, -20)
-	var wall := Color(0.86, 0.82, 0.72)
+	var wall := P("whitewash")
 	box(Vector3(14, 5, 8), c + Vector3(0, 2.5, 0), wall)
 	var roof := MeshInstance3D.new()
 	var pr := PrismMesh.new()
 	pr.size = Vector3(15, 2.4, 9)
 	roof.mesh = pr
-	roof.material_override = mat(Color(0.55, 0.25, 0.18))
+	roof.material_override = mat(P("roof_tile"))
 	roof.position = c + Vector3(0, 6.2, 0)
 	root.add_child(roof)
 	for i in 7:
 		box(Vector3(1.0, 1.6, 0.05), c + Vector3(-6 + i * 2, 3.1, 4.03), Color(0.22, 0.3, 0.28), null, false)
 		cyl(0.1, 2.5, c + Vector3(-6.5 + i * 2.2, 1.25, 6.2), Color(0.9, 0.88, 0.82), null, true)
-	box(Vector3(15, 0.2, 2.6), c + Vector3(0, 2.6, 5.3), Color(0.55, 0.25, 0.18), null, false)
+	box(Vector3(15, 0.2, 2.6), c + Vector3(0, 2.6, 5.3), P("roof_tile"), null, false)
 	box(Vector3(15, 0.3, 2.6), c + Vector3(0, 0.15, 5.3), Color(0.6, 0.55, 0.5))
 	var sign := Label3D.new()
 	sign.text = "ROÇA SUNDY"
@@ -337,7 +380,7 @@ func palm(pos: Vector3, h: float) -> void:
 		leaf.position = Vector3(0, h, 0)
 		leaf.rotation = Vector3(deg_to_rad(randf_range(-35, -15)), i * TAU / 8.0, 0)
 		p.add_child(leaf)
-		box(Vector3(0.45, 0.03, 2.4), Vector3(0, -0.25, 1.15), Color(0.17, 0.34, 0.14).lightened(randf() * 0.1), leaf, false, Vector3(deg_to_rad(18), 0, 0))
+		box(Vector3(0.45, 0.03, 2.4), Vector3(0, -0.25, 1.15), P("foliage_deep").lightened(randf() * 0.12), leaf, false, Vector3(deg_to_rad(18), 0, 0))
 	var body := StaticBody3D.new()
 	var cs := CollisionShape3D.new()
 	var sh := CylinderShape3D.new()
@@ -371,16 +414,25 @@ func _vegetation() -> void:
 		sm.height = s * 1.6
 		mi.mesh = sm
 		mi.position = pos + Vector3(0, s * 0.6, 0)
-		mi.material_override = mat(Color(0.12, 0.26, 0.10).lightened(randf() * 0.12))
+		mi.material_override = mat(P("foliage_deep").lerp(P("foliage_light"), randf() * 0.5))
 		root.add_child(mi)
 
 
 func _props() -> void:
-	var crate := Color(0.45, 0.33, 0.2)
-	box(Vector3(0.7, 0.5, 0.5), Vector3(3.2, 0.25, -5.5), crate)
-	box(Vector3(0.6, 0.45, 0.5), Vector3(3.3, 0.72, -5.4), crate.darkened(0.1))
-	box(Vector3(0.9, 0.6, 0.6), Vector3(6.6, 0.3, 4.6), crate)
-	box(Vector3(0.5, 0.4, 0.4), Vector3(-3.4, 0.2, -1.2), crate)
+	# [size, base centre, yaw]: stacked crates sit on the one below.
+	var crates := [
+		[Vector3(0.7, 0.5, 0.5), Vector3(3.2, 0.0, -5.5), 0.0],
+		[Vector3(0.6, 0.45, 0.5), Vector3(3.3, 0.5, -5.4), 8.0],
+		[Vector3(0.9, 0.6, 0.6), Vector3(6.6, 0.0, 4.6), -15.0],
+		[Vector3(0.5, 0.4, 0.4), Vector3(-3.4, 0.0, -1.2), 25.0],
+	]
+	for c in crates:
+		var size: Vector3 = c[0]
+		# One kit model, uniformly scaled to each crate's width (art/assets.toml: packing_crate).
+		if model("packing_crate", c[1], c[2], size.x / 0.7):
+			collider(Vector3(size.x, size.x / 0.7 * 0.5, size.x / 0.7 * 0.5), c[1] + Vector3(0, size.x / 0.7 * 0.25, 0), c[2])
+		else:
+			box(size, c[1] + Vector3(0, size.y / 2.0, 0), P("pine"), null, true, Vector3(0, deg_to_rad(c[2]), 0))
 	var label := Label3D.new()
 	label.text = "R.A.S. ECLIPSE\nPRINCIPE"
 	label.font_size = 40

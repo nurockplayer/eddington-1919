@@ -1,0 +1,28 @@
+# Series-wide prompt blocks (history-of-science series).
+# Every era game composes: series.base + <era>.style + <era>.subject (+ refs).
+# Bump `version` on any wording change; runs record the version they used.
+
+version = "s2"  # s2: compose order medium-first (r01 finding)
+
+# Camera/framing language shared by all concept images, so images across eras
+# are comparable and so they match the in-game first-person camera.
+framing = """
+Game concept frame, 16:9, eye-level first-person viewpoint at 1.65 m, \
+50 mm-equivalent lens (about 60° horizontal field of view), no fisheye, \
+no dutch angle. Clear foreground / midground / background separation."""
+
+# Rules that hold for every era (series identity, see art/BIBLE.md §1).
+identity = """
+Simplified, hand-built forms with softly bevelled edges, like a museum diorama \
+built at 1:1 scale. Large readable silhouettes, few small details. \
+Materials read as their real substance (wood, brass, canvas, glass, brick) \
+through color and broad texture, not micro-detail. \
+The scientific evidence of the scene is the brightest and clearest thing in the frame. \
+Real historical people are depicted respectfully, never as caricatures."""
+
+# Negative constraints. Generators treat these as plain text, so keep them short.
+avoid = """
+Avoid: text, letters, captions, watermarks, logos, UI, frames or borders; \
+anachronistic objects; fantasy or steampunk embellishment; \
+observatory domes; neon or saturated cyan/magenta; \
+photorealistic skin pores; lens flares; heavy vignettes."""

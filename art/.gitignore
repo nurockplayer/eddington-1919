@@ -1,0 +1,3 @@
+# Benchmark/lookdev full-size captures stay local; compare.py writes committed JPEGs to shots/.
+validation/**/*.png
+__pycache__/

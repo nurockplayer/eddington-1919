@@ -9,6 +9,7 @@ const UI := preload("res://scripts/ui.gd")
 const Content := preload("res://scripts/content.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
+const Look := preload("res://scripts/look.gd")
 const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
 
 enum Phase { TITLE, PREP, TOTALITY, NIGHT, ENDING }
@@ -81,6 +82,15 @@ func _ready() -> void:
 	ui.set_objectives("")
 	ui.hud.visible = false
 	_update_sky_prep()
+	if args.has("benchmark"):
+		var bench_script: Script = load("res://tests/benchmark.gd")
+		if bench_script:
+			bot = null
+			var bench: Node = bench_script.new()
+			bench.main = self
+			bench.out_dir = ProjectSettings.globalize_path(args.benchmark) if args.benchmark.begins_with("res://") else args.benchmark
+			add_child(bench)
+		return
 	if args.has("autoplay"):
 		var bot_script: Script = load("res://tests/autoplay_bot.gd")
 		if bot_script == null:
@@ -155,6 +165,8 @@ func _build_environment() -> void:
 	env.fog_density = 0.0035
 	env.fog_light_color = Color(0.62, 0.65, 0.68)
 	env.fog_sky_affect = 0.0
+	if not _user_args().has("no-grade"):
+		Look.apply_grade(env)
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)

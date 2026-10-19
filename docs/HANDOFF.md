@@ -24,6 +24,14 @@
   - `shaders/eclipse_sky.gdshader`: sky that shares the cloud texture with the sim.
   - `tests/`: logic tests and the autoplay bot.
 
+## Visual system (art pipeline, 2026-10-19)
+- **Read [art/BIBLE.md](../art/BIBLE.md)** (style rules) **and [art/PIPELINE.md](../art/PIPELINE.md)** (generate → choose → Blender/Tripo → Godot gates → feed back) before making any art.
+- **Decision record:** [D007](DECISIONS.md). **Log:** [art/LOG.md](../art/LOG.md).
+- **Generate concept images:** `python3 art/pipeline/gen.py --run rNN-x --styles E_diorama_plate_grade --subject <subject> --gens gpt --n 2` (GPT via Codex, about 1 min per image).
+- **In-game visual benchmark:** `godot --path . --always-on-top -- --benchmark=$PWD/art/validation/g4-<label> --seed=7`, then compare against `art/validation/g4-baseline-v0.1` with `art/pipeline/compare.py`.
+- **Lookdev:** `godot --path . --always-on-top res://scenes/lookdev.tscn -- --capture=$PWD/art/validation/g3-<label>`.
+- **Blocked:** Tripo needs `TRIPO_API_KEY`; Gemini needs paid image quota; "dot" is unidentified.
+
 ## Next single highest-value step
 **A human playtest of v0.1**, about 15 minutes, using the five questions in [PLAYTEST.md](PLAYTEST.md). Then tune gap readability, prep pressure and exposure difficulty from what the player actually does. Do not expand the scope before that.
 

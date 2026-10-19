@@ -1,0 +1,108 @@
+# Eddington 1919 palette: the single source of truth for flat-colour materials.
+# Used by Blender builds (art/pipeline/blender/kit.py) and shown as chips in the
+# lookdev scene (scripts/lookdev.gd). Hex is sRGB albedo.
+#
+# Value rule (BIBLE §4): albedo HSV value stays within 0.08–0.82. Anything
+# brighter is reserved for EVIDENCE (Sun/corona, stars, glass plates, the
+# measuring sheet), so the player's eye always lands on the evidence first.
+# Saturation rule: ≤ 0.65; the only saturated hues are laterite red and brass.
+#
+# role: ground | foliage | structure | instrument | accent | far | evidence
+
+[swatch.laterite]
+hex = "#9A4E2F"
+role = "ground"
+roughness = 0.95
+
+[swatch.laterite_wet]
+hex = "#6E3826"
+role = "ground"
+roughness = 0.55
+
+[swatch.foliage_deep]
+hex = "#2F4A24"
+role = "foliage"
+roughness = 0.85
+
+[swatch.foliage_light]
+hex = "#5E7A36"
+role = "foliage"
+roughness = 0.85
+
+[swatch.teak]
+hex = "#6E4C31"
+role = "structure"
+roughness = 0.8
+
+[swatch.teak_dark]
+hex = "#463022"
+role = "structure"
+roughness = 0.8
+
+[swatch.canvas]
+hex = "#CFC3A4"
+role = "structure"
+roughness = 0.95
+
+[swatch.whitewash]
+hex = "#D1C9B8"
+role = "structure"
+roughness = 0.9
+
+[swatch.roof_tile]
+hex = "#93493A"
+role = "structure"
+roughness = 0.85
+
+[swatch.brick]
+hex = "#985B45"
+role = "structure"
+roughness = 0.9
+
+[swatch.iron]
+hex = "#2E2C2A"
+role = "instrument"
+roughness = 0.55
+metallic = 0.4
+
+[swatch.brass]
+hex = "#A9823F"
+role = "accent"
+roughness = 0.35
+metallic = 0.85
+
+[swatch.ebonite]
+hex = "#1C1B1A"
+role = "instrument"
+roughness = 0.4
+
+[swatch.sea_slate]
+hex = "#3E5966"
+role = "far"
+roughness = 0.2
+
+[swatch.hill_far]
+hex = "#4E6450"
+role = "far"
+roughness = 0.9
+
+[swatch.mirror]
+hex = "#E4E7EA"
+role = "evidence"
+roughness = 0.04
+metallic = 1.0
+
+[swatch.plate_glass]
+hex = "#F2EFE6"
+role = "evidence"
+roughness = 0.1
+
+[swatch.pine]
+hex = "#9C7B50"
+role = "structure"
+roughness = 0.85
+
+[swatch.stone]
+hex = "#8C877D"
+role = "structure"
+roughness = 0.9
