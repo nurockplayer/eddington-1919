@@ -18,8 +18,11 @@ var _bias_blocked := false
 var _revised := false
 var _capturing := 0
 var _room_draw_calls := 0
+var _departure_draw_calls := 0
 var _input_retries := 0
 var _speaker_watched := false
+var _speaker_scene_id := 0
+var _departure_handled := false
 var _speaker_shots: Dictionary = {}
 var _choice_shots: Dictionary = {}
 
@@ -33,14 +36,31 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_elapsed += delta
-	if _elapsed > 210.0 and not _done:
-		failures.append("210 second watchdog")
+	if _elapsed > 420.0 and not _done:
+		failures.append("420 second watchdog")
 		_finish()
 	var scene = get_tree().current_scene
-	if scene and scene.get_script() and scene.get_script().resource_path.ends_with("cambridge/director.gd"):
-		if not _speaker_watched:
+	if scene and scene.get_script() and scene.get_script().resource_path.ends_with("cambridge/departure_director.gd"):
+		if _speaker_scene_id != scene.get_instance_id():
 			main = scene
 			main.ui.dialogue_entry.connect(_on_dialogue_entry)
+			_speaker_scene_id = scene.get_instance_id()
+			_speaker_watched = true
+		if not _departure_handled:
+			_departure_handled = true
+			_departure_run.call_deferred()
+		var name_: String = main.Beat.keys()[main.beat]
+		if not _shot_beats.has("M2_" + name_):
+			_shot_beats["M2_" + name_] = true
+			beats.append("M2_" + name_)
+			_beat_shot(name_)
+		if main._free():
+			_departure_draw_calls = maxi(_departure_draw_calls, int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
+	if scene and scene.get_script() and scene.get_script().resource_path.ends_with("cambridge/director.gd"):
+		if _speaker_scene_id != scene.get_instance_id():
+			main = scene
+			main.ui.dialogue_entry.connect(_on_dialogue_entry)
+			_speaker_scene_id = scene.get_instance_id()
 			_speaker_watched = true
 		if scene.beat == scene.Beat.INVESTIGATE and scene._free():
 			_room_draw_calls = maxi(_room_draw_calls, int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
@@ -59,7 +79,7 @@ func _beat_shot(name_: String) -> void:
 			await get_tree().process_frame
 			establishing_wait -= get_process_delta_time()
 		await shot("interlude_room")
-	if name_ in ["OPENING", "MENTOR", "INTERLUDE", "EXAM", "CODA"]:
+	if name_ in ["OPENING", "MENTOR", "INTERLUDE", "EXAM", "CODA", "CHECKING", "KIT", "PROMISE", "FAREWELL"]:
 		var wait_left := 18.0
 		while wait_left > 0.0 and is_instance_valid(main) and not main.ui.dialog_active():
 			await get_tree().process_frame
@@ -83,6 +103,10 @@ func _beat_shot(name_: String) -> void:
 func _on_dialogue_entry(speaker: String) -> void:
 	if not is_instance_valid(main) or not main.world:
 		return
+	if main.get_script().resource_path.ends_with("cambridge/departure_director.gd") and main._pending == "promise":
+		var current_entry: Dictionary = main.ui._seq[main.ui._seq_i]
+		if str(current_entry.get("t", "")).contains("翻開工作簿"):
+			_capture_workbook()
 	var label := ""
 	if speaker == Cast.KIT and main.world.kit.visible:
 		label = "kit"
@@ -104,6 +128,14 @@ func _capture_speaker(beat_label: String, label: String) -> void:
 	_capturing += 1
 	await _wait_for_camera_settle()
 	await shot("speaker_" + beat_label + "_" + label)
+	_capturing -= 1
+
+
+func _capture_workbook() -> void:
+	_capturing += 1
+	await _wait_for_camera_settle()
+	await get_tree().create_timer(0.65).timeout
+	await shot("m2_workbook")
 	_capturing -= 1
 
 
@@ -267,9 +299,34 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 		failures.append("dialogue guard exhausted")
 
 
+func talk_keys(choices_by_key: Dictionary, default_choice := 0) -> void:
+	var guard := 120
+	while is_instance_valid(main) and main.ui.dialog_active() and guard > 0:
+		while _capturing > 0:
+			await frames()
+		guard -= 1
+		var entry: Dictionary = main.ui._seq[main.ui._seq_i]
+		if entry.has("choices"):
+			await frames(3)
+			var choice: int = int(choices_by_key.get(str(entry.get("key", "")), default_choice))
+			var choice_label: String = main.Beat.keys()[main.beat].to_lower() + "_" + str(main._pending)
+			if not _choice_shots.has(choice_label):
+				_choice_shots[choice_label] = true
+				await _wait_for_camera_settle()
+				await shot("choice_" + choice_label)
+			await tap(KEY_1 + choice)
+		else:
+			await tap(KEY_E)
+		await frames(3)
+	if guard == 0:
+		failures.append("keyed dialogue guard exhausted")
+
+
 func shot(label: String) -> void:
 	if shots_dir == "":
 		return
+	if is_instance_valid(main) and main.get_script() and main.get_script().resource_path.ends_with("cambridge/departure_director.gd") and not label.begins_with("m2_"):
+		label = "m2_" + label
 	# Native windows can stop drawing behind another application on macOS.
 	# Bring this real game window forward before waiting for rendered evidence.
 	DisplayServer.window_move_to_foreground()
@@ -414,10 +471,15 @@ func _run() -> void:
 	await talk()
 	await shot("10_fair_plan")
 	await click_button(board.finish_btn)
+	# Drain the last M1 report-plan/coda dialogue until its 1918 bridge hands off.
 	while not Story.prologue_done:
-		if is_instance_valid(main) and main.ui.dialog_active():
+		if is_instance_valid(main) and main.get_script() and main.get_script().resource_path.ends_with("cambridge/director.gd") and main.ui.dialog_active():
 			await shot("dialogue_" + str(main._pending))
 			await talk([1])
+		await frames(5)
+	# M1 now transitions into the authored M2 scene. Its dedicated routine runs the
+	# checklist and choices while this persistent runner waits for the M2 completion flag.
+	while not Story.departure_done:
 		await frames(5)
 	while not is_instance_valid(get_tree().current_scene) or get_tree().current_scene.get_script().resource_path != "res://scripts/main.gd":
 		await frames()
@@ -426,9 +488,103 @@ func _run() -> void:
 	await shot("11_principe_prep")
 	if main.phase != main.Phase.PREP or main.ui.title_panel.visible:
 		failures.append("bridge did not enter PREP directly")
+	var expected_bond := "close" if scenario == "honest" else "warm"
+	var expected_fix := 1 if scenario == "tidy" else 0
+	if Story.bond_tone != expected_bond: failures.append("unexpected M2 bond tone: " + Story.bond_tone)
+	if Story.slip_fix != expected_fix: failures.append("unexpected M2 correction choice: %d" % Story.slip_fix)
+	if not Story.departure_done: failures.append("M2 completion flag missing at PREP")
 	if Story.report.get("kit_credited", false) != true: failures.append("independent check credit missing")
 	if not Story.clues.get("log", false): failures.append("observing log clue missing")
 	_finish()
+
+
+func _departure_run() -> void:
+	var deadline := 45.0
+	while is_instance_valid(main) and main._busy and deadline > 0.0:
+		await frames()
+		deadline -= get_process_delta_time()
+	if deadline <= 0.0:
+		failures.append("M2 scene did not finish its arrival transition")
+		_finish()
+		return
+	await shot("m2_arrival")
+	await talk_keys({"open": 0})
+	await walk(Vector3(-0.85, 0, 1.3))
+	await interact("lightbox")
+	var sheet = main.checklist
+	if not is_instance_valid(sheet) or not sheet.visible:
+		failures.append("lightbox did not open M2 checklist")
+		_finish()
+		return
+	await shot("m2_checklist")
+	var guard := 20
+	while sheet.visible and sheet.active_index < sheet.entries.size() and guard > 0:
+		# A row becomes markable only after Kit's authored readback dialogue.
+		if main.ui.dialog_active():
+			await talk_keys({})
+		if not sheet.visible or sheet.active_index >= sheet.entries.size():
+			break
+		if not sheet.ready_to_mark:
+			await frames(2)
+			continue
+		var entry: Dictionary = sheet.entries[sheet.active_index]
+		var is_slip := bool(entry.get("slip", false))
+		var reject := (scenario == "honest" or scenario == "accuse") and is_slip
+		if scenario == "accuse" and entry.get("id", "") == "s21":
+			reject = true
+		var row: Array = sheet.row_buttons[sheet.active_index]
+		if row.size() < 2:
+			failures.append("checklist row is missing real yes/no buttons")
+			break
+		await click_button(row[1] if reject else row[0])
+		await shot("m2_row_" + str(entry.get("id", "")))
+		guard -= 1
+	if guard <= 0:
+		failures.append("M2 checklist did not complete")
+		_finish()
+		return
+	if main.ui.dialog_active():
+		await talk_keys({"slip_fix": 1 if scenario == "tidy" else 0})
+	if sheet.visible and is_instance_valid(sheet.continue_btn):
+		var correction_wait := 3.0
+		while sheet.continue_btn.disabled and correction_wait > 0.0:
+			await frames()
+			correction_wait -= get_process_delta_time()
+		if sheet.continue_btn.disabled:
+			failures.append("corrected checklist did not become dismissible")
+			_finish()
+			return
+		await shot("m2_corrected_list")
+		await click_button(sheet.continue_btn)
+	await walk(Vector3(-1.75, 0, 1.4))
+	await interact("kit")
+	await talk_keys({"bond": 0 if scenario == "honest" else (1 if scenario == "tidy" else 2)})
+	var expected_bond := "close" if scenario == "honest" else "warm"
+	if main.beat != main.Beat.FAREWELL or Story.bond_tone != expected_bond:
+		failures.append("Kit conversation did not reach expected M2 state: beat=%s tone=%s" % [main.Beat.keys()[main.beat], Story.bond_tone])
+		_finish()
+		return
+	await talk_keys({"promise": 0})
+	await walk(Vector3(0, 0, 2.35))
+	await walk(Vector3(0, 0, 5.0))
+	await look(Vector3(0, 1.3, 0))
+	await shot("m2_packed_room")
+	await interact("mentor")
+	if interactions.is_empty() or interactions.back() != "mentor":
+		failures.append("corridor interaction did not reach Ashby")
+		_finish()
+		return
+	await talk_keys({"gift": 0})
+	var gift_wait := 3.0
+	while not main.keepsake.visible and gift_wait > 0.0:
+		await frames()
+		gift_wait -= get_process_delta_time()
+	if not main.keepsake.visible:
+		failures.append("Ashby farewell did not display the gift icon")
+		_finish()
+		return
+	await shot("m2_farewell")
+	# The M2 montage owns the final scene transition and sets departure_done.
 
 
 func _finish() -> void:
@@ -436,11 +592,13 @@ func _finish() -> void:
 	_done = true
 	var receipt := {"scenario": scenario, "phase_reached": "PREP" if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd" and main.phase == main.Phase.PREP else "INCOMPLETE",
 		"prologue_done": Story.prologue_done, "from_prologue_consumed": not Story.from_prologue,
+		"bond_tone": Story.bond_tone, "slip_fix": Story.slip_fix, "departure_done": Story.departure_done,
 		"clues": Story.clues, "report": Story.report, "plan": Story.plan, "kit_choice": Story.kit_choice,
 		"matched": _matched, "bias_blocked": _bias_blocked, "report_revised": _revised, "beats": beats, "interactions": interactions,
 		"screenshots": screenshots, "failures": failures, "human_playtest": false,
 		"engine": Engine.get_version_info().string, "elapsed_seconds": snappedf(_elapsed, 0.01),
-		"room_draw_calls_max_observed": _room_draw_calls, "input_retries": _input_retries}
+		"room_draw_calls_max_observed": _room_draw_calls, "departure_draw_calls_max_observed": _departure_draw_calls,
+		"input_retries": _input_retries}
 	if shots_dir != "":
 		var file := FileAccess.open(shots_dir.path_join("result_" + scenario + ".json"), FileAccess.WRITE)
 		file.store_string(JSON.stringify(receipt, "  "))

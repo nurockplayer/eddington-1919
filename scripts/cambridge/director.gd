@@ -38,12 +38,7 @@ var click: AudioStreamPlayer
 
 func _ready() -> void:
 	ExistingDirector._ensure_inputs()
-	Story.from_prologue = false
-	Story.prologue_done = false
-	Story.clues = {}
-	Story.report = {}
-	Story.plan = []
-	Story.kit_choice = -1
+	Story.reset()
 	world = Room.build(self)
 	player = Player.new()
 	player.position = world.spawn
@@ -368,9 +363,8 @@ func _montage() -> void:
 		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
 		await ui.show_caption(str(entry.t) + "\n\n（" + tag + "）", 3.2).finished
 	Story.prologue_done = true
-	Story.from_prologue = true
 	beat = Beat.DONE
-	get_tree().change_scene_to_file("res://scenes/main.tscn")
+	get_tree().change_scene_to_file("res://scenes/departure.tscn")
 
 
 func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStreamPlayer:
