@@ -239,7 +239,7 @@ func interact(id: String) -> void:
 	await tap(KEY_E)
 
 
-func talk(choices: Array = []) -> void:
+func talk(choices: Array = [], default_choice := 0) -> void:
 	var guard := 90
 	var index := 0
 	await frames()
@@ -257,7 +257,7 @@ func talk(choices: Array = []) -> void:
 				_choice_shots[choice_label] = true
 				await _wait_for_camera_settle()
 				await shot("choice_" + choice_label)
-			var choice: int = int(choices[index]) if index < choices.size() else 0
+			var choice: int = int(choices[index]) if index < choices.size() else default_choice
 			index += 1
 			await tap(KEY_1 + choice)
 		else:
@@ -373,15 +373,26 @@ func _run() -> void:
 	while not main.plan_board.visible:
 		if main.ui.dialog_active():
 			await shot("dialogue_" + str(main._pending))
-			if main._pending == "mentor_review" and scenario == "honest" and not _revised:
-				await talk([0])
-				_revised = true
+			if main._pending == "mentor_review":
+				var has_revision_prompt := false
+				for entry in main.ui._seq:
+					if entry.get("key", "") == "revise_report":
+						has_revision_prompt = true
+				if scenario == "honest" and has_revision_prompt:
+					failures.append("honest report unexpectedly offered revise_report")
+				if scenario != "honest" and not has_revision_prompt:
+					failures.append("hasty report omitted revise_report")
+				if scenario == "accuse" and not _revised:
+					# First review: defend once, then accept the request to look again.
+					await talk([1, 0])
+					_revised = true
+				else:
+					# Accept every later mentor choice, including tidy's first review.
+					await talk([], 1)
 			else:
-				# accuse: defend the accusation once, then accept the mentor's request to look again.
-				await talk(([1, 0] if scenario == "accuse" else [1]) if main._pending == "mentor_review" else [0, 1])
+				await talk([0, 1])
 		if main.report_sheet.visible:
 			if scenario == "accuse":
-				_revised = true
 				selections = ["cause/both", "original/keep", "residual/new_object"]
 			for id in selections:
 				await click_button(main.report_sheet.option_buttons[id])

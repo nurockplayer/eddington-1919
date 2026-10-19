@@ -76,6 +76,7 @@ func _ready() -> void:
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
 	ui.log_toggled.connect(func(_open): _sync_player())
+	ui.pause_toggled.connect(func(_paused): _sync_player())
 	var layer := CanvasLayer.new()
 	layer.layer = 9
 	add_child(layer)
@@ -114,7 +115,7 @@ func state() -> Dictionary:
 
 
 func _free() -> bool:
-	return not _busy and not ui.dialog_active() and not ui.log_open() and not overlay.visible and not report_sheet.visible and not plan_board.visible
+	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not overlay.visible and not report_sheet.visible and not plan_board.visible
 
 
 func _sync_player() -> void:
@@ -165,7 +166,7 @@ func _interact(id: String) -> void:
 		"kit":
 			if aligned and not kit_checked:
 				_say(C17.kit_double_check(), "double_check")
-			elif viewer_opens > 0 and not guess_offered:
+			elif _should_offer_kit_guess():
 				guess_offered = true
 				_say(C17.kit_guess(), "")
 			else:
@@ -183,11 +184,15 @@ func _clue_found(id: String) -> void:
 
 
 func _viewer_closed() -> void:
-	if viewer_opens > 0 and not guess_offered:
+	if _should_offer_kit_guess():
 		guess_offered = true
 		_say(C17.kit_guess(), "")
 	else:
 		_resume()
+
+
+func _should_offer_kit_guess() -> bool:
+	return viewer_opens > 0 and not guess_offered and not aligned and not Story.clues.get("log", false)
 
 
 func _resume() -> void:
@@ -250,7 +255,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			if results.get("revise_report", 1) == 0:
 				beat = Beat.INVESTIGATE
 				report_done = false
-				report_sheet.open(state())
+				report_sheet.open(state(), Story.report)
 				_sync_player()
 				return
 			_say(C17.mentor_dyson(Story.report), "dyson")
@@ -287,6 +292,7 @@ func _dialogue_done(results: Dictionary) -> void:
 func _submit_report(report: Dictionary) -> void:
 	Story.report = report.duplicate(true)
 	Story.report["kit_checked"] = kit_checked
+	Story.report["aligned"] = aligned
 	if report.get("cause", "") == "accuse":
 		Story.clues["accused_once"] = true
 	report_done = true

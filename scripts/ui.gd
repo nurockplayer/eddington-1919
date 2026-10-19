@@ -5,6 +5,7 @@ signal dialogue_done(results: Dictionary)
 signal dialogue_entry(speaker: String)
 signal prologue_pressed
 signal log_toggled(open: bool)
+signal pause_toggled(paused: bool)
 signal start_pressed
 signal restart_pressed(same_sky: bool)
 signal quit_pressed
@@ -650,6 +651,7 @@ func _build_pause(root: Control) -> void:
 	pause_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pause_panel.visible = false
 	pause_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	pause_panel.z_index = 1
 	root.add_child(pause_panel)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)
@@ -679,8 +681,8 @@ func toggle_pause() -> void:
 	pause_panel.visible = p
 	if p:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	elif not dialog_panel.visible and not viewer.visible and not ending_panel.visible and not title_panel.visible:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Only the chapter knows every form and scripted input lock it owns.
+	pause_toggled.emit(p)
 
 
 # Dialogue history is shared by both chapters; Tab never advances dialogue.
@@ -724,7 +726,10 @@ func toggle_log() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_TAB:
+	if log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
+		toggle_pause()
+		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_TAB and not get_tree().paused:
 		toggle_log()
 		get_viewport().set_input_as_handled()
 	elif log_panel.visible and event is InputEventKey:

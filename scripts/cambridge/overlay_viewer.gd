@@ -260,12 +260,13 @@ func _update_alignment() -> void:
 
 
 func _try_detail_click(mouse: Vector2) -> bool:
-	for id in ["label_mirrored", "arrow_tilted"]:
-		if mouse.distance_to(_detail_local_position(id)) < 28.0:
-			_found_clue(id)
-			return true
-		if id == "label_mirrored" and mouse.distance_to(_plate_label_local_position()) < 28.0:
-			_found_clue(id)
+	var screen_mouse := get_global_transform_with_canvas() * mouse
+	if _copy_label_hit_rect().has_point(screen_mouse) or _plate_label_hit_rect().has_point(screen_mouse):
+		_found_clue("label_mirrored")
+		return true
+	for arrow in [_source_arrow_pixels(), _copy_arrow_pixels()]:
+		if _distance_to_segment(screen_mouse, arrow[0], arrow[1]) <= 10.0:
+			_found_clue("arrow_tilted")
 			return true
 	if aligned and mouse.distance_to(_detail_local_position("residual")) < 30.0:
 		_found_clue("residual")
@@ -298,6 +299,67 @@ func _detail_local_position(id: String) -> Vector2:
 
 func _plate_label_local_position() -> Vector2:
 	return canvas_rect().get_center() + Vector2(-0.285, -0.315) * _plate_scale()
+
+
+func _copy_label_hit_rect() -> Rect2:
+	var anchor := _detail_local_position("label_mirrored")
+	var rotation := deg_to_rad(angle_deg + SOURCE_TILT if not flipped else angle_deg - SOURCE_TILT)
+	return _transformed_label_hit_rect(anchor, rotation, -1.0 if not flipped else 1.0)
+
+
+func _plate_label_hit_rect() -> Rect2:
+	return _transformed_label_hit_rect(_plate_label_local_position(), 0.0, 1.0)
+
+
+func _transformed_label_hit_rect(anchor: Vector2, rotation: float, x_scale: float) -> Rect2:
+	# Match draw_string's baseline and transform, then add a small screen-space
+	# margin so thin glyph edges remain easy to select.
+	var size := _font.get_string_size("14", HORIZONTAL_ALIGNMENT_LEFT, -1, 20)
+	var ascent := _font.get_ascent(20)
+	var descent := _font.get_descent(20)
+	var corners := [Vector2(0, -ascent), Vector2(size.x, -ascent), Vector2(size.x, descent), Vector2(0, descent)]
+	var transform := get_global_transform_with_canvas()
+	var screen_bounds := Rect2()
+	for i in corners.size():
+		var corner: Vector2 = corners[i]
+		corner.x *= x_scale
+		var point := transform * (anchor + corner.rotated(rotation))
+		if i == 0:
+			screen_bounds = Rect2(point, Vector2.ZERO)
+		else:
+			screen_bounds = screen_bounds.expand(point)
+	return screen_bounds.grow(10.0)
+
+
+func _source_arrow_pixels() -> Array[Vector2]:
+	var transform := get_global_transform_with_canvas()
+	var points := _source_arrow_points()
+	return [transform * _point_to_pixel(points[0]), transform * _point_to_pixel(points[1])]
+
+
+func _source_arrow_points() -> Array[Vector2]:
+	var origin := Vector2(-0.28, 0.30)
+	var end := origin + Vector2(0.11, 0.0).rotated(deg_to_rad(SOURCE_TILT))
+	return [origin, end]
+
+
+func _copy_arrow_points() -> Array[Vector2]:
+	return [_copy_point(Vector2(0.28, 0.30)), _copy_point(Vector2(0.39, 0.30))]
+
+
+func _copy_arrow_pixels() -> Array[Vector2]:
+	var transform := get_global_transform_with_canvas()
+	var points := _copy_arrow_points()
+	return [transform * _point_to_pixel(points[0]), transform * _point_to_pixel(points[1])]
+
+
+func _distance_to_segment(point: Vector2, start: Vector2, end: Vector2) -> float:
+	var segment := end - start
+	var length_squared := segment.length_squared()
+	if length_squared <= 0.000001:
+		return point.distance_to(start)
+	var t := clampf((point - start).dot(segment) / length_squared, 0.0, 1.0)
+	return point.distance_to(start + segment * t)
 
 
 func _plate_scale() -> float:
@@ -362,10 +424,9 @@ func _draw_plate_marks() -> void:
 	var font := _font
 	var base := Vector2(-0.285, -0.315)
 	draw_string(font, _point_to_pixel(base), "14", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(0.27, 0.26, 0.23, 0.75))
-	var arrow_origin := Vector2(-0.28, 0.30)
-	var arrow_end := arrow_origin + Vector2(0.11, 0.0).rotated(deg_to_rad(SOURCE_TILT))
-	_draw_arrow(_point_to_pixel(arrow_origin), _point_to_pixel(arrow_end), Color(0.26, 0.25, 0.22, 0.8), 1.5)
-	draw_string(font, _point_to_pixel(arrow_origin + Vector2(-0.015, 0.045)), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.28, 0.27, 0.24, 0.78))
+	var arrow := _source_arrow_points()
+	_draw_arrow(_point_to_pixel(arrow[0]), _point_to_pixel(arrow[1]), Color(0.26, 0.25, 0.22, 0.8), 1.5)
+	draw_string(font, _point_to_pixel(arrow[0] + Vector2(-0.015, 0.045)), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.28, 0.27, 0.24, 0.78))
 	# Plate edge and registration ticks.
 	draw_rect(rect.grow(-8), Color(0.36, 0.345, 0.31, 0.62), false, 1.0)
 	for i in 9:
@@ -402,9 +463,8 @@ func _draw_copy_layer() -> void:
 		var radius := 2.2 if i < 17 else 3.5
 		draw_circle(p, radius, Color(0.025, 0.08, 0.065, 0.88) if i < 17 else Color(0.05, 0.20, 0.15, 0.96))
 	_draw_copy_label()
-	var arrow_origin := _copy_point(Vector2(0.28, 0.30))
-	var arrow_end := _copy_point(Vector2(0.39, 0.30))
-	_draw_arrow(_point_to_pixel(arrow_origin), _point_to_pixel(arrow_end), Color(0.08, 0.20, 0.16, 0.78), 1.7)
+	var arrow := _copy_arrow_points()
+	_draw_arrow(_point_to_pixel(arrow[0]), _point_to_pixel(arrow[1]), Color(0.08, 0.20, 0.16, 0.78), 1.7)
 	draw_string(_font, _point_to_pixel(_copy_point(Vector2(0.26, 0.345))), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.08, 0.20, 0.16, 0.82))
 
 

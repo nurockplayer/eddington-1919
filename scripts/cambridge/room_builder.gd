@@ -12,6 +12,39 @@ const ROOM_D := 6.0
 const ROOM_H := 3.6
 
 
+static func _plaster_material(color: Color) -> StandardMaterial3D:
+	# The shared weathering is too contrasty for the large Cambridge walls at
+	# conversation distance. Keep its broad world-space variation, but soften it
+	# and reduce the albedo range so it reads as aged plaster rather than mottling.
+	var noise := FastNoiseLite.new()
+	noise.frequency = 0.008
+	noise.fractal_octaves = 2
+	var ramp := Gradient.new()
+	ramp.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+	ramp.colors = PackedColorArray([
+		Color(0.94, 0.94, 0.93),
+		Color(0.97, 0.97, 0.96),
+		Color(1.0, 1.0, 0.99),
+	])
+	var texture := NoiseTexture2D.new()
+	texture.width = 512
+	texture.height = 512
+	texture.seamless = true
+	texture.noise = noise
+	texture.color_ramp = ramp
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.94
+	material.detail_enabled = true
+	material.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+	material.detail_albedo = texture
+	material.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
+	material.uv2_triplanar = true
+	material.uv2_world_triplanar = true
+	material.uv2_scale = Vector3(0.3, 0.3, 0.3)
+	return material
+
+
 static func build(root: Node3D) -> Dictionary:
 	var w = WorldBuilder.new(root)
 	var out := {"targets": {}}
@@ -20,6 +53,7 @@ static func build(root: Node3D) -> Dictionary:
 	var iron: Color = w.P("iron")
 	var brass: Color = w.P("brass")
 	var plaster := Color(0.43, 0.40, 0.34)
+	var plaster_material := _plaster_material(plaster)
 	var floor_color := Color(0.25, 0.22, 0.18)
 	var evidence := Color(0.93, 0.92, 0.87)
 
@@ -60,12 +94,15 @@ static func build(root: Node3D) -> Dictionary:
 	root.add_child(hall_fill)
 	w.box(Vector3(ROOM_W, 0.16, ROOM_D), Vector3(0, 3.52, 0), dark_wood, null, false)
 	for x in [-4.34, 4.34]:
-		w.box(Vector3(0.025, 2.15, 5.8), Vector3(x, 2.375, 0), plaster, null, false)
+		var wall := w.box(Vector3(0.025, 2.15, 5.8), Vector3(x, 2.375, 0), plaster, null, false)
+		(wall as MeshInstance3D).material_override = plaster_material
 	for x in [-3.5, 3.5]:
 		var north_width := 3.0 if x < 0 else 1.85
 		var north_center := -2.95 if x < 0 else 3.5
-		w.box(Vector3(north_width, 2.15, 0.025), Vector3(north_center, 2.375, -2.84), plaster, null, false)
-		w.box(Vector3(3.7, 2.15, 0.025), Vector3(x * 0.743, 2.375, 2.84), plaster, null, false)
+		var north_wall := w.box(Vector3(north_width, 2.15, 0.025), Vector3(north_center, 2.375, -2.84), plaster, null, false)
+		(north_wall as MeshInstance3D).material_override = plaster_material
+		var south_wall := w.box(Vector3(3.7, 2.15, 0.025), Vector3(x * 0.743, 2.375, 2.84), plaster, null, false)
+		(south_wall as MeshInstance3D).material_override = plaster_material
 	# Door jambs and skirting keep the corridor legible in the south wall.
 	for x in [-0.75, 0.75]:
 		w.box(Vector3(0.1, 3.1, 0.18), Vector3(x, 1.55, 2.83), wood, null, false)

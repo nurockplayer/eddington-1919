@@ -243,15 +243,19 @@ func _test_plan_ui() -> void:
 
 
 func _send_tab(ui: CanvasLayer) -> void:
+	await _send_key(KEY_TAB)
+
+
+func _send_key(code: Key) -> void:
 	var pressed := InputEventKey.new()
-	pressed.keycode = KEY_TAB
-	pressed.physical_keycode = KEY_TAB
+	pressed.keycode = code
+	pressed.physical_keycode = code
 	pressed.pressed = true
 	Input.parse_input_event(pressed)
 	await process_frame
 	var released := InputEventKey.new()
-	released.keycode = KEY_TAB
-	released.physical_keycode = KEY_TAB
+	released.keycode = code
+	released.physical_keycode = code
 	released.pressed = false
 	Input.parse_input_event(released)
 	await process_frame
@@ -352,6 +356,214 @@ func _test_room_north_boundary() -> void:
 	room.free()
 
 
+func _pause_round_trip(chapter, label: String, use_escape := true) -> void:
+	if use_escape:
+		await _send_key(KEY_ESCAPE)
+	else:
+		chapter.ui.toggle_pause()
+	check(paused and chapter.ui.pause_panel.visible, "%s: pause is reachable" % label)
+	check(not chapter.player.can_move and not chapter.player.can_look, "%s: pause locks chapter input" % label)
+	if use_escape:
+		await _send_key(KEY_ESCAPE)
+	else:
+		chapter.ui.toggle_pause()
+	check(not paused and not chapter.ui.pause_panel.visible, "%s: resume is reachable" % label)
+	check(Input.mouse_mode == Input.MOUSE_MODE_VISIBLE and not chapter.player.can_look, "%s: resume preserves modal cursor and input lock" % label)
+
+
+func _test_cambridge_pause_restore() -> void:
+	var chapter = load("res://scripts/cambridge/director.gd").new()
+	root.add_child(chapter)
+	# Exercise production signal connections after the ordinary opening finishes.
+	var deadline := Time.get_ticks_msec() + 12000
+	while not chapter.ui.dialog_active() and Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(chapter.ui.dialog_active(), "Cambridge opening reaches dialogue before pause regressions")
+	if not chapter.ui.dialog_active():
+		chapter.free()
+		return
+	while chapter.ui.dialog_active():
+		chapter.ui._advance()
+	chapter.report_sheet.open(chapter.state())
+	chapter._sync_player()
+	await _pause_round_trip(chapter, "Cambridge report: Esc twice")
+	check(chapter.report_sheet.visible, "report stays visible after Esc twice")
+	# Closing a log layered over a report must retain the form's input lock too.
+	await _send_key(KEY_TAB)
+	await _pause_round_trip(chapter, "Cambridge log over report: Esc twice")
+	await _send_key(KEY_TAB)
+	check(chapter.report_sheet.visible and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE, "closing report log restores form input state")
+	chapter.report_sheet.close_btn.pressed.emit()
+	chapter.plan_board.open()
+	chapter._sync_player()
+	await _pause_round_trip(chapter, "Cambridge plan board: Esc twice")
+	check(chapter.plan_board.visible, "plan board stays visible after Esc twice")
+	chapter.plan_board.hide()
+	chapter.overlay.open()
+	chapter._sync_player()
+	# The overlay owns Esc to close; pause/resume via the UI exercises its lock.
+	await _pause_round_trip(chapter, "Cambridge overlay", false)
+	check(chapter.overlay.visible, "pause/resume retains overlay")
+	chapter.overlay.hide()
+	chapter._say([{"s": "Kit", "t": "Input-state regression."}], "")
+	await _pause_round_trip(chapter, "Cambridge dialogue: Esc twice")
+	check(chapter.ui.dialog_active() and chapter.ui._seq_i == 0, "Esc twice leaves dialogue on the same line")
+	chapter.ui._advance()
+	await _send_key(KEY_TAB)
+	await _pause_round_trip(chapter, "Cambridge log: Esc twice")
+	check(chapter.ui.log_open(), "Esc twice preserves open log")
+	await _send_key(KEY_TAB)
+	check(chapter._free() and chapter.player.can_move and chapter.player.can_look, "closing log restores Cambridge investigation input")
+	await _test_cambridge_report_and_kit(chapter)
+	await _drain_chapter_audio(chapter)
+	chapter.free()
+	await process_frame
+
+
+func _finish_test_dialogue(chapter) -> void:
+	var guard := 50
+	while chapter.ui.dialog_active() and guard > 0:
+		guard -= 1
+		if not chapter.ui._choice_buttons.is_empty():
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+	check(guard > 0, "test dialogue terminates")
+
+
+func _test_cambridge_report_and_kit(chapter) -> void:
+	var story := root.get_node("Story")
+	for flags in [[true, false], [false, true], [false, false]]:
+		chapter.aligned = flags[0]
+		story.clues["log"] = flags[1]
+		chapter.kit_checked = flags[0]
+		chapter.viewer_opens = 1
+		chapter.guess_offered = false
+		var expected_guess: bool = not flags[0] and not flags[1]
+		chapter._viewer_closed()
+		check(chapter.guess_offered == expected_guess and chapter.ui.dialog_active() == expected_guess, "first-close Kit guess respects aligned=%s log=%s" % flags)
+		_finish_test_dialogue(chapter)
+		chapter.guess_offered = false
+		chapter._interact("kit")
+		check(chapter.guess_offered == expected_guess, "Kit interaction guess respects aligned=%s log=%s" % flags)
+		_finish_test_dialogue(chapter)
+	chapter.aligned = true
+	chapter.kit_checked = false
+	chapter.guess_offered = false
+	chapter._interact("kit")
+	check(chapter._pending == "double_check" and not chapter.guess_offered, "aligned copy still offers Kit independent check")
+	_finish_test_dialogue(chapter)
+	check(chapter.kit_checked, "Kit independent check completes after suppressing old guess")
+
+	story.clues.merge({"label_mirrored": true, "arrow_tilted": true, "residual": true}, true)
+	chapter.residual_found = true
+	chapter.aligned = false
+	chapter.report_sheet.open(chapter.state())
+	for id in ["cause/accuse", "original/redraw", "residual/delete"]:
+		var button: Button = chapter.report_sheet.option_buttons[id]
+		button.button_pressed = true
+		button.pressed.emit()
+	var previous: Dictionary = chapter.report_sheet.selected.duplicate(true)
+	chapter.report_sheet.submit_btn.pressed.emit()
+	check(story.report.has("aligned") and not story.report.aligned and story.report.kit_checked, "director stamps false alignment and Kit check at submit")
+	await _wait_for_mentor_review(chapter)
+	check(chapter._pending == "mentor_review", "initial report submission starts mentor review")
+	var guard := 50
+	while chapter.ui.dialog_active() and chapter._pending == "mentor_review" and guard > 0:
+		guard -= 1
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		if entry.has("choices"):
+			chapter.ui._choose(0 if entry.get("key", "") == "revise_report" else 1)
+		else:
+			chapter.ui._advance()
+	check(guard > 0 and chapter.report_sheet.visible and not chapter.report_done, "mentor revise choice reopens actual sheet for resubmission")
+	for id in ["cause", "original", "residual", "kit_credited"]:
+		check(chapter.report_sheet.selected.get(id) == previous.get(id), "director revision preserves prior %s selection" % id)
+	for id in ["cause/both", "original/keep", "residual/new_object"]:
+		var button: Button = chapter.report_sheet.option_buttons[id]
+		button.button_pressed = true
+		button.pressed.emit()
+	chapter.aligned = true
+	chapter.report_sheet.submit_btn.pressed.emit()
+	check(story.report.aligned and story.report.residual == "new_object", "resubmission stamps current alignment and revised selection")
+	await _wait_for_mentor_review(chapter)
+	check(chapter._pending == "mentor_review", "revised report replays actual mentor review")
+	guard = 50
+	var revision_prompt_seen := false
+	while chapter.ui.dialog_active() and chapter._pending == "mentor_review" and guard > 0:
+		guard -= 1
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		if entry.has("choices"):
+			revision_prompt_seen = revision_prompt_seen or entry.get("key", "") == "revise_report"
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+	check(guard > 0 and revision_prompt_seen and chapter._pending == "dyson", "accepting the second review advances to Dyson dialogue")
+
+
+func _wait_for_mentor_review(chapter) -> void:
+	var deadline := Time.get_ticks_msec() + 4000
+	while chapter._pending != "mentor_review" and Time.get_ticks_msec() < deadline:
+		await process_frame
+
+
+func _drain_chapter_audio(chapter) -> void:
+	chapter.set_process(false)
+	for audio in chapter.find_children("*", "AudioStreamPlayer", true, false):
+		audio.stop()
+	# Headless frames can outrun the audio thread; let it release stopped voices.
+	await create_timer(0.06, true, false, true).timeout
+
+
+func _test_totality_log_suspension() -> void:
+	var chapter = load("res://scripts/main.gd").new()
+	root.add_child(chapter)
+	chapter.set_process(false)
+	chapter.ui.hide_title()
+	chapter.ui.pause_enabled = true
+	for phase in [chapter.Phase.PREP, chapter.Phase.NIGHT]:
+		chapter.phase = phase
+		chapter._say([{"s": "Eddington", "t": "Input-state regression."}], "")
+		await _pause_round_trip(chapter, "1919 dialogue in phase %s" % phase)
+		await _send_key(KEY_TAB)
+		await _send_key(KEY_TAB)
+		check(not chapter.player.can_look, "closing dialogue log retains the input lock")
+		chapter.ui._advance()
+		check(chapter.player.can_move and chapter.player.can_look, "ending paused/logged dialogue restores walking and looking")
+	chapter._open_viewer()
+	await _pause_round_trip(chapter, "1919 plate viewer")
+	chapter._on_viewer_closed()
+	check(chapter.player.can_move and chapter.player.can_look, "closing paused viewer restores walking and looking")
+	chapter.phase = chapter.Phase.TOTALITY
+	chapter.plates_left = 3
+	chapter.t_game = 100.0
+	chapter.sim.open_shutter(chapter.t_game)
+	await _send_key(KEY_TAB)
+	check(chapter.ui.log_open(), "Tab opens log during totality with shutter open")
+	var exposure: Dictionary = chapter.sim._open.duplicate(true)
+	chapter._process_totality(20.0)
+	check(chapter.t_game == 100.0 and chapter.sim._open == exposure, "totality log freezes both clock and accumulated exposure")
+	await _pause_round_trip(chapter, "1919 totality log: Esc twice")
+	chapter._process_totality(20.0)
+	check(chapter.t_game == 100.0 and chapter.sim._open == exposure, "unpausing with log open keeps totality suspended")
+	await _send_key(KEY_TAB)
+	chapter._process_totality(0.4)
+	check(is_equal_approx(chapter.t_game, 101.0) and chapter.sim._open.duration > exposure.duration, "closing log resumes totality and exposure")
+	check(not chapter.player.can_move and chapter.player.can_look, "closing totality log restores looking without walking")
+	chapter.sim.close_shutter(false)
+	chapter.change_left = chapter.sim.PLATE_CHANGE_S
+	await _send_key(KEY_TAB)
+	var before: float = chapter.t_game
+	chapter._process_totality(20.0)
+	check(chapter.t_game == before and chapter.change_left == chapter.sim.PLATE_CHANGE_S, "log also freezes plate-change countdown")
+	await _send_key(KEY_TAB)
+	chapter._process_totality(0.4)
+	check(is_equal_approx(chapter.change_left, chapter.sim.PLATE_CHANGE_S - 1.0), "plate-change countdown resumes after closing log")
+	await _drain_chapter_audio(chapter)
+	chapter.free()
+	await process_frame
+
+
 func _run() -> void:
 	await process_frame
 	await _test_room_north_boundary()
@@ -363,5 +575,7 @@ func _run() -> void:
 	await _test_plan_ui()
 	await _test_dialogue_history()
 	await _test_viewer_hint_progress()
+	await _test_cambridge_pause_restore()
+	await _test_totality_log_suspension()
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)

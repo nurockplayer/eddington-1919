@@ -41,9 +41,10 @@ static func _requirements_met(needs: Array, state: Dictionary) -> bool:
 	return true
 
 
-func open(state: Dictionary) -> void:
+func open(state: Dictionary, previous_report: Dictionary = {}) -> void:
 	_state = state.duplicate(true)
 	selected.clear()
+	selected.merge(previous_report, true)
 	option_buttons.clear()
 	for child in get_children():
 		child.queue_free()
@@ -146,10 +147,10 @@ func _add_row(page: VBoxContainer, row: Dictionary) -> void:
 		choices.add_child(button)
 		option_buttons["%s/%s" % [row.id, option.id]] = button
 		if row.id == "kit_credited":
-			button.button_pressed = bool(_state.get("kit_checked", false))
+			button.button_pressed = bool(selected.get("kit_credited", _state.get("kit_checked", false)))
 			if button.button_pressed:
 				selected["kit_credited"] = true
-		elif (row.id == "cause" and option.id == "unknown") or (row.id == "original" and option.id == "keep") or (row.id == "residual" and option.id == "unresolved"):
+		elif selected.get(str(row.id), "") == option.id or (not selected.has(str(row.id)) and ((row.id == "cause" and option.id == "unknown") or (row.id == "original" and option.id == "keep") or (row.id == "residual" and option.id == "unresolved"))):
 			button.button_pressed = true
 			selected[str(row.id)] = str(option.id)
 		_refresh_option(row.id, button, button.button_pressed)
