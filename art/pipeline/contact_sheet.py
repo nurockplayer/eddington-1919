@@ -7,6 +7,7 @@ Writes <run>/contact.jpg. Labels come from manifest.jsonl (id · model · second
 """
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -23,9 +24,10 @@ def main() -> None:
     run = Path(a.run)
     rows = [json.loads(l) for l in (run / "manifest.jsonl").read_text().splitlines() if l.strip()]
     rows = [r for r in rows if r.get("ok") and a.filter in r["id"]]
-    seen, items = set(), []
+    if not rows:
+        sys.exit(f"no successful images in {run / 'manifest.jsonl'}" + (f" matching --filter {a.filter!r}" if a.filter else ""))
+    items = []
     for r in rows:  # last entry per id wins (regenerations append)
-        seen.discard(r["id"])
         items = [x for x in items if x["id"] != r["id"]] + [r]
     items.sort(key=lambda r: r["id"])
     cw = a.cell
