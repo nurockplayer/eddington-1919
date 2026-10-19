@@ -21,7 +21,20 @@ Newest first. One entry per loop iteration: what was tried, what the evidence sh
 
 **Measured:** GPT images take 48–90 s each; 2–3 parallel jobs are reliable. G2 build + validate takes under 10 s per asset. A G4 benchmark run takes about 40 s.
 
-**Gameplay:** logic tests 155/155 after integration. The careful autoplay was run (see the PR for its result).
+**Gameplay:** logic tests 155/155 after integration. Careful autoplay: ending reached (score 4, never stuck), drive wound and rate-checked via the model's collider, restart works. Receipts are in `validation/autoplay-r03/`.
+
+**Independent review:** a fresh read-only Codex gpt-6-astra session requested changes, and all were fixed:
+- a `baseline.sh` deletion hazard and silent failures
+- the drive housing lost solid collision
+- stale-image attribution in `gen.py`
+- `compare.py` re-encoding evidence
+- a weak G2 origin check (now per object, with pivots and loose geometry)
+- crate collider vs measured mesh
+- scorecard arithmetic (A/C/D = 43/39/29)
+- the LUT not identity at 0.85
+- laterite over the saturation cap (`palette_to_gd.py` now enforces §4)
+- an unsourced 16 × 16 cm plate size
+- lookdev now excluded from export
 
 **Blocked / not verified:**
 - Tripo (no `TRIPO_API_KEY`; client untested)

@@ -16,7 +16,8 @@ Generators
   gpt     OpenAI image generation through `codex exec` (Codex CLI, logged in).
 
 Raw PNGs go to art/runs/<run>/_raw/ (git-ignored); a 1280px JPEG copy that is
-committed sits next to the manifest.
+committed sits next to the manifest. Image ids must be unique within a run
+(use --tag); do not run two invocations with the same run+subject+tag at once.
 """
 import argparse
 import base64
@@ -102,9 +103,10 @@ def gen_gpt(prompt: str, refs: list[Path], aspect: str, out: Path) -> str:
     cmd.append(instr)  # prompt BEFORE -i: `-i <FILE>...` is variadic and would swallow it
     for r in refs:
         cmd += ["-i", str(r)]
+    t_start = time.time()
     for attempt in range(3):  # parallel codex sessions occasionally fail transiently
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=600, stdin=subprocess.DEVNULL)
-        if r.returncode == 0 and out.exists():
+        if r.returncode == 0 and out.exists() and out.stat().st_mtime >= t_start:
             break
         time.sleep(5 + 10 * attempt)
     else:
@@ -155,6 +157,9 @@ def main() -> int:
         t0 = time.time()
         try:
             reused = a.reuse_raw and png.exists()
+            if png.exists() and not reused:
+                # Ids are evidence: never overwrite or mis-attribute an existing image.
+                raise RuntimeError(f"{png.name} already exists; use a new --tag (or --reuse-raw to re-log it)")
             if reused:
                 model = GEMINI_MODEL if g == "gemini" else f"codex:{GPT_MODEL}/image_generation"
             else:
@@ -172,6 +177,7 @@ def main() -> int:
             "tool_prompt": (png.with_suffix(".tool_prompt.txt").read_text().strip()
                             if png.with_suffix(".tool_prompt.txt").exists() else None),
             "seconds": None if reused else round(time.time() - t0, 1),
+            "reused_raw": reused,  # True: image made earlier, re-logged with this prompt (timing unknown)
             "raw_sha256": hashlib.sha256(png.read_bytes()).hexdigest(),
             "created": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         }

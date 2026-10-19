@@ -44,7 +44,34 @@
       ],
       "ok": true
     },
+    "object_origins": {
+      "value": {
+        "packing_crate": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
     "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
       "value": 0,
       "ok": true
     },

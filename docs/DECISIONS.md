@@ -62,7 +62,7 @@
 - **What was actually verified:**
   - 25 generated images across 4 rounds, with exact prompts and timings in `art/runs/*/manifest.jsonl`.
   - 2 production assets (coelostat, packing crate) pass the G2 mesh gate, the G3 lookdev and the G4 in-game benchmark against the v0.1 baseline (`art/validation/`).
-  - 155/155 logic checks and the careful autoplay pass after integration.
+  - 155/155 logic checks pass after integration. The careful autoplay reaches its ending, with the drive wound and rate-checked through the new model and restart working. Receipts are in `art/validation/autoplay-r03/`. The benchmark harness itself does not exercise gameplay.
 - **Not verified:** the Tripo route (no API key), Gemini (no quota), "dot" (unidentified), and human judgment of the new look.
 - **Risks/reversibility:**
   - The grade is one file (`scripts/look.gd`, `--no-grade` turns it off).

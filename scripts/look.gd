@@ -1,10 +1,10 @@
 extends RefCounted
 ## Era look (art/BIBLE.md §5): the 1919 "plate grade". The Painted Diorama
 ## forms carry the series identity; this grade carries the era. It nudges the
-## image toward a toned glass-plate print by slightly desaturating, warming the
-## shadows (sepia) and leaving highlights neutral-cool, so the evidence whites
-## (Sun, corona, plates) stay clean. Kept subtle on purpose: totality must stay
-## readable.
+## image toward a toned glass-plate print by slightly desaturating and warming
+## the shadows and midtones (sepia). The LUT is identity at and above 0.85 so the
+## near-neutral evidence whites (Sun, corona, plates) stay clean. Kept subtle on
+## purpose: totality must stay readable.
 ##
 ## Disable for A/B comparisons with the user arg --no-grade.
 
@@ -23,7 +23,7 @@ static func apply_grade(env: Environment) -> void:
 		Color(0.015, 0.008, 0.0),
 		Color(0.200, 0.176, 0.150),   # sepia-warm shadows
 		Color(0.510, 0.497, 0.474),   # warm midtones
-		Color(0.850, 0.850, 0.856),   # neutral-cool highlights
+		Color(0.850, 0.850, 0.850),   # identity from here up: evidence whites untouched
 		Color(1.0, 1.0, 1.0),
 	])
 	var tex := GradientTexture1D.new()

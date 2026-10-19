@@ -239,7 +239,8 @@ func _shelter_and_instrument() -> Dictionary:
 	if coelostat:
 		# Production model (art/assets.toml: coelostat). Colliders stay simple boxes.
 		collider(Vector3(1.0, 1.06, 1.0), Vector3(0, 0.53, -6.6))
-		drive = hotspot(Vector3(0.46, 0.4, 0.38), Vector3(0.62, 0.92, -6.6), "drive", "時鐘驅動")
+		# The drive housing stays solid AND interactable, like the old primitive box.
+		drive = interactable(collider(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6)), "drive", "時鐘驅動")
 	else:
 		var brick := P("brick")
 		box(Vector3(1.0, 1.05, 1.0), Vector3(0, 0.525, -6.6), brick)
@@ -419,20 +420,23 @@ func _vegetation() -> void:
 
 
 func _props() -> void:
-	# [size, base centre, yaw]: stacked crates sit on the one below.
+	# One kit model, uniformly scaled per crate. CRATE is the shipped mesh's measured
+	# size (art/validation/packing_crate.g2.json), so colliders match the visuals.
+	const CRATE := Vector3(0.74, 0.49, 0.50)
+	# [scale, base centre, yaw]: the second crate is stacked on the first.
 	var crates := [
-		[Vector3(0.7, 0.5, 0.5), Vector3(3.2, 0.0, -5.5), 0.0],
-		[Vector3(0.6, 0.45, 0.5), Vector3(3.3, 0.5, -5.4), 8.0],
-		[Vector3(0.9, 0.6, 0.6), Vector3(6.6, 0.0, 4.6), -15.0],
-		[Vector3(0.5, 0.4, 0.4), Vector3(-3.4, 0.0, -1.2), 25.0],
+		[1.0, Vector3(3.2, 0.0, -5.5), 0.0],
+		[0.85, Vector3(3.3, CRATE.y, -5.4), 8.0],
+		[1.25, Vector3(6.6, 0.0, 4.6), -15.0],
+		[0.7, Vector3(-3.4, 0.0, -1.2), 25.0],
 	]
 	for c in crates:
-		var size: Vector3 = c[0]
-		# One kit model, uniformly scaled to each crate's width (art/assets.toml: packing_crate).
-		if model("packing_crate", c[1], c[2], size.x / 0.7):
-			collider(Vector3(size.x, size.x / 0.7 * 0.5, size.x / 0.7 * 0.5), c[1] + Vector3(0, size.x / 0.7 * 0.25, 0), c[2])
+		var size: Vector3 = CRATE * float(c[0])
+		var centre: Vector3 = c[1] + Vector3(0, size.y / 2.0, 0)
+		if model("packing_crate", c[1], c[2], c[0]):
+			collider(size, centre, c[2])
 		else:
-			box(size, c[1] + Vector3(0, size.y / 2.0, 0), P("pine"), null, true, Vector3(0, deg_to_rad(c[2]), 0))
+			box(size, centre, P("pine"), null, true, Vector3(0, deg_to_rad(c[2]), 0))
 	var label := Label3D.new()
 	label.text = "R.A.S. ECLIPSE\nPRINCIPE"
 	label.font_size = 40

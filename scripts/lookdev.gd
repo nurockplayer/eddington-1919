@@ -9,7 +9,7 @@ extends Node3D
 ## Capture: godot --path . --always-on-top res://scenes/lookdev.tscn -- --capture=DIR [--assets=a,b]
 
 const MODELS_DIR := "res://assets/models/"
-const PALETTE := "res://art/palette.toml"   # read from source; lookdev is not exported
+const PALETTE := "res://art/palette.toml"   # read from source; lookdev is excluded from exports (export_presets.cfg)
 const CAMERAS := {
 	"front": [Vector3(0.6, 1.1, 4.2), Vector3(0.6, 0.75, 0.0)],
 	"three_quarter": [Vector3(3.6, 1.9, 3.4), Vector3(0.4, 0.7, 0.0)],

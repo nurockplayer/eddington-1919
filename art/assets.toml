@@ -15,6 +15,7 @@ concept = "art/runs/r03-assets/coelostat-E-gpt-1.jpg"
 dims_m = [1.30, 1.00, 1.72]
 dims_tolerance = 0.15
 bounds_centre_offset_m = [0.18, 0.0]  # origin = pier centre; the drive box overhangs on +X
+pivots = { coelostat_mirror = [0.0, 0.0, 1.40] }  # mirror tilt axis
 tri_budget = 6000
 max_materials = 6               # brick, stone, iron, brass, mirror, teak_dark
 max_texture_px = 1024

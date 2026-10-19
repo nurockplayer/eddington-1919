@@ -3,8 +3,8 @@ extends RefCounted
 ## Albedo colours (sRGB) by swatch name; see art/BIBLE.md §4 for roles and value rules.
 
 const C := {
-	"laterite": Color(0.604, 0.306, 0.184),  # ground
-	"laterite_wet": Color(0.431, 0.220, 0.149),  # ground
+	"laterite": Color(0.604, 0.337, 0.216),  # ground
+	"laterite_wet": Color(0.431, 0.231, 0.161),  # ground
 	"foliage_deep": Color(0.184, 0.290, 0.141),  # foliage
 	"foliage_light": Color(0.369, 0.478, 0.212),  # foliage
 	"teak": Color(0.431, 0.298, 0.192),  # structure

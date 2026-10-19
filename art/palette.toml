@@ -10,12 +10,12 @@
 # role: ground | foliage | structure | instrument | accent | far | evidence
 
 [swatch.laterite]
-hex = "#9A4E2F"
+hex = "#9A5637"  # was #9A4E2F (S 0.70 > cap, review fix)
 role = "ground"
 roughness = 0.95
 
 [swatch.laterite_wet]
-hex = "#6E3826"
+hex = "#6E3B29"  # was #6E3826 (S 0.66 > cap)
 role = "ground"
 roughness = 0.55
 

@@ -25,9 +25,9 @@ Style E v1. Subjects: `coelostat` v2 (part list bottom-to-top with dimensions) a
   - **Fix:** the lookdev now uses a neutral procedural sky. This was a lookdev flaw, not an asset flaw.
 - **G4** (`art/validation/g4-r03/compare.jpg`: v0.1 baseline | r03 without grade | r03 with grade):
   - The coelostat now reads as an instrument: brass cell and sky-reflecting mirror.
-  - Draw calls rose by at most 3; primitives unchanged.
+  - Draw calls rose by at most 3; primitives changed by under 1%.
   - Frame time ~8.3 ms everywhere. The display cap makes it non-discriminating; one 9.5 ms outlier sample. Use draw calls and primitives as the performance signal.
-- **Gameplay:** logic tests 155/155; careful autoplay (see `art/LOG.md`).
+- **Gameplay:** logic tests 155/155. Careful autoplay ending reached; the drive was wound through the new collider (`art/validation/autoplay-r03/`).
 
 ## Next targets (from the G4 sheet)
 Ordered by what most breaks the look:

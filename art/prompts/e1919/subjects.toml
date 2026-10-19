@@ -31,11 +31,11 @@ Three-quarter view from slightly above, centered, whole object visible, \
 plain neutral light-grey studio background, soft even lighting, no cast shadows on the background."""
 
 [plate_holder]
-version = "v1"
+version = "v2"  # v2: plate size removed: 16 x 16 cm was unsourced (review); RECONSTRUCTION
 kind = "asset"
 text = """
 A single object, a 1919 wooden photographic double dark-slide plate holder for \
-16 x 16 cm glass plates: a flat varnished mahogany box with brass corners, \
+square glass plates: a flat varnished mahogany box with brass corners, \
 a black ebonite pull-out shutter slide half withdrawn, a small paper label. \
 Three-quarter view from slightly above, centered, whole object visible, \
 plain neutral light-grey studio background, soft even lighting."""

@@ -43,7 +43,7 @@ Round **r02** tested a hybrid on the three gameplay keyframes. They score as fol
 | Tone: serious historical suspense (×2) | 5 | 3 | 4 | 4 | **4** |
 | Series extensibility (×2) | 3 | 4 | 3 | 2 | **5** |
 | Distinctiveness (×1) | 4 | 3 | 4 | 1 | **4** |
-| **Weighted total (/65)** | 41 | 54 | 41 | 30 | **59** |
+| **Weighted total (/65)** | 43 | 54 | 39 | 29 | **59** |
 
 **Decision (Game Director, reversible):** E.
 - Forms come from B: buildable, cheap, readable.
@@ -80,7 +80,7 @@ These are the states of the benchmark bookmarks in `tests/benchmark.gd`. The lig
 | `totality` | None | Deep blue | 360° orange horizon glow (`eclipse_sky.gdshader`), corona and stars. The roof is rolled back. |
 | `night` | Warm oil lamp 1.1 + red safelight 0.25 | Near-black | Darkroom. The plate and measuring sheet are the brightest things. |
 
-- **Grade (`scripts/look.gd`):** saturation 0.86, contrast 1.04, and a per-channel LUT with sepia-warm shadows and neutral-cool highlights.
+- **Grade (`scripts/look.gd`):** saturation 0.86, contrast 1.04, and a per-channel LUT with sepia-warm shadows and warm midtones, identity from 0.85 up.
 - Disable the grade with `--no-grade` for A/B checks.
 - The grade must never tint the evidence whites. The LUT is identity above 0.85.
 

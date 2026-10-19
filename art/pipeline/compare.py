@@ -41,11 +41,14 @@ def main() -> None:
             b = by.get(n)
             if not b:
                 continue
-            src = run / b["screenshot"] if (run / b["screenshot"]).exists() else run / "shots" / (n + ".jpg")
-            im = Image.open(src).convert("RGB")
-            small = im.copy()
-            small.thumbnail((960, 960))
-            small.save(run / "shots" / (n + ".jpg"), "JPEG", quality=82)
+            png = run / b["screenshot"]
+            if png.exists():  # fresh capture: write the committed 960px copy once
+                im = Image.open(png).convert("RGB")
+                small = im.copy()
+                small.thumbnail((960, 960))
+                small.save(run / "shots" / (n + ".jpg"), "JPEG", quality=82)
+            else:  # fresh clone: read the committed copy, never re-encode it
+                im = Image.open(run / "shots" / (n + ".jpg")).convert("RGB")
             im = im.resize((cw, ch))
             x, y = pad + c * (cw + pad), lab + pad + i * (ch + lab + pad)
             sheet.paste(im, (x, y))

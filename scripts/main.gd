@@ -83,14 +83,16 @@ func _ready() -> void:
 	ui.hud.visible = false
 	_update_sky_prep()
 	if args.has("benchmark"):
+		# tests/ is excluded from exports, so in a build this flag is ignored and the game runs normally.
 		var bench_script: Script = load("res://tests/benchmark.gd")
-		if bench_script:
-			bot = null
+		if bench_script == null:
+			push_warning("benchmark unavailable in this build")
+		else:
 			var bench: Node = bench_script.new()
 			bench.main = self
 			bench.out_dir = ProjectSettings.globalize_path(args.benchmark) if args.benchmark.begins_with("res://") else args.benchmark
 			add_child(bench)
-		return
+			return
 	if args.has("autoplay"):
 		var bot_script: Script = load("res://tests/autoplay_bot.gd")
 		if bot_script == null:

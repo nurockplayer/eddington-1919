@@ -47,7 +47,52 @@
       ],
       "ok": true
     },
+    "object_origins": {
+      "value": {
+        "coelostat": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "coelostat_mirror": {
+          "origin": [
+            0.0,
+            0.0,
+            1.4
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            1.399999976158142
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
     "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
       "value": 0,
       "ok": true
     },
