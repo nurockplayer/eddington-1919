@@ -11,6 +11,8 @@ const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 const Look := preload("res://scripts/look.gd")
 const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
+const DepartureWorkbook := preload("res://scripts/cambridge/departure_props.gd")
+const DepartureContent := preload("res://scripts/cambridge/content_departure.gd")
 
 enum Phase { TITLE, PREP, TOTALITY, NIGHT, ENDING }
 
@@ -49,10 +51,16 @@ var audio_amb: AudioStreamPlayer
 var bot: Node
 var _look_sun := 1.0             # art-look gains (scripts/look.gd); 1.0 with --no-grade
 var _look_ambient := 1.0
+var _departure_workbook_seen := false
+var _came_from_departure := false
+var _night_departure_workbook: Node3D
 
 
 func _ready() -> void:
 	_ensure_inputs()
+	_came_from_departure = Story.from_prologue
+	if not _came_from_departure:
+		Story.reset()
 	var args := _user_args()
 	# A restart's chosen sky wins over the command line, which only seeds the first run.
 	var seed_ := next_seed if next_seed >= 0 else int(args.get("seed", "-1"))
@@ -63,6 +71,8 @@ func _ready() -> void:
 	var wb = World.new(self)
 	wb.look = not args.has("no-grade")
 	world = wb.build()
+	if Story.departure_done:
+		_add_departure_loupe(wb)
 	world.eddington.rotation.y = PI
 	player = Player.new()
 	player.position = Vector3(2.6, 0.05, 4.2)
@@ -411,12 +421,16 @@ func _prompt_for(id: String, n: Node) -> String:
 	if id == "":
 		return ""
 	var name_: String = n.get_meta("prompt")
+	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
+		return "［E］Ashby 先生給的放大鏡。"
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
 				return "［E］檢視底片"
 			"eddington":
 				return "［E］和 Eddington 說話"
+			"departure_workbook":
+				return "［E］在工作簿記下你看到的天空。" if not _departure_workbook_seen else ""
 		return ""
 	match id:
 		"eddington", "cottingham":
@@ -462,6 +476,9 @@ func _hold_complete(id: String) -> void:
 
 
 func _interact(id: String) -> void:
+	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
+		ui.show_toast("Ashby 先生給的放大鏡。", 4.0)
+		return
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
@@ -471,6 +488,11 @@ func _interact(id: String) -> void:
 					_start_judgment()
 				else:
 					_say([{"s": Content.E, "t": "先到測量桌看看底片吧。"}], "")
+			"departure_workbook":
+				if Story.departure_done and not _departure_workbook_seen:
+					_departure_workbook_seen = true
+					_night_departure_workbook.call("open_workbook")
+					_say(DepartureContent.principe_workbook(Story.bond_tone), "")
 		return
 	if phase != Phase.PREP:
 		return
@@ -689,6 +711,8 @@ func _begin_night() -> void:
 	_apply_light(0.0, 0.0, 400.0, 1.0)
 	world.lamp.light_energy = 1.1
 	world.safelight.light_energy = Look.NIGHT_SAFELIGHT if _look_ambient < 1.0 else 0.25
+	if Story.departure_done:
+		_add_night_workbook()
 	world.eddington.position = world.eddington_night
 	world.eddington.rotation.y = deg_to_rad(-120)
 	world.cottingham.position = world.darkroom_spot + Vector3(-1.5, 0, 1.2)
@@ -703,6 +727,31 @@ func _begin_night() -> void:
 	_say(Content.night_intro(sim.plates.size()), "")
 	if bot:
 		bot.on_phase("night")
+
+
+func _add_departure_loupe(wb) -> void:
+	# The keepsake sits at the table's east edge, clear of the normal center-line
+	# ray to the measuring sheet so both interactions remain independently usable.
+	var p: Vector3 = world.measure_pos + Vector3(0.40, 0.042, -0.16)
+	var ring: Node3D = wb.cyl(0.105, 0.025, p, wb.P("brass"), null, false)
+	ring.name = "AshbyBrassLoupeRing"
+	var glass: Node3D = wb.cyl(0.075, 0.009, p + Vector3(0, 0.018, 0), Color(0.16, 0.22, 0.24), null, false)
+	glass.name = "AshbyBrassLoupeGlass"
+	var handle: Node3D = wb.box(Vector3(0.055, 0.025, 0.24), p + Vector3(0, 0.004, 0.15), wb.P("brass"), null, false)
+	handle.name = "AshbyBrassLoupeHandle"
+	var hotspot: Node3D = wb.hotspot(Vector3(0.40, 0.24, 0.36), p + Vector3(0, 0.10, 0.04), "mentor_loupe", "Ashby 先生給的放大鏡。")
+	hotspot.name = "AshbyLoupeHotspot"
+
+
+func _add_night_workbook() -> void:
+	# Keep it on the measuring table and east of the normal sheet aim point.
+	var position: Vector3 = world.measure_pos + Vector3(0.43, 0.03, 0.23)
+	_night_departure_workbook = DepartureWorkbook.new() as Node3D
+	_night_departure_workbook.name = "PríncipeDepartureWorkbook"
+	_night_departure_workbook.position = position
+	add_child(_night_departure_workbook)
+	var hotspot: Node3D = World.new(self).hotspot(Vector3(0.42, 0.24, 0.42), position + Vector3(0, 0.10, 0), "departure_workbook", "在工作簿記下你看到的天空")
+	hotspot.name = "PríncipeDepartureWorkbookHotspot"
 
 
 func _open_viewer() -> void:

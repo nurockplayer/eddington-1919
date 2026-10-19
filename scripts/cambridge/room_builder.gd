@@ -6,6 +6,7 @@ const WorldBuilder := preload("res://scripts/world_builder.gd")
 const Look := preload("res://scripts/look.gd")
 const Figures := preload("res://scripts/cambridge/figures.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
+const DepartureProps := preload("res://scripts/cambridge/departure_props.gd")
 
 const ROOM_W := 9.0
 const ROOM_D := 6.0
@@ -45,7 +46,29 @@ static func _plaster_material(color: Color) -> StandardMaterial3D:
 	return material
 
 
-static func build(root: Node3D) -> Dictionary:
+static func _window_glass_material(departure: bool) -> StandardMaterial3D:
+	# Glazing has a broad, faint room reflection, never the timber weathering.
+	var reflection := Gradient.new()
+	reflection.offsets = PackedFloat32Array([0.0, 0.42, 0.58, 1.0])
+	reflection.colors = PackedColorArray([
+		Color(0.65, 0.70, 0.78), Color(0.78, 0.82, 0.88),
+		Color(1.0, 1.0, 1.0), Color(0.65, 0.70, 0.78),
+	])
+	var texture := GradientTexture2D.new()
+	texture.width = 128
+	texture.height = 128
+	texture.gradient = reflection
+	texture.fill_from = Vector2.ZERO
+	texture.fill_to = Vector2.ONE
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.12, 0.19, 0.27) if departure else Color(0.12, 0.19, 0.23)
+	material.albedo_texture = texture
+	material.roughness = 0.24
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	return material
+
+
+static func build(root: Node3D, departure := false) -> Dictionary:
 	var w = WorldBuilder.new(root)
 	var out := {"targets": {}}
 	var wood: Color = w.P("teak")
@@ -73,9 +96,13 @@ static func build(root: Node3D) -> Dictionary:
 	w.box(Vector3(1.4, 0.45, 0.14), Vector3(0, 3.375, 2.93), dark_wood)
 	# The open doorway enters a short, fully enclosed corridor rather than a void.
 	w.box(Vector3(1.7, 0.16, 4.8), Vector3(0, -0.08, 5.35), floor_color)
-	w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(-0.82, 1.8, 5.35), dark_wood)
-	w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(0.82, 1.8, 5.35), dark_wood)
-	w.box(Vector3(1.7, ROOM_H, 0.14), Vector3(0, 1.8, 7.75), dark_wood)
+	for x in [-0.82, 0.82]:
+		var wall := w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(x, 1.8, 5.35), plaster)
+		wall.name = "CorridorPlasterLeft" if x < 0 else "CorridorPlasterRight"
+		(wall.get_child(1) as MeshInstance3D).material_override = plaster_material
+	var hall_end := w.box(Vector3(1.7, ROOM_H, 0.14), Vector3(0, 1.8, 7.75), plaster)
+	hall_end.name = "CorridorPlasterEnd"
+	(hall_end.get_child(1) as MeshInstance3D).material_override = plaster_material
 	w.box(Vector3(1.7, 0.16, 4.8), Vector3(0, 3.52, 5.35), dark_wood, null, false)
 	# A low-lit closed door gives the corridor a readable end rather than a black gap.
 	w.box(Vector3(1.28, 2.8, 0.08), Vector3(0, 1.4, 7.62), wood, null, false)
@@ -87,8 +114,8 @@ static func build(root: Node3D) -> Dictionary:
 	hall_fill.position = Vector3(0, 2.4, 5.6)
 	hall_fill.light_color = Color(0.90, 0.78, 0.59)
 	hall_fill.light_energy = 0.8
-	hall_fill.omni_range = 5.0
-	hall_fill.omni_attenuation = 1.3
+	hall_fill.omni_range = 4.2
+	hall_fill.omni_attenuation = 1.7
 	hall_fill.light_specular = 0.0
 	hall_fill.shadow_enabled = false
 	root.add_child(hall_fill)
@@ -115,52 +142,83 @@ static func build(root: Node3D) -> Dictionary:
 
 	# Tall sash window on the north wall: divided panes, wet dark glazing, half-drawn curtain.
 	var window_center := Vector3(0.55, 2.05, -2.82)
-	var glass_mat := w.mat(Color(0.12, 0.19, 0.23), 0.8)
-	glass_mat.metallic_specular = 0.0
-	glass_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var glass_mat := _window_glass_material(departure)
 	out.window_glass = glass_mat
 	for x in [-1.25, 0.0, 1.25]:
 		var pane := w.box(Vector3(1.15, 1.75, 0.025), window_center + Vector3(x, 0, 0), Color(0.16, 0.23, 0.27), null, false)
+		pane.name = "WindowPane%d" % int((x + 1.25) / 1.25)
 		(pane as MeshInstance3D).material_override = glass_mat
 	for x in [-1.9, -0.625, 0.625, 1.9]:
 		w.box(Vector3(0.075, 1.95, 0.11), window_center + Vector3(x, 0, 0.03), wood, null, false)
 	for y in [1.08, 2.05, 3.02]:
 		w.box(Vector3(3.9, 0.075, 0.11), Vector3(0.55, y, -2.77), wood, null, false)
+	w.box(Vector3(4.0, 0.08, 0.28), Vector3(0.55, 1.025, -2.66), wood, null, false)
+	if departure:
+		# A distant gas lamp, placed in the pane visible beside Kit on arrival.
+		var halo := Gradient.new()
+		halo.offsets = PackedFloat32Array([0.0, 0.045, 0.13, 0.40, 1.0])
+		halo.colors = PackedColorArray([
+			Color(1.0, 0.94, 0.73, 1.0), Color(1.0, 0.85, 0.51, 0.95),
+			Color(1.0, 0.67, 0.30, 0.55), Color(1.0, 0.55, 0.22, 0.12),
+			Color(1.0, 0.48, 0.18, 0.0),
+		])
+		var halo_texture := GradientTexture2D.new()
+		halo_texture.width = 128
+		halo_texture.height = 128
+		halo_texture.gradient = halo
+		halo_texture.fill = GradientTexture2D.FILL_RADIAL
+		halo_texture.fill_from = Vector2(0.5, 0.5)
+		halo_texture.fill_to = Vector2(0.5, 1.0)
+		var halo_material := StandardMaterial3D.new()
+		halo_material.albedo_texture = halo_texture
+		halo_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		halo_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		var lamp_point := MeshInstance3D.new()
+		lamp_point.name = "DepartureStreetLampPoint"
+		var quad := QuadMesh.new()
+		quad.size = Vector2(0.48, 0.48)
+		lamp_point.mesh = quad
+		lamp_point.material_override = halo_material
+		lamp_point.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		lamp_point.position = Vector3(-0.70, 2.50, -2.79)
+		root.add_child(lamp_point)
 	# Rain on the visible half of the sash, drawn as one low-cost mesh instance.
-	var rain_mm := MultiMesh.new()
-	rain_mm.transform_format = MultiMesh.TRANSFORM_3D
-	var rain_mesh := BoxMesh.new()
-	rain_mesh.size = Vector3(0.012, 0.16, 0.006)
-	rain_mm.mesh = rain_mesh
-	var rain_positions: Array[Vector3] = []
-	for i in range(36):
-		var x := -0.02 + float(i % 9) * 0.235
-		var y := 1.25 + float((i * 7) % 17) * 0.098
-		rain_positions.append(Vector3(x, y, -2.79))
-	rain_mm.instance_count = rain_positions.size()
-	for i in rain_positions.size():
-		rain_mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, rain_positions[i]))
-	var rain_streaks := MultiMeshInstance3D.new()
-	rain_streaks.name = "RainStreaks"
-	rain_streaks.multimesh = rain_mm
-	var rain_mat := StandardMaterial3D.new()
-	rain_mat.albedo_color = Color(0.53, 0.68, 0.78, 0.33)
-	rain_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	rain_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	rain_mat.no_depth_test = false
-	rain_mat.disable_receive_shadows = true
-	rain_streaks.material_override = rain_mat
-	rain_streaks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	root.add_child(rain_streaks)
+	if not departure:
+		var rain_mm := MultiMesh.new()
+		rain_mm.transform_format = MultiMesh.TRANSFORM_3D
+		var rain_mesh := BoxMesh.new()
+		rain_mesh.size = Vector3(0.012, 0.16, 0.006)
+		rain_mm.mesh = rain_mesh
+		var rain_positions: Array[Vector3] = []
+		for i in range(36):
+			var x := -0.02 + float(i % 9) * 0.235
+			var y := 1.25 + float((i * 7) % 17) * 0.098
+			rain_positions.append(Vector3(x, y, -2.79))
+		rain_mm.instance_count = rain_positions.size()
+		for i in rain_positions.size():
+			rain_mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, rain_positions[i]))
+		var rain_streaks := MultiMeshInstance3D.new()
+		rain_streaks.name = "RainStreaks"
+		rain_streaks.multimesh = rain_mm
+		var rain_mat := StandardMaterial3D.new()
+		rain_mat.albedo_color = Color(0.53, 0.68, 0.78, 0.33)
+		rain_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		rain_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		rain_mat.no_depth_test = false
+		rain_mat.disable_receive_shadows = true
+		rain_streaks.material_override = rain_mat
+		rain_streaks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(rain_streaks)
 	# Curtain drawn across the left half; folds are broad and economical.
-	w.box(Vector3(1.95, 2.15, 0.08), Vector3(-1.3, 1.95, -2.69), Color(0.29, 0.27, 0.23), null, false)
-	for x in [-2.05, -1.4, -0.75]:
-		w.box(Vector3(0.035, 2.1, 0.10), Vector3(x, 1.95, -2.62), Color(0.22, 0.21, 0.19), null, false)
+	if not departure:
+		w.box(Vector3(1.95, 2.15, 0.08), Vector3(-1.3, 1.95, -2.69), Color(0.29, 0.27, 0.23), null, false)
+		for x in [-2.05, -1.4, -0.75]:
+			w.box(Vector3(0.035, 2.1, 0.10), Vector3(x, 1.95, -2.62), Color(0.22, 0.21, 0.19), null, false)
 	var window_light := OmniLight3D.new()
-	window_light.name = "ColdWindowFill"
-	window_light.position = Vector3(0.5, 2.35, -2.45)
-	window_light.light_color = Color(0.48, 0.65, 0.82)
-	window_light.light_energy = 1.25
+	window_light.name = "DepartureStreetLampGlow" if departure else "ColdWindowFill"
+	window_light.position = Vector3(-0.70, 2.35, -2.45) if departure else Vector3(0.5, 2.35, -2.45)
+	window_light.light_color = Color(1.0, 0.64, 0.34) if departure else Color(0.48, 0.65, 0.82)
+	window_light.light_energy = 0.85 if departure else 1.25
 	window_light.omni_range = 8.0
 	window_light.omni_attenuation = 1.25
 	window_light.shadow_enabled = false
@@ -169,8 +227,8 @@ static func build(root: Node3D) -> Dictionary:
 	var floor_bounce := SpotLight3D.new()
 	floor_bounce.name = "WindowFloorBounce"
 	floor_bounce.position = Vector3(0.65, 1.35, -2.4)
-	floor_bounce.light_color = Color(0.55, 0.69, 0.86)
-	floor_bounce.light_energy = 0.65
+	floor_bounce.light_color = Color(1.0, 0.68, 0.39) if departure else Color(0.55, 0.69, 0.86)
+	floor_bounce.light_energy = 0.4 if departure else 0.65
 	floor_bounce.spot_range = 6.0
 	floor_bounce.spot_angle = 48.0
 	floor_bounce.spot_attenuation = 0.7
@@ -186,8 +244,9 @@ static func build(root: Node3D) -> Dictionary:
 	var chart := w.box(Vector3(0.72, 0.018, 0.5), Vector3(-0.48, 0.795, -0.04), evidence, null, false)
 	(chart as MeshInstance3D).material_override = w.evidence_mat(Color(0.79, 0.76, 0.68))
 	w.box(Vector3(0.10, 0.02, 0.025), Vector3(-0.48, 0.808, -0.03), Color(0.18, 0.13, 0.09), null, false)
-	var loupe := w.cyl(0.11, 0.035, Vector3(-0.95, 0.82, 0.25), brass, null, false)
-	w.cyl(0.07, 0.03, Vector3(-0.95, 0.84, 0.25), Color(0.13, 0.18, 0.2), null, false)
+	if not departure:
+		w.cyl(0.11, 0.035, Vector3(-0.95, 0.82, 0.25), brass, null, false)
+		w.cyl(0.07, 0.03, Vector3(-0.95, 0.84, 0.25), Color(0.13, 0.18, 0.2), null, false)
 	w.box(Vector3(0.22, 0.035, 0.18), Vector3(-0.1, 0.82, 0.28), dark_wood, null, false)
 	w.cyl(0.035, 0.11, Vector3(-0.1, 0.89, 0.28), iron, null, false)
 
@@ -236,6 +295,17 @@ static func build(root: Node3D) -> Dictionary:
 	var kit_ledger := w.box(Vector3(0.4, 0.06, 0.3), Vector3(1.14, 0.89, 0.20), Color(0.28, 0.30, 0.26), null, false)
 	var ledger_hotspot := w.hotspot(Vector3(0.48, 0.2, 0.36), Vector3(1.14, 0.94, 0.20), "kit_ledger", "查看 %s 的工作簿" % Cast.KIT)
 	out.targets["kit_ledger"] = ledger_hotspot.position
+	if departure:
+		var plate_label := Label3D.new()
+		plate_label.text = "KIT 的變星底片"
+		var label_font := SystemFont.new()
+		label_font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC"])
+		plate_label.font = label_font
+		plate_label.font_size = 24
+		plate_label.pixel_size = 0.0025
+		plate_label.modulate = Color(0.72, 0.65, 0.52)
+		plate_label.position = Vector3(1.43, 1.02, -0.02)
+		root.add_child(plate_label)
 
 	# Green-shaded oil lamp, the warm key and light pool.
 	w.cyl(0.07, 0.18, Vector3(0.25, 0.92, -0.19), brass, null, false)
@@ -277,8 +347,11 @@ static func build(root: Node3D) -> Dictionary:
 	# Coat on a wall peg; no identity or initials.
 	w.cyl(0.04, 0.15, Vector3(-3.9, 1.7, 1.0), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
 	w.box(Vector3(0.48, 0.68, 0.12), Vector3(-3.82, 1.18, 1.0), Color(0.22, 0.23, 0.24), null, false)
-	var empty_hotspot := w.hotspot(Vector3(1.7, 1.7, 1.0), Vector3(-2.55, 0.9, 0.62), "empty_desk", "查看空桌")
-	out.targets["empty_desk"] = empty_hotspot.position
+	# M1's broad empty-desk hotspot overlaps Kit's departure staging point.
+	# Keep the desk and chair geometry, but remove this obsolete interaction volume in 1919.
+	if not departure:
+		var empty_hotspot := w.hotspot(Vector3(1.7, 1.7, 1.0), Vector3(-2.55, 0.9, 0.62), "empty_desk", "查看空桌")
+		out.targets["empty_desk"] = empty_hotspot.position
 
 	# Fireplace and low coal fire, opposite the window. Fire has no dynamic particles.
 	w.box(Vector3(0.18, 1.45, 1.35), Vector3(4.32, 0.73, 1.35), dark_wood)
@@ -314,16 +387,16 @@ static func build(root: Node3D) -> Dictionary:
 	out.targets["clock"] = clock_hotspot.position
 
 	# Kit waits at the far end of the table and is reachable from either side.
-	var kit := _npc_without_hat(w, Cast.KIT, Vector3(2.7, 0, 0.85), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit")
+	var kit := _npc_without_hat(w, Cast.KIT, Vector3(-2.1, 0, 0.5) if departure else Vector3(2.7, 0, 0.85), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit")
 	kit.rotation.y = deg_to_rad(155)
 	out.kit = kit
 	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position
 
 	# Late arrivals are staged by the chapter controller; no hats indoors.
-	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(-2.65, 0, 1.25), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor")
-	out.mentor.visible = false
+	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(0, 0, 6.4) if departure else Vector3(-2.65, 0, 1.25), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor")
+	out.mentor.visible = departure
 	var mentor_shape := out.mentor.get_meta("room_collision_shape") as CollisionShape3D
-	mentor_shape.disabled = true
+	mentor_shape.disabled = not departure
 	out.mentor.visibility_changed.connect(func(): mentor_shape.disabled = not out.mentor.visible)
 	# A plain closed journal under the mentor's arm, kept as a single prop.
 	w.box(Vector3(0.20, 0.035, 0.24), Vector3(0.27, 1.28, -0.12), Color(0.27, 0.22, 0.17), out.mentor, false)
@@ -332,9 +405,36 @@ static func build(root: Node3D) -> Dictionary:
 	var eddington_shape := out.eddington.get_meta("room_collision_shape") as CollisionShape3D
 	eddington_shape.disabled = true
 	out.eddington.visibility_changed.connect(func(): eddington_shape.disabled = not out.eddington.visible)
+	if departure:
+		# Three plain shipping crates flank the entrance; restrained lettering reads at room scale.
+		for crate_spec in [Vector3(-2.55, 0.48, 2.05), Vector3(2.55, 0.48, 2.05), Vector3(3.20, 0.38, 1.35)]:
+			var crate_height := 0.96 if crate_spec.y > 0.4 else 0.76
+			var crate := w.box(Vector3(0.95, crate_height, 0.78), crate_spec, Color(0.36, 0.27, 0.18), null, true)
+			var stencil := Label3D.new()
+			stencil.text = "R.A.S. ECLIPSE"
+			var crate_font := SystemFont.new()
+			crate_font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC"])
+			stencil.font = crate_font
+			stencil.font_size = 26
+			stencil.pixel_size = 0.003
+			stencil.modulate = Color(0.76, 0.67, 0.49)
+			stencil.position = Vector3(0, 0, 0.397)
+			crate.add_child(stencil)
+		# Finished comparison list and Kit's variable-star plate stack on the bench.
+		w.box(Vector3(0.48, 0.012, 0.34), Vector3(-0.45, 0.83, 0.28), Color(0.79, 0.73, 0.61), null, false)
+		for i in range(4):
+			w.box(Vector3(0.30, 0.002, 0.006), Vector3(-0.45, 0.839, 0.18 + i * 0.045), Color(0.22, 0.18, 0.14), null, false)
+		# Workbook with an animated opening leaf; used by the M2 sky-promise beat.
+		var workbook := DepartureProps.new() as Node3D
+		workbook.position = Vector3(-1.20, 0.83, 0.40)
+		workbook.name = "DepartureWorkbook"
+		root.add_child(workbook)
+		out.workbook = workbook
+		var workbook_hotspot := w.hotspot(Vector3(0.58, 0.25, 0.43), Vector3(-1.20, 0.91, 0.40), "workbook", "查看工作簿")
+		out.targets["workbook"] = workbook_hotspot.position
 
 	# Target dictionary coordinates are fixed in room space and suitable for the player's 3.2 m ray.
-	var window_hotspot := w.hotspot(Vector3(3.9, 2.15, 0.3), Vector3(0.55, 2.05, -2.25), "window", "查看雨中的窗")
+	var window_hotspot := w.hotspot(Vector3(3.9, 2.15, 0.3), Vector3(0.55, 2.05, -2.25), "window", "查看窗外的路燈" if departure else "查看雨中的窗")
 	out.targets["window"] = window_hotspot.position
 	out.targets["kit"] = kit.position + Vector3(0, 1.1, 0)
 	out.targets["lightbox"] = lightbox.transform * Vector3(0, 0.13, 0)
@@ -347,6 +447,10 @@ static func build(root: Node3D) -> Dictionary:
 	out.targets["cabinet"] = Vector3(-3.1, 0.9, -0.9)
 	out.targets["notebook"] = Vector3(0.72, 0.9, 0.22)
 	out.targets["window"] = Vector3(0.55, 2.05, -2.25)
+	if departure:
+		out.targets["corridor"] = Vector3(0, 0, 5.45)
+		out.targets["mentor"] = out.mentor.position + Vector3(0, 1.0, 0)
+		out.targets["kit"] = kit.position + Vector3(0, 1.0, 0)
 	out.spawn = Vector3(0, 0, 2.35)
 	out.window_light = window_light
 	out.environment = _environment(root)

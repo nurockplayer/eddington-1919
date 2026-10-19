@@ -1,8 +1,8 @@
 # Game Director Handoff
 
-## Director sprint status — M1 Cambridge 1917 prologue | 2026-10-20 JST (Opus 5.5)
+## Director sprint status — M1 prologue + M2 departure night | 2026-10-20 JST (Opus 5.5)
 
-**State:** M1 is playable on branch `m1/cambridge-prologue` and goes to `main` via PR. It is the first part of the 72-hour Director sprint (Issue #1). The last good `main` before M1 is `e55417d`, which includes PR #8: the bot drive and hold at low FPS.
+**State:** M1 is merged (PR #9, `96fd598`) and verified on a fresh clone. M2, the departure night, is on branch `m2/departure` and goes to `main` via PR. Both are part of the 72-hour Director sprint (Issue #1).
 
 - **Play:** `godot --path .` → 「序章　劍橋，1917」 (about 12–18 min, target; not measured with a human). It flows into the unchanged 1919 slice. 「普林西比，1919」 still starts the slice directly.
 - **What the player does:**
@@ -24,7 +24,20 @@
   - No human playtest yet. Run [PLAYTEST_NEWCOMER](PLAYTEST_NEWCOMER.md) and post the results to Issue #1. This is the most valuable next input.
   - The childhood keepsake/microimage is untouched. Its canon is open and must not be invented.
   - Figures are primitive. MPFB people still need the Owner's OK.
-- **Next milestone:** M2, the departure interlude (March 1919). The spec and implementation contract are in [M2_DEPARTURE](design/M2_DEPARTURE.md), with Director dialogue drafted. Build it after M1 is merged and played.
+- **M2, the departure night (March 1919, about 6–9 min target):**
+  - The M1 montage now ends on the 1918 bridge, then `scenes/departure.tscn` loads (`scripts/cambridge/departure_director.gd`, checklist modal, props).
+  - Last shared check with Kit: the player's own transcription slip, struck through and initialled or overwritten (`Story.slip_fix`).
+  - Bond choice → `Story.bond_tone`, which only colours later lines.
+  - Sky promise with a blank workbook page.
+  - Ashby's farewell and gift: `Cast.MENTOR_GIFT`, a placeholder.
+  - Montage → 1919 PREP.
+  - 1919 hooks are cosmetic: a loupe prop in the darkroom and an optional night workbook page.
+  - Dialogue: `content_departure.gd`, owned by the Director. Verification: [M2_VERIFICATION](M2_VERIFICATION.md).
+- **Next options, in value order:**
+  1. A human playtest of M1+M2.
+  2. People/figure quality (needs the Owner's OK for MPFB).
+  3. The 1919 core: make the first-person totality more legible and tense for newcomers, informed by the playtest.
+  4. Later narrative (letters, reunion), once the Owner settles the keepsake canon.
 - **Resume recipe:**
   - Worktrees live under `~/Developer/eddington-1919-wt/`.
   - Codex runs with `codex exec -m <model> --dangerously-bypass-approvals-and-sandbox -C <wt> -o <out> "<prompt>" < /dev/null`, in at most 3 parallel jobs.

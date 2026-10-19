@@ -1,0 +1,12 @@
+{
+  "archive": "build/Eddington1919-macOS.zip",
+  "bytes": 60832046,
+  "sha256": "2a3f90841d415df6331cfec583ac7eafa10f93d4d6e928c32cbc383ef5f18ffc",
+  "compiled_departure_scene": true,
+  "departure_scene_remap": true,
+  "compiled_departure_director": true,
+  "compiled_checklist": true,
+  "compiled_workbook": true,
+  "test_scripts_excluded": true,
+  "evidence": "Godot savepack output and ZIP readback"
+}
