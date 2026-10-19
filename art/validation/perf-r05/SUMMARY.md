@@ -34,45 +34,45 @@ Wall-clock frame time is capped by the display refresh (~8.3 ms); **forced-draw*
 | bookmark | r04 | r05 |
 |---|---|---|
 | arrival | 8.33 | 8.33 |
-| shelter | 8.38 | 7.02 |
-| coelostat | 8.34 | 6.90 |
-| house | 8.33 | 7.72 |
-| totality_sky | 8.39 | 8.54 |
-| totality_horizon | 8.33 | 6.59 |
-| darkroom | 8.33 | 6.77 |
+| shelter | 8.38 | 8.34 |
+| coelostat | 8.34 | 8.33 |
+| house | 8.33 | 8.42 |
+| totality_sky | 8.39 | 8.33 |
+| totality_horizon | 8.33 | 8.33 |
+| darkroom | 8.33 | 8.57 |
 
 ## frame p95 ms
 
 | bookmark | r04 | r05 |
 |---|---|---|
-| arrival | 10.60 | 11.42 |
-| shelter | 9.20 | 10.38 |
-| coelostat | 9.22 | 12.57 |
-| house | 9.19 | 11.61 |
-| totality_sky | 9.77 | 13.82 |
-| totality_horizon | 8.83 | 11.95 |
-| darkroom | 8.97 | 12.06 |
+| arrival | 10.60 | 10.03 |
+| shelter | 9.20 | 9.18 |
+| coelostat | 9.22 | 8.94 |
+| house | 9.19 | 9.11 |
+| totality_sky | 9.77 | 9.10 |
+| totality_horizon | 8.83 | 9.40 |
+| darkroom | 8.97 | 11.85 |
 
 ## forced avg ms
 
 | bookmark | r04 | r05 | spread (forced avg, min–max) |
 |---|---|---|---|
-| arrival | 2.77 | 3.60 | r04 2.72–2.78; r05 3.48–4.04 |
-| shelter | 2.72 | 3.74 | r04 2.71–2.73; r05 3.73–3.80 |
-| coelostat | 2.60 | 3.62 | r04 2.59–2.61; r05 3.52–3.64 |
-| house | 2.46 | 3.21 | r04 2.42–2.46; r05 3.20–3.27 |
-| totality_sky | 2.37 | 2.43 | r04 2.04–2.39; r05 2.25–2.54 |
-| totality_horizon | 2.49 | 3.42 | r04 2.49–2.51; r05 3.41–3.43 |
-| darkroom | 3.03 | 4.31 | r04 3.02–3.18; r05 4.27–4.78 |
+| arrival | 2.77 | 3.58 | r04 2.72–2.78; r05 3.58–3.64 |
+| shelter | 2.72 | 3.82 | r04 2.71–2.73; r05 3.75–3.83 |
+| coelostat | 2.60 | 3.64 | r04 2.59–2.61; r05 3.60–3.70 |
+| house | 2.46 | 3.36 | r04 2.42–2.46; r05 3.29–3.99 |
+| totality_sky | 2.37 | 2.32 | r04 2.04–2.39; r05 2.30–2.33 |
+| totality_horizon | 2.49 | 3.49 | r04 2.49–2.51; r05 3.43–3.51 |
+| darkroom | 3.03 | 4.93 | r04 3.02–3.18; r05 4.39–5.13 |
 
 ## forced p95 ms
 
 | bookmark | r04 | r05 |
 |---|---|---|
-| arrival | 3.14 | 3.75 |
-| shelter | 3.02 | 3.94 |
-| coelostat | 2.79 | 3.88 |
-| house | 2.57 | 3.37 |
-| totality_sky | 3.35 | 3.18 |
-| totality_horizon | 2.72 | 3.57 |
-| darkroom | 3.26 | 4.57 |
+| arrival | 3.14 | 3.93 |
+| shelter | 3.02 | 4.01 |
+| coelostat | 2.79 | 3.87 |
+| house | 2.57 | 3.60 |
+| totality_sky | 3.35 | 2.44 |
+| totality_horizon | 2.72 | 3.62 |
+| darkroom | 3.26 | 5.91 |
