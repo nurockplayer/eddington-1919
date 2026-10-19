@@ -46,3 +46,26 @@ crates (`R.A.S. ECLIPSE`, matches v0.1), the finished Hyades list, Kit's own wor
 
 ## Not in M2
 Keepsake / microimage (open canon), reunion, letters, final worktable, any confession.
+
+## Implementation contract (Director, 2026-10-20; dialogue drafted)
+Dialogue lives in `scripts/cambridge/content_departure.gd` (Director-owned, same `{s,t,key?,choices?,then?}`
+format as M1). Engineering builds the scene around these functions:
+
+| Function | Used for |
+|---|---|
+| `intro_caption()` | Fade-in caption. |
+| `opening()` | Kit at the light box; key `open`. |
+| `check_entries()` | 5 rows `{id,label,list,plate,hand,slip?}`. Plate x/y in mm are fictional measuring-machine values, not real star positions. |
+| `kit_reads(entry)` | Kit reads the plate value before each row is marked ✓/✗ on a paper checklist (reuse report-sheet styling; list rows show handwriting via font/ink colour per `hand`). |
+| `slip_found(caught_by_player, false_alarm)` | After all 5 marks; key `slip_fix` (0 strike + initial, 1 overwrite). The list page then visibly shows the correction (strike-through + initials, or a smudged rewrite). |
+| `before_closing()` | Key `bond` → `Story.bond_tone` = "close" for 0, else "warm". |
+| `sky_promise(bond_tone)` | Key `promise`. Kit shows the blank workbook page (prop visible in the room). |
+| `mentor_farewell(slip_fix)` | Ashby in the corridor; key `gift`. A prop for `Cast.MENTOR_GIFT` appears in the player's hands/HUD afterwards. |
+| `montage()` / `bridge_1918()` | M2 tail into Príncipe; M1 ends on `bridge_1918()` then loads M2. |
+
+Story additions: `bond_tone`, `slip_fix`, `departure_done`. 1919 hooks (cosmetic only, never alter
+measurement or score): the mentor's gift as the darkroom inspection prop; night phase offers
+"write what the sky looked like" in the workbook (text only).
+Bot: `--prologue-autoplay` routes continue through M2 (honest → catches the slip, strikes; tidy →
+misses it, overwrites; accuse → false alarm then strikes). Tests: every `slip_found` combination, both
+`bond_tone`s, both `slip_fix` farewells non-empty; no line contains a confession.
