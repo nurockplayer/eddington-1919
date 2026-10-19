@@ -196,17 +196,25 @@ func _build_environment() -> void:
 
 ## r06: characters turn their heads toward the player at conversation distance
 ## (LookAtModifier3D added by world_builder._person). Purely presentational.
+var _npc_looks := []   # [[body, LookAtModifier3D], ...], found once
+
+
 func _update_npc_look() -> void:
 	if player == null:
 		return
+	if _npc_looks.is_empty():
+		for npc_body in [world.eddington, world.cottingham]:
+			for m in (npc_body as Node).find_children("look_at", "LookAtModifier3D", true, false):
+				(m as LookAtModifier3D).target_node = (m as Node).get_path_to(player.camera)
+				_npc_looks.append([npc_body, m])
+		if _npc_looks.is_empty():
+			_npc_looks.append(null)  # primitive figures: nothing to drive
 	var eye: Vector3 = player.camera.global_position
-	for npc_body in [world.eddington, world.cottingham]:
-		for m in (npc_body as Node).find_children("look_at", "LookAtModifier3D", true, false):
-			var look := m as LookAtModifier3D
-			if look.target_node.is_empty():
-				look.target_node = look.get_path_to(player.camera)
-			var d: float = (npc_body as Node3D).global_position.distance_to(eye)
-			look.influence = clampf((4.5 - d) / 2.0, 0.0, 0.85)
+	for pair in _npc_looks:
+		if pair == null:
+			continue
+		var d: float = (pair[0] as Node3D).global_position.distance_to(eye)
+		(pair[1] as LookAtModifier3D).influence = clampf((4.5 - d) / 2.0, 0.0, 0.85)
 
 
 ## Fraction of the solar disc not covered by the Moon for a contact value.

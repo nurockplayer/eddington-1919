@@ -14,6 +14,7 @@ Pipeline, deterministic for a given spec:
   → assets/models/<id>.glb (validated by validate.py, gate G2)
 """
 import math
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -40,13 +41,33 @@ def age_value(years: float) -> float:
 
 
 def aim(pb: bpy.types.PoseBone, rig: bpy.types.Object, world_dir: Vector) -> None:
-    """Rotate a pose bone so its head→tail points along world_dir (from rest)."""
-    rest = (rig.matrix_world @ pb.bone.matrix_local).to_3x3()
-    cur = rest @ Vector((0, 1, 0))
-    q_world = cur.rotation_difference(world_dir.normalized())
-    q_local = (rest.inverted() @ q_world.to_matrix() @ rest).to_quaternion()
+    """Rotate a pose bone so its head→tail points along world_dir, measured from
+    its CURRENT posed frame (parents already posed). r06 review: using the rest
+    matrix compounded the upper-arm rotation into a ~33° forearm error."""
     pb.rotation_mode = "QUATERNION"
-    pb.rotation_quaternion = q_local
+    pb.rotation_quaternion = (1, 0, 0, 0)
+    bpy.context.view_layer.update()
+    m = (rig.matrix_world @ pb.matrix).to_3x3().normalized()  # posed frame, own rotation = identity
+    cur = m @ Vector((0, 1, 0))
+    q_world = cur.rotation_difference(world_dir.normalized())
+    pb.rotation_quaternion = (m.inverted() @ q_world.to_matrix() @ m).to_quaternion()
+    bpy.context.view_layer.update()
+
+
+CC0_DECL = re.compile(r"^#\s*This asset was explicitly released as CC0\b", re.M)
+
+
+def assert_cc0(path: Path) -> None:
+    """Licence gate: the file header must affirmatively declare a CC0 release (a
+    mere mention of "CC0" is not enough), and so must the geometry it references."""
+    head = "".join(path.read_text(errors="replace").splitlines(True)[:15])
+    if not CC0_DECL.search(head):
+        raise SystemExit(f"licence gate: {path} has no CC0 release declaration in its header")
+    for line in path.read_text(errors="replace").splitlines():
+        if line.startswith("obj_file "):
+            obj = path.parent / line.split(None, 1)[1].strip()
+            if not obj.exists() or not CC0_DECL.search("".join(obj.read_text(errors="replace").splitlines(True)[:15])):
+                raise SystemExit(f"licence gate: referenced geometry {obj} lacks a CC0 release declaration")
 
 
 def hat(spec: dict, top: Vector, name: str) -> list:
@@ -129,9 +150,7 @@ def main() -> None:
     # (MakeHuman system assets do: "explicitly released as CC0 in september 2020").
     # CC-BY or unlabelled assets are refused rather than silently shipped.
     for slot, (rel, _typ) in spec["assets"].items():
-        head = "".join((data / rel).read_text(errors="replace").splitlines(True)[:12])
-        if "CC0" not in head:
-            raise SystemExit(f"licence gate: {rel} does not declare CC0 in its header")
+        assert_cc0(data / rel)
 
     added = {}
     for slot, (rel, typ) in spec["assets"].items():
@@ -205,9 +224,7 @@ def main() -> None:
     pbs = rig.pose.bones
     for side, sx in (("l", 1), ("r", -1)):
         aim(pbs[f"upperarm_{side}"], rig, Vector((sx * 0.13, 0.03, -1.0)))
-        bpy.context.view_layer.update()
         aim(pbs[f"lowerarm_{side}"], rig, Vector((sx * 0.06, -0.18, -1.0)))
-        bpy.context.view_layer.update()
     base_pose = {pb.name: pb.rotation_quaternion.copy() for pb in pbs if pb.rotation_mode == "QUATERNION"}
 
     # Idle: 4 s loop, breathing in the upper spine plus a slow, small head drift.

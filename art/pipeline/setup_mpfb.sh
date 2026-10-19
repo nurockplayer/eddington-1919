@@ -31,5 +31,16 @@ fetch "$SYS_URL" makehuman_system_assets_cc0.zip "$SYS_SHA"
 blender --command extension install-file -r user_default -e "$CACHE/dl/mpfb-2.0.18.zip" >/dev/null 2>&1
 DATA="$BLENDER_USER_RESOURCES/extensions/.user/user_default/mpfb/data"
 mkdir -p "$DATA"
-[ -d "$DATA/skins" ] || (cd "$DATA" && unzip -q -o "$CACHE/dl/makehuman_system_assets_cc0.zip")
+# Staged extraction with a completion marker: an interrupted run never looks installed.
+MARK="$DATA/.e1919_system_assets_$SYS_SHA"
+if [ ! -f "$MARK" ]; then
+  STAGE=$(mktemp -d "$CACHE/stage.XXXXXX")
+  unzip -q "$CACHE/dl/makehuman_system_assets_cc0.zip" -d "$STAGE"
+  for need in clothes/male_elegantsuit01 hair/short02 proxymeshes/male1591 eyes/low-poly eyebrows/eyebrow010; do
+    [ -d "$STAGE/$need" ] || { echo "asset pack incomplete: $need" >&2; rm -rf "$STAGE"; exit 1; }
+  done
+  (cd "$STAGE" && tar cf - .) | (cd "$DATA" && tar xf -)
+  rm -rf "$STAGE"
+  touch "$MARK"
+fi
 echo "MPFB ready: BLENDER_USER_RESOURCES=$BLENDER_USER_RESOURCES"

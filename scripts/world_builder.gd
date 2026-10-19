@@ -749,7 +749,10 @@ func _person(id: String, body: Node3D) -> bool:
 	var path := MODELS + id + ".glb"
 	if not ResourceLoader.exists(path):
 		return false
-	var fig: Node3D = (load(path) as PackedScene).instantiate()
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false  # exists but failed to load: keep the primitive figure
+	var fig: Node3D = scene.instantiate()
 	fig.name = "figure"
 	fig.rotation.y = PI  # models face +Z; NPC bodies face -Z (v0.1 convention)
 	body.add_child(fig)

@@ -1,6 +1,6 @@
 # Character asset licences (r06)
 
-All third-party content in `assets/models/eddington.glb` and `assets/models/cottingham.glb` is **CC0**. This is enforced at build time: `build_person.py` refuses any asset file whose header does not declare CC0. Everything else is made in this repo: hats, glasses, the moustache, palette materials, pose and idle animation.
+All third-party content in `assets/models/eddington.glb` and `assets/models/cottingham.glb` is **CC0**. This is enforced at build time. `build_person.py` refuses any descriptor, and any geometry file it references (`obj_file`), whose header lacks the affirmative line "This asset was explicitly released as CC0". A mere mention of CC0 is not enough (r06 review). Everything else is made in this repo: hats, glasses, the moustache, palette materials, pose and idle animation.
 
 | Item | Source | Licence | Evidence |
 |---|---|---|---|
