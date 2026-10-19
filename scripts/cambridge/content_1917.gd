@@ -148,7 +148,7 @@ static func report_rows() -> Array:
 			{"id": "both", "text": "抄錄時底片翻了面，又放斜了約 3 度", "needs": ["label_mirrored", "arrow_tilted"]},
 			{"id": "mirror", "text": "抄錄時底片翻了面（鏡像）", "needs": ["label_mirrored"]},
 			{"id": "tilt", "text": "底片放斜了約 3 度", "needs": ["arrow_tilted"]},
-			{"id": "unknown", "text": "找到了對齊的方式，但原因還沒查明"},
+			{"id": "unknown", "text": "原因還沒查明"},
 			{"id": "accuse", "text": "抄錄的人草率，或是憑空編造"},
 		]},
 		{"id": "original", "text": "原來那張抄錄圖", "options": [
@@ -189,7 +189,10 @@ static func mentor_review(report: Dictionary) -> Array:
 			return seq
 		"unknown":
 			seq.append({"s": A, "t": "「原因還沒查明。」"})
-			seq.append({"s": A, "t": "很少有人敢這樣交卷。你找到了怎麼對齊，卻不肯假裝知道為什麼——這很好。"})
+			if report.get("aligned", false):
+				seq.append({"s": A, "t": "很少有人敢這樣交卷。你找到了怎麼對齊，卻不肯假裝知道為什麼——這很好。"})
+			else:
+				seq.append({"s": A, "t": "很少有人敢這樣交卷，這很好。可是你連怎麼對上都還沒試出來吧？「不知道」要在查過以後才值錢。"})
 		_:
 			seq.append({"s": A, "t": "翻面，還轉了三度。"})
 			seq.append({"s": A, "t": "你怎麼知道是底片翻了面，而不是星自己跑了？",
@@ -215,7 +218,7 @@ static func mentor_review(report: Dictionary) -> Array:
 				"key": "delete", "choices": ["不確定。", "大概是。"],
 				"then": [[], []]})
 			seq.append({"s": A, "t": "「大概」不能拿來刪東西。把它寫回去，打個問號。問號不丟人。"})
-		"discovery":
+		"new_object":
 			seq.append({"s": A, "t": "新天體。（笑了一下，不是嘲笑）一張底片、一個白點、一個晚上。如果我每次這樣想都寫下來，皇家天文學會早就把我請出去了。"})
 			seq.append({"s": A, "t": "寫「未解決」吧。等第二張底片。它要是真的在那裡，它會等你。"})
 		_:
@@ -224,7 +227,12 @@ static func mentor_review(report: Dictionary) -> Array:
 		seq.append({"s": A, "t": "兩個人各自對過。%s，謝謝。" % K})
 		seq.append({"s": K, "t": "應該的。"})
 	elif report.get("kit_checked", false):
-		seq.append({"s": A, "t": "%s也對過一次吧？我看見紙上有兩種鉛筆的痕跡。下次寫上去。" % K})
+		seq.append({"s": A, "t": "%s也對過一次吧？我看見紙上有兩種鉛筆的痕跡。寫上去。" % K})
+	var hasty: bool = report.get("original", "keep") == "redraw" or report.get("residual", "") in ["delete", "new_object", "not_found"] or (report.get("kit_checked", false) and not report.get("kit_credited", false))
+	if hasty:
+		seq.append({"s": A, "t": "要改，現在還來得及。",
+			"key": "revise_report", "choices": ["改。（回到看片台和筆記本）", "就這樣交。"],
+			"then": [[], [{"s": A, "t": "好。我照你寫的轉出去——連同我在旁邊寫的這幾行。"}]]})
 	return seq
 
 
