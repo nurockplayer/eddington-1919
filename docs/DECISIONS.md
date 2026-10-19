@@ -103,7 +103,7 @@
 - **Why:** M1 makes the player care about honest records. M2 makes the eclipse *personal* by having the player leave someone behind. The honest-record theme also turns on the protagonist's own slip, so the lesson costs the player something and isn't preached.
 - **What it adds:**
   - A playable interlude. The 1917 montage tail moves here, and M1 ends on the 1918 bridge.
-  - Story fields: `bond_tone`, `slip_fix`, `departure_done`. These flavour lines only and never feed the score.
+  - Story fields: `bond_tone` and `slip_fix` flavour lines only. `departure_done` is a completion flag that enables the cosmetic 1919 loupe and night workbook. None of them feed the score.
 - **Romance tempo:** follows the Owner rule — intense but unspoken before departure. The "close" and "warm" tones get equal care, and there is no confession on any route.
 - **Out of scope:** the keepsake/microimage, letters and the reunion.
 - **Verified:** [M2_VERIFICATION](M2_VERIFICATION.md). Not verified: human play.
