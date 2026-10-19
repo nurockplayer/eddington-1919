@@ -17,6 +17,7 @@ const AMBIENT_GAIN := 0.72     # less flat fill → shadows read, forms ground t
 const SUN_GAIN := 1.25         # stronger key through the cloud breaks
 const CLOUD_SHADE := 0.34      # heavier, brooding cloud undersides (v0.1: 0.22; 0.40 read as camouflage)
 const DAY_SKY_GAIN := 0.86     # stop the overcast sky clipping to white
+const NIGHT_SAFELIGHT := 0.5   # darkroom red safelight at night (v0.1: 0.25; r05 darker room needs it to read)
 
 static func apply_grade(env: Environment) -> void:
 	env.adjustment_enabled = true

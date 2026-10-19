@@ -656,7 +656,7 @@ func _begin_night() -> void:
 		plate_textures.append(PlateRender.render(sim, p))
 	_apply_light(0.0, 0.0, 400.0, 1.0)
 	world.lamp.light_energy = 1.1
-	world.safelight.light_energy = 0.25
+	world.safelight.light_energy = Look.NIGHT_SAFELIGHT if _look_ambient < 1.0 else 0.25
 	world.eddington.position = world.eddington_night
 	world.eddington.rotation.y = deg_to_rad(-120)
 	world.cottingham.position = world.darkroom_spot + Vector3(-1.5, 0, 1.2)
