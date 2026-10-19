@@ -94,7 +94,14 @@ func _ready() -> void:
 		else:
 			var bench: Node = bench_script.new()
 			bench.main = self
-			bench.out_dir = ProjectSettings.globalize_path(args.benchmark) if args.benchmark.begins_with("res://") else args.benchmark
+			# DirAccess.make_dir_recursive_absolute() needs an absolute path: resolve
+			# res:// and repo-relative arguments (e.g. art/validation/x) against the project.
+			var out: String = args.benchmark
+			if out.begins_with("res://"):
+				out = ProjectSettings.globalize_path(out)
+			elif not out.is_absolute_path():
+				out = ProjectSettings.globalize_path("res://" + out)
+			bench.out_dir = out
 			add_child(bench)
 			return
 	if args.has("autoplay"):
