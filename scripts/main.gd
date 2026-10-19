@@ -60,7 +60,9 @@ func _ready() -> void:
 		seed_ = randi() % 100000
 	sim = Sim.new(seed_)
 	_build_environment()
-	world = World.new(self).build()
+	var wb = World.new(self)
+	wb.look = not args.has("no-grade")
+	world = wb.build()
 	world.eddington.rotation.y = PI
 	player = Player.new()
 	player.position = Vector3(2.6, 0.05, 4.2)

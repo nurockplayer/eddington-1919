@@ -30,7 +30,11 @@ void sky() {
 	// Base gradient: humid grey-blue day → deep twilight blue during totality.
 	vec3 day = mix(vec3(0.70, 0.74, 0.78), vec3(0.42, 0.55, 0.70), clamp(h, 0.0, 1.0));
 	vec3 tot = mix(vec3(0.07, 0.08, 0.15), vec3(0.012, 0.016, 0.045), clamp(h, 0.0, 1.0));
-	vec3 col = mix(day * day_gain, tot, darkness);
+	// Art gains apply only to the plain daytime sky: they fade out completely by
+	// darkness 0.15, long before the near-totality and totality reads (r05 review).
+	float art_k = 1.0 - smoothstep(0.0, 0.15, darkness);
+	float gain = mix(1.0, day_gain, art_k);
+	vec3 col = mix(day * gain, tot, darkness);
 	// 360° "sunset" glow on the horizon during totality.
 	col += darkness * vec3(0.55, 0.30, 0.12) * exp(-max(h, 0.0) * 9.0);
 	vec3 nightc = mix(vec3(0.03, 0.04, 0.07), vec3(0.005, 0.008, 0.02), clamp(h, 0.0, 1.0));
@@ -90,9 +94,10 @@ void sky() {
 		dens = 1.0;
 	}
 	dens = mix(dens, dens * 0.55, night);
-	vec3 cloud_day = vec3(0.80, 0.82, 0.84) - dens * vec3(cloud_shade, cloud_shade, cloud_shade * 0.9);
+	float shade = mix(0.22, cloud_shade, 1.0 - smoothstep(0.0, 0.15, darkness));
+	vec3 cloud_day = vec3(0.80, 0.82, 0.84) - dens * vec3(shade, shade, shade * 0.9);
 	vec3 cloud_tot = vec3(0.11, 0.115, 0.15) + vec3(0.14, 0.11, 0.08) * exp(-max(h, 0.0) * 5.0);
-	vec3 cloud_col = mix(cloud_day * day_gain, cloud_tot, darkness);
+	vec3 cloud_col = mix(cloud_day * gain, cloud_tot, darkness);
 	cloud_col = mix(cloud_col, vec3(0.02, 0.025, 0.04), night);
 	// Light scattering through thin cloud near the Sun (silver lining / lit veil).
 	float near_sun = exp(-max(r - 1.0, 0.0) * 0.25) * step(0.0, cosang);

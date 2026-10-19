@@ -2,6 +2,32 @@
 
 Newest first. One entry per loop iteration: what was tried, what the evidence showed, and what changed. Details live in each run's `REVIEW.md`.
 
+## 2026-10-20: integration, independent performance check, r05 cinematic pass (Opus 5.5)
+
+**Merged:** PR #4 (r04) → `art/visual-system`, then PR #3 → `main` (`90d9f33`). Verified on a fresh clone of `main`:
+- 155/155 tests
+- careful autoplay
+- export
+
+Before merging:
+- rushed and cherry autoplays reached their distinct endings
+- the HANDOFF conflict with #5 (narrative scope) was resolved by keeping both
+
+**Independent r04 performance re-check** ([perf-r04](validation/perf-r04/README.md)):
+- The geometry cut is confirmed.
+- **No measurable render-cost gain:** forced draw stayed at 2.4–3.3 ms.
+- Wall-clock p95 is unchanged.
+- One contaminated pass (it overlapped image generation) was discarded and re-run.
+- Tooling added: forced-draw timing, `perf_summary.py`, and a new G4 performance gate.
+
+**r05 cinematic** ([REVIEW](runs/r05-cinematic/REVIEW.md)):
+- **Paint-overs** of real in-game frames served as targets.
+- **Five Godot iterations** produced ACES, SSAO, aerial fog, the sky gains, wet laterite, ground macro variation, a world-space weathering layer, a darkroom lamp pool with a stronger safelight, and fading name tags.
+- **Cost:** +0.8–1.3 ms forced draw (justified; under the 6 ms absolute gate; wall p95 unchanged).
+- **Gameplay:** 155/155 tests, 3 autoplay endings unchanged, evidence sky untouched.
+
+**Next:** people (MPFB 2 proposed in place of Tripo; needs Owner OK to download), vegetation density, and the daytime sky.
+
 ## 2026-10-20: r04, foliage cost + shelter and tube (Opus 5.5, Game Director)
 
 **Measured first:**

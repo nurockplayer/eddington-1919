@@ -9,6 +9,9 @@ const MODELS := "res://assets/models/"
 
 var root: Node3D
 var _mats := {}
+## r05 art pass (BIBLE §3a). main.gd sets false for --no-grade, so that flag
+## gives a complete before/after: environment look AND these material changes.
+var look := true
 
 
 func _init(p_root: Node3D) -> void:
@@ -53,7 +56,7 @@ func multimesh(id: String, xforms: Array, group := "") -> Array:
 			n = n.get_parent()
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
-		mm.mesh = mi.mesh
+		mm.mesh = _weathered_mesh(mi.mesh)
 		mm.instance_count = xforms.size()
 		for i in xforms.size():
 			mm.set_instance_transform(i, xforms[i] * local)
@@ -116,7 +119,7 @@ var _weathered := {}   # original imported material → weathered copy (keeps in
 ## non-metal, non-evidence surface, so large flat palette fills read as worn
 ## timber, plaster and canvas. No authored textures; one shared noise texture.
 func weather(m: BaseMaterial3D) -> void:
-	if m.metallic > 0.5 or m.albedo_color.v > 0.8:
+	if not look or m.metallic > 0.5 or m.albedo_color.v > 0.8:
 		return  # metals keep clean reflections; evidence whites stay clean (BIBLE S1)
 	if _weather_tex == null:
 		# try4 (0.06 freq, 5 octaves, 0.70–1.04) read as speckled camouflage: keep it broad and soft.
@@ -128,6 +131,24 @@ func weather(m: BaseMaterial3D) -> void:
 	m.uv2_triplanar = true
 	m.uv2_world_triplanar = true
 	m.uv2_scale = Vector3(0.3, 0.3, 0.3)
+
+
+## Mesh copy whose surface materials are the shared weathered copies (for
+## MultiMesh, which cannot take per-surface overrides). Arrays stay shared.
+func _weathered_mesh(src: Mesh) -> Mesh:
+	if not look:
+		return src
+	var m := src.duplicate() as Mesh
+	for i in m.get_surface_count():
+		var mat_i := m.surface_get_material(i) as BaseMaterial3D
+		if mat_i == null:
+			continue
+		if not _weathered.has(mat_i):
+			var w := mat_i.duplicate() as BaseMaterial3D
+			weather(w)
+			_weathered[mat_i] = w
+		(m as ArrayMesh).surface_set_material(i, _weathered[mat_i])
+	return m
 
 
 ## Apply weather() to an imported model's materials (shared copies per source material).
@@ -258,6 +279,21 @@ func _ground() -> void:
 	mi.mesh = pm
 	# r05: world-space macro patches (albedo) + fine breakup (detail), so the
 	# ground reads as a worn, rain-soaked clearing rather than a blurred carpet.
+	mi.material_override = _ground_material() if look else _ground_material_v04()
+	body.add_child(mi)
+	root.add_child(body)
+	_paths()
+
+
+func _ground_material_v04() -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = _noise_tex(0.02, 5, [P("foliage_deep").darkened(0.15), P("foliage_light").darkened(0.1)])
+	m.uv1_scale = Vector3(18, 18, 1)
+	m.roughness = 0.95
+	return m
+
+
+func _ground_material() -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = _noise_tex(0.012, 4, [P("foliage_deep").darkened(0.3), P("foliage_deep"), P("foliage_light").darkened(0.15)])
 	m.uv1_triplanar = true
@@ -271,11 +307,12 @@ func _ground() -> void:
 	m.uv2_world_triplanar = true
 	m.uv2_scale = Vector3(0.45, 0.45, 0.45)
 	m.roughness = 0.92
-	mi.material_override = m
-	body.add_child(mi)
-	root.add_child(body)
+	return m
+
+
+func _paths() -> void:
 	# Trampled red earth around the instruments and paths, wet after the storm
-	# (HISTORICAL_RECORD: rain ~10:00–11:30). Low roughness lets it pick up the sky.
+	# (HISTORICAL_RECORD: rain ~10:00–11:30).
 	var dirt_mat := StandardMaterial3D.new()
 	# Broad, low-contrast blotches only (try2's finer noise read as pink cobbles);
 	# the wetness lives in roughness, which picks up the overcast sky.
@@ -287,7 +324,8 @@ func _ground() -> void:
 	dirt_mat.roughness_texture = _noise_tex(0.02, 2, [Color(0.3, 0.3, 0.3), Color(1.0, 1.0, 1.0)])
 	for d in [[Vector3(7.5, 0.02, 9.5), Vector3(0, 0.01, -3.6), 0.0], [Vector3(10, 0.02, 1.6), Vector3(4.5, 0.012, 1.8), -12.0], [Vector3(1.6, 0.02, 16), Vector3(-6, 0.012, -10), 35.0]]:
 		var path := box(d[0], d[1], P("laterite_wet"), null, false, Vector3(0, deg_to_rad(d[2]), 0))
-		(path as MeshInstance3D).material_override = dirt_mat
+		if look:
+			(path as MeshInstance3D).material_override = dirt_mat
 	for p in [Vector3(2.6, 0.03, -0.4), Vector3(-2.8, 0.03, -6.8), Vector3(5.2, 0.03, 2.4), Vector3(0.6, 0.03, 3.0)]:
 		var puddle := cyl(randf_range(0.4, 0.9), 0.01, p, Color(0.16, 0.17, 0.2))
 		(puddle as MeshInstance3D).material_override = mat(Color(0.12, 0.14, 0.18), 0.05, 0.3)
@@ -439,7 +477,7 @@ func _shelter_and_instrument() -> Dictionary:
 
 func _darkroom() -> Dictionary:
 	var out := {}
-	var wall := P("teak_dark")  # r05: darker boards so the lamp makes a pool, not an orange box
+	var wall := P("teak_dark") if look else P("teak")  # r05: darker boards so the lamp makes a pool
 	var roof := P("iron").lightened(0.15)  # corrugated iron (RECONSTRUCTION)
 	var c := Vector3(10.0, 0, 3.0)
 	# Walls: 4 × 3.4 footprint, door gap on the west (-x) side.
@@ -468,11 +506,11 @@ func _darkroom() -> Dictionary:
 	out.measure_pos = c + Vector3(0.6, 0.82, 1.1)
 	var lamp := OmniLight3D.new()
 	lamp.position = c + Vector3(0.9, 1.5, 1.0)
-	lamp.light_color = Color(1.0, 0.80, 0.58)   # r05: less orange; a pool of light, not a lit box
+	lamp.light_color = Color(1.0, 0.80, 0.58) if look else Color(1.0, 0.72, 0.42)  # r05: a pool of light
 	lamp.light_energy = 0.0
 	lamp.light_volumetric_fog_energy = 0.0
-	lamp.omni_range = 3.6
-	lamp.omni_attenuation = 1.6
+	lamp.omni_range = 3.6 if look else 5.0
+	lamp.omni_attenuation = 1.6 if look else 1.0
 	# light_size (PCSS soft shadow) cost +2 ms forced-draw for a barely visible edge: off (perf-r05).
 	lamp.shadow_enabled = true
 	root.add_child(lamp)
@@ -671,7 +709,7 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	tag.modulate = Color(1, 0.95, 0.8, 0.85)
 	tag.outline_size = 8
 	# r05: name tags fade out beyond conversation distance, so vistas carry no HUD text.
-	tag.visibility_range_end = 9.0
+	tag.visibility_range_end = 9.0 if look else 0.0
 	tag.visibility_range_end_margin = 3.0
 	tag.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	body.add_child(tag)
