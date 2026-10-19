@@ -1,5 +1,17 @@
 # Game Director Handoff
 
+## M1 engineering candidate | 2026-10-20
+
+Implementation branch `m1/cambridge-prologue` in the assigned `m1-sol` worktree. This is a local engineering candidate; no push, merge or production-main verification is claimed.
+
+- Entry: `godot --path .`, choose the first prologue button. Existing 1919 `ui.start_btn`, main scene, benchmark and grading remain in place.
+- Files: `scenes/cambridge.tscn`, `scripts/cambridge/{director,room_builder,overlay_math,overlay_viewer,report_sheet,plan_board,cast,content_1917}.gd`, data-only `Story` autoload, shared UI history and two Príncipe continuity hooks.
+- Content handoff: replace `content_1917.gd` wholesale using its documented signatures and row/card/state data contracts. All current content is explicitly temporary. Replaceable role names stay in `cast.gd`. Optional mentor-review `revise_report` choice 0 reopens the report; absent/1 continues.
+- Automated entry: `--prologue-autoplay=honest|tidy|accuse --shots=DIR`. Uses actual input events, world movement, dialogue and modal controls; scene changes and Story readback are included in its JSON receipt. Test scripts remain excluded from export.
+- New 1917 fiction/reconstruction boundaries are recorded in `PROVENANCE.md`. Historical source rechecking and final narrative belong to the director. No human playtest, newcomer understanding or 12–18 minute pacing result is claimed.
+- Bounded implementation support: GPT-6 Luna workers for room, geometry/viewer, and sheets/content/tests. Fresh Sol code review substitutes for unavailable Oracle/Ego-lite review tooling; no Oracle review is claimed.
+- Verification details and receipts: see `M1_VERIFICATION.md`.
+
 ## Current production handoff | 2026-10-20 JST
 
 **Source of truth:** [Notion 《雲層之後》 Narrative Bible — §0 quick handoff, §§1–7 decisions](https://app.notion.com/p/3fed7d8b390781ac848acc2d293ebbde) defines **approved vs proposed** story. [GitHub Issue #1](https://github.com/nurockplayer/eddington-1919/issues/1) is the live Opus Game Director decision, evidence and milestone log. This section **supersedes prior v0.1-only scope**, without claiming any new playable work has been shipped.

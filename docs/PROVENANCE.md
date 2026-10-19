@@ -48,3 +48,21 @@
 - Royal Observatory Greenwich — https://www.royalobservatorygreenwich.org/articles.php?article=1283
 - Einstein Papers vol. 9 — https://einsteinpapers.press.princeton.edu/vol9-doc/34
 - 未能取得全文：Phil. Trans. 1920 報告原文、Correia et al. 2019（SciELO）。引用均經上列文獻轉引。
+
+
+## M1 劍橋序章（1917，工程實作；台詞暫定）
+
+依據 [M1 規格](design/M1_CAMBRIDGE_PROLOGUE.md)。以下是新增項目的邊界，
+不是新增史料查核的聲明。`content_1917.gd` 的所有內容以「［暫］」標記，待 Game Director 整檔替換。
+
+| 內容 | 標記與查核狀態 |
+|---|---|
+| Dyson 在 1917 年提出 1919 日食與 Hyades 星場的觀測機會；1917 年 11 月的聯合常設日食委員會 | HISTORICAL_RECORD（M1 規格的史實錨點）。本工程沒有獨立查核原始出版物；正式台詞由導演查核來源後替換。 |
+| Eddington 擔任劍橋天文台台長；戰時背景；1.75″／0.87″／0 的比較 | HISTORICAL_RECORD（沿用規格與現有歷史文件）；序章沒有新增確定性結論。 |
+| 劍橋測量室尺寸、佈局、桌燈、看片台、底片櫃、煤火、鐘、窗與雨痕 | RECONSTRUCTION。為玩法與照明創作，不表示有現場照片或考證平面圖。 |
+| 半拉窗簾、戰時燈光管制氣氛 | RECONSTRUCTION／DISPUTED。只作氣氛；本里程碑沒有聲稱當地具體燈光規定已被查核。 |
+| 玩家、Kit、Ashby 先生、無名抄錄者、1915 年入伍與空桌上的信 | FICTION。姓名只在 `cast.gd` 定義並可替換；不影射真實天文台助手。 |
+| 14 號星場、鏡像與約 3.2° 的轉角、17 個重合點及未解殘點 | FICTION／示意幾何。星點為程序座標；殘點可能是淡星或乳劑缺陷，本章不下結論。 |
+| 導師評閱、三天後會面、Eddington 的兩個問題、計畫卡、比對星清單試做、Kit 尾聲、所有對白 | FICTION／戲劇化；試做工作不等於遠征成員資格。 |
+| 童年星圖受指控的簡短回憶 | FICTION，僅引用已批准的故事結構，不新增年齡、地點或欺凌者細節。M1 沒有童年信物或微影像道具。 |
+| 玩家從序章轉入 1919 遠征 | FICTION。只保存記錄與計畫原則，不改變 1919 科學模擬或評分。 |

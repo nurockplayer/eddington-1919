@@ -17,6 +17,16 @@ godot --headless --path . --script res://tests/test_sim.gd
 godot --path . --always-on-top -- --autoplay=careful --shots=/tmp/e1919 --speed=2
 ```
 
+主選單第一個按鈕「序章　劍橋，1917」進入 M1：比對底片與抄錄圖、查日誌、請 Kit 獨立複核、填報告並共同規劃公平的日食觀測。序章結束直接進入 1919 準備階段。「普林西比，1919」仍可直接開始既有切片。序章台詞目前全為可替換的「［暫］」內容，尚未真人試玩；12–18 分鐘為設計目標，並非已測量遊玩時長。
+
+序章額外操作：看片台內拖曳描圖紙、翻面、Q／E 或按鈕旋轉；Tab 在兩章都可開關最近 60 行對話紀錄。
+
+```bash
+godot --headless --path . --script res://tests/test_prologue.gd
+godot --path . --always-on-top -- --prologue-autoplay=honest --shots=/tmp/m1-honest
+# 另有 tidy、accuse 兩種報告路線；JSON 收據與逐幕截圖寫到 --shots 目錄。
+```
+
 **流程（約 6–10 分鐘）**
 1. 準備：在 Roça Sundy 觀測站向 Eddington 報到，從暗房搬底片匣，再幫 Cottingham 上發條、對天文鐘校走速。倒數在對話時暫停。
 2. 全食（302 秒，時間壓縮）：抬頭看漂移的雲，按空白鍵喊「開始」或「停」。雲在太陽上的厚薄，就是底片實際收到的光。

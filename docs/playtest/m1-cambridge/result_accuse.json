@@ -1,0 +1,81 @@
+{
+  "beats": [
+    "OPENING",
+    "INVESTIGATE",
+    "MENTOR",
+    "INTERLUDE",
+    "EXAM",
+    "PLAN",
+    "TRIAL",
+    "CODA",
+    "MONTAGE"
+  ],
+  "bias_blocked": true,
+  "clues": {
+    "aligned": true,
+    "arrow_tilted": true,
+    "kit_checked": true,
+    "label_mirrored": true,
+    "log": true,
+    "residual": true
+  },
+  "elapsed_seconds": 34.68,
+  "engine": "4.7.2-stable (official)",
+  "failures": [],
+  "from_prologue_consumed": true,
+  "human_playtest": false,
+  "input_retries": 0,
+  "interactions": [
+    "notebook",
+    "lightbox",
+    "logbook",
+    "kit",
+    "notebook"
+  ],
+  "kit_choice": 1,
+  "matched": 17,
+  "phase_reached": "PREP",
+  "plan": [
+    "comparison",
+    "far_stars",
+    "same_instrument"
+  ],
+  "prologue_done": true,
+  "report": {
+    "cause": "accuse",
+    "kit_credited": true,
+    "original": "keep",
+    "residual": "new_object"
+  },
+  "report_revised": false,
+  "room_draw_calls_max_observed": 105,
+  "scenario": "accuse",
+  "screenshots": [
+    "/tmp/m1-accuse/accuse_00_title.png",
+    "/tmp/m1-accuse/accuse_beat_opening.png",
+    "/tmp/m1-accuse/accuse_01_opening.png",
+    "/tmp/m1-accuse/accuse_01b_log.png",
+    "/tmp/m1-accuse/accuse_02_report_gated.png",
+    "/tmp/m1-accuse/accuse_beat_investigate.png",
+    "/tmp/m1-accuse/accuse_03_mismatch.png",
+    "/tmp/m1-accuse/accuse_04_flipped.png",
+    "/tmp/m1-accuse/accuse_05_aligned.png",
+    "/tmp/m1-accuse/accuse_06_loupe.png",
+    "/tmp/m1-accuse/accuse_07_logbook.png",
+    "/tmp/m1-accuse/accuse_08_report.png",
+    "/tmp/m1-accuse/accuse_beat_mentor.png",
+    "/tmp/m1-accuse/accuse_dialogue_mentor_review.png",
+    "/tmp/m1-accuse/accuse_beat_interlude.png",
+    "/tmp/m1-accuse/accuse_dialogue_exam.png",
+    "/tmp/m1-accuse/accuse_beat_exam.png",
+    "/tmp/m1-accuse/accuse_beat_plan.png",
+    "/tmp/m1-accuse/accuse_09_bias_plan.png",
+    "/tmp/m1-accuse/accuse_10_fair_plan.png",
+    "/tmp/m1-accuse/accuse_dialogue_plan_finish.png",
+    "/tmp/m1-accuse/accuse_beat_trial.png",
+    "/tmp/m1-accuse/accuse_beat_coda.png",
+    "/tmp/m1-accuse/accuse_dialogue_coda.png",
+    "/tmp/m1-accuse/accuse_beat_montage.png",
+    "/tmp/m1-accuse/accuse_11_principe_prep.png"
+  ]
+}
