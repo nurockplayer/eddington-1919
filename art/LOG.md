@@ -29,6 +29,8 @@ Newest first. One entry per loop iteration: what was tried, what the evidence sh
 | banana v1 read as spikes | leaf profile v2 and a spec height fix |
 | quadrant MultiMesh chunks pushed `totality_sky` draw calls to +21 % | one MultiMesh per model |
 
+**Independent review:** a fresh read-only Codex `gpt-6-astra` session found no blocking issues. Its 3 findings are fixed: cylinder post colliders, bounding-sphere lookdev framing, and receipts for the quadrant and rebuild-hash claims.
+
 Details: `runs/r04-shelter-foliage/REVIEW.md`.
 
 **Next:**

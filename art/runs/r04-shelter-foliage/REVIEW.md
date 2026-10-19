@@ -38,7 +38,7 @@ Style E v1. New subject blocks (`subjects.toml`, all v1): `sun_shelter`, `horizo
 
 ## 3. Build (S3b) and G2
 
-Builds were delegated to Codex `gpt-6.1-sol` (briefs written by Opus with exact coordinates tied to the gameplay colliders). Opus rebuilt everything from the scripts (deterministic: identical GLB hashes) and re-ran G2:
+Builds were delegated to Codex `gpt-6.1-sol` (briefs written by Opus with exact coordinates tied to the gameplay colliders). Opus rebuilt everything from the scripts and re-ran G2. The builds are deterministic: the committed GLBs and two fresh rebuilds have identical SHA-256 (`art/validation/r04-rebuild-receipt.txt`).
 
 | Asset | Script | Triangles | Materials | Dims (m) | G2 |
 |---|---|---|---|---|---|
@@ -52,7 +52,7 @@ Builds were delegated to Codex `gpt-6.1-sol` (briefs written by Opus with exact 
 Every model keeps its primitive fallback for when the GLB is missing. Colliders and hotspots stay in code, at the same sizes and positions.
 
 **Shelter:**
-- The posts' box colliders are 0.14 × 2.9 × 0.14 m, in the same place as before.
+- The posts keep the same cylinder colliders (r 0.07 m, 2.9 m) as the primitives, through a new `cyl_collider()`. The first integration used 0.14 m boxes; the independent review caught that their corners stick out.
 - `sun_shelter_roof` is moved under the existing `roof` node, so `main.gd` and the benchmark hide it at totality unchanged.
 - `sun_shelter_roll` follows `roof.visibility_changed`. The rolled canvas shows exactly while the roof is hidden.
 
@@ -68,8 +68,9 @@ Every model keeps its primitive fallback for when the GLB is missing. Colliders 
 ## 5. G3 lookdev (`art/validation/g3-r04/{shelter,tube,foliage,r03check}`)
 
 - **Finding: the lookdev cameras were fixed for props of about 1.5 m.** The 7 m shelter filled the frame, with the camera inside the canopy.
-  - **Code change:** `scripts/lookdev.gd` now pulls each camera back along its own direction when the row is bigger than about 2.7 m (`frame_scale` in `lookdev.json`). Eye level stays at 1.62 m.
-  - Prop-sized rows are unchanged (`r03check`: `frame_scale` 1.0).
+  - **Code change:** `scripts/lookdev.gd` now aims each camera at the row's bounding-sphere centre from its own direction, far enough back that the sphere fits the vertical FOV. This applies when the row is bigger than about 2.7 m (`frame_scale` in `lookdev.json`). Eye level stays at 1.62 m.
+  - A first version only scaled the camera distance, and its eye-level shot still clipped the shelter (independent review).
+  - Prop-sized rows are unchanged: `r03check` has `frame_scale` 1.0, and its JPEGs are byte-identical before and after the fix.
 - Measured dimensions equal the Blender export for all four assets.
 - Silhouettes read in the backlit shot: the open frame, the A-frame trestles and the faceted shrub.
 - **Finding: banana_clump v1 read as bare stems with upright spikes** (`foliage/sheet-banana-v1-rejected.jpg`).
@@ -92,6 +93,7 @@ Every model keeps its primitive fallback for when the GLB is missing. Colliders 
 
 **Finding: quadrant MultiMesh chunks broke the draw-call gate.**
 - The first integration split the foliage into one MultiMesh per model *and quadrant*, so that quadrants behind the camera would cull. Looking up at totality, the quadrants' large bounds stayed in view, and the main and shadow passes drew them: `totality_sky` reached 185 draw calls (+21 %, over the +20 % gate).
+- Receipt: `art/validation/g4-r04-quadrants-rejected`, re-captured from that variant. Its `compare.jpg` puts it beside the final r04.
 - All 70 plants together are about 12k triangles, so chunking saves nothing worth having.
 - **Code change:** one MultiMesh per model. Every other bookmark lost a further 7–25 draw calls with it.
 
@@ -112,7 +114,8 @@ Every model keeps its primitive fallback for when the GLB is missing. Colliders 
 - **Careful autoplay** (`--autoplay=careful --speed=2 --seed=7`, `art/validation/autoplay-r04/`) matches r03:
   - same ending (雲層之後的希望), evidence favours E, score 4, stuck 0
   - restart works
-- The only diff from r03 is frame-timing jitter of ≤ 0.1 s in the log, which moves the combined value in the 5th decimal.
+- The run is from the final code, after the review fixes.
+- The only diffs from r03 are frame-timing jitter: the prep timer 96.6 → 96.9 s, gap open/close times ±0.1 s, and one extra heartbeat line. These move the combined value in the 4th decimal (1.8033 → 1.8035).
 - The plates were delivered through the new carrier collider, and the roof hides at totality (`careful_05`, `careful_06b`).
 
 ## What changes next round (S5)
@@ -125,3 +128,17 @@ Every model keeps its primitive fallback for when the GLB is missing. Colliders 
 | **Palms: 125 of 153 draw calls in `totality_sky`**, 9 meshes × 15 palms | **next:** a palm kit asset (one mesh with trunk + fronds, ≤600 tris), instanced like the foliage. The S1 subject block is still to write. |
 | Shelter side beam crosses the totality sky view | human playtest check. If it distracts, thin the side beams (spec) or move the station bookmark, never the gameplay position. |
 | Instanced foliage draws in every shadow cascade | try `cast_shadow` per distance (visibility range) or a shadow-only LOD if `totality_sky` creeps toward +20 % |
+
+## Independent review (fresh read-only Codex `gpt-6-astra` session)
+
+No blocking issues. Three findings, all fixed in this PR:
+1. **P2:** the post colliders changed from cylinders to boxes. They are cylinders again.
+2. **P3:** lookdev auto-framing still clipped architecture. It now fits the bounding sphere.
+3. **P3:** some claims had no committed receipt (quadrant draw calls, rebuild hashes), and the autoplay diff was understated. Receipts are added and the wording is fixed.
+
+The reviewer confirmed:
+- the GLBs against their contracts
+- the roof re-homing and the roll toggle
+- the tube, trestle and carrier colliders and the station metadata
+- the foliage RNG preservation
+- the `--bench-hide` behaviour and the G4 tables
