@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        5.4,
+        7.0,
+        3.44
+      ],
+      "id": "sun_shelter",
+      "min_y": 0.0,
+      "surfaces": 6,
+      "triangles": 1480
+    }
+  ],
+  "frame_scale": 2.59
+}

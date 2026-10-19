@@ -1,0 +1,89 @@
+{
+  "bookmarks": [
+    {
+      "bookmark": "arrival",
+      "draw_calls": 395.0,
+      "frame_ms_avg": 4.79,
+      "frame_ms_p95": 10.87,
+      "lighting": "prep_early",
+      "objects": 404.0,
+      "primitives": 222446.0,
+      "screenshot": "arrival.png",
+      "video_mem_mb": 312.8
+    },
+    {
+      "bookmark": "shelter",
+      "draw_calls": 271.0,
+      "frame_ms_avg": 4.88,
+      "frame_ms_p95": 11.56,
+      "lighting": "prep_late",
+      "objects": 277.0,
+      "primitives": 169440.0,
+      "screenshot": "shelter.png",
+      "video_mem_mb": 312.8
+    },
+    {
+      "bookmark": "coelostat",
+      "draw_calls": 189.0,
+      "frame_ms_avg": 7.21,
+      "frame_ms_p95": 13.6,
+      "lighting": "prep_early",
+      "objects": 189.0,
+      "primitives": 168052.0,
+      "screenshot": "coelostat.png",
+      "video_mem_mb": 312.8
+    },
+    {
+      "bookmark": "house",
+      "draw_calls": 142.0,
+      "frame_ms_avg": 7.93,
+      "frame_ms_p95": 15.26,
+      "lighting": "prep_early",
+      "objects": 142.0,
+      "primitives": 145308.0,
+      "screenshot": "house.png",
+      "video_mem_mb": 312.8
+    },
+    {
+      "bookmark": "totality_sky",
+      "draw_calls": 179.0,
+      "frame_ms_avg": 6.49,
+      "frame_ms_p95": 13.04,
+      "lighting": "totality",
+      "objects": 179.0,
+      "primitives": 130180.0,
+      "screenshot": "totality_sky.png",
+      "video_mem_mb": 312.8
+    },
+    {
+      "bookmark": "totality_horizon",
+      "draw_calls": 161.0,
+      "frame_ms_avg": 3.85,
+      "frame_ms_p95": 9.37,
+      "lighting": "totality",
+      "objects": 161.0,
+      "primitives": 93084.0,
+      "screenshot": "totality_horizon.png",
+      "video_mem_mb": 312.8
+    },
+    {
+      "bookmark": "darkroom",
+      "draw_calls": 305.0,
+      "frame_ms_avg": 3.64,
+      "frame_ms_p95": 8.28,
+      "lighting": "night",
+      "objects": 305.0,
+      "primitives": 135636.0,
+      "screenshot": "darkroom.png",
+      "video_mem_mb": 312.8
+    }
+  ],
+  "godot": "4.7.2-stable (official)",
+  "hidden_groups": [],
+  "renderer": "Apple M2 Pro (Apple8)",
+  "seed": 7,
+  "viewport": [
+    1600,
+    900
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "asset": "banana_clump",
+  "file": "assets/models/banana_clump.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 220,
+      "max": 300,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_foliage_deep",
+        "E1919_foliage_light"
+      ],
+      "max": 2,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        2.76,
+        2.44,
+        2.484
+      ],
+      "target": [
+        2.6,
+        2.6,
+        2.6
+      ],
+      "tolerance": 0.15,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "banana_clump": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "banana_clump"
+      ],
+      "ok": true
+    }
+  }
+}

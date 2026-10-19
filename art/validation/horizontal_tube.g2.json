@@ -1,0 +1,87 @@
+{
+  "asset": "horizontal_tube",
+  "file": "assets/models/horizontal_tube.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 1400,
+      "max": 6000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_brass",
+        "E1919_ebonite",
+        "E1919_iron",
+        "E1919_teak",
+        "E1919_teak_dark"
+      ],
+      "max": 5,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.768,
+        3.834,
+        1.65
+      ],
+      "target": [
+        0.77,
+        3.81,
+        1.6
+      ],
+      "tolerance": 0.08,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        -0.027,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "horizontal_tube": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "horizontal_tube"
+      ],
+      "ok": true
+    }
+  }
+}

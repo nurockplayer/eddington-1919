@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        0.768,
+        3.834,
+        1.65
+      ],
+      "id": "horizontal_tube",
+      "min_y": 0.0,
+      "surfaces": 5,
+      "triangles": 1400
+    }
+  ],
+  "frame_scale": 1.42
+}

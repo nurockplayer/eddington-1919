@@ -1,0 +1,107 @@
+{
+  "asset": "coelostat",
+  "file": "assets/models/coelostat.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 2032,
+      "max": 6000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_brass",
+        "E1919_brick",
+        "E1919_iron",
+        "E1919_mirror",
+        "E1919_stone",
+        "E1919_teak_dark"
+      ],
+      "max": 6,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 1024,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        1.447,
+        1.08,
+        1.53
+      ],
+      "target": [
+        1.3,
+        1.0,
+        1.72
+      ],
+      "tolerance": 0.15,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.184,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "coelostat": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "coelostat_mirror": {
+          "origin": [
+            0.0,
+            0.0,
+            1.4
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            1.399999976158142
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "coelostat",
+        "coelostat_mirror"
+      ],
+      "ok": true
+    }
+  }
+}
