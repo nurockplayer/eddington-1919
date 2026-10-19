@@ -566,11 +566,12 @@ func _build_title(root: Control) -> void:
 	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(st)
 	var body := _rich(19)
-	body.text = ("[center]劍橋的雨夜，一張抄錄圖與底片上的星點沒有對上。\n"
-		+ "保留疑問、核對記錄，再為兩年後雲層中的日食準備一場公平比較。[/center]\n\n"
+	body.text = ("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
+		+ "有人會說，對不上的東西就是假的。\n"
+		+ "兩年後，在赤道的雲層底下，你只有 302 秒。[/center]\n\n"
 		+ "[color=#b8ad98]WASD 移動 · 滑鼠／方向鍵 觀看 · Shift 跑 · E 互動 · Tab 對話紀錄\n"
 		+ "全食時：空白鍵／E／左鍵 開始與停 · Esc 暫停[/color]\n\n"
-		+ "[color=#8f8676][font_size=15]史實背景與虛構人物、戲劇化對白並置。劍橋房間為重建，序章台詞目前為［暫］佔位內容。[/font_size][/color]")
+		+ "[color=#8f8676][font_size=15]Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構（姓名暫定），場景為推測重建。[/font_size][/color]")
 	v.add_child(body)
 	var hb := HBoxContainer.new()
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER

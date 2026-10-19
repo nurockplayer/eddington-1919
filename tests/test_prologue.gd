@@ -95,7 +95,7 @@ func _test_report_gating() -> void:
 
 func _test_plan_rules() -> void:
 	var cards := C17.plan_cards()
-	var non_bias := ["comparison", "far_stars", "same_instrument", "repeat", "records", "independent"]
+	var non_bias := ["comparison", "far_stars", "rules_first", "two_sites", "conditions", "go_anyway"]
 	var valid_three := 0
 	var valid_four := 0
 	for mask in range(1 << non_bias.size()):
@@ -110,12 +110,12 @@ func _test_plan_rules() -> void:
 			valid_four += 1
 			check(PlanBoard.can_finish(ids, cards), "all four-card non-bias plan combinations are valid")
 	check(valid_three == 20 and valid_four == 15, "enumerated all 20 three-card and 15 four-card non-bias plans")
-	check(not PlanBoard.can_finish(["comparison", "far_stars", "discard"], cards), "discard bias card blocks finishing")
-	check(not PlanBoard.can_finish(["comparison", "far_stars", "prove"], cards), "prove bias card blocks finishing")
+	check(not PlanBoard.can_finish(["comparison", "far_stars", "keep_agreeing"], cards), "discard bias card blocks finishing")
+	check(not PlanBoard.can_finish(["comparison", "far_stars", "nearest_only"], cards), "prove bias card blocks finishing")
 	check(not PlanBoard.can_finish(["comparison", "far_stars", "missing"], cards), "unknown card IDs are rejected")
 	check(not PlanBoard.can_finish(["comparison", "comparison", "far_stars"], cards), "duplicate card IDs are rejected")
 	check(not PlanBoard.can_finish(["comparison", "far_stars"], cards), "plans with fewer than three cards are rejected")
-	check(not PlanBoard.can_finish(["comparison", "far_stars", "repeat", "records", "independent"], cards), "plans with more than four cards are rejected")
+	check(not PlanBoard.can_finish(["comparison", "far_stars", "two_sites", "conditions", "go_anyway"], cards), "plans with more than four cards are rejected")
 
 
 func _packed_dummy(name: String) -> PackedScene:
@@ -138,7 +138,7 @@ func _test_story_scene_persistence() -> void:
 	story.prologue_done = true
 	story.clues = {"label_mirrored": true, "residual": true}
 	story.report = {"cause": "mirror", "original": "keep", "residual": "unresolved", "kit_credited": false}
-	story.plan = ["comparison", "far_stars", "same_instrument"]
+	story.plan = ["comparison", "far_stars", "rules_first"]
 	story.kit_choice = 1
 	var first := _packed_dummy("PrologueDummyOne")
 	var second := _packed_dummy("PrologueDummyTwo")
@@ -149,7 +149,7 @@ func _test_story_scene_persistence() -> void:
 	check(story.from_prologue and story.prologue_done, "Story flags survive scene replacement")
 	check(story.clues.label_mirrored and story.clues.residual, "Story clues survive scene replacement")
 	check(story.report.cause == "mirror" and story.report.residual == "unresolved", "Story report survives scene replacement")
-	check(story.plan == ["comparison", "far_stars", "same_instrument"] and story.kit_choice == 1, "Story plan and choice survive scene replacement")
+	check(story.plan == ["comparison", "far_stars", "rules_first"] and story.kit_choice == 1, "Story plan and choice survive scene replacement")
 
 
 func _test_report_ui() -> void:
@@ -205,17 +205,17 @@ func _test_plan_ui() -> void:
 	board.blocked.connect(func(card: Dictionary): blocked_events.append(card))
 	board.finished.connect(func(ids: Array): finished_events.append(ids))
 	board.reaction.connect(func(seq: Array): reactions.append(seq))
-	for id in ["comparison", "far_stars", "discard"]:
+	for id in ["comparison", "far_stars", "keep_agreeing"]:
 		var button: Button = board.card_buttons[id]
 		button.button_pressed = true
 		button.pressed.emit()
 	check(board.selected.size() == 3 and reactions.size() == 3, "selecting plan cards fills slots and emits reactions (selected=%d reactions=%d)" % [board.selected.size(), reactions.size()])
 	board.finish_btn.pressed.emit()
 	check(blocked_events.size() == 1 and finished_events.is_empty(), "biased plan emits blocked and does not finish")
-	var discard: Button = board.card_buttons["discard"]
+	var discard: Button = board.card_buttons["keep_agreeing"]
 	discard.button_pressed = false
 	discard.pressed.emit()
-	var helpful: Button = board.card_buttons["records"]
+	var helpful: Button = board.card_buttons["conditions"]
 	helpful.button_pressed = true
 	helpful.pressed.emit()
 	board.finish_btn.pressed.emit()

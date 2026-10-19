@@ -66,7 +66,7 @@ func _build() -> void:
 	page.add_theme_constant_override("separation", 16)
 	scroll.add_child(page)
 	var title := Label.new()
-	title.text = "［暫］核對記錄"
+	title.text = "核對紀錄"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 30)
 	page.add_child(title)
@@ -82,7 +82,7 @@ func _build() -> void:
 	actions.offset_top = -76
 	actions.offset_bottom = -12
 	close_btn = Button.new()
-	close_btn.text = "［暫］關閉"
+	close_btn.text = "關閉"
 	close_btn.pressed.connect(func():
 		visible = false
 		closed.emit())
@@ -101,7 +101,7 @@ func _add_row(page: VBoxContainer, row: Dictionary) -> void:
 	var available := available_options(row, _state)
 	if row.id == "residual" and available.is_empty():
 		var missing := Label.new()
-		missing.text = "［暫］（沒有發現）"
+		missing.text = "（沒有發現）"
 		page.add_child(missing)
 		selected["residual"] = "not_found"
 		return

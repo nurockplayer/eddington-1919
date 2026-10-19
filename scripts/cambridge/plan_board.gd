@@ -64,7 +64,7 @@ func _build() -> void:
 	layout.add_theme_constant_override("separation", 16)
 	add_child(layout)
 	var title := Label.new()
-	title.text = "［暫］怎樣的日食觀測，才算公平的比較？"
+	title.text = "怎樣的日食觀測，才算公平的比較？"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 28)
 	layout.add_child(title)
@@ -75,7 +75,7 @@ func _build() -> void:
 	for i in 4:
 		var slot := Label.new()
 		slot.name = "PlanSlot%d" % (i + 1)
-		slot.text = "［暫］%d. ——" % (i + 1)
+		slot.text = "%d. ——" % (i + 1)
 		slot.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		slot.custom_minimum_size = Vector2(0, 46)
@@ -98,7 +98,7 @@ func _build() -> void:
 		grid.add_child(button)
 		card_buttons[card.id] = button
 	finish_btn = Button.new()
-	finish_btn.text = "［暫］完成計畫"
+	finish_btn.text = "完成計畫"
 	finish_btn.disabled = true
 	finish_btn.pressed.connect(_finish)
 	finish_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -126,9 +126,9 @@ func _update_slots(slots: Array[Label]) -> void:
 		var label := slots[i]
 		if i < selected.size():
 			var card := _find_card(selected[i], _cards)
-			label.text = "［暫］%d. %s" % [i + 1, card.get("text", "")]
+			label.text = "%d. %s" % [i + 1, card.get("text", "")]
 		else:
-			label.text = "［暫］%d. ——" % (i + 1)
+			label.text = "%d. ——" % (i + 1)
 
 
 func _finish() -> void:

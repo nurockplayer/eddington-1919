@@ -229,6 +229,9 @@ func _dialogue_done(results: Dictionary) -> void:
 
 func _submit_report(report: Dictionary) -> void:
 	Story.report = report.duplicate(true)
+	Story.report["kit_checked"] = kit_checked
+	if report.get("cause", "") == "accuse":
+		Story.clues["accused_once"] = true
 	report_done = true
 	beat = Beat.MENTOR
 	world.mentor.show()
@@ -291,7 +294,8 @@ func _montage() -> void:
 	_sync_player()
 	await ui.fade_to(1.0).finished
 	for entry in C17.montage():
-		await ui.show_caption(str(entry.t) + "\n（" + str(entry.tag) + "）", 2.5).finished
+		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
+		await ui.show_caption(str(entry.t) + "\n\n（" + tag + "）", 3.2).finished
 	Story.prologue_done = true
 	Story.from_prologue = true
 	beat = Beat.DONE

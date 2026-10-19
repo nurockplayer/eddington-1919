@@ -283,8 +283,12 @@ func _run() -> void:
 				await talk([0])
 				_revised = true
 			else:
-				await talk([1] if main._pending == "mentor_review" else [0, 1])
+				# accuse: defend the accusation once, then accept the mentor's request to look again.
+				await talk(([1, 0] if scenario == "accuse" else [1]) if main._pending == "mentor_review" else [0, 1])
 		if main.report_sheet.visible:
+			if scenario == "accuse":
+				_revised = true
+				selections = ["cause/both", "original/keep", "residual/new_object"]
 			for id in selections:
 				await click_button(main.report_sheet.option_buttons[id])
 			await shot("08b_revised_report")
@@ -292,7 +296,7 @@ func _run() -> void:
 		await frames(5)
 	var board = main.plan_board
 	# Exercise the reconsideration path in all three runs.
-	for id in ["comparison", "far_stars", "discard"]:
+	for id in ["comparison", "far_stars", "keep_agreeing"]:
 		await click_button(board.card_buttons[id])
 		await talk()
 	await shot("09_bias_plan")
@@ -300,8 +304,8 @@ func _run() -> void:
 	_bias_blocked = main.ui.dialog_active() and main.beat == main.Beat.PLAN and Story.plan.is_empty()
 	if not _bias_blocked: failures.append("bias plan was not blocked")
 	await talk()
-	await click_button(board.card_buttons.discard)
-	await click_button(board.card_buttons.same_instrument)
+	await click_button(board.card_buttons.keep_agreeing)
+	await click_button(board.card_buttons.rules_first)
 	await talk()
 	await shot("10_fair_plan")
 	await click_button(board.finish_btn)
