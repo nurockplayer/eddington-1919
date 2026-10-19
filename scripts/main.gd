@@ -47,6 +47,8 @@ var audio_tick: AudioStreamPlayer
 var audio_click: AudioStreamPlayer
 var audio_amb: AudioStreamPlayer
 var bot: Node
+var _look_sun := 1.0             # art-look gains (scripts/look.gd); 1.0 with --no-grade
+var _look_ambient := 1.0
 
 
 func _ready() -> void:
@@ -177,6 +179,10 @@ func _build_environment() -> void:
 	sun.look_at_from_position(Vector3.ZERO, -sim.sun_dir, Vector3.UP)
 	sun.shadow_enabled = true
 	sun.light_color = Color(1.0, 0.96, 0.88)
+	if not _user_args().has("no-grade"):
+		Look.apply_cinematic(env, sun, sky_mat)
+		_look_sun = Look.SUN_GAIN
+		_look_ambient = Look.AMBIENT_GAIN
 
 
 ## Fraction of the solar disc not covered by the Moon for a contact value.
@@ -196,14 +202,14 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	sky_mat.set_shader_parameter("star_vis", clampf((darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night))
 	var dens: float = sim.cloud_over_sun(cloud_t)
 	var vis := _crescent(contact) * (1.0 - darkness)
-	sun.light_energy = (0.15 + 1.4 * vis * (1.0 - dens * 0.85)) * (1.0 - night)
+	sun.light_energy = (0.15 + 1.4 * vis * (1.0 - dens * 0.85)) * (1.0 - night) * _look_sun
 	if darkness > 0.95 or night > 0.5:
 		sun.light_energy = 0.0
 	var amb_day := Color(0.55, 0.57, 0.6)
 	var amb_tot := Color(0.10, 0.11, 0.17)
 	var amb_night := Color(0.03, 0.035, 0.05)
 	env.ambient_light_color = amb_day.lerp(amb_tot, darkness).lerp(amb_night, night)
-	env.ambient_light_energy = lerpf(1.0, 0.55, darkness)
+	env.ambient_light_energy = lerpf(1.0, 0.55, darkness) * _look_ambient
 	env.fog_light_color = Color(0.62, 0.65, 0.68).lerp(Color(0.07, 0.08, 0.12), maxf(darkness, night))
 
 
