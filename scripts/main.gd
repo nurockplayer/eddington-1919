@@ -72,6 +72,10 @@ func _ready() -> void:
 	add_child(ui)
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	ui.start_pressed.connect(_start_game)
+	ui.prologue_pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/cambridge.tscn"))
+	ui.log_toggled.connect(func(open):
+		player.can_move = not open and _ui_free() and phase in [Phase.PREP, Phase.NIGHT]
+		player.can_look = not open and phase != Phase.TITLE and not _busy)
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(_restart)
 	ui.dialogue_done.connect(_on_dialogue_done)
@@ -86,6 +90,18 @@ func _ready() -> void:
 	ui.set_objectives("")
 	ui.hud.visible = false
 	_update_sky_prep()
+	if Story.from_prologue:
+		Story.from_prologue = false
+		_start_game()
+		ui.show_caption("1919 年 5 月 29 日・普林西比", 2.4)
+	if args.has("prologue-autoplay") and not Story.prologue_done:
+		var prologue_bot: Script = load("res://tests/prologue_bot.gd")
+		if prologue_bot:
+			var runner: Node = prologue_bot.new()
+			runner.main = self
+			runner.scenario = args["prologue-autoplay"]
+			runner.shots_dir = args.get("shots", "")
+			get_tree().root.add_child.call_deferred(runner)
 	if args.has("benchmark"):
 		# tests/ is excluded from exports, so in a build this flag is ignored and the game runs normally.
 		var bench_script: Script = load("res://tests/benchmark.gd")
@@ -125,7 +141,7 @@ func _user_args() -> Dictionary:
 	return out
 
 
-func _ensure_inputs() -> void:
+static func _ensure_inputs() -> void:
 	var map := {
 		"move_forward": [KEY_W], "move_back": [KEY_S], "move_left": [KEY_A], "move_right": [KEY_D],
 		"look_left": [KEY_LEFT], "look_right": [KEY_RIGHT], "look_up": [KEY_UP], "look_down": [KEY_DOWN],
@@ -231,7 +247,7 @@ func _update_sky_prep() -> void:
 
 # ------------------------------------------------------------------------ Audio
 
-func _wav(samples: PackedFloat32Array, rate := 22050, loop := false) -> AudioStreamWAV:
+static func _wav(samples: PackedFloat32Array, rate := 22050, loop := false) -> AudioStreamWAV:
 	var data := PackedByteArray()
 	data.resize(samples.size() * 2)
 	for i in samples.size():
@@ -317,7 +333,7 @@ func _process(delta: float) -> void:
 
 
 func _ui_free() -> bool:
-	return not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
+	return not ui.log_open() and not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -455,7 +471,10 @@ func _interact(id: String) -> void:
 	match id:
 		"eddington":
 			if not sim.briefed:
-				_say(Content.briefing(), "briefing")
+				var seq: Array = Content.briefing()
+				if Story.prologue_done:
+					seq.append({"s": Content.E, "t": preload("res://scripts/cambridge/content_1917.gd").principe_callback(Story)})
+				_say(seq, "briefing")
 			else:
 				_say(Content.eddington_prep(), "eddington_prep")
 		"cottingham":

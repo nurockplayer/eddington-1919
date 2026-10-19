@@ -1,0 +1,309 @@
+extends RefCounted
+## Procedural reconstruction of the Cambridge measuring room (October 1917).
+## All dimensions and staging are invented for the prologue; see M1 spec.
+
+const WorldBuilder := preload("res://scripts/world_builder.gd")
+const Look := preload("res://scripts/look.gd")
+const Cast := preload("res://scripts/cambridge/cast.gd")
+
+const ROOM_W := 9.0
+const ROOM_D := 6.0
+const ROOM_H := 3.6
+
+
+static func build(root: Node3D) -> Dictionary:
+	var w = WorldBuilder.new(root)
+	var out := {"targets": {}}
+	var wood: Color = w.P("teak")
+	var dark_wood: Color = w.P("teak_dark")
+	var iron: Color = w.P("iron")
+	var brass: Color = w.P("brass")
+	var plaster := Color(0.43, 0.40, 0.34)
+	var floor_color := Color(0.25, 0.22, 0.18)
+	var evidence := Color(0.93, 0.92, 0.87)
+
+	# Weathered plaster and floor; the south wall opening is the corridor entrance.
+	w.box(Vector3(ROOM_W, 0.16, ROOM_D), Vector3(0, -0.08, 0), floor_color)
+	w.box(Vector3(0.14, ROOM_H, ROOM_D), Vector3(-4.43, 1.8, 0), dark_wood)
+	w.box(Vector3(0.14, ROOM_H, ROOM_D), Vector3(4.43, 1.8, 0), dark_wood)
+	# North wall is framed around the sash opening, so the cold pane remains visible.
+	w.box(Vector3(2.0, ROOM_H, 0.14), Vector3(-3.5, 1.8, -2.93), dark_wood)
+	w.box(Vector3(2.0, ROOM_H, 0.14), Vector3(3.5, 1.8, -2.93), dark_wood)
+	w.box(Vector3(4.0, 1.05, 0.14), Vector3(0.55, 0.525, -2.93), dark_wood)
+	w.box(Vector3(4.0, 0.575, 0.14), Vector3(0.55, 3.3125, -2.93), dark_wood)
+	# South wall leaves a generous doorway, 1.4 m wide.
+	w.box(Vector3(3.8, ROOM_H, 0.14), Vector3(-2.6, 1.8, 2.93), dark_wood)
+	w.box(Vector3(3.8, ROOM_H, 0.14), Vector3(2.6, 1.8, 2.93), dark_wood)
+	w.box(Vector3(1.4, 0.45, 0.14), Vector3(0, 3.375, 2.93), dark_wood)
+	# The open doorway enters a short, fully enclosed corridor rather than a void.
+	w.box(Vector3(1.7, 0.16, 4.8), Vector3(0, -0.08, 5.35), floor_color)
+	w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(-0.82, 1.8, 5.35), dark_wood)
+	w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(0.82, 1.8, 5.35), dark_wood)
+	w.box(Vector3(1.7, ROOM_H, 0.14), Vector3(0, 1.8, 7.75), dark_wood)
+	w.box(Vector3(1.7, 0.16, 4.8), Vector3(0, 3.52, 5.35), dark_wood, null, false)
+	w.box(Vector3(ROOM_W, 0.16, ROOM_D), Vector3(0, 3.52, 0), dark_wood, null, false)
+	# Dark rafters break up the ceiling plane and give the room a human scale.
+	for x in [-3.3, -1.1, 1.1, 3.3]:
+		w.box(Vector3(0.12, 0.2, 5.8), Vector3(x, 3.38, 0), wood, null, false)
+
+	# Tall sash window on the north wall: divided panes, wet dark glazing, half-drawn curtain.
+	var window_center := Vector3(0.55, 2.05, -2.82)
+	var glass_mat := w.mat(Color(0.12, 0.19, 0.23), 0.22)
+	for x in [-1.25, 0.0, 1.25]:
+		var pane := w.box(Vector3(1.15, 1.75, 0.025), window_center + Vector3(x, 0, 0), Color(0.16, 0.23, 0.27), null, false)
+		(pane as MeshInstance3D).material_override = glass_mat
+	for x in [-1.9, -0.625, 0.625, 1.9]:
+		w.box(Vector3(0.075, 1.95, 0.11), window_center + Vector3(x, 0, 0.03), wood, null, false)
+	for y in [1.08, 2.05, 3.02]:
+		w.box(Vector3(3.9, 0.075, 0.11), Vector3(0.55, y, -2.77), wood, null, false)
+	# Rain on the visible half of the sash, drawn as one low-cost mesh instance.
+	var rain_mm := MultiMesh.new()
+	rain_mm.transform_format = MultiMesh.TRANSFORM_3D
+	var rain_mesh := BoxMesh.new()
+	rain_mesh.size = Vector3(0.012, 0.16, 0.006)
+	rain_mm.mesh = rain_mesh
+	var rain_positions: Array[Vector3] = []
+	for i in range(36):
+		var x := -0.02 + float(i % 9) * 0.235
+		var y := 1.25 + float((i * 17) % 17) * 0.098
+		rain_positions.append(Vector3(x, y, -2.79))
+	rain_mm.instance_count = rain_positions.size()
+	for i in rain_positions.size():
+		rain_mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, rain_positions[i]))
+	var rain_streaks := MultiMeshInstance3D.new()
+	rain_streaks.name = "RainStreaks"
+	rain_streaks.multimesh = rain_mm
+	var rain_mat := StandardMaterial3D.new()
+	rain_mat.albedo_color = Color(0.53, 0.68, 0.78, 0.33)
+	rain_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	rain_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	rain_mat.no_depth_test = false
+	rain_mat.disable_receive_shadows = true
+	rain_streaks.material_override = rain_mat
+	rain_streaks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(rain_streaks)
+	# Curtain drawn across the left half; folds are broad and economical.
+	w.box(Vector3(1.95, 2.15, 0.08), Vector3(-1.3, 1.95, -2.69), Color(0.29, 0.27, 0.23), null, false)
+	for x in [-2.05, -1.4, -0.75]:
+		w.box(Vector3(0.035, 2.1, 0.10), Vector3(x, 1.95, -2.62), Color(0.22, 0.21, 0.19), null, false)
+	var window_light := OmniLight3D.new()
+	window_light.name = "ColdWindowFill"
+	window_light.position = Vector3(0.5, 2.35, -2.45)
+	window_light.light_color = Color(0.48, 0.65, 0.82)
+	window_light.light_energy = 1.0
+	window_light.omni_range = 6.5
+	window_light.omni_attenuation = 1.7
+	window_light.shadow_enabled = false
+	root.add_child(window_light)
+
+	# Central measuring table, with evidence at the near-facing edge for easy reach.
+	_table(w, Vector3(0, 0, 0), Vector3(3.5, 0.78, 1.45), wood)
+	# Copy chart, loupe and inkwell are present as restrained set dressing.
+	var chart := w.box(Vector3(0.72, 0.018, 0.5), Vector3(-0.48, 0.795, -0.04), evidence, null, false)
+	(chart as MeshInstance3D).material_override = w.evidence_mat(Color(0.79, 0.76, 0.68))
+	w.box(Vector3(0.10, 0.02, 0.025), Vector3(-0.48, 0.808, -0.03), Color(0.18, 0.13, 0.09), null, false)
+	var loupe := w.cyl(0.11, 0.035, Vector3(-0.95, 0.82, 0.25), brass, null, false)
+	w.cyl(0.07, 0.03, Vector3(-0.95, 0.84, 0.25), Color(0.13, 0.18, 0.2), null, false)
+	w.box(Vector3(0.22, 0.035, 0.18), Vector3(-0.1, 0.82, 0.28), dark_wood, null, false)
+	w.cyl(0.035, 0.11, Vector3(-0.1, 0.89, 0.28), iron, null, false)
+
+	# Light box: slanted frame, bright frosted evidence glass and under-light.
+	var lightbox := Node3D.new()
+	lightbox.name = "LightBox"
+	lightbox.position = Vector3(-0.85, 0.80, -0.23)
+	lightbox.rotation.x = deg_to_rad(-9.0)
+	root.add_child(lightbox)
+	w.box(Vector3(0.92, 0.13, 0.66), Vector3(0, -0.045, 0), dark_wood, lightbox, false)
+	var frosted := w.box(Vector3(0.79, 0.018, 0.54), Vector3(0, 0.035, 0), evidence, lightbox, false)
+	var frosted_material := w.evidence_mat(Color(0.96, 0.95, 0.89), 0.55).duplicate() as StandardMaterial3D
+	frosted_material.emission_enabled = true
+	frosted_material.emission = Color(0.82, 0.81, 0.77)
+	frosted_material.emission_energy_multiplier = 0.4
+	(frosted as MeshInstance3D).material_override = frosted_material
+	# Plate and chart marks are explicitly evidence surfaces.
+	var plate := w.box(Vector3(0.57, 0.008, 0.38), Vector3(0, 0.05, 0), Color(0.88, 0.88, 0.84), lightbox, false)
+	(plate as MeshInstance3D).material_override = w.evidence_mat(Color(0.91, 0.91, 0.87), 0.5)
+	for p in [Vector3(-0.19, 0.056, -0.10), Vector3(-0.06, 0.056, -0.11), Vector3(0.11, 0.056, -0.08), Vector3(0.20, 0.056, 0.04), Vector3(-0.12, 0.056, 0.11), Vector3(0.09, 0.056, 0.12)]:
+		var dot := w.cyl(0.018, 0.006, p, Color(0.16, 0.16, 0.15), lightbox, false)
+		(dot as MeshInstance3D).material_override = w.evidence_mat(Color(0.13, 0.13, 0.12))
+	var underlight := OmniLight3D.new()
+	underlight.name = "LightBoxGlow"
+	underlight.position = Vector3(0, -0.08, 0)
+	underlight.light_color = Color(1.0, 0.84, 0.55)
+	underlight.light_energy = 0.32
+	underlight.omni_range = 0.8
+	underlight.shadow_enabled = false
+	lightbox.add_child(underlight)
+	var lightbox_hotspot := w.hotspot(Vector3(0.88, 0.25, 0.65), lightbox.transform * Vector3(0, 0.13, 0), "lightbox", "查看底片")
+	lightbox_hotspot.rotation = lightbox.rotation
+	out.targets["lightbox"] = lightbox_hotspot.global_position if root.is_inside_tree() else lightbox_hotspot.position
+
+	# Player notebook and Kit's independent plate stack and ledger.
+	var notebook := w.box(Vector3(0.38, 0.055, 0.28), Vector3(0.72, 0.825, 0.22), Color(0.37, 0.24, 0.15), null, false)
+	w.box(Vector3(0.34, 0.012, 0.24), Vector3(0.72, 0.86, 0.22), Color(0.78, 0.73, 0.62), null, false)
+	var notebook_hotspot := w.hotspot(Vector3(0.44, 0.18, 0.34), Vector3(0.72, 0.9, 0.22), "notebook", "查看筆記本")
+	out.targets["notebook"] = notebook_hotspot.position
+	for i in range(3):
+		w.box(Vector3(0.38, 0.035, 0.28), Vector3(1.13, 0.81 + i * 0.035, -0.20), Color(0.45, 0.38, 0.29), null, false)
+	var kit_ledger := w.box(Vector3(0.4, 0.06, 0.3), Vector3(1.14, 0.89, 0.20), Color(0.28, 0.30, 0.26), null, false)
+	var ledger_hotspot := w.hotspot(Vector3(0.48, 0.2, 0.36), Vector3(1.14, 0.94, 0.20), "kit_ledger", "查看 %s 的工作簿" % Cast.KIT)
+	out.targets["kit_ledger"] = ledger_hotspot.position
+
+	# Green-shaded oil lamp, the warm key and light pool.
+	w.cyl(0.07, 0.18, Vector3(0.25, 0.92, -0.19), brass, null, false)
+	w.cyl(0.025, 0.25, Vector3(0.25, 1.12, -0.19), iron, null, false)
+	var shade := w.cyl(0.28, 0.16, Vector3(0.25, 1.31, -0.19), Color(0.15, 0.34, 0.19), null, false, Vector3.ZERO, 0.15)
+	var lamp := OmniLight3D.new()
+	lamp.name = "GreenShadeLamp"
+	lamp.position = Vector3(0.25, 1.14, -0.19)
+	lamp.light_color = Color(1.0, 0.73, 0.43)
+	lamp.light_energy = 1.35
+	lamp.omni_range = 4.0
+	lamp.omni_attenuation = 1.6
+	lamp.shadow_enabled = true
+	root.add_child(lamp)
+	out.lamp = lamp
+
+	# Interactable set dressing along the walls. Hotspots are in the room side of props.
+	_shelf(w, Vector3(3.65, 0, -1.35), wood, dark_wood)
+	var logbook := w.box(Vector3(0.42, 0.09, 0.31), Vector3(3.38, 1.42, -1.38), Color(0.37, 0.27, 0.18), null, false)
+	var log_hotspot := w.hotspot(Vector3(0.55, 0.3, 0.4), Vector3(3.28, 1.46, -1.34), "logbook", "查看 1915 年觀測日誌")
+	out.targets["logbook"] = log_hotspot.position
+
+	# Plate cabinet against west wall, with shallow visible drawer fronts.
+	w.box(Vector3(0.72, 1.72, 1.05), Vector3(-3.82, 0.86, -0.9), dark_wood)
+	for y in [0.24, 0.57, 0.90, 1.23, 1.56]:
+		w.box(Vector3(0.045, 0.025, 0.91), Vector3(-3.43, y, -0.9), wood, null, false)
+		w.cyl(0.025, 0.09, Vector3(-3.39, y, -0.9), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
+	var cabinet_hotspot := w.hotspot(Vector3(0.8, 1.6, 1.1), Vector3(-3.1, 0.9, -0.9), "cabinet", "查看底片櫃")
+	out.targets["cabinet"] = cabinet_hotspot.position
+
+	# Empty copyist desk and chair, with an unsigned folded letter.
+	_table(w, Vector3(-2.55, 0, 0.05), Vector3(1.55, 0.75, 0.9), dark_wood)
+	var folded_letter := w.box(Vector3(0.28, 0.025, 0.2), Vector3(-2.47, 0.79, -0.02), Color(0.78, 0.73, 0.63), null, false)
+	var letter_hotspot := w.hotspot(Vector3(0.4, 0.18, 0.3), Vector3(-2.47, 0.86, -0.02), "letter", "查看摺起的信")
+	out.targets["letter"] = letter_hotspot.position
+	w.box(Vector3(0.52, 0.1, 0.52), Vector3(-2.55, 0.52, 0.82), wood)
+	for x in [-2.78, -2.32]:
+		w.box(Vector3(0.06, 0.52, 0.06), Vector3(x, 0.26, 0.82), wood, null, false)
+	# Coat on a wall peg; no identity or initials.
+	w.cyl(0.04, 0.15, Vector3(-3.9, 1.7, 1.0), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
+	w.box(Vector3(0.48, 0.68, 0.12), Vector3(-3.82, 1.18, 1.0), Color(0.22, 0.23, 0.24), null, false)
+	var empty_hotspot := w.hotspot(Vector3(1.7, 1.7, 1.0), Vector3(-2.55, 0.9, 0.62), "empty_desk", "查看空桌")
+	out.targets["empty_desk"] = empty_hotspot.position
+
+	# Fireplace and low coal fire, opposite the window. Fire has no dynamic particles.
+	w.box(Vector3(0.18, 1.45, 1.35), Vector3(4.32, 0.73, 1.35), dark_wood)
+	w.box(Vector3(0.20, 0.13, 1.55), Vector3(4.22, 1.5, 1.35), wood, null, false)
+	w.box(Vector3(0.10, 0.72, 0.92), Vector3(4.14, 0.68, 1.35), iron, null, false)
+	w.cyl(0.12, 0.08, Vector3(4.05, 0.22, 1.35), Color(0.43, 0.15, 0.07), null, false)
+	var fire_light := OmniLight3D.new()
+	fire_light.position = Vector3(3.92, 0.48, 1.35)
+	fire_light.light_color = Color(1.0, 0.36, 0.12)
+	fire_light.light_energy = 0.38
+	fire_light.omni_range = 2.2
+	fire_light.shadow_enabled = false
+	root.add_child(fire_light)
+	var fire_hotspot := w.hotspot(Vector3(0.6, 0.8, 0.9), Vector3(3.45, 0.58, 1.35), "fire", "查看爐火")
+	out.targets["fire"] = fire_hotspot.position
+
+	# Regulator clock on the west wall.
+	w.box(Vector3(0.1, 1.15, 0.42), Vector3(-4.28, 2.3, -2.05), wood)
+	w.cyl(0.18, 0.07, Vector3(-4.18, 2.65, -2.05), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
+	w.cyl(0.14, 0.08, Vector3(-4.12, 2.65, -2.05), Color(0.75, 0.7, 0.55), null, false, Vector3(0, 0, deg_to_rad(90)))
+	var clock_hotspot := w.hotspot(Vector3(0.85, 1.35, 0.7), Vector3(-3.55, 2.3, -2.05), "clock", "查看調節鐘")
+	out.targets["clock"] = clock_hotspot.position
+
+	# Kit waits at the far end of the table and is reachable from either side.
+	var kit := _npc_without_hat(w, Cast.KIT, Vector3(1.55, 0, -1.45), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit")
+	kit.rotation.y = deg_to_rad(155)
+	out.kit = kit
+	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position
+
+	# Late arrivals are staged by the chapter controller; no hats indoors.
+	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(-1.75, 0, -2.05), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor")
+	out.mentor.visible = false
+	var mentor_shape := out.mentor.get_meta("room_collision_shape") as CollisionShape3D
+	mentor_shape.disabled = true
+	out.mentor.visibility_changed.connect(func(): mentor_shape.disabled = not out.mentor.visible)
+	# A plain closed journal under the mentor's arm, kept as a single prop.
+	w.box(Vector3(0.20, 0.035, 0.24), Vector3(0.27, 1.28, -0.12), Color(0.27, 0.22, 0.17), out.mentor, false)
+	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-1.1, 0, -1.65), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington")
+	out.eddington.visible = false
+	var eddington_shape := out.eddington.get_meta("room_collision_shape") as CollisionShape3D
+	eddington_shape.disabled = true
+	out.eddington.visibility_changed.connect(func(): eddington_shape.disabled = not out.eddington.visible)
+
+	# Target dictionary coordinates are fixed in room space and suitable for the player's 3.2 m ray.
+	var window_hotspot := w.hotspot(Vector3(3.9, 2.15, 0.3), Vector3(0.55, 2.05, -2.25), "window", "查看雨中的窗")
+	out.targets["window"] = window_hotspot.position
+	out.targets["kit"] = kit.position + Vector3(0, 1.1, 0)
+	out.targets["lightbox"] = lightbox.transform * Vector3(0, 0.13, 0)
+	out.targets["kit_ledger"] = Vector3(1.14, 0.94, 0.20)
+	out.targets["logbook"] = Vector3(3.28, 1.46, -1.34)
+	out.targets["empty_desk"] = Vector3(-2.55, 0.9, 0.62)
+	out.targets["letter"] = Vector3(-2.47, 0.86, -0.02)
+	out.targets["fire"] = Vector3(3.45, 0.58, 1.35)
+	out.targets["clock"] = Vector3(-3.55, 2.3, -2.05)
+	out.targets["cabinet"] = Vector3(-3.1, 0.9, -0.9)
+	out.targets["notebook"] = Vector3(0.72, 0.9, 0.22)
+	out.targets["window"] = Vector3(0.55, 2.05, -2.25)
+	out.spawn = Vector3(0, 0, 2.15)
+	out.window_light = window_light
+	out.environment = _environment(root)
+	return out
+
+
+static func _table(w, pos: Vector3, size: Vector3, wood: Color) -> void:
+	w.box(Vector3(size.x, 0.1, size.z), pos + Vector3(0, size.y, 0), wood)
+	for x in [-size.x * 0.43, size.x * 0.43]:
+		for z in [-size.z * 0.38, size.z * 0.38]:
+			w.box(Vector3(0.1, size.y, 0.1), pos + Vector3(x, size.y * 0.5, z), wood)
+
+
+static func _shelf(w, pos: Vector3, wood: Color, dark_wood: Color) -> void:
+	for y in [0.75, 1.45, 2.15]:
+		w.box(Vector3(0.68, 0.07, 1.7), pos + Vector3(0, y, 0), wood)
+	for z in [-0.77, 0.77]:
+		w.box(Vector3(0.07, 2.35, 0.08), pos + Vector3(0, 1.17, z), dark_wood)
+	for row in range(3):
+		for i in range(4):
+			var h := 0.34 + 0.08 * float((row + i) % 3)
+			w.box(Vector3(0.10, h, 0.29), pos + Vector3(-0.22 + i * 0.15, 0.79 + row * 0.70 + h * 0.5, -0.47 + (i % 2) * 0.43), Color(0.30 + 0.025 * i, 0.22 + 0.02 * row, 0.15))
+
+
+static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> Node3D:
+	var body: Node3D = w.npc(display_name, pos, coat, shirt, id)
+	# The shared site NPC helper adds era-specific outdoor hats. Remove only those
+	# top meshes; retain its human proportions, facial details, name tag and ray target.
+	for child in body.get_children():
+		if not child is MeshInstance3D or child.position.y < 1.69:
+			continue
+		if child.mesh is CylinderMesh or child.mesh is SphereMesh:
+			body.remove_child(child)
+			child.free()
+	var cs := body.get_child(0) as CollisionShape3D
+	body.set_meta("room_collision_shape", cs)
+	return body
+
+
+static func _environment(root: Node3D) -> WorldEnvironment:
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.035, 0.045, 0.06)
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.36, 0.39, 0.44)
+	env.ambient_light_energy = 0.32
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	env.tonemap_exposure = 0.95
+	env.ssao_enabled = true
+	env.ssao_radius = 1.1
+	env.ssao_intensity = 2.2
+	env.ssao_power = 1.6
+	env.ssao_detail = 0.6
+	Look.apply_grade(env)
+	var node := WorldEnvironment.new()
+	node.name = "CambridgeRoomEnvironment"
+	node.environment = env
+	root.add_child(node)
+	return node
