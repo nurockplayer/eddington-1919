@@ -138,6 +138,18 @@ func _init() -> void:
 	rs.plates[0].included = false
 	rs.plates[1].included = false
 	check(not Judgment.grade(rs, "none", "nostars").reason_ok, "'no stars' is not accepted when a usable plate exists")
+	var good_unmeasured = Sim.new(4)
+	good_unmeasured.plates = [
+		{"number": 1, "usable": true, "quality": "good", "included": false, "value": 0.0, "sigma": 1.0},
+	]
+	var good_none: Dictionary = Judgment.grade(good_unmeasured, "none", "uncertain")
+	check(good_none.lines[0].contains("星點清楚的底片"), "'no results' identifies a clear usable plate accurately")
+	var poor_unmeasured = Sim.new(5)
+	poor_unmeasured.plates = [
+		{"number": 1, "usable": true, "quality": "poor", "included": false, "value": 0.0, "sigma": 1.0},
+	]
+	var poor_none: Dictionary = Judgment.grade(poor_unmeasured, "none", "uncertain")
+	check(poor_none.lines[0].contains("可量的底片") and not poor_none.lines[0].contains("星點清楚的底片"), "'no results' describes poor but measurable plates without calling them clear")
 
 	# Every telegram × reason × evidence combination produces text.
 	for t in Judgment.TELEGRAMS:

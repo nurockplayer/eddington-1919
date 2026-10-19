@@ -63,7 +63,11 @@ func _tap(code: Key) -> void:
 
 func _hold(code: Key, sec: float) -> void:
 	_key(code, true)
-	await _wait(sec)
+	# Holds accumulate game delta in main.gd. Wall time can outrun that clock
+	# when rendering is slow (physics catch-up is capped), even at --speed=2.
+	# Keep the callers' nominal wall-time budget at the chosen speed, including
+	# the per-plate pickup margin, but wait for that much actual game progress.
+	await get_tree().create_timer(sec * Engine.time_scale).timeout
 	_key(code, false)
 	await _frames(2)
 
