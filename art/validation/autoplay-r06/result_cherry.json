@@ -1,8 +1,8 @@
 {
   "combined": {
     "n": 3,
-    "sigma": 0.172003601599761,
-    "value": 1.80347985875475
+    "sigma": 0.171976102510842,
+    "value": 1.80344600469373
   },
   "drive_rate_checked": true,
   "drive_wound": true,
@@ -29,7 +29,6 @@
     "heartbeat t=30 dens=0.93 exposing=false",
     "heartbeat t=60 dens=0.96 exposing=false",
     "heartbeat t=90 dens=0.98 exposing=false",
-    "heartbeat t=90 dens=0.98 exposing=false",
     "heartbeat t=120 dens=0.79 exposing=false",
     "t=125.4 dens=0.45 -> OPEN",
     "shot 06b_totality_gap_open",
@@ -38,7 +37,9 @@
     "shot 06_totality_mid",
     "heartbeat t=150 dens=0.93 exposing=false",
     "heartbeat t=180 dens=0.93 exposing=false",
+    "heartbeat t=180 dens=0.93 exposing=false",
     "t=203.4 dens=0.44 -> OPEN",
+    "heartbeat t=210 dens=0.13 exposing=true",
     "t=219.5 dens=0.16 -> CLOSE",
     "heartbeat t=240 dens=0.93 exposing=false",
     "t=259.8 dens=0.45 -> OPEN",
@@ -50,7 +51,7 @@
     "shot 08_viewer_before",
     "included [2, 3]",
     "shot 09_viewer_measured",
-    "evidence favors_e, combined { \"n\": 3, \"value\": 1.80347985875475, \"sigma\": 0.17200360159976 }",
+    "evidence favors_e, combined { \"n\": 3, \"value\": 1.80344600469373, \"sigma\": 0.17197610251084 }",
     "choose 1: THROUGH CLOUD. HOPEFUL.",
     "choose 0: 量得的偏折較接近 1.75″，而且有足夠星點的底片支持。",
     "shot 10_ending"
@@ -77,7 +78,7 @@
       "quality": "good",
       "sigma": 0.27,
       "stars": 10,
-      "start": 203.4,
+      "start": 203.5,
       "trail": 0.19,
       "value": 1.78
     },

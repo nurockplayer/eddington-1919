@@ -1,8 +1,8 @@
 {
   "combined": {
     "n": 1,
-    "sigma": 1.33403377948285,
-    "value": 1.02025628438352
+    "sigma": 1.33837099807158,
+    "value": 1.02080982263183
   },
   "drive_rate_checked": false,
   "drive_wound": false,
@@ -18,18 +18,18 @@
     "choose 1: 為什麼要拍太陽旁邊的星？",
     "choose 0: 我準備好了——就位等待全食。",
     "shot 05_totality_start",
-    "t=13.0 dens=0.93 -> OPEN",
+    "t=13.1 dens=0.93 -> OPEN",
     "heartbeat t=30 dens=0.93 exposing=true",
     "t=31.1 dens=0.92 -> CLOSE",
-    "t=35.1 dens=0.72 -> OPEN",
-    "t=53.2 dens=0.95 -> CLOSE",
-    "t=57.3 dens=0.98 -> OPEN",
+    "t=35.2 dens=0.72 -> OPEN",
+    "t=53.3 dens=0.95 -> CLOSE",
+    "t=57.4 dens=0.98 -> OPEN",
     "heartbeat t=60 dens=0.96 exposing=true",
-    "t=75.3 dens=0.98 -> CLOSE",
-    "t=79.4 dens=0.98 -> OPEN",
+    "t=75.5 dens=0.98 -> CLOSE",
+    "t=79.5 dens=0.98 -> OPEN",
     "heartbeat t=90 dens=0.98 exposing=true",
-    "t=97.4 dens=0.93 -> CLOSE",
-    "heartbeat t=120 dens=0.79 exposing=false",
+    "t=97.6 dens=0.93 -> CLOSE",
+    "heartbeat t=120 dens=0.78 exposing=false",
     "heartbeat t=150 dens=0.93 exposing=false",
     "shot 06_totality_mid",
     "heartbeat t=150 dens=0.93 exposing=false",
@@ -43,7 +43,7 @@
     "shot 08_viewer_before",
     "included [1, 2, 3, 4]",
     "shot 09_viewer_measured",
-    "evidence ambiguous, combined { \"n\": 1, \"value\": 1.02025628438352, \"sigma\": 1.33403377948285 }",
+    "evidence ambiguous, combined { \"n\": 1, \"value\": 1.02080982263183, \"sigma\": 1.33837099807158 }",
     "choose 0: ECLIPSE SPLENDID. EINSTEIN CONFIRMED.",
     "choose 2: 日冕那麼清楚——我們一定成功了。",
     "shot 10_ending"
@@ -58,9 +58,9 @@
       "quality": "unusable",
       "sigma": 3.33,
       "stars": 0,
-      "start": 13.0,
-      "trail": 1.36,
-      "value": -2.61
+      "start": 13.1,
+      "trail": 1.35,
+      "value": -2.6
     },
     {
       "dur": 18.1,
@@ -68,10 +68,10 @@
       "included": true,
       "n": 2,
       "quality": "poor",
-      "sigma": 1.33,
+      "sigma": 1.34,
       "stars": 5,
       "start": 35.2,
-      "trail": 1.35,
+      "trail": 1.36,
       "value": 1.02
     },
     {
@@ -82,21 +82,21 @@
       "quality": "unusable",
       "sigma": 3.39,
       "stars": 0,
-      "start": 57.3,
-      "trail": 1.35,
-      "value": 5.25
+      "start": 57.5,
+      "trail": 1.36,
+      "value": 5.26
     },
     {
-      "dur": 18.0,
+      "dur": 18.1,
       "fog": 0.7,
       "included": true,
       "n": 4,
       "quality": "unusable",
-      "sigma": 3.38,
+      "sigma": 3.39,
       "stars": 0,
-      "start": 79.4,
-      "trail": 1.35,
-      "value": 2.91
+      "start": 79.6,
+      "trail": 1.36,
+      "value": 2.92
     }
   ],
   "plates_available": 4,

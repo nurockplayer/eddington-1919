@@ -15,7 +15,7 @@
   - **MPFB:** from the official Blender Extensions platform (sha256-verified URL). Runs headless on **Blender 5.2.2**. Gives a parametric, **rigged** (`game_engine`), proportioned human. Its base mesh, rig and system assets are **CC0**, and each asset file says so in its header.
   - MPFB's code is GPL-3 and is used as a tool only. It never ships.
 - **Isolation:** MPFB is installed into a separate `BLENDER_USER_RESOURCES` (`art/pipeline/setup_mpfb.sh`). The user's own Blender profile is untouched.
-- **Licence gate:** `build_person.py` refuses any asset file that does not declare CC0 in its header.
+- **Licence gate:** `build_person.py` refuses any descriptor, and any `obj_file` geometry it references, whose header lacks the affirmative line "This asset was explicitly released as CC0". The first version only searched for the substring "CC0" (review fix).
   - **No CC-BY packs** and no community assets are used.
   - **No photographic skin textures** are used; all materials are flat palette colours ([LICENSES.md](../../people/LICENSES.md)).
 - **Appearance from evidence** ([REFERENCE.md](../../people/REFERENCE.md)):
@@ -32,6 +32,7 @@
   - A baked 4 s breathing `idle`, de-synchronised per character.
   - A **head look-at** toward the player within conversation distance (Godot `LookAtModifier3D`; influence 0 beyond 4.5 m, up to 0.85 at 2.5 m). Verified visually side-on: the head turns to the player with it on and stays in profile with it off.
   - Godot's `get_bone_global_pose()` does not show modifier output, so a numeric probe could not be used.
+- **Tie region:** cut geometrically from the suit mesh (a front-centre strip). The edge is a little ragged up close. It is an approximation, not the garment's real tie.
 - **Gameplay safety:**
   - The capsule colliders, interaction metadata and name tags stay on the NPC body exactly as before. Only the visual figure changes.
   - If a GLB is missing, the old primitive figure is used.
@@ -43,7 +44,8 @@
 | 1 | First build | Big step up. Cottingham's `casualsuit02` in one colour read as a onesie. His moustache was inside the face (wrong offset sign). Eddington's linen suit lost its jacket read. Look-at unverified. |
 | 2 | Dark tie region; moustache offset fixed; Cottingham `short01` hair | The tie reads, and the moustache shows. Cottingham's light, voluminous grey hair under the hat read as a woman's bob. |
 | 3 | `short02` hair in darker greying; leaner build | Reads as a moustached Edwardian working man. The muscle setting produced a slightly busty shirt. |
-| 4 | Muscle 0.45; the moustache widened with drooping ends | The narrow dark moustache read as a "toothbrush" moustache, an unwanted association. It is now a full period moustache matching the source photo. **Accepted.** |
+| 4 | Muscle 0.45; the moustache widened with drooping ends | The narrow dark moustache read as a "toothbrush" moustache, an unwanted association. It is now a full period moustache matching the source photo. |
+| 5 (review fix) | Forearm aim now measured from the bone's posed frame | A fresh Codex review decoded frame 0 of the GLBs and found a **33° forearm error**: the rest-frame aim compounded the upper-arm rotation and pulled the hands inward. Arms now hang naturally at the sides. **Accepted.** |
 
 ## Gates
 - **G2:** both PASS ([eddington](../../validation/eddington.g2.json), [cottingham](../../validation/cottingham.g2.json)).
@@ -60,11 +62,13 @@
     - **+0.3–0.4 ms** where the characters are on screen (arrival, shelter, coelostat, both talk views).
     - **±0.0 ms** where they are not (house, both totality views, darkroom).
   - **Draw calls:** +0–4.
-  - **Wall-clock p95:** at most 9.94 ms in every view.
+  - **Wall-clock p95 (median of the 5 repetitions):** at most 9.94 ms in every view. A single repetition reached 10.31 ms (arrival).
+  - **Final-head attempt discarded:** a 3-repetition run on the final head (`dafc94e`) happened under load average 25–27, from another project's `cargo` tests and other Godot processes. Its paired deltas swung by ±4 ms, so no conclusion is drawn from it ([discarded-loaded](../../validation/perf-r06/discarded-loaded/README.md)).
+  - The commits after `0ff8c60` change only the arm pose, build-time checks, setup, the load fallback and look-at caching (less per-frame CPU), so they add no render work.
   - The final Cottingham tweaks after `0ff8c60` (muscle setting, moustache shape) added under 200 triangles.
 - **Gameplay:**
   - 155/155 logic tests.
-  - Autoplay careful / rushed / cherry produce the same 3 endings, scores 4 / 0 / 3, stuck 0 (`art/validation/autoplay-r06/`).
+  - Autoplay careful / rushed / cherry produce the same 3 endings, scores 4 / 0 / 3, stuck 0, on the final head (`art/validation/autoplay-r06/`).
 
 ## Known limits and next steps
 - Faces are simple sculpted forms in flat skin colour. Up close they read as stylised but human, not uncanny. There is no facial animation and no lip-sync.
