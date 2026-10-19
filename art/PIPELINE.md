@@ -70,6 +70,17 @@ Choose the route per asset (BIBLE §3):
   - `python3 art/pipeline/tripo.py <asset> <concept.jpg>` writes `art/sources/tripo/<asset>/<task>.glb` plus a receipt.
   - Then clean it up in Blender: scale to spec, origin at bottom-centre, decimate to budget, check the palette and value of its texture. `ingest.py` is still **TODO**: write it on the first real Tripo run, using `kit.py` and `validate.py`.
 
+- **S3c, people (MPFB route, r06):**
+  - Set up once: `art/pipeline/setup_mpfb.sh`. It verifies the downloads by sha256 and installs MPFB into an isolated `BLENDER_USER_RESOURCES`.
+  - Build: `eval "$(art/pipeline/setup_mpfb.sh --env)"`, then `blender -b --python art/pipeline/blender/build_person.py -- <id>`.
+  - Specs live in `art/people/people.toml`. The build gives:
+    - an MPFB body with the `game_engine` rig
+    - **CC0-only** assets; a licence gate reads each file header
+    - palette materials
+    - a standing pose and the `idle` loop
+    - head-bone accessories
+  - In game: `world_builder._person()` swaps the figure in under the unchanged NPC body, and `main._update_npc_look()` drives the head look-at.
+
 **G2:** `blender -b --factory-startup -P art/pipeline/blender/validate.py -- assets/models/<asset>.glb <asset>` checks:
 - triangle budget, material count and texture size
 - dimensions within tolerance

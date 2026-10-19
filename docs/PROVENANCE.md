@@ -29,6 +29,8 @@
 | 雨後時鐘驅動需要重新上發條、對天文鐘校走速；沒幫忙時 Cottingham 只能自己趕 | FICTION。不暗示 Cottingham 疏失：只是缺人手，而不是他做錯事。 |
 | 全部對白（Eddington、Cottingham） | FICTION／戲劇化。刻意讓 Eddington 保持謹慎，不讓他說出後世才有的確定性。 |
 | 站點配置、遮陽棚、暗房、服裝、帽子 | RECONSTRUCTION。普林西比站沒有已知的現場照片。 |
+| 人物外貌（r06） | Eddington：無鬍、深色向後梳的頭髮、細框或無框眼鏡、身形清瘦（約 1915 年肖像，Lemos 2019 圖 4；Payne-Gaposchkin）。Cottingham：濃密八字鬍、軟呢帽（約 1910 年 Thrapston 店門合照，Lemos 圖 5，僅憑圖說辨認）。1919 年兩人在島上的衣著、身高、帽子均無紀錄，屬 RECONSTRUCTION：參考 1919 年 Sobral 合照（淺色亞麻／斜紋布西裝、草帽，沒有遮陽盔），r06 把 Eddington 原本的遮陽盔改成草帽。詳見 `art/people/REFERENCE.md`。 |
+| 人物 3D 素材 | MakeHuman／MPFB 的 CC0 基礎網格、骨架與系統素材（Data Collection AB 與 MakeHuman 社群），帽子、眼鏡、鬍子為本專案自製。授權清單見 `art/people/LICENSES.md`。 |
 | 雲場、底片影像、星點數、拖線、霧、量測值與誤差 | FICTION／示意模型。原始普林西比底片已佚失，遊戲影像不是複製品。 |
 | 太陽與星點的視大小 | 為了可讀性約放大 6 倍。 |
 | 日食當地時間（下午 2:13 左右）、太陽高度（約 56°） | RECONSTRUCTION。時刻來自報告的計算值（時制未定）；高度為粗略計算，沒有來源。 |

@@ -39,7 +39,7 @@ hair = 0.6
 # Height, build, hair: RECONSTRUCTION.
 age_years = 50
 height_m = 1.72
-macro = { gender = 1.0, weight = 0.45, muscle = 0.6, proportions = 0.5, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+macro = { gender = 1.0, weight = 0.5, muscle = 0.45, proportions = 0.5, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
 export = "assets/models/cottingham.glb"
 breath_deg = 1.5
 hat = { kind = "felt_hat", material = "felt", sink = 0.035 }

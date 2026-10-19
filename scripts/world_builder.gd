@@ -703,7 +703,7 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	head.material_override = mat(Color(0.86, 0.7, 0.58))
 	head.position = Vector3(0, 1.62, 0)
 	body.add_child(head)
-	# Hats: a pith helmet for one, a straw boater-like hat for the other (RECONSTRUCTION).
+	# Fallback figures only (r06 characters replace them when the GLBs exist): RECONSTRUCTION hats.
 	if id == "eddington":
 		cyl(0.2, 0.03, Vector3(0, 1.73, 0), Color(0.86, 0.82, 0.7), body)
 		var dome := MeshInstance3D.new()

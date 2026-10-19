@@ -95,11 +95,19 @@ def glasses(c: Vector, front: float, name: str) -> list:
 
 
 def moustache(c: Vector, front: float, name: str, material: str) -> list:
-    """Full moustache (Thrapston photo): a soft wedge under the nose."""
-    # Front of the face is -Y: sit just proud of the upper lip, below the nose.
-    m = kit.cyl(f"{name}_moustache", 0.027, 0.012, (c.x, front - 0.004, c.z - 0.056), material, rot=(90, 0, 0), verts=10, bevel=0.004)
-    m.scale = (1.0, 0.55, 1.0)
-    return [m]
+    """Full Edwardian moustache (Thrapston photo c.1910): wide across the upper lip
+    with slightly drooping ends. Deliberately NOT a narrow block (r06 try3 read as a
+    "toothbrush" moustache, an unwanted association)."""
+    y = front - 0.004
+    z = c.z - 0.054
+    mid = kit.cyl(f"{name}_moustache", 0.034, 0.012, (c.x, y, z), material, rot=(90, 0, 0), verts=14, bevel=0.004)
+    mid.scale = (1.0, 0.42, 1.0)
+    parts = [mid]
+    for sx in (-1, 1):
+        end = kit.cyl(f"{name}_moustache_end", 0.012, 0.01, (c.x + sx * 0.03, y + 0.003, z - 0.012), material, rot=(90, 0, sx * 25), verts=8, bevel=0.003)
+        end.scale = (0.7, 1.0, 1.0)
+        parts.append(end)
+    return parts
 
 
 def main() -> None:

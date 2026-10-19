@@ -4,7 +4,7 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 14778,
+      "value": 14953,
       "max": 16000,
       "ok": true
     },
@@ -180,7 +180,7 @@
           "origin": [
             0.0,
             -0.146,
-            1.572
+            1.574
           ],
           "expected": [
             0.0,
