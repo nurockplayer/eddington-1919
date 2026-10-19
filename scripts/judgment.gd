@@ -38,6 +38,7 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var ev: String = sim.evidence_class()
 	var fit: int = FIT[ev][telegram_id]
 	var any_usable: bool = sim.plates.any(func(p): return p.usable)
+	var any_good: bool = sim.plates.any(func(p): return p.usable and p.quality == "good")
 	var reason_ok: bool = reason_id in REASON_FIT[ev]
 	if reason_id == "nostars" and any_usable:
 		reason_ok = false  # the stars are there, just not measured
@@ -46,7 +47,7 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var sel: Dictionary = sim.selection_report()
 	var clean: bool = sel.omitted_good.is_empty() and sel.included_poor.is_empty() and sel.included_unusable.is_empty() and not sel.reselected
 	var lines: Array[String] = []
-	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, sim))
+	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, any_good, sim))
 	lines.append(_reason_line(ev, reason_id, reason_ok))
 	lines.append_array(_selection_lines(sel, clean, sim))
 	var title := _title(ev, telegram_id, fit, reason_ok, clean, any_usable)
@@ -57,7 +58,7 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	}
 
 
-static func _telegram_lines(ev: String, t: String, any_usable: bool, sim) -> Array[String]:
+static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: bool, sim) -> Array[String]:
 	var c: Dictionary = sim.combined()
 	var out: Array[String] = []
 	match t:
@@ -89,7 +90,10 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, sim) -> Arr
 					out.append("對。誤差範圍同時容得下兩種答案。我們照實說。")
 		"none":
 			if any_usable:
-				out.append("沒有結果？你手上就有星點清楚的底片。雲很厚，但不是什麼都沒留下。")
+				if any_good:
+					out.append("沒有結果？你手上就有星點清楚的底片。雲很厚，但不是什麼都沒留下。")
+				else:
+					out.append("沒有結果？你手上還有可量的底片，只是星像拖長或被雲霧蓋住；不是什麼都沒留下。")
 			else:
 				out.append("……是的。很遺憾，但這是真的。至少我們沒有讓雲替我們說謊。")
 	if c.n > 0:
