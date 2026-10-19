@@ -50,8 +50,8 @@ layout is invented). Interior ≈ 9 m × 6 m × 3.6 m, built procedurally like `
   (看片台 — slanted frosted glass, lit from below; evidence-bright), the copy chart, a loupe,
   inkwell, the player's notebook.
 - **Kit's end of the table:** a stack of plates and Kit's own ledger (Kit's independent work).
-- **Tall sash window**, rain streaks, **blackout curtain** half drawn (wartime lighting rules —
-  fact-check pending, keep it as atmosphere only). Cold blue fill light from it.
+- **Tall sash window**, rain streaks, a **shading curtain** half drawn (wartime lighting
+  restrictions — say "lighting rules", not "blackout"). Cold blue fill light from it.
 - **Shelves** with ledgers; the **observing log** (觀測日誌) for 1915 is here.
 - **Plate cabinet** (shallow drawers).
 - **Empty desk** with chair pushed in, a coat still on the hook, a folded letter (fiction texture:
@@ -77,7 +77,7 @@ Player can walk the room (WASD/mouse, same controls as v0.1). E interacts.
 ### Beat 2 — The discrepancy (≈3–5 min) — the core puzzle
 Interacting with the light box opens the **Overlay Viewer** (2D, full-screen modal):
 - **Plate layer (fixed):** negative look (dark star dots on pale grey glass, subtle grain), ~18 stars
-  of varied size, the plate's own **scratched label "14"** near one corner and a **scratched north
+  of varied size, the plate's own **pencil label "14"** (written on the emulsion side) near one corner and a **pencilled north
   arrow** that is tilted ≈3.2° from the plate edge (both readable normally, NOT mirrored).
 - **Copy layer (tracing paper, movable):** ink dots + a drawn grid aligned with the paper edge + the
   copyist's drawn north arrow (parallel to the paper edge) + the copied label, which appears
@@ -91,7 +91,7 @@ Interacting with the light box opens the **Overlay Viewer** (2D, full-screen mod
   「17 個點重合了，還有 1 個沒有對上」. Matching is computed, not scripted (headless-testable).
 - **Clickable details (set clue flags + toast via `C17.viewer_feedback(id)`):**
   `label_mirrored` — clicking the copy's reversed "14" (or the plate's "14" after seeing both);
-  `arrow_tilted` — clicking the plate's scratched arrow;
+  `arrow_tilted` — clicking the plate's pencilled arrow;
   `residual` — clicking the unmatched dot once aligned opens a **loupe inset** showing the plate at
   that spot: a tiny pale, ambiguous speck — could be a faint star, could be an emulsion flaw.
   It cannot be decided from one plate. (Do NOT resolve it in M1.)
@@ -192,3 +192,14 @@ Committee (Nov 1917); Eddington as Observatory director; the 1.75″ / 0.87″ /
 FICTION: the protagonist, Kit, Ashby, the copyist, the measuring-room scene, plate 14, the mirror
 error, all dialogue, the meeting with Eddington, the plan board, the trial task, and the player's
 presence on the expedition. Record new items in `docs/PROVENANCE.md`.
+
+## Fact-check applied (2026-10-20, Sonnet 5.5 research agent; sources in Issue #1 milestone note)
+- Dyson, MNRAS 77, 445 (March 1917) describes "an unusual number of bright stars" in Taurus; it does
+  not say "Hyades" — dialogue paraphrases it that way. The same note says the 1905 eclipse plates were
+  "reversed owing to the employment of a coelostat mirror" and matched film to film: a real precedent for
+  the prologue's mirror error, used in the mentor's lines.
+- Plate labels: pencil on the emulsion side is documented; scratched numbers and clipped corners are not.
+- Two real Observatory assistants died in 1917; the fictional copyist is a student volunteer, and no
+  prop or line may evoke the real assistants.
+- JPEC 10 Nov 1917 decided "if possible" on Sobral and Príncipe; personnel only provisional in mid-1918.
+- Coin analogy: 2.4 cm at ≈2.83 km ≈ 1.75″ (checked).
