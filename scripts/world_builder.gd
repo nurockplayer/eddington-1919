@@ -473,7 +473,7 @@ func _darkroom() -> Dictionary:
 	lamp.light_volumetric_fog_energy = 0.0
 	lamp.omni_range = 3.6
 	lamp.omni_attenuation = 1.6
-	lamp.light_size = 0.04
+	# light_size (PCSS soft shadow) cost +2 ms forced-draw for a barely visible edge: off (perf-r05).
 	lamp.shadow_enabled = true
 	root.add_child(lamp)
 	out.lamp = lamp
