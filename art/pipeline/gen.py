@@ -114,6 +114,9 @@ def gen_gpt(prompt: str, refs: list[Path], aspect: str, out: Path) -> str:
     return f"codex:{GPT_MODEL}/image_generation"
 
 
+GENERATORS = {"gemini": gen_gemini, "gpt": gen_gpt}
+
+
 def to_jpeg(src: Path, dst: Path) -> None:
     from PIL import Image
 
@@ -136,6 +139,9 @@ def main() -> int:
     ap.add_argument("--reuse-raw", action="store_true", help="re-log existing _raw PNGs instead of regenerating")
     a = ap.parse_args()
 
+    unknown = [g for g in a.gens.split(",") if g not in GENERATORS]
+    if unknown:  # never fall through to a paid generator on a typo
+        ap.error(f"unknown generator(s) {unknown}; choose from {sorted(GENERATORS)}")
     run = ART / "runs" / a.run
     raw = run / "_raw"
     raw.mkdir(parents=True, exist_ok=True)
@@ -163,7 +169,7 @@ def main() -> int:
             if reused:
                 model = GEMINI_MODEL if g == "gemini" else f"codex:{GPT_MODEL}/image_generation"
             else:
-                model = (gen_gemini if g == "gemini" else gen_gpt)(prompt, refs, aspect, png)
+                model = GENERATORS[g](prompt, refs, aspect, png)
             to_jpeg(png, run / f"{iid}.jpg")
         except Exception as e:  # keep the batch going; failures are logged too
             body = e.read()[:300].decode(errors="replace") if hasattr(e, "read") else ""
