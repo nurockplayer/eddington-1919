@@ -75,7 +75,7 @@ The forms may stay simplified. These rules stop simplified forms reading as toys
 - **The sky never clips to white** in gameplay views, and the clouds have structure (`cloud_shade`, `day_gain`).
 - **No HUD text in vistas.** Name tags fade beyond 9 m.
 - **People must have human proportions.** Capsule figures are the largest remaining toy cue (r06).
-- **Brightness above value 0.8 is exempt from weathering.** It is evidence (S1): plates, the measuring sheet, the mirror.
+- **Evidence is exempt from weathering, marked explicitly:** `evidence_mat()`, the palette `evidence` role and metals. That covers plates, the measuring sheet and the mirror. A brightness cutoff is not used: it also skipped whitewash and canvas (PR #6 review).
 
 ## 4. Colour and value
 

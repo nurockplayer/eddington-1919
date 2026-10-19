@@ -34,7 +34,7 @@ What the targets got wrong, so we did **not** copy it:
 | 2 | ACES 0.95, contrast 1.10, thinner fog | Contrast came back, but the dirt still read as cobbles and the clouds as camouflage. |
 | 3 | Broad, low-contrast dirt blotches with wetness in roughness; `cloud_shade` 0.34 | Close to the target, but every surface was still a flat fill (the toy cue). |
 | 4 | World-space weathering multiply on all non-metal, non-evidence materials, plus a warmer key colour | Too strong and too fine (speckled camouflage), and it touched the measuring sheet (evidence). |
-| final | Weathering made broad and soft; value cutoff 0.8 keeps evidence whites clean; lamp PCSS removed (cost); night safelight 0.25 → 0.5 | **Accepted.** |
+| final | Weathering made broad and soft; evidence exempt by explicit marking (a first value-0.8 cutoff also skipped whitewash and canvas, PR #6 bot review); lamp PCSS removed (cost); night safelight 0.25 → 0.5 | **Accepted.** |
 
 ## Gates
 - **G4 readability:**

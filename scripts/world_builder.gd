@@ -111,6 +111,18 @@ func mat(color: Color, rough := 0.85, metal := 0.0) -> StandardMaterial3D:
 	return _mats[key]
 
 
+## Unweathered material for evidence surfaces (measuring sheet, plates).
+func evidence_mat(color: Color, rough := 0.85) -> StandardMaterial3D:
+	var key := "evidence|%s|%s" % [color.to_html(), rough]
+	if not _mats.has(key):
+		var m := StandardMaterial3D.new()
+		m.albedo_color = color
+		m.roughness = rough
+		m.set_meta("evidence", true)
+		_mats[key] = m
+	return _mats[key]
+
+
 var _weather_tex: NoiseTexture2D
 var _weathered := {}   # original imported material → weathered copy (keeps instancing)
 
@@ -119,8 +131,11 @@ var _weathered := {}   # original imported material → weathered copy (keeps in
 ## non-metal, non-evidence surface, so large flat palette fills read as worn
 ## timber, plaster and canvas. No authored textures; one shared noise texture.
 func weather(m: BaseMaterial3D) -> void:
-	if not look or m.metallic > 0.5 or m.albedo_color.v > 0.8:
-		return  # metals keep clean reflections; evidence whites stay clean (BIBLE S1)
+	# Metals keep clean reflections; evidence stays clean (BIBLE S1). Evidence is
+	# marked explicitly (evidence_mat(), palette role "evidence"), not inferred from
+	# brightness: a brightness cutoff also skipped whitewash and canvas (PR #6 review).
+	if not look or m.metallic > 0.5 or m.has_meta("evidence") or m.resource_name.begins_with("E1919_plate_glass"):
+		return
 	if _weather_tex == null:
 		# try4 (0.06 freq, 5 octaves, 0.70–1.04) read as speckled camouflage: keep it broad and soft.
 		_weather_tex = _noise_tex(0.02, 3, [Color(0.82, 0.80, 0.78), Color(0.95, 0.94, 0.93), Color(1.02, 1.02, 1.01)])
@@ -501,7 +516,8 @@ func _darkroom() -> Dictionary:
 		box(Vector3(0.36, 0.06, 0.3), c + Vector3(dx, 0.9, -1.3), Color(0.75, 0.73, 0.68), null, false)
 	# Measuring table (used the night after).
 	var mtable := box(Vector3(1.2, 0.06, 0.8), c + Vector3(0.6, 0.82, 1.1), shelf_wood)
-	box(Vector3(0.5, 0.02, 0.4), c + Vector3(0.6, 0.86, 1.1), Color(0.85, 0.85, 0.8), null, false)
+	var sheet := box(Vector3(0.5, 0.02, 0.4), c + Vector3(0.6, 0.86, 1.1), Color(0.85, 0.85, 0.8), null, false)
+	(sheet as MeshInstance3D).material_override = evidence_mat(Color(0.85, 0.85, 0.8))  # measuring sheet = evidence
 	interactable(mtable, "measure", "測量桌")
 	out.measure_pos = c + Vector3(0.6, 0.82, 1.1)
 	var lamp := OmniLight3D.new()
