@@ -46,6 +46,28 @@ static func _plaster_material(color: Color) -> StandardMaterial3D:
 	return material
 
 
+static func _window_glass_material(departure: bool) -> StandardMaterial3D:
+	# Glazing has a broad, faint room reflection, never the timber weathering.
+	var reflection := Gradient.new()
+	reflection.offsets = PackedFloat32Array([0.0, 0.42, 0.58, 1.0])
+	reflection.colors = PackedColorArray([
+		Color(0.65, 0.70, 0.78), Color(0.78, 0.82, 0.88),
+		Color(1.0, 1.0, 1.0), Color(0.65, 0.70, 0.78),
+	])
+	var texture := GradientTexture2D.new()
+	texture.width = 128
+	texture.height = 128
+	texture.gradient = reflection
+	texture.fill_from = Vector2.ZERO
+	texture.fill_to = Vector2.ONE
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.12, 0.19, 0.27) if departure else Color(0.12, 0.19, 0.23)
+	material.albedo_texture = texture
+	material.roughness = 0.24
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	return material
+
+
 static func build(root: Node3D, departure := false) -> Dictionary:
 	var w = WorldBuilder.new(root)
 	var out := {"targets": {}}
@@ -74,9 +96,13 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	w.box(Vector3(1.4, 0.45, 0.14), Vector3(0, 3.375, 2.93), dark_wood)
 	# The open doorway enters a short, fully enclosed corridor rather than a void.
 	w.box(Vector3(1.7, 0.16, 4.8), Vector3(0, -0.08, 5.35), floor_color)
-	w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(-0.82, 1.8, 5.35), dark_wood)
-	w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(0.82, 1.8, 5.35), dark_wood)
-	w.box(Vector3(1.7, ROOM_H, 0.14), Vector3(0, 1.8, 7.75), dark_wood)
+	for x in [-0.82, 0.82]:
+		var wall := w.box(Vector3(0.14, ROOM_H, 4.8), Vector3(x, 1.8, 5.35), plaster)
+		wall.name = "CorridorPlasterLeft" if x < 0 else "CorridorPlasterRight"
+		(wall.get_child(1) as MeshInstance3D).material_override = plaster_material
+	var hall_end := w.box(Vector3(1.7, ROOM_H, 0.14), Vector3(0, 1.8, 7.75), plaster)
+	hall_end.name = "CorridorPlasterEnd"
+	(hall_end.get_child(1) as MeshInstance3D).material_override = plaster_material
 	w.box(Vector3(1.7, 0.16, 4.8), Vector3(0, 3.52, 5.35), dark_wood, null, false)
 	# A low-lit closed door gives the corridor a readable end rather than a black gap.
 	w.box(Vector3(1.28, 2.8, 0.08), Vector3(0, 1.4, 7.62), wood, null, false)
@@ -88,8 +114,8 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	hall_fill.position = Vector3(0, 2.4, 5.6)
 	hall_fill.light_color = Color(0.90, 0.78, 0.59)
 	hall_fill.light_energy = 0.8
-	hall_fill.omni_range = 5.0
-	hall_fill.omni_attenuation = 1.3
+	hall_fill.omni_range = 4.2
+	hall_fill.omni_attenuation = 1.7
 	hall_fill.light_specular = 0.0
 	hall_fill.shadow_enabled = false
 	root.add_child(hall_fill)
@@ -116,21 +142,46 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 
 	# Tall sash window on the north wall: divided panes, wet dark glazing, half-drawn curtain.
 	var window_center := Vector3(0.55, 2.05, -2.82)
-	var glass_mat := w.mat(Color(0.20, 0.16, 0.11) if departure else Color(0.12, 0.19, 0.23), 0.8)
-	glass_mat.metallic_specular = 0.0
-	glass_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	if departure:
-		glass_mat.emission_enabled = true
-		glass_mat.emission = Color(0.11, 0.055, 0.018)
-		glass_mat.emission_energy_multiplier = 0.18
+	var glass_mat := _window_glass_material(departure)
 	out.window_glass = glass_mat
 	for x in [-1.25, 0.0, 1.25]:
 		var pane := w.box(Vector3(1.15, 1.75, 0.025), window_center + Vector3(x, 0, 0), Color(0.16, 0.23, 0.27), null, false)
+		pane.name = "WindowPane%d" % int((x + 1.25) / 1.25)
 		(pane as MeshInstance3D).material_override = glass_mat
 	for x in [-1.9, -0.625, 0.625, 1.9]:
 		w.box(Vector3(0.075, 1.95, 0.11), window_center + Vector3(x, 0, 0.03), wood, null, false)
 	for y in [1.08, 2.05, 3.02]:
 		w.box(Vector3(3.9, 0.075, 0.11), Vector3(0.55, y, -2.77), wood, null, false)
+	w.box(Vector3(4.0, 0.08, 0.28), Vector3(0.55, 1.025, -2.66), wood, null, false)
+	if departure:
+		# A distant gas lamp, placed in the pane visible beside Kit on arrival.
+		var halo := Gradient.new()
+		halo.offsets = PackedFloat32Array([0.0, 0.045, 0.13, 0.40, 1.0])
+		halo.colors = PackedColorArray([
+			Color(1.0, 0.94, 0.73, 1.0), Color(1.0, 0.85, 0.51, 0.95),
+			Color(1.0, 0.67, 0.30, 0.55), Color(1.0, 0.55, 0.22, 0.12),
+			Color(1.0, 0.48, 0.18, 0.0),
+		])
+		var halo_texture := GradientTexture2D.new()
+		halo_texture.width = 128
+		halo_texture.height = 128
+		halo_texture.gradient = halo
+		halo_texture.fill = GradientTexture2D.FILL_RADIAL
+		halo_texture.fill_from = Vector2(0.5, 0.5)
+		halo_texture.fill_to = Vector2(0.5, 1.0)
+		var halo_material := StandardMaterial3D.new()
+		halo_material.albedo_texture = halo_texture
+		halo_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		halo_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		var lamp_point := MeshInstance3D.new()
+		lamp_point.name = "DepartureStreetLampPoint"
+		var quad := QuadMesh.new()
+		quad.size = Vector2(0.48, 0.48)
+		lamp_point.mesh = quad
+		lamp_point.material_override = halo_material
+		lamp_point.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		lamp_point.position = Vector3(-0.70, 2.50, -2.79)
+		root.add_child(lamp_point)
 	# Rain on the visible half of the sash, drawn as one low-cost mesh instance.
 	if not departure:
 		var rain_mm := MultiMesh.new()
@@ -165,7 +216,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 			w.box(Vector3(0.035, 2.1, 0.10), Vector3(x, 1.95, -2.62), Color(0.22, 0.21, 0.19), null, false)
 	var window_light := OmniLight3D.new()
 	window_light.name = "DepartureStreetLampGlow" if departure else "ColdWindowFill"
-	window_light.position = Vector3(0.5, 2.35, -2.45)
+	window_light.position = Vector3(-0.70, 2.35, -2.45) if departure else Vector3(0.5, 2.35, -2.45)
 	window_light.light_color = Color(1.0, 0.64, 0.34) if departure else Color(0.48, 0.65, 0.82)
 	window_light.light_energy = 0.85 if departure else 1.25
 	window_light.omni_range = 8.0

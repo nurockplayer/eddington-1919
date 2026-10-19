@@ -5,6 +5,8 @@ class_name CambridgeCast
 ## dialogue avoids gendered pronouns for the protagonist and Kit.
 
 const YOU := "你"
+## PLACEHOLDER: protagonist initials have not been chosen.
+const YOU_INITIALS := "Y."
 const KIT := "Kit"
 const MENTOR := "Ashby 先生"
 const EDDINGTON := "Eddington"

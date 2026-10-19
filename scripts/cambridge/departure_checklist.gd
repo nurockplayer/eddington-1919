@@ -6,6 +6,7 @@ signal closed
 
 const Content := preload("res://scripts/cambridge/content_departure.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
+const Cast := preload("res://scripts/cambridge/cast.gd")
 
 var entries: Array = []
 var marks: Dictionary = {}
@@ -233,9 +234,9 @@ func show_correction(fix: int) -> void:
 	for i in entries.size():
 		if not entries[i].get("slip", false):
 			continue
-		values[i].text = "x 41.27　y [s]18.63[/s]　16.83　Y." if fix == 0 else "x 41.27　y 16.83"
+		values[i].text = "x 41.27　y [s]18.63[/s]　16.83　" + Cast.YOU_INITIALS if fix == 0 else "x 41.27　y 16.83"
 		_smudge.visible = fix == 1
-		plate_lines[i].text = "劃線、改正、簽名（Y.：你的縮寫）" if fix == 0 else "擦改的墨跡還留在紙上"
+		plate_lines[i].text = "劃線、改正、簽名（" + Cast.YOU_INITIALS + "：你的縮寫）" if fix == 0 else "擦改的墨跡還留在紙上"
 		_scroll.ensure_control_visible(_rows[i])
 	continue_btn.show()
 	continue_btn.disabled = true
