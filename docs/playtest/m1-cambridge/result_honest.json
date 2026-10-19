@@ -1,0 +1,83 @@
+{
+  "beats": [
+    "OPENING",
+    "INVESTIGATE",
+    "MENTOR",
+    "INTERLUDE",
+    "EXAM",
+    "PLAN",
+    "TRIAL",
+    "CODA",
+    "MONTAGE"
+  ],
+  "bias_blocked": true,
+  "clues": {
+    "aligned": true,
+    "arrow_tilted": true,
+    "kit_checked": true,
+    "label_mirrored": true,
+    "log": true,
+    "residual": true
+  },
+  "elapsed_seconds": 37.71,
+  "engine": "4.7.2-stable (official)",
+  "failures": [],
+  "from_prologue_consumed": true,
+  "human_playtest": false,
+  "input_retries": 0,
+  "interactions": [
+    "notebook",
+    "lightbox",
+    "logbook",
+    "kit",
+    "notebook"
+  ],
+  "kit_choice": 1,
+  "matched": 17,
+  "phase_reached": "PREP",
+  "plan": [
+    "comparison",
+    "far_stars",
+    "same_instrument"
+  ],
+  "prologue_done": true,
+  "report": {
+    "cause": "both",
+    "kit_credited": true,
+    "original": "keep",
+    "residual": "unresolved"
+  },
+  "report_revised": true,
+  "room_draw_calls_max_observed": 105,
+  "scenario": "honest",
+  "screenshots": [
+    "/tmp/m1-honest/honest_00_title.png",
+    "/tmp/m1-honest/honest_beat_opening.png",
+    "/tmp/m1-honest/honest_01_opening.png",
+    "/tmp/m1-honest/honest_01b_log.png",
+    "/tmp/m1-honest/honest_02_report_gated.png",
+    "/tmp/m1-honest/honest_beat_investigate.png",
+    "/tmp/m1-honest/honest_03_mismatch.png",
+    "/tmp/m1-honest/honest_04_flipped.png",
+    "/tmp/m1-honest/honest_05_aligned.png",
+    "/tmp/m1-honest/honest_06_loupe.png",
+    "/tmp/m1-honest/honest_07_logbook.png",
+    "/tmp/m1-honest/honest_08_report.png",
+    "/tmp/m1-honest/honest_beat_mentor.png",
+    "/tmp/m1-honest/honest_dialogue_mentor_review.png",
+    "/tmp/m1-honest/honest_08b_revised_report.png",
+    "/tmp/m1-honest/honest_dialogue_mentor_review.png",
+    "/tmp/m1-honest/honest_beat_interlude.png",
+    "/tmp/m1-honest/honest_dialogue_exam.png",
+    "/tmp/m1-honest/honest_beat_exam.png",
+    "/tmp/m1-honest/honest_beat_plan.png",
+    "/tmp/m1-honest/honest_09_bias_plan.png",
+    "/tmp/m1-honest/honest_10_fair_plan.png",
+    "/tmp/m1-honest/honest_dialogue_plan_finish.png",
+    "/tmp/m1-honest/honest_beat_trial.png",
+    "/tmp/m1-honest/honest_beat_coda.png",
+    "/tmp/m1-honest/honest_dialogue_coda.png",
+    "/tmp/m1-honest/honest_beat_montage.png",
+    "/tmp/m1-honest/honest_11_principe_prep.png"
+  ]
+}

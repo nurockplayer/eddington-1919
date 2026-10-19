@@ -1,0 +1,11 @@
+{
+  "archive": "build/Eddington1919-macOS.zip",
+  "bytes": 60768581,
+  "sha256": "0edc0c400695632bb7e4008d0c4d8b3ccce818c9f9778b2e3099705eb7878398",
+  "cambridge_remap": true,
+  "compiled_cambridge_scene": true,
+  "compiled_director": true,
+  "compiled_story": true,
+  "test_prologue_excluded": true,
+  "prologue_bot_excluded": true
+}

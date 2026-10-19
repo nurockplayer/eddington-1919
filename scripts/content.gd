@@ -49,9 +49,19 @@ static func cottingham_done() -> Array:
 
 
 static func plan_text() -> Array:
-	return [
+	var lines: Array = [
 		{"s": "曝光計畫（筆記，遊戲內重建）", "t": "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· [b]第三接觸前務必關上快門。[/b]"},
 	]
+
+	var tree := Engine.get_main_loop() as SceneTree
+	var story = tree.root.get_node_or_null("Story") if tree else null
+	if story and story.prologue_done:
+		var names: Array[String] = []
+		for card in preload("res://scripts/cambridge/content_1917.gd").plan_cards():
+			if card.id in story.plan:
+				names.append(card.text)
+		lines.append({"s": "1917 年的筆記", "t": "你在 1917 年參與擬定的原則：" + "；".join(names)})
+	return lines
 
 
 static func oxford_text() -> Array:

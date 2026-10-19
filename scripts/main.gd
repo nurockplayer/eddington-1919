@@ -72,6 +72,9 @@ func _ready() -> void:
 	add_child(ui)
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	ui.start_pressed.connect(_start_game)
+	ui.prologue_pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/cambridge.tscn"))
+	ui.log_toggled.connect(func(_open): _sync_player_input())
+	ui.pause_toggled.connect(func(_paused): _sync_player_input())
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(_restart)
 	ui.dialogue_done.connect(_on_dialogue_done)
@@ -86,6 +89,18 @@ func _ready() -> void:
 	ui.set_objectives("")
 	ui.hud.visible = false
 	_update_sky_prep()
+	if Story.from_prologue:
+		Story.from_prologue = false
+		_start_game()
+		ui.show_caption("1919 年 5 月 29 日・普林西比", 2.4)
+	if args.has("prologue-autoplay") and not Story.prologue_done:
+		var prologue_bot: Script = load("res://tests/prologue_bot.gd")
+		if prologue_bot:
+			var runner: Node = prologue_bot.new()
+			runner.main = self
+			runner.scenario = args["prologue-autoplay"]
+			runner.shots_dir = args.get("shots", "")
+			get_tree().root.add_child.call_deferred(runner)
 	if args.has("benchmark"):
 		# tests/ is excluded from exports, so in a build this flag is ignored and the game runs normally.
 		var bench_script: Script = load("res://tests/benchmark.gd")
@@ -125,7 +140,7 @@ func _user_args() -> Dictionary:
 	return out
 
 
-func _ensure_inputs() -> void:
+static func _ensure_inputs() -> void:
 	var map := {
 		"move_forward": [KEY_W], "move_back": [KEY_S], "move_left": [KEY_A], "move_right": [KEY_D],
 		"look_left": [KEY_LEFT], "look_right": [KEY_RIGHT], "look_up": [KEY_UP], "look_down": [KEY_DOWN],
@@ -231,7 +246,7 @@ func _update_sky_prep() -> void:
 
 # ------------------------------------------------------------------------ Audio
 
-func _wav(samples: PackedFloat32Array, rate := 22050, loop := false) -> AudioStreamWAV:
+static func _wav(samples: PackedFloat32Array, rate := 22050, loop := false) -> AudioStreamWAV:
 	var data := PackedByteArray()
 	data.resize(samples.size() * 2)
 	for i in samples.size():
@@ -317,7 +332,14 @@ func _process(delta: float) -> void:
 
 
 func _ui_free() -> bool:
-	return not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
+	return not get_tree().paused and not ui.log_open() and not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
+
+
+func _sync_player_input() -> void:
+	var free := _ui_free() and phase != Phase.TITLE
+	player.can_move = free and phase in [Phase.PREP, Phase.NIGHT]
+	player.can_look = free
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -455,7 +477,10 @@ func _interact(id: String) -> void:
 	match id:
 		"eddington":
 			if not sim.briefed:
-				_say(Content.briefing(), "briefing")
+				var seq: Array = Content.briefing()
+				if Story.prologue_done:
+					seq.append({"s": Content.E, "t": preload("res://scripts/cambridge/content_1917.gd").principe_callback(Story)})
+				_say(seq, "briefing")
 			else:
 				_say(Content.eddington_prep(), "eddington_prep")
 		"cottingham":
@@ -499,17 +524,13 @@ func _update_rack() -> void:
 
 func _say(seq: Array, purpose: String) -> void:
 	_pending = purpose
-	player.can_move = false
 	ui.play(seq)
+	_sync_player_input()
 
 
 func _on_dialogue_done(results: Dictionary) -> void:
 	var purpose := _pending
 	_pending = ""
-	if phase == Phase.PREP or phase == Phase.NIGHT:
-		player.can_move = true
-	if not ui.viewer.visible and not ui.ending_panel.visible:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	match purpose:
 		"briefing":
 			sim.briefed = true
@@ -522,6 +543,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"reaction":
 			_show_ending()
 	_refresh_objectives()
+	_sync_player_input()
 
 
 func _refresh_objectives() -> void:
@@ -573,7 +595,7 @@ func _begin_totality() -> void:
 	_apply_light(1.0, 1.0, 0.0, 0.0)
 	await ui.fade_to(0.0, 1.2).finished
 	_busy = false
-	player.can_look = true
+	_sync_player_input()
 	var note := ""
 	if not sim.drive_wound:
 		note = "\nCottingham 只能自己趕著上發條，來不及對時。"
@@ -603,7 +625,7 @@ func _toggle_shutter() -> void:
 
 
 func _process_totality(delta: float) -> void:
-	if _busy or tot_done:
+	if _busy or tot_done or ui.log_open() or get_tree().paused:
 		return
 	var dt: float = delta * sim.TIME_SCALE
 	t_game += dt
@@ -684,8 +706,8 @@ func _begin_night() -> void:
 
 
 func _open_viewer() -> void:
-	player.can_move = false
 	ui.open_viewer(sim.plates, comparison_tex, plate_textures, sim.measured)
+	_sync_player_input()
 	_refresh_viewer()
 
 
@@ -734,8 +756,7 @@ func _on_reselect() -> void:
 
 func _on_viewer_closed() -> void:
 	ui.close_viewer()
-	player.can_move = true
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	_sync_player_input()
 
 
 func _on_report() -> void:

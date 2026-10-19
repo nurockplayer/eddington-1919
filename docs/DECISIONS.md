@@ -88,3 +88,13 @@
   - Each value is a named constant in `look.gd`.
   - The material changes are isolated in `world_builder.gd` helpers (`weather()`, `_noise_tex()`).
 - **Open Owner decision (r06 people):** Tripo has no key. The proposed alternative for human figures is **MPFB 2 (MakeHuman for Blender; output stated as CC0 by MakeHuman, to be confirmed before use)**, which requires downloading a Blender extension.
+
+## D009 — Playable Cambridge 1917 prologue before the eclipse (Game Director, 2026-10-20)
+- **What changed and why:**
+  - v0.1 dropped the player straight into Príncipe. Nothing made the eclipse personal, and "honest records" was only an evaluation rule.
+  - M1 adds a 12–18 minute playable prologue, written to the approved Narrative Bible structure. It covers the mentor, the peer friend, the record that does not match, the temptation to call it fraud, Dyson's 1917 proposal and planning the test. The 1919 core stays unchanged.
+  - The prologue's choices carry into 1919 only as flavour: one PREP line from Story.plan and one Príncipe callback. Science, scoring and endings are untouched.
+  - The title screen offers both entries. The prologue is listed first, and "1919" still starts the original slice.
+- **Content ownership:** dialogue is written by the Director (`content_1917.gd`); code by Sol; independent review by gpt-6-astra. Names Kit / Ashby are placeholders in `cast.gd`.
+- **Out of scope:** the childhood keepsake/microimage (canon open), romance confession, letters, reunion. The M2 departure interlude is drafted in [M2_DEPARTURE](design/M2_DEPARTURE.md).
+- **What was verified:** see [M1_VERIFICATION](M1_VERIFICATION.md). **Not verified:** any human play of the prologue. Use [PLAYTEST_NEWCOMER](PLAYTEST_NEWCOMER.md).
