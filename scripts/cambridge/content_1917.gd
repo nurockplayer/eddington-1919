@@ -117,7 +117,7 @@ static func viewer_feedback(id: String) -> String:
 		"label_mirrored":
 			return "抄錄圖角落的「14」是反的，像在鏡子裡看到的。那個編號是用鉛筆寫在底片藥膜面上的——抄錄的人，是隔著玻璃那一面描的嗎？"
 		"arrow_tilted":
-			return "藥膜面上有一支鉛筆畫的北向箭頭——和玻璃邊緣不平行，斜了三度左右。抄錄圖卻把北畫在正上方。"
+			return "藥膜面上有一支鉛筆畫的北向箭頭——和玻璃邊緣不平行，斜了三度左右。抄錄圖上的北，卻是貼著紙邊畫的。"
 		"first_flip":
 			return "翻過來了。大部分的點靠近了，可是差異箭頭全都朝同一個方向繞。"
 		"aligned":
@@ -193,15 +193,23 @@ static func mentor_review(report: Dictionary) -> Array:
 				seq.append({"s": A, "t": "很少有人敢這樣交卷。你找到了怎麼對齊，卻不肯假裝知道為什麼——這很好。"})
 			else:
 				seq.append({"s": A, "t": "很少有人敢這樣交卷，這很好。可是你連怎麼對上都還沒試出來吧？「不知道」要在查過以後才值錢。"})
+		"mirror":
+			seq.append({"s": A, "t": "「翻了面。」對，是翻了面。"})
+			seq.append({"s": A, "t": "可是翻過來以後，它還是歪的吧？差一點，全都朝同一個方向。你沒覺得奇怪嗎？"})
+		"tilt":
+			seq.append({"s": A, "t": "「放斜了約 3 度。」"})
+			seq.append({"s": A, "t": "光轉三度，對得上嗎？角落那個「14」，你仔細看過了嗎？"})
 		_:
 			seq.append({"s": A, "t": "翻面，還轉了三度。"})
+			var why_choices: Array = ["抄錄圖上的編號是反的。"]
+			var why_then: Array = [[{"s": A, "t": "對。數字不會自己變成鏡像。那是抄錄方法留下的指紋。"}]]
+			if report.get("aligned", false):
+				why_choices.append("把它翻過來，十七個點都對上了。")
+				why_then.append([{"s": A, "t": "對上了，只說明這樣對得上。要說明為什麼，得在底片和紙上找到它留下的痕跡。"}])
+			why_choices.append("底片上畫的北向箭頭是斜的。")
+			why_then.append([{"s": A, "t": "對。北在哪裡，要問底片自己，不能問紙的邊。"}])
 			seq.append({"s": A, "t": "你怎麼知道是底片翻了面，而不是星自己跑了？",
-				"key": "why", "choices": ["抄錄圖上的編號是反的。", "把它翻過來，十七個點都對上了。", "底片上畫的北向箭頭是斜的。"],
-				"then": [
-					[{"s": A, "t": "對。數字不會自己變成鏡像。那是抄錄方法留下的指紋。"}],
-					[{"s": A, "t": "對上了，只說明這樣對得上。要說明為什麼，得在底片和紙上找到它留下的痕跡。"}],
-					[{"s": A, "t": "對。北在哪裡，要問底片自己，不能問紙的邊。"}],
-				]})
+				"key": "why", "choices": why_choices, "then": why_then})
 	match report.get("original", "keep"):
 		"keep":
 			seq.append({"s": A, "t": "原圖留著，更正寫在旁邊。很好。三十年後有人翻到這張紙，能看見錯在哪裡，也能看見是誰、怎麼改的。"})
@@ -228,7 +236,8 @@ static func mentor_review(report: Dictionary) -> Array:
 		seq.append({"s": K, "t": "應該的。"})
 	elif report.get("kit_checked", false):
 		seq.append({"s": A, "t": "%s也對過一次吧？我看見紙上有兩種鉛筆的痕跡。寫上去。" % K})
-	var hasty: bool = report.get("original", "keep") == "redraw" or report.get("residual", "") in ["delete", "new_object", "not_found"] or (report.get("kit_checked", false) and not report.get("kit_credited", false))
+	var cause: String = report.get("cause", "unknown")
+	var hasty: bool = cause in ["mirror", "tilt"] or (cause == "unknown" and not report.get("aligned", false)) or report.get("original", "keep") == "redraw" or report.get("residual", "") in ["delete", "new_object", "not_found"] or (report.get("kit_checked", false) and not report.get("kit_credited", false))
 	if hasty:
 		seq.append({"s": A, "t": "要改，現在還來得及。",
 			"key": "revise_report", "choices": ["改。（回到看片台和筆記本）", "就這樣交。"],
