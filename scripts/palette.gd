@@ -22,6 +22,16 @@ const C := {
 	"plate_glass": Color(0.949, 0.937, 0.902),  # evidence
 	"pine": Color(0.612, 0.482, 0.314),  # structure
 	"stone": Color(0.549, 0.529, 0.490),  # structure
+	"skin": Color(0.761, 0.604, 0.506),  # structure
+	"linen": Color(0.780, 0.737, 0.639),  # structure
+	"drill_khaki": Color(0.620, 0.561, 0.431),  # structure
+	"hair_dark": Color(0.184, 0.145, 0.118),  # structure
+	"hair_grey": Color(0.416, 0.380, 0.349),  # structure
+	"straw": Color(0.749, 0.639, 0.427),  # structure
+	"felt": Color(0.329, 0.290, 0.247),  # structure
+	"leather": Color(0.239, 0.169, 0.122),  # structure
+	"eye_dark": Color(0.118, 0.102, 0.090),  # structure
+	"hair_greying": Color(0.290, 0.259, 0.231),  # structure
 }
 
 const ROUGH := {
@@ -44,4 +54,14 @@ const ROUGH := {
 	"plate_glass": 0.1,
 	"pine": 0.85,
 	"stone": 0.9,
+	"skin": 0.7,
+	"linen": 0.92,
+	"drill_khaki": 0.92,
+	"hair_dark": 0.6,
+	"hair_grey": 0.6,
+	"straw": 0.85,
+	"felt": 0.95,
+	"leather": 0.55,
+	"eye_dark": 0.2,
+	"hair_greying": 0.6,
 }

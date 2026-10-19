@@ -194,6 +194,21 @@ func _build_environment() -> void:
 		_look_ambient = Look.AMBIENT_GAIN
 
 
+## r06: characters turn their heads toward the player at conversation distance
+## (LookAtModifier3D added by world_builder._person). Purely presentational.
+func _update_npc_look() -> void:
+	if player == null:
+		return
+	var eye: Vector3 = player.camera.global_position
+	for npc_body in [world.eddington, world.cottingham]:
+		for m in (npc_body as Node).find_children("look_at", "LookAtModifier3D", true, false):
+			var look := m as LookAtModifier3D
+			if look.target_node.is_empty():
+				look.target_node = look.get_path_to(player.camera)
+			var d: float = (npc_body as Node3D).global_position.distance_to(eye)
+			look.influence = clampf((4.5 - d) / 2.0, 0.0, 0.85)
+
+
 ## Fraction of the solar disc not covered by the Moon for a contact value.
 func _crescent(contact: float) -> float:
 	var s := (1.0 - contact) * 2.1
@@ -300,6 +315,7 @@ func _restart(same_sky: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	_update_npc_look()
 	if player.global_position.y < -3.0:
 		player.velocity = Vector3.ZERO
 		player.global_position = (world.darkroom_spot if phase == Phase.NIGHT else Vector3(2.6, 0, 4.2)) + Vector3(0, 0.1, 0)

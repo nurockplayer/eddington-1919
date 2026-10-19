@@ -1,0 +1,65 @@
+# Character specs for art/pipeline/blender/build_person.py (MPFB route, S3c).
+# Appearance evidence: art/people/REFERENCE.md (sources, confidence, what is
+# RECONSTRUCTION). Assets: only CC0 MakeHuman system assets (art/people/LICENSES.md).
+# Paths in [assets] are relative to the MPFB user data dir.
+
+[person.eddington]
+# 36 in May 1919. Slender (Payne-Gaposchkin); clean-shaven, dark hair brushed back,
+# receding at the temples, rimless glasses (c.1915 portrait, Lemos Fig. 4).
+# Height undocumented: RECONSTRUCTION.
+age_years = 36
+height_m = 1.78
+macro = { gender = 1.0, weight = 0.32, muscle = 0.42, proportions = 0.6, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+export = "assets/models/eddington.glb"
+breath_deg = 1.2
+hat = { kind = "straw_hat", material = "straw", sink = 0.035 }
+glasses = true
+tie = { material = "hair_dark", half_width = 0.028, length = 0.30 }
+[person.eddington.assets]
+body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
+hair = ["hair/short02/short02.mhclo", "Hair"]
+eyebrows = ["eyebrows/eyebrow010/eyebrow010.mhclo", "Eyebrows"]
+eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
+suit = ["clothes/male_elegantsuit01/male_elegantsuit01.mhclo", "Clothes"]
+shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
+[person.eddington.materials]
+body = "skin"
+hair = "hair_dark"
+eyebrows = "hair_dark"
+eyes = "eye_dark"
+suit = "linen"
+shoes = "leather"
+[person.eddington.decimate]
+suit = 0.4
+hair = 0.6
+
+[person.cottingham]
+# ~49–50 in May 1919. Full dark moustache, soft felt hat, practical light jacket
+# (Thrapston shop photograph c.1910, Lemos Fig. 5; identification by caption only).
+# Height, build, hair: RECONSTRUCTION.
+age_years = 50
+height_m = 1.72
+macro = { gender = 1.0, weight = 0.45, muscle = 0.6, proportions = 0.5, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+export = "assets/models/cottingham.glb"
+breath_deg = 1.5
+hat = { kind = "felt_hat", material = "felt", sink = 0.035 }
+moustache = true
+[person.cottingham.assets]
+body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
+hair = ["hair/short02/short02.mhclo", "Hair"]  # short04 (try1) and short01 (try2) read as a bob under the hat
+eyebrows = ["eyebrows/eyebrow004/eyebrow004.mhclo", "Eyebrows"]
+eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
+suit = ["clothes/male_casualsuit01/male_casualsuit01.mhclo", "Clothes"]  # shirtsleeves: practical working look
+shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
+[person.cottingham.materials]
+body = "skin"
+hair = "hair_greying"
+eyebrows = "hair_greying"
+eyes = "eye_dark"
+suit = "linen"
+shoes = "leather"
+[person.cottingham.split_below_waist]
+suit = "felt"
+[person.cottingham.decimate]
+suit = 0.4
+hair = 0.6

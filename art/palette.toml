@@ -106,3 +106,55 @@ roughness = 0.85
 hex = "#8C877D"
 role = "structure"
 roughness = 0.9
+
+# r06 people (BIBLE §3a: human proportions, no toy read). Skin and hair are flat
+# palette colours under the game's light; no photographic skin textures.
+[swatch.skin]
+hex = "#C29A81"
+role = "structure"
+roughness = 0.7
+
+[swatch.linen]
+hex = "#C7BCA3"
+role = "structure"
+roughness = 0.92
+
+[swatch.drill_khaki]
+hex = "#9E8F6E"
+role = "structure"
+roughness = 0.92
+
+[swatch.hair_dark]
+hex = "#2F251E"
+role = "structure"
+roughness = 0.6
+
+[swatch.hair_grey]
+hex = "#6A6159"
+role = "structure"
+roughness = 0.6
+
+[swatch.straw]
+hex = "#BFA36D"
+role = "structure"
+roughness = 0.85
+
+[swatch.felt]
+hex = "#544A3F"
+role = "structure"
+roughness = 0.95
+
+[swatch.leather]
+hex = "#3D2B1F"
+role = "structure"
+roughness = 0.55
+
+[swatch.eye_dark]
+hex = "#1E1A17"
+role = "structure"
+roughness = 0.2
+
+[swatch.hair_greying]
+hex = "#4A423B"
+role = "structure"
+roughness = 0.6

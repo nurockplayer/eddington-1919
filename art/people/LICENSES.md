@@ -1,0 +1,14 @@
+# Character asset licences (r06)
+
+All third-party content in `assets/models/eddington.glb` and `assets/models/cottingham.glb` is **CC0**. This is enforced at build time: `build_person.py` refuses any asset file whose header does not declare CC0. Everything else is made in this repo: hats, glasses, the moustache, palette materials, pose and idle animation.
+
+| Item | Source | Licence | Evidence |
+|---|---|---|---|
+| MPFB 2.0.18 (tool, never shipped) | Blender Extensions platform, `extensions.blender.org/add-ons/mpfb/`. Download sha256 `c075b3e9…2a2dad` is verified by `art/pipeline/setup_mpfb.sh`. | GPL-3.0-or-later | The extension page. Only the tool's *output* ships, not its code. |
+| MakeHuman base mesh and targets, used through MPFB | MPFB bundled data (`3dobjs/base.obj`, targets) | CC0 | File header: "This asset was explicitly released as CC0 in september 2020". MakeHuman licence page: "All core assets are shared under … CC0". |
+| `game_engine` rig and weights | MPFB bundled data (`rigs/standard/*.json`) | CC0 | MPFB contributor docs describe "MPFB's promise that all bundled assets are CC0". |
+| Body proxy `male1591`, hair `short02`, eyebrows `eyebrow010` and `eyebrow004`, eyes `low-poly`, `male_elegantsuit01`, `male_casualsuit01`, `shoes02` | MakeHuman system assets pack `makehuman_system_assets_cc0.zip` (files2.makehumancommunity.org; sha256 `b542127a…bc8028a0107` recorded 2026-10-20) | CC0 | The pack page lists every item as CC0. Each file's header says "explicitly released as CC0 in september 2020 … Copyright (C) 2020 Data Collection AB". |
+
+**Not used, on purpose:** any CC-BY pack (e.g. Hair 02/03, Suits 03/04, Glasses 02, System eye materials 03), community assets, and MakeHuman skin textures. Skins are flat palette colours by art direction, so no photographic skin texture ships.
+
+**Note on authorship:** CC0 asks for no attribution, but we credit the MakeHuman Community and Data Collection AB in `docs/PROVENANCE.md`.
