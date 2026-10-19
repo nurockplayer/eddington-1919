@@ -147,3 +147,17 @@ static func montage() -> Array:
 		{"t": "1919 年 5 月 29 日・普林西比", "tag": "HISTORICAL"},
 	]
 
+
+
+## 1919 night phase hook (text only; never alters measurement or score): the workbook's blank page.
+static func principe_workbook(bond_tone: String) -> Array:
+	var seq: Array = [
+		{"s": "", "t": "（工作簿最後一頁。日期是 Kit 的字：1919 年 5 月 29 日。）"},
+		{"s": YOU, "t": "（你想了很久，只寫了幾行。）"},
+		{"s": "", "t": "「早上下大雨。全食的時候，雲在太陽前面走。有幾秒，雲薄到看得見日冕——像有人在霧後面點了一盞燈。」"},
+	]
+	if bond_tone == "close":
+		seq.append({"s": "", "t": "「你說，要我自己抬頭看。我看了。」"})
+	else:
+		seq.append({"s": "", "t": "「換底片的空檔，我還是抬頭看了一眼。」"})
+	return seq
