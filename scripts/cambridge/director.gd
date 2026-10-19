@@ -96,8 +96,8 @@ func _ready() -> void:
 	_build_audio()
 	ui.fade.color.a = 1.0
 	_sync_player()
-	await ui.fade_to(0.0, 1.1).finished
-	await ui.show_caption(C17.intro_caption(), 2.4).finished
+	await ui.fade_to(0.0, 1.1).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+	await ui.show_caption(C17.intro_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
 	_say(C17.opening(), "opening")
 
@@ -308,7 +308,7 @@ func _interlude() -> void:
 	beat = Beat.INTERLUDE
 	_busy = true
 	_sync_player()
-	await ui.fade_to(1.0).finished
+	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_daylight = true
 	world.lamp.light_energy = 0.0
 	world.floor_bounce.light_energy = 1.0
@@ -319,8 +319,8 @@ func _interlude() -> void:
 	world.environment.environment.ambient_light_energy = 0.82
 	world.eddington.show()
 	player.look_at_point(world.targets.lightbox)
-	await ui.show_caption(C17.interlude_caption(), 2.4).finished
-	await ui.fade_to(0.0).finished
+	await ui.show_caption(C17.interlude_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+	await ui.fade_to(0.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	# A brief daylight establishing view makes the three-day change visible.
 	await get_tree().create_timer(0.65).timeout
 	_busy = false
@@ -338,7 +338,7 @@ func _coda() -> void:
 	_busy = true
 	beat = Beat.CODA
 	_sync_player()
-	await ui.fade_to(1.0, 0.6).finished
+	await ui.fade_to(1.0, 0.6).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	world.mentor.hide()
 	_daylight = false
 	world.lamp.light_energy = 1.5
@@ -349,7 +349,7 @@ func _coda() -> void:
 	world.window_glass.albedo_color = Color(0.12, 0.19, 0.23)
 	world.environment.environment.ambient_light_energy = 0.62
 
-	await ui.fade_to(0.0).finished
+	await ui.fade_to(0.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
 	_say(C17.kit_coda(Story.report, state()), "coda")
 
@@ -358,10 +358,10 @@ func _montage() -> void:
 	beat = Beat.MONTAGE
 	_busy = true
 	_sync_player()
-	await ui.fade_to(1.0).finished
+	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	for entry in C17.montage():
 		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
-		await ui.show_caption(str(entry.t) + "\n\n（" + tag + "）", 3.2).finished
+		await ui.show_caption(str(entry.t) + "\n\n（" + tag + "）", 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	Story.prologue_done = true
 	beat = Beat.DONE
 	get_tree().change_scene_to_file("res://scenes/departure.tscn")
