@@ -1,5 +1,11 @@
 # M2 departure night — engineering verification
 
+**Director addendum (after the first round):**
+- `2982f89` (Sol): night glass with a street-lamp glow, softened corridor plaster, and `Cast.YOU_INITIALS`.
+- gpt-6-astra independent review of `2573d06`: REQUEST CHANGES with a single P2. Pausing during the 1918 bridge loaded M2 paused behind a black fade.
+- Fixed in `4a26993`. All M1 director tweens are now pause-stop. Regression `tests/test_bridge_pause.gd` passes 6/0 when run windowed, and fails on the old code.
+- astra's other checks all passed: flow and skip, Story reset, checklist gating, Esc/Tab and mouse capture, the once-only workbook, sim isolation, no confession in any line, and the history claims.
+
 Godot **4.7.2.stable.official.ed1daf0bf**, macOS / Apple M2 Pro, branch `m2/departure`,
 based on Director content `85f0b4c` and merged M1 `96fd598`.
 **No human playtest is claimed.** M2's 6–9 minute duration is a design target; automated

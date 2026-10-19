@@ -98,3 +98,13 @@
 - **Content ownership:** dialogue is written by the Director (`content_1917.gd`); code by Sol; independent review by gpt-6-astra. Names Kit / Ashby are placeholders in `cast.gd`.
 - **Out of scope:** the childhood keepsake/microimage (canon open), romance confession, letters, reunion. The M2 departure interlude is drafted in [M2_DEPARTURE](design/M2_DEPARTURE.md).
 - **What was verified:** see [M1_VERIFICATION](M1_VERIFICATION.md). **Not verified:** any human play of the prologue. Use [PLAYTEST_NEWCOMER](PLAYTEST_NEWCOMER.md).
+
+## D010 — M2 departure night between the prologue and the eclipse (Game Director, 2026-10-20)
+- **Why:** M1 makes the player care about honest records. M2 makes the eclipse *personal* by having the player leave someone behind. The honest-record theme also turns on the protagonist's own slip, so the lesson costs the player something and isn't preached.
+- **What it adds:**
+  - A playable interlude. The 1917 montage tail moves here, and M1 ends on the 1918 bridge.
+  - Story fields: `bond_tone`, `slip_fix`, `departure_done`. These flavour lines only and never feed the score.
+- **Romance tempo:** follows the Owner rule — intense but unspoken before departure. The "close" and "warm" tones get equal care, and there is no confession on any route.
+- **Out of scope:** the keepsake/microimage, letters and the reunion.
+- **Verified:** [M2_VERIFICATION](M2_VERIFICATION.md). Not verified: human play.
+
