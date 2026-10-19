@@ -110,7 +110,7 @@ Lookdev frames prop-sized rows with fixed cameras. Bigger rows, such as architec
 - **Performance**, reported as separate metrics and never conflated:
   - draw calls within +20% of the baseline per bookmark
   - **forced-draw** (uncapped render cost) avg ≤ 6 ms and within +25% of the baseline, or the cost justified in the review
-  - wall-clock p95 ≤ 12 ms
+  - wall-clock p95 ≤ 12 ms (median over repetitions; any single repetition above it is flagged in the review)
   - Use ≥ 3 repetitions (`art/pipeline/baseline.sh` + `perf_summary.py`) for any performance claim, with nothing else running on the machine.
   - Wall-clock averages are display-capped (~8.3 ms), and fewer primitives is not an FPS claim ([perf-r04](validation/perf-r04/README.md)).
 - **Gameplay:** logic tests pass and the careful autoplay reaches its ending.

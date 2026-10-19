@@ -485,6 +485,7 @@ func _update_rack() -> void:
 	for c in rack.get_children():
 		c.queue_free()
 	var builder := World.new(rack)
+	builder.look = not _user_args().has("no-grade")
 	for i in sim.plates_available():
 		builder.box(Vector3(0.09, 0.32, 0.26), Vector3(-0.33 + i * 0.056, 0.16, 0), Color(0.2, 0.15, 0.1).lightened((i % 3) * 0.05), rack, false)
 

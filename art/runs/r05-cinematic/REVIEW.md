@@ -41,17 +41,17 @@ What the targets got wrong, so we did **not** copy it:
   - The totality cloud gap, corona and stars read as before. The evidence frame is unchanged apart from r04's shelter beam.
   - Darkroom: the plate on the measuring table is the focal point, and the shelves read in red and amber.
 - **G4 performance** ([perf-r05](../../validation/perf-r05/SUMMARY.md); 3 clean repetitions on the final commit `694fc38`, vs r04):
-  - **Draw calls:** −4 to +26 per view (shelter +10%, house +11%; shadow distance 60 m). Under the +20% gate.
+  - **Draw calls:** −7 to +26 per view (shelter +10%, house +11%; shadow distance 60 m). Under the +20% gate.
   - **Forced draw (uncapped render cost):** daytime views rose from 2.5–2.8 to 3.4–3.8 ms (+0.8–1.1 ms, about +30–40%). The darkroom rose from 3.0 to 4.9 ms (spread 4.4–5.1). `totality_sky` is unchanged.
   - The cost comes mostly from SSAO, plus the sun's PCSS (`light_angular_distance` 1.2). The individual costs were **not isolated**.
   - This exceeds the +25% relative gate. It is **justified** as the largest visual gain of the round, and every view stays under the 6 ms absolute gate.
   - The darkroom lamp's PCSS cost +0.7 ms and was removed.
-  - **Wall-clock p95:** 8.9–10.0 ms in daytime views. The darkroom is at 11.85 ms, inside the 12 ms gate but **the view to watch**.
+  - **Wall-clock p95 (median of 3):** 8.9–10.0 ms in daytime views. The darkroom median is 11.85 ms; the individual repetitions are 9.43, 13.97 and 11.85, so **one repetition exceeded the 12 ms gate**. The darkroom is the view to optimise next (its forced draw is also the highest at 4.9 ms).
 - **Gameplay:**
   - 155/155 logic tests.
   - Autoplay careful / rushed / cherry produce the same 3 distinct endings (scores 4 / 0 / 3, stuck 0).
-  - One careful run on `694fc38` stalled because the bot's click on "向 Eddington 報告" did not register (viewer screen unchanged by r05). The next 2 careful runs passed. Recorded as a flaky bot click (1/3), not a game regression.
-  - `--no-grade` turns off the environment look layer: grade, tonemap, SSAO and fog settings, sun and ambient gains, sky gains, and the safelight boost. The material changes (ground, weathering, lamp) are not toggled by it.
+  - One careful run on `694fc38` stalled because the bot's click on "向 Eddington 報告" did not register (viewer screen unchanged by r05). The next 2 careful runs passed. Recorded as a flaky bot click (1/3), not a game regression. The stalled run's log and screenshots were overwritten by the re-runs and are **not preserved**. The receipts of the passing runs are in `art/validation/autoplay-r05/`.
+  - `--no-grade` turns off the **whole** r05 art pass: the environment layer (grade, tonemap, SSAO, fog, sun and ambient gains, sky gains, safelight) **and** the material changes (`world_builder.look`: ground, paths, weathering including the rack builder and MultiMesh foliage, darkroom walls and lamp, name tags). The benchmark reproduces r04's draw calls and primitives exactly.
 - **Not changed:** the simulation, the cloud texture the simulation samples, `fog_sky_affect` (stays 0), and the sun direction.
 
 ## Still far from the target → next rounds

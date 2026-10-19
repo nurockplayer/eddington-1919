@@ -95,7 +95,7 @@ void sky() {
 	}
 	dens = mix(dens, dens * 0.55, night);
 	float shade = mix(0.22, cloud_shade, 1.0 - smoothstep(0.0, 0.15, darkness));
-	vec3 cloud_day = vec3(0.80, 0.82, 0.84) - dens * vec3(shade, shade, shade * 0.9);
+	vec3 cloud_day = vec3(0.80, 0.82, 0.84) - dens * vec3(shade, shade, shade - 0.02);  // 0.22 → exactly v0.1
 	vec3 cloud_tot = vec3(0.11, 0.115, 0.15) + vec3(0.14, 0.11, 0.08) * exp(-max(h, 0.0) * 5.0);
 	vec3 cloud_col = mix(cloud_day * gain, cloud_tot, darkness);
 	cloud_col = mix(cloud_col, vec3(0.02, 0.025, 0.04), night);
