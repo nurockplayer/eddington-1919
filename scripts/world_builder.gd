@@ -9,6 +9,9 @@ const MODELS := "res://assets/models/"
 
 var root: Node3D
 var _mats := {}
+## r05 art pass (BIBLE §3a). main.gd sets false for --no-grade, so that flag
+## gives a complete before/after: environment look AND these material changes.
+var look := true
 
 
 func _init(p_root: Node3D) -> void:
@@ -31,6 +34,7 @@ func model(id: String, pos: Vector3, rot_y_deg := 0.0, scale := 1.0) -> Node3D:
 	inst.rotation.y = deg_to_rad(rot_y_deg)
 	inst.scale = Vector3.ONE * scale
 	root.add_child(inst)
+	weather_model(inst)
 	return inst
 
 
@@ -52,7 +56,7 @@ func multimesh(id: String, xforms: Array, group := "") -> Array:
 			n = n.get_parent()
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
-		mm.mesh = mi.mesh
+		mm.mesh = _weathered_mesh(mi.mesh)
 		mm.instance_count = xforms.size()
 		for i in xforms.size():
 			mm.set_instance_transform(i, xforms[i] * local)
@@ -102,8 +106,79 @@ func mat(color: Color, rough := 0.85, metal := 0.0) -> StandardMaterial3D:
 		m.albedo_color = color
 		m.roughness = rough
 		m.metallic = metal
+		weather(m)
 		_mats[key] = m
 	return _mats[key]
+
+
+## Unweathered material for evidence surfaces (measuring sheet, plates).
+func evidence_mat(color: Color, rough := 0.85) -> StandardMaterial3D:
+	var key := "evidence|%s|%s" % [color.to_html(), rough]
+	if not _mats.has(key):
+		var m := StandardMaterial3D.new()
+		m.albedo_color = color
+		m.roughness = rough
+		m.set_meta("evidence", true)
+		_mats[key] = m
+	return _mats[key]
+
+
+var _weather_tex: NoiseTexture2D
+var _weathered := {}   # original imported material → weathered copy (keeps instancing)
+
+
+## r05 anti-toy layer (BIBLE §3): a world-space grime/wear multiply on every
+## non-metal, non-evidence surface, so large flat palette fills read as worn
+## timber, plaster and canvas. No authored textures; one shared noise texture.
+func weather(m: BaseMaterial3D) -> void:
+	# Metals keep clean reflections; evidence stays clean (BIBLE S1). Evidence is
+	# marked explicitly (evidence_mat(), palette role "evidence"), not inferred from
+	# brightness: a brightness cutoff also skipped whitewash and canvas (PR #6 review).
+	if not look or m.metallic > 0.5 or m.has_meta("evidence") or m.resource_name.begins_with("E1919_plate_glass"):
+		return
+	if _weather_tex == null:
+		# try4 (0.06 freq, 5 octaves, 0.70–1.04) read as speckled camouflage: keep it broad and soft.
+		_weather_tex = _noise_tex(0.02, 3, [Color(0.82, 0.80, 0.78), Color(0.95, 0.94, 0.93), Color(1.02, 1.02, 1.01)])
+	m.detail_enabled = true
+	m.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+	m.detail_albedo = _weather_tex
+	m.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
+	m.uv2_triplanar = true
+	m.uv2_world_triplanar = true
+	m.uv2_scale = Vector3(0.3, 0.3, 0.3)
+
+
+## Mesh copy whose surface materials are the shared weathered copies (for
+## MultiMesh, which cannot take per-surface overrides). Arrays stay shared.
+func _weathered_mesh(src: Mesh) -> Mesh:
+	if not look:
+		return src
+	var m := src.duplicate() as Mesh
+	for i in m.get_surface_count():
+		var mat_i := m.surface_get_material(i) as BaseMaterial3D
+		if mat_i == null:
+			continue
+		if not _weathered.has(mat_i):
+			var w := mat_i.duplicate() as BaseMaterial3D
+			weather(w)
+			_weathered[mat_i] = w
+		(m as ArrayMesh).surface_set_material(i, _weathered[mat_i])
+	return m
+
+
+## Apply weather() to an imported model's materials (shared copies per source material).
+func weather_model(n: Node) -> void:
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		var mesh: Mesh = mi.mesh
+		for i in mesh.get_surface_count():
+			var src := mesh.surface_get_material(i) as BaseMaterial3D
+			if src == null:
+				continue
+			if not _weathered.has(src):
+				var w := src.duplicate() as BaseMaterial3D
+				weather(w)
+				_weathered[src] = w
+			mi.set_surface_override_material(i, _weathered[src])
 
 
 func box(size: Vector3, pos: Vector3, color: Color, parent: Node3D = null, collide := true, rot := Vector3.ZERO) -> Node3D:
@@ -217,32 +292,80 @@ func _ground() -> void:
 	pm.subdivide_width = 60
 	pm.subdivide_depth = 60
 	mi.mesh = pm
+	# r05: world-space macro patches (albedo) + fine breakup (detail), so the
+	# ground reads as a worn, rain-soaked clearing rather than a blurred carpet.
+	mi.material_override = _ground_material() if look else _ground_material_v04()
+	body.add_child(mi)
+	root.add_child(body)
+	_paths()
+
+
+func _ground_material_v04() -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
+	m.albedo_texture = _noise_tex(0.02, 5, [P("foliage_deep").darkened(0.15), P("foliage_light").darkened(0.1)])
+	m.uv1_scale = Vector3(18, 18, 1)
+	m.roughness = 0.95
+	return m
+
+
+func _ground_material() -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = _noise_tex(0.012, 4, [P("foliage_deep").darkened(0.3), P("foliage_deep"), P("foliage_light").darkened(0.15)])
+	m.uv1_triplanar = true
+	m.uv1_world_triplanar = true
+	m.uv1_scale = Vector3(0.035, 0.035, 0.035)
+	m.detail_enabled = true
+	m.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+	m.detail_albedo = _noise_tex(0.09, 3, [Color(0.78, 0.78, 0.78), Color(1.08, 1.08, 1.08)])
+	m.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
+	m.uv2_triplanar = true
+	m.uv2_world_triplanar = true
+	m.uv2_scale = Vector3(0.45, 0.45, 0.45)
+	m.roughness = 0.92
+	return m
+
+
+func _paths() -> void:
+	# Trampled red earth around the instruments and paths, wet after the storm
+	# (HISTORICAL_RECORD: rain ~10:00–11:30).
+	var dirt_mat := StandardMaterial3D.new()
+	# Broad, low-contrast blotches only (try2's finer noise read as pink cobbles);
+	# the wetness lives in roughness, which picks up the overcast sky.
+	dirt_mat.albedo_texture = _noise_tex(0.012, 2, [P("laterite_wet").darkened(0.18), P("laterite_wet").darkened(0.06), P("laterite_wet")])
+	dirt_mat.uv1_triplanar = true
+	dirt_mat.uv1_world_triplanar = true
+	dirt_mat.uv1_scale = Vector3(0.1, 0.1, 0.1)
+	dirt_mat.roughness = 0.75
+	dirt_mat.roughness_texture = _noise_tex(0.02, 2, [Color(0.3, 0.3, 0.3), Color(1.0, 1.0, 1.0)])
+	for d in [[Vector3(7.5, 0.02, 9.5), Vector3(0, 0.01, -3.6), 0.0], [Vector3(10, 0.02, 1.6), Vector3(4.5, 0.012, 1.8), -12.0], [Vector3(1.6, 0.02, 16), Vector3(-6, 0.012, -10), 35.0]]:
+		var path := box(d[0], d[1], P("laterite_wet"), null, false, Vector3(0, deg_to_rad(d[2]), 0))
+		if look:
+			(path as MeshInstance3D).material_override = dirt_mat
+	for p in [Vector3(2.6, 0.03, -0.4), Vector3(-2.8, 0.03, -6.8), Vector3(5.2, 0.03, 2.4), Vector3(0.6, 0.03, 3.0)]:
+		var puddle := cyl(randf_range(0.4, 0.9), 0.01, p, Color(0.16, 0.17, 0.2))
+		(puddle as MeshInstance3D).material_override = mat(Color(0.12, 0.14, 0.18), 0.05, 0.3)
+
+
+## Seamless noise texture through a colour ramp (evenly spaced stops).
+func _noise_tex(freq: float, octaves: int, stops: Array) -> NoiseTexture2D:
 	var tex := NoiseTexture2D.new()
 	tex.width = 512
 	tex.height = 512
 	tex.seamless = true
 	var n := FastNoiseLite.new()
-	n.frequency = 0.02
+	n.frequency = freq
+	n.fractal_octaves = octaves
 	tex.noise = n
-	var grad := Gradient.new()
-	grad.set_color(0, P("foliage_deep").darkened(0.15))
-	grad.set_color(1, P("foliage_light").darkened(0.1))
-	tex.color_ramp = grad
-	m.albedo_texture = tex
-	m.uv1_scale = Vector3(18, 18, 1)
-	m.roughness = 0.95
-	mi.material_override = m
-	body.add_child(mi)
-	root.add_child(body)
-	# Trampled red earth around the instruments and paths (wet after the storm).
-	var dirt := P("laterite_wet")
-	box(Vector3(7.5, 0.02, 9.5), Vector3(0, 0.01, -3.6), dirt, null, false)
-	box(Vector3(10, 0.02, 1.6), Vector3(4.5, 0.012, 1.8), dirt, null, false, Vector3(0, deg_to_rad(-12), 0))
-	box(Vector3(1.6, 0.02, 16), Vector3(-6, 0.012, -10), dirt, null, false, Vector3(0, deg_to_rad(35), 0))
-	for p in [Vector3(2.6, 0.03, -0.4), Vector3(-2.8, 0.03, -6.8), Vector3(5.2, 0.03, 2.4), Vector3(0.6, 0.03, 3.0)]:
-		var puddle := cyl(randf_range(0.4, 0.9), 0.01, p, Color(0.16, 0.17, 0.2))
-		(puddle as MeshInstance3D).material_override = mat(Color(0.12, 0.14, 0.18), 0.05, 0.3)
+	var offs := PackedFloat32Array()
+	var cols := PackedColorArray()
+	for i in stops.size():
+		offs.append(float(i) / maxf(stops.size() - 1, 1))
+		cols.append(stops[i])
+	var g := Gradient.new()
+	g.offsets = offs
+	g.colors = cols
+	tex.color_ramp = g
+	return tex
 
 
 func _sea_and_hills() -> void:
@@ -369,7 +492,7 @@ func _shelter_and_instrument() -> Dictionary:
 
 func _darkroom() -> Dictionary:
 	var out := {}
-	var wall := P("teak")
+	var wall := P("teak_dark") if look else P("teak")  # r05: darker boards so the lamp makes a pool
 	var roof := P("iron").lightened(0.15)  # corrugated iron (RECONSTRUCTION)
 	var c := Vector3(10.0, 0, 3.0)
 	# Walls: 4 × 3.4 footprint, door gap on the west (-x) side.
@@ -393,15 +516,18 @@ func _darkroom() -> Dictionary:
 		box(Vector3(0.36, 0.06, 0.3), c + Vector3(dx, 0.9, -1.3), Color(0.75, 0.73, 0.68), null, false)
 	# Measuring table (used the night after).
 	var mtable := box(Vector3(1.2, 0.06, 0.8), c + Vector3(0.6, 0.82, 1.1), shelf_wood)
-	box(Vector3(0.5, 0.02, 0.4), c + Vector3(0.6, 0.86, 1.1), Color(0.85, 0.85, 0.8), null, false)
+	var sheet := box(Vector3(0.5, 0.02, 0.4), c + Vector3(0.6, 0.86, 1.1), Color(0.85, 0.85, 0.8), null, false)
+	(sheet as MeshInstance3D).material_override = evidence_mat(Color(0.85, 0.85, 0.8))  # measuring sheet = evidence
 	interactable(mtable, "measure", "測量桌")
 	out.measure_pos = c + Vector3(0.6, 0.82, 1.1)
 	var lamp := OmniLight3D.new()
 	lamp.position = c + Vector3(0.9, 1.5, 1.0)
-	lamp.light_color = Color(1.0, 0.72, 0.42)
+	lamp.light_color = Color(1.0, 0.80, 0.58) if look else Color(1.0, 0.72, 0.42)  # r05: a pool of light
 	lamp.light_energy = 0.0
 	lamp.light_volumetric_fog_energy = 0.0
-	lamp.omni_range = 5.0
+	lamp.omni_range = 3.6 if look else 5.0
+	lamp.omni_attenuation = 1.6 if look else 1.0
+	# light_size (PCSS soft shadow) cost +2 ms forced-draw for a barely visible edge: off (perf-r05).
 	lamp.shadow_enabled = true
 	root.add_child(lamp)
 	out.lamp = lamp
@@ -598,6 +724,10 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	tag.position = Vector3(0, 2.05, 0)
 	tag.modulate = Color(1, 0.95, 0.8, 0.85)
 	tag.outline_size = 8
+	# r05: name tags fade out beyond conversation distance, so vistas carry no HUD text.
+	tag.visibility_range_end = 9.0 if look else 0.0
+	tag.visibility_range_end_margin = 3.0
+	tag.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	body.add_child(tag)
 	interactable(body, id, name)
 	return body

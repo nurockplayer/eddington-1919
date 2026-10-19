@@ -1,4 +1,5 @@
 extends Node
+const Look := preload("res://scripts/look.gd")
 ## In-game visual benchmark (gate G4 in art/PIPELINE.md). It runs inside the
 ## real game scene with the game's own lighting code: the camera visits fixed
 ## bookmarks under fixed lighting states, then saves a screenshot and render
@@ -58,7 +59,7 @@ func _light(state: String) -> void:
 	var w: Dictionary = main.world
 	w.roof.visible = state != "totality"
 	w.lamp.light_energy = 1.1 if state == "night" else 0.0
-	w.safelight.light_energy = 0.25 if state == "night" else 0.6
+	w.safelight.light_energy = (Look.NIGHT_SAFELIGHT if main._look_ambient < 1.0 else 0.25) if state == "night" else 0.6
 	match state:
 		"prep_early": main._apply_light(0.62, 0.0, -150.0, 0.0)
 		"prep_late": main._apply_light(0.97, 0.38, -10.0, 0.0)

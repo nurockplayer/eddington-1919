@@ -69,3 +69,22 @@
   - The palette is one file (`art/palette.toml` → `scripts/palette.gd`).
   - Models fall back to primitives.
   - **Owner confirmation of the direction is requested** (major-direction rule); the work is not blocked on it.
+
+## D008 — Cinematic, anti-toy presentation (Owner tone + Game Director, 2026-10-20)
+- **What changed and why:**
+  - The Owner adopted Diorama + Plate Grade provisionally and asked for historical weight, cinematic light, suspense and emotion, with no toy-like read.
+  - r05 applied this in the playable scene: a cinematic look layer in `scripts/look.gd`, anti-toy material rules (BIBLE §3a) in `scripts/world_builder.gd`, and new daytime-only sky gains.
+  - "dot" is the Owner's ChatGPT personal assistant, so the verified GPT-via-Codex image flow stays.
+  - The G4 performance gate now uses uncapped forced-draw timing over 3 or more clean repetitions. Fewer primitives is never reported as an FPS gain ([perf-r04](../art/validation/perf-r04/README.md)).
+- **What was actually verified:**
+  - 155/155 logic tests.
+  - careful / rushed / cherry autoplay endings unchanged (4 / 0 / 3).
+  - Totality evidence frame unchanged.
+  - Forced draw +0.8–1.3 ms, wall p95 unchanged ([perf-r05](../art/validation/perf-r05/SUMMARY.md)).
+  - A fresh read-only Codex review (see the PR).
+- **Not verified:** human judgement of the new mood. In particular the darker darkroom and the heavier daytime sky need a playtest.
+- **Risks/reversibility:**
+  - `--no-grade` disables the environment look layer.
+  - Each value is a named constant in `look.gd`.
+  - The material changes are isolated in `world_builder.gd` helpers (`weather()`, `_noise_tex()`).
+- **Open Owner decision (r06 people):** Tripo has no key. The proposed alternative for human figures is **MPFB 2 (MakeHuman for Blender; output stated as CC0 by MakeHuman, to be confirmed before use)**, which requires downloading a Blender extension.

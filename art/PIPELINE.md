@@ -40,6 +40,8 @@ Hard-won prompt rules (from our runs):
 3. **Grade wording is ignored** ("sepia", "glass-plate grade"). Put the grade in-engine (`scripts/look.gd`).
 4. **State every historical negative explicitly:** no domes, a windowless darkroom. Unconstrained models default to clichés.
 5. Keep keyframe subjects under about 120 words. Asset subjects list parts bottom-to-top with dimensions.
+6. **Paint-over the real game (r05).** Run `--subject paintover --ref <in-game benchmark screenshot>`. You get a lighting and material target for the *same* camera and layout, which is the most useful image for improving the playable scene.
+7. **State the time and the light sources in paint-overs.** The model invents golden hour and daylight leaks. Check the result against history before adopting anything (r05: a low sun at 14:00 and a sunlit darkroom were both rejected).
 
 ## S2 Choose and codify (gate G1)
 
@@ -108,7 +110,7 @@ Lookdev frames prop-sized rows with fixed cameras. Bigger rows, such as architec
 - **Performance**, reported as separate metrics and never conflated:
   - draw calls within +20% of the baseline per bookmark
   - **forced-draw** (uncapped render cost) avg ≤ 6 ms and within +25% of the baseline, or the cost justified in the review
-  - wall-clock p95 ≤ 12 ms
+  - wall-clock p95 ≤ 12 ms (median over repetitions; any single repetition above it is flagged in the review)
   - Use ≥ 3 repetitions (`art/pipeline/baseline.sh` + `perf_summary.py`) for any performance claim, with nothing else running on the machine.
   - Wall-clock averages are display-capped (~8.3 ms), and fewer primitives is not an FPS claim ([perf-r04](validation/perf-r04/README.md)).
 - **Gameplay:** logic tests pass and the careful autoplay reaches its ending.

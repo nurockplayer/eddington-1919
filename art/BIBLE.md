@@ -52,7 +52,10 @@ Round **r02** tested a hybrid on the three gameplay keyframes. They score as fol
   - C's painterly surface needs hand-painted textures that the pipeline cannot produce consistently.
   - D drifts towards an uncanny, expensive look, and image-to-3D artifacts show most in realism.
 
-**Owner check requested:** this is the first art direction. It is easy to reverse, because the grade is one file and the palette is one file, but the Owner should confirm the tone.
+**Owner decision (2026-10-20):**
+- Adopted provisionally, with room to adjust.
+- **Aim for historical weight, cinematic light and shadow, suspense and the characters' emotion. Avoid a cartoon or toy-like read.**
+- The forms stay simplified, but presentation follows the anti-toy rules (§3a) and the cinematic lighting (§5), first applied in r05.
 
 ## 3. Shape language
 
@@ -61,6 +64,18 @@ Round **r02** tested a hybrid on the three gameplay keyframes. They score as fol
 - **Segment counts:** large cylinders 16–20 sides, small ones 8–12. No subdivision surfaces.
 - **Instruments are mechanical and dimensioned.** Model them procedurally in Blender to the spec dimensions in `assets.toml`; the spec wins over the concept image. Image-to-3D (Tripo) is for organic or irregular props: sacks, rocks, foliage clumps, cloth, food. Research shows AI 3D is weakest at precise mechanical parts.
 - **Moving parts** are separate objects with their pivot at the origin (for example `coelostat_mirror`).
+
+## 3a. Anti-toy rules (r05; Owner tone 2026-10-20)
+
+The forms may stay simplified. These rules stop simplified forms reading as toys:
+
+- **No flat fill larger than about 1 m².** Every non-metal, non-evidence material gets the shared world-space weathering multiply (`world_builder.weather()`, also applied to imported models). The weathering is broad and soft: r05 try4 showed that fine noise reads as camouflage.
+- **Objects touch the ground.** SSAO is on (`look.gd`), and nothing floats without a contact shadow.
+- **Large ground planes carry macro variation** at two scales. Wet surfaces carry it in roughness, not in loud albedo noise (r05 try2 "pink cobbles").
+- **The sky never clips to white** in gameplay views, and the clouds have structure (`cloud_shade`, `day_gain`).
+- **No HUD text in vistas.** Name tags fade beyond 9 m.
+- **People must have human proportions.** Capsule figures are the largest remaining toy cue (r06).
+- **Evidence is exempt from weathering, marked explicitly:** `evidence_mat()`, the palette `evidence` role and metals. That covers plates, the measuring sheet and the mirror. A brightness cutoff is not used: it also skipped whitewash and canvas (PR #6 review).
 
 ## 4. Colour and value
 
@@ -80,6 +95,14 @@ These are the states of the benchmark bookmarks in `tests/benchmark.gd`. The lig
 | `totality` | None | Deep blue | 360° orange horizon glow (`eclipse_sky.gdshader`), corona and stars. The roof is rolled back. |
 | `night` | Warm oil lamp 1.1 + red safelight 0.25 | Near-black | Darkroom. The plate and measuring sheet are the brightest things. |
 
+- **Cinematic layer (`look.gd`, r05):**
+  - ACES tonemap at exposure 0.95.
+  - SSAO: radius 1.1, intensity 2.2.
+  - Aerial-perspective fog at 0.0042, plus low height fog. **`fog_sky_affect` stays 0**, so fog never alters the evidence sky.
+  - Sun: soft shadow edges, warm key (1.0, 0.91, 0.78) with gain 1.25. The direction stays historical; no golden-hour sun at 14:00.
+  - Ambient gain 0.72.
+  - Sky gains apply to daytime only and fade out with `darkness`.
+  - Night safelight 0.5.
 - **Grade (`scripts/look.gd`):** saturation 0.86, contrast 1.04, and a per-channel LUT with sepia-warm shadows and warm midtones, identity from 0.85 up.
 - Disable the grade with `--no-grade` for A/B checks.
 - The grade must never tint the evidence whites. The LUT is identity above 0.85.

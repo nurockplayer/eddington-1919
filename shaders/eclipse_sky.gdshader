@@ -14,6 +14,8 @@ uniform float contact = 0.8;      // 0 moon far off the disc … 1 centred (tota
 uniform float darkness = 0.0;     // 0 daylight … 1 totality
 uniform float star_vis = 0.0;
 uniform float night = 0.0;        // 1 = the night after, for the darkroom scene
+uniform float cloud_shade = 0.22;  // daytime darkening of thick cloud (art look; 0.22 = v0.1)
+uniform float day_gain = 1.0;      // daytime sky brightness (art look; fades out with darkness)
 uniform vec2 star_pos[12];
 uniform float star_mag[12];
 
@@ -28,7 +30,11 @@ void sky() {
 	// Base gradient: humid grey-blue day → deep twilight blue during totality.
 	vec3 day = mix(vec3(0.70, 0.74, 0.78), vec3(0.42, 0.55, 0.70), clamp(h, 0.0, 1.0));
 	vec3 tot = mix(vec3(0.07, 0.08, 0.15), vec3(0.012, 0.016, 0.045), clamp(h, 0.0, 1.0));
-	vec3 col = mix(day, tot, darkness);
+	// Art gains apply only to the plain daytime sky: they fade out completely by
+	// darkness 0.15, long before the near-totality and totality reads (r05 review).
+	float art_k = 1.0 - smoothstep(0.0, 0.15, darkness);
+	float gain = mix(1.0, day_gain, art_k);
+	vec3 col = mix(day * gain, tot, darkness);
 	// 360° "sunset" glow on the horizon during totality.
 	col += darkness * vec3(0.55, 0.30, 0.12) * exp(-max(h, 0.0) * 9.0);
 	vec3 nightc = mix(vec3(0.03, 0.04, 0.07), vec3(0.005, 0.008, 0.02), clamp(h, 0.0, 1.0));
@@ -88,9 +94,10 @@ void sky() {
 		dens = 1.0;
 	}
 	dens = mix(dens, dens * 0.55, night);
-	vec3 cloud_day = vec3(0.80, 0.82, 0.84) - dens * vec3(0.22, 0.22, 0.20);
+	float shade = mix(0.22, cloud_shade, 1.0 - smoothstep(0.0, 0.15, darkness));
+	vec3 cloud_day = vec3(0.80, 0.82, 0.84) - dens * vec3(shade, shade, shade - 0.02);  // 0.22 → exactly v0.1
 	vec3 cloud_tot = vec3(0.11, 0.115, 0.15) + vec3(0.14, 0.11, 0.08) * exp(-max(h, 0.0) * 5.0);
-	vec3 cloud_col = mix(cloud_day, cloud_tot, darkness);
+	vec3 cloud_col = mix(cloud_day * gain, cloud_tot, darkness);
 	cloud_col = mix(cloud_col, vec3(0.02, 0.025, 0.04), night);
 	// Light scattering through thin cloud near the Sun (silver lining / lit veil).
 	float near_sun = exp(-max(r - 1.0, 0.0) * 0.25) * step(0.0, cosang);
