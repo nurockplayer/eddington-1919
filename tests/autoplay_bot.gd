@@ -16,9 +16,13 @@ var shots_dir := ""
 var log_lines: Array[String] = []
 var stuck := 0
 var _phase_event := ""
+var real_input_only := false
+var continuation_helper := false
 
 
 func _ready() -> void:
+	if continuation_helper:
+		return
 	var args: Dictionary = main._user_args()
 	Engine.time_scale = float(args.get("speed", "1"))
 	if shots_dir != "":
@@ -117,22 +121,43 @@ func walk(points: Array) -> void:
 			var d := here.distance_to(t2)
 			if d < 0.35:
 				break
-			var to: Vector2 = t2 - here
-			p.yaw = atan2(-to.x, -to.y)
-			p.pitch = -0.1
-			Input.action_press("move_forward")
-			await _frames(1)
+			if real_input_only:
+				await look(Vector3(target.x, p.camera.global_position.y, target.z))
+				_key(KEY_W, true)
+				await _frames(2)
+				_key(KEY_W, false)
+			else:
+				var to: Vector2 = t2 - here
+				p.yaw = atan2(-to.x, -to.y)
+				p.pitch = -0.1
+				Input.action_press("move_forward")
+				await _frames(1)
 			timeout -= get_process_delta_time()
-		Input.action_release("move_forward")
+		if real_input_only:
+			_key(KEY_W, false)
+		else:
+			Input.action_release("move_forward")
 		if timeout <= 0.0:
 			stuck += 1
-			_log("STUCK near %s heading to %s — teleporting" % [p.global_position, target])
-			p.global_position = Vector3(target.x, 0.05, target.z)
+			if real_input_only:
+				_log("STUCK near %s heading to %s" % [p.global_position, target])
+			else:
+				_log("STUCK near %s heading to %s — teleporting" % [p.global_position, target])
+				p.global_position = Vector3(target.x, 0.05, target.z)
 		await _frames(3)
 
 
 func look(target: Vector3) -> void:
-	main.player.look_at_point(target)
+	if real_input_only:
+		var p = main.player
+		var delta: Vector3 = target - p.camera.global_position
+		var yaw := atan2(-delta.x, -delta.z)
+		var pitch := atan2(delta.y, Vector2(delta.x, delta.z).length())
+		var motion := InputEventMouseMotion.new()
+		motion.relative = Vector2(-wrapf(yaw - p.yaw, -PI, PI) / p.MOUSE_SENS, -(pitch - p.pitch) / p.MOUSE_SENS) * get_viewport().get_stretch_transform().get_scale()
+		Input.parse_input_event(motion)
+	else:
+		main.player.look_at_point(target)
 	await _frames(3)
 
 
@@ -151,6 +176,8 @@ func talk(choices: Array = []) -> void:
 	var ci := 0
 	await _frames(3)
 	while main.ui.dialog_active() and guard > 0:
+		if continuation_helper and main.phase == main.Phase.CODA:
+			break
 		guard -= 1
 		var e: Dictionary = main.ui._seq[main.ui._seq_i]
 		if e.has("choices"):
@@ -235,6 +262,12 @@ func _run() -> void:
 	await _wait_phase("ending", 30.0)
 	await _wait(0.8)
 	await shot("10_ending")
+	for b in main.ui.ending_panel.find_children("*", "Button", true, false):
+		if b.text == "歷史上發生了什麼":
+			await _click(b.get_global_rect().get_center())
+			await _frames(8)
+			await shot("10b_ending_history")
+			break
 	_finish()
 
 

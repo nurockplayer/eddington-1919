@@ -13,8 +13,10 @@ const Look := preload("res://scripts/look.gd")
 const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
 const DepartureWorkbook := preload("res://scripts/cambridge/departure_props.gd")
 const DepartureContent := preload("res://scripts/cambridge/content_departure.gd")
+const CodaContent := preload("res://scripts/content_coda.gd")
 
-enum Phase { TITLE, PREP, TOTALITY, NIGHT, ENDING }
+enum Phase { TITLE, PREP, TOTALITY, NIGHT, ENDING, CODA }
+enum CodaStep { OPENING, WORKBOOK, LOUPE, KIT, FADING }
 
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
 const HOLD := {"drive": 3.0, "chronometer": 4.0, "plate_box": 1.2}
@@ -54,6 +56,10 @@ var _look_ambient := 1.0
 var _departure_workbook_seen := false
 var _came_from_departure := false
 var _night_departure_workbook: Node3D
+var coda_step := CodaStep.OPENING
+var _camera_turn: Tween
+var _coda_highlight: OmniLight3D
+var _coda_transition: Tween
 
 
 func _ready() -> void:
@@ -71,7 +77,7 @@ func _ready() -> void:
 	var wb = World.new(self)
 	wb.look = not args.has("no-grade")
 	world = wb.build()
-	if Story.departure_done:
+	if Story.departure_done or _came_from_departure:
 		_add_departure_loupe(wb)
 	world.eddington.rotation.y = PI
 	player = Player.new()
@@ -85,6 +91,7 @@ func _ready() -> void:
 	ui.prologue_pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/cambridge.tscn"))
 	ui.log_toggled.connect(func(_open): _sync_player_input())
 	ui.pause_toggled.connect(func(_paused): _sync_player_input())
+	ui.log_toggled.connect(_sync_coda_log)
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(_restart)
 	ui.dialogue_done.connect(_on_dialogue_done)
@@ -327,14 +334,14 @@ func _restart(same_sky: bool) -> void:
 func _process(delta: float) -> void:
 	if player.global_position.y < -3.0:
 		player.velocity = Vector3.ZERO
-		player.global_position = (world.darkroom_spot if phase == Phase.NIGHT else Vector3(2.6, 0, 4.2)) + Vector3(0, 0.1, 0)
+		player.global_position = (world.darkroom_spot if phase in [Phase.NIGHT, Phase.CODA] else Vector3(2.6, 0, 4.2)) + Vector3(0, 0.1, 0)
 		ui.show_toast("你繞回了觀測站。")
 	match phase:
 		Phase.PREP:
 			_process_prep(delta)
 		Phase.TOTALITY:
 			_process_totality(delta)
-		Phase.NIGHT:
+		Phase.NIGHT, Phase.CODA:
 			_process_interaction(delta)
 	if phase != Phase.TITLE and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and _ui_free() and bot == null:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not get_tree().paused:
@@ -347,7 +354,7 @@ func _ui_free() -> bool:
 
 func _sync_player_input() -> void:
 	var free := _ui_free() and phase != Phase.TITLE
-	player.can_move = free and phase in [Phase.PREP, Phase.NIGHT]
+	player.can_move = free and phase in [Phase.PREP, Phase.NIGHT, Phase.CODA]
 	player.can_look = free
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 
@@ -421,6 +428,12 @@ func _prompt_for(id: String, n: Node) -> String:
 	if id == "":
 		return ""
 	var name_: String = n.get_meta("prompt")
+	if phase == Phase.CODA:
+		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
+			return "［E］再讀工作簿最後一頁。" if _departure_workbook_seen else "［E］在工作簿記下你看到的天空。"
+		if coda_step == CodaStep.LOUPE and id == "mentor_loupe":
+			return "［E］拿起 Ashby 先生給的放大鏡。"
+		return ""
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		return "［E］Ashby 先生給的放大鏡。"
 	if phase == Phase.NIGHT:
@@ -476,6 +489,18 @@ func _hold_complete(id: String) -> void:
 
 
 func _interact(id: String) -> void:
+	if phase == Phase.CODA:
+		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
+			_night_departure_workbook.call("open_workbook")
+			_focus_coda(_night_departure_workbook.global_position)
+			var seq: Array = CodaContent.workbook_again() if _departure_workbook_seen else DepartureContent.principe_workbook(Story.bond_tone)
+			_departure_workbook_seen = true
+			_say(seq, "coda_workbook")
+		elif coda_step == CodaStep.LOUPE and id == "mentor_loupe":
+			coda_step = CodaStep.KIT
+			_focus_coda(get_node("AshbyLoupeHotspot").global_position)
+			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, sim.combined().n > 0), "coda_loupe")
+		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		ui.show_toast("Ashby 先生給的放大鏡。", 4.0)
 		return
@@ -551,6 +576,8 @@ func _say(seq: Array, purpose: String) -> void:
 
 
 func _on_dialogue_done(results: Dictionary) -> void:
+	if phase == Phase.CODA and _camera_turn:
+		_camera_turn.kill()
 	var purpose := _pending
 	_pending = ""
 	match purpose:
@@ -563,7 +590,20 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"judgment":
 			_after_judgment(results)
 		"reaction":
-			_show_ending()
+			if _came_from_departure:
+				_begin_coda()
+			else:
+				_show_ending()
+		"coda_opening":
+			coda_step = CodaStep.WORKBOOK
+			_highlight_coda(_night_departure_workbook.global_position)
+		"coda_workbook":
+			coda_step = CodaStep.LOUPE
+			_highlight_coda(get_node("AshbyLoupeHotspot").global_position)
+		"coda_loupe":
+			_say(CodaContent.kit_close(Story.bond_tone), "coda_kit")
+		"coda_kit":
+			_end_coda()
 	_refresh_objectives()
 	_sync_player_input()
 
@@ -580,6 +620,13 @@ func _refresh_objectives() -> void:
 		if sim.briefed:
 			lines.append("[color=#db8]準備好了就告訴 Eddington，或等倒數結束[/color]")
 		ui.set_objectives("\n".join(lines))
+	elif phase == Phase.CODA:
+		var objective := ""
+		if coda_step == CodaStep.WORKBOOK:
+			objective = "再讀工作簿最後一頁" if _departure_workbook_seen else "在工作簿記下你看到的天空"
+		elif coda_step == CodaStep.LOUPE:
+			objective = "拿起 Ashby 先生給的放大鏡"
+		ui.set_objectives("[b]夜晚・暗房[/b]\n☐ " + objective if objective != "" else "")
 	elif phase == Phase.NIGHT:
 		if sim.measured:
 			ui.set_objectives("[b]夜晚・暗房[/b]\n☐ 向 Eddington 報告你的判斷")
@@ -711,7 +758,7 @@ func _begin_night() -> void:
 	_apply_light(0.0, 0.0, 400.0, 1.0)
 	world.lamp.light_energy = 1.1
 	world.safelight.light_energy = Look.NIGHT_SAFELIGHT if _look_ambient < 1.0 else 0.25
-	if Story.departure_done:
+	if Story.departure_done or _came_from_departure:
 		_add_night_workbook()
 	world.eddington.position = world.eddington_night
 	world.eddington.rotation.y = deg_to_rad(-120)
@@ -752,6 +799,74 @@ func _add_night_workbook() -> void:
 	add_child(_night_departure_workbook)
 	var hotspot: Node3D = World.new(self).hotspot(Vector3(0.42, 0.24, 0.42), position + Vector3(0, 0.10, 0), "departure_workbook", "在工作簿記下你看到的天空")
 	hotspot.name = "PríncipeDepartureWorkbookHotspot"
+
+
+# ------------------------------------------------------------------------ Coda
+
+func _begin_coda() -> void:
+	phase = Phase.CODA
+	coda_step = CodaStep.OPENING
+	world.eddington.hide()
+	world.cottingham.hide()
+	# Hidden actors must not leave an invisible capsule in the player's path.
+	world.eddington.process_mode = Node.PROCESS_MODE_DISABLED
+	world.cottingham.process_mode = Node.PROCESS_MODE_DISABLED
+	world.eddington.position.y = -20.0
+	world.cottingham.position.y = -20.0
+	if not is_instance_valid(_night_departure_workbook):
+		_add_night_workbook()
+	_coda_highlight = OmniLight3D.new()
+	_coda_highlight.light_color = Color(1.0, 0.85, 0.57)
+	_coda_highlight.light_energy = 0.0
+	_coda_highlight.omni_range = 0.65
+	add_child(_coda_highlight)
+	_focus_coda(_night_departure_workbook.global_position)
+	_say(CodaContent.opening(), "coda_opening")
+	if bot:
+		bot.on_phase("coda")
+
+
+func _highlight_coda(target: Vector3) -> void:
+	_coda_highlight.global_position = target + Vector3(0, 0.28, 0)
+	_coda_highlight.light_energy = 0.45
+
+
+func _focus_coda(target: Vector3) -> void:
+	if _camera_turn:
+		_camera_turn.kill()
+	var direction: Vector3 = target - player.camera.global_position
+	var yaw: float = player.yaw + wrapf(atan2(-direction.x, -direction.z) - player.yaw, -PI, PI)
+	var pitch := clampf(atan2(direction.y, Vector2(direction.x, direction.z).length()), -1.45, 1.45)
+	_camera_turn = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_camera_turn.set_pause_mode(Tween.TWEEN_PAUSE_STOP)
+	_camera_turn.tween_property(player, "yaw", yaw, 0.6)
+	_camera_turn.tween_property(player, "pitch", pitch, 0.6)
+
+
+func _sync_coda_log(open: bool) -> void:
+	if phase != Phase.CODA:
+		return
+	for tw in [_camera_turn, _coda_transition]:
+		if tw and tw.is_valid():
+			if open:
+				tw.pause()
+			else:
+				tw.play()
+
+
+func _end_coda() -> void:
+	coda_step = CodaStep.FADING
+	_busy = true
+	_coda_highlight.light_energy = 0.0
+	# Lamp out, a breath of darkness, then the ending. Esc and Tab hold this beat.
+	_coda_transition = create_tween().set_parallel(true).set_pause_mode(Tween.TWEEN_PAUSE_STOP)
+	_coda_transition.tween_property(world.lamp, "light_energy", 0.0, 0.7)
+	_coda_transition.tween_property(world.safelight, "light_energy", 0.0, 0.7)
+	_coda_transition.chain().tween_interval(0.6)
+	_coda_transition.chain().tween_property(ui.fade, "color:a", 1.0, 1.3)
+	await _coda_transition.finished
+	_busy = false
+	_show_ending()
 
 
 func _open_viewer() -> void:
@@ -840,9 +955,15 @@ func _show_ending() -> void:
 	ui.pause_enabled = false
 	ui.hud.visible = false
 	player.can_move = false
+	player.can_look = false
+	ui.fade.color.a = 0.0
 	var c: Dictionary = sim.combined()
 	var lines := []
 	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=26][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Judgment.TELEGRAMS[_telegram].text, Judgment.REASONS[_reason].text])
+	lines.append("[b]Eddington 的回應[/b]")
+	for l in _grade.lines:
+		lines.append("· " + l)
+	lines.append("")
 	lines.append("[b]你留下的證據[/b]")
 	lines.append("· 拍了 %d 張底片（可用底片 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。" % [sim.plates.size(), sim.plates_available(), sim.count_quality("good"), sim.count_quality("poor"), sim.count_quality("unusable")])
 	if c.n > 0:
@@ -850,13 +971,11 @@ func _show_ending() -> void:
 	else:
 		lines.append("· 沒有量出任何數值。")
 	lines.append("· 時鐘驅動：%s。" % ("上了發條並校過走速" if sim.drive_rate_checked else ("上了發條但沒校走速" if sim.drive_wound else "由 Cottingham 匆忙處理")))
-	lines.append("\n[b]Eddington 的回應[/b]")
-	for l in _grade.lines:
-		lines.append("· " + l)
-	lines.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
-	lines.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（常被引作 \"Through cloud. Hopeful.\"，確切措辭仍待核對）。")
-	lines.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
-	lines.append("\n[color=#8f8676][font_size=15]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]")
-	ui.show_ending(_grade.title, "\n".join(lines))
+	var history := []
+	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
+	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（常被引作 \"Through cloud. Hopeful.\"，確切措辭仍待核對）。")
+	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
+	history.append("\n[color=#8f8676][font_size=15]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]")
+	ui.show_ending(_grade.title, "\n".join(lines), "\n".join(history))
 	if bot:
 		bot.on_phase("ending")
