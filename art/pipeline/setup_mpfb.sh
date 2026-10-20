@@ -22,9 +22,18 @@ SYS_SHA=b542127a8e25547c7c29c19f2d1d2adb9a664c80396ecd694095dbc8028a0107  # reco
 SYS_URL=https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
 
 mkdir -p "$CACHE/dl" "$BLENDER_USER_RESOURCES"
-fetch() {  # url file sha
-  [ -f "$CACHE/dl/$2" ] || curl -sSL -o "$CACHE/dl/$2" "$1"
-  echo "$3  $CACHE/dl/$2" | shasum -a 256 -c - >/dev/null || { echo "checksum mismatch: $2" >&2; exit 1; }
+ok() { echo "$2  $1" | shasum -a 256 -c - >/dev/null 2>&1; }
+fetch() {  # url file sha — never leave an unverified file at the final path
+  dst="$CACHE/dl/$2"
+  if [ -f "$dst" ] && ! ok "$dst" "$3"; then
+    echo "cached $2 fails its checksum; downloading again" >&2
+    rm -f "$dst"
+  fi
+  if [ ! -f "$dst" ]; then
+    curl -fsSL -o "$dst.part" "$1" || { rm -f "$dst.part"; echo "download failed: $2" >&2; exit 1; }
+    ok "$dst.part" "$3" || { rm -f "$dst.part"; echo "checksum mismatch: $2" >&2; exit 1; }
+    mv "$dst.part" "$dst"
+  fi
 }
 fetch "$MPFB_URL" mpfb-2.0.18.zip "$MPFB_SHA"
 fetch "$SYS_URL" makehuman_system_assets_cc0.zip "$SYS_SHA"
