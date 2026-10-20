@@ -44,5 +44,5 @@ rm -rf "$OUT"
 mkdir -p "$(dirname "$OUT")"
 mv "$TMP/out" "$OUT"
 # Provenance: which commit ran, and how loaded the machine was (perf-r06 lesson).
-printf 'ref %s\ncommit %s\nfinished %s\nload %s\n' "$REF" "$(git -C "$ROOT" rev-parse "$REF")" "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$(uptime | sed 's/.*load averages*: //')" > "$OUT/provenance.txt"
+printf 'ref %s\ncommit %s\nfinished %s\nload %s\n' "$REF" "$(git -C "$WT" rev-parse HEAD)" "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$(uptime | sed 's/.*load averages*: //')" > "$OUT/provenance.txt"
 echo "baseline for $REF -> $OUT"
