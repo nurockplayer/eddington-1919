@@ -809,6 +809,10 @@ func _begin_night() -> void:
 	_busy = true
 	await ui.fade_to(1.0, 1.2).finished
 	phase = Phase.NIGHT
+	# Tab can hold the outgoing audio ramp while the authored transition continues.
+	# At the black handoff, cancel any remaining voices; NIGHT is always unscored.
+	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
+		score.stop(cue)
 	comparison_tex = PlateRender.render(sim, null)
 	plate_textures.clear()
 	for p in sim.plates:

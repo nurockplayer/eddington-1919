@@ -46,9 +46,11 @@ func _run() -> void:
 		_check_signal(cue, samples)
 	_check_rain_silence(renders["cambridge_rain"])
 	_check_motif_placement(renders)
+	_check_totality_loop_envelopes(renders)
 	_check_music_toggle()
 	_check_player_log_and_fades()
 	await _check_async_worker_lifecycle()
+	await _check_totality_black_handoff()
 	print("test_score: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
@@ -141,10 +143,37 @@ func _check_motif_placement(renders: Dictionary) -> void:
 	var departure_fs := _goertzel_slice_ratio(departure, 5.55, 6.4, 369.99)
 	var coda_f := _goertzel_slice_ratio(coda, 8.0, 12.0, 349.23)
 	var coda_fs := _goertzel_slice_ratio(coda, 8.0, 12.0, 369.99)
+	var coda_motif_f := _goertzel_slice_ratio(coda, 5.55, 6.3, 349.23)
+	var coda_motif_fs := _goertzel_slice_ratio(coda, 5.55, 6.3, 369.99)
 	check(departure_f > departure_fs * 1.25,
 		"departure motif states F natural above F sharp (F=%.6f F#=%.6f)" % [departure_f, departure_fs])
 	check(coda_fs > coda_f * 1.25,
 		"coda answer favors F sharp over F natural (F=%.6f F#=%.6f)" % [coda_f, coda_fs])
+	check(coda_motif_fs > coda_motif_f * 1.25,
+		"coda's fourth motif note is F sharp near 5.5 s (F=%.6f F#=%.6f)" % [coda_motif_f, coda_motif_fs])
+
+
+func _check_totality_loop_envelopes(renders: Dictionary) -> void:
+	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
+		var samples: PackedFloat32Array = renders[cue]
+		var early_rms := _window_rms(samples, 0.1, 0.4)
+		var active_rms := 0.0
+		for start in [0.4, 0.7, 1.0, 1.3, 1.6, 1.9, 2.2]:
+			active_rms = maxf(active_rms, _window_rms(samples, start, start + 0.3))
+		# The loop buffer itself must begin at playing level. A player-level
+		# entrance fade is applied once; a repeated 0.7/1.2 s synth attack would
+		# make this first window much quieter on every 24 s wrap.
+		check(early_rms > active_rms * 0.5,
+			"%s loop has no repeated attack envelope (first=%.6f active=%.6f)" % [cue, early_rms, active_rms])
+
+
+func _window_rms(samples: PackedFloat32Array, start_s: float, end_s: float) -> float:
+	var first := clampi(roundi(start_s * Score.RATE), 0, samples.size())
+	var last := clampi(roundi(end_s * Score.RATE), first, samples.size())
+	var sum_sq := 0.0
+	for i in range(first, last):
+		sum_sq += samples[i] * samples[i]
+	return sqrt(sum_sq / maxf(1.0, float(last - first)))
 
 
 func _check_music_toggle() -> void:
@@ -300,6 +329,89 @@ func _check_async_worker_lifecycle() -> void:
 		"main-thread cached stream lookup takes %.3f ms during unrelated synthesis" % cache_read_ms)
 	if thread_error == OK:
 		render_thread.wait_to_finish()
+
+
+func _check_totality_black_handoff() -> void:
+	var started_at := Time.get_ticks_msec()
+	var main_script: Script = load("res://scripts/main.gd")
+	var main = main_script.new()
+	root.add_child(main)
+	await process_frame
+	var score = main.score
+	score.playback_enabled = true
+	var cues := ["totality_drone", "totality_glass", "totality_edge"]
+	for cue in cues:
+		score.play(cue, 0.0)
+	var start_deadline := Time.get_ticks_msec() + 4000
+	var all_started := false
+	while not all_started and Time.get_ticks_msec() < start_deadline:
+		all_started = true
+		for cue in cues:
+			all_started = all_started and bool(score.layers.get(cue, {}).get("playing", false))
+		if not all_started:
+			await process_frame
+	check(all_started, "actual 1919 scene starts all three totality AudioStreamPlayers")
+	for cue in cues:
+		var layer: Dictionary = score.layers.get(cue, {})
+		check(is_instance_valid(layer.get("player")), "%s has a live AudioStreamPlayer before handoff" % cue)
+
+	main.phase = main.Phase.TOTALITY
+	main.tot_done = false
+	await create_timer(0.65).timeout # Let the real entrance ramps reach audible levels.
+	check(float(score.layers["totality_drone"].db) > -31.0,
+		"totality drone entrance ramp reaches audible level before handoff")
+	main._end_totality()
+	await create_timer(0.25).timeout
+	main.ui.toggle_log() # Tab opens the real dialogue-history panel during the 1.5s audio fade.
+	check(main.ui.log_open(), "Tab log remains open during the real totality handoff")
+	var held_db := float(score.layers["totality_drone"].db)
+	await create_timer(0.3).timeout
+	check(is_equal_approx(float(score.layers["totality_drone"].db), held_db),
+		"Tab log freezes the real outgoing totality fade mid-ramp")
+	var transition_deadline := Time.get_ticks_msec() + 7600
+	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < transition_deadline:
+		await process_frame
+	check(main.phase == main.Phase.NIGHT, "real _end_totality reaches NIGHT while Tab log stays open")
+	check(Time.get_ticks_msec() - started_at <= 8000,
+		"real Tab-held totality handoff completes within 8 seconds (%d ms)" % (Time.get_ticks_msec() - started_at))
+	print("score black handoff: elapsed_ms=%d phase=%s" % [Time.get_ticks_msec() - started_at, main.Phase.keys()[main.phase]])
+	for cue in cues:
+		var layer: Dictionary = score.layers.get(cue, {})
+		check(not bool(layer.get("wanted", true)) and not bool(layer.get("playing", true)),
+			"%s layer is stopped at NIGHT black handoff" % cue)
+		check(layer.get("player") == null or not is_instance_valid(layer.get("player")),
+			"%s AudioStreamPlayer is freed at NIGHT black handoff" % cue)
+
+	var starts_at_night := _cue_start_count(cues)
+	main.ui.toggle_log()
+	await process_frame
+	await process_frame
+	check(not main.ui.log_open(), "Tab closes the real history panel after NIGHT")
+	check(_cue_start_count(cues) == starts_at_night,
+		"closing Tab after NIGHT does not resurrect totality score players")
+	# The production night caption/fade is not part of this audio regression.
+	# Finish those real scene tweens promptly so no suspended transition objects
+	# remain when this headless scene fixture is freed.
+	for tween in get_root().get_tree().get_processed_tweens():
+		tween.set_speed_scale(100.0)
+	var settle_deadline := Time.get_ticks_msec() + 1000
+	while main._busy and Time.get_ticks_msec() < settle_deadline:
+		await process_frame
+	for audio_player in [main.audio_amb, main.audio_click, main.audio_tick]:
+		if is_instance_valid(audio_player):
+			audio_player.stop()
+	await create_timer(0.1).timeout # Drain headless audio callbacks before freeing the real scene.
+	main.queue_free()
+	await process_frame
+	await process_frame
+
+
+func _cue_start_count(cues: Array) -> int:
+	var count := 0
+	for entry in ScorePlayer.cue_log:
+		if entry.get("event", "") == "start" and entry.get("cue", "") in cues:
+			count += 1
+	return count
 
 
 func _goertzel_ratio(samples: PackedFloat32Array, rate: int, frequency: float) -> float:

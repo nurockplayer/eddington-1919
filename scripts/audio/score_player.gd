@@ -141,7 +141,12 @@ func set_layer_db(cue: String, db: float, time := 0.0) -> void:
 
 
 func stop(cue: String, fade_out := 0.0) -> void:
-	if not layers.has(cue) or not layers[cue].wanted:
+	if not layers.has(cue):
+		return
+	if not layers[cue].wanted:
+		# Phase exit can cancel a paused outgoing fade without delaying gameplay.
+		if fade_out <= 0.0 and layers[cue].playing:
+			_finish_stop(cue)
 		return
 	set_layer_db(cue, SILENCE_DB, fade_out)
 	layers[cue].wanted = false
@@ -238,11 +243,14 @@ static func run_failures(include_prologue := false) -> Array[String]:
 			resolution = i
 	if not (drone_start >= 0 and duck > drone_start and returned > duck and drone_stop > returned and resolution > drone_stop):
 		failures.append("score cue order/duck/return/totality fade contract failed")
-	for cue in ["totality_glass", "totality_edge"]:
+	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
 		var stopped := false
+		var finished := false
 		for entry in cue_log:
 			if entry.event == "stop" and entry.cue == cue and is_equal_approx(entry.fade, 1.5):
 				stopped = true
-		if not stopped:
-			failures.append("score %s missing totality fade" % cue)
+			if entry.event == "stopped" and entry.cue == cue:
+				finished = true
+		if not stopped or not finished:
+			failures.append("score %s missing totality fade/completion" % cue)
 	return failures

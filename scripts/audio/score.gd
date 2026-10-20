@@ -72,8 +72,10 @@ static func render(cue: String) -> PackedFloat32Array:
 		return PackedFloat32Array()
 	_table_mutex.lock()
 	var count := int(round(duration(cue) * RATE))
+	var seam_width := int(round(_SEAM_S * RATE))
+	var crossfade_totality := cue in ["totality_drone", "totality_glass", "totality_edge"]
 	var samples := PackedFloat32Array()
-	samples.resize(count)
+	samples.resize(count + (seam_width if crossfade_totality else 0))
 	samples.fill(0.0)
 	match cue:
 		"cambridge_rain": _render_cambridge(samples)
@@ -82,7 +84,9 @@ static func render(cue: String) -> PackedFloat32Array:
 		"totality_glass": _render_glass(samples)
 		"totality_edge": _render_edge(samples)
 		"coda_resolution": _render_coda(samples)
-	if is_loop(cue):
+	if crossfade_totality:
+		samples = _crossfade_loop_seam(samples, count, seam_width)
+	elif is_loop(cue):
 		_seal_loop_seam(samples)
 	_table_mutex.unlock()
 	return samples
@@ -105,21 +109,21 @@ static func _render_departure(out: PackedFloat32Array) -> void:
 
 
 static func _render_drone(out: PackedFloat32Array) -> void:
-	# Hold both notes through the loop. Releasing each buffer's final 1.2 s
-	# would create a repeated swell/dip; the player's stop fade is the release.
-	_add_reed(out, 0.0, duration("totality_drone"), "D2", 0.061, 0.7, 1.2)
-	_add_reed(out, 0.0, duration("totality_drone"), "A2", 0.048, 0.7, 1.2)
+	# Keep the loop region fully sustained. The player supplies the one-time
+	# entrance fade and release; the overlap seam avoids a repeated attack.
+	_add_sustained_reed(out, "D2", 0.061)
+	_add_sustained_reed(out, "A2", 0.048)
 
 
 static func _render_glass(out: PackedFloat32Array) -> void:
 	# The two close sine components create a very slow, restrained beat.
-	_add_glass(out, 0.0, duration("totality_glass"), 329.6276, 0.36, 0.029)
-	_add_glass(out, 0.0, duration("totality_glass"), 440.0, 0.52, 0.027)
+	_add_sustained_glass(out, 329.6276, 0.36, 0.029)
+	_add_sustained_glass(out, 440.0, 0.52, 0.027)
 
 
 static func _render_edge(out: PackedFloat32Array) -> void:
-	# Like the drone, sustain across the loop and release when the player stops it.
-	_add_reed(out, 0.0, duration("totality_edge"), "G2", 0.055, 0.7, 1.2)
+	# Like the drone, sustain across the loop without a recurring envelope.
+	_add_sustained_reed(out, "G2", 0.055)
 
 
 static func _render_coda(out: PackedFloat32Array) -> void:
@@ -171,6 +175,28 @@ static func _add_glass(out: PackedFloat32Array, start: float, gate: float, frequ
 		var carrier := sin(TAU * frequency * t)
 		var detuned := sin(TAU * (frequency + beat) * t)
 		out[i] += gain * env * (carrier + detuned * 0.48)
+
+
+static func _add_sustained_reed(out: PackedFloat32Array, note: String, gain: float) -> void:
+	var frequency := _note_hz(note)
+	var table: PackedFloat32Array = _reed_table(frequency)
+	var phase_step := frequency * _TABLE_SIZE / RATE
+	var phase := 0.0
+	for i in out.size():
+		var idx := int(phase) & _TABLE_MASK
+		var frac := phase - float(int(phase))
+		var sample := lerpf(table[idx], table[(idx + 1) & _TABLE_MASK], frac)
+		var bellows := pow(10.0, (1.5 * sin(TAU * 0.15 * float(i) / RATE)) / 20.0)
+		out[i] += sample * gain * bellows
+		phase = fposmod(phase + phase_step, _TABLE_SIZE)
+
+
+static func _add_sustained_glass(out: PackedFloat32Array, frequency: float, beat: float, gain: float) -> void:
+	for i in out.size():
+		var t := float(i) / RATE
+		var carrier := sin(TAU * frequency * t)
+		var detuned := sin(TAU * (frequency + beat) * t)
+		out[i] += gain * (carrier + detuned * 0.48)
 
 
 static func _reed_envelope(t: float, gate: float, attack: float, release: float) -> float:
@@ -240,6 +266,25 @@ static func _seal_loop_seam(samples: PackedFloat32Array) -> void:
 		var fade := 0.5 - 0.5 * cos(PI * x)
 		samples[j] *= fade
 		samples[samples.size() - width + j] *= 1.0 - fade
+
+
+static func _crossfade_loop_seam(raw: PackedFloat32Array, output_count: int, width: int) -> PackedFloat32Array:
+	# Start one overlap window into the raw synthesis, then blend its final
+	# window toward the matching beginning samples. This preserves the natural
+	# waveform slope at the seam without repeating a note attack.
+	var output := PackedFloat32Array()
+	output.resize(output_count)
+	var crossfade_start := output_count - width
+	for i in output_count:
+		var raw_index := i + width
+		if i < crossfade_start:
+			output[i] = raw[raw_index]
+		else:
+			var j := i - crossfade_start
+			var x := float(j) / float(width - 1)
+			var fade := 0.5 - 0.5 * cos(PI * x)
+			output[i] = lerpf(raw[raw_index], raw[j], fade)
+	return output
 
 
 static func _fade_region(samples: PackedFloat32Array, start: float, finish: float, fade_in: bool) -> void:
