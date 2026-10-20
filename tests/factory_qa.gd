@@ -172,4 +172,7 @@ func _run() -> void:
 	out.store_string(JSON.stringify(summary, "  "))
 	out.close()
 	print("[FQA] done -> ", out_dir)
+	# Let in-flight frames and shader compiles drain: quitting mid-compile has
+	# crashed MoltenVK at teardown (af01 run 3, signal 11 after all output was written).
+	await _frames(10)
 	get_tree().quit()

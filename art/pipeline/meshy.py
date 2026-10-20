@@ -2,16 +2,16 @@
 """Image → 3D through the Meshy REST API (stage S3a, Asset Factory route `meshy`).
 
     MESHY_API_KEY=... python3 art/pipeline/meshy.py <asset> <concept.jpg> \
-        --batch art/factory/af01/batch.toml [--dry-run]
+        --batch art/factory/af01/batch.toml [--dry-run | --approved | --resume <attempt>]
 
 The scripted twin of the Meshy MCP server (`meshy_image_to_3d`): same endpoint
 and options, but reproducible from the command line and bound to the batch
-budget. Never call it directly for paid work; `factory.py gen` checks the
-Owner's approval file and the credit ledger first and passes --approved.
+budget. Paid work goes through `factory.py gen`; whichever way it is called,
+the request is sent only after budget.reserve() has checked the Owner's
+APPROVAL.toml and durably reserved the credits under a lock (art/pipeline/budget.py).
 
 Writes art/sources/meshy/<asset>/<task_id>.glb (git-ignored raw source) and a
-receipt <task_id>.json (options, task id, consumed credits, seconds), and
-appends the spend to art/factory/<batch>/ledger.jsonl.
+receipt <task_id>.json (options, attempt, task id, credits, plan → licence).
 
 Contract checked against https://docs.meshy.ai/en/api/image-to-3d (2026-10-20):
 POST /openapi/v1/image-to-3d {image_url (data URI ok), ai_model, model_type,
@@ -24,12 +24,13 @@ import json
 import os
 import sys
 import time
-import tomllib
 import urllib.request
 from pathlib import Path
 
 API = os.environ.get("MESHY_API_BASE", "https://api.meshy.ai/openapi/v1")
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import budget  # noqa: E402
 
 
 def _req(method: str, path: str, body: dict | None = None) -> dict:
@@ -53,51 +54,70 @@ def options(spec: dict, image: Path) -> dict:
     }
 
 
+def _poll(task: str) -> dict:
+    while True:
+        t = _req("GET", f"/image-to-3d/{task}")
+        if t["status"] in ("SUCCEEDED", "FAILED", "CANCELED"):
+            return t
+        time.sleep(8)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("asset")
     ap.add_argument("image", type=Path)
     ap.add_argument("--batch", type=Path, required=True)
     ap.add_argument("--dry-run", action="store_true", help="print the request (image elided) and exit")
-    ap.add_argument("--approved", action="store_true", help="set by factory.py after the budget gate")
+    ap.add_argument("--approved", action="store_true", help="send it (still subject to budget.reserve)")
+    ap.add_argument("--resume", default="", help="attempt id: poll/download its existing task, no new spend")
     a = ap.parse_args()
-    batch = tomllib.loads((ROOT / a.batch).read_text())
+    batch, d = budget.load_batch(a.batch)
     spec = batch["asset"][a.asset]
     opts = options(spec, ROOT / a.image)
     shown = {**opts, "image_url": f"<{a.image} base64, {len(opts['image_url'])} chars>"}
-    if a.dry_run or not a.approved:
+    if a.dry_run or not (a.approved or a.resume):
         print(json.dumps(shown, indent=2))
-        if not a.dry_run:
-            print("refusing: paid generation runs only through `factory.py gen` (budget + approval gate)", file=sys.stderr)
         return 0 if a.dry_run else 3
-    if "MESHY_API_KEY" not in os.environ:
+    if "MESHY_API_KEY" not in os.environ:  # checked before reserving, so no reservation is left dangling
         print("MESHY_API_KEY is not set.", file=sys.stderr)
         return 2
     t0 = time.time()
-    task = _req("POST", "/image-to-3d", opts)["result"]
-    ledger = ROOT / "art/factory" / batch["batch"]["id"] / "ledger.jsonl"
-    # Record the task before polling: if this process dies, the spend is still visible.
-    with ledger.open("a") as f:
-        f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "asset": a.asset, "route": "meshy",
-                            "task_id": task, "event": "created", "est_credits": spec.get("est_credits", 0)}) + "\n")
-    while True:
-        time.sleep(8)
-        t = _req("GET", f"/image-to-3d/{task}")
-        if t["status"] in ("SUCCEEDED", "FAILED", "CANCELED"):
-            break
-    with ledger.open("a") as f:
-        f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "asset": a.asset, "route": "meshy",
-                            "task_id": task, "event": t["status"].lower(),
-                            "credits": t.get("consumed_credits", 0)}) + "\n")
+    if a.resume:
+        att = budget.state(d).get(a.resume)
+        if not att or att["asset"] != a.asset or not att["task_id"]:
+            print(f"attempt {a.resume} has no known task for {a.asset}; reconcile with `factory.py resolve`", file=sys.stderr)
+            return 4
+        attempt, task = a.resume, att["task_id"]
+    else:
+        try:
+            attempt = budget.reserve(batch, d, a.asset)
+        except (PermissionError, ValueError) as e:
+            print(f"refused: {e}", file=sys.stderr)
+            return 3
+        try:
+            task = _req("POST", "/image-to-3d", opts)["result"]
+        except Exception as e:  # the task may exist and be billed: keep the attempt open
+            budget.record(d, attempt, "post_error", error=repr(e)[:300])
+            print(f"POST failed ({e!r}); attempt {attempt} stays reserved. Check meshy_list_tasks, then "
+                  f"`factory.py resolve {batch['batch']['id']} {attempt} --task <id>|--not-created`", file=sys.stderr)
+            return 4
+        budget.record(d, attempt, "created", task_id=task)
+    t = _poll(task)
+    credits = t.get("consumed_credits")  # None = unknown: the estimate stays committed
+    budget.record(d, attempt, "terminal", status=t["status"], credits=credits)
     if t["status"] != "SUCCEEDED":
         print(json.dumps(t.get("task_error", t), indent=2), file=sys.stderr)
         return 1
     out = ROOT / "art/sources/meshy" / a.asset / f"{task}.glb"
     out.parent.mkdir(parents=True, exist_ok=True)
     urllib.request.urlretrieve(t["model_urls"]["glb"], out)
-    receipt = {"asset": a.asset, "image": str(a.image), "options": shown, "task_id": task,
-               "credits": t.get("consumed_credits"), "seconds": round(time.time() - t0, 1),
-               "glb": str(out.relative_to(ROOT)), "thumbnail_url": t.get("thumbnail_url")}
+    plan = budget.approval(batch, d)["meshy_plan"]
+    receipt = {"asset": a.asset, "image": str(a.image), "options": shown, "attempt": attempt, "task_id": task,
+               "credits": credits, "seconds": round(time.time() - t0, 1), "glb": str(out.relative_to(ROOT)),
+               "thumbnail_url": t.get("thumbnail_url"), "meshy_plan": plan,
+               "licence": "user-owned, no attribution (Meshy paid plan)" if plan == "paid"
+                          else "CC BY 4.0, credit Meshy (free plan)",
+               "terms_source": "https://intercom.help/meshy/en/articles/16102098-can-i-use-meshy-assets-commercially (read 2026-10-20)"}
     out.with_suffix(".json").write_text(json.dumps(receipt, indent=2))
     print(out)
     return 0

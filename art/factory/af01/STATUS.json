@@ -1,6 +1,6 @@
 {
   "batch": "af01",
-  "generated_at": "2026-10-20T17:44:55",
+  "generated_at": "2026-10-20T18:03:09",
   "assets": 20,
   "candidates": 14,
   "g2_pass": 14,
@@ -12,8 +12,8 @@
     "usable": 8,
     "usable_with_fixes": 5
   },
-  "credits_spent": 0.0,
-  "ledger_rows": 0,
+  "credits_committed": 0,
+  "attempts": 0,
   "status": [
     {
       "id": "trestle_table",

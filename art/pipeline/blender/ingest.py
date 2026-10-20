@@ -50,6 +50,13 @@ def clean(o) -> int:
     return len(bad)
 
 
+def seat(o) -> None:
+    """Origin at bottom-centre of the current bounds."""
+    lo, hi = bounds(o)
+    o.data.transform(Matrix.Translation(-Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, lo.z))))
+    o.data.update()
+
+
 def tris(o) -> int:
     return sum(len(p.vertices) - 2 for p in o.data.polygons)
 
@@ -60,7 +67,9 @@ def main() -> int:
     opts = dict(zip(argv[2::2], argv[3::2]))
     registry = ROOT / opts.get("--registry", "art/assets.toml")
     spec = tomllib.loads(registry.read_text())["asset"][asset]
-    export = ROOT / opts["--export"]
+    export = (ROOT / opts["--export"]).resolve()
+    if not export.is_relative_to(ROOT / "assets/candidates") and not opts.get("--allow-outside"):
+        raise SystemExit(f"refusing to export outside assets/candidates/: {export}")
     receipt_dir = ROOT / opts.get("--out", str(registry.parent.relative_to(ROOT) / "g2"))
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -83,6 +92,9 @@ def main() -> int:
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     o.name = o.data.name = asset
     raw_tris = tris(o)
+    removed = clean(o)  # before fitting: stray verts/slivers must not drive scale, turn or centre
+    lo, hi = bounds(o)
+    raw_size = hi - lo
 
     # Generators do not know which way is "front": if the footprint matches the
     # spec better turned 90° (X and Y swapped), turn it. Then scale with ONE
@@ -95,8 +107,7 @@ def main() -> int:
         mean = sum(logs) / len(logs)
         return sum((l - mean) ** 2 for l in logs), math.exp(mean)
 
-    lo, hi = bounds(o)
-    size = hi - lo
+    size = raw_size.copy()
     turned = misfit((size.y, size.x, size.z))[0] < misfit(size)[0] - 1e-3
     if turned:
         o.data.transform(Matrix.Rotation(math.radians(90), 4, "Z"))
@@ -104,10 +115,8 @@ def main() -> int:
         size = hi - lo
     _, k = misfit(size)
     o.data.transform(Matrix.Scale(k, 4))
-    lo, hi = bounds(o)
-    o.data.transform(Matrix.Translation(-Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, lo.z))))
-    o.data.update()
-    removed = clean(o)
+    removed += clean(o)  # again at final scale: G2's zero-area threshold is absolute
+    seat(o)
 
     budget = spec["tri_budget"]
     if tris(o) > budget:
@@ -116,6 +125,7 @@ def main() -> int:
         d.use_collapse_triangulate = True
         bpy.ops.object.modifier_apply(modifier=d.name)
         removed += clean(o)
+        seat(o)  # decimation can move the bounds
 
     for i, slot in enumerate(o.material_slots):
         if slot.material:
@@ -138,7 +148,7 @@ def main() -> int:
     lo, hi = bounds(o)
     receipt = {"asset": asset, "raw": str(raw.relative_to(ROOT)) if raw.is_relative_to(ROOT) else str(raw),
                "export": str(export.relative_to(ROOT)) if export.is_relative_to(ROOT) else str(export), "scale_factor": round(k, 4), "turned_90": turned, "degenerate_removed": removed,
-               "raw_dims_m": [round(c, 3) for c in size], "dims_m": [round(c, 3) for c in hi - lo],
+               "raw_dims_m": [round(c, 3) for c in raw_size], "dims_m": [round(c, 3) for c in hi - lo],
                "raw_triangles": raw_tris, "triangles": tris(o), "materials": [s.material.name for s in o.material_slots if s.material],
                "textures_resized": resized}
     receipt_dir.mkdir(parents=True, exist_ok=True)

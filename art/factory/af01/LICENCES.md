@@ -1,6 +1,6 @@
 # Licences: batch af01
 
-| asset | route | licence | source / receipt |
+| asset | route | licence policy | exact source |
 |---|---|---|---|
 | trestle_table | blender_procedural | project-original (procedural) | `art/pipeline/blender/factory/build_trestle_table.py` |
 | camp_stool | blender_procedural | project-original (procedural) | `art/pipeline/blender/factory/build_camp_stool.py` |
