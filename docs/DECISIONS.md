@@ -137,3 +137,16 @@
 - **Unchanged:** the direct-1919 path, the sim, grading, the careful, rushed and cherry endings and their scores (4/0/3).
 - **Out of scope:** letters, reunion, keepsake and confession.
 - **Not verified:** human play.
+
+## D013 — Original procedural score, restrained (Game Director, 2026-10-20)
+- **Why:** The journey had no musical through-line. The Owner asked for an original score with no external assets: Cambridge rain, totality tension and coda resolution, kept restrained. This also answers the earlier "music sourcing" question: nothing is sourced.
+- **What changed:**
+  - One reed-organ motif (A–D–E–F) runs through the game. Only the coda answers it with F♯, resolving to D major.
+  - Cues: `cambridge_rain` (M1), `departure_motif` (M2 montage only), three totality layers (drone, glass that ducks while the shutter is open, and an edge layer in the last 18 s), and `coda_resolution` (once per run).
+  - Synthesis happens in GDScript on worker threads and is cached. A Music bus and a saved pause-menu toggle were added.
+- **Rules:**
+  - The music never reads cloud density and never feeds back into the sim, grade, input or timing. It uses a private RNG.
+  - The metronome stays the only pulse, and no cue has energy in its band.
+  - Most of the game stays unscored: 1919 PREP, the night and almost all of M2.
+- **Unchanged:** the sim, grading, all dialogue, and the bot outcomes (careful 4, rushed 0, cherry 3, honest ENDING with coda).
+- **Not verified:** human listening in context, and mix levels on speakers versus headphones.

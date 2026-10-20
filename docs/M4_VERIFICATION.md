@@ -273,4 +273,21 @@ Attempt 5:
 
 ## Review and disposition
 
-Independent source/test review: **PASS** for `877739be36c2740693873f4fbfed69923ff412a9`, using an Oracle-generated source bundle in Ego-lite with the visible GPT-6 Pro selection. [Review conversation](https://chatgpt.com/c/6ad73bc3-5204-83e8-bec2-7ad906c630bb). Verdict: "PASS - both required P2 findings are resolved"; no remaining required fix. The review verified the Tab-held phase-exit cleanup, sustained loop seams, and new regressions; it did not execute the code or perform a listening review. The three direct 1919 native receipts above qualify their scores on the reviewed runtime; the honest native gate remains HOLD pending a foreground run. No design authority or DECISIONS document was changed. No external audio, sample, SoundFont or third-party melody was added. Temporary WAV/PNG outputs are removed after recording these measurements and receipts; source, test and textual evidence remain.
+Independent source/test review: **PASS** for `877739be36c2740693873f4fbfed69923ff412a9`, using an Oracle-generated source bundle in Ego-lite with the visible GPT-6 Pro selection. Verdict: "PASS - both required P2 findings are resolved"; no remaining required fix. The review verified the Tab-held phase-exit cleanup, sustained loop seams, and new regressions; it did not execute the code or perform a listening review. The three direct 1919 native receipts above qualify their scores on the reviewed runtime; the honest native gate was later closed by the Director's foreground run below. No design authority or DECISIONS document was changed. No external audio, sample, SoundFont or third-party melody was added. Temporary WAV/PNG outputs are removed after recording these measurements and receipts; source, test and textual evidence remain.
+
+## Director gate closure — honest native route (2026-10-20, HEAD `616ecb4`)
+
+Run by the Game Director in an uninterrupted foreground window:
+
+```sh
+godot --path . --always-on-top -- --prologue-autoplay=honest --shots=<scratch>
+```
+
+```text
+[PROLOGUE honest] score cue checks=[] cue_log=[cambridge_rain start→stop, departure_motif once, totality_drone/glass start, glass duck 0.4 s / return 1.2 s on each of 3 exposures, totality_edge in the final 18 s, all totality layers fade 1.5 s, coda_resolution once]
+[PROLOGUE honest] ENDING matched=17 bias_blocked=true screenshots=86 failures=[]
+```
+
+The first Director attempt also lost drawing in the night viewer (`included []`, "window not drawing") and stopped before the coda; its totality cue log was already correct. The clean rerun above is the counted receipt. **Honest gate: PASS.**
+
+Independent read-only review (gpt-6-astra, headless, `616ecb4` vs `3d09962`): no new regressions. One P3: intermittent `AudioStreamWAV`/`AudioStreamPlaybackWAV` teardown warnings in test_coda, test_replay and test_bridge_pause, which reproduce on base `3d09962`.
