@@ -300,6 +300,7 @@ func _test_dialogue_history() -> void:
 	ui._choose(1)
 	check(speakers == ["Ashby", "Kit", "Eddington"], "dialogue_entry reports each displayed speaker across a selected choice branch")
 	ui._advance()
+	check(is_equal_approx(ui.dialog_panel.offset_top, -214.0) and is_equal_approx(ui.dialog_panel.offset_bottom, -18.0), "default dialogue panel uses the low-third placement in every chapter (speaker faces stay visible)")
 	# The authored three-choice trial must grow upward from the Cambridge bottom edge.
 	ui.dialog_panel.offset_top = -214
 	ui.dialog_panel.offset_bottom = -18
@@ -311,6 +312,21 @@ func _test_dialogue_history() -> void:
 	for button in ui._choice_buttons:
 		within_view = within_view and button.get_global_rect().end.y <= root.get_visible_rect().end.y
 	check(within_view, "authored three-choice dialogue and all buttons stay above the viewport bottom")
+	ui._advance()
+	# The 1919 telegram prompt is the longest choice list (four cables) in the default placement.
+	ui.play([{"s": "Eddington", "t": "我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？", "key": "telegram",
+		"choices": ["ECLIPSE SPLENDID. EINSTEIN CONFIRMED.", "THROUGH CLOUD. HOPEFUL.", "THROUGH CLOUD. STARS FEW. RESULT UNDECIDED.", "CLOUD. NO RESULTS."]}])
+	for _i in 4:
+		await process_frame
+	var tele_rect: Rect2 = ui.dialog_panel.get_global_rect()
+	var tele_ok: bool = tele_rect.position.y >= 0.0 and tele_rect.end.y <= root.get_visible_rect().end.y
+	for button in ui._choice_buttons:
+		tele_ok = tele_ok and root.get_visible_rect().encloses(button.get_global_rect())
+	check(tele_ok, "four-choice telegram prompt stays fully on screen (%s)" % tele_rect)
+	ui.toggle_log()
+	check(not ui.hint_label.visible, "dialogue input hint hides while the Tab log is open")
+	ui.toggle_log()
+	check(ui.hint_label.visible, "dialogue input hint returns when the Tab log closes")
 	ui.queue_free()
 	await process_frame
 	check(not is_instance_valid(ui), "dialogue UI queue_free releases its controls")
