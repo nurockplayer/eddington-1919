@@ -1,5 +1,6 @@
 extends Node3D
 ## M2 staging only; all authored dialogue remains in Content.
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const ExistingDirector := preload("res://scripts/main.gd")
 const Room := preload("res://scripts/cambridge/room_builder.gd")
 const Player := preload("res://scripts/player.gd")
@@ -21,6 +22,7 @@ var _light_t := 0.0
 var _camera_turn: Tween
 var _speaker_fill: OmniLight3D
 var _last_speaker := ""
+var score: Node
 var tick: AudioStreamPlayer
 var street: AudioStreamPlayer
 var keepsake: HBoxContainer
@@ -246,6 +248,7 @@ func _build_keepsake() -> void:
 
 
 func _montage() -> void:
+	score.play("departure_motif", 0.6)
 	beat = Beat.MONTAGE
 	_busy = true
 	_sync_player()
@@ -269,6 +272,12 @@ func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStrea
 
 
 func _build_audio() -> void:
+	var score_ready := Time.get_ticks_usec()
+	score = ScorePlayer.new()
+	add_child(score)
+	score.warm(["departure_motif"])
+	ui.log_toggled.connect(score.set_log_open)
+	print("[SCORE READY] scene=departure added_ms=%.3f" % [(Time.get_ticks_usec() - score_ready + ui.music_ready_usec) / 1000.0])
 	var samples := PackedFloat32Array()
 	for i in 700:
 		var t := i / 22050.0
