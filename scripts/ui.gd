@@ -1,4 +1,7 @@
 extends CanvasLayer
+
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
+var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
 signal dialogue_done(results: Dictionary)
@@ -691,6 +694,14 @@ func _build_pause(root: Control) -> void:
 	var r := _button("繼續")
 	r.pressed.connect(func(): toggle_pause())
 	v.add_child(r)
+	var music_ready := Time.get_ticks_usec()
+	ScorePlayer.load_settings()
+	var music := _button("音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
+	music.pressed.connect(func():
+		ScorePlayer.set_music_enabled(not ScorePlayer.music_enabled())
+		music.text = "音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
+	v.add_child(music)
+	music_ready_usec = Time.get_ticks_usec() - music_ready
 	var rs := _button("從頭開始")
 	rs.pressed.connect(func():
 		get_tree().paused = false

@@ -83,3 +83,9 @@
 | Ashby 先生的禮物（暫定為黃銅放大鏡）與其來歷 | FICTION（暫定） | 類型、年代、來歷都尚待研究，不宣稱是真實歷史物件。 |
 | 普林西比夜晚寫在工作簿上的雨與雲 | FICTION，背景依史實 | 1919 年 5 月 29 日普林西比上午大雨、全食時隔著雲：依 Dyson, Eddington & Davidson（Phil. Trans. A 220, 1920）報告，經二手文獻轉引（原文未取得，見上）。文字不影響量測與評分。 |
 
+
+## Score (M4)
+
+All six music cues are original, procedural compositions synthesized in repository GDScript (`scripts/audio/score.gd`), following [the Director’s M4 score specification](design/M4_SCORE.md). The harmonium uses additive oscillators and a low-pass response; the totality glass uses beating sine waves. The unresolved A3–D4–E4–F4 motif answers with F♯4 only in the coda.
+
+No samples, SoundFonts, external audio assets, downloaded or externally generated recordings, or third-party melodies are used. Audition WAVs are temporary outputs generated from this code and are not shipped source assets. The score is a fictional dramatic composition, not a reconstruction of music performed by the historical expedition.

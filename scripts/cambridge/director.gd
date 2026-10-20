@@ -1,5 +1,6 @@
 extends Node3D
 ## M1 sequence orchestration. Text and replaceable cast stay in C17/Cast.
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const ExistingDirector := preload("res://scripts/main.gd")
 const Room := preload("res://scripts/cambridge/room_builder.gd")
 const Player := preload("res://scripts/player.gd")
@@ -32,6 +33,7 @@ var _daylight := false
 var _camera_turn: Tween
 var _speaker_fill: OmniLight3D
 var _last_speaker := ""
+var score: Node
 var tick: AudioStreamPlayer
 var click: AudioStreamPlayer
 
@@ -355,6 +357,7 @@ func _coda() -> void:
 
 
 func _montage() -> void:
+	score.stop("cambridge_rain", 0.8)
 	beat = Beat.MONTAGE
 	_busy = true
 	_sync_player()
@@ -376,6 +379,13 @@ func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStrea
 
 
 func _build_audio() -> void:
+	var score_ready := Time.get_ticks_usec()
+	score = ScorePlayer.new()
+	add_child(score)
+	score.warm(["cambridge_rain"])
+	ui.log_toggled.connect(score.set_log_open)
+	score.play("cambridge_rain", 1.1)
+	print("[SCORE READY] scene=cambridge added_ms=%.3f" % [(Time.get_ticks_usec() - score_ready + ui.music_ready_usec) / 1000.0])
 	var samples := PackedFloat32Array()
 	for i in 700:
 		var t := i / 22050.0

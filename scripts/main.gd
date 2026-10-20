@@ -14,6 +14,7 @@ const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
 const DepartureWorkbook := preload("res://scripts/cambridge/departure_props.gd")
 const DepartureContent := preload("res://scripts/cambridge/content_departure.gd")
 const CodaContent := preload("res://scripts/content_coda.gd")
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 
 enum Phase { TITLE, PREP, TOTALITY, NIGHT, ENDING, CODA }
 enum CodaStep { OPENING, WORKBOOK, LOUPE, KIT, FADING }
@@ -63,6 +64,9 @@ var coda_step := CodaStep.OPENING
 var _camera_turn: Tween
 var _coda_highlight: OmniLight3D
 var _coda_transition: Tween
+var score: Node
+var _resolution_started := false
+var _score_exposing := false
 
 
 func _ready() -> void:
@@ -306,6 +310,12 @@ static func _wav(samples: PackedFloat32Array, rate := 22050, loop := false) -> A
 
 
 func _build_audio() -> void:
+	var score_ready := Time.get_ticks_usec()
+	score = ScorePlayer.new()
+	add_child(score)
+	score.warm(["totality_drone", "totality_glass", "totality_edge", "coda_resolution"])
+	ui.log_toggled.connect(score.set_log_open)
+	print("[SCORE READY] scene=1919 added_ms=%.3f" % [(Time.get_ticks_usec() - score_ready + ui.music_ready_usec) / 1000.0])
 	var tick := PackedFloat32Array()
 	for i in 700:
 		var t := i / 22050.0
@@ -697,6 +707,8 @@ func _begin_totality() -> void:
 	world.roof.visible = false
 	t_game = 0.0
 	_apply_light(1.0, 1.0, 0.0, 0.0)
+	score.play("totality_drone", 1.2)
+	score.play("totality_glass", 1.2)
 	await ui.fade_to(0.0, 1.2).finished
 	_busy = false
 	_sync_player_input()
@@ -729,8 +741,16 @@ func _toggle_shutter() -> void:
 
 
 func _process_totality(delta: float) -> void:
-	if _busy or tot_done or ui.log_open() or get_tree().paused:
+	if ui.log_open() or get_tree().paused:
 		return
+	# Only this guarded clock advances totality layers, including contact fades.
+	score.advance(delta)
+	if _busy or tot_done:
+		return
+	var exposing: bool = sim.is_exposing()
+	if exposing != _score_exposing:
+		_score_exposing = exposing
+		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else -34.0, 0.4 if exposing else 1.2)
 	var dt: float = delta * sim.TIME_SCALE
 	t_game += dt
 	var dens: float = sim.cloud_over_sun(t_game)
@@ -748,6 +768,7 @@ func _process_totality(delta: float) -> void:
 		ui.show_toast("Eddington 抬頭看了一眼：「雲還是很厚……繼續。」", 3.5)
 	if t_game > sim.TOTALITY_S - 18.0 and not _warned_end:
 		_warned_end = true
+		score.play("totality_edge", 3.0)
 		ui.show_toast("太陽西緣開始發亮——第三接觸快到了！", 3.0)
 	var left := maxf(sim.TOTALITY_S - t_game, 0.0)
 	var status := ""
@@ -767,6 +788,8 @@ func _process_totality(delta: float) -> void:
 
 func _end_totality() -> void:
 	tot_done = true
+	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
+		score.stop(cue, 1.5)
 	var ruined: bool = sim.is_exposing()
 	if ruined:
 		sim.close_shutter(true)
@@ -786,6 +809,10 @@ func _begin_night() -> void:
 	_busy = true
 	await ui.fade_to(1.0, 1.2).finished
 	phase = Phase.NIGHT
+	# Tab can hold the outgoing audio ramp while the authored transition continues.
+	# At the black handoff, cancel any remaining voices; NIGHT is always unscored.
+	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
+		score.stop(cue)
 	comparison_tex = PlateRender.render(sim, null)
 	plate_textures.clear()
 	for p in sim.plates:
@@ -891,6 +918,7 @@ func _sync_coda_log(open: bool) -> void:
 
 func _end_coda() -> void:
 	coda_step = CodaStep.FADING
+	_play_resolution()
 	_busy = true
 	_coda_highlight.light_energy = 0.0
 	# Lamp out, a breath of darkness, then the ending. Esc and Tab hold this beat.
@@ -985,7 +1013,14 @@ func _after_judgment(results: Dictionary) -> void:
 	_say(seq, "reaction")
 
 
+func _play_resolution() -> void:
+	if not _resolution_started:
+		_resolution_started = true
+		score.play("coda_resolution", 0.6)
+
+
 func _show_ending() -> void:
+	_play_resolution()
 	phase = Phase.ENDING
 	ui.pause_enabled = false
 	ui.hud.visible = false
