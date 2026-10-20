@@ -175,6 +175,17 @@ func _test_direct_and_prologue_paths() -> void:
 	reread.queue_free()
 	await process_frame
 
+	# astra M3 P2: a workbook written during the night must not block the loupe in the coda.
+	var auto = await _new_main()
+	auto.phase = auto.Phase.CODA
+	auto._departure_workbook_seen = true
+	auto._add_night_workbook()
+	auto._pending = "coda_opening"
+	auto._on_dialogue_done({})
+	check(auto._pending == "coda_workbook" and auto.ui.text_label.text.contains("又讀了一遍工作簿最後一頁"), "already-written workbook rereads automatically after the coda opening")
+	auto.queue_free()
+	await process_frame
+
 
 func _run() -> void:
 	_test_grade_branches()

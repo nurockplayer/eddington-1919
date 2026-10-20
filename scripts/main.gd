@@ -596,7 +596,13 @@ func _on_dialogue_done(results: Dictionary) -> void:
 				_show_ending()
 		"coda_opening":
 			coda_step = CodaStep.WORKBOOK
-			_highlight_coda(_night_departure_workbook.global_position)
+			if _departure_workbook_seen:
+				# Already written at night: reread it without another required interaction.
+				_night_departure_workbook.call("open_workbook")
+				_focus_coda(_night_departure_workbook.global_position)
+				_say(CodaContent.workbook_again(), "coda_workbook")
+			else:
+				_highlight_coda(_night_departure_workbook.global_position)
 		"coda_workbook":
 			coda_step = CodaStep.LOUPE
 			_highlight_coda(get_node("AshbyLoupeHotspot").global_position)
