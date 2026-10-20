@@ -3,7 +3,7 @@
 **Director addendum:**
 - gpt-6-astra independent review of `a14b89a`: REQUEST CHANGES, with one P2. A workbook written at night still had to be reopened before the loupe would unlock.
 - Fixed in the following commit, with a regression in `test_coda` (60/0) that fails on the old code.
-- astra also traced the careful run's 9 holders (instead of 12) to bot input-timing variance, not a sim change. Two repeat runs collected 12, with identical exposures, selection, score and ending.
+- astra also traced the careful run's 9 holders (instead of 12) to bot input-timing variance, not a sim change. Two repeat runs collected 12, with the same exposure count, selection, score and ending (recorded timings differ slightly).
 
 Godot **4.7.2.stable.official.ed1daf0bf**, macOS / Apple M2 Pro, branch `m3/coda`,
 starting at `8a1cc48` (Director content/spec on merged M1+M2 main `7733d6d`).
@@ -17,9 +17,9 @@ remain for the Director and human players.
 A main-scene entry with `Story.from_prologue` caches that origin before consuming the
 one-shot flag. After the existing telegram judgment/reaction, it enters CODA instead of
 showing the ending. Eddington and Cottingham leave the room, including their collision
-bodies. The lamp stays lit. The player must aim at and use the highlighted workbook,
-then the brass loupe. An unwritten workbook plays the existing
-`principe_workbook(bond_tone)`; a previously written page plays `workbook_again()`.
+bodies. The lamp stays lit. If the workbook is unwritten, the player must aim at and use
+the highlighted workbook (`principe_workbook(bond_tone)`). A page already written at night
+rereads automatically (`workbook_again()`, fix `fc2b6d2`). Then the player uses the brass loupe.
 The loupe uses the cached `_grade.fit` and `_grade.clean` from the ending's single
 `Judgment.grade` call, plus whether the final included plates yield a measured value.
 Ashby's answer leads to Kit's tone-dependent close, lamp/safelight out, a pause and fade,
