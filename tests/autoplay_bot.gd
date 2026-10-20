@@ -7,6 +7,8 @@ extends Node
 ## Run: godot --path . -- --autoplay=careful --shots=/tmp/shots [--seed=N] [--speed=2]
 ## Scenarios: careful | rushed | cherry
 
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
+
 static var runs := 0
 static var first_seed := -1
 
@@ -410,6 +412,15 @@ func _night() -> void:
 
 
 func _finish() -> void:
+	var score_failures: Array[String] = []
+	if scenario == "careful":
+		score_failures = ScorePlayer.run_failures(false)
+		for score_failure in score_failures:
+			_log("FAIL: " + score_failure)
+		if not score_failures.is_empty():
+			_log("score cue checks failed; stopping before replay")
+			get_tree().quit(1)
+			return
 	var sim = main.sim
 	var result := {
 		"scenario": scenario,
@@ -423,6 +434,8 @@ func _finish() -> void:
 		"evidence": sim.evidence_class(),
 		"ending_title": main._grade.get("title", ""),
 		"score": main._grade.get("score", -1),
+		"score_cue_log": ScorePlayer.cue_log.duplicate(true),
+		"score_failures": score_failures,
 		"stuck_events": stuck,
 		"log": log_lines,
 	}

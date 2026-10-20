@@ -2,6 +2,7 @@ extends Node
 ## Real-input M1 smoke driver. No world/state mutation, teleports or fallback calls.
 ## Persistent root child so the receipt verifies Story across real scene changes.
 const Cast = preload("res://scripts/cambridge/cast.gd")
+const ScorePlayer = preload("res://scripts/audio/score_player.gd")
 
 var main
 var scenario := "honest"
@@ -748,6 +749,10 @@ func _departure_run() -> void:
 func _finish() -> void:
 	if _done: return
 	_done = true
+	var score_failures: Array[String] = []
+	if scenario == "honest":
+		score_failures = ScorePlayer.run_failures(true)
+		failures.append_array(score_failures)
 	var phase_reached := "INCOMPLETE"
 	if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd":
 		if main.phase == main.Phase.PREP: phase_reached = "PREP"
@@ -760,9 +765,11 @@ func _finish() -> void:
 		"screenshots": screenshots, "failures": failures, "human_playtest": false,
 		"score": int(main._grade.get("score", -1)) if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd" else -1,
 		"coda_checks": _coda_checks,
+		"score_cue_log": ScorePlayer.cue_log.duplicate(true), "score_failures": score_failures,
 		"engine": Engine.get_version_info().string, "elapsed_seconds": snappedf(_elapsed, 0.01),
 		"room_draw_calls_max_observed": _room_draw_calls, "departure_draw_calls_max_observed": _departure_draw_calls,
 		"input_retries": _input_retries}
+	print("[PROLOGUE %s] score cue checks=%s cue_log=%s" % [scenario, str(score_failures), JSON.stringify(ScorePlayer.cue_log)])
 	if shots_dir != "":
 		var file := FileAccess.open(shots_dir.path_join("result_" + scenario + ".json"), FileAccess.WRITE)
 		file.store_string(JSON.stringify(receipt, "  "))
