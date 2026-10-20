@@ -323,6 +323,10 @@ func _test_dialogue_history() -> void:
 	for button in ui._choice_buttons:
 		tele_ok = tele_ok and root.get_visible_rect().encloses(button.get_global_rect())
 	check(tele_ok, "four-choice telegram prompt stays fully on screen (%s)" % tele_rect)
+	ui.toggle_log()
+	check(not ui.hint_label.visible, "dialogue input hint hides while the Tab log is open")
+	ui.toggle_log()
+	check(ui.hint_label.visible, "dialogue input hint returns when the Tab log closes")
 	ui.queue_free()
 	await process_frame
 	check(not is_instance_valid(ui), "dialogue UI queue_free releases its controls")

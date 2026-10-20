@@ -742,6 +742,8 @@ func log_open() -> bool:
 
 func toggle_log() -> void:
 	log_panel.visible = not log_panel.visible
+	# The dialogue panel's bottom edge sits below the log; its input hint is inert while reading.
+	hint_label.visible = not log_panel.visible
 	if log_panel.visible:
 		_log_mouse_mode = Input.mouse_mode
 		log_text.text = "\n\n".join(history)
