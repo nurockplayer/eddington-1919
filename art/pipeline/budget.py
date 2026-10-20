@@ -49,10 +49,16 @@ def load_batch(batch_toml: Path) -> tuple[dict, Path]:
     bid = b["batch"]["id"]
     if d.name != bid or d.parent != ROOT / "art/factory":
         raise SystemExit(f"batch id {bid!r} must match its directory art/factory/{bid}/")
+    base = ROOT / "assets/candidates"
+    if base.is_symlink() or (base.exists() and base.resolve() != base):
+        raise SystemExit("assets/candidates must be a real directory, not a link (isolation from assets/models)")
     cand = ROOT / b["batch"]["candidates_dir"]
     if b["batch"]["candidates_dir"] != f"assets/candidates/{bid}" or cand.is_symlink() or \
             (cand.exists() and cand.resolve() != (ROOT / "assets/candidates").resolve() / bid):
         raise SystemExit(f"candidates_dir must be the real directory assets/candidates/{bid} (never production paths)")
+    builds = [x["build"] for x in b["asset"].values() if x.get("build")]
+    if any(not x.startswith("art/pipeline/blender/factory/build_") for x in builds):
+        raise SystemExit("factory builds must be art/pipeline/blender/factory/build_*.py (production builders write assets/models/)")
     bad = [i for i in b["asset"] if not ID.match(i)]
     if bad:
         raise SystemExit(f"asset ids must match {ID.pattern}: {bad}")
@@ -121,7 +127,10 @@ def state(d: Path) -> dict:
         elif ev == "post_error":
             a["post_error"] = True
         elif ev == "terminal":
-            a.update(status=r["status"], credits=_credits(r.get("credits")), open=False)
+            c = _credits(r.get("credits"))
+            if a["credits"] is not None and (c is None or c < a["credits"]):
+                c = a["credits"]  # a later, vaguer observation never lowers a confirmed charge
+            a.update(status=r["status"], credits=c, open=False)
         elif ev == "resolved":
             a["task_id"] = r.get("task_id")
             if r.get("task_id") is None:  # confirmed: no task was created, nothing charged

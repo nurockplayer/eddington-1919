@@ -84,8 +84,8 @@ def main() -> int:
     t0 = time.time()
     if a.resume:
         att = budget.state(d).get(a.resume)
-        if not att or att["asset"] != a.asset or not att["task_id"]:
-            print(f"attempt {a.resume} has no known task for {a.asset}; reconcile with `factory.py resolve`", file=sys.stderr)
+        if not att or att["asset"] != a.asset or not att["task_id"] or not att["open"]:
+            print(f"attempt {a.resume} is not an open attempt with a known task for {a.asset}", file=sys.stderr)
             return 4
         attempt, task = a.resume, att["task_id"]
     else:

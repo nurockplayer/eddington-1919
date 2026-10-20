@@ -100,6 +100,10 @@ def main():
         check("missing est_credits → refused", refused(lambda: budget.reserve(*load(), "rock")))
         write(est="est_credits = 5", approval=OK)
         check("est below verified cost (t2.5 textured = 15) → refused", refused(lambda: budget.reserve(*load(), "rock")))
+        write(approval=OK)
+        (D / "batch.toml").write_text((D / "batch.toml").read_text().replace(
+            'route = "meshy"', 'route = "meshy"\nbuild = "art/pipeline/blender/build_coelostat.py"', 1))
+        check("a production builder in a batch → refused", refused(load))
         write(cand="assets/models", approval=OK)
         check("candidates_dir = assets/models → refused", refused(load))
 
@@ -146,6 +150,8 @@ def main():
         budget.record(d, a2, "created", task_id="T2")
         budget.record(d, a2, "terminal", status="SUCCEEDED", credits=15)
         check("30 approved: 15 unknown + 15 confirmed = 30 committed", budget.committed(d) == 30)
+        budget.record(d, a2, "terminal", status="SUCCEEDED", credits=None)
+        check("a later unknown observation never lowers a confirmed charge", budget.committed(d) == 30)
         check("third attempt over the approval → refused", refused(lambda: budget.reserve(b, d, "rock")))
 
         write(approval=OK)

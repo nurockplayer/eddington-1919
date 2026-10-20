@@ -133,14 +133,21 @@ def concept(b, d, a):
     return sum(c != 0 for c in codes)
 
 
+def _models_snapshot() -> dict:
+    return {f.name: budget.sha256(f) for f in (ROOT / "assets/models").glob("*.glb")}
+
+
 def build(b, d, a):
     fails = 0
+    before = _models_snapshot()  # belt and braces: no factory build may touch production models
     for i in ids(b, a.only, ("blender_procedural",)):
         glb(b, i).unlink(missing_ok=True)  # a failed build must not leave the previous GLB looking current
         code, s = run([BLENDER, "-b", "--factory-startup", "-P", b["asset"][i]["build"]], d / "logs" / f"build-{i}.log")
         ok = code == 0 and glb(b, i).exists()
         fails += not ok
         print(f"build {i}: {'ok' if ok else 'FAIL'} ({s}s)")
+        if _models_snapshot() != before:
+            sys.exit(f"ABORT: build {i} changed assets/models/ — restore it from git (`git checkout -- assets/models`)")
     return fails
 
 
@@ -226,7 +233,8 @@ def godot_import() -> int:
 
 
 def preview(b, d, a):
-    fails = godot_import()
+    if godot_import():
+        return 1  # no receipts from an un-imported project
     res_dir = "res://" + b["batch"]["candidates_dir"]
     shots = []
     for i in ids(b, a.only):
@@ -264,7 +272,9 @@ def _sheet(shots, path: Path, cols=5, w=384):
 
 
 def qa(b, d, a):
-    fails = godot_import()
+    if godot_import():
+        return 1
+    fails = 0
     res_dir = "res://" + b["batch"]["candidates_dir"] + "/"
     assets = []
     for i, x in b["asset"].items():
@@ -319,7 +329,7 @@ def report(b, d, a):
         g2r = json.loads(g2.read_text()) if fresh(d / "g2" / f"{i}.receipt.json", i, b) else None
         r = review.get(i, {})
         verdict = r.get("verdict", "pending")
-        if glb(b, i).exists() and r.get("glb_sha256") != budget.sha256(glb(b, i)):
+        if "glb_sha256" in r and (not glb(b, i).exists() or r["glb_sha256"] != budget.sha256(glb(b, i))):
             verdict = "stale_review"  # the review judged different content
         status.append({"id": i, "route": x["route"], "candidate": glb(b, i).exists(),
                        "g2": None if g2r is None else g2r["pass"],
