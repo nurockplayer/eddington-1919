@@ -1,0 +1,104 @@
+{
+  "asset": "hurricane_lantern",
+  "file": "assets/candidates/af01/hurricane_lantern.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 1176,
+      "max": 2000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_brass",
+        "E1919_iron",
+        "E1919_plate_glass"
+      ],
+      "max": 3,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.2,
+        0.18,
+        0.34
+      ],
+      "target": [
+        0.2,
+        0.18,
+        0.34
+      ],
+      "tolerance": 0.15,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "hurricane_lantern": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "hurricane_lantern_flame": {
+          "origin": [
+            0.0,
+            0.0,
+            0.14
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.14000000059604645
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "hurricane_lantern",
+        "hurricane_lantern_flame"
+      ],
+      "ok": true
+    }
+  }
+}

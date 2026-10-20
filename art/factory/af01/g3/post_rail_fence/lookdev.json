@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        2.5,
+        0.14,
+        1.1
+      ],
+      "id": "post_rail_fence",
+      "min_y": 0.0,
+      "surfaces": 2,
+      "triangles": 468
+    }
+  ],
+  "frame_scale": 1.0
+}

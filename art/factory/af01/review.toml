@@ -1,0 +1,113 @@
+# af01 Director review (Opus 5.5, 2026-10-20), from G3 lookdev + in-game QA
+# (gameplay view, 30° detail view, dressed wide views). Not an Owner acceptance.
+# score: visual quality 1–5 against BIBLE §3/§3a (period read, not toy, evidence first).
+# verdict: usable | usable_with_fixes | rework | blocked
+# glb_sha256 binds a verdict to the GLB it judged; report marks it stale_review if the GLB changes.
+
+[trestle_table]
+glb_sha256 = "45b3f03fb5f72eeb730246b8dac1d0338dc80f5f6393d06846af4b387d58857f"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Reads as a field table at gameplay distance; plank gaps and splayed trestles carry it."
+
+[camp_stool]
+glb_sha256 = "ceebd03f6c042c10d1944e15ef3f59d9e542688a640e6f2952be517911d70181"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "X-frame and canvas sling read clearly; the canvas is the brightest non-evidence value in the camp, which is acceptable at this size."
+
+[water_cask]
+glb_sha256 = "c8f9486361f31678fec9152fb45b7ccac2ff7528c0b6e8022219168802436bf3"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Strong silhouette; hoops and bulge read at 3 m."
+
+[hurricane_lantern]
+glb_sha256 = "bea6828fa00db5e4ed81aa1e6466af87a285ea63bc13681739c02c39b431c093"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Reads on the table; has a flame pivot for an OmniLight. Globe is opaque palette glass (no transparency), fine at this size."
+
+[instrument_chest]
+glb_sha256 = "a41343ca26e688799b012957fc8b9888fc0fda0edc2d9d86a1b08bbc0e5e1b88"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Brass hasp and corners pick out the 'operable' accent (BIBLE §4) — keep it non-interactable or it will mislead players."
+
+[plate_rack]
+glb_sha256 = "05aee2870f7728da79fea4da6aa0ff56be81b1ca5f5896d9c8d43ef4acd17fd9"  # the content this verdict judged
+score = 3
+verdict = "usable_with_fixes"
+note = "Under the safelight the rack's plates glow as brightly as the evidence (BIBLE S1). Fix: a dimmed, non-evidence glass, or an empty rack."
+
+[zinc_bucket]
+glb_sha256 = "733fe585be81a05bb45412a1017cdbbf724d6be137342884c0baa90e2ad91570"  # the content this verdict judged
+score = 3
+verdict = "usable_with_fixes"
+note = "Reads as a black iron pot: the palette has no galvanised grey. Fix: add a `zinc` swatch (palette change, BIBLE §4) and rebuild."
+
+[wheelbarrow]
+glb_sha256 = "0111d2996290f606eeae97a38333d233acffc07b97dc33648776ba85b5d0e5d2"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Good silhouette and wheel; reads as plantation kit."
+
+[ladder]
+glb_sha256 = "8ce105eb7563e6afc97f3c9aa093e31c8c2dcb724413a6d97806d736aa660b18"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Leaned against the shelter in QA; rung spacing reads true to scale."
+
+[sawhorse]
+glb_sha256 = "6faa259356ec9bf25b82e88d69275cfc6e1c34aceeb5835de95d0fbda28621f9"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Simple and correct."
+
+[cocoa_drying_barcaca]
+glb_sha256 = "d31815c246127a94ac615684e114940596fda98db77b8af8e2fd44eaea19f8f8"  # the content this verdict judged
+score = 3
+verdict = "usable_with_fixes"
+note = "Reads as a pavilion. A barcaça should read as a long, low drying bed with a roof that visibly runs on rails. Fix: lower the deck, lengthen it, make the bean bed and the rails legible."
+
+[post_rail_fence]
+glb_sha256 = "178d6d494d2ed72536284e4ecbace58aa0fbc3cb3d8cae70ef7d6e945c36bac1"  # the content this verdict judged
+score = 3
+verdict = "usable_with_fixes"
+note = "The kit tiles as designed, but the pine rails read new and yellow next to the weathered posts. Fix: teak or weathered rails."
+
+[laterite_steps]
+glb_sha256 = "dc4cfbab0b84f5a8a6f4bef09de0cef35db7ba593ef9732f2d7470d39c48b94b"  # the content this verdict judged
+score = 2
+verdict = "rework"
+note = "The blocks read as soft pillows (bevel too large for the block size, pale stone): a toy read (§3a). Rework with flatter, larger, darker dressed blocks. The spec was corrected after QA r1 (0.30 m to meet the veranda)."
+
+[coconut_palm]
+glb_sha256 = "6e57d8d7d0f7921aab92c753e7fd018434c365cb0d0b54a8621d9c191fbc16cb"  # the content this verdict judged
+score = 3
+verdict = "usable_with_fixes"
+note = "A single 508-triangle mesh, so it can be one MultiMesh, against today's 9-node primitive palms (palms are 125 of 153 draw calls in totality_sky). The fronds read as stiff spikes. Fix: more droop and a leaflet read, then an A/B G4 run swapping the 15 palms."
+
+[cocoa_sack_pile]
+verdict = "blocked"
+note = "Concept ready (art/runs/af01-concepts). Waiting for the Owner's approval and MESHY_API_KEY."
+
+[laterite_boulder]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."
+
+[cocoa_pod_basket]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."
+
+[felled_stump]
+verdict = "blocked"
+note = "Concept ready (it adds a few green sprigs; the textured mesh will carry them). Waiting for approval and a key."
+
+[tarp_bundle]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."
+
+[firewood_stack]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."

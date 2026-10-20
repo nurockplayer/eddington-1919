@@ -1,0 +1,367 @@
+# Asset Factory pilot af01: 20 candidate environment assets for the Príncipe
+# 1919 camp at Roça Sundy. Same contract as art/assets.toml (validate.py reads
+# this file with --registry), plus the factory fields:
+#
+#   route        blender_procedural | meshy | tripo | mpfb   (why: `route_why`)
+#   licence      what the output may be used under (art/factory/LICENCES.md)
+#   est_credits  paid-generator credits for one attempt (0 for local routes)
+#   qa           in-game QA placement: [x, z] metres in the Godot world, yaw°
+#   status       planned → built (raw) → ingested → g2 → g3 → g4 → candidate
+#                → accepted (Owner/Director only; promotion copies the entry
+#                into art/assets.toml and the GLB into assets/models/)
+#
+# Candidate GLBs live in assets/candidates/af01/ (excluded from exports) and
+# never overwrite assets/models/. dims_m = [width X, depth Y, height Z],
+# Blender Z-up, front faces -Y (Godot +Z), origin bottom-centre (BIBLE §6).
+#
+# Routing rule (BIBLE §3): mechanical, dimensioned, joinery and repeated kit
+# props → Blender procedural (exact dims, palette materials, $0, deterministic).
+# Organic or irregular forms (cloth, sacks, rock, split wood, wicker) → image→3D
+# (Meshy MCP/REST or Tripo), concept image first, then ingest to spec.
+
+[batch]
+id = "af01"
+theme = "Príncipe 1919: expedition camp and cocoa-roça set dressing"
+budget_credits = 200          # Meshy credits; hard cap enforced by factory.py
+budget_usd_cap = 10.0         # Owner-facing ceiling; the account's real credit price must be confirmed
+approval_file = "art/factory/af01/APPROVAL.toml"   # absent → paid routes refuse to run
+candidates_dir = "assets/candidates/af01"
+# Wide in-game views (player feet position, look target, lighting state), each
+# rendered with and without the candidates by tests/factory_qa.gd.
+qa_views = [
+  { name = "camp_day", eye = [7.5, 0.05, 5.0], target = [2.0, 0.8, -1.0], light = "prep_early" },
+  { name = "roca_west", eye = [-1.5, 0.05, 9.0], target = [-9.0, 1.4, 2.0], light = "prep_early" },
+  { name = "camp_totality", eye = [7.5, 0.05, 5.0], target = [2.0, 0.8, -1.0], light = "totality" },
+  { name = "darkroom_night", eye = [9.2, 0.05, 4.2], target = [11.0, 0.5, 1.9], light = "night" },
+]
+
+# ---------------------------------------------------------------- procedural
+
+[asset.trestle_table]
+route = "blender_procedural"
+route_why = "joinery with exact working height; repeated in camp and darkroom"
+category = "set_prop"
+build = "art/pipeline/blender/factory/build_trestle_table.py"
+dims_m = [1.80, 0.80, 0.76]
+dims_tolerance = 0.10
+tri_budget = 2000
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic field work table of planks on two trestles; no photograph of the Príncipe camp furniture is known."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[4.6, 0.6], -10]
+parts = "three planks 1.8 x 0.26 x 0.03 m with gaps, two A-trestles (legs 0.05 x 0.07 m splayed 12°), a cross-brace stretcher; teak top, teak_dark trestles"
+
+[asset.camp_stool]
+route = "blender_procedural"
+route_why = "simple joinery, kit prop"
+category = "kit_prop"
+build = "art/pipeline/blender/factory/build_camp_stool.py"
+dims_m = [0.45, 0.38, 0.45]
+dims_tolerance = 0.12
+tri_budget = 600
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: folding X-frame camp stool with a canvas sling seat, common expedition kit c.1900–1920."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[5.6, 1.4], 25]
+parts = "two X-frames of 0.03 m round legs pinned at the centre, two top rails, a sagging canvas sling (single curved strip); teak legs, canvas seat"
+
+[asset.water_cask]
+route = "blender_procedural"
+route_why = "lathe form with hoops: exact, cheap, instanceable"
+category = "kit_prop"
+build = "art/pipeline/blender/factory/build_water_cask.py"
+dims_m = [0.56, 0.56, 0.80]
+dims_tolerance = 0.10
+tri_budget = 600
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: coopered wooden water cask with iron hoops; stores for the expedition were shipped in casks and cases."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[6.4, -0.6], 0]
+parts = "bulging stave body (16 sides, 5 rings), four iron hoops proud by 0.006 m, recessed head with a bung; pine staves, iron hoops, teak_dark head"
+
+[asset.hurricane_lantern]
+route = "blender_procedural"
+route_why = "mechanical small prop with glass globe; needs exact pivot for a light"
+category = "set_prop"
+build = "art/pipeline/blender/factory/build_hurricane_lantern.py"
+dims_m = [0.20, 0.18, 0.34]
+dims_tolerance = 0.15
+tri_budget = 2000
+max_materials = 3
+max_texture_px = 0
+pivots = { hurricane_lantern_flame = [0.0, 0.0, 0.14] }
+history = "RECONSTRUCTION: tubular 'hurricane' kerosene lantern, widespread by 1919 (Dietz pattern); exact model unknown."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[4.6, 0.6], 0]
+qa_on = "trestle_table"
+parts = "fuel fount (cylinder), two side air tubes with bail-wire handle (8-sided, >=0.02 m), glass globe (plate_glass, 12 sides), top cap and chimney; separate tiny object hurricane_lantern_flame at the wick (origin = pivot) so the game can attach an OmniLight"
+
+[asset.instrument_chest]
+route = "blender_procedural"
+route_why = "dimensioned box with hardware; hero-adjacent"
+category = "set_prop"
+build = "art/pipeline/blender/factory/build_instrument_chest.py"
+dims_m = [0.90, 0.50, 0.46]
+dims_tolerance = 0.10
+tri_budget = 2000
+max_materials = 3
+max_texture_px = 0
+pivots = { instrument_chest_lid = [0.0, 0.25, 0.40] }
+history = "RECONSTRUCTION: teak instrument chest with brass corners and iron carrying handles; the expedition shipped instruments in fitted cases."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[3.9, 2.4], 15]
+parts = "body 0.90 x 0.50 x 0.40, separate lid object (hinge at back top edge, origin = pivot), brass corner caps, brass hasp, two iron drop handles on the ends; teak, brass, iron"
+
+[asset.plate_rack]
+route = "blender_procedural"
+route_why = "repeated slats at exact spacing; darkroom prop"
+category = "set_prop"
+build = "art/pipeline/blender/factory/build_plate_rack.py"
+dims_m = [0.60, 0.26, 0.40]
+dims_tolerance = 0.12
+tri_budget = 2000
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: grooved wooden drying rack for glass negatives; plate size in the game stays as in docs/PROVENANCE.md."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[11.3, 1.75], 0]
+qa_light = "night"
+qa_eye = [10.0, 0.05, 3.4]   # inside the darkroom, by the door
+parts = "base board with 12 grooves (dowels 0.012 m read as pegs; merge sub-2cm detail into rails), two end posts, top rail; four leaning glass plates (plate_glass, evidence-style bright, 0.003 m thick slabs) in the rack"
+
+[asset.zinc_bucket]
+route = "blender_procedural"
+route_why = "lathe form, kit prop"
+category = "kit_prop"
+build = "art/pipeline/blender/factory/build_zinc_bucket.py"
+dims_m = [0.32, 0.30, 0.30]
+dims_tolerance = 0.15
+tri_budget = 600
+max_materials = 2
+max_texture_px = 0
+history = "RECONSTRUCTION: galvanised iron bucket with wire bail; standard by the 1900s."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[6.0, -1.3], 0]
+parts = "tapered open bucket (16 sides, wall thickness modelled at the rim only), rolled rim, two ears and a wire bail (>=0.02 m thick, 8 sides) with wooden grip; iron (lightened) and teak_dark"
+
+[asset.wheelbarrow]
+route = "blender_procedural"
+route_why = "joinery plus spoked wheel; exact size"
+category = "set_prop"
+build = "art/pipeline/blender/factory/build_wheelbarrow.py"
+dims_m = [0.70, 1.50, 0.62]
+dims_tolerance = 0.12
+tri_budget = 2000
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: wooden plantation wheelbarrow with a spoked iron-tyred wheel; carts and barrows moved cocoa on São Tomé and Príncipe roças."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[-5.2, 3.6], 120]
+parts = "board tray with flared sides, two long handles running from axle to grips, two legs, wooden wheel 0.45 m dia with 8 spokes and iron tyre; front of the barrow (wheel) faces -Y"
+
+[asset.ladder]
+route = "blender_procedural"
+route_why = "repeated rungs, exact spacing"
+category = "kit_prop"
+build = "art/pipeline/blender/factory/build_ladder.py"
+dims_m = [0.48, 0.07, 3.00]
+dims_tolerance = 0.10
+tri_budget = 600
+max_materials = 2
+max_texture_px = 0
+history = "RECONSTRUCTION: plain wooden ladder, needed to rig the shelter canvas."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[2.9, -1.2], 90]
+qa_lean_deg = 15
+parts = "two rails 0.06 x 0.04 m, 10 round rungs (8 sides, 0.03 m) at 0.28 m spacing; built standing upright, the game leans it"
+
+[asset.sawhorse]
+route = "blender_procedural"
+route_why = "joinery kit prop"
+category = "kit_prop"
+build = "art/pipeline/blender/factory/build_sawhorse.py"
+dims_m = [1.00, 0.55, 0.70]
+dims_tolerance = 0.12
+tri_budget = 600
+max_materials = 2
+max_texture_px = 0
+history = "RECONSTRUCTION: carpenter's sawhorse used while building the shelter."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[-4.0, 5.6], 70]
+parts = "top beam 1.0 x 0.09 x 0.09, four splayed legs, two end braces; pine top, teak legs"
+
+[asset.cocoa_drying_barcaca]
+route = "blender_procedural"
+route_why = "architecture with exact footprint and a moving roof"
+category = "architecture"
+build = "art/pipeline/blender/factory/build_cocoa_drying_barcaca.py"
+dims_m = [3.20, 6.00, 2.20]
+dims_tolerance = 0.10
+tri_budget = 3000
+max_materials = 4
+max_texture_px = 0
+pivots = { cocoa_drying_barcaca_roof = [0.0, 0.0, 0.0] }
+history = "RECONSTRUCTION: barcaça, a raised timber cocoa-drying platform with a roof on rails that slides off to sun the beans, characteristic of São Tomé and Príncipe roças; size and detail invented."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[-11.0, 4.0], 90]
+parts = "raised plank deck at 0.9 m on brick piers, low edge boards, a thin layer of cocoa beans (laterite_wet tint, flat slab), two side rails extending 3 m beyond the deck; separate object cocoa_drying_barcaca_roof (corrugated iron, gable, origin at 0,0,0) currently over the deck"
+
+[asset.post_rail_fence]
+route = "blender_procedural"
+route_why = "modular kit, instanceable"
+category = "kit_prop"
+build = "art/pipeline/blender/factory/build_post_rail_fence.py"
+dims_m = [2.50, 0.14, 1.10]
+dims_tolerance = 0.10
+tri_budget = 600
+max_materials = 2
+max_texture_px = 0
+history = "RECONSTRUCTION: rough post-and-rail fence segment around a roça clearing."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[-1.0, 7.2], 0]
+parts = "one post at -X end (0.12 dia, 8 sides, slight lean), two rails 2.5 m long with a small sag; the next segment supplies the +X post (kit tiles along X at 2.5 m)"
+
+[asset.laterite_steps]
+route = "blender_procedural"
+route_why = "architecture kit, exact riser heights"
+category = "architecture"
+build = "art/pipeline/blender/factory/build_laterite_steps.py"
+dims_m = [1.60, 0.80, 0.30]   # QA r1: was 3 risers / 0.54 m, taller than the house veranda (0.30 m, world_builder._plantation_house)
+dims_tolerance = 0.10
+tri_budget = 3000
+max_materials = 2
+max_texture_px = 0
+history = "RECONSTRUCTION: three rough-dressed stone steps with laterite infill, as at the roça house terrace."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[-5.4, -13.0], 0]   # against the veranda edge (z -13.4), between two columns
+parts = "two steps (0.15 m risers, 0.36 m treads, top step flush with a 0.30 m terrace behind it) made of irregular dressed blocks (vary each block +-1.5 cm and 1–2° so it does not read as a single extrusion), laterite infill joints; stone + laterite"
+
+[asset.coconut_palm]
+route = "blender_procedural"
+route_why = "draw-call hot spot (125/153 in totality_sky): needs a 1–2 mesh instanceable kit, which image→3D cannot guarantee"
+category = "kit_prop"
+build = "art/pipeline/blender/factory/build_coconut_palm.py"
+dims_m = [6.0, 6.0, 8.0]
+dims_tolerance = 0.15
+tri_budget = 600
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: coconut palm (Cocos nucifera), present around Príncipe roças; individual trees invented."
+licence = "project-original (procedural)"
+est_credits = 0
+qa = [[-7.0, 7.5], 0]
+parts = "curved ringed trunk 0.16 m radius, 7.5 m tall, gentle S-lean (8 sides, 6 segments, single mesh), crown of 10 arching, drooping fronds (each a folded V strip with 4 segments, both faces, leaflets suggested by a zig-zag edge), a cluster of 5 coconuts; ONE joined mesh with teak_dark trunk, foliage_deep/foliage_light fronds"
+
+# ------------------------------------------------------- image→3D (gated)
+
+[asset.cocoa_sack_pile]
+route = "meshy"
+route_why = "soft cloth folds and slumped stacking: image→3D wins, procedural reads as pillows"
+category = "set_prop"
+dims_m = [1.40, 1.00, 0.90]
+dims_tolerance = 0.20
+tri_budget = 2000
+max_materials = 3
+max_texture_px = 512
+history = "RECONSTRUCTION: jute sacks of dried cocoa, Príncipe's main export in 1919."
+licence = "meshy-paid → user-owned (Meshy ToS); meshy-free → CC BY 4.0 (credit Meshy)"
+est_credits = 15
+generator = { ai_model = "meshy-t2.5", model_type = "smart-topology", target_polycount = 3000, should_texture = true }
+subject = "a pile of six slumped jute sacks of dried cocoa beans, tied necks, stacked two high on bare earth, coarse brown hessian, simple sturdy forms"
+qa = [[3.1, -6.6], 30]
+
+[asset.laterite_boulder]
+route = "meshy"
+route_why = "irregular rock; scanned-looking variation is the point"
+category = "kit_prop"
+dims_m = [1.20, 0.90, 0.70]
+dims_tolerance = 0.25
+tri_budget = 600
+max_materials = 1
+max_texture_px = 512
+history = "RECONSTRUCTION: weathered volcanic rock with laterite staining; Príncipe is a volcanic island."
+licence = "meshy-paid → user-owned (Meshy ToS); meshy-free → CC BY 4.0 (credit Meshy)"
+est_credits = 15
+generator = { ai_model = "meshy-t2.5", model_type = "smart-topology", target_polycount = 600, should_texture = true }
+subject = "one weathered dark volcanic basalt boulder half sunk in red laterite soil, rounded edges, rusty red staining in the cracks, no moss"
+qa = [[-2.5, 5.2], 0]
+
+[asset.cocoa_pod_basket]
+route = "meshy"
+route_why = "woven wicker plus pods: irregular and organic"
+category = "set_prop"
+dims_m = [0.60, 0.60, 0.42]
+dims_tolerance = 0.20
+tri_budget = 2000
+max_materials = 3
+max_texture_px = 512
+history = "RECONSTRUCTION: round woven carrying basket filled with ripe cocoa pods."
+licence = "meshy-paid → user-owned (Meshy ToS); meshy-free → CC BY 4.0 (credit Meshy)"
+est_credits = 15
+generator = { ai_model = "meshy-t2.5", model_type = "smart-topology", target_polycount = 3000, should_texture = true }
+subject = "a round open woven palm-fibre carrying basket full of ripe ridged cocoa pods in yellow-orange and ochre, plain sturdy weave, no handles"
+qa = [[5.1, 2.6], 0]
+
+[asset.felled_stump]
+route = "meshy"
+route_why = "bark, roots and splintered cut: organic"
+category = "set_prop"
+dims_m = [1.10, 1.00, 0.60]
+dims_tolerance = 0.25
+tri_budget = 2000
+max_materials = 2
+max_texture_px = 512
+history = "RECONSTRUCTION: stump of a tree cleared to open the sky over the instrument."
+licence = "meshy-paid → user-owned (Meshy ToS); meshy-free → CC BY 4.0 (credit Meshy)"
+est_credits = 15
+generator = { ai_model = "meshy-t2.5", model_type = "smart-topology", target_polycount = 3000, should_texture = true }
+subject = "a freshly felled tropical hardwood tree stump with a flat axe-cut top, exposed buttress roots spreading into red soil, grey-brown bark, pale cut wood"
+qa = [[-6.3, -1.8], 0]
+
+[asset.tarp_bundle]
+route = "meshy"
+route_why = "folded cloth and rope lashing: organic"
+category = "set_prop"
+dims_m = [1.10, 0.60, 0.40]
+dims_tolerance = 0.20
+tri_budget = 2000
+max_materials = 2
+max_texture_px = 512
+history = "RECONSTRUCTION: folded spare canvas for the shelter roof, lashed with rope."
+licence = "meshy-paid → user-owned (Meshy ToS); meshy-free → CC BY 4.0 (credit Meshy)"
+est_credits = 15
+generator = { ai_model = "meshy-t2.5", model_type = "smart-topology", target_polycount = 3000, should_texture = true }
+subject = "a heavy folded bundle of off-white canvas tarpaulin lashed with two hemp ropes, lying flat, plain cloth with soft folds"
+qa = [[-3.0, -0.2], 20]
+
+[asset.firewood_stack]
+route = "meshy"
+route_why = "split logs with irregular cross-sections"
+category = "set_prop"
+dims_m = [1.20, 0.60, 0.70]
+dims_tolerance = 0.20
+tri_budget = 2000
+max_materials = 2
+max_texture_px = 512
+history = "RECONSTRUCTION: split firewood for the roça kitchen and the darkroom water heater."
+licence = "meshy-paid → user-owned (Meshy ToS); meshy-free → CC BY 4.0 (credit Meshy)"
+est_credits = 15
+generator = { ai_model = "meshy-t2.5", model_type = "smart-topology", target_polycount = 3000, should_texture = true }
+subject = "a neat stack of split hardwood firewood logs, about thirty pieces, ends showing pale split wood and dark bark, stacked between two short stakes"
+qa = [[8.0, 6.0], -90]

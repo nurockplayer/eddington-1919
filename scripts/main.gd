@@ -140,6 +140,18 @@ func _ready() -> void:
 			bench.out_dir = out
 			add_child(bench)
 			return
+	if args.has("factory-qa"):
+		# Asset Factory in-game QA (art/factory/); tests/ is excluded from exports.
+		var qa_script: Script = load("res://tests/factory_qa.gd")
+		if qa_script == null:
+			push_warning("factory QA unavailable in this build")
+		else:
+			var qa: Node = qa_script.new()
+			qa.main = self
+			qa.out_dir = ProjectSettings.globalize_path("res://" + args["factory-qa"]) if not args["factory-qa"].is_absolute_path() else args["factory-qa"]
+			qa.manifest_path = ProjectSettings.globalize_path("res://" + args["qa-manifest"]) if not args.get("qa-manifest", "").is_absolute_path() else args["qa-manifest"]
+			add_child(qa)
+			return
 	if args.has("autoplay"):
 		var bot_script: Script = load("res://tests/autoplay_bot.gd")
 		if bot_script == null:

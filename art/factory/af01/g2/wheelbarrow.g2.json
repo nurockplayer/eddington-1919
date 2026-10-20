@@ -1,0 +1,85 @@
+{
+  "asset": "wheelbarrow",
+  "file": "assets/candidates/af01/wheelbarrow.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 1668,
+      "max": 2000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_iron",
+        "E1919_teak",
+        "E1919_teak_dark"
+      ],
+      "max": 3,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.7,
+        1.5,
+        0.62
+      ],
+      "target": [
+        0.7,
+        1.5,
+        0.62
+      ],
+      "tolerance": 0.12,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "wheelbarrow": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "wheelbarrow"
+      ],
+      "ok": true
+    }
+  }
+}

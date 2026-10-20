@@ -7,8 +7,9 @@ extends Node3D
 ##
 ## Run:     godot --path . res://scenes/lookdev.tscn
 ## Capture: godot --path . --always-on-top res://scenes/lookdev.tscn -- --capture=DIR [--assets=a,b]
+##          [--models=res://assets/candidates/af01/]   (factory candidates, art/factory/)
 
-const MODELS_DIR := "res://assets/models/"
+var models_dir := "res://assets/models/"
 const PALETTE := "res://art/palette.toml"   # read from source; lookdev is excluded from exports (export_presets.cfg)
 const CAMERAS := {
 	"front": [Vector3(0.6, 1.1, 4.2), Vector3(0.6, 0.75, 0.0)],
@@ -36,12 +37,13 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		args[kv[0]] = kv[1] if kv.size() > 1 else "1"
+	models_dir = args.get("models", models_dir).trim_suffix("/") + "/"
 	_studio()
 	_references()
 	_palette_chips()
 	var ids: PackedStringArray = args.get("assets", "").split(",", false)
 	if ids.is_empty():
-		for f in DirAccess.get_files_at(MODELS_DIR):
+		for f in DirAccess.get_files_at(models_dir):
 			if f.ends_with(".glb"):
 				ids.append(f.get_basename())
 	var x := 0.0
@@ -198,7 +200,7 @@ func _palette_chips() -> void:
 
 
 func _place_asset(id: String, x: float) -> float:
-	var path := MODELS_DIR + id + ".glb"
+	var path := models_dir + id + ".glb"
 	if not ResourceLoader.exists(path):
 		push_warning("lookdev: missing " + path)
 		return x

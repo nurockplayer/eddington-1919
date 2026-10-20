@@ -1,0 +1,105 @@
+{
+  "asset": "cocoa_drying_barcaca",
+  "file": "assets/candidates/af01/cocoa_drying_barcaca.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 2488,
+      "max": 3000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_brick",
+        "E1919_iron",
+        "E1919_laterite_wet",
+        "E1919_teak"
+      ],
+      "max": 4,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        3.2,
+        6.0,
+        2.2
+      ],
+      "target": [
+        3.2,
+        6.0,
+        2.2
+      ],
+      "tolerance": 0.1,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "cocoa_drying_barcaca": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "cocoa_drying_barcaca_roof": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "cocoa_drying_barcaca",
+        "cocoa_drying_barcaca_roof"
+      ],
+      "ok": true
+    }
+  }
+}

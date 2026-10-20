@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        1.6,
+        0.8,
+        0.3
+      ],
+      "id": "laterite_steps",
+      "min_y": 0.0,
+      "surfaces": 2,
+      "triangles": 772
+    }
+  ],
+  "frame_scale": 1.0
+}

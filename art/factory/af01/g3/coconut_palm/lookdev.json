@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        6.0,
+        6.0,
+        8.0
+      ],
+      "id": "coconut_palm",
+      "min_y": 0.0,
+      "surfaces": 3,
+      "triangles": 508
+    }
+  ],
+  "frame_scale": 4.44
+}
