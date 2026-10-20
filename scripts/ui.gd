@@ -2,6 +2,10 @@ extends CanvasLayer
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
 signal dialogue_done(results: Dictionary)
+signal dialogue_entry(speaker: String)
+signal prologue_pressed
+signal log_toggled(open: bool)
+signal pause_toggled(paused: bool)
 signal start_pressed
 signal restart_pressed(same_sky: bool)
 signal quit_pressed
@@ -36,7 +40,12 @@ var hint_label: Label
 var fade: ColorRect
 var caption: Label
 var title_panel: Control
+var prologue_btn: Button
 var start_btn: Button
+var log_panel: PanelContainer
+var log_text: RichTextLabel
+static var history: Array[String] = []
+var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_panel: Control
 var ending_text: RichTextLabel
 var ending_title: Label
@@ -80,6 +89,7 @@ func _ready() -> void:
 	_build_title(root)
 	_build_ending(root)
 	_build_pause(root)
+	_build_log(root)
 	fade = ColorRect.new()
 	fade.color = Color(0, 0, 0, 0)
 	fade.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -254,6 +264,8 @@ func show_caption(text: String, seconds := 3.0) -> Tween:
 
 func _build_dialog(root: Control) -> void:
 	dialog_panel = PanelContainer.new()
+	# Keep long authored choices on screen as the panel grows from its bottom edge.
+	dialog_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	dialog_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.07, 0.06, 0.05, 0.9), Color(0.5, 0.4, 0.26)))
 	dialog_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	dialog_panel.position = Vector2(-560, -300)
@@ -283,7 +295,10 @@ func dialog_active() -> bool:
 ## Plays a sequence of {s: speaker, t: text, choices?: [..], key?: String}.
 ## Emits dialogue_done(results) where results[key] = chosen index.
 func play(seq: Array) -> void:
-	_seq = seq
+	if seq.is_empty():
+		dialogue_done.emit({})
+		return
+	_seq = seq.duplicate(true)
 	_seq_i = 0
 	_results = {}
 	_toast_t = 0.0
@@ -295,6 +310,9 @@ func play(seq: Array) -> void:
 
 func _show_entry() -> void:
 	var e: Dictionary = _seq[_seq_i]
+	history.append("%s：%s" % [e.get("s", ""), e.get("t", "")])
+	if history.size() > 60:
+		history.pop_front()
 	speaker_label.text = e.get("s", "")
 	text_label.text = e.get("t", "")
 	for b in _choice_buttons:
@@ -308,10 +326,14 @@ func _show_entry() -> void:
 		b.pressed.connect(_choose.bind(i))
 		choice_box.add_child(b)
 		_choice_buttons.append(b)
+	dialogue_entry.emit(str(e.get("s", "")))
 
 
 func _choose(i: int) -> void:
 	var e: Dictionary = _seq[_seq_i]
+	history.append("你：" + str(e.choices[i]))
+	if history.size() > 60:
+		history.pop_front()
 	_results[e.get("key", str(_seq_i))] = i
 	if e.has("then"):
 		# Branch: insert the follow-up lines for this choice.
@@ -338,7 +360,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		toggle_pause()
 		return
-	if get_tree().paused or not dialog_panel.visible:
+	if get_tree().paused or log_panel.visible or not dialog_panel.visible:
 		return
 	var e: Dictionary = _seq[_seq_i]
 	var has_choices := e.has("choices")
@@ -545,22 +567,25 @@ func _build_title(root: Control) -> void:
 	var t := _label("雲層之後", 64, PAPER)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(t)
-	var st := _label("普林西比島 · 1919 年 5 月 29 日", 26, ACCENT)
+	var st := _label("劍橋，1917 → 普林西比，1919", 26, ACCENT)
 	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(st)
 	var body := _rich(19)
-	body.text = ("[center]上午的暴雨剛停。日全食只有 302 秒，而雲還沒有散。\n"
-		+ "你是觀測站的年輕助手（虛構人物）。準備器材、在雲縫中喊出曝光，\n然後在夜裡面對底片——決定要向英國發出什麼樣的電報。[/center]\n\n"
-		+ "[color=#b8ad98]WASD 移動 · 滑鼠／方向鍵 觀看 · Shift 跑 · E 互動（按住＝持續動作）\n"
-		+ "全食時：空白鍵／E／滑鼠左鍵 喊「開始」與「停」 · Esc 暫停[/color]\n\n"
-		+ "[color=#8f8676][font_size=15]Eddington、Cottingham、Roça Sundy、302 秒全食、雲層等為史實背景；玩家、對白、時鐘驅動需要協助的情節與所有數值均為虛構或示意。"
-		+ "場景為推測重建，太陽與星點的視大小經過放大。[/font_size][/color]")
+	body.text = ("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
+		+ "有人會說，對不上的東西就是假的。\n"
+		+ "兩年後，在赤道的雲層底下，你只有 302 秒。[/center]\n\n"
+		+ "[color=#b8ad98]WASD 移動 · 滑鼠／方向鍵 觀看 · Shift 跑 · E 互動 · Tab 對話紀錄\n"
+		+ "全食時：空白鍵／E／左鍵 開始與停 · Esc 暫停[/color]\n\n"
+		+ "[color=#8f8676][font_size=15]Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構（姓名暫定），場景為推測重建。[/font_size][/color]")
 	v.add_child(body)
 	var hb := HBoxContainer.new()
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER
 	hb.add_theme_constant_override("separation", 20)
 	v.add_child(hb)
-	start_btn = _button("　開始　")
+	prologue_btn = _button("序章　劍橋，1917")
+	prologue_btn.pressed.connect(func(): prologue_pressed.emit())
+	hb.add_child(prologue_btn)
+	start_btn = _button("普林西比，1919")
 	start_btn.pressed.connect(func(): start_pressed.emit())
 	hb.add_child(start_btn)
 	var q := _button("　離開　")
@@ -626,6 +651,7 @@ func _build_pause(root: Control) -> void:
 	pause_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pause_panel.visible = false
 	pause_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	pause_panel.z_index = 1
 	root.add_child(pause_panel)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)
@@ -655,5 +681,56 @@ func toggle_pause() -> void:
 	pause_panel.visible = p
 	if p:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	elif not dialog_panel.visible and not viewer.visible and not ending_panel.visible and not title_panel.visible:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Only the chapter knows every form and scripted input lock it owns.
+	pause_toggled.emit(p)
+
+
+# Dialogue history is shared by both chapters; Tab never advances dialogue.
+func _build_log(root: Control) -> void:
+	log_panel = PanelContainer.new()
+	log_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	log_panel.offset_left = 150
+	log_panel.offset_right = -150
+	log_panel.offset_top = 55
+	log_panel.offset_bottom = -55
+	log_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.04, 0.035, 0.03, 0.98), ACCENT))
+	log_panel.visible = false
+	root.add_child(log_panel)
+	var v := VBoxContainer.new()
+	log_panel.add_child(v)
+	v.add_child(_label("對話紀錄　［Tab 關閉］", 28, ACCENT))
+	log_text = RichTextLabel.new()
+	log_text.bbcode_enabled = true
+	log_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	log_text.add_theme_color_override("default_color", PAPER)
+	log_text.scroll_following = true
+	v.add_child(log_text)
+	var close := _button("返回　Tab")
+	close.pressed.connect(toggle_log)
+	v.add_child(close)
+
+
+func log_open() -> bool:
+	return log_panel.visible
+
+
+func toggle_log() -> void:
+	log_panel.visible = not log_panel.visible
+	if log_panel.visible:
+		_log_mouse_mode = Input.mouse_mode
+		log_text.text = "\n\n".join(history)
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		Input.mouse_mode = _log_mouse_mode
+	log_toggled.emit(log_panel.visible)
+
+
+func _input(event: InputEvent) -> void:
+	if log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
+		toggle_pause()
+		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_TAB and not get_tree().paused:
+		toggle_log()
+		get_viewport().set_input_as_handled()
+	elif log_panel.visible and event is InputEventKey:
+		get_viewport().set_input_as_handled()

@@ -73,4 +73,5 @@
 ## Known limits and next steps
 - Faces are simple sculpted forms in flat skin colour. Up close they read as stylised but human, not uncanny. There is no facial animation and no lip-sync.
 - Clothes come from modern CC0 garments restyled in period palette colours. Collar and lapel cut are not period-exact.
+- **Consistency gap:** Eddington is still a primitive figure in M1/M2 Cambridge. The same pipeline could build an `eddington_cambridge` variant (dark wool suit, no hat) for `figures.gd`. That code belongs to the narrative workstream, so it is proposed, not done here.
 - **Next:** gestures for dialogue (a nod, a hand to the instrument), the night-scene posture, and the remaining environment items (vegetation, daytime clouds, darkroom performance).

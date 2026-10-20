@@ -50,3 +50,36 @@
 - Royal Observatory Greenwich — https://www.royalobservatorygreenwich.org/articles.php?article=1283
 - Einstein Papers vol. 9 — https://einsteinpapers.press.princeton.edu/vol9-doc/34
 - 未能取得全文：Phil. Trans. 1920 報告原文、Correia et al. 2019（SciELO）。引用均經上列文獻轉引。
+
+## M1 劍橋序章（1917）
+
+依據 [M1 規格](design/M1_CAMBRIDGE_PROLOGUE.md)（含「Fact-check applied」一節）。台詞由 Game Director 撰寫於 `scripts/cambridge/content_1917.gd`；
+人物名 Kit、Ashby 先生為**暫定名**，只在 `cast.gd` 定義。遊戲中每段蒙太奇字幕都標明（史實）或（虛構）。
+
+| 內容 | 標記 | 依據／說明 |
+|---|---|---|
+| Dyson 1917 年指出 1919 年 5 月 29 日日食時太陽位於金牛座一群異常明亮的恆星前方 | HISTORICAL_RECORD | Dyson, MNRAS 77, 445（1917 年 3 月）。原文說的是「an unusual number of bright stars」，沒有寫 Hyades；台詞以「畢宿星團那一帶」轉述。 |
+| 1905 年日食底片因定天鏡反射而左右相反，比對時要片對片 | HISTORICAL_RECORD | 同上 Dyson 1917。導師用它說明「鏡像不是造假」，序章的鏡像錯誤是以此為本的虛構情境。 |
+| 底片編號以鉛筆寫在乳劑面 | HISTORICAL_RECORD（一般作法） | 規格查核；刮痕編號、剪角等細節**未**採用。 |
+| 聯合常設日食委員會 1917 年 11 月 10 日決定「如果可能」派隊到 Sobral 與 Príncipe | HISTORICAL_RECORD | 人員到 1918 年中才暫定；序章不聲稱主角已被選入。 |
+| Eddington 時任劍橋天文台台長；戰時背景；1.75″／0.87″／0 的三個預期值 | HISTORICAL_RECORD | 沿用 [HISTORY_1919](HISTORY_1919.md)。 |
+| 「2.4 公分的硬幣放在約 2.83 公里外」≈ 1.75″ | 計算（示意） | 2.4 cm ÷ 2.83 km ≈ 8.5×10⁻⁶ rad ≈ 1.75″。 |
+| 測量室格局、看片台、煤火、窗簾、雨 | RECONSTRUCTION | 為玩法與照明創作，沒有現場照片或平面圖依據。 |
+| 人物服裝與造型 | RECONSTRUCTION | 簡化幾何，非考據肖像。 |
+| 主角、Kit、Ashby 先生、抄錄者（1915 年春入伍的學生志願者）、空桌與信 | FICTION | 抄錄者刻意設定為學生志願者；**不影射**1917 年過世的兩位真實天文台助手。 |
+| 14 號星場、鏡像與轉角、重合點數、未解殘點 | FICTION／示意幾何 | 程序座標。殘點可能是淡星或乳劑缺陷，本章不下結論。 |
+| 導師評閱、Eddington 的兩個問題、計畫卡、比對星清單試做、Kit 尾聲 | FICTION／戲劇化 | Eddington 的台詞是虛構對話，只表達有紀錄的立場（需要比對底片、需要比較三種預期值），不新增他的私人評論。試做工作不等於遠征資格。 |
+| 童年星圖被指為造假的簡短回憶 | FICTION | 只引用已批准的故事結構，不新增年齡、地點或人物細節。M1 **沒有**童年信物或微影像道具（該謎題的正典尚未定案）。 |
+
+## M2 出發前一晚（1919 年 3 月）
+
+| 內容 | 標記 | 依據／說明 |
+|---|---|---|
+| 1919 年 3 月 8 日，兩支日食隊從利物浦出發；普林西比的觀測者是 Eddington 與 Cottingham | HISTORICAL_RECORD | 例如 Trinity College Library〈A century of relativity〉（2019）。主角同行屬虛構，蒙太奇字幕已標明。 |
+| 1918 年起英國糖配給 | HISTORICAL_RECORD（背景） | 只用在 Kit 省下糖的台詞，不涉及具體配給量。 |
+| 停戰後拆除燈火管制窗簾、窗外路燈 | RECONSTRUCTION | 氣氛處理，不代表考證過劍橋當地的確切日期。 |
+| 比較星清單第 21–25 號與 x／y 毫米讀數 | FICTION | 刻意不用真實星名或座標，避免假裝是 1919 年的資料。 |
+| 主角的抄錄錯誤、Kit 的複核、修正方式、Kit 的天空約定與空白頁 | FICTION | 依已批准的「互相分享天空」概念。任何路線都不告白。 |
+| Ashby 先生的禮物（暫定為黃銅放大鏡）與其來歷 | FICTION（暫定） | 類型、年代、來歷都尚待研究，不宣稱是真實歷史物件。 |
+| 普林西比夜晚寫在工作簿上的雨與雲 | FICTION，背景依史實 | 1919 年 5 月 29 日普林西比上午大雨、全食時隔著雲：依 Dyson, Eddington & Davidson（Phil. Trans. A 220, 1920）報告，經二手文獻轉引（原文未取得，見上）。文字不影響量測與評分。 |
+
