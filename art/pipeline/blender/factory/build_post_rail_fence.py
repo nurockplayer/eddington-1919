@@ -64,7 +64,7 @@ def main():
     # segment's -X boundary and both rails pass into it for a solid joint.
     parts.append(kit.cyl(
         "fence_post", 0.06, 1.098,
-        (-1.19, 0, 0.55), "pine",
+        (-1.19, 0, 0.55), "teak_dark",
         rot=(1.0, 0, 0), verts=8, bevel=0.008, segments=1,
     ))
 
@@ -74,7 +74,7 @@ def main():
     wav = [0.000, -0.002, 0.003, -0.002, 0.000]
     stations = [(x, w, -dip) for x, w, dip in zip(xs, wav, sag)]
     parts.append(swept_rail("lower_rail", stations, 0.34, "teak"))
-    parts.append(swept_rail("upper_rail", stations, 0.77, "pine"))
+    parts.append(swept_rail("upper_rail", stations, 0.77, "teak"))
 
     fence = kit.join("post_rail_fence", parts)
     bpy.context.view_layer.update()

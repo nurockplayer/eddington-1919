@@ -1,4 +1,4 @@
-"""Build a grooved timber negative-drying rack with four leaning glass plates."""
+"""Build a grooved timber drying rack with four dark developed negatives."""
 import math
 import sys
 from pathlib import Path
@@ -74,7 +74,7 @@ def main():
         bottom = Vector((GROOVES[slot], -0.0005, 0.04273))
         rise = Vector((math.sin(angle), 0, math.cos(angle)))
         parts.append(kit.box("glass_negative", (0.003, 0.207, height),
-                             bottom + rise * (height / 2), "plate_glass",
+                             bottom + rise * (height / 2), "sea_slate",
                              rot=(0, lean, 0), bevel=0.0005))
     rack = kit.join("plate_rack", parts)
     bpy.context.view_layer.update()

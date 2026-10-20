@@ -4,14 +4,14 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 772,
+      "value": 572,
       "max": 3000,
       "ok": true
     },
     "materials": {
       "value": [
-        "E1919_laterite",
-        "E1919_stone"
+        "E1919_basalt",
+        "E1919_laterite"
       ],
       "max": 2,
       "ok": true

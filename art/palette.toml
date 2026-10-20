@@ -158,3 +158,17 @@ roughness = 0.2
 hex = "#4A423B"
 role = "structure"
 roughness = 0.6
+
+# af01 fix round (Director, 2026-10-20). Galvanised zinc for buckets and
+# sheeting, so tinware no longer reads as black iron; dark dressed basalt
+# (Príncipe is volcanic) for masonry that must not read as pale toy stone.
+[swatch.zinc]
+hex = "#6E7273"  # weathered (dull) zinc; #8D9192 rendered near off-white in QA, competing with evidence (S1)
+role = "structure"
+roughness = 0.6
+metallic = 0.3
+
+[swatch.basalt]
+hex = "#4F4A44"
+role = "structure"
+roughness = 0.9

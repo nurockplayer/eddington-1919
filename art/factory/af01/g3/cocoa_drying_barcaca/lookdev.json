@@ -3,14 +3,14 @@
     {
       "dims_xzy_m": [
         3.2,
-        6.0,
+        8.0,
         2.2
       ],
       "id": "cocoa_drying_barcaca",
       "min_y": 0.0,
       "surfaces": 6,
-      "triangles": 2488
+      "triangles": 2512
     }
   ],
-  "frame_scale": 2.22
+  "frame_scale": 2.96
 }

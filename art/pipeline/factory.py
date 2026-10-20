@@ -236,7 +236,7 @@ def preview(b, d, a):
     if godot_import():
         return 1  # no receipts from an un-imported project
     res_dir = "res://" + b["batch"]["candidates_dir"]
-    shots = []
+    shots, fails = [], 0
     for i in ids(b, a.only):
         out = d / "g3" / i
         shutil.rmtree(out, ignore_errors=True)

@@ -32,6 +32,8 @@ const C := {
 	"leather": Color(0.239, 0.169, 0.122),  # structure
 	"eye_dark": Color(0.118, 0.102, 0.090),  # structure
 	"hair_greying": Color(0.290, 0.259, 0.231),  # structure
+	"zinc": Color(0.431, 0.447, 0.451),  # structure
+	"basalt": Color(0.310, 0.290, 0.267),  # structure
 }
 
 const ROUGH := {
@@ -64,4 +66,6 @@ const ROUGH := {
 	"leather": 0.55,
 	"eye_dark": 0.2,
 	"hair_greying": 0.6,
+	"zinc": 0.6,
+	"basalt": 0.9,
 }

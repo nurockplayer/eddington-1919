@@ -43,7 +43,7 @@ def bucket_shell():
                           (ring + 1) * n + j, (ring + 1) * n + i))
     faces.extend([tuple(reversed(range(n))),
                   tuple((len(profile) - 1) * n + i for i in range(n))])
-    return mesh_part("rolled_bucket_shell", vertices, faces, "iron")
+    return mesh_part("rolled_bucket_shell", vertices, faces, "zinc")
 
 
 def bail():
@@ -69,7 +69,7 @@ def bail():
             j = (i + 1) % 8
             faces.append((ring * 8 + i, ring * 8 + j,
                           (ring + 1) * 8 + j, (ring + 1) * 8 + i))
-    return mesh_part("forged_bail", vertices, faces, "iron")
+    return mesh_part("galvanised_bail", vertices, faces, "zinc")
 
 
 def main():
@@ -77,14 +77,14 @@ def main():
     parts = [bucket_shell(), bail()]
     for side in (-1, 1):
         parts.append(kit.box("bail_ear", (0.040, 0.040, 0.045),
-                             (side * 0.140, 0, 0.173), "iron", bevel=0.006))
+                             (side * 0.140, 0, 0.173), "zinc", bevel=0.006))
     parts.append(kit.cyl("timber_grip", 0.014, 0.130, (0, 0, 0.287),
                          "teak_dark", rot=(0, 90, 0), verts=8, bevel=0.003))
     bucket = kit.join("zinc_bucket", parts)
     bpy.context.view_layer.update()
     kit.set_origin(bucket, Vector((0, 0, 0)))
     assert kit.triangles([bucket]) <= 510
-    # No lightened iron swatch exists: preserve the palette material verbatim.
+    # The 2 cm rolled lip and bail carry the galvanised silhouette at 3 m.
     kit.export("assets/candidates/af01/zinc_bucket.glb", [bucket])
 
 

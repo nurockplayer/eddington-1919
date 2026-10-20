@@ -4,13 +4,13 @@
       "dims_xzy_m": [
         6.0,
         6.0,
-        8.0
+        8.069
       ],
       "id": "coconut_palm",
       "min_y": 0.0,
       "surfaces": 3,
-      "triangles": 508
+      "triangles": 588
     }
   ],
-  "frame_scale": 4.44
+  "frame_scale": 4.48
 }

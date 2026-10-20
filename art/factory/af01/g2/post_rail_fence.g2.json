@@ -10,8 +10,8 @@
     },
     "materials": {
       "value": [
-        "E1919_pine",
-        "E1919_teak"
+        "E1919_teak",
+        "E1919_teak_dark"
       ],
       "max": 2,
       "ok": true

@@ -1,4 +1,4 @@
-# af01 Director review (Opus 5.5, 2026-10-20), from G3 lookdev + in-game QA
+# af01 Director review (Opus 5.5, 2026-10-20; fix round r1 the same day), from G3 lookdev + in-game QA
 # (gameplay view, 30° detail view, dressed wide views). Not an Owner acceptance.
 # score: visual quality 1–5 against BIBLE §3/§3a (period read, not toy, evidence first).
 # verdict: usable | usable_with_fixes | rework | blocked
@@ -35,16 +35,16 @@ verdict = "usable"
 note = "Brass hasp and corners pick out the 'operable' accent (BIBLE §4) — keep it non-interactable or it will mislead players."
 
 [plate_rack]
-glb_sha256 = "05aee2870f7728da79fea4da6aa0ff56be81b1ca5f5896d9c8d43ef4acd17fd9"  # the content this verdict judged
-score = 3
-verdict = "usable_with_fixes"
-note = "Under the safelight the rack's plates glow as brightly as the evidence (BIBLE S1). Fix: a dimmed, non-evidence glass, or an empty rack."
+glb_sha256 = "cc85b90407beb0b0d8171c6953e2f268fffdb9ac170ea4cfd0dcb2c8a8d4d232"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Fix r1: the four negatives are dark sea_slate glass (developed plates). Under the safelight the rack now sits well below the evidence trays (S1); it is quiet dressing, barely legible by design."
 
 [zinc_bucket]
-glb_sha256 = "733fe585be81a05bb45412a1017cdbbf724d6be137342884c0baa90e2ad91570"  # the content this verdict judged
-score = 3
-verdict = "usable_with_fixes"
-note = "Reads as a black iron pot: the palette has no galvanised grey. Fix: add a `zinc` swatch (palette change, BIBLE §4) and rebuild."
+glb_sha256 = "0e37e8068292dda824a8bc60eee08772c104957824e753ee9262d36f2a1e3d65"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Fix r1: new `zinc` swatch. The first value (#8D9192) rendered near off-white in QA and out-shone the scene, so it shipped as a dull weathered #6E7273; reads as a galvanised pail, not an iron pot. Rim, ears and bail read at 3 m."
 
 [wheelbarrow]
 glb_sha256 = "0111d2996290f606eeae97a38333d233acffc07b97dc33648776ba85b5d0e5d2"  # the content this verdict judged
@@ -65,28 +65,28 @@ verdict = "usable"
 note = "Simple and correct."
 
 [cocoa_drying_barcaca]
-glb_sha256 = "d31815c246127a94ac615684e114940596fda98db77b8af8e2fd44eaea19f8f8"  # the content this verdict judged
-score = 3
-verdict = "usable_with_fixes"
-note = "Reads as a pavilion. A barcaça should read as a long, low drying bed with a roof that visibly runs on rails. Fix: lower the deck, lengthen it, make the bean bed and the rails legible."
+glb_sha256 = "c8a9adb83c6b35b359ae44070511f5d09587c4e91647a66649b39651fa8f0228"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Fix r1: long, low deck (4.4 m at 0.6 m on brick piers) and full-length iron-on-teak rails running 3.6 m past the deck; the roof visibly sits on rollers. Reads as a barcaça, not a pavilion. The raked bean bed reads as a filled bed at gameplay distance, though its ridges are low-contrast against the deck. 2512/3000 tris. The footprint grew to 8.0 m (spec updated)."
 
 [post_rail_fence]
-glb_sha256 = "178d6d494d2ed72536284e4ecbace58aa0fbc3cb3d8cae70ef7d6e945c36bac1"  # the content this verdict judged
-score = 3
-verdict = "usable_with_fixes"
-note = "The kit tiles as designed, but the pine rails read new and yellow next to the weathered posts. Fix: teak or weathered rails."
+glb_sha256 = "30b5e5a2252666b51b27e686f4fccf0d3390493ee57766ff858856298086a5c7"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Fix r1: weathered teak rails on a teak_dark post; no more new-pine read. Tiling and sag kept."
 
 [laterite_steps]
-glb_sha256 = "dc4cfbab0b84f5a8a6f4bef09de0cef35db7ba593ef9732f2d7470d39c48b94b"  # the content this verdict judged
-score = 2
-verdict = "rework"
-note = "The blocks read as soft pillows (bevel too large for the block size, pale stone): a toy read (§3a). Rework with flatter, larger, darker dressed blocks. The spec was corrected after QA r1 (0.30 m to meet the veranda)."
+glb_sha256 = "7032dda95e5d53d32011a8b50b820a2cd27005d8209394345915d0ac3c3b14f7"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Rework r1: few large, flat, dark dressed basalt slabs (new `basalt` swatch; Príncipe is volcanic) with crisp 4 mm bevels and narrow laterite joints. No pillow or toy read. 572 tris."
 
 [coconut_palm]
-glb_sha256 = "6e57d8d7d0f7921aab92c753e7fd018434c365cb0d0b54a8621d9c191fbc16cb"  # the content this verdict judged
-score = 3
-verdict = "usable_with_fixes"
-note = "A single 508-triangle mesh, so it can be one MultiMesh, against today's 9-node primitive palms (palms are 125 of 153 draw calls in totality_sky). The fronds read as stiff spikes. Fix: more droop and a leaflet read, then an A/B G4 run swapping the 15 palms."
+glb_sha256 = "99198548ae553c8c9c524ef991adcf1e4fbce37dfca287c368261da0556b895f"  # the content this verdict judged
+score = 4
+verdict = "usable"
+note = "Fix r1: ten drooping, double-sided fronds with a notched leaflet edge read as pinnate against the sky; a clear step up from the stiff primitive palms. 588/600 tris, one mesh, three materials. The crown droops uniformly (no upright young fronds); acceptable at 8 m. Next: the A/B G4 swap of the 15 palms."
 
 [cocoa_sack_pile]
 verdict = "blocked"

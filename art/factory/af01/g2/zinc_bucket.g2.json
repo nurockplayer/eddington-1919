@@ -10,8 +10,8 @@
     },
     "materials": {
       "value": [
-        "E1919_iron",
-        "E1919_teak_dark"
+        "E1919_teak_dark",
+        "E1919_zinc"
       ],
       "max": 2,
       "ok": true

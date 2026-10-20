@@ -19,9 +19,9 @@ def trunk_mesh():
     for joint in range(1, 6):
         z = 7.5 * joint / 6
         radius = 0.16 * (1.0 - 0.18 * z / 7.5)
+        # Two profile rows make each collar a crisp, readable raised ring.
         profile.extend(((z - 0.035, radius),
-                        (z, radius + 0.02),
-                        (z + 0.035, radius)))
+                        (z, radius + 0.02)))
     profile.append((7.5, 0.16 * (1.0 - 0.18)))
     for z, radius in profile:
         cx = 0.10 * (z / 7.5) + 0.035 * math.sin(z * 0.92)
@@ -43,41 +43,65 @@ def trunk_mesh():
 
 
 def frond_mesh(index, yaw, reach, phase):
-    """Four-segment folded V blade with a gently zig-zag leaflet silhouette."""
+    """Four arch segments with continuous, deeply notched folded V margins."""
     forward = Vector((math.cos(yaw), math.sin(yaw), 0))
     side = Vector((-math.sin(yaw), math.cos(yaw), 0))
-    # Match the centre of the final trunk ring so every frond grows from it.
     root = Vector((0.10 + 0.035 * math.sin(7.5 * 0.92),
                    -0.07 + 0.025 * math.sin(7.5 * 0.78), 7.5))
-    # Four intervals; inward leaves arch lower and outer tips droop farther.
-    arch = 0.50 if index == 0 else 0.38 + 0.06 * (0.5 + 0.5 * math.sin(index * 1.7))
-    tip_drop = 0.32 + 0.06 * (index % 5)
-    profile = [(0.0, 0.00, 0.08), (0.26, arch * 0.70, 0.30),
-               (0.57, arch, 0.42), (0.84, arch * 0.60, 0.34),
-               (1.0, -tip_drop, 0.06)]
-    verts, faces = [], []
-    for row, (t, rise, width) in enumerate(profile):
-        center = root + forward * (reach * t) + Vector((0, 0, rise))
-        # Alternating width gives the blade edge a broad, readable leaflet rhythm.
-        edge_scale = (0.84 if row % 2 else 1.0) * (0.94 + 0.06 * math.sin(phase + row))
-        half = width * edge_scale / 2
-        fold = min(0.055, width * 0.16)
-        for across in (-1, 0, 1):
-            p = center + side * (half * across)
-            p.z -= abs(across) * fold
-            verts.append(tuple(p))
-    for row in range(4):
-        for band in range(2):
-            a = row * 3 + band
-            faces.append((a, a + 3, a + 4, a + 1))
-    return verts, faces, "foliage_deep" if index % 2 == 0 else "foliage_light"
+    young = index in (1, 6, 8)
+    arch = (0.46 + 0.025 * (index % 3)) if young else 0.28 + 0.035 * (index % 4)
+    tip_drop = (0.55 + 0.10 * (index % 3)) if young else 1.20 + 0.18 * (index % 5)
+    # The brief initial arch rolls into a long falling outer blade. The five
+    # spine stations retain the batch's four major segments.
+    spine = ((0.0, 0.0), (0.16, arch * 0.80), (0.33, arch),
+             (0.66, -tip_drop * 0.35), (1.0, -tip_drop))
+
+    def point(t, across):
+        interval = next((i for i in range(4) if t <= spine[i + 1][0]), 3)
+        a, za = spine[interval]
+        b, zb = spine[interval + 1]
+        rise = za + (zb - za) * (t - a) / (b - a)
+        fold = 0.012 + 0.055 * math.sin(math.pi * t)
+        p = root + forward * (reach * t) + side * across
+        # The shared ridge stays high; the leaflet margins fall away from it.
+        p.z += rise + (fold if across == 0 else -fold)
+        if across:
+            p.z += 0.025 * math.sin(phase + t * 5.0) * across
+        return tuple(p)
+
+    vertices = [point(t, 0) for t, _rise in spine]
+    # Six outward leaflet teeth alternate with six deep notches on each side.
+    # A continuous margin keeps the frond substantial against the sky rather
+    # than leaving disconnected, hair-thin fins along a narrow strip.
+    edge_t = (0.0, 0.10, 0.16, 0.24, 0.31, 0.39, 0.46,
+              0.54, 0.61, 0.69, 0.76, 0.84, 0.91, 1.0)
+    widths = (0.04, 0.23, 0.075, 0.35, 0.11, 0.41, 0.12,
+              0.38, 0.105, 0.30, 0.08, 0.19, 0.045, 0.025)
+    faces = []
+    for sign in (-1, 1):
+        offset = len(vertices)
+        for t, width in zip(edge_t, widths):
+            variation = 0.96 + 0.04 * math.sin(phase + t * 7.0)
+            vertices.append(point(t, sign * width * variation))
+        # Join two ordered chains directly: 17 triangles per half-blade.
+        # Shared spine vertices make a true folded sheet with no floating fins.
+        i, j = 0, 0
+        while i < 4 or j < len(edge_t) - 1:
+            if i < 4 and (j == len(edge_t) - 1 or spine[i + 1][0] <= edge_t[j + 1]):
+                face = (i, i + 1, offset + j)
+                i += 1
+            else:
+                face = (i, offset + j + 1, offset + j)
+                j += 1
+            faces.append(face if sign > 0 else tuple(reversed(face)))
+    return vertices, faces, "foliage_deep" if index % 2 == 0 else "foliage_light"
 
 
-def coconut_mesh(center, radius=0.14, sides=8):
+def coconut_mesh(center, radius=0.14, sides=6):
     """Small faceted fruit with tapered ends, attached into the crown."""
     cx, cy, cz = center
     verts = []
-    # Eight-sided oval equator with pointed, softly tapered ends: 32 tris.
+    # Six-sided oval fruit with tapered ends: 12 triangles per coconut.
     for i in range(sides):
         a = 2 * math.pi * i / sides
         verts.append((cx + radius * math.cos(a),
@@ -157,7 +181,11 @@ def main():
     # Three palette slots only; surfaces are individually assigned by component.
     material_names = ["teak_dark", "foliage_deep", "foliage_light"]
     for name in material_names:
-        mesh.materials.append(kit.mat(name))
+        material = kit.mat(name)
+        # Thin folded fronds must remain visible from both standing and low views.
+        if name.startswith("foliage_"):
+            material.use_backface_culling = False
+        mesh.materials.append(material)
     slot = {name: i for i, name in enumerate(material_names)}
     for poly, name in zip(mesh.polygons, material_ids):
         poly.material_index = slot[name]
@@ -169,6 +197,7 @@ def main():
     palm = kit.join("coconut_palm", [obj])
     kit.set_origin(palm, kit.bottom_centre([palm]))
     palm.location = (0, 0, 0)
+    assert kit.triangles([palm]) <= 590
     kit.export("assets/candidates/af01/coconut_palm.glb", [palm])
 
 

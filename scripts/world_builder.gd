@@ -6,6 +6,7 @@ extends RefCounted
 
 const Palette := preload("res://scripts/palette.gd")
 const MODELS := "res://assets/models/"
+const PALM_CANDIDATE := "res://assets/candidates/af01/"  # palm A/B only (see _vegetation)
 
 var root: Node3D
 var _mats := {}
@@ -40,9 +41,10 @@ func model(id: String, pos: Vector3, rot_y_deg := 0.0, scale := 1.0) -> Node3D:
 
 ## Instanced copies of an imported production model: one MultiMeshInstance3D per
 ## mesh in the model, with an instance per transform. Returns them (empty if the
-## model is missing, so the caller can fall back to primitives).
-func multimesh(id: String, xforms: Array, group := "") -> Array:
-	var path := MODELS + id + ".glb"
+## model is missing, so the caller can fall back to primitives). `dir` lets an
+## A/B run instance a factory candidate (assets/candidates/) instead.
+func multimesh(id: String, xforms: Array, group := "", dir := MODELS) -> Array:
+	var path := dir + id + ".glb"
 	var out := []
 	if xforms.is_empty() or not ResourceLoader.exists(path):
 		return out
@@ -582,6 +584,10 @@ func palm(pos: Vector3, h: float) -> void:
 		leaf.rotation = Vector3(deg_to_rad(randf_range(-35, -15)), i * TAU / 8.0, 0)
 		p.add_child(leaf)
 		box(Vector3(0.45, 0.03, 2.4), Vector3(0, -0.25, 1.15), P("foliage_deep").lightened(randf() * 0.12), leaf, false, Vector3(deg_to_rad(18), 0, 0))
+	palm_collider(pos)
+
+
+func palm_collider(pos: Vector3) -> void:
 	var body := StaticBody3D.new()
 	var cs := CollisionShape3D.new()
 	var sh := CylinderShape3D.new()
@@ -599,8 +605,25 @@ func _vegetation() -> void:
 	var spots := [Vector3(-6, 0, 2), Vector3(-8, 0, -4), Vector3(6, 0, -9), Vector3(14, 0, -3), Vector3(16, 0, 8),
 		Vector3(-4, 0, 9), Vector3(4, 0, 11), Vector3(-11, 0, -9), Vector3(9, 0, -14), Vector3(-2, 0, -14),
 		Vector3(20, 0, 2), Vector3(-18, 0, 0), Vector3(12, 0, 13), Vector3(-12, 0, 12), Vector3(24, 0, -12)]
+	# af01 palm A/B (G4 only, not a production switch): E1919_PALM_KIT=1 instances
+	# the factory candidate coconut_palm (one 600-tri mesh) as one MultiMesh instead
+	# of 15 nine-node primitive palms. It draws the same random numbers per palm so
+	# the shrub layout below is unchanged.
+	var palm_xforms := []
+	var palm_kit := OS.get_environment("E1919_PALM_KIT") == "1" and ResourceLoader.exists(PALM_CANDIDATE + "coconut_palm.glb")
 	for s in spots:
-		palm(s, randf_range(6.0, 9.5))
+		var h := randf_range(6.0, 9.5)
+		if not palm_kit:
+			palm(s, h)
+			continue
+		var lean := Vector3(randf_range(-0.18, 0.18), randf() * TAU, randf_range(-0.18, 0.18))
+		for i in 8:
+			randf_range(-35, -15)
+			randf()
+		palm_xforms.append(Transform3D(Basis.from_euler(lean).scaled(Vector3.ONE * h / 7.5), s))
+		palm_collider(s)
+	if palm_kit:
+		multimesh("coconut_palm", palm_xforms, "veg_palm", PALM_CANDIDATE)
 	# Low cocoa-like shrubs and banana clumps around the edges. With the foliage kit
 	# (art/assets.toml) they are instanced: one MultiMesh per model. All 70 together
 	# are ~12k triangles, so finer chunks for culling only add draw calls (r04 G4:

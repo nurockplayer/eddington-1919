@@ -1,16 +1,14 @@
 {
   "batch": "af01",
-  "generated_at": "2026-10-20T18:18:45",
+  "generated_at": "2026-10-20T18:49:18",
   "assets": 20,
   "candidates": 14,
   "g2_pass": 14,
   "ingame_shots": 14,
-  "usable": 13,
+  "usable": 14,
   "verdicts": {
     "blocked": 6,
-    "rework": 1,
-    "usable": 8,
-    "usable_with_fixes": 5
+    "usable": 14
   },
   "credits_committed": 0,
   "attempts": 0,
@@ -83,9 +81,9 @@
       "triangles": 1072,
       "g3": true,
       "ingame": true,
-      "verdict": "usable_with_fixes",
-      "score": 3,
-      "note": "Under the safelight the rack's plates glow as brightly as the evidence (BIBLE S1). Fix: a dimmed, non-evidence glass, or an empty rack."
+      "verdict": "usable",
+      "score": 4,
+      "note": "Fix r1: the four negatives are dark sea_slate glass (developed plates). Under the safelight the rack now sits well below the evidence trays (S1); it is quiet dressing, barely legible by design."
     },
     {
       "id": "zinc_bucket",
@@ -95,9 +93,9 @@
       "triangles": 496,
       "g3": true,
       "ingame": true,
-      "verdict": "usable_with_fixes",
-      "score": 3,
-      "note": "Reads as a black iron pot: the palette has no galvanised grey. Fix: add a `zinc` swatch (palette change, BIBLE §4) and rebuild."
+      "verdict": "usable",
+      "score": 4,
+      "note": "Fix r1: new `zinc` swatch. The first value (#8D9192) rendered near off-white in QA and out-shone the scene, so it shipped as a dull weathered #6E7273; reads as a galvanised pail, not an iron pot. Rim, ears and bail read at 3 m."
     },
     {
       "id": "wheelbarrow",
@@ -140,12 +138,12 @@
       "route": "blender_procedural",
       "candidate": true,
       "g2": true,
-      "triangles": 2488,
+      "triangles": 2512,
       "g3": true,
       "ingame": true,
-      "verdict": "usable_with_fixes",
-      "score": 3,
-      "note": "Reads as a pavilion. A barcaça should read as a long, low drying bed with a roof that visibly runs on rails. Fix: lower the deck, lengthen it, make the bean bed and the rails legible."
+      "verdict": "usable",
+      "score": 4,
+      "note": "Fix r1: long, low deck (4.4 m at 0.6 m on brick piers) and full-length iron-on-teak rails running 3.6 m past the deck; the roof visibly sits on rollers. Reads as a barcaça, not a pavilion. The raked bean bed reads as a filled bed at gameplay distance, though its ridges are low-contrast against the deck. 2512/3000 tris. The footprint grew to 8.0 m (spec updated)."
     },
     {
       "id": "post_rail_fence",
@@ -155,33 +153,33 @@
       "triangles": 468,
       "g3": true,
       "ingame": true,
-      "verdict": "usable_with_fixes",
-      "score": 3,
-      "note": "The kit tiles as designed, but the pine rails read new and yellow next to the weathered posts. Fix: teak or weathered rails."
+      "verdict": "usable",
+      "score": 4,
+      "note": "Fix r1: weathered teak rails on a teak_dark post; no more new-pine read. Tiling and sag kept."
     },
     {
       "id": "laterite_steps",
       "route": "blender_procedural",
       "candidate": true,
       "g2": true,
-      "triangles": 772,
+      "triangles": 572,
       "g3": true,
       "ingame": true,
-      "verdict": "rework",
-      "score": 2,
-      "note": "The blocks read as soft pillows (bevel too large for the block size, pale stone): a toy read (§3a). Rework with flatter, larger, darker dressed blocks. The spec was corrected after QA r1 (0.30 m to meet the veranda)."
+      "verdict": "usable",
+      "score": 4,
+      "note": "Rework r1: few large, flat, dark dressed basalt slabs (new `basalt` swatch; Príncipe is volcanic) with crisp 4 mm bevels and narrow laterite joints. No pillow or toy read. 572 tris."
     },
     {
       "id": "coconut_palm",
       "route": "blender_procedural",
       "candidate": true,
       "g2": true,
-      "triangles": 508,
+      "triangles": 588,
       "g3": true,
       "ingame": true,
-      "verdict": "usable_with_fixes",
-      "score": 3,
-      "note": "A single 508-triangle mesh, so it can be one MultiMesh, against today's 9-node primitive palms (palms are 125 of 153 draw calls in totality_sky). The fronds read as stiff spikes. Fix: more droop and a leaflet read, then an A/B G4 run swapping the 15 palms."
+      "verdict": "usable",
+      "score": 4,
+      "note": "Fix r1: ten drooping, double-sided fronds with a notched leaflet edge read as pinnate against the sky; a clear step up from the stiff primitive palms. 588/600 tris, one mesh, three materials. The crown droops uniformly (no upright young fronds); acceptable at 8 m. Next: the A/B G4 swap of the 15 palms."
     },
     {
       "id": "cocoa_sack_pile",
