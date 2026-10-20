@@ -101,3 +101,37 @@ max_materials = 5               # iron tube, brass cell, ebonite object-glass fa
 max_texture_px = 0
 history = "RECONSTRUCTION: horizontal tube fed by the coelostat, with the Oxford astrographic object glass (13 in, stopped to 8 in; HISTORICAL_RECORD, docs/PROVENANCE.md); tube construction, trestles and carrier are invented."
 status = "in-game"
+
+# r06 people (MPFB route, art/people/). Rigged + animated ("idle"), CC0 only.
+# dims are measured in the posed idle (arms down) with the hat on.
+[asset.eddington]
+category = "character"
+source = "mpfb_procedural"
+build = "art/pipeline/blender/build_person.py eddington"
+export = "assets/models/eddington.glb"
+concept = "art/people/REFERENCE.md"
+dims_m = [0.55, 0.35, 1.87]
+dims_tolerance = 0.2
+bounds_centre_offset_m = [0.0, -0.05]  # toes and hat brim reach forward of the standing axis
+tri_budget = 16000
+max_materials = 10
+max_texture_px = 0
+skip_checks = ["object_origins"]  # hat/glasses are parented to the head bone, so their origins sit at the head by design
+history = "RECONSTRUCTION: face/hair/glasses from a c.1915 portrait (Lemos 2019 Fig. 4); 1919 dress, hat and height undocumented."
+status = "in-game"
+
+[asset.cottingham]
+category = "character"
+source = "mpfb_procedural"
+build = "art/pipeline/blender/build_person.py cottingham"
+export = "assets/models/cottingham.glb"
+concept = "art/people/REFERENCE.md"
+dims_m = [0.55, 0.35, 1.83]
+dims_tolerance = 0.2
+bounds_centre_offset_m = [0.0, -0.045]
+tri_budget = 16000
+max_materials = 10
+max_texture_px = 0
+skip_checks = ["object_origins"]  # hat/moustache are parented to the head bone
+history = "RECONSTRUCTION: moustache and soft felt hat from a c.1910 Thrapston shop photo (Lemos 2019 Fig. 5, caption-only identification); everything else invented."
+status = "in-game"

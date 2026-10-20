@@ -31,6 +31,9 @@ const BOOKMARKS := [
 	["totality_sky", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
 	["totality_horizon", Vector3(3.0, 0.05, 6.0), Vector3(14.0, 2.2, 20.0), "totality"],
 	["darkroom", Vector3(9.2, 0.05, 4.2), Vector3(10.6, 0.82, 4.1), "night"],
+	# r06: conversation distance to Eddington (faces, clothes, look-at).
+	["eddington_talk", Vector3(-1.1, 0.05, 0.9), Vector3(-1.1, 1.55, -0.9), "prep_early"],
+	["cottingham_talk", Vector3(2.3, 0.05, -4.6), Vector3(1.35, 1.5, -6.1), "prep_early"],
 ]
 
 var main

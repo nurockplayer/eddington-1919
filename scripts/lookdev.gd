@@ -15,6 +15,8 @@ const CAMERAS := {
 	"three_quarter": [Vector3(3.6, 1.9, 3.4), Vector3(0.4, 0.7, 0.0)],
 	"eye_level": [Vector3(0.9, 1.62, 2.6), Vector3(0.6, 1.1, 0.0)],
 	"silhouette": [Vector3(0.6, 0.9, 4.6), Vector3(0.6, 0.85, 0.0)],
+	# Head-and-shoulders of the first asset (characters: faces are the uncanny risk).
+	"portrait": [Vector3(0.62, 1.62, 1.15), Vector3(0.58, 1.58, 0.0)],
 }
 
 ## Camera framing for the placed row: 1.0 for prop-sized rows (the CAMERAS above,
@@ -202,6 +204,12 @@ func _place_asset(id: String, x: float) -> float:
 		return x
 	var inst: Node3D = (load(path) as PackedScene).instantiate()
 	add_child(inst)
+	# Characters: play their baked idle so they stand in their posed, not rest, pose.
+	for ap in inst.find_children("*", "AnimationPlayer", true, false):
+		if (ap as AnimationPlayer).has_animation("idle"):
+			(ap as AnimationPlayer).get_animation("idle").loop_mode = Animation.LOOP_LINEAR
+			(ap as AnimationPlayer).play("idle")
+			(ap as AnimationPlayer).advance(0.0)
 	var aabb := _aabb(inst)
 	inst.position = Vector3(x - aabb.position.x, 0, 0)
 	var placed := AABB(aabb.position + inst.position, aabb.size)

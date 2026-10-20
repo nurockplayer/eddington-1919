@@ -1,0 +1,223 @@
+{
+  "asset": "cottingham",
+  "file": "assets/models/cottingham.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 14953,
+      "max": 16000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_eye_dark",
+        "E1919_felt",
+        "E1919_hair_greying",
+        "E1919_leather",
+        "E1919_linen",
+        "E1919_skin",
+        "E1919_teak_dark"
+      ],
+      "max": 10,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.531,
+        0.37,
+        1.828
+      ],
+      "target": [
+        0.55,
+        0.35,
+        1.83
+      ],
+      "tolerance": 0.2,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.001,
+        -0.042,
+        -0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "cottingham_body": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "cottingham_eyebrows": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "cottingham_eyes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "cottingham_hair": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "cottingham_shoes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "cottingham_suit": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "cottingham_hat": {
+          "origin": [
+            -0.0,
+            -0.042,
+            1.773
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        },
+        "cottingham_moustache": {
+          "origin": [
+            0.0,
+            -0.146,
+            1.574
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        }
+      },
+      "ok": true,
+      "skipped": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "cottingham_body",
+        "cottingham_eyebrows",
+        "cottingham_eyes",
+        "cottingham_hair",
+        "cottingham_shoes",
+        "cottingham_suit",
+        "cottingham_hat",
+        "cottingham_moustache"
+      ],
+      "ok": true
+    }
+  }
+}

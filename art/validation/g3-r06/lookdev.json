@@ -1,0 +1,38 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        1.155,
+        0.513,
+        1.865
+      ],
+      "id": "eddington",
+      "min_y": 0.0,
+      "surfaces": 10,
+      "triangles": 14195
+    },
+    {
+      "dims_xzy_m": [
+        1.093,
+        0.506,
+        1.828
+      ],
+      "id": "cottingham",
+      "min_y": 0.0,
+      "surfaces": 10,
+      "triangles": 14953
+    },
+    {
+      "dims_xzy_m": [
+        1.447,
+        1.08,
+        1.53
+      ],
+      "id": "coelostat",
+      "min_y": 0.0,
+      "surfaces": 7,
+      "triangles": 2032
+    }
+  ],
+  "frame_scale": 1.74
+}
