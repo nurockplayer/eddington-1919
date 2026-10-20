@@ -1,7 +1,7 @@
 # Asset Factory pilot af01: report
 
 **Scope:** 20 candidate environment assets for the Príncipe 1919 camp at Roça Sundy. The pilot reuses the existing Blender kit, the G2 validator, Godot lookdev (G3) and the real game scene, adds a gated paid route, and evaluates Meshy MCP.
-**Owner of technical decisions:** Opus 5.5 (Game Director). Build scripts were written by Codex gpt-6.1-sol, and the review was a fresh read-only Codex gpt-6-astra session. The review found 3 blockers and 8 majors in the money gate, isolation and evidence freshness, plus a minor in ingest. All were fixed, and `art/pipeline/test_budget.py` covers the fixes with 16 offline checks (§4).
+**Owner of technical decisions:** Opus 5.5 (Game Director). Build scripts were written by Codex gpt-6.1-sol, and the review was a fresh read-only Codex gpt-6-astra session. Round 1 found 3 blockers and 8 majors in the money gate, isolation and evidence freshness, plus a minor in ingest. Round 2 re-checked the fixes and found 1 blocker, 8 majors and 1 minor in recovery paths and edge cases. All were fixed, and `art/pipeline/test_budget.py` covers them with 23 offline checks (§4).
 **Status:** nothing is merged and nothing is promoted. No production asset was touched. **0 paid credits spent.**
 
 ## 1. Yield
@@ -58,7 +58,16 @@ Per-asset verdicts and notes are in [review.toml](review.toml), machine-readable
 - **Procedural route:** two full rebuilds produced **byte-identical GLBs (14/14, sha256)**. The source of truth is the build script, the palette and `batch.toml`.
 - **Concepts:** every prompt, as the tool received it, is in `art/runs/af01-concepts/manifest.jsonl` (gen.py). Images are not bit-reproducible, so the committed JPEG is the record.
 - **Paid route:** each task writes a receipt with options, task id and credits, plus a ledger row *before* polling, so a crash still shows the spend. The raw GLB stays local and can be re-downloaded by task id. A regenerated task gives a different mesh, so the receipt and ingest settings are the record.
-- **Paid gate:** `test_budget.py` runs 16 offline checks: no approval, NaN credits, over-cap approval, missing or under-priced estimate, a production `candidates_dir`, a 6-way concurrent reserve (exactly one admitted), a lost POST response that stays reserved and blocks the asset, `resolve`, unknown charges kept committed, a direct `meshy.py --approved` call, and the Tripo refusal.
+- **Paid gate:** `test_budget.py` runs 23 offline checks. They cover:
+  - no approval, NaN credits, an over-cap approval, `assets = []` or a string
+  - a missing or under-priced estimate
+  - a production or symlinked `candidates_dir`
+  - a 6-way concurrent reserve (exactly one admitted)
+  - a lost POST response that stays reserved and blocks the asset, and `resolve` refusing an attempt that may still send
+  - negative, NaN or unknown charges, which keep the estimate committed
+  - the approval snapshot taken at reservation (licence)
+  - a direct `meshy.py --approved` call, and the Tripo refusal
+- **Evidence binding:** G2, G3 and in-game QA each write a receipt keyed by the candidate's sha256, and the Director's verdicts in `review.toml` are bound to the same hash. If a GLB changes, its evidence stops counting and its verdict shows as `stale_review`.
 - **Ingest** was proven offline. A mesh 37× too large, turned 90° and 4× over budget came out scaled, turned, decimated to 538/600 triangles and cleaned of 29 slivers.
 
 ## 5. Meshy MCP evaluation

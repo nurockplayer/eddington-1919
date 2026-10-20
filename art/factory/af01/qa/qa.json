@@ -304,12 +304,12 @@
       "view": "camp_day",
       "with": {
         "draw_calls": 541.0,
-        "forced_draw_ms_avg": 4.64,
+        "forced_draw_ms_avg": 4.82,
         "primitives": 231997.0
       },
       "without": {
         "draw_calls": 454.0,
-        "forced_draw_ms_avg": 4.47,
+        "forced_draw_ms_avg": 4.64,
         "primitives": 205757.0
       }
     },
@@ -318,12 +318,12 @@
       "view": "roca_west",
       "with": {
         "draw_calls": 384.0,
-        "forced_draw_ms_avg": 4.08,
+        "forced_draw_ms_avg": 4.36,
         "primitives": 196785.0
       },
       "without": {
         "draw_calls": 332.0,
-        "forced_draw_ms_avg": 3.87,
+        "forced_draw_ms_avg": 4.15,
         "primitives": 178245.0
       }
     },
@@ -332,12 +332,12 @@
       "view": "camp_totality",
       "with": {
         "draw_calls": 543.0,
-        "forced_draw_ms_avg": 4.56,
+        "forced_draw_ms_avg": 4.85,
         "primitives": 233133.0
       },
       "without": {
         "draw_calls": 456.0,
-        "forced_draw_ms_avg": 4.38,
+        "forced_draw_ms_avg": 4.63,
         "primitives": 206893.0
       }
     },
@@ -346,12 +346,12 @@
       "view": "darkroom_night",
       "with": {
         "draw_calls": 171.0,
-        "forced_draw_ms_avg": 4.39,
+        "forced_draw_ms_avg": 4.63,
         "primitives": 134668.0
       },
       "without": {
         "draw_calls": 162.0,
-        "forced_draw_ms_avg": 4.35,
+        "forced_draw_ms_avg": 4.54,
         "primitives": 132516.0
       }
     }

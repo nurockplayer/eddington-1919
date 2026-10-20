@@ -103,7 +103,7 @@ def main() -> int:
             return 4
         budget.record(d, attempt, "created", task_id=task)
     t = _poll(task)
-    credits = t.get("consumed_credits")  # None = unknown: the estimate stays committed
+    credits = budget._credits(t.get("consumed_credits"))  # None = unknown/invalid: the estimate stays committed
     budget.record(d, attempt, "terminal", status=t["status"], credits=credits)
     if t["status"] != "SUCCEEDED":
         print(json.dumps(t.get("task_error", t), indent=2), file=sys.stderr)
@@ -111,10 +111,12 @@ def main() -> int:
     out = ROOT / "art/sources/meshy" / a.asset / f"{task}.glb"
     out.parent.mkdir(parents=True, exist_ok=True)
     urllib.request.urlretrieve(t["model_urls"]["glb"], out)
-    plan = budget.approval(batch, d)["meshy_plan"]
+    meta = budget.state(d)[attempt]["meta"]  # the approval as it was when the credits were reserved
+    plan = meta["meshy_plan"]
     receipt = {"asset": a.asset, "image": str(a.image), "options": shown, "attempt": attempt, "task_id": task,
                "credits": credits, "seconds": round(time.time() - t0, 1), "glb": str(out.relative_to(ROOT)),
-               "thumbnail_url": t.get("thumbnail_url"), "meshy_plan": plan,
+               "thumbnail_url": t.get("thumbnail_url"), "meshy_plan": plan, "approved_by": meta["approved_by"],
+               "approval_sha256": meta["approval_sha256"], "glb_sha256": budget.sha256(out),
                "licence": "user-owned, no attribution (Meshy paid plan)" if plan == "paid"
                           else "CC BY 4.0, credit Meshy (free plan)",
                "terms_source": "https://intercom.help/meshy/en/articles/16102098-can-i-use-meshy-assets-commercially (read 2026-10-20)"}

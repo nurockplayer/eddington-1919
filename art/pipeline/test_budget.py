@@ -110,10 +110,31 @@ def main():
         b, d = load()
         att = next(iter(budget.state(d)))
         check("open reservation counts at its estimate", budget.committed(d) == 15)
+        check("a reservation that may still send cannot be resolved away", refused(lambda: budget.resolve(d, att, None)))
         budget.record(d, att, "post_error", error="timeout")
         check("post_error keeps the attempt open and blocks the asset", refused(lambda: budget.reserve(b, d, "rock")))
-        budget.record(d, att, "resolved", task_id=None)
-        check("resolve --not-created releases the reservation", budget.committed(d) == 0)
+        budget.resolve(d, att, None)
+        check("resolve --not-created (after post_error) releases the reservation", budget.committed(d) == 0)
+        check("reservation snapshots the plan for the licence", budget.state(d)[att]["meta"].get("meshy_plan") == "paid")
+
+        write(approval=OK, ledger=[{"attempt": "x", "event": "reserved", "asset": "rock", "est": 15},
+                                   {"attempt": "x", "event": "terminal", "status": "SUCCEEDED", "credits": -100}])
+        check("negative charge is treated as unknown (estimate kept)", budget.committed(D) == 15)
+        (D / "ledger.jsonl").write_text('{"attempt": "x", "event": "reserved", "asset": "rock", "est": 15}\n'
+                                        '{"attempt": "x", "event": "terminal", "status": "SUCCEEDED", "credits": NaN}\n')
+        check("NaN in the ledger → refuse to read it", refused(lambda: budget.reserve(*load(), "rock")))
+        write(approval=OK + "assets = []\n")
+        check("assets = [] approves nothing", refused(lambda: budget.reserve(*load(), "rock")))
+        write(approval=OK + 'assets = "rock_and_more"\n')
+        check("assets as a string → refused", refused(lambda: budget.reserve(*load(), "rock")))
+        write()
+        link = ROOT / "assets/candidates/zz_gate_test"
+        link.parent.mkdir(parents=True, exist_ok=True)
+        link.symlink_to(ROOT / "assets/models")
+        try:
+            check("candidates_dir symlinked to assets/models → refused", refused(load))
+        finally:
+            link.unlink()
 
         write(approval='approved_by = "t"\ncredits = 30\nmeshy_plan = "paid"\n')
         b, d = load()

@@ -15,6 +15,7 @@ What it does, in order (art/BIBLE.md §6):
     max_texture_px; leaves the albedo itself alone (palette/value check is G3)
 Writes a JSON receipt next to the export (<asset>.ingest.json in the batch's g2 dir).
 """
+import hashlib
 import json
 import math
 import sys
@@ -35,13 +36,15 @@ def bounds(o):
     return lo, hi
 
 
-def clean(o) -> int:
-    """Merge coincident verts; drop zero-area faces (G2 threshold) and loose geometry."""
+def clean(o, scale: float = 1.0) -> int:
+    """Merge coincident verts; drop zero-area faces and loose geometry. Thresholds are G2's
+    absolute ones at scale 1 (metres, after fitting); before fitting, pass the mesh's own
+    size so a tiny-unit source is not wiped out."""
     bm = bmesh.new()
     bm.from_mesh(o.data)
-    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
-    bmesh.ops.dissolve_degenerate(bm, dist=1e-6, edges=bm.edges)
-    bad = [f for f in bm.faces if f.calc_area() < 1e-8]
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5 * scale)
+    bmesh.ops.dissolve_degenerate(bm, dist=1e-6 * scale, edges=bm.edges)
+    bad = [f for f in bm.faces if f.calc_area() < 1e-8 * scale * scale]
     bmesh.ops.delete(bm, geom=bad, context="FACES_ONLY")
     bmesh.ops.delete(bm, geom=[e for e in bm.edges if not e.link_faces], context="EDGES")
     bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
@@ -68,7 +71,7 @@ def main() -> int:
     registry = ROOT / opts.get("--registry", "art/assets.toml")
     spec = tomllib.loads(registry.read_text())["asset"][asset]
     export = (ROOT / opts["--export"]).resolve()
-    if not export.is_relative_to(ROOT / "assets/candidates") and not opts.get("--allow-outside"):
+    if not export.is_relative_to((ROOT / "assets/candidates").resolve()):
         raise SystemExit(f"refusing to export outside assets/candidates/: {export}")
     receipt_dir = ROOT / opts.get("--out", str(registry.parent.relative_to(ROOT) / "g2"))
 
@@ -92,7 +95,10 @@ def main() -> int:
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     o.name = o.data.name = asset
     raw_tris = tris(o)
-    removed = clean(o)  # before fitting: stray verts/slivers must not drive scale, turn or centre
+    lo, hi = bounds(o)
+    # Before fitting: stray verts/slivers must not drive scale, turn or centre. Relative
+    # tolerance: the source's units are unknown (1e-4 m cubes and 200 m rocks both occur).
+    removed = clean(o, scale=max((hi - lo).length, 1e-9))
     lo, hi = bounds(o)
     raw_size = hi - lo
 
@@ -148,9 +154,9 @@ def main() -> int:
     lo, hi = bounds(o)
     receipt = {"asset": asset, "raw": str(raw.relative_to(ROOT)) if raw.is_relative_to(ROOT) else str(raw),
                "export": str(export.relative_to(ROOT)) if export.is_relative_to(ROOT) else str(export), "scale_factor": round(k, 4), "turned_90": turned, "degenerate_removed": removed,
-               "raw_dims_m": [round(c, 3) for c in raw_size], "dims_m": [round(c, 3) for c in hi - lo],
+               "raw_dims_m": [float(f"{c:.4g}") for c in raw_size], "dims_m": [round(c, 3) for c in hi - lo],
                "raw_triangles": raw_tris, "triangles": tris(o), "materials": [s.material.name for s in o.material_slots if s.material],
-               "textures_resized": resized}
+               "textures_resized": resized, "glb_sha256": hashlib.sha256(export.read_bytes()).hexdigest()}
     receipt_dir.mkdir(parents=True, exist_ok=True)
     (receipt_dir / f"{asset}.ingest.json").write_text(json.dumps(receipt, indent=2))
     print("INGEST", json.dumps(receipt))

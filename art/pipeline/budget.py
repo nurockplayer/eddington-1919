@@ -15,8 +15,10 @@ whose charge is not confirmed. An asset with an open attempt cannot start
 another (Meshy: a timed-out create may still have been charged).
 """
 import fcntl
+import hashlib
 import json
 import math
+import os
 import re
 import time
 import tomllib
@@ -47,8 +49,10 @@ def load_batch(batch_toml: Path) -> tuple[dict, Path]:
     bid = b["batch"]["id"]
     if d.name != bid or d.parent != ROOT / "art/factory":
         raise SystemExit(f"batch id {bid!r} must match its directory art/factory/{bid}/")
-    if b["batch"]["candidates_dir"] != f"assets/candidates/{bid}":
-        raise SystemExit(f"candidates_dir must be assets/candidates/{bid} (never production paths)")
+    cand = ROOT / b["batch"]["candidates_dir"]
+    if b["batch"]["candidates_dir"] != f"assets/candidates/{bid}" or cand.is_symlink() or \
+            (cand.exists() and cand.resolve() != (ROOT / "assets/candidates").resolve() / bid):
+        raise SystemExit(f"candidates_dir must be the real directory assets/candidates/{bid} (never production paths)")
     bad = [i for i in b["asset"] if not ID.match(i)]
     if bad:
         raise SystemExit(f"asset ids must match {ID.pattern}: {bad}")
@@ -73,28 +77,51 @@ def _locked(d: Path):
 
 def _rows(d: Path) -> list:
     p = d / "ledger.jsonl"
-    return [json.loads(l) for l in p.read_text().splitlines() if l.strip()] if p.exists() else []
+    def bad_constant(c):
+        raise ValueError(f"ledger contains {c}: refusing to read it")
+    rows = [json.loads(l, parse_constant=bad_constant) for l in p.read_text().splitlines() if l.strip()] if p.exists() else []
+    if any("attempt" not in r for r in rows):
+        raise ValueError(f"{p} has rows without an attempt id (pre-7dda567 format): reconcile it by hand before use")
+    return rows
 
 
 def _append(d: Path, row: dict) -> None:
-    with (d / "ledger.jsonl").open("a") as f:
-        f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), **row}) + "\n")
+    """Append and fsync (file and, when new, the directory) before returning: a reservation
+    must survive a host crash that happens after the request it covers was sent."""
+    p = d / "ledger.jsonl"
+    new = not p.exists()
+    with p.open("a") as f:
+        f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), **row}, allow_nan=False) + "\n")
         f.flush()
+        os.fsync(f.fileno())
+    if new:
+        fd = os.open(d, os.O_RDONLY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+
+def _credits(v):
+    """A confirmed charge is a finite, non-negative number; anything else is unknown (None)."""
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v >= 0 else None
 
 
 def state(d: Path) -> dict:
-    """attempt id → {asset, est, task_id, status, credits, open}."""
+    """attempt id → {asset, est, task_id, status, credits, open, post_error, meta}."""
     att = {}
     for r in _rows(d):
-        a = att.setdefault(r["attempt"], {"asset": r.get("asset"), "est": 0.0, "task_id": None,
-                                          "status": None, "credits": None, "open": True})
+        a = att.setdefault(r["attempt"], {"asset": r.get("asset"), "est": 0.0, "task_id": None, "status": None,
+                                          "credits": None, "open": True, "post_error": False, "meta": {}})
         ev = r["event"]
         if ev == "reserved":
-            a.update(asset=r["asset"], est=float(r["est"]))
+            a.update(asset=r["asset"], est=_num(r["est"], "ledger est"), meta=r.get("meta", {}))
         elif ev == "created":
             a["task_id"] = r["task_id"]
+        elif ev == "post_error":
+            a["post_error"] = True
         elif ev == "terminal":
-            a.update(status=r["status"], credits=r.get("credits"), open=False)
+            a.update(status=r["status"], credits=_credits(r.get("credits")), open=False)
         elif ev == "resolved":
             a["task_id"] = r.get("task_id")
             if r.get("task_id") is None:  # confirmed: no task was created, nothing charged
@@ -118,6 +145,8 @@ def approval(b: dict, d: Path) -> dict:
         raise PermissionError("APPROVAL credits exceed the batch budget_credits")
     if appr.get("meshy_plan") not in ("paid", "free"):
         raise PermissionError("APPROVAL.toml needs meshy_plan = \"paid\" | \"free\" (it decides the licence)")
+    if "assets" in appr and not (isinstance(appr["assets"], list) and all(isinstance(x, str) for x in appr["assets"])):
+        raise PermissionError("APPROVAL assets must be a list of asset ids (omit it to approve every asset)")
     return appr
 
 
@@ -137,7 +166,7 @@ def reserve(b: dict, d: Path, asset: str) -> str:
         raise ValueError(f"{asset}.est_credits {est} is below the verified cost {cost_floor(spec)} for its generator options")
     with _locked(d):
         appr = approval(b, d)
-        if appr.get("assets") and asset not in appr["assets"]:
+        if "assets" in appr and asset not in appr["assets"]:  # [] approves nothing
             raise PermissionError(f"{asset} is not in the approved asset list")
         pending = [k for k, a in state(d).items() if a["asset"] == asset and a["open"]]
         if pending:
@@ -147,10 +176,32 @@ def reserve(b: dict, d: Path, asset: str) -> str:
         if spent + est > appr["credits"]:
             raise PermissionError(f"committed {spent} + est {est} > approved {appr['credits']}")
         attempt = uuid.uuid4().hex[:12]
-        _append(d, {"attempt": attempt, "event": "reserved", "asset": asset, "est": est})
+        # Snapshot what the licence and audit depend on, so a later APPROVAL edit cannot rewrite history.
+        meta = {"approved_by": appr["approved_by"], "meshy_plan": appr["meshy_plan"],
+                "approval_sha256": hashlib.sha256((d / "APPROVAL.toml").read_bytes()).hexdigest(),
+                "generator": spec.get("generator", {})}
+        _append(d, {"attempt": attempt, "event": "reserved", "asset": asset, "est": est, "meta": meta})
         return attempt
 
 
 def record(d: Path, attempt: str, event: str, **fields) -> None:
     with _locked(d):
         _append(d, {"attempt": attempt, "event": event, **fields})
+
+
+def resolve(d: Path, attempt: str, task_id: str | None) -> None:
+    """Reconcile an attempt whose POST failed ambiguously. Under the lock, and only for an
+    open attempt that recorded post_error and has no task: a reservation without post_error
+    may still be about to send, so it can never be released."""
+    with _locked(d):
+        a = state(d).get(attempt)
+        if not a or not a["open"]:
+            raise PermissionError(f"no open attempt {attempt}")
+        if a["task_id"] or not a["post_error"]:
+            raise PermissionError(f"attempt {attempt} is not an ambiguous POST failure (task={a['task_id']}, "
+                                  f"post_error={a['post_error']}); resume it instead")
+        _append(d, {"attempt": attempt, "event": "resolved", "task_id": task_id})
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()

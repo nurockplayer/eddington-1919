@@ -80,9 +80,16 @@ def concept_for(b: dict, i: str) -> Path | None:
     return ROOT / pick if pick else (Path(hits[-1]) if hits else None)
 
 
-def fresh(evidence: Path, i: str, b: dict) -> bool:
-    """Evidence counts only if it exists and is newer than the candidate it describes."""
-    return evidence.exists() and glb(b, i).exists() and evidence.stat().st_mtime >= glb(b, i).stat().st_mtime
+def stamp(receipt: Path, b: dict, ids_: list[str]) -> None:
+    """A stage's success receipt: which candidate content (sha256) its evidence describes."""
+    receipt.write_text(json.dumps({i: budget.sha256(glb(b, i)) for i in ids_}, indent=2))
+
+
+def fresh(receipt: Path, i: str, b: dict) -> bool:
+    """Evidence counts only if its stage succeeded for exactly the current candidate content."""
+    if not (receipt.exists() and glb(b, i).exists()):
+        return False
+    return json.loads(receipt.read_text()).get(i) == budget.sha256(glb(b, i))
 
 
 # ------------------------------------------------------------------ stages (return failure count)
@@ -100,7 +107,7 @@ def plan(b, d, a):
     print(f"{'asset':24} {'route':19} {'cr':>3}  concept raw glb g2")
     for i, x in b["asset"].items():
         g2 = d / "g2" / f"{i}.g2.json"
-        g2s = ("PASS" if json.loads(g2.read_text())["pass"] else "FAIL") if fresh(g2, i, b) else "-"
+        g2s = ("PASS" if json.loads(g2.read_text())["pass"] else "FAIL") if fresh(d / "g2" / f"{i}.receipt.json", i, b) else "-"
         gen_route = x["route"] in GEN_ROUTES
         raw = bool(glob.glob(str(ROOT / f"art/sources/{x['route']}/{i}/*.glb"))) if gen_route else None
         c = concept_for(b, i) if gen_route else None
@@ -156,12 +163,12 @@ def gen(b, d, a):
 
 
 def resolve(b, d, a):
-    att = budget.state(d).get(a.attempt)
-    if not att or not att["open"]:
-        sys.exit(f"no open attempt {a.attempt}")
     if bool(a.task) == a.not_created:
         sys.exit("give exactly one of --task <id> (then `meshy.py --resume`) or --not-created")
-    budget.record(d, a.attempt, "resolved", task_id=a.task or None)
+    try:
+        budget.resolve(d, a.attempt, a.task or None)
+    except PermissionError as e:
+        sys.exit(f"refused: {e}")
     print(f"attempt {a.attempt}: " + (f"task {a.task}; resume with meshy.py --resume {a.attempt}" if a.task
                                       else "confirmed not created; reservation released"))
     return 0
@@ -176,6 +183,7 @@ def ingest(b, d, a):
             print(f"ingest {i}: no raw mesh yet")
             continue
         glb(b, i).unlink(missing_ok=True)
+        (d / "g2" / f"{i}.ingest.json").unlink(missing_ok=True)  # provenance must never outlive its GLB
         code, s = run([BLENDER, "-b", "--factory-startup", "-P", "art/pipeline/blender/ingest.py", "--", str(src), i,
                        "--registry", rel(d / "batch.toml"), "--export", rel(glb(b, i)), "--out", rel(d / "g2")],
                       d / "logs" / f"ingest-{i}.log")
@@ -190,6 +198,7 @@ def validate(b, d, a):
     for i in ids(b, a.only):
         rep_path = d / "g2" / f"{i}.g2.json"
         rep_path.unlink(missing_ok=True)
+        (d / "g2" / f"{i}.receipt.json").unlink(missing_ok=True)
         if not glb(b, i).exists():
             print(f"G2 {i}: no candidate")
             continue
@@ -203,6 +212,8 @@ def validate(b, d, a):
         rep = json.loads(rep_path.read_text())
         bad = [k for k, c in rep["checks"].items() if not c["ok"]]
         passed += rep["pass"]
+        fails += not rep["pass"]  # a G2 failure is a gate failure: `all` stops here
+        stamp(d / "g2" / f"{i}.receipt.json", b, [i])
         print(f"G2 {i}: {'PASS' if rep['pass'] else 'FAIL ' + ','.join(bad)} ({rep['checks']['triangles']['value']} tris)")
     print(f"G2 passed: {passed}")
     return fails
@@ -231,6 +242,7 @@ def preview(b, d, a):
         print(f"G3 {i}: {'ok' if ok else 'FAIL'} ({s}s)")
         if ok:
             shots.append((i, tq))
+            stamp(out / "receipt.json", b, [i])
     _sheet(shots, d / "contact-g3.jpg")
     return fails
 
@@ -267,13 +279,12 @@ def qa(b, d, a):
     shutil.rmtree(out, ignore_errors=True)
     code, s = run([GODOT, "--path", ".", "--always-on-top", "--", f"--factory-qa={rel(out)}",
                    f"--qa-manifest={rel(d / 'qa_manifest.json')}", "--seed=7"], d / "logs" / "qa.log")
-    done = "[FQA] done" in (d / "logs" / "qa.log").read_text(errors="replace")
-    ok = done and (out / "qa.json").exists()
-    note = "" if code == 0 else f" — WARNING: Godot exited {code} after finishing (teardown crash, see logs/qa.log)"
-    print(f"in-game QA: {'ok' if ok else f'FAIL (exit {code})'} ({s}s) → {rel(out)}{note if ok else ''}")
+    ok = code == 0 and (out / "qa.json").exists()
+    print(f"in-game QA: {'ok' if ok else f'FAIL (exit {code}; captures kept for diagnosis)'} ({s}s) → {rel(out)}")
     if not ok:
         return fails + 1
     rep = json.loads((out / "qa.json").read_text())
+    stamp(out / "receipt.json", b, [r["id"] for r in rep["assets"] if "screenshot" in r])
     _sheet([(r["id"], out / r["screenshot"]) for r in rep["assets"] if "screenshot" in r], d / "contact-ingame.jpg")
     _sheet([(r["id"], out / f"{r['id']}-detail.png") for r in rep["assets"] if "screenshot" in r], d / "contact-ingame-detail.jpg")
     _sheet([(f"{v['view']} {s}", out / f"view-{v['view']}-{s}.png") for v in rep["views"] for s in ("without", "with")],
@@ -289,7 +300,10 @@ def _licence_source(b, d, i) -> str:
     ing = d / "g2" / f"{i}.ingest.json"
     if not ing.exists():
         return "not generated"
-    receipt = (ROOT / json.loads(ing.read_text())["raw"]).with_suffix(".json")
+    ingr = json.loads(ing.read_text())
+    if not glb(b, i).exists() or ingr.get("glb_sha256") != budget.sha256(glb(b, i)):
+        return "UNTRACED: ingest receipt does not match the current candidate (not promotable)"
+    receipt = (ROOT / ingr["raw"]).with_suffix(".json")
     if not receipt.exists():
         return f"UNTRACED raw {json.loads(ing.read_text())['raw']} (no receipt: not promotable)"
     r = json.loads(receipt.read_text())
@@ -302,14 +316,17 @@ def report(b, d, a):
                        "| asset | route | licence policy | exact source |", "|---|---|---|---|"]
     for i, x in b["asset"].items():
         g2 = d / "g2" / f"{i}.g2.json"
-        g2r = json.loads(g2.read_text()) if fresh(g2, i, b) else None
+        g2r = json.loads(g2.read_text()) if fresh(d / "g2" / f"{i}.receipt.json", i, b) else None
         r = review.get(i, {})
+        verdict = r.get("verdict", "pending")
+        if glb(b, i).exists() and r.get("glb_sha256") != budget.sha256(glb(b, i)):
+            verdict = "stale_review"  # the review judged different content
         status.append({"id": i, "route": x["route"], "candidate": glb(b, i).exists(),
                        "g2": None if g2r is None else g2r["pass"],
                        "triangles": g2r["checks"]["triangles"]["value"] if g2r else None,
-                       "g3": fresh(d / "g3" / i / "lookdev_three_quarter.png", i, b),
-                       "ingame": fresh(d / "qa" / f"{i}.png", i, b),
-                       "verdict": r.get("verdict", "pending"), "score": r.get("score"), "note": r.get("note", "")})
+                       "g3": fresh(d / "g3" / i / "receipt.json", i, b),
+                       "ingame": fresh(d / "qa" / "receipt.json", i, b),
+                       "verdict": verdict, "score": r.get("score"), "note": r.get("note", "")})
         lic.append(f"| {i} | {x['route']} | {x['licence']} | `{_licence_source(b, d, i)}` |")
     usable = [s for s in status if s["verdict"] in ("usable", "usable_with_fixes")]
     summary = {"batch": b["batch"]["id"], "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
