@@ -22,6 +22,9 @@ const PREP_S := 150.0            # real seconds of preparation (paused while tal
 const HOLD := {"drive": 3.0, "chronometer": 4.0, "plate_box": 1.2}
 
 static var next_seed := -1
+## Survives a 1919 replay (reload) so a prologue player keeps Story continuity and the coda;
+## choosing the prologue again resets Story in Cambridge.
+static var replay_from_prologue := false
 
 var sim
 var ui
@@ -64,7 +67,8 @@ var _coda_transition: Tween
 
 func _ready() -> void:
 	_ensure_inputs()
-	_came_from_departure = Story.from_prologue
+	_came_from_departure = Story.from_prologue or replay_from_prologue
+	replay_from_prologue = false
 	if not _came_from_departure:
 		Story.reset()
 	var args := _user_args()
@@ -350,6 +354,7 @@ func _start_game() -> void:
 
 func _restart(same_sky: bool) -> void:
 	next_seed = sim.run_seed if same_sky else randi() % 100000
+	replay_from_prologue = _came_from_departure
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
