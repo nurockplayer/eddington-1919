@@ -1,8 +1,8 @@
 # Game Director Handoff
 
-## Director sprint status — M1 prologue + M2 departure night | 2026-10-20 JST (Opus 5.5)
+## Director sprint status — M1 prologue, M2 departure night, M3 Príncipe coda | 2026-10-20 JST (Opus 5.5)
 
-**State:** M1 is merged (PR #9, `96fd598`) and verified on a fresh clone. M2, the departure night, is on branch `m2/departure` and goes to `main` via PR. Both are part of the 72-hour Director sprint (Issue #1).
+**State:** M1 (PR #9, `96fd598`) and M2 (PR #10, `7733d6d`) are merged and verified on fresh clones. M3 (branch `m3/coda`) goes to `main` via PR. All three are part of the 72-hour Director sprint (Issue #1).
 
 - **Play:** `godot --path .` → 「序章　劍橋，1917」 (about 12–18 min, target; not measured with a human). It flows into the unchanged 1919 slice. 「普林西比，1919」 still starts the slice directly.
 - **What the player does:**
@@ -33,6 +33,11 @@
   - Montage → 1919 PREP.
   - 1919 hooks are cosmetic: a loupe prop in the darkroom and an optional night workbook page.
   - Dialogue: `content_departure.gd`, owned by the Director. Verification: [M2_VERIFICATION](M2_VERIFICATION.md).
+- **M3, the Príncipe coda ([spec](design/M3_CODA.md)):**
+  - For prologue players only. After Eddington's response to the telegram, the player is alone in the darkroom. They write the workbook page (or reread it if already written), then pick up Ashby's loupe. `ContentCoda.ashby_answer` reflects on the same grade used by the ending. `kit_close(bond_tone)` follows, the lamp goes out, then the ending.
+  - The ending screen leads with the telegram, the response and the evidence. History sits behind 「歷史上發生了什麼」.
+  - Totality sky: round stars that cloud now hides. Cosmetic only.
+  - Verification: [M3_VERIFICATION](M3_VERIFICATION.md).
 - **Next options, in value order:**
   1. A human playtest of M1+M2.
   2. People/figure quality (needs the Owner's OK for MPFB).

@@ -1,5 +1,10 @@
 # M3 — Príncipe coda and totality legibility
 
+**Director addendum:**
+- gpt-6-astra independent review of `a14b89a`: REQUEST CHANGES, with one P2. A workbook written at night still had to be reopened before the loupe would unlock.
+- Fixed in the following commit, with a regression in `test_coda` (60/0) that fails on the old code.
+- astra also traced the careful run's 9 holders (instead of 12) to bot input-timing variance, not a sim change. Two repeat runs collected 12, with identical exposures, selection, score and ending.
+
 Godot **4.7.2.stable.official.ed1daf0bf**, macOS / Apple M2 Pro, branch `m3/coda`,
 starting at `8a1cc48` (Director content/spec on merged M1+M2 main `7733d6d`).
 Implementation commit: `9b6952dbf5b843152b911e1696bbbfc23557345c`.
