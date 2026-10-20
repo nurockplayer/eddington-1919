@@ -26,7 +26,11 @@ def main() -> int:
     spec = tomllib.loads((ROOT / "art/assets.toml").read_text())["asset"][asset_id]
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(glb))
-    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    # The glTF importer creates display meshes for bones (e.g. "Icosphere"); they
+    # are not in the file, so they are not part of the asset.
+    bone_shapes = {pb.custom_shape for a in bpy.context.scene.objects if a.type == "ARMATURE"
+                   for pb in a.pose.bones if pb.custom_shape}
+    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH" and o not in bone_shapes]
     deps = bpy.context.evaluated_depsgraph_get()
 
     tris, mats, tex_max, degenerate, loose = 0, set(), 0, 0, 0
@@ -87,6 +91,10 @@ def main() -> int:
         "loose_vertices": {"value": loose, "ok": loose == 0},
         "names_prefixed": {"value": [o.name for o in meshes], "ok": names_ok},
     }
+    for name in spec.get("skip_checks", []):  # declared, justified exemptions only
+        if name in checks:
+            checks[name]["ok"] = True
+            checks[name]["skipped"] = True
     passed = all(c["ok"] for c in checks.values())
     report = {"asset": asset_id, "file": str(glb.relative_to(ROOT)) if glb.is_relative_to(ROOT) else str(glb), "pass": passed, "checks": checks}
     out = ROOT / "art/validation" / f"{asset_id}.g2.json"

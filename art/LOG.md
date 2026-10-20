@@ -2,6 +2,19 @@
 
 Newest first. One entry per loop iteration: what was tried, what the evidence showed, and what changed. Details live in each run's `REVIEW.md`.
 
+## 2026-10-20: r06 people (Opus 5.5)
+
+**Result:** MPFB 2.0.18 was verified (official source, sha256, Blender 5.2.2 headless, CC0 core and system assets) and installed in isolation.
+- Eddington and Cottingham were rebuilt as rigged, proportioned period figures.
+- Hats, glasses and the moustache are procedural; the figures have an idle loop and a head look-at.
+- The pith helmet became a straw hat (Sobral 1919 evidence).
+
+**Evidence:**
+- Four iterations captured with the in-game benchmark, and G2 caught three real export defects.
+- Performance: +0.3–0.4 ms forced draw on screen (5 interleaved repetitions; the machine was loaded, so paired deltas were used).
+- Gameplay unchanged.
+- [REVIEW](runs/r06-people/REVIEW.md)
+
 ## 2026-10-20: integration, independent performance check, r05 cinematic pass (Opus 5.5)
 
 **Merged:** PR #4 (r04) → `art/visual-system`, then PR #3 → `main` (`90d9f33`). Verified on a fresh clone of `main`:

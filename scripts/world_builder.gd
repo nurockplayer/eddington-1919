@@ -684,6 +684,10 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	body.add_child(cs)
 	body.position = pos
 	root.add_child(body)
+	if _person(id, body):
+		_tag(body, name)
+		interactable(body, id, name)
+		return body
 	var trousers := Color(0.2, 0.19, 0.18)
 	box(Vector3(0.14, 0.85, 0.16), Vector3(-0.1, 0.43, 0), trousers, body, false)
 	box(Vector3(0.14, 0.85, 0.16), Vector3(0.1, 0.43, 0), trousers, body, false)
@@ -699,7 +703,7 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	head.material_override = mat(Color(0.86, 0.7, 0.58))
 	head.position = Vector3(0, 1.62, 0)
 	body.add_child(head)
-	# Hats: a pith helmet for one, a straw boater-like hat for the other (RECONSTRUCTION).
+	# Fallback figures only (r06 characters replace them when the GLBs exist): RECONSTRUCTION hats.
 	if id == "eddington":
 		cyl(0.2, 0.03, Vector3(0, 1.73, 0), Color(0.86, 0.82, 0.7), body)
 		var dome := MeshInstance3D.new()
@@ -715,6 +719,12 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	else:
 		cyl(0.22, 0.02, Vector3(0, 1.72, 0), Color(0.85, 0.75, 0.5), body)
 		cyl(0.13, 0.1, Vector3(0, 1.77, 0), Color(0.85, 0.75, 0.5), body)
+	_tag(body, name)
+	interactable(body, id, name)
+	return body
+
+
+func _tag(body: Node3D, name: String) -> void:
 	var tag := Label3D.new()
 	tag.text = name
 	tag.font_size = 30
@@ -729,5 +739,40 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	tag.visibility_range_end_margin = 3.0
 	tag.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	body.add_child(tag)
-	interactable(body, id, name)
-	return body
+
+
+## r06: production character (art/people/, MPFB route) in place of the primitive
+## figure. Collider, interaction and tag stay on the body exactly as before. The
+## model plays its baked "idle" loop and gets a head look-at (target set by main).
+## Characters are not weathered: grime noise on faces reads as blotches.
+func _person(id: String, body: Node3D) -> bool:
+	var path := MODELS + id + ".glb"
+	if not ResourceLoader.exists(path):
+		return false
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false  # exists but failed to load: keep the primitive figure
+	var fig: Node3D = scene.instantiate()
+	fig.name = "figure"
+	fig.rotation.y = PI  # models face +Z; NPC bodies face -Z (v0.1 convention)
+	body.add_child(fig)
+	for ap in fig.find_children("*", "AnimationPlayer", true, false):
+		var player := ap as AnimationPlayer
+		if player.has_animation("idle"):
+			player.get_animation("idle").loop_mode = Animation.LOOP_LINEAR
+			player.play("idle")
+			player.seek(randf() * 3.0, true)  # the two men do not breathe in sync
+	for sk in fig.find_children("*", "Skeleton3D", true, false):
+		var look := LookAtModifier3D.new()
+		look.name = "look_at"
+		look.bone_name = "head"
+		look.forward_axis = SkeletonModifier3D.BONE_AXIS_PLUS_Z
+		look.primary_rotation_axis = Vector3.AXIS_Y
+		look.use_angle_limitation = true
+		look.symmetry_limitation = true
+		look.primary_limit_angle = deg_to_rad(110.0)
+		look.secondary_limit_angle = deg_to_rad(50.0)
+		look.duration = 0.6
+		look.influence = 0.0
+		sk.add_child(look)
+	return true

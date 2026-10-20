@@ -108,3 +108,22 @@
 - **Out of scope:** the keepsake/microimage, letters and the reunion.
 - **Verified:** [M2_VERIFICATION](M2_VERIFICATION.md). Not verified: human play.
 
+## D011 — People via MPFB 2 with a CC0-only gate (Owner approval + Game Director, 2026-10-20)
+- **What changed and why:**
+  - The Owner approved downloading and verifying MPFB 2 as a *candidate* tool, with people as the priority.
+  - MPFB was chosen over Tripo (no key; unrigged output) and over hand-modelling (which keeps the toy read). It gives rigged, proportioned humans whose core assets are CC0.
+  - It is installed in isolation (`art/pipeline/setup_mpfb.sh`). Builds are gated to CC0-only files.
+  - Appearance follows the sources in `art/people/REFERENCE.md`.
+  - **Eddington's pith helmet becomes a straw hat.** The only 1919 expedition group photo (Sobral) shows straw hats and no pith helmets.
+  - NPC colliders, interaction and tags are unchanged. The figures add an idle loop and a head look-at.
+- **What was actually verified:**
+  - G2 PASS for both characters.
+  - Before and after compared in real gameplay frames.
+  - 155/155 tests.
+  - Autoplay endings 4 / 0 / 3 unchanged.
+  - Forced draw +0.3–0.4 ms when the characters are on screen; wall p95 ≤ 9.94 ms (5 interleaved repetitions, paired deltas).
+  - Licences checked on the official pages and in every file header.
+- **Not verified:** human judgement of the faces and of the look-at in motion.
+- **Risks/reversibility:**
+  - Delete or rename a character GLB and the game falls back to the old figure.
+  - The specs live in `art/people/people.toml`, and every build is a script run.

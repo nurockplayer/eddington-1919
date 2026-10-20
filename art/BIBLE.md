@@ -74,7 +74,7 @@ The forms may stay simplified. These rules stop simplified forms reading as toys
 - **Large ground planes carry macro variation** at two scales. Wet surfaces carry it in roughness, not in loud albedo noise (r05 try2 "pink cobbles").
 - **The sky never clips to white** in gameplay views, and the clouds have structure (`cloud_shade`, `day_gain`).
 - **No HUD text in vistas.** Name tags fade beyond 9 m.
-- **People must have human proportions.** Capsule figures are the largest remaining toy cue (r06).
+- **People must have human proportions** (r06). Use MPFB humans with flat palette skin, CC0 garments restyled in period colours, and procedural period accessories. No photographic skin, no caricature, nothing that reads as toy-like. Facial hair is shaped after the sources, and anything that carries unwanted associations is avoided (r06: a narrow "toothbrush" moustache was widened to the full moustache in the source).
 - **Evidence is exempt from weathering, marked explicitly:** `evidence_mat()`, the palette `evidence` role and metals. That covers plates, the measuring sheet and the mirror. A brightness cutoff is not used: it also skipped whitewash and canvas (PR #6 review).
 
 ## 4. Colour and value
@@ -115,6 +115,7 @@ These are the states of the benchmark bookmarks in `tests/benchmark.gd`. The lig
 | kit_prop (repeated) | ≤ 600 | ≤ 3 | ≤ 512 px | packing_crate |
 | set_prop | ≤ 2 000 | ≤ 3 | ≤ 512 px | table, chronometer |
 | architecture | ≤ 3 000 | ≤ 4 | ≤ 1024 px | shelter, darkroom |
+| character (rigged, animated) | ≤ 16 000 | ≤ 10 | none (palette) | eddington, cottingham |
 
 - **Units and axes:** metres. Blender is Z-up. Export glTF Y-up (GLB). The front faces −Y in Blender, which is +Z in Godot. The origin is at bottom-centre; a pivot object's origin is on its pivot.
 - **Names:** every mesh object starts with the asset id (`coelostat`, `coelostat_mirror`). Materials are `E1919_<swatch>`. Files are `assets/models/<asset_id>.glb`.
