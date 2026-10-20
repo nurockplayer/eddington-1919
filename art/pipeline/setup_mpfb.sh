@@ -39,7 +39,7 @@ if [ ! -f "$MARK" ]; then
   for need in clothes/male_elegantsuit01 hair/short02 proxymeshes/male1591 eyes/low-poly eyebrows/eyebrow010; do
     [ -d "$STAGE/$need" ] || { echo "asset pack incomplete: $need" >&2; rm -rf "$STAGE"; exit 1; }
   done
-  (cd "$STAGE" && tar cf - .) | (cd "$DATA" && tar xf -)
+  cp -R "$STAGE/." "$DATA/"   # one process: any failure stops the script before the marker
   rm -rf "$STAGE"
   touch "$MARK"
 fi

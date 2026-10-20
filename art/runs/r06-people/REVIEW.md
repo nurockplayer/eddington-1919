@@ -50,7 +50,7 @@
 ## Gates
 - **G2:** both PASS ([eddington](../../validation/eddington.g2.json), [cottingham](../../validation/cottingham.g2.json)).
   - About 14.2k and 15.0k triangles against a 16k character budget; 8 and 7 palette materials; no textures.
-  - Posed dimensions 0.54 × 0.36 × 1.87 m and 0.52 × 0.37 × 1.83 m, with hats.
+  - Posed dimensions 0.57 × 0.36 × 1.87 m and 0.53 × 0.37 × 1.83 m, with hats (after the forearm fix).
   - G2 found and drove three fixes: a stray importer bone-shape mesh (the validator now ignores bone shapes), an unapplied height scale (now baked in), and soles 1.7 cm below the ground (now lifted).
 - **G3:** [g3-r06](../../validation/g3-r06/sheet.jpg). Scale against the 1.75 m reference; silhouettes read.
 - **G4 visual:**
@@ -63,7 +63,7 @@
     - **±0.0 ms** where they are not (house, both totality views, darkroom).
   - **Draw calls:** +0–4.
   - **Wall-clock p95 (median of the 5 repetitions):** at most 9.94 ms in every view. A single repetition reached 10.31 ms (arrival).
-  - **Final-head attempt discarded:** a 3-repetition run on the final head (`dafc94e`) happened under load average 25–27, from another project's `cargo` tests and other Godot processes. Its paired deltas swung by ±4 ms, so no conclusion is drawn from it ([discarded-loaded](../../validation/perf-r06/discarded-loaded/README.md)).
+  - **Final-head attempt discarded:** a 3-repetition run on the final head (`dafc94e`) happened under load average 25–27, from another project's `cargo` tests and other Godot processes. Its paired deltas swung between −2.3 and +6.3 ms, so no conclusion is drawn from it ([discarded-loaded](../../validation/perf-r06/discarded-loaded/README.md)).
   - The commits after `0ff8c60` change only the arm pose, build-time checks, setup, the load fallback and look-at caching (less per-frame CPU), so they add no render work.
   - The final Cottingham tweaks after `0ff8c60` (muscle setting, moustache shape) added under 200 triangles.
 - **Gameplay:**

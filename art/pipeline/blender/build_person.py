@@ -64,8 +64,9 @@ def assert_cc0(path: Path) -> None:
     if not CC0_DECL.search(head):
         raise SystemExit(f"licence gate: {path} has no CC0 release declaration in its header")
     for line in path.read_text(errors="replace").splitlines():
-        if line.startswith("obj_file "):
-            obj = path.parent / line.split(None, 1)[1].strip()
+        tok = line.split()  # same tokenisation as MPFB (tabs/leading whitespace allowed)
+        if len(tok) >= 2 and tok[0] == "obj_file":
+            obj = path.parent / tok[1]
             if not obj.exists() or not CC0_DECL.search("".join(obj.read_text(errors="replace").splitlines(True)[:15])):
                 raise SystemExit(f"licence gate: referenced geometry {obj} lacks a CC0 release declaration")
 

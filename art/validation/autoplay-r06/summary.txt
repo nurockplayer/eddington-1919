@@ -1,3 +1,4 @@
 [BOT careful] DONE ending=雲層之後的希望 evidence=favors_e score=4 stuck=0
 [BOT rushed] DONE ending=過早的宣告 evidence=ambiguous score=0 stuck=0
 [BOT cherry] DONE ending=不完整的判斷 evidence=favors_e score=3 stuck=0
+provenance: careful/rushed/cherry run on commit dafc94e (code identical to the docs-only head after it), 2026-10-20 ~06:14–06:25 JST, seed 7, speed 2; machine under background load (another project's cargo tests), which does not affect the deterministic logic outcome.
