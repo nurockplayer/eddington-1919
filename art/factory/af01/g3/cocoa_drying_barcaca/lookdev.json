@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        3.2,
+        6.0,
+        2.2
+      ],
+      "id": "cocoa_drying_barcaca",
+      "min_y": 0.0,
+      "surfaces": 6,
+      "triangles": 2488
+    }
+  ],
+  "frame_scale": 2.22
+}

@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        1.8,
+        0.8,
+        0.76
+      ],
+      "id": "trestle_table",
+      "min_y": 0.0,
+      "surfaces": 2,
+      "triangles": 616
+    }
+  ],
+  "frame_scale": 1.0
+}

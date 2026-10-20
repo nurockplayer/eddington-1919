@@ -142,3 +142,62 @@ Keep the exact camera, framing, horizon line, buildings, props, people and their
 Change only lighting, atmosphere, shadows, ground and material finish, and render the people \
 as dignified, believable Edwardian figures with natural proportions (no faces in close-up, \
 no caricature). Remove the floating name labels and any interface text."""
+
+# Asset Factory af01 (art/factory/af01/batch.toml): image→3D inputs. One object,
+# full silhouette, flat even light and no cast shadows so the generator does not
+# bake light into the albedo (BIBLE §6 de-lit rule; Meshy smart-topology has no
+# remove_lighting option).
+
+[af01_cocoa_sack_pile]
+version = "v1"
+kind = "asset"
+text = """
+A single object for a 1919 tropical plantation scene, about 1.40 x 1.00 x 0.90 m: \
+a pile of six slumped jute sacks of dried cocoa beans, tied necks, stacked two high on bare earth, coarse brown hessian, simple sturdy forms. \
+Three-quarter view from slightly above, centered, whole object visible with a margin, \
+plain neutral light-grey studio background, soft even shadowless lighting, no cast shadow."""
+
+[af01_laterite_boulder]
+version = "v1"
+kind = "asset"
+text = """
+A single object for a 1919 tropical plantation scene, about 1.20 x 0.90 x 0.70 m: \
+one weathered dark volcanic basalt boulder half sunk in red laterite soil, rounded edges, rusty red staining in the cracks, no moss. \
+Three-quarter view from slightly above, centered, whole object visible with a margin, \
+plain neutral light-grey studio background, soft even shadowless lighting, no cast shadow."""
+
+[af01_cocoa_pod_basket]
+version = "v1"
+kind = "asset"
+text = """
+A single object for a 1919 tropical plantation scene, about 0.60 x 0.60 x 0.42 m: \
+a round open woven palm-fibre carrying basket full of ripe ridged cocoa pods in yellow-orange and ochre, plain sturdy weave, no handles. \
+Three-quarter view from slightly above, centered, whole object visible with a margin, \
+plain neutral light-grey studio background, soft even shadowless lighting, no cast shadow."""
+
+[af01_felled_stump]
+version = "v1"
+kind = "asset"
+text = """
+A single object for a 1919 tropical plantation scene, about 1.10 x 1.00 x 0.60 m: \
+a freshly felled tropical hardwood tree stump with a flat axe-cut top, exposed buttress roots spreading into red soil, grey-brown bark, pale cut wood. \
+Three-quarter view from slightly above, centered, whole object visible with a margin, \
+plain neutral light-grey studio background, soft even shadowless lighting, no cast shadow."""
+
+[af01_tarp_bundle]
+version = "v1"
+kind = "asset"
+text = """
+A single object for a 1919 tropical plantation scene, about 1.10 x 0.60 x 0.40 m: \
+a heavy folded bundle of off-white canvas tarpaulin lashed with two hemp ropes, lying flat, plain cloth with soft folds. \
+Three-quarter view from slightly above, centered, whole object visible with a margin, \
+plain neutral light-grey studio background, soft even shadowless lighting, no cast shadow."""
+
+[af01_firewood_stack]
+version = "v1"
+kind = "asset"
+text = """
+A single object for a 1919 tropical plantation scene, about 1.20 x 0.60 x 0.70 m: \
+a neat stack of split hardwood firewood logs, about thirty pieces, ends showing pale split wood and dark bark, stacked between two short stakes. \
+Three-quarter view from slightly above, centered, whole object visible with a margin, \
+plain neutral light-grey studio background, soft even shadowless lighting, no cast shadow."""

@@ -1,0 +1,98 @@
+# af01 Director review (Opus 5.5, 2026-10-20), from G3 lookdev + in-game QA
+# (gameplay view, 30° detail view, dressed wide views). Not an Owner acceptance.
+# score: visual quality 1–5 against BIBLE §3/§3a (period read, not toy, evidence first).
+# verdict: usable | usable_with_fixes | rework | blocked
+
+[trestle_table]
+score = 4
+verdict = "usable"
+note = "Reads as a field table at gameplay distance; plank gaps and splayed trestles carry it."
+
+[camp_stool]
+score = 4
+verdict = "usable"
+note = "X-frame and canvas sling read clearly; the canvas is the brightest non-evidence value in the camp, which is acceptable at this size."
+
+[water_cask]
+score = 4
+verdict = "usable"
+note = "Strong silhouette; hoops and bulge read at 3 m."
+
+[hurricane_lantern]
+score = 4
+verdict = "usable"
+note = "Reads on the table; has a flame pivot for an OmniLight. Globe is opaque palette glass (no transparency), fine at this size."
+
+[instrument_chest]
+score = 4
+verdict = "usable"
+note = "Brass hasp and corners pick out the 'operable' accent (BIBLE §4) — keep it non-interactable or it will mislead players."
+
+[plate_rack]
+score = 3
+verdict = "usable_with_fixes"
+note = "Under the safelight the rack's plates glow as brightly as the evidence (BIBLE S1). Fix: a dimmed, non-evidence glass, or an empty rack."
+
+[zinc_bucket]
+score = 3
+verdict = "usable_with_fixes"
+note = "Reads as a black iron pot: the palette has no galvanised grey. Fix: add a `zinc` swatch (palette change, BIBLE §4) and rebuild."
+
+[wheelbarrow]
+score = 4
+verdict = "usable"
+note = "Good silhouette and wheel; reads as plantation kit."
+
+[ladder]
+score = 4
+verdict = "usable"
+note = "Leaned against the shelter in QA; rung spacing reads true to scale."
+
+[sawhorse]
+score = 4
+verdict = "usable"
+note = "Simple and correct."
+
+[cocoa_drying_barcaca]
+score = 3
+verdict = "usable_with_fixes"
+note = "Reads as a pavilion. A barcaça should read as a long, low drying bed with a roof that visibly runs on rails. Fix: lower the deck, lengthen it, make the bean bed and the rails legible."
+
+[post_rail_fence]
+score = 3
+verdict = "usable_with_fixes"
+note = "The kit tiles as designed, but the pine rails read new and yellow next to the weathered posts. Fix: teak or weathered rails."
+
+[laterite_steps]
+score = 2
+verdict = "rework"
+note = "The blocks read as soft pillows (bevel too large for the block size, pale stone): a toy read (§3a). Rework with flatter, larger, darker dressed blocks. The spec was corrected after QA r1 (0.30 m to meet the veranda)."
+
+[coconut_palm]
+score = 3
+verdict = "usable_with_fixes"
+note = "A single 508-triangle mesh, so it can be one MultiMesh, against today's 9-node primitive palms (palms are 125 of 153 draw calls in totality_sky). The fronds read as stiff spikes. Fix: more droop and a leaflet read, then an A/B G4 run swapping the 15 palms."
+
+[cocoa_sack_pile]
+verdict = "blocked"
+note = "Concept ready (art/runs/af01-concepts). Waiting for the Owner's approval and MESHY_API_KEY."
+
+[laterite_boulder]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."
+
+[cocoa_pod_basket]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."
+
+[felled_stump]
+verdict = "blocked"
+note = "Concept ready (it adds a few green sprigs; the textured mesh will carry them). Waiting for approval and a key."
+
+[tarp_bundle]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."
+
+[firewood_stack]
+verdict = "blocked"
+note = "Concept ready. Waiting for approval and a key."

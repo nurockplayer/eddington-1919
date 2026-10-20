@@ -1,0 +1,249 @@
+{
+  "batch": "af01",
+  "assets": [
+    {
+      "id": "trestle_table",
+      "glb": "res://assets/candidates/af01/trestle_table.glb",
+      "pos": [
+        4.6,
+        0.6
+      ],
+      "yaw": -10,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "camp_stool",
+      "glb": "res://assets/candidates/af01/camp_stool.glb",
+      "pos": [
+        5.6,
+        1.4
+      ],
+      "yaw": 25,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "water_cask",
+      "glb": "res://assets/candidates/af01/water_cask.glb",
+      "pos": [
+        6.4,
+        -0.6
+      ],
+      "yaw": 0,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "hurricane_lantern",
+      "glb": "res://assets/candidates/af01/hurricane_lantern.glb",
+      "pos": [
+        4.6,
+        0.6
+      ],
+      "yaw": 0,
+      "light": "prep_early",
+      "on": "trestle_table",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "instrument_chest",
+      "glb": "res://assets/candidates/af01/instrument_chest.glb",
+      "pos": [
+        3.9,
+        2.4
+      ],
+      "yaw": 15,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "plate_rack",
+      "glb": "res://assets/candidates/af01/plate_rack.glb",
+      "pos": [
+        11.3,
+        1.75
+      ],
+      "yaw": 0,
+      "light": "night",
+      "on": "",
+      "lean": 0,
+      "eye": [
+        10.0,
+        0.05,
+        3.4
+      ]
+    },
+    {
+      "id": "zinc_bucket",
+      "glb": "res://assets/candidates/af01/zinc_bucket.glb",
+      "pos": [
+        6.0,
+        -1.3
+      ],
+      "yaw": 0,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "wheelbarrow",
+      "glb": "res://assets/candidates/af01/wheelbarrow.glb",
+      "pos": [
+        -5.2,
+        3.6
+      ],
+      "yaw": 120,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "ladder",
+      "glb": "res://assets/candidates/af01/ladder.glb",
+      "pos": [
+        2.9,
+        -1.2
+      ],
+      "yaw": 90,
+      "light": "prep_early",
+      "on": "",
+      "lean": 15,
+      "eye": []
+    },
+    {
+      "id": "sawhorse",
+      "glb": "res://assets/candidates/af01/sawhorse.glb",
+      "pos": [
+        -4.0,
+        5.6
+      ],
+      "yaw": 70,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "cocoa_drying_barcaca",
+      "glb": "res://assets/candidates/af01/cocoa_drying_barcaca.glb",
+      "pos": [
+        -11.0,
+        4.0
+      ],
+      "yaw": 90,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "post_rail_fence",
+      "glb": "res://assets/candidates/af01/post_rail_fence.glb",
+      "pos": [
+        -1.0,
+        7.2
+      ],
+      "yaw": 0,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "laterite_steps",
+      "glb": "res://assets/candidates/af01/laterite_steps.glb",
+      "pos": [
+        -5.4,
+        -13.0
+      ],
+      "yaw": 0,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    },
+    {
+      "id": "coconut_palm",
+      "glb": "res://assets/candidates/af01/coconut_palm.glb",
+      "pos": [
+        -7.0,
+        7.5
+      ],
+      "yaw": 0,
+      "light": "prep_early",
+      "on": "",
+      "lean": 0,
+      "eye": []
+    }
+  ],
+  "views": [
+    {
+      "name": "camp_day",
+      "eye": [
+        7.5,
+        0.05,
+        5.0
+      ],
+      "target": [
+        2.0,
+        0.8,
+        -1.0
+      ],
+      "light": "prep_early"
+    },
+    {
+      "name": "roca_west",
+      "eye": [
+        -1.5,
+        0.05,
+        9.0
+      ],
+      "target": [
+        -9.0,
+        1.4,
+        2.0
+      ],
+      "light": "prep_early"
+    },
+    {
+      "name": "camp_totality",
+      "eye": [
+        7.5,
+        0.05,
+        5.0
+      ],
+      "target": [
+        2.0,
+        0.8,
+        -1.0
+      ],
+      "light": "totality"
+    },
+    {
+      "name": "darkroom_night",
+      "eye": [
+        9.2,
+        0.05,
+        4.2
+      ],
+      "target": [
+        11.0,
+        0.5,
+        1.9
+      ],
+      "light": "night"
+    }
+  ]
+}
