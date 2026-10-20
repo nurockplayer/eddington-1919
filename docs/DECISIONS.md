@@ -127,3 +127,13 @@
 - **Risks/reversibility:**
   - Delete or rename a character GLB and the game falls back to the old figure.
   - The specs live in `art/people/people.toml`, and every build is a script run.
+
+## D012 — Príncipe coda answers the prologue (Game Director, 2026-10-20)
+- **Why:** M1 and M2 set up two charges: Ashby's "clean plate, not a good story" and Kit's "tell me the sky you saw". The ending never answered either, so the journey had no close. The ending text was also a single dense wall.
+- **What changed:**
+  - A short interactive coda for prologue players only. It reflects the player's own telegram and plate selection, using the same grade as the ending, so it is never a separate score.
+  - The ending screen is restructured, with history behind a toggle.
+  - The totality sky is more legible: cloud hides stars. This is cosmetic only.
+- **Unchanged:** the direct-1919 path, the sim, grading, the careful, rushed and cherry endings and their scores (4/0/3).
+- **Out of scope:** letters, reunion, keepsake and confession.
+- **Not verified:** human play.

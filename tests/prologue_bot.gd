@@ -25,6 +25,9 @@ var _speaker_scene_id := 0
 var _departure_handled := false
 var _speaker_shots: Dictionary = {}
 var _choice_shots: Dictionary = {}
+var _coda_capture_seen: Dictionary = {}
+var _coda_fade_capture_started := false
+var _coda_checks := {"workbook": false, "loupe": false, "kit_close": false, "lamp_out": false, "complete": false}
 
 
 func _ready() -> void:
@@ -36,10 +39,13 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_elapsed += delta
-	if _elapsed > 420.0 and not _done:
-		failures.append("420 second watchdog")
+	if _elapsed > 900.0 and not _done:
+		failures.append("900 second watchdog")
 		_finish()
 	var scene = get_tree().current_scene
+	if is_instance_valid(main) and main.get_script() and main.get_script().resource_path == "res://scripts/main.gd" and main.phase == main.Phase.CODA and main.coda_step == main.CodaStep.FADING and not _coda_fade_capture_started:
+		_coda_fade_capture_started = true
+		_capture_coda_lamp_out.call_deferred()
 	if scene and scene.get_script() and scene.get_script().resource_path.ends_with("cambridge/departure_director.gd"):
 		if _speaker_scene_id != scene.get_instance_id():
 			main = scene
@@ -495,7 +501,159 @@ func _run() -> void:
 	if not Story.departure_done: failures.append("M2 completion flag missing at PREP")
 	if Story.report.get("kit_credited", false) != true: failures.append("independent check credit missing")
 	if not Story.clues.get("log", false): failures.append("observing log clue missing")
+	# Honest is the full cross-era route: reuse the ordinary 1919 careful bot's
+	# real-input routine, then drive the prologue-only coda through its hotspots.
+	# Tidy and accuse retain the established PREP receipt contract.
+	if scenario == "honest":
+		await _continue_honest_to_ending()
 	_finish()
+
+
+func _continue_honest_to_ending() -> void:
+	var route: Node = load("res://tests/autoplay_bot.gd").new()
+	route.main = main
+	route.scenario = "careful"
+	route.shots_dir = shots_dir
+	route.real_input_only = true
+	route.continuation_helper = true
+	add_child(route)
+	# These routines use the same walk, look, E, Space, and UI click inputs as the
+	# standalone 1919 careful route. This attached helper stays passive until its
+	# routines are called, and never edits Story or gameplay state.
+	await route.walk([Vector3(1.2, 0, 1.6), Vector3(-1.1, 0, 0.4)])
+	var briefing_id: String = await route.interact(Vector3(-1.1, 1.6, -0.9))
+	if briefing_id != "eddington":
+		failures.append("honest 1919 briefing aim expected eddington, got " + briefing_id)
+		return
+	await route.talk([1])
+	await route._prep_full()
+	var phase_guard := 45.0
+	while (main.phase != main.Phase.TOTALITY or main._busy) and phase_guard > 0.0:
+		await frames(2)
+		phase_guard -= get_process_delta_time()
+	if main.phase != main.Phase.TOTALITY or main._busy:
+		failures.append("honest 1919 route did not reach totality")
+		return
+	if route.stuck > 0:
+		failures.append("honest 1919 route could not walk to %d waypoint(s)" % route.stuck)
+		return
+	await route._totality()
+	phase_guard = 60.0
+	while (main.phase != main.Phase.NIGHT or main._busy) and phase_guard > 0.0:
+		await frames(2)
+		phase_guard -= get_process_delta_time()
+	if main.phase != main.Phase.NIGHT or main._busy:
+		failures.append("honest 1919 route did not reach night")
+		return
+	await route.talk()
+	# Catch the coda's opening dialogue at its real entry event. The helper stops
+	# draining as soon as the phase changes, leaving it for this persistent runner.
+	if not main.ui.dialogue_entry.is_connected(_on_coda_dialogue_entry):
+		main.ui.dialogue_entry.connect(_on_coda_dialogue_entry)
+	await route._night()
+	phase_guard = 30.0
+	while main.phase != main.Phase.CODA and phase_guard > 0.0:
+		await frames(2)
+		phase_guard -= get_process_delta_time()
+	if main.phase != main.Phase.CODA:
+		failures.append("honest route did not enter CODA after judgment")
+		return
+	await frames(30)
+	await shot("coda_opening")
+	await talk()
+	await tap(KEY_TAB)
+	if not main.ui.log_open(): failures.append("Tab did not open coda log")
+	await tap(KEY_TAB)
+	await tap(KEY_ESCAPE)
+	var paused := get_tree().paused
+	await tap(KEY_E)
+	await tap(KEY_ESCAPE)
+	if not paused or get_tree().paused: failures.append("coda pause/resume input was unsafe")
+	# Workbook interaction is mandatory even if the night phase already wrote
+	# one; the authored coda selects the appropriate new/repeat response.
+	var workbook: Node = main.find_child("PríncipeDepartureWorkbookHotspot", true, false)
+	if workbook == null:
+		failures.append("coda workbook hotspot missing")
+		return
+	await look(workbook.global_position)
+	var aimed: Node = main.player.aimed_interactable()
+	if aimed == null or str(aimed.get_meta("interact_id", "")) != "departure_workbook":
+		failures.append("coda workbook was not aimed by normal input")
+		return
+	await shot("coda_workbook")
+	interactions.append("departure_workbook")
+	await tap(KEY_E)
+	await talk()
+	_coda_checks.workbook = main.coda_step == main.CodaStep.LOUPE
+	await shot("coda_lamp")
+	var loupe: Node = main.find_child("AshbyLoupeHotspot", true, false)
+	if loupe == null:
+		failures.append("coda loupe hotspot missing")
+		return
+	await look(loupe.global_position)
+	aimed = main.player.aimed_interactable()
+	if aimed == null or str(aimed.get_meta("interact_id", "")) != "mentor_loupe":
+		failures.append("coda loupe was not aimed by normal input")
+		return
+	await shot("coda_loupe")
+	interactions.append("mentor_loupe")
+	await tap(KEY_E)
+	await talk()
+	# Loupe response advances through Kit's close and the lamp fade.
+	await talk()
+	_coda_checks.loupe = main.coda_step == main.CodaStep.FADING or main.phase == main.Phase.ENDING
+	_coda_checks.kit_close = _coda_capture_seen.has("coda_kit_close")
+	phase_guard = 30.0
+	while main.phase != main.Phase.ENDING and phase_guard > 0.0:
+		await frames(2)
+		phase_guard -= get_process_delta_time()
+	if main.phase != main.Phase.ENDING:
+		failures.append("coda did not reach ENDING")
+		return
+	_coda_checks.complete = true
+	_coda_checks.lamp_out = _coda_capture_seen.has("coda_lamp_out")
+	await frames(30)
+	await shot("ending")
+	# Exercise the expandable historical record through its visible button.
+	for b in main.ui.ending_panel.find_children("*", "Button", true, false):
+		if b.text == "歷史上發生了什麼":
+			await click_button(b)
+			await frames(8)
+			await shot("ending_history")
+			return
+	failures.append("ending history toggle button missing")
+
+
+func _on_coda_dialogue_entry(_speaker: String) -> void:
+	if not is_instance_valid(main) or main.phase != main.Phase.CODA:
+		return
+	var label := ""
+	match str(main._pending):
+		"coda_opening": label = "coda_opening_dialogue"
+		"coda_workbook": label = "coda_workbook_dialogue"
+		"coda_loupe": label = "coda_ashby_response"
+		"coda_kit": label = "coda_kit_close"
+	if label == "" or _coda_capture_seen.has(label):
+		return
+	_coda_capture_seen[label] = true
+	_capturing += 1
+	_capture_coda_dialogue.call_deferred(label)
+
+
+func _capture_coda_dialogue(label: String) -> void:
+	await _wait_for_camera_settle()
+	await shot(label)
+	_capturing -= 1
+
+
+func _capture_coda_lamp_out() -> void:
+	var wait_left := 5.0
+	while is_instance_valid(main) and main.phase == main.Phase.CODA and main.world.lamp.light_energy > 0.05 and wait_left > 0.0:
+		await frames(2)
+		wait_left -= get_process_delta_time()
+	if is_instance_valid(main) and main.phase == main.Phase.CODA:
+		_coda_capture_seen["coda_lamp_out"] = true
+		await shot("coda_lamp_out")
 
 
 func _departure_run() -> void:
@@ -590,12 +748,18 @@ func _departure_run() -> void:
 func _finish() -> void:
 	if _done: return
 	_done = true
-	var receipt := {"scenario": scenario, "phase_reached": "PREP" if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd" and main.phase == main.Phase.PREP else "INCOMPLETE",
+	var phase_reached := "INCOMPLETE"
+	if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd":
+		if main.phase == main.Phase.PREP: phase_reached = "PREP"
+		elif main.phase == main.Phase.ENDING: phase_reached = "ENDING"
+	var receipt := {"scenario": scenario, "phase_reached": phase_reached,
 		"prologue_done": Story.prologue_done, "from_prologue_consumed": not Story.from_prologue,
 		"bond_tone": Story.bond_tone, "slip_fix": Story.slip_fix, "departure_done": Story.departure_done,
 		"clues": Story.clues, "report": Story.report, "plan": Story.plan, "kit_choice": Story.kit_choice,
 		"matched": _matched, "bias_blocked": _bias_blocked, "report_revised": _revised, "beats": beats, "interactions": interactions,
 		"screenshots": screenshots, "failures": failures, "human_playtest": false,
+		"score": int(main._grade.get("score", -1)) if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd" else -1,
+		"coda_checks": _coda_checks,
 		"engine": Engine.get_version_info().string, "elapsed_seconds": snappedf(_elapsed, 0.01),
 		"room_draw_calls_max_observed": _room_draw_calls, "departure_draw_calls_max_observed": _departure_draw_calls,
 		"input_retries": _input_retries}

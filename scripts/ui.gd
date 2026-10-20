@@ -49,6 +49,8 @@ var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_panel: Control
 var ending_text: RichTextLabel
 var ending_title: Label
+var ending_history: RichTextLabel
+var ending_history_toggle: Button
 var pause_panel: Control
 var viewer: Control
 var thumbs: GridContainer
@@ -247,6 +249,7 @@ func _process(delta: float) -> void:
 
 func fade_to(alpha: float, seconds := 0.8) -> Tween:
 	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_STOP)
 	tw.tween_property(fade, "color:a", alpha, seconds)
 	return tw
 
@@ -254,6 +257,7 @@ func fade_to(alpha: float, seconds := 0.8) -> Tween:
 func show_caption(text: String, seconds := 3.0) -> Tween:
 	caption.text = text
 	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_STOP)
 	tw.tween_property(caption, "modulate:a", 1.0, 0.6)
 	tw.tween_interval(seconds)
 	tw.tween_property(caption, "modulate:a", 0.0, 0.6)
@@ -620,6 +624,14 @@ func _build_ending(root: Control) -> void:
 	ending_text = _rich(19)
 	ending_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_child(ending_text)
+	ending_history_toggle = _button("歷史上發生了什麼")
+	ending_history_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	ending_history_toggle.pressed.connect(_toggle_ending_history)
+	v.add_child(ending_history_toggle)
+	ending_history = _rich(17)
+	ending_history.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ending_history.visible = false
+	v.add_child(ending_history)
 	var hb := HBoxContainer.new()
 	hb.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	hb.position = Vector2(-430, -90)
@@ -638,11 +650,20 @@ func _build_ending(root: Control) -> void:
 	hb.add_child(q)
 
 
-func show_ending(title: String, bb: String) -> void:
+func show_ending(title: String, bb: String, history_bb := "") -> void:
 	ending_title.text = title
 	ending_text.text = bb
+	ending_history.text = history_bb
+	ending_history.visible = false
+	ending_history_toggle.visible = not history_bb.is_empty()
+	ending_history_toggle.text = "歷史上發生了什麼"
 	ending_panel.visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _toggle_ending_history() -> void:
+	ending_history.visible = not ending_history.visible
+	ending_history_toggle.text = "收起歷史" if ending_history.visible else "歷史上發生了什麼"
 
 
 func _build_pause(root: Control) -> void:

@@ -17,7 +17,7 @@ godot --headless --path . --script res://tests/test_sim.gd
 godot --path . --always-on-top -- --autoplay=careful --shots=/tmp/e1919 --speed=2
 ```
 
-主選單第一個按鈕「序章　劍橋，1917」進入 M1：比對底片與抄錄圖、查日誌、請 Kit 獨立複核、填報告並共同規劃公平的日食觀測，再接 M2 出發前夜：逐行核對清單、留下更正痕跡、與 Kit 約定記下天空，走到走廊向 Ashby 告別後進入 1919 準備階段（[M2 驗證](docs/M2_VERIFICATION.md)）。「普林西比，1919」仍可直接開始既有切片。序章台詞由 Game Director 撰寫（人物名 Kit、Ashby 為暫定名）。尚未真人試玩；M1 的 12–18 分鐘、M2 的 6–9 分鐘均為設計目標，並非已測量遊玩時長。新手試玩方法見 [docs/PLAYTEST_NEWCOMER.md](docs/PLAYTEST_NEWCOMER.md)。
+主選單第一個按鈕「序章　劍橋，1917」進入 M1：比對底片與抄錄圖、查日誌、請 Kit 獨立複核、填報告並共同規劃公平的日食觀測，再接 M2 出發前夜：逐行核對清單、留下更正痕跡、與 Kit 約定記下天空，走到走廊向 Ashby 告別後進入 1919 準備階段（[M2 驗證](docs/M2_VERIFICATION.md)）。M3 接上普林西比暗房的工作簿、放大鏡與熄燈收尾，結局先呈現電報、回應與證據，歷史紀錄可展開閱讀（[M3 驗證](docs/M3_VERIFICATION.md)）。「普林西比，1919」仍可直接開始既有切片。序章台詞由 Game Director 撰寫（人物名 Kit、Ashby 為暫定名）。尚未真人試玩；M1 的 12–18 分鐘、M2 的 6–9 分鐘均為設計目標，並非已測量遊玩時長。新手試玩方法見 [docs/PLAYTEST_NEWCOMER.md](docs/PLAYTEST_NEWCOMER.md)。
 
 序章額外操作：看片台內拖曳描圖紙、翻面、Q／E 或按鈕旋轉；Tab 在兩章都可開關最近 60 行對話紀錄。
 
