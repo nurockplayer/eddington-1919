@@ -187,9 +187,38 @@ func _test_direct_and_prologue_paths() -> void:
 	await process_frame
 
 
+func _test_replay_keeps_prologue_origin() -> void:
+	# Codex review (PR #12): a 1919 replay after the prologue must keep the coda and continuity.
+	var story = root.get_node("Story")
+	var main_script: Script = load(MAIN_PATH)
+	var first = await _new_main(true)
+	story.bond_tone = "close"
+	story.departure_done = true
+	check(first._came_from_departure, "prologue run caches its origin")
+	main_script.replay_from_prologue = first._came_from_departure  # what _restart() stores before reloading
+	first.queue_free()
+	await process_frame
+	var replay = await _new_main(false)
+	check(replay._came_from_departure, "1919 replay keeps the prologue origin")
+	check(story.bond_tone == "close" and story.departure_done, "1919 replay keeps Story continuity (bond tone, departure)")
+	check(not main_script.replay_from_prologue, "replay origin is consumed once")
+	check(replay.has_node("AshbyLoupeHotspot"), "1919 replay still places Ashby's loupe")
+	replay._grade = {"title": "replay", "fit": 2, "clean": true, "lines": ["replay response"]}
+	replay._pending = "reaction"
+	replay._on_dialogue_done({})
+	check(replay.phase == replay.Phase.CODA, "1919 replay reaches the coda again")
+	replay.queue_free()
+	await process_frame
+	var direct = await _new_main(false)
+	check(not direct._came_from_departure and story.bond_tone == "", "a later direct launch without a replay flag still resets Story")
+	direct.queue_free()
+	await process_frame
+
+
 func _run() -> void:
 	_test_grade_branches()
 	_test_kit_tones()
 	await _test_direct_and_prologue_paths()
+	await _test_replay_keeps_prologue_origin()
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
