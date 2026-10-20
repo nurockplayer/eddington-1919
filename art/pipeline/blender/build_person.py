@@ -132,6 +132,37 @@ def moustache(c: Vector, front: float, name: str, material: str) -> list:
     return parts
 
 
+# Bundled MPFB inputs that also end up in the exported character. They carry no
+# per-file licence line (JSON, binary targets), so they are pinned to the MPFB
+# release whose bundled assets are documented CC0 (MakeHuman licence page: "All
+# core assets (the base mesh, targets, skins…) are shared under CC0"; MPFB docs:
+# bundled assets are CC0). Any change fails the build until reviewed (PR #11).
+MPFB_VERSION = "2.0.18"
+BUNDLED_PINS = {
+    "rigs/standard/rig.game_engine.json": "b324ddb4b707721c19630bfadb87c3e3b38eed3b6e4590bb3cead43ea918f799",
+    "rigs/standard/weights.game_engine.json": "9f4a773e74ce5ba08415b4f30070338e9f75bae5971b5075b10cd6b9caa58473",
+}
+TARGETS_TREE_SHA = "83f899ce5e54f7856fdee257b27ca7f4a43060894472784c0647f71a71a1146d"  # 1477 files
+
+
+def assert_bundled_cc0() -> None:
+    import hashlib
+    root = Path(sys.modules["bl_ext.user_default.mpfb"].__file__).parent
+    manifest = (root / "blender_manifest.toml").read_text()
+    if f'version = "{MPFB_VERSION}"' not in manifest:
+        raise SystemExit(f"licence gate: MPFB is not {MPFB_VERSION}; re-review bundled asset licences and pins")
+    assert_cc0(root / "data/3dobjs/base.obj")
+    for rel, sha in BUNDLED_PINS.items():
+        if hashlib.sha256((root / "data" / rel).read_bytes()).hexdigest() != sha:
+            raise SystemExit(f"licence gate: bundled {rel} changed; re-review before shipping")
+    lines = []
+    tdir = root / "data/targets"
+    for f in sorted((x for x in tdir.rglob("*") if x.is_file()), key=lambda x: "./" + x.relative_to(tdir).as_posix()):
+        lines.append(f"{hashlib.sha256(f.read_bytes()).hexdigest()}  ./{f.relative_to(tdir).as_posix()}\n")
+    if hashlib.sha256("".join(lines).encode()).hexdigest() != TARGETS_TREE_SHA:
+        raise SystemExit("licence gate: bundled morph targets changed; re-review before shipping")
+
+
 def main() -> None:
     pid = sys.argv[sys.argv.index("--") + 1]
     spec = tomllib.loads((ROOT / "art/people/people.toml").read_text())["person"][pid]
@@ -150,6 +181,7 @@ def main() -> None:
     # Licence gate: every third-party asset file must declare CC0 in its header
     # (MakeHuman system assets do: "explicitly released as CC0 in september 2020").
     # CC-BY or unlabelled assets are refused rather than silently shipped.
+    assert_bundled_cc0()
     for slot, (rel, _typ) in spec["assets"].items():
         assert_cc0(data / rel)
 
