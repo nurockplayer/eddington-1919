@@ -4,10 +4,13 @@ Implementation started 2026-10-26 03:08 JST from `origin/main` at `7bef3cf`.
 The unchanged baseline was captured before project edits, using the ordinary
 prologue bot with seed 7 and `--speed=2`, at 1280 × 720.
 
-Draft checkpoint: 2026-10-26 04:16 JST. Both G2 asset reports and all 65 new
+Blocked checkpoint: 2026-10-26 04:26 JST. Both G2 asset reports and all 65 new
 portrait/runtime checks pass. The full suite batch, E2E routes and corrected
-final captures are queued behind the shared heavy lock; the after-image links
-below are planned delivery paths, not completed evidence yet.
+final captures remain unexecuted. The shared heavy lock has been held since
+2026-10-26 03:28 JST by another job waiting for shared VM capacity. After nearly
+an hour waiting, this lane cancelled its own queued wrapper; no background
+capture or validation job remains. The after-image links below are planned
+delivery paths, not completed evidence. This draft is not visually accepted.
 
 ## Diagnosis
 
@@ -83,3 +86,50 @@ Príncipe character exports, Príncipe scenes, departure figure construction,
 authored dialogue, eclipse simulation and judgment rules are outside this slice.
 Oracle review is reserved for edd-director, as required by the brief. The Owner
 must judge the actual screenshots before visual acceptance is claimed.
+
+## Validation and re-entry
+
+Completed through `orb-test`:
+
+- `ashby.g2.json`: PASS, 13,800 triangles, eight materials, no textures.
+- `eddington_cambridge.g2.json`: PASS, 13,776 triangles, eight materials, no textures.
+- `test_portrait.gd`: **65 checks, zero failures**, including explicit logical
+  viewport dimensions, mood fallback/selection, disclosure, actual hand poses,
+  paused animation, collision visibility, tags and 55°/72° FOV restoration.
+- Python 3.12 container: syntax, generated palette parity, matching Eddington
+  body macros and all four byte-identical approved portrait copies pass.
+
+The existing suites and six-route `tools/e2e_headless.sh` have **not** run on
+this candidate. Their required counts/scores remain listed as pending in the
+PR. No full-regression, six-route E2E, performance or visual PASS is claimed.
+
+Re-entry requires the shared resource owner to free VM capacity so the
+host-wide heavy lock can advance. Do not change another session's containers,
+raise resource limits or bypass the lock. Resume the same branch and inspect
+`orb-test --status`. The source and asset outputs are committed; scratch files,
+rejected captures and this lane's generated `.godot`/Python caches are removed.
+
+1. Re-import the project with
+   `orb-test --heavy --host -- godot --headless --path . --editor --import`.
+2. Run all 13 `tests/test_*.gd` suites in sequence inside one
+   `orb-test --heavy --host -- <command>` job, checking `memory_pressure` before
+   each Godot invocation. Preserve all original counts; bridge_pause is six,
+   and the new portrait suite is 65.
+3. Run `orb-test --heavy --host -- ./tools/e2e_headless.sh`. All six routes must
+   pass, with careful/rushed/cherry scores 4/0/3.
+4. **Two of the four permitted windowed runs have been consumed:** the unchanged
+   baseline and the rejected first after-pass. Only two remain. Capture the
+   corrected honest route at 1280×720, then inspect it at 1920×1080, with seed 7,
+   speed 2, `--fixed-fps 60 --always-on-top`, using the ordinary prologue bot's
+   `--shots` mode. Honour the weekday/time/memory gates and finish by 14:30 JST.
+   Copy the three named bookmarks to the planned `after-*.jpg` files at JPEG
+   quality 85; retain exactly six JPEGs with the existing three before-images,
+   and delete every other capture/receipt.
+5. Replace the pending tables in the draft with actual suite/E2E receipts and
+   screenshot links. The lead then runs Oracle; the Owner judges visual quality.
+
+Queued wrappers were deliberately cancelled with SIGTERM during orchestration;
+these are not unexplained memory-pressure kills. Both Blender exports finished
+normally and were not rebuilt unchanged. The initial after-pass reached ENDING
+without bot failures, but its rest-pose presentation was rejected, so it is not
+retained as acceptance evidence. No late window can launch from this lane.
