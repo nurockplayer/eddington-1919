@@ -4,12 +4,13 @@
 # Ashby is fictional; the name is a placeholder.
 
 [eddington_1917]
-version = "v1"
+version = "v2"  # v2: pince-nez wording; p01 images used v1
 kind = "portrait"
 text = """
 Arthur Stanley Eddington in 1917, aged 34. Documented appearance: clean-shaven, \
 a narrow long face, a high forehead, strong brows, dark hair brushed back with a slight \
-side parting and receding at the temples, thin rimless pince-nez style glasses, slender build. \
+side parting and receding at the temples, rimless pince-nez clipped at the nose bridge \
+with no temple arms, slender build. \
 Reconstruction, not documented: a dark wool three-piece suit, a stiff white collar and a dark tie, \
 no hat. Expression: reserved, attentive, shy. A real historical person, shown with dignity \
 and without invented flaws."""

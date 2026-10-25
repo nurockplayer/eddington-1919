@@ -5,7 +5,7 @@
 
 [P1_toned_print]
 version = "v1"
-status = "candidate"
+status = "chosen"  # Owner pick, 2026-10-25
 label = "Toned Print"
 style = """
 A 1910s studio portrait printed as a toned gelatin-silver or platinum print, \
@@ -15,7 +15,7 @@ slight edge falloff, warm brown-black tone."""
 
 [P2_drawn_over_print]
 version = "v1"
-status = "candidate"
+status = "rejected"  # Owner picked P1, 2026-10-25
 label = "Drawn Over Print"
 style = """
 A restrained graphite or charcoal drawing made over a photographic base, \

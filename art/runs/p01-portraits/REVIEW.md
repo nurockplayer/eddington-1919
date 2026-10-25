@@ -174,3 +174,11 @@ It found no defensible clothing or hairstyle anachronism for 1917, and no regres
 - **Grade interaction.** The toned look is baked into these prints, as the medium requires.
   Decide whether the in-game grade (`scripts/look.gd`) should be bypassed for the portrait
   layer so the tone is not applied twice.
+
+## Decision (2026-10-25)
+
+The Owner picked **P1 Toned Print**. P2 is not taken forward. The Director had recommended
+P2 because P1 can be mistaken for a real archival photograph. With P1, the in-game
+RECONSTRUCTION disclosure is therefore a must before adoption, not a nice-to-have. The
+`eddington_1917` subject moves to v2 (pince-nez wording) for the next batch; the images in this
+run were made with v1.
