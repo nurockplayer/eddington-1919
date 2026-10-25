@@ -769,9 +769,14 @@ func _finish() -> void:
 		"engine": Engine.get_version_info().string, "elapsed_seconds": snappedf(_elapsed, 0.01),
 		"room_draw_calls_max_observed": _room_draw_calls, "departure_draw_calls_max_observed": _departure_draw_calls,
 		"input_retries": _input_retries}
+	var run_seed := -1
+	var evidence := "-"
+	if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd":
+		run_seed = main.sim.run_seed
+		evidence = main.sim.evidence_class()
 	print("[PROLOGUE %s] score cue checks=%s cue_log=%s" % [scenario, str(score_failures), JSON.stringify(ScorePlayer.cue_log)])
 	if shots_dir != "":
 		var file := FileAccess.open(shots_dir.path_join("result_" + scenario + ".json"), FileAccess.WRITE)
 		file.store_string(JSON.stringify(receipt, "  "))
-	print("[PROLOGUE %s] %s matched=%d bias_blocked=%s screenshots=%d failures=%s" % [scenario, receipt.phase_reached, _matched, _bias_blocked, screenshots.size(), str(failures)])
+	print("[PROLOGUE %s] %s seed=%d evidence=%s score=%d matched=%d bias_blocked=%s screenshots=%d failures=%s" % [scenario, receipt.phase_reached, run_seed, evidence, receipt.score, _matched, _bias_blocked, screenshots.size(), str(failures)])
 	get_tree().quit(0 if failures.is_empty() else 1)

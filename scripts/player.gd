@@ -31,7 +31,12 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and can_look and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseMotion and can_look:
+		# The headless display server cannot capture the mouse, so Input.mouse_mode
+		# stays VISIBLE there; synthetic motion from the headless E2E bots is still
+		# real input and must turn the view.
+		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and DisplayServer.get_name() != "headless":
+			return
 		yaw -= event.relative.x * MOUSE_SENS
 		pitch = clampf(pitch - event.relative.y * MOUSE_SENS, -1.45, 1.45)
 
