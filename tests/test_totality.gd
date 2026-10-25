@@ -239,6 +239,7 @@ func _test_callouts() -> void:
 	for i in int(60.0 / GAME_STEP):
 		_step(game, log)
 	var nudge := Content.totality_first_nudge()
+	check(game.ui.tot_label.text.contains("\n"), "header puts the status on a second line")
 	check(_count(log, nudge) == 1, "first nudge fires exactly once by 60 s")
 	check(_first(log, nudge).get("t", 0.0) >= 45.0 and _first(log, nudge).get("t", 999.0) < 46.0, "first nudge fires at the 45 s mark")
 
@@ -393,5 +394,13 @@ func _test_night_viewer() -> void:
 	check(not ui.plate_info.text.contains("拍攝時："), "sunlit plate has no read")
 	ui._select_plate(3, null)
 	check(not ui.plate_info.text.contains("拍攝時："), "plate without a band has no read")
+	# A callout that has faded out releases its space in the panel.
+	ui.set_callout("測試提示", 0.5)
+	check(ui.callout.visible and ui.callout.text == "測試提示", "callout shows while active")
+	ui._process(0.6)
+	check(not ui.callout.visible and ui.callout.text == "", "expired callout hides and clears its text")
+	ui._process(0.1)
+	check(not ui.callout.visible, "expired callout stays hidden")
+
 	ui.queue_free()
 	await process_frame

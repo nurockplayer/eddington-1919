@@ -803,7 +803,7 @@ func _process_totality(delta: float) -> void:
 		header = "[b]全食[/b]　[font_size=42][color=#e88]%d[/color][/font_size] 秒" % int(ceil(left))
 	else:
 		header = "[b]全食[/b]　剩餘 %d 秒（共 302）" % int(left)
-	header += "　" + status
+	header += "\n" + status
 	var open_start := -1.0
 	if sim.is_exposing():
 		open_start = sim._open.start

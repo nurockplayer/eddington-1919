@@ -232,7 +232,7 @@ func _build_hud(root: Control) -> void:
 	tot_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tot_box.add_child(tot_label)
 	tot_strip = Strip.new()
-	tot_strip.custom_minimum_size = Vector2(394, 28)
+	tot_strip.custom_minimum_size = Vector2(394, 32)
 	tot_box.add_child(tot_strip)
 	tot_hint = _label("［空白鍵／E／左鍵］開始・停", 16, DIM)
 	tot_box.add_child(tot_hint)
@@ -274,7 +274,12 @@ func _process(delta: float) -> void:
 			toast.modulate.a = maxf(_toast_t / 0.6, 0.0)
 	if _callout_t > 0.0:
 		_callout_t -= delta
-		if _callout_t < 0.6:
+		if _callout_t <= 0.0:
+			_callout_t = 0.0
+			callout.text = ""
+			callout.visible = false
+			callout.modulate.a = 0.0
+		elif _callout_t < 0.6:
 			callout.modulate.a = maxf(_callout_t / 0.6, 0.0)
 
 

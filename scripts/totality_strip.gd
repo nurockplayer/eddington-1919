@@ -7,8 +7,8 @@ class_name TotalityStrip
 const PAD_X := 8.0
 const TRACK_Y := 4.0
 const TRACK_H := 8.0
-const PIP := 7.0
-const PIP_GAP := 5.0
+const PIP := 10.0
+const PIP_GAP := 6.0
 const TRACK_COL := Color(0.20, 0.20, 0.25, 0.9)
 const CLOSED_COL := Color(0.58, 0.53, 0.44, 0.95)
 const OPEN_COL := Color(0.95, 0.68, 0.28, 1.0)
@@ -19,7 +19,7 @@ var model: Dictionary = {}
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(0, 28)
+	custom_minimum_size = Vector2(0, 32)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
