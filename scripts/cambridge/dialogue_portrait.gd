@@ -53,9 +53,7 @@ func show_entry(entry: Dictionary) -> void:
 		hide()
 		return
 	# Lazy load only after Cambridge opts in; shared 1919 UI pays no texture cost.
-	var neutral: String = variants.neutral
-	var mood := str(entry.get("mood", "neutral"))
-	var candidate := neutral.trim_suffix("_neutral.jpg") + "_" + mood + ".jpg"
-	var path := candidate if mood.is_valid_identifier() and ResourceLoader.exists(candidate) else neutral
+	# Only approved variants: an unknown mood falls back to neutral.
+	var path: String = variants.get(str(entry.get("mood", "neutral")), variants.neutral)
 	image.texture = load(path) as Texture2D
-	show()
+	visible = image.texture != null
