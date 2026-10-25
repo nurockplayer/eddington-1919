@@ -1,6 +1,8 @@
 extends CanvasLayer
 
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
+const Content := preload("res://scripts/content.gd")
+const Strip := preload("res://scripts/totality_strip.gd")
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -35,6 +37,10 @@ var toast: Label
 var _toast_t := 0.0
 var tot_panel: PanelContainer
 var tot_label: RichTextLabel
+var tot_strip: Control
+var tot_hint: Label
+var callout: Label
+var _callout_t := 0.0
 var dialog_panel: PanelContainer
 var speaker_label: Label
 var text_label: RichTextLabel
@@ -215,12 +221,31 @@ func _build_hud(root: Control) -> void:
 	tot_panel = PanelContainer.new()
 	tot_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.05, 0.05, 0.07, 0.72), Color(0.4, 0.4, 0.5, 0.6)))
 	tot_panel.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	tot_panel.position = Vector2(-430, -250)
-	tot_panel.custom_minimum_size = Vector2(410, 0)
+	tot_panel.position = Vector2(-446, -250)
+	tot_panel.custom_minimum_size = Vector2(426, 0)
 	tot_panel.visible = false
 	hud.add_child(tot_panel)
+	var tot_box := VBoxContainer.new()
+	tot_box.add_theme_constant_override("separation", 5)
+	tot_panel.add_child(tot_box)
 	tot_label = _rich(19)
-	tot_panel.add_child(tot_label)
+	tot_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tot_box.add_child(tot_label)
+	tot_strip = Strip.new()
+	tot_strip.custom_minimum_size = Vector2(394, 28)
+	tot_box.add_child(tot_strip)
+	tot_hint = _label("［空白鍵／E／左鍵］開始・停", 16, DIM)
+	tot_box.add_child(tot_hint)
+	callout = _label("", 19, PAPER)
+	callout.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	callout.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	callout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	callout.position = Vector2(-446, -96)
+	callout.size = Vector2(426, 62)
+	callout.modulate.a = 0.0
+	callout.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	callout.add_theme_constant_override("outline_size", 6)
+	hud.add_child(callout)
 
 
 func set_objectives(bb: String) -> void:
@@ -248,6 +273,10 @@ func _process(delta: float) -> void:
 		_toast_t -= delta
 		if _toast_t < 0.6:
 			toast.modulate.a = maxf(_toast_t / 0.6, 0.0)
+	if _callout_t > 0.0:
+		_callout_t -= delta
+		if _callout_t < 0.6:
+			callout.modulate.a = maxf(_callout_t / 0.6, 0.0)
 
 
 func fade_to(alpha: float, seconds := 0.8) -> Tween:
@@ -393,9 +422,23 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # ----------------------------------------------------------------------- Totality
 
-func set_totality(visible_: bool, bb := "") -> void:
+func set_totality(visible_: bool, bb := "", strip_model := {}) -> void:
 	tot_panel.visible = visible_
 	tot_label.text = bb
+	tot_strip.visible = visible_ and not strip_model.is_empty()
+	if not strip_model.is_empty():
+		tot_strip.set_model(strip_model)
+	if not visible_:
+		callout.text = ""
+		callout.modulate.a = 0.0
+		_callout_t = 0.0
+
+
+## One-shot line under the totality panel; replaces any older callout.
+func set_callout(text: String, seconds := 3.5) -> void:
+	callout.text = text
+	callout.modulate.a = 1.0 if text != "" else 0.0
+	_callout_t = seconds if text != "" else 0.0
 
 
 func set_clock(text: String) -> void:
@@ -524,6 +567,8 @@ func _select_plate(i: int, tex: Texture2D) -> void:
 	include_box.disabled = _viewer_locked
 	var lines := []
 	lines.append("[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）" % [p.number, p.duration, int(p.start)])
+	if not p.sunlit and p.get("sky_read", "") != "":
+		lines.append(Content.totality_read_night(p.sky_read))
 	if p.sunlit:
 		lines.append("[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]")
 	if p.duration < 0.5:
