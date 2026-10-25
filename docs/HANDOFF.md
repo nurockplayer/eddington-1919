@@ -2,6 +2,14 @@
 
 **Windowed-run rule (Owner, 2026-10-25, in force now):** windowed Godot (`--always-on-top`, autoplay bots, `--shots`) blocks the middle of the Owner's screen. Run it only when someone must look at the screen or take screenshots: 1–2 routes before a milestone merge, at most. Schedule it only Mon–Fri 03:00–15:00 JST, never evenings or weekends, and always add `--fixed-fps 60`. Everything else is headless: `tools/e2e_headless.sh` runs every autoplay route (`careful`/`rushed`/`cherry`, `prologue-autoplay=honest`/`tidy`/`accuse`) headless, one at a time, with a wall-clock cap and a result table; a single route is `godot --headless --path . --fixed-fps 60 -- <route args>`. Possible later option (not verified): a virtual display (BetterDisplay) with `--screen 1`.
 
+**Test-run rule (Owner, 2026-10-25, all projects; see `orb-test --help`):** no test runs bare on the host. Wrap it in `orb-test`, run from the worktree root.
+- Godot is GPU work, so it runs on the host, through the lock:
+  - a single headless suite: `orb-test --host -- godot --headless --path . --script res://tests/<suite>.gd`;
+  - all suites, `./tools/e2e_headless.sh`, a windowed screenshot run or Blender: `orb-test --heavy --host -- <cmd>`.
+- `--heavy` queues for the one host-wide heavy lock and checks `memory_pressure` ≥20%.
+- Non-GPU jobs (Python data processing, for example) run in the container: `orb-test [--heavy] -- <cmd>`.
+- `orb-test --status` shows the lock holder and the queue.
+
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
 ## Director sprint status — M1 prologue, M2 departure night, M3 Príncipe coda | 2026-10-20 JST (Opus 5.5)
