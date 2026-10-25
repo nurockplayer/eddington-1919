@@ -18,7 +18,7 @@
 | 定天鏡由重錘驅動的時鐘帶動，餵光給水平鏡筒；物鏡為牛津天體照相儀物鏡（13 吋，縮光圈到 8 吋） | HISTORICAL_RECORD／部分 | Gilmore；Lemos。16 吋定天鏡的說法只見於二手資料。**由 Cottingham 負責時鐘驅動屬推論。** |
 | 比對底片：1919 年 1 月在牛津，用同一具望遠鏡拍同一片星場（畢宿星團）；島上數月內無法在夜間拍到 | HISTORICAL_RECORD | Lemos。 |
 | 接下來六個晚上，每晚沖兩張；Eddington 在島上量了一張，結果與愛因斯坦相符 | HISTORICAL_RECORD | Eddington 6 月 3 日筆記（經 Lemos 轉引）。屬初步結果。 |
-| 給 Dyson 的電報：雲很厚，但「有希望」 | HISTORICAL_RECORD（大意）／**DISPUTED（措辭）** | 普林斯頓《愛因斯坦文集》第 9 卷引言提到 6 月 4 日的電報。**"Through cloud. Hopeful." 的確切措辭未能核實**。遊戲把它當作玩家可選的電報，結局註明「常被引作……確切措辭仍待核對」。 |
+| 給 Dyson 的電報：雲很厚，但「有希望」 | HISTORICAL_RECORD（措辭依《Nature》）／**UNVERIFIED（日期、收件人）** | 《Nature》103（1919-06-05，pp. 265–266，"The Solar Eclipse"）引 Eddington 自普林西比的消息為 "Through cloud, hopeful,"，前一句提到電報由皇家天文學家（Dyson）收悉，但沒有直接寫出收件人。"Through cloud. Hopeful."（句點、大寫）只見於二手或通俗來源。發報日期未核實；《愛因斯坦文集》第 9 卷引言的「6 月 4 日」說法尚未直接查證。能定案的來源：*The Observatory* 第 42 卷（1919 年 7 月），或劍橋大學圖書館的皇家格林威治天文台檔案。結局的歷史說明採用《Nature》的版本；玩家可選的電報 "THROUGH CLOUD. HOPEFUL." 是玩家自己擬的電報文字，不是引文。查核：Sonnet 5.5，2026-10-25，來源 archive.org OCR `dbc.wroc.pl.032403`。 |
 | 1919-11-06 皇家學會與皇家天文學會聯席會議公布結果：Sobral 4 吋 1.98″ ± 0.12″，普林西比 1.61″ ± 0.30″（機率誤差）；Sobral 天體照相儀因焦距變化而未採用 | HISTORICAL_RECORD | Kennefick 2007；Greenwich 文章。1.75″ 與 0.87″ 兩個預測值同。 |
 
 ## 重建與虛構

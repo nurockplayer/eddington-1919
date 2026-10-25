@@ -1,5 +1,13 @@
 # v0.1 bot hold and plate-feedback verification
 
+**Default E2E is now headless (2026-10-25):** `tools/e2e_headless.sh` runs all six routes
+(`--autoplay=careful|rushed|cherry`, `--prologue-autoplay=honest|tidy|accuse`) with
+`godot --headless --path . --fixed-fps 60`, one Godot at a time, and prints a result table.
+A single route is `godot --headless --path . --fixed-fps 60 -- <route args>`. The
+`--always-on-top --shots=DIR` runs recorded below are the historical screenshot runs and are
+no longer the default; use them only when someone must look at the screen or capture frames
+(Owner's windowed-run rule in [HANDOFF](HANDOFF.md)).
+
 2026-10-20 JST · Godot 4.7.2.stable.official.ed1daf0bf · macOS / Apple M2 Pro / Metal Forward+.
 Worktree: `eddington-1919-wt/fix-sol`, branch `fix/v01-bot-drive`, base `aa730ef`.
 
@@ -73,7 +81,8 @@ and all eight extra plate holders.
 It stops audio and lets its thread settle before scene teardown; the final run has no
 ObjectDB warning.
 
-Three serial graphical runs used this command, replacing SEED with 7, 96734 and 23068:
+Three serial graphical runs used this command (screenshot runs, not the default E2E), replacing
+SEED with 7, 96734 and 23068:
 
 ```sh
 godot --path . --always-on-top -- --autoplay=careful --shots="$PWD/build/v01-bot-drive/careful-SEED" --seed=SEED --speed=2

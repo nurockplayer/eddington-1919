@@ -1095,7 +1095,7 @@ func _show_ending() -> void:
 	lines.append("· 時鐘驅動：%s。" % ("上了發條並校過走速" if sim.drive_rate_checked else ("上了發條但沒校走速" if sim.drive_wound else "由 Cottingham 匆忙處理")))
 	var history := []
 	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
-	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（常被引作 \"Through cloud. Hopeful.\"，確切措辭仍待核對）。")
+	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
 	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
 	history.append("\n[color=#8f8676][font_size=15]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]")
 	ui.show_ending(_grade.title, "\n".join(lines), "\n".join(history))

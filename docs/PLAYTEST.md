@@ -13,14 +13,30 @@
 5. 整體時長（預估 6–10 分鐘）與重玩意願。
 
 ### 自動化驗證（實際執行過的）
+
+**預設 E2E 是 headless：`tools/e2e_headless.sh`。** 它依序跑完六條路線（一次只跑一個 Godot，各有 wall-clock 上限），最後印出 route / seed / ending / evidence / score / stuck / cue checks / wall / exit 表格，任何一條失敗就以非零結束。單獨一條路線用 `godot --headless --path . --fixed-fps 60 -- <route args>`。`--always-on-top --fixed-fps 60 --shots=DIR` 只在需要看畫面或截圖時使用（Owner 的 windowed-run rule，見 [HANDOFF](HANDOFF.md)）。
+
+2026-10-25 連跑兩次，結果完全相同（fixed-fps headless 具決定性；表為其中一次，時間取自 `/usr/bin/time`、不含等鎖，會隨機器負載變動）：
+
+| route | seed | ending | evidence | score | stuck | cue checks | wall | exit |
+|---|---|---|---|---|---|---|---|---|
+| autoplay careful | 77 | 雲層之後的希望 | favors_e | 4 | 0 | pass | 4.61s | 0 |
+| autoplay rushed | 515 | 過早的宣告 | none | 0 | 0 | n/a | 3.29s | 0 |
+| autoplay cherry | 4242 | 不完整的判斷 | favors_e | 3 | 0 | n/a | 4.14s | 0 |
+| prologue honest | 77 | ENDING | favors_e | 4 | n/a | pass | 6.23s | 0 |
+| prologue tidy | 78 | PREP | none | -1 | n/a | n/a | 3.60s | 0 |
+| prologue accuse | 79 | PREP | none | -1 | n/a | n/a | 5.36s | 0 |
+
+執行器要求每條路線到達它視窗版對應的終點階段（autoplay 三條與 prologue honest 為 `ENDING`，tidy/accuse 依既有契約停在 `PREP`），並把 phase timeout、卡住、cue 檢查失敗、缺少結局或分數都算失敗。
+
 | 檢查 | 指令 | 結果 |
 |---|---|---|
 | 邏輯測試（雲層決定性、雲縫、曝光後果、拖線偏差、證據分類、評分組合、審查回歸） | `godot --headless --path . --script res://tests/test_sim.gd` | **155 checks, 0 failures** |
-| 端到端：careful（完成全部準備、只在雲縫曝光、按品質選片、電報 HOPEFUL） | `godot --path . --always-on-top -- --autoplay=careful --shots=DIR --seed=77 --speed=2` | 通關，結局「雲層之後的希望」，合併 1.37″ ± 0.21″（favors_e），卡住 0 次 |
+| 端到端：careful（完成全部準備、只在雲縫曝光、按品質選片、電報 HOPEFUL） | `tools/e2e_headless.sh`（或 `godot --headless --path . --fixed-fps 60 -- --autoplay=careful --seed=77`） | 通關，結局「雲層之後的希望」，合併 1.37″ ± 0.21″（favors_e），卡住 0 次 |
 | 暫停 | （careful 流程中） | 對話中按 Esc 會暫停；暫停時按 E 不會推進對話；再按 Esc 繼續 ✓ |
-| 重玩「新的天空」 | （careful 結尾按鈕） | 重新載入，回到標題，種子 77 → 47 ✓ |
-| 端到端：rushed（跳過準備、無視雲層連續長曝光、全選、電報 CONFIRMED + 日冕理由） | `--autoplay=rushed --seed=515` | 通關，只有 4 張底片，星像拖線、起霧，結局「過早的宣告」，分數 0 |
-| 端到端：cherry（先漏掉一張好片，看到數值後才補回） | `--autoplay=cherry --seed=4242` | 通關，Eddington 指出「看過數值之後又改了選擇」，結局「不完整的判斷」，分數 3 |
+| 重玩「新的天空」 | （careful 結尾按鈕） | 重新載入，回到標題，種子 77 → 新種子 ✓（headless 亦同） |
+| 端到端：rushed（跳過準備、無視雲層連續長曝光、全選、電報 CONFIRMED + 日冕理由） | `--autoplay=rushed --seed=515`（headless，見上表） | 通關，只有 4 張底片，星像拖線、起霧，結局「過早的宣告」，分數 0 |
+| 端到端：cherry（先漏掉一張好片，看到數值後才補回） | `--autoplay=cherry --seed=4242`（headless，見上表） | 通關，Eddington 指出「看過數值之後又改了選擇」，結局「不完整的判斷」，分數 3 |
 | 即時速度（speed=1） | `--autoplay=careful --seed=77 --speed=1` | 機器人約 178 秒走完（準備 33 秒＋全食 121 秒＋夜晚約 20 秒）。真人閱讀對話與探索的時間未計入 |
 | macOS 匯出 | `godot --headless --path . --export-release "macOS" build/Eddington1919-macOS.zip` | 產生 universal `.app`（ad-hoc 簽章，約 60 MB），實際啟動 600 幀無腳本錯誤。匯出版排除 `tests/`，所以**匯出版沒有跑完整的自動化流程** |
 
