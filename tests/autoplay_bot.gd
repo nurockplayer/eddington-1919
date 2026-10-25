@@ -79,6 +79,10 @@ func _hold(code: Key, sec: float) -> void:
 
 
 func _click(pos: Vector2) -> void:
+	# Mouse events carry window pixels; controls report viewport coordinates.
+	# They differ under `--headless` (a 100x100 window stretched to the 1600-wide
+	# viewport); windowed runs are 1:1 and this is the identity.
+	pos = get_viewport().get_final_transform() * pos
 	var mv := InputEventMouseMotion.new()
 	mv.position = pos
 	mv.global_position = pos
@@ -216,9 +220,12 @@ func _run() -> void:
 		_log("restart run %d: seed %d (first run seed %d) title_visible=%s" % [runs, main.sim.run_seed, first_seed, main.ui.title_panel.visible])
 		await _wait(1.0)
 		await shot("11_after_restart")
-		var f := FileAccess.open(shots_dir.path_join("restart_%s.json" % scenario), FileAccess.WRITE)
-		f.store_string(JSON.stringify({"first_seed": first_seed, "new_seed": main.sim.run_seed, "differs": main.sim.run_seed != first_seed, "title_visible": main.ui.title_panel.visible}))
-		f.close()
+		if shots_dir != "":
+			var f := FileAccess.open(shots_dir.path_join("restart_%s.json" % scenario), FileAccess.WRITE)
+			f.store_string(JSON.stringify({"first_seed": first_seed, "new_seed": main.sim.run_seed, "differs": main.sim.run_seed != first_seed, "title_visible": main.ui.title_panel.visible}))
+			f.close()
+		else:
+			_log("restart seed differs=%s title_visible=%s" % [main.sim.run_seed != first_seed, main.ui.title_panel.visible])
 		get_tree().quit()
 		return
 	first_seed = main.sim.run_seed
@@ -443,7 +450,7 @@ func _finish() -> void:
 		var f := FileAccess.open(shots_dir.path_join("result_%s.json" % scenario), FileAccess.WRITE)
 		f.store_string(JSON.stringify(result, "  "))
 		f.close()
-	_log("DONE ending=%s evidence=%s score=%s stuck=%d" % [result.ending_title, result.evidence, result.score, stuck])
+	_log("DONE ending=%s evidence=%s score=%s stuck=%d phase=%s" % [result.ending_title, result.evidence, result.score, stuck, result.phase_reached])
 	await _wait(0.5)
 	if scenario == "careful":
 		# Press 「新的天空」 on the ending screen; the restarted scene continues in _run().
@@ -451,7 +458,7 @@ func _finish() -> void:
 		for b in btns:
 			if b.text == "新的天空":
 				# Press and release without awaiting: the scene (and this bot) is freed on reload.
-				var pos: Vector2 = b.get_global_rect().get_center()
+				var pos: Vector2 = get_viewport().get_final_transform() * b.get_global_rect().get_center()
 				for pressed in [true, false]:
 					var ev := InputEventMouseButton.new()
 					ev.button_index = MOUSE_BUTTON_LEFT
