@@ -220,5 +220,8 @@ func _run() -> void:
 	_test_kit_tones()
 	await _test_direct_and_prologue_paths()
 	await _test_replay_keeps_prologue_origin()
+	# Headless teardown: AudioServer releases the freed chapter's ambient playback
+	# asynchronously; drain it so exit does not report leaked AudioStreamWAV objects.
+	await create_timer(0.1).timeout
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
