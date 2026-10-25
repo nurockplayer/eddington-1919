@@ -10,6 +10,11 @@
 - Python runs in the container: `orb-test --image python:3.12-slim -- python3 -I art/pipeline/test_budget.py`.
 - `tools/e2e_headless.sh` takes no lock of its own; orb-test holds it.
 - Every worker brief states this rule explicitly. The DS base prompt still says lockf.
+
+**One-off data rule (Owner, 2026-10-26, all projects):** one-off data is deleted when the run ends, by default. This covers containers, volumes (named node_modules or pnpm store caches included), images built for the run, test DBs, traces and scratch output.
+- Godot `--shots` captures and art `_raw/` PNGs are scratch output too: keep only the files that get committed.
+- Keeping anything for reuse needs the Owner's approval first. Record what was approved, why, and where it lives.
+- `orb-test` mounts no cache volume by default. `--cache` needs an entry in `~/.local/state/orb-test/approved-caches`.
 - `orb-test --status` shows the lock holder and the queue.
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
