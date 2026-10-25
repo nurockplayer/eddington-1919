@@ -8,14 +8,15 @@
 # the route. Windowed runs (--always-on-top) are only for screenshots; see
 # docs/PLAYTEST_BOT_DRIVE.md.
 #
-# Usage: tools/e2e_headless.sh
+# Usage: orb-test --heavy --host -- ./tools/e2e_headless.sh
+# (Owner rule 2026-10-25: tests never run bare on the host; orb-test holds the
+# host-wide heavy lock, so this script takes no lock of its own.)
 # Exits non-zero if any route fails.
 
 set -u
 
 GODOT=${GODOT:-godot}
 FPS=60
-LOCK=/tmp/eddington-1919-local-test.lock
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/e2e_headless.XXXXXX") || exit 1
 trap 'rm -rf "$tmp"' EXIT
 
@@ -38,11 +39,10 @@ for entry in "${ROUTES[@]}"; do
   IFS='|' read -r label cap expected user_args <<<"$entry"
   name=${label// /_}
   log="$tmp/$name.log"
-  # The Mac has no `timeout`; perl's alarm caps a hung run. lockf keeps this
-  # Godot the only one running locally (shared with the other test sessions);
-  # /usr/bin/time measures the route itself, without the wait for the lock.
+  # The Mac has no `timeout`; perl's alarm caps a hung run. /usr/bin/time
+  # measures the route itself.
   # shellcheck disable=SC2086
-  lockf -k "$LOCK" /usr/bin/time -p perl -e "alarm $cap; exec @ARGV" \
+  /usr/bin/time -p perl -e "alarm $cap; exec @ARGV" \
     "$GODOT" --headless --path . --fixed-fps "$FPS" -- $user_args >"$log" 2>&1
   code=$?
   wall=$(sed -nE 's/^real ([0-9]+\.[0-9]+)$/\1/p' "$log" | tail -1)
