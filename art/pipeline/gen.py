@@ -44,14 +44,17 @@ def load(path: Path) -> dict:
 
 
 def compose(era: str, style_key: str, subject_key: str, extra: str) -> tuple[str, dict]:
-    base = load(ART / "prompts/series/base.toml")
+    # An era may carry its own base blocks (portrait does: a person subject needs
+    # different identity/framing from the diorama scenes).
+    era_base = ART / f"prompts/{era}/base.toml"
+    base = load(era_base if era_base.exists() else ART / "prompts/series/base.toml")
     styles = load(ART / f"prompts/{era}/styles.toml")
     subjects = load(ART / f"prompts/{era}/subjects.toml")
     st, sj = styles[style_key], subjects[subject_key]
     # Order matters: r01 put the subject first and every style collapsed into the
     # same photoreal render (see art/runs/r01-directions/REVIEW.md). Medium first.
     parts = [st["style"], base["identity"], "Subject: " + sj["text"].strip()]
-    if sj.get("kind") == "keyframe":
+    if sj.get("kind") in ("keyframe", "portrait"):
         parts.append(base["framing"])
     parts.append("Reminder of the medium: " + st["style"].strip().split(".")[0] + ".")
     if extra:

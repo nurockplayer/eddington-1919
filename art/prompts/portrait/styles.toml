@@ -1,0 +1,24 @@
+# Portrait style blocks for dialogue busts (p01, 2026-10-25).
+# Each block opens with an explicit MEDIUM sentence, for the same reason as
+# e1919/styles.toml: a style sentence placed after a long subject is ignored.
+# Status is updated after the Owner/Director pick, not by the worker.
+
+[P1_toned_print]
+version = "v1"
+status = "candidate"
+label = "Toned Print"
+style = """
+A 1910s studio portrait printed as a toned gelatin-silver or platinum print, \
+a photographic print and not a modern photograph: soft directional window light from one side, \
+a shallow tonal range with deep soft shadows and gentle highlights, faint plate grain, \
+slight edge falloff, warm brown-black tone."""
+
+[P2_drawn_over_print]
+version = "v1"
+status = "candidate"
+label = "Drawn Over Print"
+style = """
+A restrained graphite or charcoal drawing made over a photographic base, \
+in a period studio-portrait manner, in a warm neutral paper tone: soft graphite modelling \
+of the face, expressive but sober, visible drawing hand, no ink outlines, not a cartoon, \
+not a modern digital illustration."""
