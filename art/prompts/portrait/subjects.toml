@@ -1,0 +1,26 @@
+# Portrait subjects for dialogue busts (p01, 2026-10-25).
+# Facial cues for Eddington come only from art/people/REFERENCE.md (documented,
+# c.1915 portrait). Everything else, dress included, is marked RECONSTRUCTION.
+# Ashby is fictional; the name is a placeholder.
+
+[eddington_1917]
+version = "v2"  # v2: pince-nez wording; p01 images used v1
+kind = "portrait"
+text = """
+Arthur Stanley Eddington in 1917, aged 34. Documented appearance: clean-shaven, \
+a narrow long face, a high forehead, strong brows, dark hair brushed back with a slight \
+side parting and receding at the temples, rimless pince-nez clipped at the nose bridge \
+with no temple arms, slender build. \
+Reconstruction, not documented: a dark wool three-piece suit, a stiff white collar and a dark tie, \
+no hat. Expression: reserved, attentive, shy. A real historical person, shown with dignity \
+and without invented flaws."""
+
+[ashby_1917]
+version = "v1"
+kind = "portrait"
+text = """
+A fictional Edwardian astronomer, "Mr Ashby" (a placeholder name), about 60 years old. \
+Grey hair and a grey moustache, a dark wool suit with a waistcoat and a watch chain \
+(reconstruction; the watch chain is a period prop, not a documented detail). \
+Expression: kindly but exacting, a respected elder. Fictional and generic: he must not \
+resemble any identifiable real person, and carries no real person's features."""

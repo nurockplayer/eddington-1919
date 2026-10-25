@@ -1,0 +1,25 @@
+# Series-wide prompt blocks for dialogue bust portraits.
+# Same role as series/base.toml, but the subject is a person, not a scene: the
+# diorama identity block would push a portrait toward staged 3D props.
+# gen.py uses <era>/base.toml when it exists, otherwise series/base.toml.
+
+version = "p1"
+
+# Portrait framing. gen.py appends this for kind = "portrait" only.
+framing = """
+Head-and-shoulders bust portrait, three-quarter view, the sitter facing slightly \
+away from the camera, plain dark background with no room detail, square format."""
+
+# Respectful depiction of people (BIBLE S4). Applies to documented and invented sitters.
+identity = """
+A dignified studio portrait, composed and still. The sitter is a person, not a \
+character: no invented flaws, no exaggerated features, no costume drama. \
+Calm, readable forms; the face carries the attention."""
+
+# Negative constraints. Generators treat these as plain text, so keep them short.
+avoid = """
+Avoid: text, letters, captions, signatures, watermarks, logos, UI, borders or frames; \
+modern RPG character cards or game portrait cards; glamour lighting, beauty retouching, \
+airbrushed skin, smiling for the camera; fantasy or steampunk costume; anime, cartoon or \
+caricature proportions; a hyperreal deepfake likeness; warped or extra hands and fingers; \
+anachronistic clothing, modern eyewear or modern hairstyles; heavy vignettes or lens flares."""
