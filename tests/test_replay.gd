@@ -41,6 +41,16 @@ func settle() -> void:
 	if is_instance_valid(current_scene):
 		current_scene.set_process(false)
 
+func settle_audio() -> void:
+	# Stop real-scene audio and drain it: AudioServer frees its playback
+	# asynchronously, so quitting straight away leaks an AudioStreamWAV pair.
+	if is_instance_valid(current_scene):
+		for key in ["audio_amb", "audio_click", "audio_tick"]:
+			var player = current_scene.get(key)
+			if is_instance_valid(player):
+				player.stop()
+	await create_timer(0.1).timeout
+
 func enter_main() -> void:
 	check(change_scene_to_file(MAIN) == OK, "load actual main scene")
 	await settle()
@@ -68,6 +78,7 @@ func _run() -> void:
 		await enter_main()
 		check(current_scene.phase == current_scene.Phase.TITLE and current_scene.ui.title_panel.visible, "relaunch title")
 		check(not current_scene._came_from_departure and not current_scene.has_node("AshbyLoupeHotspot"), "relaunch direct isolation")
+		await settle_audio()
 		print("COLD PROBE: %d checks, %d failures" % [checks, failures])
 		quit(1 if failures else 0)
 		return
@@ -134,4 +145,5 @@ func _run() -> void:
 	# Leave dirty in-memory continuity at process exit; cold-only must still start clean.
 	seed_story()
 	current_scene.get_script().replay_from_prologue = true
+	await settle_audio()
 	quit(1 if failures else 0)
