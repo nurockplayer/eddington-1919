@@ -21,10 +21,21 @@ MPFB_URL="https://extensions.blender.org/download/sha256:$MPFB_SHA/add-on-mpfb-v
 SYS_SHA=b542127a8e25547c7c29c19f2d1d2adb9a664c80396ecd694095dbc8028a0107  # recorded 2026-10-20 (no official checksum published)
 SYS_URL=https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
 
-mkdir -p "$CACHE/dl" "$BLENDER_USER_RESOURCES"
+# The downloaded zips are an Owner-approved reusable cache (2026-10-26, docs/HANDOFF.md).
+# Approved caches stay off the Mac SSD: on /Volumes/KIOXIA when it is mounted,
+# else under /private/tmp (cleared at reboot). Override with E1919_MPFB_DL.
+if [ -z "${E1919_MPFB_DL:-}" ]; then
+  if mount | grep -q " on /Volumes/KIOXIA ("; then
+    E1919_MPFB_DL=/Volumes/KIOXIA/cache/eddington-1919/mpfb/dl
+  else
+    E1919_MPFB_DL=/private/tmp/eddington-1919/mpfb/dl
+  fi
+fi
+DL=$E1919_MPFB_DL
+mkdir -p "$DL" "$BLENDER_USER_RESOURCES"
 ok() { echo "$2  $1" | shasum -a 256 -c - >/dev/null 2>&1; }
 fetch() {  # url file sha — never leave an unverified file at the final path
-  dst="$CACHE/dl/$2"
+  dst="$DL/$2"
   if [ -f "$dst" ] && ! ok "$dst" "$3"; then
     echo "cached $2 fails its checksum; downloading again" >&2
     rm -f "$dst"
@@ -37,14 +48,14 @@ fetch() {  # url file sha — never leave an unverified file at the final path
 }
 fetch "$MPFB_URL" mpfb-2.0.18.zip "$MPFB_SHA"
 fetch "$SYS_URL" makehuman_system_assets_cc0.zip "$SYS_SHA"
-blender --command extension install-file -r user_default -e "$CACHE/dl/mpfb-2.0.18.zip" >/dev/null 2>&1
+blender --command extension install-file -r user_default -e "$DL/mpfb-2.0.18.zip" >/dev/null 2>&1
 DATA="$BLENDER_USER_RESOURCES/extensions/.user/user_default/mpfb/data"
 mkdir -p "$DATA"
 # Staged extraction with a completion marker: an interrupted run never looks installed.
 MARK="$DATA/.e1919_system_assets_$SYS_SHA"
 if [ ! -f "$MARK" ]; then
   STAGE=$(mktemp -d "$CACHE/stage.XXXXXX")
-  unzip -q "$CACHE/dl/makehuman_system_assets_cc0.zip" -d "$STAGE"
+  unzip -q "$DL/makehuman_system_assets_cc0.zip" -d "$STAGE"
   for need in clothes/male_elegantsuit01 hair/short02 proxymeshes/male1591 eyes/low-poly eyebrows/eyebrow010; do
     [ -d "$STAGE/$need" ] || { echo "asset pack incomplete: $need" >&2; rm -rf "$STAGE"; exit 1; }
   done
