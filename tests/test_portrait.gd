@@ -49,6 +49,8 @@ func _run() -> void:
 		for path in variants.values():
 			var texture := load(path) as Texture2D
 			check(texture.get_width() <= 1280 and texture.get_height() <= 1280, "portrait obeys image size budget")
+	var original_scale_size := root.content_scale_size
+	root.content_scale_size = Vector2i.ZERO
 	for resolution in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
 		root.size = resolution
 		ui.play([{"s": Cast.MENTOR, "t": "Synthetic choices beside the mounted print.", "choices": ["Keep the original.", "Record the correction.", "Return to the evidence."]}])
@@ -56,6 +58,7 @@ func _run() -> void:
 		ui._layout_dialogue_portrait()
 		await frames()
 		var screen := root.get_visible_rect()
+		check(screen.size == Vector2(resolution), "layout checks use the requested logical viewport")
 		var print_rect: Rect2 = ui.dialogue_portrait.get_global_rect()
 		var dialog: Rect2 = ui.dialog_panel.get_global_rect()
 		check(screen.encloses(print_rect), "print stays inside " + str(resolution))
@@ -65,6 +68,7 @@ func _run() -> void:
 		check(not print_rect.has_point(screen.get_center()), "print leaves central evidence clear")
 		for button in ui._choice_buttons:
 			check(screen.encloses(button.get_global_rect()) and not print_rect.intersects(button.get_global_rect()), "choice remains on screen and clear of print")
+	root.content_scale_size = original_scale_size
 	ui._advance()
 	ui.free()
 	await frames()
