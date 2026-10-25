@@ -35,6 +35,7 @@ import subprocess
 import sys
 import time
 import tomllib
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -339,7 +340,7 @@ def report(b, d, a):
                        "verdict": verdict, "score": r.get("score"), "note": r.get("note", "")})
         lic.append(f"| {i} | {x['route']} | {x['licence']} | `{_licence_source(b, d, i)}` |")
     usable = [s for s in status if s["verdict"] in ("usable", "usable_with_fixes")]
-    summary = {"batch": b["batch"]["id"], "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+    summary = {"batch": b["batch"]["id"], "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
                "assets": len(status), "candidates": sum(s["candidate"] for s in status),
                "g2_pass": sum(bool(s["g2"]) for s in status), "ingame_shots": sum(s["ingame"] for s in status),
                "usable": len(usable),

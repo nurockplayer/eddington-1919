@@ -24,6 +24,7 @@ import time
 import tomllib
 import uuid
 from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -97,7 +98,7 @@ def _append(d: Path, row: dict) -> None:
     p = d / "ledger.jsonl"
     new = not p.exists()
     with p.open("a") as f:
-        f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), **row}, allow_nan=False) + "\n")
+        f.write(json.dumps({"ts": datetime.now().astimezone().isoformat(timespec="seconds"), **row}, allow_nan=False) + "\n")
         f.flush()
         os.fsync(f.fileno())
     if new:
