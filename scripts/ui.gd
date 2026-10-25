@@ -236,16 +236,15 @@ func _build_hud(root: Control) -> void:
 	tot_box.add_child(tot_strip)
 	tot_hint = _label("［空白鍵／E／左鍵］開始・停", 16, DIM)
 	tot_box.add_child(tot_hint)
+	# In the panel's VBox so the (variable-height) header can never overlap it.
 	callout = _label("", 19, PAPER)
-	callout.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	callout.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	callout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	callout.position = Vector2(-446, -96)
-	callout.size = Vector2(426, 62)
 	callout.modulate.a = 0.0
+	callout.visible = false
 	callout.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	callout.add_theme_constant_override("outline_size", 6)
-	hud.add_child(callout)
+	tot_box.add_child(callout)
 
 
 func set_objectives(bb: String) -> void:
@@ -431,12 +430,14 @@ func set_totality(visible_: bool, bb := "", strip_model := {}) -> void:
 	if not visible_:
 		callout.text = ""
 		callout.modulate.a = 0.0
+		callout.visible = false
 		_callout_t = 0.0
 
 
 ## One-shot line under the totality panel; replaces any older callout.
 func set_callout(text: String, seconds := 3.5) -> void:
 	callout.text = text
+	callout.visible = text != ""
 	callout.modulate.a = 1.0 if text != "" else 0.0
 	_callout_t = seconds if text != "" else 0.0
 
