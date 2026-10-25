@@ -12,7 +12,13 @@
 - Every worker brief states this rule explicitly. The DS base prompt still says lockf.
 
 **One-off data rule (Owner, 2026-10-26, all projects):** one-off data is deleted when the run ends, by default. This covers containers, volumes (named node_modules or pnpm store caches included), images built for the run, test DBs, traces and scratch output.
-- Godot `--shots` captures and art `_raw/` PNGs are scratch output too: keep only the files that get committed.
+- For this project that means:
+  - verify clones and worktrees;
+  - `build/` exports and `--shots` directories;
+  - Codex and oracle logs;
+  - WAV renders, bot JSON results and art `_raw/` PNGs.
+- When a task ends, `git worktree remove` every clean worktree that is merged or pushed.
+- Evidence goes into the PR or the Issue, or into the repo under `docs/` or `art/validation/`. Never leave it in an outside temp location.
 - Keeping anything for reuse needs the Owner's approval first. Record what was approved, why, and where it lives.
 - `orb-test` mounts no cache volume by default. `--cache` needs an entry in `~/.local/state/orb-test/approved-caches`.
 - `orb-test --status` shows the lock holder and the queue.
