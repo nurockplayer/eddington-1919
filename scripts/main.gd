@@ -7,6 +7,7 @@ const World := preload("res://scripts/world_builder.gd")
 const Player := preload("res://scripts/player.gd")
 const UI := preload("res://scripts/ui.gd")
 const Content := preload("res://scripts/content.gd")
+const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 const Look := preload("res://scripts/look.gd")
@@ -45,6 +46,13 @@ var comparison_tex: Texture2D
 var _tick_acc := 0.0
 var _warned_end := false
 var _glanced := false
+# M5 callouts: one-shot per run unless noted (long exposure resets per plate).
+var _ever_exposed := false
+var _long_called := false
+var _callout_last_plate := false
+var _callout_plates_left := false
+var _callout_nudged := false
+var _was_changing := false
 var _busy := false               # in a scripted transition
 var _pending := ""               # what the current dialogue is for
 
@@ -706,6 +714,12 @@ func _begin_totality() -> void:
 	world.cottingham.rotation.y = deg_to_rad(110)
 	world.roof.visible = false
 	t_game = 0.0
+	_ever_exposed = false
+	_long_called = false
+	_callout_last_plate = false
+	_callout_plates_left = false
+	_callout_nudged = false
+	_was_changing = false
 	_apply_light(1.0, 1.0, 0.0, 0.0)
 	score.play("totality_drone", 1.2)
 	score.play("totality_glass", 1.2)
@@ -725,9 +739,10 @@ func _begin_totality() -> void:
 func _toggle_shutter() -> void:
 	if sim.is_exposing():
 		var p: Dictionary = sim.close_shutter(false)
+		p.sky_read = Cues.sky_band(p.clear, p.duration)
 		audio_click.play()
 		plates_left -= 1
-		ui.show_toast("你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。" % [p.number, p.duration], 3.0)
+		ui.show_toast("你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。\n%s" % [p.number, p.duration, Content.totality_read(p.sky_read)], 3.5)
 		if plates_left > 0:
 			change_left = sim.PLATE_CHANGE_S
 	elif change_left > 0.0:
@@ -736,6 +751,8 @@ func _toggle_shutter() -> void:
 		ui.show_toast("底片用完了。", 2.0)
 	else:
 		sim.open_shutter(t_game)
+		_ever_exposed = true
+		_long_called = false
 		audio_click.play()
 		ui.show_toast("你：「開始！」　Cottingham 移開遮光板。", 2.0)
 
@@ -763,13 +780,14 @@ func _process_totality(delta: float) -> void:
 	if _tick_acc >= 1.0:
 		_tick_acc -= 1.0
 		audio_tick.play()
+	_totality_callouts()
 	if t_game > 150.0 and not _glanced:
 		_glanced = true
-		ui.show_toast("Eddington 抬頭看了一眼：「雲還是很厚……繼續。」", 3.5)
+		ui.set_callout("Eddington 抬頭看了一眼：「雲還是很厚……繼續。」", 3.5)
 	if t_game > sim.TOTALITY_S - 18.0 and not _warned_end:
 		_warned_end = true
 		score.play("totality_edge", 3.0)
-		ui.show_toast("太陽西緣開始發亮——第三接觸快到了！", 3.0)
+		ui.set_callout("太陽西緣開始發亮——第三接觸快到了！", 3.0)
 	var left := maxf(sim.TOTALITY_S - t_game, 0.0)
 	var status := ""
 	if sim.is_exposing():
@@ -777,13 +795,47 @@ func _process_totality(delta: float) -> void:
 	elif change_left > 0.0:
 		status = "[color=#aaa]Eddington 換片中…[/color]"
 	elif plates_left > 0:
-		status = "[color=#9c9]底片就緒[/color]——等雲變薄"
+		status = "[color=#9c9]底片就緒[/color]"
 	else:
 		status = "[color=#e88]底片用完了[/color]"
-	ui.set_totality(true, "[b]全食[/b]　剩餘 %d 秒（共 302）\n底片 剩 %d／%d　已拍 %d\n%s\n[color=#998]［空白鍵／E／左鍵］開始・停[/color]" % [int(left), plates_left, sim.plates_available(), sim.plates.size(), status])
+	var header := ""
+	if left > 0.0 and left <= 10.0:
+		header = "[b]全食[/b]　[font_size=42][color=#e88]%d[/color][/font_size] 秒" % int(ceil(left))
+	else:
+		header = "[b]全食[/b]　剩餘 %d 秒（共 302）" % int(left)
+	header += "\n" + status
+	var open_start := -1.0
+	if sim.is_exposing():
+		open_start = sim._open.start
+	ui.set_totality(true, header, Cues.strip_model(t_game, sim.TOTALITY_S, sim.plates, open_start, sim.plates_available()))
 	ui.set_clock("")
 	if t_game >= sim.TOTALITY_S:
 		_end_totality()
+
+
+## Hindsight-free callouts: facts the observers had, never a hint about the sky ahead.
+func _totality_callouts() -> void:
+	var exposing: bool = sim.is_exposing()
+	if exposing and not _long_called and sim._open.duration >= 20.0:
+		_long_called = true
+		ui.set_callout(Content.totality_long(sim.drive_rate_checked), 3.5)
+	if not _callout_last_plate and _was_changing and change_left <= 0.0 and plates_left == 1:
+		_callout_last_plate = true
+		ui.set_callout(Content.totality_last_plate(), 3.5)
+	_was_changing = change_left > 0.0
+	if not _callout_plates_left and t_game >= 200.0 and plates_left >= 2 and not exposing and _since_last_plate() > 60.0:
+		_callout_plates_left = true
+		ui.set_callout(Content.totality_plates_left(plates_left), 3.5)
+	if not _callout_nudged and t_game >= 45.0 and not _ever_exposed:
+		_callout_nudged = true
+		ui.set_callout(Content.totality_first_nudge(), 4.0)
+
+
+func _since_last_plate() -> float:
+	if sim.plates.is_empty():
+		return INF
+	var p: Dictionary = sim.plates.back()
+	return t_game - (float(p.start) + float(p.duration))
 
 
 func _end_totality() -> void:

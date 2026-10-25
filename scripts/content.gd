@@ -93,3 +93,55 @@ static func cottingham_coda(sim) -> String:
 	if sim.drive_wound:
 		return "發條是滿的，可惜沒來得及對時——長一點的曝光，星像都有點拖。"
 	return "那天我一個人趕著上發條，沒時間對時。下次我們先把這件事做完。"
+
+
+# --- M5 totality (Director-owned; docs/design/M5_TOTALITY.md). FICTION. Hindsight and
+# facts only: no line may tell the player *when* to expose.
+
+## Cottingham's read of the exposure that just closed. band: clear|mixed|cloud|brief.
+static func totality_read(band: String) -> String:
+	match band:
+		"clear":
+			return "Cottingham：「這幾秒雲很薄，我看得見日冕的邊。」"
+		"mixed":
+			return "Cottingham：「一半在雲裡，一半透了光。」"
+		"cloud":
+			return "Cottingham：「整段幾乎都在雲後面。」"
+		"brief":
+			return "Cottingham：「太短了，大概什麼都沒留下。」"
+	return ""
+
+
+## The same read, as the night plate viewer shows it.
+static func totality_read_night(band: String) -> String:
+	match band:
+		"clear":
+			return "拍攝時：Cottingham 說雲很薄，看得見日冕。"
+		"mixed":
+			return "拍攝時：Cottingham 說一半在雲裡。"
+		"cloud":
+			return "拍攝時：Cottingham 說幾乎整段都在雲後。"
+		"brief":
+			return "拍攝時：曝光太短。"
+	return ""
+
+
+## An exposure has run 20 s, the longest of the real programme.
+static func totality_long(rate_checked: bool) -> String:
+	if rate_checked:
+		return "Cottingham：「二十秒了。」"
+	return "Cottingham：「二十秒了——驅動沒對過時，再久星像會拖長。」"
+
+
+static func totality_last_plate() -> String:
+	return "Eddington：「最後一張了。」"
+
+
+## Late in totality, plates unused and nothing taken for a while. Facts only.
+static func totality_plates_left(n: int) -> String:
+	return "Eddington：「還有 %d 張底片。」" % n
+
+
+## No exposure in the first 45 s: say where to look, never when.
+static func totality_first_nudge() -> String:
+	return "Eddington：「看太陽周圍那一小片，不是整片天。那裡變薄了就喊。」"
