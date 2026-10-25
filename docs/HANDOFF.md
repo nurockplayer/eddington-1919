@@ -11,6 +11,12 @@
 - `tools/e2e_headless.sh` takes no lock of its own; orb-test holds it.
 - Every worker brief states this rule explicitly. The DS base prompt still says lockf.
 
+**Time-zone rule (Owner, 2026-10-26, all projects):** every written time carries its zone, like a PostgreSQL timestamptz: `2026-10-26 01:40 JST` or `2026-10-26T01:40+09:00`, never a bare `01:40`.
+- It applies to reports, PRs, commits, this handoff, worker briefs and logs.
+- Rules and reports stay in JST.
+- Tool output without a zone (containers and CI print UTC) must be converted, or labelled with its zone, before it is quoted.
+- Get the current time from the host: `date "+%F %H:%M %Z"`.
+
 **One-off data rule (Owner, 2026-10-26, all projects):** one-off data is deleted when the run ends, by default. This covers containers, volumes (named node_modules or pnpm store caches included), images built for the run, test DBs, traces and scratch output.
 - For this project that means:
   - verify clones and worktrees;
