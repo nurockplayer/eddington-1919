@@ -4,7 +4,7 @@
 #   eval "$(art/pipeline/setup_mpfb.sh --env)"   # exports BLENDER_USER_RESOURCES
 #
 # Nothing is installed into the user's own Blender profile: MPFB lives in an
-# isolated BLENDER_USER_RESOURCES under ~/.cache/eddington-1919/mpfb.
+# isolated BLENDER_USER_RESOURCES under $E1919_MPFB_CACHE (default below).
 #
 # Sources and licences (checked 2026-10-20, see art/people/LICENSES.md):
 #   MPFB 2.0.18, official Blender Extensions platform, GPL-3.0-or-later (tool only;
@@ -12,7 +12,17 @@
 #   MakeHuman system assets pack (makehuman_system_assets_cc0.zip), official
 #     MakeHuman community asset server, every asset listed as CC0.
 set -eu
-CACHE=${E1919_MPFB_CACHE:-$HOME/.cache/eddington-1919/mpfb}
+# MPFB is an Owner-approved reusable cache (2026-10-26 02:18 JST; recorded in
+# ~/.local/state/orb-test/approved-caches). Approved caches stay off the Mac SSD:
+# on /Volumes/KIOXIA when it is mounted, else under /private/tmp (cleared at reboot).
+if [ -z "${E1919_MPFB_CACHE:-}" ]; then
+  if mount | grep -q " on /Volumes/KIOXIA ("; then
+    E1919_MPFB_CACHE=/Volumes/KIOXIA/eddington-1919-cache/mpfb
+  else
+    E1919_MPFB_CACHE=/private/tmp/eddington-1919-cache/mpfb
+  fi
+fi
+CACHE=$E1919_MPFB_CACHE
 export BLENDER_USER_RESOURCES="$CACHE/blender_user"
 if [ "${1:-}" = "--env" ]; then echo "export BLENDER_USER_RESOURCES='$BLENDER_USER_RESOURCES'"; exit 0; fi
 
@@ -21,17 +31,7 @@ MPFB_URL="https://extensions.blender.org/download/sha256:$MPFB_SHA/add-on-mpfb-v
 SYS_SHA=b542127a8e25547c7c29c19f2d1d2adb9a664c80396ecd694095dbc8028a0107  # recorded 2026-10-20 (no official checksum published)
 SYS_URL=https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
 
-# The downloaded zips are an Owner-approved reusable cache (2026-10-26, docs/HANDOFF.md).
-# Approved caches stay off the Mac SSD: on /Volumes/KIOXIA when it is mounted,
-# else under /private/tmp (cleared at reboot). Override with E1919_MPFB_DL.
-if [ -z "${E1919_MPFB_DL:-}" ]; then
-  if mount | grep -q " on /Volumes/KIOXIA ("; then
-    E1919_MPFB_DL=/Volumes/KIOXIA/cache/eddington-1919/mpfb/dl
-  else
-    E1919_MPFB_DL=/private/tmp/eddington-1919/mpfb/dl
-  fi
-fi
-DL=$E1919_MPFB_DL
+DL=$CACHE/dl
 mkdir -p "$DL" "$BLENDER_USER_RESOURCES"
 ok() { echo "$2  $1" | shasum -a 256 -c - >/dev/null 2>&1; }
 fetch() {  # url file sha — never leave an unverified file at the final path
