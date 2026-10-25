@@ -11,6 +11,13 @@
 - `tools/e2e_headless.sh` takes no lock of its own; orb-test holds it.
 - Every worker brief states this rule explicitly. The DS base prompt still says lockf.
 
+**DeepSeek dispatch (Owner, 2026-10-26, all projects):** dispatch by default with `ds-exec <worker> <brief file>`, run in the background from inside the repo. It uses the same roster, `.claude/ds-workers.tsv`.
+- It is one-shot and headless (`claude -p`, no MCP) and exits when the task ends.
+- It denies, rather than prompts for, any action that needs permission, and lists those actions under **Blocked** in its report. The lead then allows them or reassigns the task.
+- Logs go to `~/.local/state/ds-exec/`.
+- Use `ds-restart` (a herdr tab) only for interactive tasks. Close an idle DS tab after hand-off with `herdr pane close <pane>`.
+- One task per worker worktree at a time: never an open DS tab plus a `ds-exec` run on the same worker.
+
 **Time-zone rule (Owner, 2026-10-26, all projects):** every written time carries its zone, like a PostgreSQL timestamptz: `2026-10-26 01:40 JST` or `2026-10-26T01:40+09:00`, never a bare `01:40`.
 - It applies to reports, PRs, commits, this handoff, worker briefs and logs.
 - Rules and reports stay in JST.
