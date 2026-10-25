@@ -3,6 +3,7 @@ extends CanvasLayer
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Content := preload("res://scripts/content.gd")
 const Strip := preload("res://scripts/totality_strip.gd")
+const DialoguePortrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -46,6 +47,8 @@ var speaker_label: Label
 var text_label: RichTextLabel
 var choice_box: VBoxContainer
 var hint_label: Label
+var dialogue_portrait: DialoguePortrait
+var cambridge_portraits := false
 var fade: ColorRect
 var caption: Label
 var title_panel: Control
@@ -331,6 +334,30 @@ func _build_dialog(root: Control) -> void:
 	hint_label = _label("［E／空白鍵／點擊］繼續", 16, DIM)
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	v.add_child(hint_label)
+	dialogue_portrait = DialoguePortrait.new()
+	root.add_child(dialogue_portrait)
+	dialogue_portrait.setup(DIM)
+	dialog_panel.visibility_changed.connect(func():
+		if not dialog_panel.visible:
+			dialogue_portrait.hide())
+	root.resized.connect(_layout_dialogue_portrait)
+	dialog_panel.resized.connect(_layout_dialogue_portrait)
+
+
+func _layout_dialogue_portrait() -> void:
+	if not cambridge_portraits:
+		return
+	# Reserve a separate bottom-left print column. Text/choices keep their own
+	# panel; the print cannot cover the central evidence or an interaction prompt.
+	var width: float = dialog_panel.get_parent().size.x
+	var span := minf(width - 48.0, 1360.0)
+	dialog_panel.offset_left = -span * 0.5 + 240.0
+	dialog_panel.offset_right = span * 0.5
+	dialog_panel.custom_minimum_size.x = 0.0
+	text_label.custom_minimum_size.x = 0.0
+	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	dialogue_portrait.size = Vector2(224, 256)
+	dialogue_portrait.position = Vector2((width - span) * 0.5, dialog_panel.get_global_rect().end.y - dialogue_portrait.size.y)
 
 
 func dialog_active() -> bool:
@@ -360,6 +387,9 @@ func _show_entry() -> void:
 		history.pop_front()
 	speaker_label.text = e.get("s", "")
 	text_label.text = e.get("t", "")
+	if cambridge_portraits:
+		_layout_dialogue_portrait()
+		dialogue_portrait.show_entry(e)
 	for b in _choice_buttons:
 		b.queue_free()
 	_choice_buttons.clear()

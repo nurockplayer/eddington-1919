@@ -33,6 +33,47 @@ static func build(w, display_name: String, pos: Vector3, coat: Color, shirt: Col
 	return body
 
 
+## Cambridge principals use separate production assets. Keep interaction and
+## collision on the same named body as the procedural figures.
+static func build_person(w, display_name: String, pos: Vector3, id: String, asset: String) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.name = "CambridgeFigure_" + id
+	body.position = pos
+	var cs := CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.25
+	capsule.height = 1.8
+	cs.shape = capsule
+	cs.position.y = 0.9
+	body.add_child(cs)
+	body.set_meta("room_collision_shape", cs)
+	var scene := load("res://assets/models/%s.glb" % asset) as PackedScene
+	var figure := scene.instantiate() as Node3D
+	figure.name = "figure"
+	figure.rotation.y = PI # glTF faces +Z; the room's people face -Z.
+	body.add_child(figure)
+	# Deliberate stillness: the hands stay on the desk. No look-at modifier may
+	# rotate the face independently of its spectacles or the authored head pose.
+	_add_name_tag(body, display_name, w)
+	w.root.add_child(body)
+	# glTF's bind/rest pose is not the authored pose. Evaluate frame zero once
+	# after entering the tree, then hold it: no breathing loop or hand drift.
+	for ap in figure.find_children("*", "AnimationPlayer", true, false):
+		if ap.has_animation("idle"):
+			ap.play("idle")
+			ap.advance(0.0)
+			ap.pause()
+	w.interactable(body, id, display_name)
+	return body
+
+
+static func show_name_tags(actors: Array, on: bool) -> void:
+	for actor in actors:
+		for tag in actor.find_children("*", "Label3D", true, false):
+			if tag.has_meta("cambridge_name_tag"):
+				tag.visible = on
+
+
 static func _build_clothes(body: Node3D, id: String, coat: Color, shirt: Color) -> void:
 	# Group the small parts by material; keep the tapered torso as one primitive.
 	# Lapels are thin two-sided cloth, unlike the solid body meshes. These are deliberately broad readable forms.
@@ -135,6 +176,7 @@ static func _add_spectacles(body: Node3D) -> void:
 
 static func _add_name_tag(body: Node3D, display_name: String, w) -> void:
 	var tag := Label3D.new()
+	tag.set_meta("cambridge_name_tag", true)
 	tag.text = display_name
 	tag.font_size = 30
 	tag.pixel_size = 0.0007

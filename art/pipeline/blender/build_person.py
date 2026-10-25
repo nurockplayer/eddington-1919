@@ -21,7 +21,7 @@ from pathlib import Path
 
 import addon_utils
 import bpy
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kit  # noqa: E402
@@ -243,6 +243,29 @@ def main() -> None:
             if abs(c.x) < t.get("half_width", 0.03) and chest < c.z < neck - 0.02 and n.y < -0.5:
                 poly.material_index = idx
 
+    # Cambridge's elegant suit includes the shirt and waistcoat in one mesh.
+    # Broad garment regions carry the distinction, never a fabric/photo texture.
+    if "formal" in spec:
+        obj = added["suit"]
+        neck = (rig.matrix_world @ rig.data.bones["neck_01"].head_local).z
+        waist = (rig.matrix_world @ rig.data.bones["spine_01"].head_local).z
+        slots = {}
+        for key in ("collar", "waistcoat", "tie"):
+            slots[key] = len(obj.data.materials)
+            obj.data.materials.append(kit.mat(spec["formal"][key]))
+        for poly in obj.data.polygons:
+            c = obj.matrix_world @ poly.center
+            n = (obj.matrix_world.to_3x3() @ poly.normal).normalized()
+            if n.y > -0.35:
+                continue
+            down = neck - c.z
+            if 0.015 < down < 0.15 and abs(c.x) < 0.105:
+                poly.material_index = slots["collar"]
+            elif 0.15 <= down < 0.42 and abs(c.x) < 0.025:
+                poly.material_index = slots["tie"]
+            elif waist - 0.04 < c.z < neck - 0.16 and abs(c.x) < 0.11:
+                poly.material_index = slots["waistcoat"]
+
     # The hidden full-resolution base mesh is not shipped (the proxy is the body).
     bpy.data.objects.remove(base)
 
@@ -258,6 +281,26 @@ def main() -> None:
     for side, sx in (("l", 1), ("r", -1)):
         aim(pbs[f"upperarm_{side}"], rig, Vector((sx * 0.13, 0.03, -1.0)))
         aim(pbs[f"lowerarm_{side}"], rig, Vector((sx * 0.06, -0.18, -1.0)))
+    pose = spec.get("pose", {})
+    if pose:
+        for bone, deg in (("spine_01", pose.get("stoop_deg", 0)),
+                          ("neck_01", pose.get("head_deg", 0))):
+            pbs[bone].rotation_mode = "QUATERNION"
+            pbs[bone].rotation_quaternion = Matrix.Rotation(math.radians(deg), 4, "X").to_quaternion()
+            bpy.context.view_layer.update()
+        for side, sx in (("l", 1), ("r", -1)):
+            if pose.get("kind") == "desk":
+                # Wrist just above a 0.80 m desk; palms extend toward the papers.
+                elbow = Vector((sx * 0.28, -0.24, 1.08))
+                wrist = Vector((sx * 0.23, -0.46, 0.86))
+                upper = pbs[f"upperarm_{side}"]
+                aim(upper, rig, elbow - rig.matrix_world @ upper.head)
+                lower = pbs[f"lowerarm_{side}"]
+                aim(lower, rig, wrist - rig.matrix_world @ lower.head)
+                aim(pbs[f"hand_{side}"], rig, Vector((0, -1, -0.12)))
+            else:
+                aim(pbs[f"upperarm_{side}"], rig, Vector((sx * 0.10, -0.12, -1)))
+                aim(pbs[f"lowerarm_{side}"], rig, Vector((sx * 0.04, -0.32, -1)))
     base_pose = {pb.name: pb.rotation_quaternion.copy() for pb in pbs if pb.rotation_mode == "QUATERNION"}
 
     # Idle: 4 s loop, breathing in the upper spine plus a slow, small head drift.
@@ -274,7 +317,8 @@ def main() -> None:
             pbs[name].keyframe_insert("rotation_quaternion", frame=f)
         for bone, amt in (("spine_03", breath * k), ("neck_01", -breath * 0.5 * k)):
             pbs[bone].rotation_mode = "QUATERNION"
-            pbs[bone].rotation_quaternion = Matrix.Rotation(amt, 4, "X").to_quaternion()
+            delta = Matrix.Rotation(amt, 4, "X").to_quaternion()
+            pbs[bone].rotation_quaternion = base_pose.get(bone, Quaternion()) @ delta if pose else delta
             pbs[bone].keyframe_insert("rotation_quaternion", frame=f)
     scene.frame_start, scene.frame_end = 0, 120
     scene.frame_set(0)
@@ -300,6 +344,12 @@ def main() -> None:
         obj.parent_type = "BONE"
         obj.parent_bone = "head"
         obj.matrix_world = mw
+        if pose:
+            # Accessories were authored against the unposed eye mesh. Move them
+            # with the same head deformation as the skinned face, once only.
+            obj.matrix_world = (rig.matrix_world @ rig.pose.bones["head"].matrix
+                                @ rig.data.bones["head"].matrix_local.inverted()
+                                @ rig.matrix_world.inverted() @ mw)
 
     rig.name = f"{pid}_rig"
     out = ROOT / spec["export"]

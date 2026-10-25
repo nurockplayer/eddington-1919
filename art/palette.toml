@@ -158,3 +158,19 @@ roughness = 0.2
 hex = "#4A423B"
 role = "structure"
 roughness = 0.6
+
+# Cambridge dark wool: raised midtones keep coats distinct from dark panelling.
+[swatch.wool_slate]
+hex = "#606875"
+role = "structure"
+roughness = 0.94
+
+[swatch.wool_umber]
+hex = "#766A5D"
+role = "structure"
+roughness = 0.96
+
+[swatch.wool_waistcoat]
+hex = "#494747"
+role = "structure"
+roughness = 0.82

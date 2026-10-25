@@ -1,0 +1,205 @@
+{
+  "asset": "eddington_cambridge",
+  "file": "assets/models/eddington_cambridge.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 13776,
+      "max": 16000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_eye_dark",
+        "E1919_hair_dark",
+        "E1919_iron",
+        "E1919_leather",
+        "E1919_linen",
+        "E1919_skin",
+        "E1919_wool_slate",
+        "E1919_wool_waistcoat"
+      ],
+      "max": 10,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.547,
+        0.387,
+        1.799
+      ],
+      "target": [
+        0.55,
+        0.38,
+        1.78
+      ],
+      "tolerance": 0.2,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.001,
+        -0.07,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "eddington_cambridge_body": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "eddington_cambridge_eyebrows": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "eddington_cambridge_eyes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "eddington_cambridge_hair": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "eddington_cambridge_shoes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "eddington_cambridge_suit": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "eddington_cambridge_glasses": {
+          "origin": [
+            -0.032,
+            -0.207,
+            1.65
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        }
+      },
+      "ok": true,
+      "skipped": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "eddington_cambridge_body",
+        "eddington_cambridge_eyebrows",
+        "eddington_cambridge_eyes",
+        "eddington_cambridge_hair",
+        "eddington_cambridge_shoes",
+        "eddington_cambridge_suit",
+        "eddington_cambridge_glasses"
+      ],
+      "ok": true
+    }
+  }
+}

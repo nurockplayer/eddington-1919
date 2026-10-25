@@ -308,17 +308,25 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		root.add_child(plate_label)
 
 	# Green-shaded oil lamp, the warm key and light pool.
-	w.cyl(0.07, 0.18, Vector3(0.25, 0.92, -0.19), brass, null, false)
-	w.cyl(0.025, 0.25, Vector3(0.25, 1.12, -0.19), iron, null, false)
-	var shade := w.cyl(0.28, 0.16, Vector3(0.25, 1.31, -0.19), Color(0.15, 0.34, 0.19), null, false, Vector3.ZERO, 0.15)
+	var lamp_shift := Vector3.ZERO if departure else Vector3(-2.45, 0, 0.1)
+	w.cyl(0.07, 0.18, Vector3(0.25, 0.92, -0.19) + lamp_shift, brass, null, false)
+	w.cyl(0.025, 0.25, Vector3(0.25, 1.12, -0.19) + lamp_shift, iron, null, false)
+	var shade := w.cyl(0.28, 0.16, Vector3(0.25, 1.31, -0.19) + lamp_shift, Color(0.15, 0.34, 0.19), null, false, Vector3.ZERO, 0.15)
 	var lamp := OmniLight3D.new()
 	lamp.name = "GreenShadeLamp"
-	lamp.position = Vector3(0.25, 1.14, -0.19)
+	lamp.position = Vector3(0.25, 1.14, -0.19) + lamp_shift
 	lamp.light_color = Color(1.0, 0.73, 0.43)
 	lamp.light_energy = 1.5
 	lamp.omni_range = 5.0
 	lamp.omni_attenuation = 1.35
 	lamp.shadow_enabled = true
+	if not departure:
+		lamp.light_size = 0.10
+		lamp.light_energy = 1.5
+		lamp.light_specular = 0.15
+		# The green glass shade transmits the key instead of acting as an opaque
+		# lid. The source stays under it, so its top cannot outshine the paper.
+		shade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(lamp)
 	out.lamp = lamp
 
@@ -339,11 +347,15 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	# Empty copyist desk and chair, with an unsigned folded letter.
 	_table(w, Vector3(-2.55, 0, 0.05), Vector3(1.55, 0.75, 0.9), dark_wood)
 	var folded_letter := w.box(Vector3(0.28, 0.025, 0.2), Vector3(-2.47, 0.79, -0.02), Color(0.78, 0.73, 0.63), null, false)
+	if not departure:
+		folded_letter.position.y = 0.815
+		(folded_letter as MeshInstance3D).material_override = w.evidence_mat(Color(0.91, 0.90, 0.85))
 	var letter_hotspot := w.hotspot(Vector3(0.4, 0.18, 0.3), Vector3(-2.47, 0.86, -0.02), "letter", "查看摺起的信")
 	out.targets["letter"] = letter_hotspot.position
-	w.box(Vector3(0.52, 0.1, 0.52), Vector3(-2.55, 0.52, 0.82), wood)
+	var chair_shift := Vector3.ZERO if departure else Vector3(0.8, 0, 0.55)
+	w.box(Vector3(0.52, 0.1, 0.52), Vector3(-2.55, 0.52, 0.82) + chair_shift, wood)
 	for x in [-2.78, -2.32]:
-		w.box(Vector3(0.06, 0.52, 0.06), Vector3(x, 0.26, 0.82), wood, null, false)
+		w.box(Vector3(0.06, 0.52, 0.06), Vector3(x, 0.26, 0.82) + chair_shift, wood, null, false)
 	# Coat on a wall peg; no identity or initials.
 	w.cyl(0.04, 0.15, Vector3(-3.9, 1.7, 1.0), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
 	w.box(Vector3(0.48, 0.68, 0.12), Vector3(-3.82, 1.18, 1.0), Color(0.22, 0.23, 0.24), null, false)
@@ -393,14 +405,17 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position
 
 	# Late arrivals are staged by the chapter controller; no hats indoors.
-	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(0, 0, 6.4) if departure else Vector3(-2.65, 0, 1.25), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor")
+	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(0, 0, 6.4) if departure else Vector3(-2.65, 0, 1.05), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor", not departure)
 	out.mentor.visible = departure
 	var mentor_shape := out.mentor.get_meta("room_collision_shape") as CollisionShape3D
 	mentor_shape.disabled = not departure
 	out.mentor.visibility_changed.connect(func(): mentor_shape.disabled = not out.mentor.visible)
 	# A plain closed journal under the mentor's arm, kept as a single prop.
-	w.box(Vector3(0.20, 0.035, 0.24), Vector3(0.27, 1.28, -0.12), Color(0.27, 0.22, 0.17), out.mentor, false)
-	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-3.35, 0, 2.35), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington")
+	if departure:
+		w.box(Vector3(0.20, 0.035, 0.24), Vector3(0.27, 1.28, -0.12), Color(0.27, 0.22, 0.17), out.mentor, false)
+	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-3.35, 0, 2.35) if departure else Vector3(-3.65, 0, -0.30), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington", not departure)
+	if not departure:
+		out.eddington.rotation.y = -PI * 0.5
 	out.eddington.visible = false
 	var eddington_shape := out.eddington.get_meta("room_collision_shape") as CollisionShape3D
 	eddington_shape.disabled = true
@@ -475,8 +490,12 @@ static func _shelf(w, pos: Vector3, wood: Color, dark_wood: Color) -> void:
 			w.box(Vector3(0.10, h, 0.29), pos + Vector3(-0.22 + i * 0.15, 0.79 + row * 0.70 + h * 0.5, -0.47 + (i % 2) * 0.43), Color(0.30 + 0.025 * i, 0.22 + 0.02 * row, 0.15))
 
 
-static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> Node3D:
-	var body: Node3D = Figures.build(w, display_name, pos, coat, shirt, id)
+static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String, production := false) -> Node3D:
+	var body: Node3D
+	if production:
+		body = Figures.build_person(w, display_name, pos, id, "ashby" if id == "mentor" else "eddington_cambridge")
+	else:
+		body = Figures.build(w, display_name, pos, coat, shirt, id)
 	var cs := body.get_child(0) as CollisionShape3D
 	body.set_meta("room_collision_shape", cs)
 	return body

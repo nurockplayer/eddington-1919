@@ -1,0 +1,205 @@
+{
+  "asset": "ashby",
+  "file": "assets/models/ashby.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 13800,
+      "max": 16000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_eye_dark",
+        "E1919_hair_dark",
+        "E1919_hair_grey",
+        "E1919_leather",
+        "E1919_linen",
+        "E1919_skin",
+        "E1919_wool_umber",
+        "E1919_wool_waistcoat"
+      ],
+      "max": 10,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.573,
+        0.664,
+        1.737
+      ],
+      "target": [
+        0.55,
+        0.65,
+        1.7
+      ],
+      "tolerance": 0.2,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        -0.0,
+        -0.206,
+        -0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "ashby_body": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_eyebrows": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_eyes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_hair": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_shoes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_suit": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_moustache": {
+          "origin": [
+            0.0,
+            -0.259,
+            1.531
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        }
+      },
+      "ok": true,
+      "skipped": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "ashby_body",
+        "ashby_eyebrows",
+        "ashby_eyes",
+        "ashby_hair",
+        "ashby_shoes",
+        "ashby_suit",
+        "ashby_moustache"
+      ],
+      "ok": true
+    }
+  }
+}
