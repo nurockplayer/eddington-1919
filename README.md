@@ -12,7 +12,7 @@ godot --path .
 # 匯出 macOS 版（需要 4.7.2 匯出範本）→ build/Eddington1919-macOS.zip
 godot --headless --path . --export-release "macOS" build/Eddington1919-macOS.zip
 # 邏輯測試（無視窗）
-godot --headless --path . --script res://tests/test_sim.gd
+orb-test --host -- godot --headless --path . --script res://tests/test_sim.gd
 # 自動化走完整流程並截圖（不能取代真人試玩）
 godot --path . --always-on-top -- --autoplay=careful --shots=/tmp/e1919 --speed=2
 ```
@@ -22,7 +22,7 @@ godot --path . --always-on-top -- --autoplay=careful --shots=/tmp/e1919 --speed=
 序章額外操作：看片台內拖曳描圖紙、翻面、Q／E 或按鈕旋轉；Tab 在兩章都可開關最近 60 行對話紀錄。
 
 ```bash
-godot --headless --path . --script res://tests/test_prologue.gd
+orb-test --host -- godot --headless --path . --script res://tests/test_prologue.gd
 godot --path . --always-on-top -- --prologue-autoplay=honest --shots=/tmp/m1-honest
 # 另有 tidy、accuse 兩種報告路線；JSON 收據與逐幕截圖寫到 --shots 目錄。
 ```

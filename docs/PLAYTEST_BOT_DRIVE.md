@@ -1,9 +1,9 @@
 # v0.1 bot hold and plate-feedback verification
 
-**Default E2E is now headless (2026-10-25):** `tools/e2e_headless.sh` runs all six routes
+**Default E2E is now headless (2026-10-25):** `orb-test --heavy --host -- ./tools/e2e_headless.sh` runs all six routes
 (`--autoplay=careful|rushed|cherry`, `--prologue-autoplay=honest|tidy|accuse`) with
 `godot --headless --path . --fixed-fps 60`, one Godot at a time, and prints a result table.
-A single route is `godot --headless --path . --fixed-fps 60 -- <route args>`. The
+A single route is `orb-test --host -- godot --headless --path . --fixed-fps 60 -- <route args>`. The
 `--always-on-top --shots=DIR` runs recorded below are the historical screenshot runs and are
 no longer the default; use them only when someone must look at the screen or capture frames
 (Owner's windowed-run rule in [HANDOFF](HANDOFF.md)).
@@ -58,8 +58,8 @@ All commands ran in the specified worktree. No `timeout` command was used.
 
 ```sh
 godot --headless --path . --import
-godot --headless --path . --script res://tests/test_sim.gd
-godot --headless --path . --script res://tests/test_autoplay_hold.gd
+orb-test --host -- godot --headless --path . --script res://tests/test_sim.gd
+orb-test --host -- godot --headless --path . --script res://tests/test_autoplay_hold.gd
 ```
 
 Output tails (all exit 0):

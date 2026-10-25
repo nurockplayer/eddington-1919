@@ -14,7 +14,7 @@
 
 ### 自動化驗證（實際執行過的）
 
-**預設 E2E 是 headless：`tools/e2e_headless.sh`。** 它依序跑完六條路線（一次只跑一個 Godot，各有 wall-clock 上限），最後印出 route / seed / ending / evidence / score / stuck / cue checks / wall / exit 表格，任何一條失敗就以非零結束。單獨一條路線用 `godot --headless --path . --fixed-fps 60 -- <route args>`。`--always-on-top --fixed-fps 60 --shots=DIR` 只在需要看畫面或截圖時使用（Owner 的 windowed-run rule，見 [HANDOFF](HANDOFF.md)）。
+**預設 E2E 是 headless：`orb-test --heavy --host -- ./tools/e2e_headless.sh`。** 它依序跑完六條路線（一次只跑一個 Godot，各有 wall-clock 上限），最後印出 route / seed / ending / evidence / score / stuck / cue checks / wall / exit 表格，任何一條失敗就以非零結束。單獨一條路線用 `orb-test --host -- godot --headless --path . --fixed-fps 60 -- <route args>`。`--always-on-top --fixed-fps 60 --shots=DIR` 只在需要看畫面或截圖時使用（Owner 的 windowed-run rule，見 [HANDOFF](HANDOFF.md)）。
 
 2026-10-25 連跑兩次，結果完全相同（fixed-fps headless 具決定性；表為其中一次，時間取自 `/usr/bin/time`、不含等鎖，會隨機器負載變動）：
 
@@ -31,8 +31,8 @@
 
 | 檢查 | 指令 | 結果 |
 |---|---|---|
-| 邏輯測試（雲層決定性、雲縫、曝光後果、拖線偏差、證據分類、評分組合、審查回歸） | `godot --headless --path . --script res://tests/test_sim.gd` | **155 checks, 0 failures** |
-| 端到端：careful（完成全部準備、只在雲縫曝光、按品質選片、電報 HOPEFUL） | `tools/e2e_headless.sh`（或 `godot --headless --path . --fixed-fps 60 -- --autoplay=careful --seed=77`） | 通關，結局「雲層之後的希望」，合併 1.37″ ± 0.21″（favors_e），卡住 0 次 |
+| 邏輯測試（雲層決定性、雲縫、曝光後果、拖線偏差、證據分類、評分組合、審查回歸） | `orb-test --host -- godot --headless --path . --script res://tests/test_sim.gd` | **155 checks, 0 failures** |
+| 端到端：careful（完成全部準備、只在雲縫曝光、按品質選片、電報 HOPEFUL） | `orb-test --heavy --host -- ./tools/e2e_headless.sh`（或 `orb-test --host -- godot --headless --path . --fixed-fps 60 -- --autoplay=careful --seed=77`） | 通關，結局「雲層之後的希望」，合併 1.37″ ± 0.21″（favors_e），卡住 0 次 |
 | 暫停 | （careful 流程中） | 對話中按 Esc 會暫停；暫停時按 E 不會推進對話；再按 Esc 繼續 ✓ |
 | 重玩「新的天空」 | （careful 結尾按鈕） | 重新載入，回到標題，種子 77 → 新種子 ✓（headless 亦同） |
 | 端到端：rushed（跳過準備、無視雲層連續長曝光、全選、電報 CONFIRMED + 日冕理由） | `--autoplay=rushed --seed=515`（headless，見上表） | 通關，只有 4 張底片，星像拖線、起霧，結局「過早的宣告」，分數 0 |
