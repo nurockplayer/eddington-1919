@@ -96,7 +96,7 @@ func _run() -> void:
 				posed = posed and hand.z < -0.3
 			check(posed, "%s %s hand uses authored pose rather than rest pose: %s" % [id, side, hand])
 		var animation := figure.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
-		check(not animation.is_playing(), "authored pose is held still")
+		check(animation.is_playing() and animation.get_animation("idle").loop_mode == Animation.LOOP_LINEAR, "authored pose breathes on a loop")
 		actor.show()
 		check(not actor.get_meta("room_collision_shape").disabled, "show enables principal collider")
 		actor.hide()
