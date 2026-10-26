@@ -228,6 +228,11 @@ func _frame_speaker(speaker: String) -> void:
 	# Show the standing figure at conversation distance; keep the face in frame
 	# when a player talks from close to the actor's collision capsule.
 	var distance: float = Vector2(to_actor.x, to_actor.z).length()
+	# Far speakers get a longer lens so they don't read small behind a near figure.
+	if _lens_tween:
+		_lens_tween.kill()
+	_lens_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_lens_tween.tween_property(player.camera, "fov", lerpf(55.0, 40.0, smoothstep(2.5, 4.5, distance)), 0.4)
 	var focus_height := lerpf(1.5, 1.1, smoothstep(1.0, 2.5, distance))
 	var target := actor.global_position + Vector3(0, focus_height, 0)
 	var direction: Vector3 = target - player.camera.global_position

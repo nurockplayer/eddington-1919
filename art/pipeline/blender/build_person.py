@@ -253,15 +253,18 @@ def main() -> None:
         for key in ("collar", "waistcoat", "tie"):
             slots[key] = len(obj.data.materials)
             obj.data.materials.append(kit.mat(spec["formal"][key]))
+        # Optional per-person collar depth and tie width (defaults: the original look).
+        collar_drop = spec["formal"].get("collar_drop", 0.15)
+        tie_w = spec["formal"].get("tie_half_width", 0.025)
         for poly in obj.data.polygons:
             c = obj.matrix_world @ poly.center
             n = (obj.matrix_world.to_3x3() @ poly.normal).normalized()
             if n.y > -0.35:
                 continue
             down = neck - c.z
-            if 0.015 < down < 0.15 and abs(c.x) < 0.105:
+            if 0.015 < down < collar_drop and abs(c.x) < 0.105:
                 poly.material_index = slots["collar"]
-            elif 0.15 <= down < 0.42 and abs(c.x) < 0.025:
+            elif collar_drop <= down < 0.42 and abs(c.x) < tie_w:
                 poly.material_index = slots["tie"]
             elif waist - 0.04 < c.z < neck - 0.16 and abs(c.x) < 0.11:
                 poly.material_index = slots["waistcoat"]
