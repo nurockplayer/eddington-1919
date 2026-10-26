@@ -655,6 +655,11 @@ func _build_title(root: Control) -> void:
 	(title_panel as ColorRect).color = Color(0.03, 0.03, 0.04, 0.78)
 	title_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.add_child(title_panel)
+	# The same Hyades sky, faint behind the title (it follows the panel's 0.78 alpha).
+	var sky := FadeStars.new()
+	sky.target = title_panel as ColorRect
+	sky.drop = 0.16  # keeps Aldebaran clear of the title buttons
+	title_panel.add_child(sky)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)
 	v.position = Vector2(-460, -330)
