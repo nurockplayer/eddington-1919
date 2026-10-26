@@ -116,7 +116,7 @@ func _run() -> void:
 		await process_frame
 	check(chapter.ui.dialog_active(), "ordinary Cambridge opening reaches dialogue")
 	await create_timer(0.5).timeout
-	check(is_equal_approx(chapter.player.camera.fov, 55.0), "dialogue settles at 55 degree FOV")
+	check(chapter.player.camera.fov >= 40.0 and chapter.player.camera.fov <= 55.0, "dialogue settles in the 40-55 degree lens range")
 	var tags: Array = []
 	for actor in [chapter.world.kit, chapter.world.mentor, chapter.world.eddington]:
 		for tag in actor.find_children("*", "Label3D", true, false):

@@ -166,7 +166,7 @@ role = "structure"
 roughness = 0.94
 
 [swatch.wool_umber]
-hex = "#766A5D"
+hex = "#4E463E"
 role = "structure"
 roughness = 0.96
 

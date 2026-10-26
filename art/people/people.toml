@@ -73,7 +73,7 @@ macro = { gender = 1.0, weight = 0.32, muscle = 0.42, proportions = 0.6, race = 
 export = "assets/models/eddington_cambridge.glb"
 breath_deg = 0.0
 glasses = true
-formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark" }
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", collar_drop = 0.06, tie_half_width = 0.035 }
 pose = { kind = "papers", head_deg = 9.0, stoop_deg = 3.0 }
 [person.eddington_cambridge.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
