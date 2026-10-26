@@ -18,6 +18,15 @@
 - Use `ds-restart` (a herdr tab) only for interactive tasks. Close an idle DS tab after hand-off with `herdr pane close <pane>`.
 - One task per worker worktree at a time: never an open DS tab plus a `ds-exec` run on the same worker.
 
+**DeepSeek briefs are pre-digested (Owner, 2026-10-26, all projects).** DS is billed per token, and every call resends the worker's whole context. The median DS session on 2026-10-25/26 made about 140 tool calls at about 90k tokens each, mostly searching for code.
+- The lead explores first. The brief names the files and line ranges or functions to change, the intended change (a diff sketch where possible), and the exact `orb-test` command. The worker only edits.
+- One brief, one change; split anything bigger.
+- Never point the worker at large or generated files (portrait/run JSON, images, `build/`, long logs). Give `grep`, `jq` or `sed -n` ranges in the brief instead.
+- Exploration, data regeneration, research or judgement goes to Codex (Sol/Luna) or the lead.
+- `ds-exec` caps a run at 40 turns (`DS_MAX_TURNS`). Raise the cap only with the reason written in the brief. Hitting the cap means the brief was too big.
+- Each run's token usage is logged in `~/.local/state/ds-exec/usage.tsv`.
+- Always run `quota-advisor --tier ...` first. After the Codex weekly reset (2026-10-26 12:00 JST) it says PRIME, so Codex goes first.
+
 **Time-zone rule (Owner, 2026-10-26, all projects):** every written time carries its zone, like a PostgreSQL timestamptz: `2026-10-26 01:40 JST` or `2026-10-26T01:40+09:00`, never a bare `01:40`.
 - It applies to reports, PRs, commits, this handoff, worker briefs and logs.
 - Rules and reports stay in JST.
