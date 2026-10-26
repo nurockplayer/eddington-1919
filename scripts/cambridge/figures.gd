@@ -52,17 +52,18 @@ static func build_person(w, display_name: String, pos: Vector3, id: String, asse
 	figure.name = "figure"
 	figure.rotation.y = PI # glTF faces +Z; the room's people face -Z.
 	body.add_child(figure)
-	# Deliberate stillness: the hands stay on the desk. No look-at modifier may
-	# rotate the face independently of its spectacles or the authored head pose.
+	# No look-at modifier may rotate the face independently of its spectacles
+	# or the authored head pose; breathing moves the spine and head together.
 	_add_name_tag(body, display_name, w)
 	w.root.add_child(body)
-	# glTF's bind/rest pose is not the authored pose. Evaluate frame zero once
-	# after entering the tree, then hold it: no breathing loop or hand drift.
+	# glTF's bind/rest pose is not the authored pose: the baked 4 s breathing idle
+	# loops, offset per person so two figures never breathe in step.
 	for ap in figure.find_children("*", "AnimationPlayer", true, false):
 		if ap.has_animation("idle"):
+			var idle: Animation = ap.get_animation("idle")
+			idle.loop_mode = Animation.LOOP_LINEAR
 			ap.play("idle")
-			ap.advance(0.0)
-			ap.pause()
+			ap.seek(float(absi(id.hash()) % 1000) / 1000.0 * idle.length, true)
 	w.interactable(body, id, display_name)
 	return body
 
