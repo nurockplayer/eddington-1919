@@ -26,6 +26,11 @@
 - `ds-exec` caps a run at 40 turns (`DS_MAX_TURNS`). Raise the cap only with the reason written in the brief. Hitting the cap means the brief was too big. Usage: `~/.local/state/ds-exec/usage.tsv`.
 - Always run `quota-advisor --tier ...` first. After the Codex weekly reset (2026-10-26 12:00 JST) it says PRIME, so Codex goes first.
 
+**Codex default worker (Owner, 2026-10-26 19:0x JST):** plain `codex exec` now runs gpt-6-luna at high effort (set in `~/.codex/config.toml`).
+- Add `-m gpt-6.1-sol` only when the lead judges a task complex enough.
+- Ask `quota-advisor --tier routine` by default, and `--tier hard` only for complex tasks.
+- The Codex review fallback always passes `-m gpt-6.1-sol` explicitly.
+
 **Time-zone rule (Owner, 2026-10-26, all projects):** every written time carries its zone, like a PostgreSQL timestamptz: `2026-10-26 01:40 JST` or `2026-10-26T01:40+09:00`, never a bare `01:40`.
 - It applies to reports, PRs, commits, this handoff, worker briefs and logs.
 - Rules and reports stay in JST.
