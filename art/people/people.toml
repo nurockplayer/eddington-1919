@@ -63,3 +63,60 @@ suit = "felt"
 [person.cottingham.decimate]
 suit = 0.4
 hair = 0.6
+
+# Cambridge, October 1917. Clothes, pose and height are RECONSTRUCTION.
+# Body macros match person.eddington; a separate export leaves Príncipe intact.
+[person.eddington_cambridge]
+age_years = 34
+height_m = 1.78
+macro = { gender = 1.0, weight = 0.32, muscle = 0.42, proportions = 0.6, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+export = "assets/models/eddington_cambridge.glb"
+breath_deg = 0.0
+glasses = true
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark" }
+pose = { kind = "papers", head_deg = 9.0, stoop_deg = 3.0 }
+[person.eddington_cambridge.assets]
+body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
+hair = ["hair/short02/short02.mhclo", "Hair"]
+eyebrows = ["eyebrows/eyebrow010/eyebrow010.mhclo", "Eyebrows"]
+eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
+suit = ["clothes/male_elegantsuit01/male_elegantsuit01.mhclo", "Clothes"]
+shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
+[person.eddington_cambridge.materials]
+body = "skin"
+hair = "hair_dark"
+eyebrows = "hair_dark"
+eyes = "eye_dark"
+suit = "wool_slate"
+shoes = "leather"
+[person.eddington_cambridge.decimate]
+suit = 0.4
+hair = 0.6
+
+# Ashby is fictional: generic older features, never a real person's likeness.
+[person.ashby]
+age_years = 60
+height_m = 1.74
+macro = { gender = 1.0, weight = 0.46, muscle = 0.36, proportions = 0.5, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+export = "assets/models/ashby.glb"
+breath_deg = 0.0
+moustache = true # Repo-authored geometry; no unlicensed community hair asset.
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark" }
+pose = { kind = "desk", head_deg = 5.0, stoop_deg = 12.0 }
+[person.ashby.assets]
+body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
+hair = ["hair/short02/short02.mhclo", "Hair"]
+eyebrows = ["eyebrows/eyebrow004/eyebrow004.mhclo", "Eyebrows"]
+eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
+suit = ["clothes/male_elegantsuit01/male_elegantsuit01.mhclo", "Clothes"]
+shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
+[person.ashby.materials]
+body = "skin"
+hair = "hair_grey"
+eyebrows = "hair_grey"
+eyes = "eye_dark"
+suit = "wool_umber"
+shoes = "leather"
+[person.ashby.decimate]
+suit = 0.4
+hair = 0.6

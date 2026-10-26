@@ -12,3 +12,18 @@ All third-party content in `assets/models/eddington.glb` and `assets/models/cott
 **Not used, on purpose:** any CC-BY pack (e.g. Hair 02/03, Suits 03/04, Glasses 02, System eye materials 03), community assets, and MakeHuman skin textures. Skins are flat palette colours by art direction, so no photographic skin texture ships.
 
 **Note on authorship:** CC0 asks for no attribution, but we credit the MakeHuman Community and Data Collection AB in `docs/PROVENANCE.md`.
+
+## Cambridge exports (2026-10-26 JST)
+
+`ashby.glb` and `eddington_cambridge.glb` reuse the same checked CC0 base,
+`game_engine` rig, `male1591` proxy, `short02` hair, `eyebrow004` (Ashby) /
+`eyebrow010` (Eddington), `low-poly` eyes, `male_elegantsuit01` and `shoes02`.
+The existing affirmative-header and bundled-input SHA gates apply unchanged.
+No new third-party download is required. Grey moustache and spectacles are
+repo-authored procedural geometry; palette, garment region colours and poses
+are repo-authored. No skin or fabric textures ship in either GLB.
+
+The four dialogue JPEGs are exact copies of Owner-approved generated p02 picks,
+with source filenames and manifest ids recorded in `REFERENCE.md` and
+`art/runs/p02-portraits/manifest.jsonl`. They are labelled reconstructions in the
+runtime UI; Ashby is fictional. No new image generation or paid API is used here.

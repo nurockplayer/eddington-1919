@@ -32,6 +32,9 @@ const C := {
 	"leather": Color(0.239, 0.169, 0.122),  # structure
 	"eye_dark": Color(0.118, 0.102, 0.090),  # structure
 	"hair_greying": Color(0.290, 0.259, 0.231),  # structure
+	"wool_slate": Color(0.376, 0.408, 0.459),  # structure
+	"wool_umber": Color(0.463, 0.416, 0.365),  # structure
+	"wool_waistcoat": Color(0.286, 0.278, 0.278),  # structure
 }
 
 const ROUGH := {
@@ -64,4 +67,7 @@ const ROUGH := {
 	"leather": 0.55,
 	"eye_dark": 0.2,
 	"hair_greying": 0.6,
+	"wool_slate": 0.94,
+	"wool_umber": 0.96,
+	"wool_waistcoat": 0.82,
 }

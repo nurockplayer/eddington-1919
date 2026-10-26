@@ -135,3 +135,35 @@ max_texture_px = 0
 skip_checks = ["object_origins"]  # hat/moustache are parented to the head bone
 history = "RECONSTRUCTION: moustache and soft felt hat from a c.1910 Thrapston shop photo (Lemos 2019 Fig. 5, caption-only identification); everything else invented."
 status = "in-game"
+
+[asset.eddington_cambridge]
+category = "character"
+source = "mpfb_procedural"
+build = "art/pipeline/blender/build_person.py eddington_cambridge"
+export = "assets/models/eddington_cambridge.glb"
+concept = "art/people/REFERENCE.md"
+dims_m = [0.55, 0.38, 1.78]
+dims_tolerance = 0.2
+bounds_centre_offset_m = [0.0, -0.07] # Posed head/hands extend forward; soles remain at z=0.
+tri_budget = 16000
+max_materials = 10
+max_texture_px = 0
+skip_checks = ["object_origins"] # Skinned geometry and bone-parented spectacles.
+history = "RECONSTRUCTION: 1917 dark three-piece suit, height and pose; likeness cues from the documented c.1915 Eddington portrait."
+status = "in-game"
+
+[asset.ashby]
+category = "character"
+source = "mpfb_procedural"
+build = "art/pipeline/blender/build_person.py ashby"
+export = "assets/models/ashby.glb"
+concept = "art/people/REFERENCE.md"
+dims_m = [0.55, 0.65, 1.70]
+dims_tolerance = 0.2
+bounds_centre_offset_m = [0.0, -0.20]
+tri_budget = 16000
+max_materials = 10
+max_texture_px = 0
+skip_checks = ["object_origins"] # Skinned geometry and bone-parented moustache.
+history = "FICTION / RECONSTRUCTION: generic older astronomer Ashby; invented features, dark suit, height and desk pose."
+status = "in-game"

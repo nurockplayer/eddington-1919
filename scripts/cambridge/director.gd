@@ -3,6 +3,7 @@ extends Node3D
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const ExistingDirector := preload("res://scripts/main.gd")
 const Room := preload("res://scripts/cambridge/room_builder.gd")
+const Figures := preload("res://scripts/cambridge/figures.gd")
 const Player := preload("res://scripts/player.gd")
 const UI := preload("res://scripts/ui.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
@@ -31,7 +32,9 @@ var _clock_t := 0.0
 var _light_t := 0.0
 var _daylight := false
 var _camera_turn: Tween
-var _speaker_fill: OmniLight3D
+var _speaker_fill: SpotLight3D
+var _lens_tween: Tween
+var _conversation_active := false
 var _last_speaker := ""
 var score: Node
 var tick: AudioStreamPlayer
@@ -59,17 +62,20 @@ func _ready() -> void:
 	ui.restart_pressed.connect(func(_same): get_tree().paused = false; get_tree().reload_current_scene())
 	ui.dialogue_done.connect(_dialogue_done)
 	ui.dialogue_entry.connect(_frame_speaker)
+	ui.cambridge_portraits = true
 	# Cambridge dialogue stays below the standing figures, including at 720p.
 	ui.dialog_panel.offset_top = -214
 	ui.dialog_panel.offset_bottom = -18
 	ui.dialog_panel.custom_minimum_size.y = 196
-	_speaker_fill = OmniLight3D.new()
+	_speaker_fill = SpotLight3D.new()
 	_speaker_fill.name = "DialogueBounce"
 	_speaker_fill.light_color = Color(1.0, 0.86, 0.69)
-	_speaker_fill.omni_range = 4.0
-	_speaker_fill.omni_attenuation = 1.3
+	_speaker_fill.spot_range = 4.0
+	_speaker_fill.spot_angle = 52.0
+	_speaker_fill.spot_attenuation = 1.3
 	_speaker_fill.light_specular = 0.0
-	_speaker_fill.shadow_enabled = false
+	_speaker_fill.shadow_enabled = true
+	_speaker_fill.light_size = 0.1
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
 	ui.log_toggled.connect(func(_open): _sync_player())
@@ -203,6 +209,7 @@ func _say(seq: Array, purpose: String) -> void:
 
 
 func _frame_speaker(speaker: String) -> void:
+	_set_conversation(true)
 	var actor: Node3D
 	match speaker:
 		Cast.KIT: actor = world.kit
@@ -216,11 +223,12 @@ func _frame_speaker(speaker: String) -> void:
 	if _camera_turn:
 		_camera_turn.kill()
 	var to_actor: Vector3 = actor.global_position - player.global_position
-	actor.rotation.y = atan2(-to_actor.x, -to_actor.z) + PI
+	if actor == world.kit:
+		actor.rotation.y = atan2(-to_actor.x, -to_actor.z) + PI
 	# Show the standing figure at conversation distance; keep the face in frame
 	# when a player talks from close to the actor's collision capsule.
 	var distance: float = Vector2(to_actor.x, to_actor.z).length()
-	var focus_height := lerpf(1.5, 0.85, smoothstep(1.0, 2.5, distance))
+	var focus_height := lerpf(1.5, 1.1, smoothstep(1.0, 2.5, distance))
 	var target := actor.global_position + Vector3(0, focus_height, 0)
 	var direction: Vector3 = target - player.camera.global_position
 	var yaw: float = player.yaw + wrapf(atan2(-direction.x, -direction.z) - player.yaw, -PI, PI)
@@ -228,13 +236,27 @@ func _frame_speaker(speaker: String) -> void:
 	_camera_turn = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_camera_turn.tween_property(player, "yaw", yaw, 0.4)
 	_camera_turn.tween_property(player, "pitch", pitch, 0.4)
-	var toward_camera: Vector3 = (player.global_position - actor.global_position).normalized()
-	_speaker_fill.position = actor.global_position + toward_camera * 1.0 + Vector3(0, 1.5, 0)
+	# A low-energy side bounce preserves the nose/cheek shadow; the desk lamp
+	# and window carry the scene, rather than a camera-mounted face wash.
+	_speaker_fill.position = actor.global_position + Vector3(1.15, 2.05, 0.7)
+	_speaker_fill.look_at(actor.global_position + Vector3(0, 1.4, 0))
 	_speaker_fill.light_color = Color(0.78, 0.85, 0.93) if _daylight else Color(1.0, 0.86, 0.69)
-	_speaker_fill.light_energy = 0.85
+	_speaker_fill.light_energy = 0.28
+
+
+func _set_conversation(active: bool) -> void:
+	Figures.show_name_tags([world.kit, world.mentor, world.eddington], not active)
+	if _conversation_active == active:
+		return
+	_conversation_active = active
+	if _lens_tween:
+		_lens_tween.kill()
+	_lens_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_lens_tween.tween_property(player.camera, "fov", 55.0 if active else 72.0, 0.4)
 
 
 func _dialogue_done(results: Dictionary) -> void:
+	_set_conversation(false)
 	if _camera_turn:
 		_camera_turn.kill()
 	_speaker_fill.light_energy = 0.0

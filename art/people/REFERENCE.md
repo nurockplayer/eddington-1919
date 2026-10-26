@@ -43,3 +43,33 @@ Research by a Sonnet 5.5 subagent (web, 2026-10-20). It cites only sources that 
 - Trinity College archive, Príncipe letters (catalogue only): https://archives.trin.cam.ac.uk/index.php/letters-from-a-s-eddington-to-sarah-ann-eddington-madeira-and-the-eclipse-at-principe
 
 **Best next leads (not yet opened):** the Royal Society *Notes and Records* article on Cottingham (it returned 403), the transcripts of Eddington's Príncipe letters, and a 1919 *Illustrated London News* portrait.
+
+## Cambridge people slice (2026-10-26 JST)
+
+Eddington in October 1917 is 34. `eddington_cambridge` uses the same body macros
+as `eddington`, without a hat, with the documented c.1915 likeness cues above
+(clean-shaven, dark brushed-back hair, slender build and spectacles). The dark
+wool three-piece suit, pale collar, tie, height and inclination toward the
+papers are **RECONSTRUCTION**. His body is a world silhouette, not a realistic
+facial likeness. His approved dialogue prints carry identity and expression.
+
+Ashby is **fictional**. The generic older MPFB features, age about 60, grey hair,
+full grey moustache, dark suit/waistcoat, height and desk posture are invented;
+no real person's likeness is claimed. The moustache is repo-authored geometry,
+not a community hair asset. Both Cambridge figures are deliberately still so
+hands and spectacles remain attached to their authored pose.
+
+Approved portrait originals, unaltered at 1254 × 1254 pixels, are copied from
+`art/runs/p02-portraits/` into `assets/portraits/`. Their manifest ids are:
+
+| Runtime file | p02 manifest id |
+|---|---|
+| `eddington_neutral.jpg` | `eddington_1917-P1-gpt-1-neutral` |
+| `eddington_intent.jpg` | `eddington_1917-P1-gpt-2-intent` |
+| `ashby_neutral.jpg` | `ashby_1917-P1-gpt-1-neutral` (reused from p01 `ashby_1917-P1-gpt-1`) |
+| `ashby_doubt.jpg` | `ashby_1917-P1-gpt-2-doubt` |
+
+These are generated reconstructions approved by the Owner on 2026-10-25 JST,
+not historical photographs. Each displayed print is captioned exactly
+`重建肖像，非歷史照片`. Expression lookup supports an optional entry `mood` and
+falls back to neutral; this slice adds no mood keys to authored dialogue.
