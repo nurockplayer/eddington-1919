@@ -18,13 +18,12 @@
 - Use `ds-restart` (a herdr tab) only for interactive tasks. Close an idle DS tab after hand-off with `herdr pane close <pane>`.
 - One task per worker worktree at a time: never an open DS tab plus a `ds-exec` run on the same worker.
 
-**DeepSeek briefs are pre-digested (Owner, 2026-10-26, all projects).** DS is billed per token, and every call resends the worker's whole context. The median DS session on 2026-10-25/26 made about 140 tool calls at about 90k tokens each, mostly searching for code.
-- The lead explores first. The brief names the files and line ranges or functions to change, the intended change (a diff sketch where possible), and the exact `orb-test` command. The worker only edits.
+**Leads think, workers execute (Owner, 2026-10-26, all projects; replaces "DeepSeek briefs are pre-digested").** This applies to every worker: DeepSeek, Codex Sol/Luna and Haiku subagents. Understanding the problem, finding the code and deciding the change is the lead's job. A worker starts with an empty context and only carries out its brief. Cost is context × calls: the median DS session on 2026-10-25/26 made about 140 tool calls at about 90k tokens each, mostly searching for code.
+- The brief gives the answer, not just the goal: files and line ranges or functions, the intended change (a diff sketch where possible), and the exact `orb-test` command. The worker edits; it does not survey the codebase.
 - One brief, one change; split anything bigger.
-- Never point the worker at large or generated files (portrait/run JSON, images, `build/`, long logs). Give `grep`, `jq` or `sed -n` ranges in the brief instead.
-- Exploration, data regeneration, research or judgement goes to Codex (Sol/Luna) or the lead.
-- `ds-exec` caps a run at 40 turns (`DS_MAX_TURNS`). Raise the cap only with the reason written in the brief. Hitting the cap means the brief was too big.
-- Each run's token usage is logged in `~/.local/state/ds-exec/usage.tsv`.
+- Never point a worker at large or generated files (run JSON, images, `build/`, long logs). Give `grep`, `jq` or `sed -n` ranges in the brief instead.
+- Judgement stays with the lead, or goes to Sol as a scoped question. Research goes to `oracle-ego`. A data regeneration or long run goes out as the exact command to run.
+- `ds-exec` caps a run at 40 turns (`DS_MAX_TURNS`). Raise the cap only with the reason written in the brief. Hitting the cap means the brief was too big. Usage: `~/.local/state/ds-exec/usage.tsv`.
 - Always run `quota-advisor --tier ...` first. After the Codex weekly reset (2026-10-26 12:00 JST) it says PRIME, so Codex goes first.
 
 **Time-zone rule (Owner, 2026-10-26, all projects):** every written time carries its zone, like a PostgreSQL timestamptz: `2026-10-26 01:40 JST` or `2026-10-26T01:40+09:00`, never a bare `01:40`.
