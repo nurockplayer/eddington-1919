@@ -22,6 +22,7 @@ const CENTRE := Vector2(68.0, 20.0)  # field centre (RA, Dec), degrees
 const SPAN := 24.0  # degrees across the screen height
 
 var target: ColorRect  # the UI fade rect whose alpha we follow
+var drop := 0.0  # shifts the field down by this fraction of the screen height
 var _stars: Array = []  # [Vector2 unit position, radius, brightness, phase, speed, colour]
 var _t := 0.0
 
@@ -61,7 +62,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var h := size.y
-	var c := size * 0.5
+	var c := size * 0.5 + Vector2(0, drop * h)
 	for s in _stars:
 		var twinkle := 0.72 + 0.28 * sin(_t * s[4] + s[3])
 		var col: Color = s[5]
