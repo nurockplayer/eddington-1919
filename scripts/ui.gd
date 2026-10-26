@@ -4,6 +4,7 @@ const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Content := preload("res://scripts/content.gd")
 const Strip := preload("res://scripts/totality_strip.gd")
 const DialoguePortrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
+const FadeStars := preload("res://scripts/fade_stars.gd")
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -109,6 +110,9 @@ func _ready() -> void:
 	fade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(fade)
+	var stars := FadeStars.new()
+	stars.target = fade
+	fade.add_child(stars)
 	caption = Label.new()
 	caption.set_anchors_preset(Control.PRESET_FULL_RECT)
 	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
