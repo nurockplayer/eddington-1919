@@ -1,0 +1,3 @@
+[submodule "assets/licensed"]
+	path = assets/licensed
+	url = https://github.com/nurockplayer/eddington-1919-assets.git

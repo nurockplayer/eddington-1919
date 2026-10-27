@@ -87,7 +87,7 @@ body = "skin"
 hair = "hair_dark"
 eyebrows = "hair_dark"
 eyes = "eye_dark"
-suit = "wool_slate"
+suit = "wool_tweed"
 shoes = "leather"
 [person.eddington_cambridge.decimate]
 suit = 0.4
@@ -115,7 +115,7 @@ body = "skin"
 hair = "hair_grey"
 eyebrows = "hair_grey"
 eyes = "eye_dark"
-suit = "wool_umber"
+suit = "wool_slate_dark"
 shoes = "leather"
 [person.ashby.decimate]
 suit = 0.4
