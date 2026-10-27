@@ -1,6 +1,6 @@
 """Human Generator (HG) character prototype — evaluation route, NOT a shipping build.
 
-    blender -b --python art/pipeline/blender/hg_person.py -- <out_dir> [--stills]
+    blender -b --python art/pipeline/blender/hg_person.py -- <out_dir> [--stills] [--hair=<json path>]
 
 Requires full Human Generator content in the isolated Blender user directory
 /Volumes/KIOXIA/eddington-1919-cache/hg-full/blender_user (evaluation only).
@@ -30,6 +30,7 @@ from HumGen3D import Human  # noqa: E402
 from HumGen3D.backend.preferences.preference_func import get_prefs  # noqa: E402
 
 PRESET = "models/male/Caucasian Presets/Caucasian 1.json"
+HAIR = "hair/head/male/Aged/Thin Side Comb.json"  # relative to the HG content dir
 
 # Reference likeness (art/people/REFERENCE.md): long narrow face, high forehead,
 # deep-set eyes, slim build, dark short hair parted on the left, clean-shaven.
@@ -94,7 +95,7 @@ MPFB_USER = [Path("/Volumes/KIOXIA/eddington-1919-cache/mpfb/blender_user"),
              Path("/private/tmp/eddington-1919-cache/mpfb/blender_user")]
 
 
-def build() -> Human:
+def build(hair: str = HAIR) -> Human:
     for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
     h = Human.from_preset(PRESET, bpy.context)
@@ -106,7 +107,7 @@ def build() -> Human:
     for k in h.keys.all_livekeys:
         if k.name in LIVEKEYS:
             k.value = LIVEKEYS[k.name]
-    h.hair.regular_hair.set("hair/head/male/Aged/Thin Side Comb.json")
+    h.hair.regular_hair.set(hair)
     hair_colour(h)
     h.eyes.set_from_dict({"pupil_color": [0.16, 0.13, 0.10, 1.0], "sclera_color": [0.93, 0.9, 0.86, 1.0]})
     h.expression.load_facial_rig()
@@ -606,7 +607,8 @@ def main() -> None:
     argv = sys.argv[sys.argv.index("--") + 1:]
     out = Path(argv[0])
     out.mkdir(parents=True, exist_ok=True)
-    h = build()
+    hair = next((a.split("=", 1)[1] for a in argv if a.startswith("--hair=")), HAIR)
+    h = build(hair)
     lm = landmarks(h)
     face_shape(h, lm)
     print_face_measure("final", h)
