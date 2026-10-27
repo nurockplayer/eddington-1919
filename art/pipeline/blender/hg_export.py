@@ -92,6 +92,69 @@ def scalp_zone(body: bpy.types.Object, strands: list) -> None:
     att.data.foreach_set("color", vals)
 
 
+def bake_surface(ob: bpy.types.Object, out: Path) -> tuple:
+    """Bake the intact skin shader before albedo cleanup removes its inputs."""
+    nt = ob.data.materials[0].node_tree
+    bump = next(n for n in nt.nodes if n.type == "BUMP")
+    bump.inputs["Strength"].default_value = 0.0
+    sc = bpy.context.scene
+    sc.render.engine = "CYCLES"
+    sc.cycles.samples = 4
+    sc.cycles.device = "GPU"
+    for o in bpy.context.selected_objects:
+        o.select_set(False)
+    ob.select_set(True)
+    bpy.context.view_layer.objects.active = ob
+    images = []
+    for name, bake_type in (("skin_rough", "ROUGHNESS"), ("skin_normal", "NORMAL")):
+        img = bpy.data.images.new(name, BAKE, BAKE)
+        img.colorspace_settings.name = "Non-Color"
+        targets = []
+        for i, mat in enumerate(ob.data.materials):
+            tex = mat.node_tree.nodes.new("ShaderNodeTexImage")
+            tex.image = img if i == 0 else bpy.data.images.new("_surface_scratch", 8, 8)
+            mat.node_tree.nodes.active = tex
+            targets.append((mat.node_tree, tex))
+        if bake_type == "NORMAL":
+            bpy.ops.object.bake(type=bake_type, normal_space="TANGENT", margin=8)
+        else:
+            bpy.ops.object.bake(type=bake_type, margin=8)
+        img.filepath_raw = str(out / f"{name}.png")
+        img.file_format = "PNG"
+        img.save()
+        for tree, tex in targets:
+            scratch = tex.image if tex.image != img else None
+            tree.nodes.remove(tex)
+            if scratch:
+                bpy.data.images.remove(scratch)
+        images.append(img)
+    return tuple(images)
+
+
+def export_surface(ob: bpy.types.Object, rough: bpy.types.Image, normal: bpy.types.Image) -> None:
+    """Replace the original skin normal and roughness graph with baked maps."""
+    nt = ob.data.materials[0].node_tree
+    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    for n in list(nt.nodes):
+        if n.type in ("BUMP", "NORMAL_MAP") or (
+                n.type == "TEX_IMAGE" and n.image and n.image.name.startswith("aged_layer_normal_4K")):
+            nt.nodes.remove(n)
+    rt = nt.nodes.new("ShaderNodeTexImage")
+    rt.image = rough
+    sep = nt.nodes.new("ShaderNodeSeparateColor")
+    nt.links.new(rt.outputs["Color"], sep.inputs[0])
+    nt.links.new(sep.outputs["Green"], bsdf.inputs["Roughness"])
+    for n in list(nt.nodes):
+        if n.type == "MATH" and not n.outputs[0].links:
+            nt.nodes.remove(n)
+    normal_tex = nt.nodes.new("ShaderNodeTexImage")
+    normal_tex.image = normal
+    normal_map = nt.nodes.new("ShaderNodeNormalMap")
+    normal_map.inputs["Strength"].default_value = 1.0
+    nt.links.new(normal_tex.outputs["Color"], normal_map.inputs["Color"])
+    nt.links.new(normal_map.outputs["Normal"], bsdf.inputs["Normal"])
+
+
 def bake_albedo(ob: bpy.types.Object, name: str, out: Path, slot: int = 0) -> bpy.types.Image:
     """Bake the material's Base Color input through an emission shader."""
     mat = ob.data.materials[slot]
@@ -211,7 +274,9 @@ def main() -> None:
     body = h.objects.body
     cards = haircards(h)
     scalp_zone(body, cards)
+    rough, normal = bake_surface(body, out)
     bake_albedo(body, "skin_albedo", out)
+    export_surface(body, rough, normal)
     eyes = h.objects.eyes
     inner = next(i for i, m in enumerate(eyes.data.materials) if "Inner" in m.name)
     bake_albedo(eyes, "eye_albedo", out, inner)
