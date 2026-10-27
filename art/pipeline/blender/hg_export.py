@@ -1,12 +1,12 @@
 """Export the HG prototype (hg_person.py output) to a Godot-ready GLB.
 
-    blender -b <out_dir>/eddington_hg.blend --python art/pipeline/blender/hg_export.py -- <out_dir>
+    blender -b <out_dir>/<person>_hg.blend --python art/pipeline/blender/hg_export.py -- <out_dir>
 
   particle hair/eyebrows → HG haircards (convert_to_haircards)
   painted skin + suit node graphs → baked 2K albedo images (Cycles emission bake)
   masked body under the suit → deleted (shape keys kept), subsurf dropped
   posed arms → one-frame "idle" action; FACS shape keys → glTF morph targets
-  → <out_dir>/eddington_hg.glb
+  → <out_dir>/<person>_hg.glb (named from the opened .blend)
 
 The GLB contains HG assets: it stays outside the public repo (see hg_person.py).
 """
@@ -213,19 +213,22 @@ def bake_albedo(ob: bpy.types.Object, name: str, out: Path, slot: int = 0) -> bp
 
 
 def bake_base_keys(ob: bpy.types.Object) -> None:
-    """Fold HG's base keys (Male, LIVE_KEY_*) and our eddington_face into the mesh,
-    as HG's own exporter does (_apply_base_shape_keys); every other key keeps its
-    offset. Without this Godot shows the raw base head (morph weights default 0)
-    and the eye sockets no longer meet the eyeballs."""
+    """Fold HG's base keys (Male/Female, LIVE_KEY_*) and our eddington_face into
+    the mesh, as HG's own exporter does (_apply_base_shape_keys); every other key
+    keeps its offset. Without this Godot shows the raw base head (morph weights
+    default 0) and the eye sockets no longer meet the eyeballs. `female` matters
+    for the c03 Kit bake-off, whose body is the female base."""
     keys = ob.data.shape_keys
     if not keys:
         return
     kb = keys.key_blocks
     basis = kb[0]
     n = len(ob.data.vertices)
+    folded = []
     for name in [k.name for k in kb[1:]]:
-        if not name.lower().startswith(("male", "live_key", "eddington_face")):
+        if not name.lower().startswith(("male", "female", "live_key", "eddington_face")):
             continue
+        folded.append(name)
         sk = kb[name]
         rel = sk.relative_key
         delta = [(sk.data[i].co - rel.data[i].co) * sk.value for i in range(n)]
@@ -237,7 +240,7 @@ def bake_base_keys(ob: bpy.types.Object) -> None:
         ob.shape_key_remove(sk)
     for i in range(n):
         ob.data.vertices[i].co = basis.data[i].co
-    print("DBG baked keys", ob.name, len(ob.data.shape_keys.key_blocks))
+    print("DBG baked keys", ob.name, folded, len(ob.data.shape_keys.key_blocks))
 
 
 def drop_masked(body: bpy.types.Object) -> None:
@@ -291,11 +294,14 @@ def main() -> None:
     drop_masked(body)
     idle_action(rig)
     objs = [rig, body, h.objects.eyes, h.objects.lower_teeth, h.objects.upper_teeth, suit] + cards
+    glasses = bpy.data.objects.get("Kit_Glasses")  # procedural, parented to the head bone
+    if glasses:
+        objs.append(glasses)
     for o in bpy.data.objects:
         o.select_set(o in objs)
     print("DBG export", [(o.name, o.type, len(o.data.vertices) if o.type == "MESH" else 0,
                           len(o.data.shape_keys.key_blocks) if o.type == "MESH" and o.data.shape_keys else 0) for o in objs])
-    bpy.ops.export_scene.gltf(filepath=str(out / "eddington_hg.glb"), export_format="GLB", use_selection=True,
+    bpy.ops.export_scene.gltf(filepath=str(out / (Path(bpy.data.filepath).stem + ".glb")), export_format="GLB", use_selection=True,
                               export_apply=False, export_morph=True, export_skins=True, export_animations=True,
                               export_copyright="Human Generator Asset License — not for redistribution")
 
