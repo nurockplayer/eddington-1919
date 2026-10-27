@@ -400,7 +400,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 
 	# Kit waits at the far end of the table and is reachable from either side.
 	# Blockout colours from the c01 Kit v3 draft: pale linen dust coat over a grey pullover.
-	var kit := _npc_without_hat(w, Cast.KIT, Vector3(-2.1, 0, 0.5) if departure else Vector3(2.7, 0, 0.85), Color(0.74, 0.71, 0.64), Color(0.33, 0.33, 0.34), "kit")
+	var kit := _npc_without_hat(w, Cast.KIT, Vector3(-2.1, 0, 0.5) if departure else Vector3(2.7, 0, 0.85), Color(0.55, 0.53, 0.48), Color(0.33, 0.33, 0.34), "kit")
 	kit.rotation.y = deg_to_rad(155)
 	out.kit = kit
 	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position

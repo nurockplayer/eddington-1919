@@ -19,3 +19,7 @@ Captured 2026-10-27 23:40–23:46 JST: windowed Godot, `--prologue-autoplay=hone
 2. Material tweak round (no rebuild): Ashby's slate darker and greyer, Kit's coat value down to about 0.55.
 3. Face rig (blink/gaze) for the principals; needed even for shot A.
 4. Shot A staging: lamp-lit two-shot camera and set dressing for the study, measured against `study_mid`.
+
+## Round 2 (2026-10-28 01:40 JST, Owner approved the order above)
+- Ashby → new swatch `wool_slate_dark` #4E5258 (people.toml too, so a rebuild matches); Kit's coat value 0.74 → 0.55. Headless prologue honest seed 77: ENDING, failures=[].
+- Windowed check of the new values runs in the 03:00 JST window together with the Kit bake-off shots.

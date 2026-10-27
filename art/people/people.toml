@@ -115,7 +115,7 @@ body = "skin"
 hair = "hair_grey"
 eyebrows = "hair_grey"
 eyes = "eye_dark"
-suit = "wool_slate"
+suit = "wool_slate_dark"
 shoes = "leather"
 [person.ashby.decimate]
 suit = 0.4
