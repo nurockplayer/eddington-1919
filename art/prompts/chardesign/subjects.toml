@@ -19,6 +19,7 @@ Posture: upright but a little reserved and shy, shoulders slightly forward, hand
 # separate by value and silhouette at 20-110 px face size (SHOTS.md).
 
 [ashby_1917]
+status = "approved"  # Owner 2026-10-27 21:05 JST; baseline, do not regenerate
 version = "v1"
 kind = "keyframe"
 text = """
@@ -39,6 +40,7 @@ a pencil behind one ear, a faint ink stain on one cuff. Fictional and generic: m
 any identifiable real person."""
 
 [kit_1917_v2]
+status = "rejected"  # Owner 2026-10-27: reads as a butch lesbian, not a neutral everyday assistant
 version = "v2"  # v1 read clearly as a young woman; Kit has no stated gender
 kind = "keyframe"
 text = """
@@ -51,6 +53,7 @@ a mid blue-grey waistcoat, dark trousers, sturdy flat shoes, a pencil behind one
 a faint ink stain on one cuff. Fictional and generic: must not resemble any identifiable real person."""
 
 [eddington_1917_v2]
+status = "approved"  # Owner 2026-10-27 21:05 JST; baseline, do not regenerate
 version = "v2"  # v1 dark umber suit merges with a dark study (cast_lineup_dark.jpg)
 kind = "keyframe"
 text = """
@@ -62,3 +65,15 @@ Reconstruction: a three-piece lounge suit in a mid warm brown-grey herringbone t
 than charcoal, with a buttoned waistcoat, a stiff white turn-down collar, a dark narrow tie, \
 polished dark leather shoes, a watch chain across the waistcoat, no hat. \
 Posture: upright but a little reserved and shy, shoulders slightly forward, hands relaxed."""
+
+[kit_1917_v3]
+version = "v3"  # v2 rejected by the Owner; drop the cropped-hair, sleeve-garter work look
+kind = "keyframe"
+text = """
+A fictional young assistant at a Cambridge observatory in 1917, about twenty-two, an ordinary, \
+quiet and bookish person whose sex the viewer cannot tell and does not think about; not a fashion \
+statement and not a tomboy look. Youthful soft features, round thin wire spectacles, a gentle \
+curious expression. Soft wavy brown hair of medium length, loosely tucked behind the ears and \
+reaching the collar. A long pale linen work dust coat, open, worn over a grey knitted pullover \
+and a white shirt collar, dark trousers, plain flat shoes, a pencil in the coat's breast pocket, \
+a faint blue ink mark on one finger. Fictional and generic: must not resemble any identifiable real person."""

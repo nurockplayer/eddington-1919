@@ -37,3 +37,19 @@ The Owner question: is the game shot A (keep first person, faces up to
 ~110 px, close emotion carried by the 2D portraits) or B (add cinematic
 close-ups)? A means a 3D face only needs a good read at that size; B adds
 hero-face sculpting per principal (step 4) and a close-up camera system.
+
+## Owner decisions (2026-10-27 21:05 JST)
+- **Shot A is the production baseline** (first person, faces up to ~110 px).
+  Keep the option of B (cinematic close-ups) for a few key story beats later;
+  do not build the B camera system now, and do not make asset choices that rule
+  B out.
+- **Eddington v2 approved** as the visual direction. Before final modelling,
+  check likeness against the historical photos and keep documented vs
+  reconstructed features apart.
+- **Ashby approved.**
+- **Kit v2 rejected**: it read as a butch lesbian, not an ordinary neutral
+  assistant. Regenerated as `kit_1917_v3` (2 variants): bookish, round wire
+  spectacles, soft medium hair, a long pale linen dust coat over a grey
+  pullover. Lead pick v3-1; Owner to confirm.
+- The approved sheets are the visual baseline: do not regenerate them. They
+  are concept art, not finished 3D assets.
