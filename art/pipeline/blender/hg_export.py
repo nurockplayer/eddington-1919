@@ -22,19 +22,25 @@ from HumGen3D import Human  # noqa: E402
 
 BAKE = 2048
 HAIR = (0.018, 0.012, 0.009, 1.0)
+# Strand colour per exported blend (linear); HG's Lightness/Redness only reach its own shader.
+HAIR_BY_STEM = {"kit_hg": (0.06, 0.034, 0.018, 1.0)}
 
 
 def haircards(h: Human) -> list:
     """Particle hair → thin ribbon strips, plus a hair-coloured scalp in the bake.
     HG's own convert_to_haircards needs hair/haircards/* which the trial lacks
     (Errno 2 on HairMediumLength_zones.json), so this is a stand-in."""
+    global HAIR
+    HAIR = HAIR_BY_STEM.get(Path(bpy.data.filepath).stem, HAIR)
     body = h.objects.body
     objs = []
     for m in [m for m in body.modifiers if m.type == "PARTICLE_SYSTEM"]:
         st = m.particle_system.settings
         if not (m.show_render and m.show_viewport) or st.count == 0:
             continue
-        head = m.particle_system.name.startswith("hair")
+        # HG female content names head systems A_base_*/B_strands, not hair_*:
+        # only eyebrow/eyelash systems take the fine-brow branch.
+        head = not m.particle_system.name.lower().startswith(("eyebrow", "brow", "eyelash"))
         if head:  # ~3000 strands per system: enough to read as hair, cheap in Godot
             st.child_percent = max(1, min(100, int(100 * 3000 / (st.count * max(1, st.rendered_child_count)))))
         else:  # brows: fewer, finer hairs so they read as hair, not a painted bar

@@ -99,8 +99,11 @@ PERSONS = {
     },
     "kit": {  # c03 bake-off against the MPFB route (people.toml [person.kit])
         "preset": "models/female/Caucasian presets/Caucasian 1.json",
-        "hair": "hair/head/female/Long/Bob Short.json",
+        # c03 r2 (lead): Bob Short read as a blunt fringe wig; the design's hair is
+        # side-parted and pushed back, no fringe.
+        "hair": "hair/head/male/Long/Medium Side Part.json",
         "age": 23,
+        "height_cm": 168,
         # A slight neutralising push only (Kit reads neither as a woman nor as
         # butch); the c03 values are all this character gets.
         "livekeys": {"skinny": 0.55, "jaw_width": 0.15, "browridge_center_size": 0.25},
@@ -154,6 +157,8 @@ def build(hair: str = "") -> Human:
             k.value = PERSON["livekeys"][k.name]
             applied.append((k.name, k.value))
     print("HG_LIVEKEYS_SET", applied, flush=True)
+    if "height_cm" in PERSON:
+        h.height.set(PERSON["height_cm"], bpy.context)
     print("HG_HEIGHT cm", h.height.centimeters, flush=True)
     h.hair.regular_hair.set(hair or PERSON["hair"])
     hair_colour(h)
