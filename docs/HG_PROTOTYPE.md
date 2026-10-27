@@ -160,3 +160,15 @@ Next options for the Owner:
 2. Cut the hair density, and lower its anisotropy and specular.
 3. Get the likeness from a sculpt pass by hand, or by an artist.
 4. Re-run the oracle comparison once ChatGPT is logged in again.
+
+Oracle review of r1 (GPT-6, 2026-10-27 19:50 JST; full answer: KIOXIA `r1/oracle_r1_compare.md`):
+- **Overall:** a technical improvement, but not an artistic one. The first prototype arguably has the more sympathetic face.
+- **Likeness:** the stronger jaw, cheekbones and brow read as "modern leading man", which moves away from Eddington rather than toward him.
+- **Hair:** clearly worse, a dense helmet with specular hotspots.
+- **Eyes:** the irises look washed out.
+- **Smile:** it stops at the mouth corners.
+- **Next, ranked by payoff per effort:**
+  1. Cut hair density and specular.
+  2. Use HG's skin textures and drop the painted zones.
+  3. A targeted hand sculpt for likeness: narrower jaw, softer brow and cheekbones, higher hairline.
+  An outside artist is premature.
