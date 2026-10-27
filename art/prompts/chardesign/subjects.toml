@@ -1,0 +1,64 @@
+# Facial cues for Eddington come only from art/people/REFERENCE.md and
+# art/prompts/portrait/subjects.toml (v2). Dress is RECONSTRUCTION.
+# kind = "keyframe" only selects the 16:9 aspect in gen.py.
+
+[eddington_1917]
+version = "v1"
+kind = "keyframe"
+text = """
+Arthur Stanley Eddington in 1917, aged 34, Plumian Professor at Cambridge. \
+Documented appearance: clean-shaven, a narrow long face, a high forehead, strong dark brows, \
+dark hair brushed back with a slight side parting and receding at the temples, \
+rimless pince-nez clipped at the nose bridge with no temple arms, a slender build, about 1.78 m tall. \
+Reconstruction: a three-piece lounge suit with a buttoned waistcoat, a stiff white turn-down collar, \
+a dark narrow tie, polished dark leather shoes, a watch chain across the waistcoat, no hat. \
+Posture: upright but a little reserved and shy, shoulders slightly forward, hands relaxed."""
+
+# Cast value plan (lead, 2026-10-27): Eddington = dark umber tweed,
+# Ashby = mid slate grey, Kit = lightest (shirt sleeves), so the three
+# separate by value and silhouette at 20-110 px face size (SHOTS.md).
+
+[ashby_1917]
+version = "v1"
+kind = "keyframe"
+text = """
+A fictional Edwardian astronomer, "Mr Ashby", about 60 years old, senior and exacting but kindly. \
+Grey hair and a full grey moustache, a broader, slightly stooped build, a little shorter than average. \
+A mid slate-grey three-piece wool suit with a waistcoat and a watch chain, a stiff white collar, \
+a dark tie, dark boots. Fictional and generic: he must not resemble any identifiable real person."""
+
+[kit_1917]
+version = "v1"
+kind = "keyframe"
+text = """
+A fictional young plate measurer at a Cambridge observatory in 1917, in their mid twenties, \
+deliberately androgynous: neither clearly a man nor a woman. Short practical cropped hair, \
+a light-boned build, average height. Working dress: a pale oatmeal shirt with the sleeves rolled \
+to the forearm and held by sleeve garters, a mid blue-grey waistcoat, dark trousers, sturdy flat shoes, \
+a pencil behind one ear, a faint ink stain on one cuff. Fictional and generic: must not resemble \
+any identifiable real person."""
+
+[kit_1917_v2]
+version = "v2"  # v1 read clearly as a young woman; Kit has no stated gender
+kind = "keyframe"
+text = """
+A fictional young plate measurer at a Cambridge observatory in 1917, in their mid twenties, \
+with a face that reads as neither male nor female: balanced, plain features, straight level brows, \
+no makeup, a calm neutral mouth, a slightly square jaw with soft cheeks. Hair a short, practical \
+side-parted crop, tidy at the back, not a bob and not a pixie cut. A light-boned build, average height. \
+Working dress: a pale oatmeal shirt with the sleeves rolled to the forearm and held by sleeve garters, \
+a mid blue-grey waistcoat, dark trousers, sturdy flat shoes, a pencil behind one ear, \
+a faint ink stain on one cuff. Fictional and generic: must not resemble any identifiable real person."""
+
+[eddington_1917_v2]
+version = "v2"  # v1 dark umber suit merges with a dark study (cast_lineup_dark.jpg)
+kind = "keyframe"
+text = """
+Arthur Stanley Eddington in 1917, aged 34, Plumian Professor at Cambridge. \
+Documented appearance: clean-shaven, a narrow long face, a high forehead, strong dark brows, \
+dark hair brushed back with a slight side parting and receding at the temples, \
+rimless pince-nez clipped at the nose bridge with no temple arms, a slender build, about 1.78 m tall. \
+Reconstruction: a three-piece lounge suit in a mid warm brown-grey herringbone tweed, clearly lighter \
+than charcoal, with a buttoned waistcoat, a stiff white turn-down collar, a dark narrow tie, \
+polished dark leather shoes, a watch chain across the waistcoat, no hat. \
+Posture: upright but a little reserved and shy, shoulders slightly forward, hands relaxed."""

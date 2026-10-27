@@ -1,0 +1,7 @@
+[D1_painted_realism]
+version = "v1"
+label = "Painted realism"
+style = """
+A real-time 3D game render in the manner of modern narrative games such as Life is Strange: \
+True Colors or Tell Me Why: realistic proportions, softened and slightly simplified skin and \
+cloth, painterly but solid forms, warm practical light with cool window fill."""
