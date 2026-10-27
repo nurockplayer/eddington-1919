@@ -30,13 +30,12 @@ static func tune_materials(n: Node) -> void:
 			m = m.duplicate()
 			var nm := String(mi.name)
 			if nm.begins_with("HG_Body"):
-				m.roughness = 0.55
+				# a baked roughness map (T-zone, lips) is scaled by m.roughness
+				m.roughness = 1.0 if m.roughness_texture else 0.55
 				m.subsurf_scatter_enabled = true
-				m.subsurf_scatter_strength = 0.2
+				m.subsurf_scatter_strength = 0.12
 				m.subsurf_scatter_skin_mode = true
-				m.rim_enabled = true
-				m.rim = 0.12
-				m.rim_tint = 0.6
+				m.rim_enabled = false
 			elif nm.begins_with("Brow_"):
 				m.cull_mode = BaseMaterial3D.CULL_DISABLED
 				m.albedo_color = Color(0.09, 0.065, 0.05)
@@ -54,11 +53,15 @@ static func tune_materials(n: Node) -> void:
 				m.rim_tint = 0.8
 			elif nm.begins_with("HG_Eyes") and m.resource_name.contains("Outer"):
 				# cornea: exported opaque white (HG's transparent outer shader
-				# has no glTF equivalent); make it a clear, wet highlight layer
+				# has no glTF equivalent). Alpha blending scales the specular by
+				# alpha too, so alpha 0 gave no highlight at all ("dead eyes");
+				# an additive black layer adds only the wet specular highlight.
 				m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-				m.albedo_color = Color(1, 1, 1, 0.0)
-				m.roughness = 0.02
-				m.metallic_specular = 1.0
+				m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+				m.albedo_texture = null
+				m.albedo_color = Color(0, 0, 0, 1)
+				m.roughness = 0.04
+				m.metallic_specular = 0.6
 			mi.set_surface_override_material(s, m)
 	for c in n.get_children():
 		tune_materials(c)
