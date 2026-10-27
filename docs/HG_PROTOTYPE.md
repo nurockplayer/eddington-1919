@@ -130,3 +130,33 @@ give "a better-textured preset person". CC5, MetaHuman and AI 3D are not recomme
 - Performance check: the GLB is 79 MB with full-resolution morphs and about 75k
   hair quads, so morph and LOD budgets are needed before shipping.
 - Oracle review: this is an evaluation branch, not for merge before the Owner decides.
+
+## Round r1: free fixes with the full HG (2026-10-27 18:00–19:20 JST)
+
+The Owner chose to try the no-cost fixes before buying. The Owner also owns a **personal-licence** full HG
+(Humble Bundle, content v4.1), approved for evaluation only. A commercial licence is still
+needed before release. It is installed in an isolated Blender user dir on KIOXIA (`hg-full/`), and
+`hg_person.py` now needs that install (`BLENDER_USER_RESOURCES`).
+
+Done:
+- **Look-dev light:** `hg_preview --light=studio` (neutral grey, no grade) is the default. `--light=study` uses a softer warm key.
+- **Skin:** SSS is down to 0.12 and the rim light is gone. Roughness and a tangent normal map are now baked into the GLB (#33); lips and the T-zone are glossier.
+- **Eyes:** the old cornea (alpha 0) also zeroed its specular. The cornea stays hidden, and the eyeball now has a soft clearcoat. The interim additive cornea glowed white and was dropped.
+- **Face:** the formula shape key was replaced by unlocked HG livekeys (jaw, chin, nose, cheek, brow, eye depth), tuned over 4 rounds (#34).
+  Measured from the base preset to the final face: eye→chin 115.5→117.1 mm, jaw width 135.6→132.1 mm, nose forward 47.6→54.2 mm.
+- **Hair:** `Regular/Slicked Back Side Part`. `Aged/Thin Side Comb` is broken in our pipeline: strands smear across the face.
+
+Result (KIOXIA `hg-prototype/r1/r1_sheet.jpg`, judged by the lead because the oracle was unavailable, since ChatGPT was logged out):
+not yet a clear win over the first prototype.
+- Better: the eyes, the neutral look-dev light, and the face shape moving the right way.
+- Still wrong:
+  - The likeness: the face still reads as a square-jawed modern man. Slider gains flattened out by round 4, so the next step is a hand sculpt.
+  - The hair: dense, with a hot anisotropic highlight and stray strand tips on the forehead. The GLB grew to 112 MB, about 1M hair vertices.
+  - The painted beard-shadow zone reads as pale blotches under strong light.
+  - The export still aborts after the GLB is written (exit 134/250, "Attempt to free nullptr pointer").
+
+Next options for the Owner:
+1. Replace the painted skin with HG's own skin textures, now unwatermarked.
+2. Cut the hair density, and lower its anisotropy and specular.
+3. Get the likeness from a sculpt pass by hand, or by an artist.
+4. Re-run the oracle comparison once ChatGPT is logged in again.
