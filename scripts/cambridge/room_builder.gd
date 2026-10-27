@@ -399,7 +399,8 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	out.targets["clock"] = clock_hotspot.position
 
 	# Kit waits at the far end of the table and is reachable from either side.
-	var kit := _npc_without_hat(w, Cast.KIT, Vector3(-2.1, 0, 0.5) if departure else Vector3(2.7, 0, 0.85), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit")
+	# Blockout colours from the c01 Kit v3 draft: pale linen dust coat over a grey pullover.
+	var kit := _npc_without_hat(w, Cast.KIT, Vector3(-2.1, 0, 0.5) if departure else Vector3(2.7, 0, 0.85), Color(0.74, 0.71, 0.64), Color(0.33, 0.33, 0.34), "kit")
 	kit.rotation.y = deg_to_rad(155)
 	out.kit = kit
 	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position

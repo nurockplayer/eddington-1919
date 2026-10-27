@@ -170,6 +170,13 @@ hex = "#4E463E"
 role = "structure"
 roughness = 0.96
 
+# c02 (2026-10-27): Eddington's approved design is a mid warm brown-grey
+# herringbone tweed (art/runs/c01-design), raised like the other coats.
+[swatch.wool_tweed]
+hex = "#67594C"
+role = "structure"
+roughness = 0.96
+
 [swatch.wool_waistcoat]
 hex = "#494747"
 role = "structure"
