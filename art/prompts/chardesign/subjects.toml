@@ -67,6 +67,7 @@ polished dark leather shoes, a watch chain across the waistcoat, no hat. \
 Posture: upright but a little reserved and shy, shoulders slightly forward, hands relaxed."""
 
 [kit_1917_v3]
+status = "approved: gpt-1; gpt-2 kept as candidate"  # Owner 2026-10-27 21:30 JST; do not regenerate
 version = "v3"  # v2 rejected by the Owner; drop the cropped-hair, sleeve-garter work look
 kind = "keyframe"
 text = """

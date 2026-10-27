@@ -53,3 +53,10 @@ hero-face sculpting per principal (step 4) and a close-up camera system.
   pullover. Lead pick v3-1; Owner to confirm.
 - The approved sheets are the visual baseline: do not regenerate them. They
   are concept art, not finished 3D assets.
+
+## Owner decision (2026-10-27 21:30 JST)
+- **Kit v3-1 approved** as the visual baseline; v3-2 kept as a candidate. No
+  further Kit generation.
+- Still open: an independent check that the costumes are historically
+  plausible (1917 Cambridge Observatory: dust coat, sleeve and collar styles,
+  suit cuts), separate from the image prompts.
