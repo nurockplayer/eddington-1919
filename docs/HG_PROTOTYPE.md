@@ -96,6 +96,32 @@ Alternatives, unchanged from the 2026-10-27 comparison:
 - CC5: Windows only.
 - A freelance hero character costs about US$2k–10k each.
 
+## Second opinion (oracle-ego, GPT-6, 2026-10-27 17:38 JST)
+
+The Owner judged the prototype below expectations. ChatGPT reviewed seven screenshots plus the
+export and material code. The full answer is in `oracle_art_critique.md` on KIOXIA.
+
+Ranked by visual impact:
+1. Face design: it reads as a modified preset, with a heavy, square jaw and no likeness. It
+   needs a sculpt pass from period portraits.
+2. Hair: an opaque black ribbon helmet with streaky anisotropy. It needs alpha haircards
+   with a flow map.
+3. Eyes: they look dead. The alpha-0 cornea gives no wet highlight, and the lid wrap is stiff.
+4. Lighting: the warm key blows out the cheek. Look-dev should use a neutral studio first.
+5. Skin: it has albedo only. It needs normal and roughness maps (T-zone, lips), and SSS
+   should drop to about 0.12 with no rim.
+6. In game, the face is about 60 px. The dialogue camera should frame it at 180–250 px.
+
+New lead, unverified in the trial: HG's Early Access "Process" system is said to include a
+Godot glb recipe, haircards with alpha, normal and flow maps, and a free Godot Companion
+for hair, SSS and the rig, tested on Godot 4.7. The Companion targets editor import, not our
+runtime `GLTFDocument` load.
+
+Price check: US$128 for commercial use, US$68 for personal use (Superhive).
+
+Verdict: HG commercial plus our own sculpt, look-dev and camera work. HG alone would only
+give "a better-textured preset person". CC5, MetaHuman and AI 3D are not recommended.
+
 ## Not done
 
 - Ashby (needs a moustache, which is locked).
