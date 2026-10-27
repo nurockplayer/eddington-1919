@@ -311,7 +311,7 @@ def skin_zones(h: Human, lm: dict) -> None:
         dark = max(g(p, e + Vector((0, -0.004, -0.014)), 0.014, sx=1.5) for e in (el, er)) * 0.7
         dark = max(dark, max(g(p, e + Vector((0, 0.004, 0.002)), 0.018, sx=1.3) for e in (el, er)) * 0.35)
         shine = max(g(p, nose, 0.018) * 0.8, g(p, head_c + Vector((0, -0.07, 0.07)), 0.04) * 0.5,
-                    g(p, chin, 0.015) * 0.4)
+                    g(p, chin, 0.015) * 0.4, g(p, mouth, 0.012, sx=1.8, sz=0.6) * 0.7)
         vals.extend((red, beard, dark, shine))
     att.data.foreach_set("color", vals)
 
