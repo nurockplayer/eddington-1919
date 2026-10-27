@@ -30,35 +30,35 @@ from HumGen3D import Human  # noqa: E402
 from HumGen3D.backend.preferences.preference_func import get_prefs  # noqa: E402
 
 PRESET = "models/male/Caucasian Presets/Caucasian 1.json"
-HAIR = "hair/head/male/Aged/Thin Side Comb.json"  # relative to the HG content dir
+HAIR = "hair/head/male/Regular/Slicked Back Side Part.json"  # relative to the HG content dir
 
 # Reference likeness (art/people/REFERENCE.md): long narrow face, high forehead,
 # deep-set eyes, slim build, dark short hair parted on the left, clean-shaven.
 LIVEKEYS = {
     "forehead_size": 0.5,
-    "browridge_center_size": 0.6,
+    "browridge_center_size": 0.8,
     "browridge_loc_vertical": 0.15,
     "temple_size": -0.35,
-    "Eye Depth": 0.5,
-    "Eye Scale": 0.1,
+    "Eye Depth": 0.6,
+    "Eye Scale": 0.0,
     "Eye Distance": -0.10,
     "skinny": 0.7,
-    "aged_male": 0.3,
+    "aged_male": 0.45,
     "height_200": 0.15,
     "height_150": 0.0,
     "jaw_width": -0.45,
-    "jaw_location_vertical": 0.3,
+    "jaw_location_vertical": 0.5,
     "chin_width": 0.1,
     "chin_size": 0.2,
-    "chin_height": 0.4,
-    "nose_height": 0.35,
-    "nose_bridge_height": 0.3,
+    "chin_height": 0.55,
+    "nose_height": 0.6,
+    "nose_bridge_height": 0.45,
     "nose_bridge_width": -0.1,
-    "nose_tip_length": 0.25,
+    "nose_tip_length": 0.4,
     "nose_tip_size": 0.15,
     "lip_height": -0.2,
     "cheek_zygomatic_bone": 0.3,
-    "cheek_fullness": -0.4,
+    "cheek_fullness": -0.6,
 }
 
 # Distances are metres; narrowing values are dimensionless fractions.
