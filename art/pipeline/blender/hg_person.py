@@ -2,17 +2,19 @@
 
     blender -b --python art/pipeline/blender/hg_person.py -- <out_dir> [--stills]
 
-Builds Cambridge 1917 Eddington from the Human Generator 4 trial content:
+Requires full Human Generator content in the isolated Blender user directory
+/Volumes/KIOXIA/eddington-1919-cache/hg-full/blender_user (evaluation only).
+Builds Cambridge 1917 Eddington from Human Generator 4 content:
   HG base male (Caucasian 1 preset)
-  + unlocked face/age livekeys tuned toward the REFERENCE.md likeness
+  + face/age livekeys tuned toward the REFERENCE.md likeness
   + Short Side Part hair, eyebrows, 43 ARKit-style FACS shape keys (face_rig.json)
   + painted skin (trial skin maps are watermarked) and the MPFB CC0 suit retargeted
     onto the HG body (HG trial has no period outfit)
   → <out_dir>/eddington_hg.blend and, with --stills, lit EEVEE portrait renders.
 
 Licence: HG meshes/textures may not be redistributed, and this repo is public.
-Outputs therefore stay OUTSIDE the repo (KIOXIA cache); only this script and
-downscaled renders for evaluation are committed. See docs/HG_PROTOTYPE.md.
+Outputs therefore stay OUTSIDE the repo (KIOXIA cache); only this script is
+committed. See docs/HG_PROTOTYPE.md.
 """
 import math
 import sys
@@ -32,17 +34,40 @@ PRESET = "models/male/Caucasian Presets/Caucasian 1.json"
 # Reference likeness (art/people/REFERENCE.md): long narrow face, high forehead,
 # deep-set eyes, slim build, dark short hair parted on the left, clean-shaven.
 LIVEKEYS = {
-    "forehead_size": 0.2,
-    "browridge_center_size": 0.25,
+    "forehead_size": 0.35,
+    "browridge_center_size": 0.45,
     "browridge_loc_vertical": 0.15,
     "temple_size": -0.35,
-    "Eye Depth": 0.30,
+    "Eye Depth": 0.40,
     "Eye Scale": 0.1,
     "Eye Distance": -0.10,
     "skinny": 0.55,
     "aged_male": 0.3,
     "height_200": 0.15,
     "height_150": 0.0,
+    "jaw_width": -0.12,
+    "chin_width": 0.08,
+    "chin_size": 0.05,
+    "chin_height": 0.10,
+    "nose_height": 0.12,
+    "nose_bridge_height": 0.12,
+    "nose_tip_length": 0.12,
+    "nose_tip_size": 0.08,
+    "cheek_zygomatic_bone": 0.12,
+    "cheek_fullness": -0.12,
+}
+
+# Distances are metres; narrowing values are dimensionless fractions.
+FACE = {
+    "chin_drop": 0.0,
+    "lower_narrow": 0.0,
+    "jaw_in": 0.0,
+    "chin_narrow": 0.0,
+    "chin_fwd": 0.0,
+    "cheek_hollow": 0.0,
+    "nose_tip_fwd": 0.0,
+    "nose_tip_down": 0.0,
+    "ear_out": 0.0,
 }
 
 # FACS shape-key mixes (HG face_rig.json names, 0–1). Small values: the target is
@@ -70,7 +95,10 @@ def build() -> Human:
     for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
     h = Human.from_preset(PRESET, bpy.context)
+    if get_prefs().is_trial:
+        raise RuntimeError("Full HG content required; set BLENDER_USER_RESOURCES to hg-full/blender_user")
     h.age.set(35)
+    print("HG_LIVEKEYS", [k.name for k in h.keys.all_livekeys], flush=True)
     for k in h.keys.all_livekeys:
         if k.name in LIVEKEYS:
             k.value = LIVEKEYS[k.name]
@@ -170,29 +198,73 @@ def landmarks(h: Human) -> dict:
 
 
 def face_shape(h: Human, lm: dict) -> None:
-    """Our own shape key: the trial locks HG's jaw/cheek/chin/nose sliders, so the
-    long, narrow Eddington face is sculpted by formula — lower face narrowed
-    toward the jaw, chin lengthened, cheeks hollowed slightly."""
+    """Sculpt symmetric, localized displacements in the unposed world-space head."""
     body = h.objects.body
     keys = body.data.shape_keys.key_blocks
     sk = body.shape_key_add(name="eddington_face", from_mix=False)
     el, er, nose, mouth = lm["eye_l"], lm["eye_r"], lm["nose"], lm["mouth"]
     ez = (el.z + er.z) / 2
-    cy = (el.y + er.y) / 2 + 0.07
+    ey = (el.y + er.y) / 2
     chin_z = mouth.z - 0.05
-    inv = body.matrix_world.inverted()
-    for i, p in enumerate(lm["co"]):
-        if p.z > ez + 0.01 or p.z < chin_z - 0.06 or abs(p.x) > 0.1 or p.y > cy + 0.05:
-            continue
-        t = max(0.0, min(1.0, (ez - p.z) / (ez - chin_z)))  # 0 at eyes → 1 at chin
-        fall = 1.0 if p.z > chin_z - 0.02 else max(0.0, 1 - (chin_z - 0.02 - p.z) / 0.04)
+    inv = body.matrix_world.inverted().to_3x3()
+
+    def smooth(a, b, v):
+        t = max(0.0, min(1.0, (v - a) / (b - a)))
+        return t * t * (3.0 - 2.0 * t)
+
+    def gauss(v, centre, radius):
+        return math.exp(-((v - centre) / radius) ** 2)
+
+    before = lm["co"]
+    after = []
+    for i, p in enumerate(before):
+        ax = abs(p.x)
+        sign = 1 if p.x >= 0 else -1
         q = p.copy()
-        q.x *= 1 - 0.09 * t * fall
-        q.z -= 0.006 * t * fall
-        cheek = math.exp(-(((abs(p.x) - 0.045) / 0.015) ** 2 + ((p.z - (nose.z - 0.01)) / 0.02) ** 2))
-        q.x -= math.copysign(0.0025 * cheek, p.x)
-        sk.data[i].co = keys["Basis"].data[i].co + (inv.to_3x3() @ (q - p))
+        # Ear displacement is independent of the below-eye face mask.
+        ear = (smooth(0.065, 0.080, ax) * smooth(ey + 0.05, ey + 0.065, p.y)
+               * (1 - smooth(ey + 0.10, ey + 0.115, p.y))
+               * gauss(p.z, ez - 0.01, 0.045))
+        q.x += sign * FACE["ear_out"] * ear
+        face = ((1 - smooth(ez - 0.005, ez, p.z))
+                * smooth(chin_z - 0.06, chin_z - 0.025, p.z)
+                * (1 - smooth(0.09, 0.105, ax))
+                * (1 - smooth(ey + 0.06, ey + 0.085, p.y)))
+        lower = smooth(chin_z, ez, ez + chin_z - p.z)
+        jaw = (gauss(ax, 0.062, 0.015) * gauss(p.z, mouth.z - 0.03, 0.025)
+               * smooth(mouth.y + 0.005, mouth.y + 0.035, p.y))
+        chin = gauss(ax, 0, 0.020) * gauss(p.z, chin_z, 0.020) * gauss(p.y, mouth.y + 0.012, 0.035)
+        cheek = (gauss(ax, 0.045, 0.015) * gauss(p.z, nose.z - 0.015, 0.020)
+                 * gauss(p.y, nose.y + 0.025, 0.035))
+        tip = gauss(ax, 0, 0.012) * gauss(p.z, nose.z, 0.012) * gauss(p.y, nose.y, 0.018)
+        q.x -= sign * face * (ax * (FACE["lower_narrow"] * lower + FACE["chin_narrow"] * chin)
+                              + FACE["jaw_in"] * jaw + FACE["cheek_hollow"] * cheek)
+        q.y -= face * (FACE["chin_fwd"] * chin + FACE["nose_tip_fwd"] * tip)
+        # The lip guard is exactly zero within 1 cm of the mouth landmark.
+        lip_guard = smooth(0.010, 0.018, abs(p.z - mouth.z))
+        drop = smooth(0.012, 0.035, mouth.z - p.z)
+        q.z -= face * lip_guard * (FACE["chin_drop"] * drop + FACE["nose_tip_down"] * tip)
+        sk.data[i].co = keys["Basis"].data[i].co + inv @ (q - p)
+        after.append(q)
     sk.value = 1.0
+
+    # Fixed vertex sets make the before/after values directly comparable.
+    chin_ids = [i for i, p in enumerate(before) if abs(p.x) < 0.015 and
+                chin_z - 0.025 < p.z < chin_z + 0.012 and p.y < mouth.y + 0.03]
+    jaw_ids = [i for i, p in enumerate(before) if abs(p.z - mouth.z) < 0.005 and
+               0.035 < abs(p.x) < 0.09 and mouth.y < p.y < ey + 0.06]
+    cheek_ids = [i for i, p in enumerate(before) if abs(p.z - (ez - 0.025)) < 0.008 and
+                 0.03 < abs(p.x) < 0.09 and p.y < ey + 0.04]
+    nose_id = min(range(len(before)), key=lambda i: (before[i] - nose).length_squared)
+    def measures(points):
+        chin = min(points[i].z for i in chin_ids)
+        width = lambda ids: max(points[i].x for i in ids) - min(points[i].x for i in ids)
+        return (1000 * (ez - chin), 1000 * width(jaw_ids), 1000 * width(cheek_ids),
+                1000 * (ey - points[nose_id].y))
+    for label, points in (("before", before), ("after", after)):
+        values = measures(points)
+        print("FACE_MEASURE %s mm eye_to_chin=%.2f jaw_width=%.2f bizygomatic_width=%.2f nose_forward=%.2f" %
+              ((label,) + values), flush=True)
 
 
 def skin_zones(h: Human, lm: dict) -> None:
@@ -544,6 +616,21 @@ def main() -> None:
             set_mood(keys, mood)
             gaze(h, eye + Vector(looks[mood]))
             render(out / f"hg_eddington_{mood}.png")
+        if "--front" in argv:
+            set_mood(keys, "neutral")
+            head = rig.pose.bones["head"]
+            old_rotation = head.rotation_euler.copy()
+            head.rotation_euler = (0, 0, 0)
+            bpy.context.view_layer.update()
+            front_eye = rig.matrix_world @ head.head + Vector((0, 0, 0.09))
+            distance = (cam.location - eye).length
+            cam.location = front_eye + Vector((0, -distance, 0))
+            cam.rotation_euler = (front_eye - cam.location).to_track_quat("-Z", "Y").to_euler()
+            cam.data.dof.focus_distance = distance
+            gaze(h, cam.location)
+            render(out / "hg_eddington_front.png")
+            head.rotation_euler = old_rotation
+            bpy.context.view_layer.update()
         if "--wide" in argv:
             set_mood(keys, "neutral")
             cam.data.lens = 40
