@@ -1,0 +1,11 @@
+# Medium for design sheets. The Owner's target look (2026-10-27) is
+# Tell Me Why / Life is Strange: True Colors: realistic proportions,
+# softened skin, sculpted cloth folds, warm cinematic restraint.
+
+[D1_painted_realism]
+version = "v1"
+label = "Painted realism"
+style = """
+A digital character concept painting for a modern story-driven 3D game: realistic proportions \
+and anatomy, slightly softened and simplified painted surfaces, clear readable shapes, \
+crisp tailoring with sculpted cloth folds, restrained natural colour."""

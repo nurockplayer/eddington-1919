@@ -1,0 +1,17 @@
+# Target frames (c01 step 2, 2026-10-27): what an in-game shot should look
+# like. A yardstick for every later 3D step, not an asset.
+
+version = "t1"
+
+framing = """
+A single 16:9 in-game frame from a story-driven 3D adventure game, as the player would see it \
+on a 1600x900 screen, with no interface or dialogue box."""
+
+identity = """
+Historical weight and quiet suspense, cinematic but restrained light, believable people \
+with realistic proportions, nothing toy-like or miniature."""
+
+avoid = """
+Avoid: text, letters, captions, subtitles, UI, watermarks, logos, borders; \
+anime, cartoon or caricature proportions; fantasy or steampunk props; anachronistic objects; \
+glossy plastic skin; extra or warped hands; lens flares."""
