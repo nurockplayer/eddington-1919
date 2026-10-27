@@ -120,3 +120,33 @@ shoes = "leather"
 [person.ashby.decimate]
 suit = 0.4
 hair = 0.6
+
+# Kit is fictional (c01 Kit v3-1 design: bookish young assistant, no stated gender,
+# soft medium hair, round spectacles, pale linen dust coat over a grey pullover).
+# c03 bake-off, MPFB side: the suit stands in for the dust coat, the grey
+# "waistcoat" zone for the pullover; the tie shares the pullover colour (none).
+[person.kit]
+age_years = 23
+height_m = 1.68
+macro = { gender = 0.45, weight = 0.3, muscle = 0.4, proportions = 0.55, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+export = "assets/models/kit.glb"
+breath_deg = 0.0
+glasses = true
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "wool_waistcoat", collar_drop = 0.08, tie_half_width = 0.03 }
+[person.kit.assets]
+body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
+hair = ["hair/bob02/bob02.mhclo", "Hair"]
+eyebrows = ["eyebrows/eyebrow010/eyebrow010.mhclo", "Eyebrows"]
+eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
+suit = ["clothes/male_elegantsuit01/male_elegantsuit01.mhclo", "Clothes"]
+shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
+[person.kit.materials]
+body = "skin"
+hair = "hair_dark"
+eyebrows = "hair_dark"
+eyes = "eye_dark"
+suit = "linen"
+shoes = "leather"
+[person.kit.decimate]
+suit = 0.4
+hair = 0.6
