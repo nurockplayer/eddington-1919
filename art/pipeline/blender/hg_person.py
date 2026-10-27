@@ -34,27 +34,30 @@ PRESET = "models/male/Caucasian Presets/Caucasian 1.json"
 # Reference likeness (art/people/REFERENCE.md): long narrow face, high forehead,
 # deep-set eyes, slim build, dark short hair parted on the left, clean-shaven.
 LIVEKEYS = {
-    "forehead_size": 0.35,
-    "browridge_center_size": 0.45,
+    "forehead_size": 0.5,
+    "browridge_center_size": 0.6,
     "browridge_loc_vertical": 0.15,
     "temple_size": -0.35,
-    "Eye Depth": 0.40,
+    "Eye Depth": 0.5,
     "Eye Scale": 0.1,
     "Eye Distance": -0.10,
-    "skinny": 0.55,
+    "skinny": 0.7,
     "aged_male": 0.3,
     "height_200": 0.15,
     "height_150": 0.0,
-    "jaw_width": -0.12,
-    "chin_width": 0.08,
-    "chin_size": 0.05,
-    "chin_height": 0.10,
-    "nose_height": 0.12,
-    "nose_bridge_height": 0.12,
-    "nose_tip_length": 0.12,
-    "nose_tip_size": 0.08,
-    "cheek_zygomatic_bone": 0.12,
-    "cheek_fullness": -0.12,
+    "jaw_width": -0.45,
+    "jaw_location_vertical": 0.3,
+    "chin_width": 0.1,
+    "chin_size": 0.2,
+    "chin_height": 0.4,
+    "nose_height": 0.35,
+    "nose_bridge_height": 0.3,
+    "nose_bridge_width": -0.1,
+    "nose_tip_length": 0.25,
+    "nose_tip_size": 0.15,
+    "lip_height": -0.2,
+    "cheek_zygomatic_bone": 0.3,
+    "cheek_fullness": -0.4,
 }
 
 # Distances are metres; narrowing values are dimensionless fractions.
@@ -98,11 +101,12 @@ def build() -> Human:
     if get_prefs().is_trial:
         raise RuntimeError("Full HG content required; set BLENDER_USER_RESOURCES to hg-full/blender_user")
     h.age.set(35)
+    print_face_measure("base", h)
     print("HG_LIVEKEYS", [k.name for k in h.keys.all_livekeys], flush=True)
     for k in h.keys.all_livekeys:
         if k.name in LIVEKEYS:
             k.value = LIVEKEYS[k.name]
-    h.hair.regular_hair.set("hair/head/male/Short/Short Side Part.json")
+    h.hair.regular_hair.set("hair/head/male/Aged/Thin Side Comb.json")
     hair_colour(h)
     h.eyes.set_from_dict({"pupil_color": [0.16, 0.13, 0.10, 1.0], "sclera_color": [0.93, 0.9, 0.86, 1.0]})
     h.expression.load_facial_rig()
@@ -197,6 +201,33 @@ def landmarks(h: Human) -> dict:
     return {"co": co, "eye_l": eye_l, "eye_r": eye_r, "nose": nose, "mouth": mouth}
 
 
+def face_measures(lm: dict) -> tuple:
+    """(eye_to_chin, jaw_width, bizygomatic_width, nose_forward) in mm, from a
+    landmarks() dict. Fixed vertex bands keep separate calls comparable."""
+    points = lm["co"]
+    el, er, nose, mouth = lm["eye_l"], lm["eye_r"], lm["nose"], lm["mouth"]
+    ez = (el.z + er.z) / 2
+    ey = (el.y + er.y) / 2
+    chin_z = mouth.z - 0.05
+    chin_ids = [i for i, p in enumerate(points) if abs(p.x) < 0.015 and
+                chin_z - 0.025 < p.z < chin_z + 0.012 and p.y < mouth.y + 0.03]
+    jaw_ids = [i for i, p in enumerate(points) if abs(p.z - mouth.z) < 0.005 and
+               0.035 < abs(p.x) < 0.09 and mouth.y < p.y < ey + 0.06]
+    cheek_ids = [i for i, p in enumerate(points) if abs(p.z - (ez - 0.025)) < 0.008 and
+                 0.03 < abs(p.x) < 0.09 and p.y < ey + 0.04]
+    nose_id = min(range(len(points)), key=lambda i: (points[i] - nose).length_squared)
+    chin = min(points[i].z for i in chin_ids)
+    width = lambda ids: max(points[i].x for i in ids) - min(points[i].x for i in ids)
+    return (1000 * (ez - chin), 1000 * width(jaw_ids), 1000 * width(cheek_ids),
+            1000 * (ey - points[nose_id].y))
+
+
+def print_face_measure(label: str, h: Human) -> None:
+    values = face_measures(landmarks(h))
+    print("FACE_MEASURE %s mm eye_to_chin=%.2f jaw_width=%.2f bizygomatic_width=%.2f nose_forward=%.2f" %
+          ((label,) + values), flush=True)
+
+
 def face_shape(h: Human, lm: dict) -> None:
     """Sculpt symmetric, localized displacements in the unposed world-space head."""
     body = h.objects.body
@@ -216,7 +247,6 @@ def face_shape(h: Human, lm: dict) -> None:
         return math.exp(-((v - centre) / radius) ** 2)
 
     before = lm["co"]
-    after = []
     for i, p in enumerate(before):
         ax = abs(p.x)
         sign = 1 if p.x >= 0 else -1
@@ -245,26 +275,7 @@ def face_shape(h: Human, lm: dict) -> None:
         drop = smooth(0.012, 0.035, mouth.z - p.z)
         q.z -= face * lip_guard * (FACE["chin_drop"] * drop + FACE["nose_tip_down"] * tip)
         sk.data[i].co = keys["Basis"].data[i].co + inv @ (q - p)
-        after.append(q)
     sk.value = 1.0
-
-    # Fixed vertex sets make the before/after values directly comparable.
-    chin_ids = [i for i, p in enumerate(before) if abs(p.x) < 0.015 and
-                chin_z - 0.025 < p.z < chin_z + 0.012 and p.y < mouth.y + 0.03]
-    jaw_ids = [i for i, p in enumerate(before) if abs(p.z - mouth.z) < 0.005 and
-               0.035 < abs(p.x) < 0.09 and mouth.y < p.y < ey + 0.06]
-    cheek_ids = [i for i, p in enumerate(before) if abs(p.z - (ez - 0.025)) < 0.008 and
-                 0.03 < abs(p.x) < 0.09 and p.y < ey + 0.04]
-    nose_id = min(range(len(before)), key=lambda i: (before[i] - nose).length_squared)
-    def measures(points):
-        chin = min(points[i].z for i in chin_ids)
-        width = lambda ids: max(points[i].x for i in ids) - min(points[i].x for i in ids)
-        return (1000 * (ez - chin), 1000 * width(jaw_ids), 1000 * width(cheek_ids),
-                1000 * (ey - points[nose_id].y))
-    for label, points in (("before", before), ("after", after)):
-        values = measures(points)
-        print("FACE_MEASURE %s mm eye_to_chin=%.2f jaw_width=%.2f bizygomatic_width=%.2f nose_forward=%.2f" %
-              ((label,) + values), flush=True)
 
 
 def skin_zones(h: Human, lm: dict) -> None:
@@ -598,6 +609,7 @@ def main() -> None:
     h = build()
     lm = landmarks(h)
     face_shape(h, lm)
+    print_face_measure("final", h)
     skin_zones(h, lm)
     skin_material(h)
     suit(h)
