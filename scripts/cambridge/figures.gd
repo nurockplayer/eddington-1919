@@ -47,8 +47,14 @@ static func build_person(w, display_name: String, pos: Vector3, id: String, asse
 	cs.position.y = 0.9
 	body.add_child(cs)
 	body.set_meta("room_collision_shape", cs)
-	var scene := load("res://assets/models/%s.glb" % asset) as PackedScene
-	var figure := scene.instantiate() as Node3D
+	var figure: Node3D
+	# Evaluation hook (docs/HG_PROTOTYPE.md): a Human Generator Eddington read at
+	# runtime from outside the repo. Unset in normal play.
+	var hg := OS.get_environment("E1919_HG_EDDINGTON")
+	if id == "eddington" and hg != "":
+		figure = preload("res://tools/hg_preview/hg_figure.gd").load_figure(hg)
+	if figure == null:
+		figure = (load("res://assets/models/%s.glb" % asset) as PackedScene).instantiate() as Node3D
 	figure.name = "figure"
 	figure.rotation.y = PI # glTF faces +Z; the room's people face -Z.
 	body.add_child(figure)
