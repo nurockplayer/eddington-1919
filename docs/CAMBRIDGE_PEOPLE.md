@@ -133,3 +133,14 @@ these are not unexplained memory-pressure kills. Both Blender exports finished
 normally and were not rebuilt unchanged. The initial after-pass reached ENDING
 without bot failures, but its rest-pose presentation was rejected, so it is not
 retained as acceptance evidence. No late window can launch from this lane.
+
+## Licensed assets (private submodule, 2026-10-27 JST)
+
+Assets whose licence forbids redistribution as reusable files (planned:
+Human Generator Ultimate exports) live in the PRIVATE repo
+`nurockplayer/eddington-1919-assets`, mounted here as the submodule
+`assets/licensed/`. Git LFS in this public repo would not help: LFS objects of
+a public repo are publicly downloadable. Never copy those files into this repo.
+Public clones without access keep working: code must fall back to the CC0 MPFB
+figures in `assets/models/` when `assets/licensed/` is empty. Fetch with
+`git submodule update --init assets/licensed` (needs access to the private repo).
