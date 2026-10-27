@@ -493,7 +493,9 @@ static func _shelf(w, pos: Vector3, wood: Color, dark_wood: Color) -> void:
 
 static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String, production := false) -> Node3D:
 	var body: Node3D
-	if production:
+	if id == "kit" and OS.get_environment("E1919_KIT_GLB") != "":
+		body = Figures.build_person(w, display_name, pos, id, "")
+	elif production:
 		body = Figures.build_person(w, display_name, pos, id, "ashby" if id == "mentor" else "eddington_cambridge")
 	else:
 		body = Figures.build(w, display_name, pos, coat, shirt, id)

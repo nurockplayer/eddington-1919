@@ -53,6 +53,10 @@ static func build_person(w, display_name: String, pos: Vector3, id: String, asse
 	var hg := OS.get_environment("E1919_HG_EDDINGTON")
 	if id == "eddington" and hg != "":
 		figure = preload("res://tools/hg_preview/hg_figure.gd").load_figure(hg)
+	# c03 Kit bake-off: an HG or MPFB Kit GLB read at runtime the same way.
+	var kit_glb := OS.get_environment("E1919_KIT_GLB")
+	if id == "kit" and kit_glb != "":
+		figure = preload("res://tools/hg_preview/hg_figure.gd").load_figure(kit_glb)
 	if figure == null:
 		figure = (load("res://assets/models/%s.glb" % asset) as PackedScene).instantiate() as Node3D
 	figure.name = "figure"
