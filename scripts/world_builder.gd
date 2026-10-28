@@ -575,7 +575,7 @@ func palm(pos: Vector3, h: float) -> void:
 	p.position = pos
 	p.rotation = lean
 	p.add_to_group("veg_palm")  # cost attribution: benchmark --bench-hide=veg_palm
-	palm_crowns.append(pos + Vector3(0, h, 0))
+	palm_crowns.append(pos + p.basis * Vector3(0, h, 0))  # the crown leans with the trunk
 	root.add_child(p)
 	cyl(0.16, h, Vector3(0, h * 0.5, 0), Color(0.42, 0.34, 0.24), p, false, Vector3.ZERO, 0.11)
 	for i in 8:

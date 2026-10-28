@@ -26,6 +26,17 @@ func _run() -> void:
 	var wb = World.new(root3d)
 	wb.build()
 	check(wb.palm_crowns.size() == 15, "every palm reports its crown: %d" % wb.palm_crowns.size())
+	# Crowns are where the fronds really hang, lean included.
+	var leaf_tops := []
+	for palm in root3d.get_tree().get_nodes_in_group("veg_palm"):
+		leaf_tops.append((palm.get_child(1) as Node3D).global_position)
+	var matched := 0
+	for crown: Vector3 in wb.palm_crowns:
+		for top: Vector3 in leaf_tops:
+			if crown.distance_to(top) < 0.01:
+				matched += 1
+				break
+	check(matched == wb.palm_crowns.size(), "crowns follow each trunk's lean: %d/%d" % [matched, wb.palm_crowns.size()])
 	var sc = SunCrescents.new()
 	sc.setup(wb.palm_crowns, sim.sun_dir)
 	root3d.add_child(sc)
