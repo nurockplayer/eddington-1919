@@ -25,7 +25,11 @@ func _run() -> void:
 		var lamp: OmniLight3D = world.lamp
 		check(dust.emitting and dust.amount <= 48, "a small number of motes is emitting")
 		check(dust.global_position.y < lamp.global_position.y and dust.global_position.distance_to(lamp.global_position) < 0.3, "motes sit in the cone under the lamp")
-		check(dust.global_position.y - dust.emission_box_extents.y > 0.86, "motes stay above the desk papers")
+		# Worst case over a whole life: box edge plus full drift (no gravity).
+		var drift := dust.initial_velocity_max * dust.lifetime + 0.5 * absf(dust.gravity.y) * dust.lifetime * dust.lifetime
+		check(dust.global_position.y - dust.emission_box_extents.y - drift > 0.86, "motes never sink into the desk papers")
+		check(dust.global_position.y + dust.emission_box_extents.y + drift < lamp.global_position.y + 0.08, "motes never rise into the shade")
+		check(((dust.mesh as QuadMesh).material as StandardMaterial3D).billboard_keep_scale, "billboards keep the per-mote scale")
 		check(dust.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "motes cast no shadows")
 		var mat := (dust.mesh as QuadMesh).material as StandardMaterial3D
 		check(mat.blend_mode == BaseMaterial3D.BLEND_MODE_ADD and mat.vertex_color_use_as_albedo, "motes glint additively with the ramp colour")

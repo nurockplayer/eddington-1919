@@ -484,12 +484,12 @@ static func _lamp_dust(root: Node3D, light_pos: Vector3) -> CPUParticles3D:
 	dust.preprocess = 9.0  # already drifting when the room appears
 	dust.randomness = 1.0
 	dust.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-	dust.emission_box_extents = Vector3(0.24, 0.14, 0.24)
+	dust.emission_box_extents = Vector3(0.24, 0.08, 0.24)
 	dust.direction = Vector3(0, 1, 0)
 	dust.spread = 180.0
 	dust.initial_velocity_min = 0.004
-	dust.initial_velocity_max = 0.018
-	dust.gravity = Vector3(0, -0.0015, 0)
+	dust.initial_velocity_max = 0.008
+	dust.gravity = Vector3.ZERO  # motes hang; drift stays between desk and shade
 	dust.scale_amount_min = 0.5
 	dust.scale_amount_max = 1.0
 	var fade := Gradient.new()
@@ -505,6 +505,7 @@ static func _lamp_dust(root: Node3D, light_pos: Vector3) -> CPUParticles3D:
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.billboard_keep_scale = true
 	mat.vertex_color_use_as_albedo = true
 	quad.material = mat
 	dust.mesh = quad
