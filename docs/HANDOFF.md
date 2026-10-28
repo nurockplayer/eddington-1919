@@ -65,6 +65,9 @@ Open PRs (all pass their headless suites):
 - #41 Príncipe night-after sky + Milky Way. Draft; oracle pending. This also covers the coda, which plays under the same night sky.
 - #42 lens reset on unframed lines. Ready; merge after the heavy e2e.
 - #44 title shooting stars. Draft; windowed look pending.
+- #46 title Taurus figure (stacked on #44). Draft; oracle approve, minor fixed; windowed look pending.
+- #49 pinhole sun crescents under the palms. Draft; oracle approve after 2 blocker fixes (palm lean, cloud cut); windowed look pending; needs a fresh gate review on its final head.
+- `tools/look_shots.gd` (#45/#47/#48 merged; crescents view in #49): one windowed run covers all of the above.
 - #43 test_score handoff timing. Merged.
 
 Before merge:
