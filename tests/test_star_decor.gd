@@ -32,7 +32,12 @@ func _run() -> void:
 		var paper := chart.find_child("Paper", true, false) as MeshInstance3D
 		var normal := paper.global_transform.basis.z
 		check(normal.dot(Vector3.LEFT) > 0.99, "chart faces into the room from the east wall")
-		check(chart.global_position.x < 4.3275, "chart sits in front of the plaster")
+		var frame_east := -INF
+		for mi in chart.find_children("*", "MeshInstance3D", true, false):
+			var box: AABB = (mi as MeshInstance3D).global_transform * (mi as MeshInstance3D).get_aabb()
+			frame_east = maxf(frame_east, box.end.x)
+		check(frame_east < 4.3275, "whole chart and frame sit in front of the plaster: %.4f" % frame_east)
+		check(StarDecor._globe_uv(68.98, 16.51).x > StarDecor._globe_uv(56.87, 24.11).x, "globe reads RA increasing to the right, as seen from outside")
 		var paper_tex := (paper.material_override as StandardMaterial3D).albedo_texture
 		var img := paper_tex.get_image()
 		var sun := StarDecor._chart_xy(StarDecor.SUN_1919.x, StarDecor.SUN_1919.y)

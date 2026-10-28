@@ -24,8 +24,8 @@ const TAURUS := [
 ]
 ## The Hyades V and the two horns, as index pairs into TAURUS.
 const FIGURE := [[2, 1], [1, 0], [2, 3], [3, 4], [4, 5], [0, 6]]
-## The Sun at the 1919 May 29 eclipse, a few degrees north of the Hyades.
-const SUN_1919 := Vector2(65.7, 21.6)
+## The Sun at greatest eclipse, 1919 May 29 (NASA GSFC ephemeris), north of the Hyades.
+const SUN_1919 := Vector2(65.28, 21.50)
 const INK := Color(0.20, 0.15, 0.10)
 const GOLD := Color(0.86, 0.70, 0.38)
 
@@ -73,7 +73,8 @@ static func _globe(w, brass: Color, dark_wood: Color) -> Node3D:
 
 
 static func _globe_image() -> Image:
-	# Equirectangular, mirrored: a celestial globe shows the sky as seen from outside.
+	# Equirectangular. SphereMesh U runs to the viewer's right, and seen from outside
+	# a celestial globe shows RA increasing to the right (the sky mirrored).
 	var img := Image.create(512, 256, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0.07, 0.10, 0.20))
 	for i in 512:
@@ -93,7 +94,7 @@ static func _globe_image() -> Image:
 
 
 static func _globe_uv(ra: float, dec: float) -> Vector2:
-	return Vector2((1.0 - ra / 360.0) * 512.0, (90.0 - dec) / 180.0 * 256.0)
+	return Vector2(ra / 360.0 * 512.0, (90.0 - dec) / 180.0 * 256.0)
 
 
 static func _chart(w, dark_wood: Color) -> Node3D:
