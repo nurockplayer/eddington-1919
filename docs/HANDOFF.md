@@ -64,6 +64,8 @@ Open PRs (all pass their headless suites):
 - #40 lamp dust motes. Draft; oracle review pending.
 - #41 Príncipe night-after sky + Milky Way. Draft; oracle pending. This also covers the coda, which plays under the same night sky.
 - #42 lens reset on unframed lines. Ready; merge after the heavy e2e.
+- #44 title shooting stars. Draft; windowed look pending.
+- #43 test_score handoff timing. Merged.
 
 Before merge:
 - Heavy set + e2e for all four in one integration worktree: 2026-10-29 03:00 JST or later.
@@ -71,9 +73,6 @@ Before merge:
 
 Next items:
 - bot 「完成計畫」 real-click flake
-- test_bridge_pause teardown warning
-- test_score wall-clock flake
-- portrait bust crop
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 
