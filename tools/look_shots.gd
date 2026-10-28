@@ -184,6 +184,10 @@ func _totality() -> void:
 		_aim(main, at + Vector3(2.0, 1.6, 2.0), at)
 		await frames(6)
 		await _save("totality_shadow_bands")
+		# Two more 0.4 s apart (at --fixed-fps 60): the bands must drift, not strobe.
+		for i in [1, 2]:
+			await frames(24)
+			await _save("totality_shadow_bands_t%d" % i)
 	else:
 		skipped.append("totality_shadow_bands")
 	# An unset uniform reads back null, so look for it in the shader source.
