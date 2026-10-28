@@ -76,6 +76,8 @@ func _run() -> void:
 		await _title()
 	if _wanted("crescents"):
 		await _crescents()
+	if _wanted("totality"):
+		await _totality()
 	print("look shots: %d saved, skipped %s, failed %s" % [saved, skipped, failed])
 	quit(1 if failed else 0)
 
@@ -192,5 +194,39 @@ func _crescents() -> void:
 	_aim(main, spot + Vector3(1.2, 1.6, 1.2), spot)
 	await frames(6)
 	await _save("crescents_shade")
+	main.queue_free()
+	await frames(4)
+
+
+# Shadow bands (#50) on the last sliver, and the diamond ring (#53) at third
+# contact. Bands move: these stills only prove they draw; judge them in motion.
+func _totality() -> void:
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	await frames(30)
+	_hide_ui(main)
+	var clear_t := 0.0
+	for t in range(-120, 1):
+		if main.sim.cloud_over_sun(float(t)) < main.sim.cloud_over_sun(clear_t):
+			clear_t = float(t)
+	var bands = main.world.get("shadow_bands")
+	if bands:
+		main._apply_light(0.985, 0.4, clear_t, 0.0)
+		var at: Vector3 = main.world.station_pos
+		_aim(main, at + Vector3(2.0, 1.6, 2.0), at)
+		await frames(6)
+		await _save("totality_shadow_bands")
+	else:
+		skipped.append("totality_shadow_bands")
+	if main.sky_mat.get_shader_parameter("third_contact") is Vector2:
+		main._apply_light(0.98, 0.9, clear_t, 0.0)
+		main.sky_mat.set_shader_parameter("third_contact", Vector2(0.0, 1.0))
+		var eye := Vector3(2.6, 1.65, 4.2)
+		var cam := _aim(main, eye, eye + main.sim.sun_dir)
+		cam.fov = 18.0  # the Sun's disc and limb, not the whole sky
+		await frames(6)
+		await _save("totality_diamond_ring")
+	else:
+		skipped.append("totality_diamond_ring")
 	main.queue_free()
 	await frames(4)
