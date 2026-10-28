@@ -6,7 +6,7 @@
 - Godot is GPU work, so it runs on the host, through the lock:
   - a single headless suite: `orb-test --host -- godot --headless --path . --script res://tests/<suite>.gd`;
   - all suites, `orb-test --heavy --host -- ./tools/e2e_headless.sh`, a windowed screenshot run or Blender: `orb-test --heavy --host -- <cmd>`.
-- `--heavy` queues for the one host-wide heavy lock and checks `memory_pressure` ≥20%.
+- `--heavy` queues for the one host-wide heavy lock. It starts only Mon–Fri 05:00–15:00 JST or after 45 min of keyboard/mouse idle (orb-test gate, seen 2026-10-29 03:07 JST), then checks `memory_pressure` ≥20%.
 - Python runs in the container: `orb-test --image python:3.12-slim -- python3 -I art/pipeline/test_budget.py`.
 - `tools/e2e_headless.sh` takes no lock of its own; orb-test holds it.
 - Every worker brief states this rule explicitly. The DS base prompt still says lockf.
@@ -63,16 +63,24 @@ Open PRs (all pass their headless suites):
 - #39 study celestial globe + Taurus chart. Draft; oracle findings fixed.
 - #40 lamp dust motes. Draft; oracle review pending.
 - #41 Príncipe night-after sky + Milky Way. Draft; oracle pending. This also covers the coda, which plays under the same night sky.
-- #42 lens reset on unframed lines. Ready; merge after the heavy e2e.
+- #42 lens reset on unframed lines. Merged 0f65df6 (2026-10-29 03:55 JST) after the integration run was green (19 suites + e2e 6/6). Codex reviewed it (ChatGPT was logged out in ego-lite; the Owner logged in again at 2026-10-29 03:53 JST and oracle is back). Merged by hand: `gh pr merge --auto` refuses when a CodeRabbit `skipping` check exists and repo auto-merge is off. Override reason is in the PR comment.
 - #44 title shooting stars. Draft; windowed look pending.
+- #46 title Taurus figure (stacked on #44). Draft; oracle approve, minor fixed; windowed look pending.
+- #49 pinhole sun crescents under the palms. Draft; oracle approve after 2 blocker fixes (palm lean, cloud cut); windowed look pending; needs a fresh gate review on its final head.
+- #50 shadow bands on the ground around totality. Draft; oracle approve (0 findings); windowed look pending (judge in motion). Touches `_apply_light` next to #49: rebase whichever merges second.
+- #53 Baily's beads + diamond ring at third contact. Draft; oracle approve, 1 major (runtime test) fixed: test_diamond_ring 10/0 drives the real _end_totality. Shader compile only checkable windowed. Needs a fresh gate review on its final head.
+- #57 departure-night stars through the uncurtained sash (+ look_shots `departure` view). Draft; oracle approve (0 findings); windowed look pending.
+- `tools/look_shots.gd` (#45/#47/#48 merged; crescents view in #49): one windowed run covers all of the above.
+- Integration worktree (all 8 open branches): #49 conflicts with #41 and #50 only on adjacent `main.gd` lines; keep both sides. #50 is now stacked on #49. Checked 2026-10-29 00:45 JST: 7 touched suites green. **A fresh worktree must run `godot --headless --path . --import` first.** Without it, suites print `instantiate on null` and test_star_decor hangs. `perl alarm` kills only orb-test, not its godot child, so stop a hang via TaskStop.
 - #43 test_score handoff timing. Merged.
 
 Before merge:
-- Heavy set + e2e for all four in one integration worktree: 2026-10-29 03:00 JST or later.
+- Heavy set + e2e for all eight open branches, in one integration worktree: queued 2026-10-29 03:07 JST under `orb-test --heavy --host`; it starts when the gate opens (05:00 JST, or 45 min idle).
 - Windowed look at #39–#41 and #44: 09:00–15:00 JST, one run of `tools/look_shots.gd` (#45) on an integration worktree (main + #39 #40 #41 #44 + #45): `orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top -s tools/look_shots.gd -- --out=$PWD/build/look`. 8 stills; delete `build/look` after.
 
 Next items:
-- bot 「完成計畫」 real-click flake
+- bot 「完成計畫」 real-click flake: #55 merged c7aa61f (2026-10-29 06:35 JST). The bot now waits for the button to enable and logs `disabled=` and the hovered control on a miss. Confirm in the 09:00 JST windowed run; if it still misses, the log names the cause.
+- bridge_pause teardown leak: #56 merged 8af22f9 (2026-10-29 06:45 JST). Cambridge director stops its players in `_exit_tree`; the same in departure_director made test_prologue leak 4, so not done there.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 

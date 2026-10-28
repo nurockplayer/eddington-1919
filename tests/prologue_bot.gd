@@ -199,16 +199,25 @@ func click_button(button: Button) -> void:
 	for attempt in 3:
 		if not is_instance_valid(button) or not button.is_visible_in_tree():
 			break
+		# A button that is still disabled (or under a closing dialogue) drops the click.
+		var wait_left := 2.0
+		while wait_left > 0.0 and is_instance_valid(button) and button.disabled:
+			await get_tree().process_frame
+			wait_left -= get_process_delta_time()
+		if not is_instance_valid(button) or not button.is_visible_in_tree():
+			break
 		print("[PROLOGUE INPUT] click ", button.text, " ", button.get_global_rect(), " attempt=", attempt + 1)
 		await click_at(button.get_global_rect().get_center())
 		if observed[0]:
 			break
+		var hovered := get_viewport().gui_get_hovered_control()
+		print("[PROLOGUE INPUT] missed ", button.text, " disabled=", button.disabled, " hovered=", hovered.get_path() if hovered else "none")
 		_input_retries += 1
 		await frames(8)
 	if is_instance_valid(button) and button.pressed.is_connected(listener):
 		button.pressed.disconnect(listener)
 	if not observed[0]:
-		failures.append("button did not accept real click after 3 attempts")
+		failures.append("button %s did not accept real click after 3 attempts" % (button.text if is_instance_valid(button) else "?"))
 		_finish()
 
 
