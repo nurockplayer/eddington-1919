@@ -72,11 +72,13 @@ func _step_meteor(delta: float) -> void:
 	if _meteor.is_empty():
 		_meteor_wait -= delta
 		if _meteor_wait <= 0.0:
-			# Falls down and across from the upper part of the sky, either way.
-			var side := -1.0 if _rng.randf() < 0.5 else 1.0
-			var start := Vector2(_rng.randf_range(-0.7, 0.7), _rng.randf_range(-0.45, -0.1))
+			# Falls down and across the upper sky, always toward the screen's centre,
+			# so the whole streak stays visible at any aspect ratio.
+			var half_w := size.x / maxf(size.y, 1.0) * 0.5
+			var start := Vector2(_rng.randf_range(-0.8, 0.8) * half_w, _rng.randf_range(-0.45, -0.1))
+			var side := -1.0 if start.x > 0.0 else 1.0
 			_meteor = {"start": start, "dir": Vector2(side * 0.85, 0.5).normalized(), "age": 0.0}
-			_meteor_wait = _rng.randf_range(7.0, 14.0)
+			_meteor_wait = _rng.randf_range(7.0, 14.0)  # dark pause after this streak
 		return
 	_meteor.age += delta
 	if _meteor.age >= METEOR_LIFE:

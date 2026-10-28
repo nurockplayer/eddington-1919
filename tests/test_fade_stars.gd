@@ -25,20 +25,37 @@ func _run() -> void:
 	check(skies.size() == 2, "one sky in the fade and one behind the title")
 	var title_sky = skies.filter(func(n): return n.meteors)
 	check(title_sky.size() == 1 and title_sky[0].drop > 0.0, "only the title sky has shooting stars")
+	if title_sky.size() != 1:
+		print("%d fade stars checks, %d failures" % [checks, failures])
+		quit(1)
+		return
 	for sky in skies:
 		check(sky.mouse_filter == Control.MOUSE_FILTER_IGNORE, "sky never takes clicks")
-	# Drive the title sky's clock: within 20 s at least one streak shows and ends.
+	# Drive the title sky's clock for 40 s: streaks start, end after their life,
+	# pause 7-14 s, and every streak runs inside the screen.
 	var sky = title_sky[0]
-	var seen := 0
+	var starts: Array = []
+	var ends := 0
 	var was_active := false
-	for i in 2000:
+	var screen := Rect2(Vector2.ZERO, sky.size)
+	for i in 4000:
 		sky._step_meteor(0.01)
 		var active: bool = not sky._meteor.is_empty()
 		if active and not was_active:
-			seen += 1
+			starts.append(i * 0.01)
+			var c: Vector2 = sky.size * 0.5 + Vector2(0, sky.drop * sky.size.y)
+			var a: Vector2 = c + sky._meteor.start * sky.size.y
+			var b: Vector2 = c + (sky._meteor.start + sky._meteor.dir * 0.35) * sky.size.y
+			check(screen.has_point(a) and screen.has_point(b), "streak runs inside the screen: %s -> %s" % [a, b])
 			check(sky._meteor.dir.y > 0.0, "shooting star falls downward")
+		if was_active and not active:
+			ends += 1
 		was_active = active
-	check(seen >= 1 and seen <= 4, "a shooting star every 7-14 s, first after 4 s: %d in 20 s" % seen)
+	check(starts.size() >= 2 and absf(starts[0] - 4.0) < 0.05, "first streak after 4 s, then more: %s" % [starts])
+	check(ends >= starts.size() - 1, "every streak ends")
+	for k in range(1, starts.size()):
+		var gap: float = starts[k] - starts[k - 1] - FadeStars.METEOR_LIFE
+		check(gap >= 6.98 and gap <= 14.02, "dark pause between streaks is 7-14 s: %.2f" % gap)
 	var plain := FadeStars.new()
 	root.add_child(plain)
 	for i in 2000:
