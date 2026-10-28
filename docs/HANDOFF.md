@@ -78,7 +78,7 @@ Before merge:
 - Windowed look at #39–#41 and #44: 09:00–15:00 JST, one run of `tools/look_shots.gd` (#45) on an integration worktree (main + #39 #40 #41 #44 + #45): `orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top -s tools/look_shots.gd -- --out=$PWD/build/look`. 8 stills; delete `build/look` after.
 
 Next items:
-- bot 「完成計畫」 real-click flake
+- bot 「完成計畫」 real-click flake: #55 merged c7aa61f (2026-10-29 06:35 JST). The bot now waits for the button to enable and logs `disabled=` and the hovered control on a miss. Confirm in the 09:00 JST windowed run; if it still misses, the log names the cause.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 
