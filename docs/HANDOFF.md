@@ -55,6 +55,28 @@
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
+## Director backlog (edd-director) | 2026-10-28 17:15 JST
+
+Characters (HG / c01–c03) are owned by the session eddington-1919-6c. edd-director stays off them.
+
+Open PRs (all pass their headless suites):
+- #39 study celestial globe + Taurus chart. Draft; oracle findings fixed.
+- #40 lamp dust motes. Draft; oracle review pending.
+- #41 Príncipe night-after sky + Milky Way. Draft; oracle pending. This also covers the coda, which plays under the same night sky.
+- #42 lens reset on unframed lines. Ready; merge after the heavy e2e.
+
+Before merge:
+- Heavy set + e2e for all four in one integration worktree: 2026-10-29 03:00 JST or later.
+- Windowed look at #39–#41: 09:00–15:00 JST.
+
+Next items:
+- bot 「完成計畫」 real-click flake
+- test_bridge_pause teardown warning
+- test_score wall-clock flake
+- portrait bust crop
+
+Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
+
 ## Director sprint status — M1 prologue, M2 departure night, M3 Príncipe coda | 2026-10-20 JST (Opus 5.5)
 
 **State:** M1 (PR #9, `96fd598`) and M2 (PR #10, `7733d6d`) are merged and verified on fresh clones. M3 (branch `m3/coda`) goes to `main` via PR. All three are part of the 72-hour Director sprint (Issue #1).
