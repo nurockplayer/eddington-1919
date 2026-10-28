@@ -40,5 +40,30 @@ func _run() -> void:
 	check(src.contains("uniform vec2 third_contact"), "sky shader takes the third-contact glint")
 	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
 	check(main_src.contains("sky_mat.set_shader_parameter(\"third_contact\", Vector2.ZERO)"), "glint is cleared once daylight returns")
+	await _check_runtime()
 	print("%d diamond ring checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
+
+
+# The real third-contact path drives the sky: beads and diamond reach the
+# material during the daylight tween and are cleared after it.
+func _check_runtime() -> void:
+	var main: Node = (load("res://scenes/main.tscn") as PackedScene).instantiate()
+	root.add_child(main)
+	await process_frame
+	main.phase = main.Phase.TOTALITY
+	main.tot_done = false
+	main._end_totality()
+	var peak := Vector2.ZERO
+	var deadline := Time.get_ticks_msec() + 8000
+	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < deadline:
+		var g = main.sky_mat.get_shader_parameter("third_contact")
+		if g is Vector2:
+			peak = peak.max(g)
+		await process_frame
+	check(peak.x > 0.8, "real third contact shows Baily's beads: %.2f" % peak.x)
+	check(peak.y > 0.8, "real third contact shows the diamond ring: %.2f" % peak.y)
+	var after = main.sky_mat.get_shader_parameter("third_contact")
+	check(after is Vector2 and after == Vector2.ZERO, "glint cleared by the time night begins: %s" % [after])
+	main.queue_free()
+	await process_frame
