@@ -79,7 +79,7 @@ Before merge:
 
 Next items:
 - bot 「完成計畫」 real-click flake: #55 merged c7aa61f (2026-10-29 06:35 JST). The bot now waits for the button to enable and logs `disabled=` and the hovered control on a miss. Confirm in the 09:00 JST windowed run; if it still misses, the log names the cause.
-- bridge_pause teardown leak: #56 merged 8af22f9 (2026-10-29 06:55 JST). Cambridge director stops its players in `_exit_tree`; the same in departure_director made test_prologue leak 4, so not done there.
+- bridge_pause teardown leak: #56 merged 8af22f9 (2026-10-29 06:45 JST). Cambridge director stops its players in `_exit_tree`; the same in departure_director made test_prologue leak 4, so not done there.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 
