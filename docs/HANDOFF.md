@@ -63,7 +63,7 @@ Open PRs (all pass their headless suites):
 - #39 study celestial globe + Taurus chart. Draft; oracle findings fixed.
 - #40 lamp dust motes. Draft; oracle review pending.
 - #41 Príncipe night-after sky + Milky Way. Draft; oracle pending. This also covers the coda, which plays under the same night sky.
-- #42 lens reset on unframed lines. Ready; merge after the heavy e2e.
+- #42 lens reset on unframed lines. Merged 0f65df6 (2026-10-29 03:55 JST) after the integration run was green (19 suites + e2e 6/6). Codex reviewed it (ChatGPT is logged out in ego-lite, so oracle is down until the Owner logs in). Merged by hand: `gh pr merge --auto` refuses when a CodeRabbit `skipping` check exists and repo auto-merge is off. Override reason is in the PR comment.
 - #44 title shooting stars. Draft; windowed look pending.
 - #46 title Taurus figure (stacked on #44). Draft; oracle approve, minor fixed; windowed look pending.
 - #49 pinhole sun crescents under the palms. Draft; oracle approve after 2 blocker fixes (palm lean, cloud cut); windowed look pending; needs a fresh gate review on its final head.
