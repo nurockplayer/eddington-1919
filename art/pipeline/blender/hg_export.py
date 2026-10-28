@@ -80,9 +80,11 @@ def haircards(h: Human) -> list:
     return objs
 
 
-def scalp_zone(body: bpy.types.Object, strands: list) -> None:
+def scalp_zone(body: bpy.types.Object, strands: list, z_min: float) -> None:
     """Mark scalp skin under the strands ('scalp' attribute, mixed to hair colour
-    in the bake), so gaps between strands read as hair, not skin."""
+    in the bake), so gaps between strands read as hair, not skin. Only above
+    z_min (just over the eyes): long hair hanging past the cheeks otherwise
+    paints the face hair-coloured (c03 HG Kit read as bearded in game)."""
     from mathutils.kdtree import KDTree
     pts = [o.matrix_world @ v.co for o in strands if o.name.startswith("Hair_") for v in o.data.vertices]
     kd = KDTree(len(pts))
@@ -91,11 +93,25 @@ def scalp_zone(body: bpy.types.Object, strands: list) -> None:
     kd.balance()
     att = body.data.color_attributes.new("scalp", "FLOAT_COLOR", "POINT")
     vals = []
-    for v in body.data.vertices:
-        _co, _i, d = kd.find(body.matrix_world @ v.co)
-        f = 0.0 if d is None else max(0.0, min(1.0, (0.012 - d) / 0.006))
+    # Evaluated positions (shape keys + pose), where the strands are: the raw
+    # base-mesh coordinates sit elsewhere and painted a beard on Kit (c03).
+    # Keep topology: evaluate with only the armature modifier on.
+    off = [m for m in body.modifiers if m.type != "ARMATURE" and m.show_viewport]
+    for m in off:
+        m.show_viewport = False
+    ev = body.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    me = ev.to_mesh()
+    for m in off:
+        m.show_viewport = True
+    assert len(me.vertices) == len(body.data.vertices), (len(me.vertices), len(body.data.vertices))
+    for v in me.vertices:
+        w = body.matrix_world @ v.co
+        _co, _i, d = kd.find(w)
+        f = 0.0 if d is None or w.z < z_min else max(0.0, min(1.0, (0.012 - d) / 0.006))
         vals.extend((f, f, f, 1.0))
+    ev.to_mesh_clear()
     att.data.foreach_set("color", vals)
+    print("DBG scalp marked", sum(1 for i in range(0, len(vals), 4) if vals[i] > 0), "of", len(vals) // 4, flush=True)
 
 
 def bake_surface(ob: bpy.types.Object, out: Path) -> tuple:
@@ -282,7 +298,10 @@ def main() -> None:
     h = Human.from_existing(rig)
     body = h.objects.body
     cards = haircards(h)
-    scalp_zone(body, cards)
+    eyes_ev = h.objects.eyes.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    eyes_top = max((h.objects.eyes.matrix_world @ v.co).z for v in eyes_ev.to_mesh().vertices)
+    eyes_ev.to_mesh_clear()
+    scalp_zone(body, cards, eyes_top + 0.02)
     rough, normal = bake_surface(body, out)
     bake_albedo(body, "skin_albedo", out)
     export_surface(body, rough, normal)
