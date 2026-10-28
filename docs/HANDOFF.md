@@ -67,6 +67,7 @@ Open PRs (all pass their headless suites):
 - #44 title shooting stars. Draft; windowed look pending.
 - #46 title Taurus figure (stacked on #44). Draft; oracle approve, minor fixed; windowed look pending.
 - #49 pinhole sun crescents under the palms. Draft; oracle approve after 2 blocker fixes (palm lean, cloud cut); windowed look pending; needs a fresh gate review on its final head.
+- #50 shadow bands on the ground around totality. Draft; oracle approve (0 findings); windowed look pending (judge in motion). Touches `_apply_light` next to #49: rebase whichever merges second.
 - `tools/look_shots.gd` (#45/#47/#48 merged; crescents view in #49): one windowed run covers all of the above.
 - #43 test_score handoff timing. Merged.
 
