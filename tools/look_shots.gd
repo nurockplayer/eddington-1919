@@ -158,5 +158,7 @@ func _title() -> void:
 	if "figure" in sky[0] and sky[0].figure:
 		await create_timer(5.4).timeout
 		await _save("title_figure")
+	else:
+		skipped.append("title_figure")
 	main.queue_free()
 	await frames(4)
