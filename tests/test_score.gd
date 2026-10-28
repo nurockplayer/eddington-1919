@@ -4,6 +4,8 @@ extends SceneTree
 
 const Score := preload("res://scripts/audio/score.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
+## Wall-clock budget for _end_totality to reach NIGHT with the Tab log held open.
+const HANDOFF_BUDGET_MS := 7500  # authored ≈5.6 s; measured 5.7 s at load avg 8
 
 const EXPECTED_CUES := [
 	"cambridge_rain",
@@ -360,6 +362,8 @@ func _check_totality_black_handoff() -> void:
 	await create_timer(0.65).timeout # Let the real entrance ramps reach audible levels.
 	check(float(score.layers["totality_drone"].db) > -31.0,
 		"totality drone entrance ramp reaches audible level before handoff")
+	# Time the handoff itself: loading main.gd above is host load, not the cue.
+	var handoff_started := Time.get_ticks_msec()
 	main._end_totality()
 	await create_timer(0.25).timeout
 	main.ui.toggle_log() # Tab opens the real dialogue-history panel during the 1.5s audio fade.
@@ -372,9 +376,10 @@ func _check_totality_black_handoff() -> void:
 	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < transition_deadline:
 		await process_frame
 	check(main.phase == main.Phase.NIGHT, "real _end_totality reaches NIGHT while Tab log stays open")
-	check(Time.get_ticks_msec() - started_at <= 8000,
-		"real Tab-held totality handoff completes within 8 seconds (%d ms)" % (Time.get_ticks_msec() - started_at))
-	print("score black handoff: elapsed_ms=%d phase=%s" % [Time.get_ticks_msec() - started_at, main.Phase.keys()[main.phase]])
+	var handoff_ms := Time.get_ticks_msec() - handoff_started
+	check(handoff_ms <= HANDOFF_BUDGET_MS,
+		"real Tab-held totality handoff completes within %d ms (%d ms)" % [HANDOFF_BUDGET_MS, handoff_ms])
+	print("score black handoff: handoff_ms=%d setup_ms=%d phase=%s" % [handoff_ms, handoff_started - started_at, main.Phase.keys()[main.phase]])
 	for cue in cues:
 		var layer: Dictionary = score.layers.get(cue, {})
 		check(not bool(layer.get("wanted", true)) and not bool(layer.get("playing", true)),
