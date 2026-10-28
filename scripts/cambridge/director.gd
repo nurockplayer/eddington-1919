@@ -216,6 +216,14 @@ func _frame_speaker(speaker: String) -> void:
 		Cast.MENTOR: actor = world.mentor
 		Cast.EDDINGTON: actor = world.eddington
 	if not is_instance_valid(actor) or not actor.visible:
+		# An unframed line (the player, an off-screen voice) returns to the
+		# conversation lens instead of keeping a far speaker's long one.
+		_last_speaker = ""
+		if _lens_tween:
+			_lens_tween.kill()
+		if not is_equal_approx(player.camera.fov, 55.0):
+			_lens_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			_lens_tween.tween_property(player.camera, "fov", 55.0, 0.4)
 		return
 	if _last_speaker == speaker and _camera_turn and _camera_turn.is_running():
 		return
