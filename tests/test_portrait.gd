@@ -124,6 +124,16 @@ func _run() -> void:
 				tags.append(tag)
 	check(tags.size() == 3, "all three Cambridge name tags exist")
 	check(tags.all(func(tag): return not tag.visible), "all name tags hide during dialogue")
+	# A far speaker takes the long lens; the next unframed line returns to 55.
+	var eddington_pos: Vector3 = chapter.world.eddington.global_position
+	chapter.world.eddington.show()
+	chapter.player.global_position = eddington_pos + Vector3(4.6, 0, 0)
+	chapter._frame_speaker(Cast.EDDINGTON)
+	await create_timer(0.5).timeout
+	check(chapter.player.camera.fov < 42.0, "far speaker gets the long lens: %.1f" % chapter.player.camera.fov)
+	chapter._frame_speaker(Cast.YOU)
+	await create_timer(0.5).timeout
+	check(is_equal_approx(chapter.player.camera.fov, 55.0), "unframed line returns to the 55 degree lens")
 	while chapter.ui.dialog_active():
 		chapter.ui._advance()
 	await create_timer(0.5).timeout
