@@ -35,6 +35,7 @@ from mathutils import Matrix, Vector
 addon_utils.enable("HumGen3D", default_set=True)
 from HumGen3D import Human  # noqa: E402
 from HumGen3D.backend.preferences.preference_func import get_prefs  # noqa: E402
+from HumGen3D.human.clothing.base_clothing import find_masks  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kit  # noqa: E402
@@ -101,20 +102,24 @@ PERSONS = {
         "preset": "models/female/Caucasian presets/Caucasian 1.json",
         # c03 r2 (lead): Bob Short read as a blunt fringe wig; the design's hair is
         # side-parted and pushed back, no fringe.
-        "hair": "hair/head/male/Long/Medium Side Part.json",
+        "hair": "hair/head/female/Long/Wavy Bob Bangs.json",
         "age": 23,
         "height_cm": 168,
         # A slight neutralising push only (Kit reads neither as a woman nor as
         # butch); the c03 values are all this character gets.
         "livekeys": {"skinny": 0.55, "jaw_width": 0.15, "browridge_center_size": 0.25},
         "face": {},           # no eddington_face sculpt for Kit
-        "hair_colour": (("Lightness", 0.09), ("Redness", 0.35), ("Pepper & Salt", 0.0),
+        "hair_colour": (("Lightness", 0.12), ("Redness", 0.15), ("Pepper & Salt", 0.0),
                         ("Fast/Accurate", 1.0), ("Roughness", 0.45)),
         "pupil": [0.20, 0.15, 0.10, 1.0],
         "sclera": [0.93, 0.9, 0.86, 1.0],
         "face_shape": False,
         "beard_shadow": False,
-        "suit": "linen",      # flat palette material, like the MPFB route
+        "outfits": ["outfits/female/Casual/Smart_Casual.blend",
+                    "outfits/female/Extra Outfits Pack/Lab Tech.blend"],
+        "drop": ("Jeans", "TSHIRT"),
+        "shoes": "footwear/female/Office/HG_Leather_Dress_Shoe.blend",
+        "tints": {"Lab_Coat": "#C7BCA3", "Sweater": "#4A4A4C", "Chinos": "#3E3830", "Shoe": "#2A211B"},
         "glasses": True,
         "zero_makeup": True,
     },
@@ -162,6 +167,16 @@ def build(hair: str = "") -> Human:
     print("HG_HEIGHT cm", h.height.centimeters, flush=True)
     h.hair.regular_hair.set(hair or PERSON["hair"])
     hair_colour(h)
+    if "outfits" in PERSON:
+        brows = h.hair.eyebrows
+        options = [(m.particle_system.name, m.particle_system.settings.count) for m in brows.modifiers]
+        print("HG_BROW_OPTIONS", options, flush=True)
+        choice = min(options, key=lambda item: item[1])
+        brows.set(choice[0])
+        colours = dict(PERSON["hair_colour"])
+        brows.lightness.value = colours["Lightness"]
+        brows.redness.value = colours["Redness"]
+        print("HG_BROW_CHOICE", choice, "colour", colours["Lightness"], colours["Redness"], flush=True)
     h.eyes.set_from_dict({"pupil_color": PERSON["pupil"], "sclera_color": PERSON["sclera"]})
     if PERSON["zero_makeup"]:
         zero_makeup(h)
@@ -626,6 +641,78 @@ def suit(h: Human) -> bpy.types.Object:
     return ob
 
 
+def native_clothes(h: Human) -> None:
+    def clipping(label):
+        modifiers = [(m, m.show_viewport) for m in h.objects.body.modifiers]
+        try:
+            value = 100 * h.clothing.outfit._calc_percentage_clipping_vertices(bpy.context)
+            print("HG_OUTFIT_CLIPPING_PERCENT", label, value, flush=True)
+        finally:
+            for mod, visible in modifiers:
+                mod.show_viewport = visible
+
+    prefs = get_prefs()
+    previous = prefs.remove_clothes
+    try:
+        prefs.remove_clothes = False
+        h.clothing.outfit.set(PERSON["outfits"][0], bpy.context)
+        first = list(h.clothing.outfit.objects)
+        clipping(PERSON["outfits"][0])
+        h.clothing.outfit.set(PERSON["outfits"][1], bpy.context)
+        assert all(o in h.clothing.outfit.objects for o in first), "Smart Casual was removed"
+        clipping(PERSON["outfits"][1] + " combined")
+    finally:
+        prefs.remove_clothes = previous
+    objects = list(h.clothing.outfit.objects)
+    removed = [o for o in objects if any(s.lower() in o.name.lower() for s in PERSON["drop"])]
+    kept = [o for o in objects if o not in removed]
+    keep_masks = {m for o in kept for m in find_masks(o)}
+    remove_masks = {m for o in removed for m in find_masks(o)} - keep_masks
+    print("HG_CLOTHES kept", [o.name for o in kept], "removed", [o.name for o in removed],
+          "removed masks", sorted(remove_masks), flush=True)
+    for o in removed:
+        bpy.data.objects.remove(o, do_unlink=True)
+    for name in remove_masks:
+        mod = h.objects.body.modifiers.get(name)
+        if mod:
+            h.objects.body.modifiers.remove(mod)
+    h.clothing.footwear.set(PERSON["shoes"], bpy.context)
+    for o in kept + list(h.clothing.footwear.objects):
+        key = next((k for k in PERSON["tints"] if k.lower() in o.name.lower()), None)
+        if not key:
+            continue
+        value = PERSON["tints"][key].lstrip("#")
+        rgb = [int(value[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+        rgba = tuple(c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb) + (1.0,)
+        changed = []
+        for mat in o.data.materials:
+            if not mat or not mat.use_nodes:
+                continue
+            print("HG_CLOTH_NODES", o.name, mat.name,
+                  [(n.name, n.type, [i.name for i in n.inputs] if n.type == "GROUP" else [])
+                   for n in mat.node_tree.nodes], flush=True)
+            for n in mat.node_tree.nodes:
+                if n.type == "GROUP":
+                    for inp in n.inputs:
+                        if inp.name.lower() in ("main color_c0", "base color", "base colour", "color", "colour") and inp.type == "RGBA" and not inp.is_linked:
+                            inp.default_value = rgba
+                            changed.append((mat.name, n.name, inp.name))
+        print("HG_TINT", o.name, key, changed, flush=True)
+        if not changed:
+            raise RuntimeError(f"No HG colour input found for {o.name}")
+    coat = next(o for o in kept if "Lab_Coat" in o.name)
+    bpy.context.view_layer.update()
+    evaluated = coat.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    mesh = evaluated.to_mesh()
+    try:
+        hem = min((evaluated.matrix_world @ v.co).z for v in mesh.vertices)
+    finally:
+        evaluated.to_mesh_clear()
+    knee = (h.objects.rig.matrix_world @ h.objects.rig.pose.bones["shin.L"].head).z
+    print("HG_COAT_HEM_KNEE", hem, knee, flush=True)
+    clipping("kept")
+
+
 def mask_under(h: Human, cloth: bpy.types.Object) -> None:
     """Hide every body vertex the suit covers: all but head, neck and hands.
     A distance test left inner-arm skin poking through the sleeves once posed."""
@@ -761,7 +848,10 @@ def main() -> None:
     print_face_measure("final", h)
     skin_zones(h, lm)
     skin_material(h)
-    suit(h)
+    if "suit" in PERSON:
+        suit(h)
+    else:
+        native_clothes(h)
     if PERSON["glasses"]:
         spectacles(h, lm)
     arms_down(h)
@@ -794,6 +884,15 @@ def main() -> None:
             render(out / f"hg_{person}_front.png")
             head.rotation_euler = old_rotation
             bpy.context.view_layer.update()
+        if "--full" in argv:
+            set_mood(keys, "neutral")
+            cam.data.lens = 35
+            cam.data.dof.use_dof = False
+            target = Vector((0, 0, 0.84))
+            cam.location = target + Vector((0, -4.0, 0))
+            cam.rotation_euler = (target - cam.location).to_track_quat("-Z", "Y").to_euler()
+            gaze(h, cam.location)
+            render(out / f"hg_{person}_full.png")
         if "--wide" in argv:
             set_mood(keys, "neutral")
             cam.data.lens = 40
