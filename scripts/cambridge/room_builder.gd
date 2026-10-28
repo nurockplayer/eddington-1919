@@ -329,6 +329,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		shade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(lamp)
 	out.lamp = lamp
+	out.lamp_dust = _lamp_dust(root, lamp.position)
 
 	# Interactable set dressing along the walls. Hotspots are in the room side of props.
 	_shelf(w, Vector3(3.65, 0, -1.35), wood, dark_wood)
@@ -470,6 +471,46 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	out.window_light = window_light
 	out.environment = _environment(root)
 	return out
+
+
+static func _lamp_dust(root: Node3D, light_pos: Vector3) -> CPUParticles3D:
+	# A few dust motes drift through the cone under the shade and glint warm.
+	# Decoration only; unshaded so they read as lit by the lamp itself.
+	var dust := CPUParticles3D.new()
+	dust.name = "LampDust"
+	dust.position = light_pos + Vector3(0, -0.12, 0)
+	dust.amount = 36
+	dust.lifetime = 9.0
+	dust.preprocess = 9.0  # already drifting when the room appears
+	dust.randomness = 1.0
+	dust.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	dust.emission_box_extents = Vector3(0.24, 0.14, 0.24)
+	dust.direction = Vector3(0, 1, 0)
+	dust.spread = 180.0
+	dust.initial_velocity_min = 0.004
+	dust.initial_velocity_max = 0.018
+	dust.gravity = Vector3(0, -0.0015, 0)
+	dust.scale_amount_min = 0.5
+	dust.scale_amount_max = 1.0
+	var fade := Gradient.new()
+	fade.set_color(0, Color(1.0, 0.82, 0.55, 0.0))
+	fade.set_color(1, Color(1.0, 0.82, 0.55, 0.0))
+	fade.add_point(0.3, Color(1.0, 0.82, 0.55, 0.75))
+	fade.add_point(0.7, Color(1.0, 0.82, 0.55, 0.75))
+	dust.color_ramp = fade
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.006, 0.006)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.vertex_color_use_as_albedo = true
+	quad.material = mat
+	dust.mesh = quad
+	dust.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(dust)
+	return dust
 
 
 static func _table(w, pos: Vector3, size: Vector3, wood: Color) -> void:

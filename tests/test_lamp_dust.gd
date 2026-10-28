@@ -1,0 +1,35 @@
+extends SceneTree
+## Dust motes under the study lamp: present, faint, decoration only.
+const Room := preload("res://scripts/cambridge/room_builder.gd")
+var checks := 0
+var failures := 0
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+func check(ok: bool, message: String) -> void:
+	checks += 1
+	if not ok:
+		failures += 1
+		print("FAIL: ", message)
+
+
+func _run() -> void:
+	for departure in [false, true]:
+		var room := Node3D.new()
+		root.add_child(room)
+		var world := Room.build(room, departure)
+		var dust: CPUParticles3D = world.lamp_dust
+		var lamp: OmniLight3D = world.lamp
+		check(dust.emitting and dust.amount <= 48, "a small number of motes is emitting")
+		check(dust.global_position.y < lamp.global_position.y and dust.global_position.distance_to(lamp.global_position) < 0.3, "motes sit in the cone under the lamp")
+		check(dust.global_position.y - dust.emission_box_extents.y > 0.86, "motes stay above the desk papers")
+		check(dust.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "motes cast no shadows")
+		var mat := (dust.mesh as QuadMesh).material as StandardMaterial3D
+		check(mat.blend_mode == BaseMaterial3D.BLEND_MODE_ADD and mat.vertex_color_use_as_albedo, "motes glint additively with the ramp colour")
+		check(dust.color_ramp.sample(0.0).a == 0.0 and dust.color_ramp.sample(1.0).a == 0.0, "motes fade in and out, never pop")
+		room.free()
+	print("%d lamp dust checks, %d failures" % [checks, failures])
+	quit(0 if failures == 0 else 1)
