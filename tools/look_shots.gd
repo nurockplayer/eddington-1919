@@ -186,7 +186,8 @@ func _totality() -> void:
 		await _save("totality_shadow_bands")
 	else:
 		skipped.append("totality_shadow_bands")
-	if main.sky_mat.get_shader_parameter("third_contact") is Vector2:
+	# An unset uniform reads back null, so look for it in the shader source.
+	if main.sky_mat.shader.code.contains("uniform vec2 third_contact"):
 		main._apply_light(0.98, 0.9, clear_t, 0.0)
 		main.sky_mat.set_shader_parameter("third_contact", Vector2(0.0, 1.0))
 		var eye := Vector3(2.6, 1.65, 4.2)
