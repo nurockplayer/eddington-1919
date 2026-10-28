@@ -204,6 +204,8 @@ func click_button(button: Button) -> void:
 		while wait_left > 0.0 and is_instance_valid(button) and button.disabled:
 			await get_tree().process_frame
 			wait_left -= get_process_delta_time()
+		if not is_instance_valid(button) or not button.is_visible_in_tree():
+			break
 		print("[PROLOGUE INPUT] click ", button.text, " ", button.get_global_rect(), " attempt=", attempt + 1)
 		await click_at(button.get_global_rect().get_center())
 		if observed[0]:
