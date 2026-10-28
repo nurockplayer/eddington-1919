@@ -12,6 +12,7 @@ var _mats := {}
 ## r05 art pass (BIBLE §3a). main.gd sets false for --no-grade, so that flag
 ## gives a complete before/after: environment look AND these material changes.
 var look := true
+var palm_crowns: Array[Vector3] = []  # crown centres, for the pinhole crescents
 
 
 func _init(p_root: Node3D) -> void:
@@ -574,6 +575,7 @@ func palm(pos: Vector3, h: float) -> void:
 	p.position = pos
 	p.rotation = lean
 	p.add_to_group("veg_palm")  # cost attribution: benchmark --bench-hide=veg_palm
+	palm_crowns.append(pos + Vector3(0, h, 0))
 	root.add_child(p)
 	cyl(0.16, h, Vector3(0, h * 0.5, 0), Color(0.42, 0.34, 0.24), p, false, Vector3.ZERO, 0.11)
 	for i in 8:

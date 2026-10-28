@@ -74,6 +74,8 @@ func _run() -> void:
 		await _night()
 	if _wanted("title"):
 		await _title()
+	if _wanted("crescents"):
+		await _crescents()
 	print("look shots: %d saved, skipped %s, failed %s" % [saved, skipped, failed])
 	quit(1 if failed else 0)
 
@@ -160,5 +162,26 @@ func _title() -> void:
 		await _save("title_figure")
 	else:
 		skipped.append("title_figure")
+	main.queue_free()
+	await frames(4)
+
+
+func _crescents() -> void:
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	await frames(30)
+	var sc = main.world.get("sun_crescents")
+	if sc == null:
+		skipped.append("crescents")
+		main.queue_free()
+		await frames(4)
+		return
+	_hide_ui(main)
+	# Mid partial phase, clear sky: a thick crescent still lit.
+	main._apply_light(0.8, 0.1, -60.0, 0.0)
+	var spot: Vector3 = sc.spots[0].origin
+	_aim(main, spot + Vector3(1.2, 1.6, 1.2), spot)
+	await frames(6)
+	await _save("crescents_shade")
 	main.queue_free()
 	await frames(4)
