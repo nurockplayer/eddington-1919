@@ -45,3 +45,11 @@ static func strip_model(t: float, total: float, plates: Array, open_start: float
 		"plates_total": plates_total,
 		"plates_used": plates.size() + (1 if open_start >= 0.0 else 0),
 	}
+
+
+## Third contact over the 3 s return of daylight (v 0..1): Baily's beads for the
+## first ~0.5 s, then the diamond ring flares and fades by ~1.2 s.
+static func third_contact_glint(v: float) -> Vector2:
+	var beads := sin(v / 0.18 * PI) if v > 0.0 and v < 0.18 else 0.0
+	var diamond := sin((v - 0.08) / 0.32 * PI) if v > 0.08 and v < 0.40 else 0.0
+	return Vector2(beads, diamond)
