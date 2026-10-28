@@ -11,6 +11,7 @@ const DepartureProps := preload("res://scripts/cambridge/departure_props.gd")
 const ROOM_W := 9.0
 const ROOM_D := 6.0
 const ROOM_H := 3.6
+const WINDOW_STARS := 18
 
 
 static func _plaster_material(color: Color) -> StandardMaterial3D:
@@ -66,6 +67,51 @@ static func _window_glass_material(departure: bool) -> StandardMaterial3D:
 	material.roughness = 0.24
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	return material
+
+
+## With the blackout curtains gone, a few faint stars show above the street lamp.
+## Upper sash only, clear of the glazing bars and the lamp halo; fixed seed.
+static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshInstance3D:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1919
+	var bars: Array[float] = []
+	for x in [-1.9, -0.625, 0.625, 1.9]:
+		bars.append(window_center.x + x)
+	var spots: Array[Vector3] = []
+	var tries := 0
+	while spots.size() < WINDOW_STARS and tries < 400:
+		tries += 1
+		var p := Vector3(window_center.x + rng.randf_range(-1.82, 1.82), rng.randf_range(2.16, 2.88), window_center.z + 0.025)
+		if Vector2(p.x - lamp.x, p.y - lamp.y).length() < 0.34:
+			continue
+		var on_bar := false
+		for b in bars:
+			on_bar = on_bar or absf(p.x - b) < 0.07
+		if not on_bar:
+			spots.append(p)
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
+	mm.use_custom_data = true
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE
+	mm.mesh = quad
+	mm.instance_count = spots.size()
+	for i in spots.size():
+		var size := rng.randf_range(0.022, 0.05)
+		mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(size, size, 1.0)), spots[i]))
+		var warm := rng.randf()
+		mm.set_instance_color(i, Color(0.80 + 0.2 * warm, 0.86, 1.0 - 0.15 * warm, rng.randf_range(0.35, 0.9)))
+		mm.set_instance_custom_data(i, Color(rng.randf() * TAU, rng.randf_range(0.6, 1.8), 0, 0))
+	var stars := MultiMeshInstance3D.new()
+	stars.name = "DepartureWindowStars"
+	stars.multimesh = mm
+	var material := ShaderMaterial.new()
+	material.shader = preload("res://shaders/window_stars.gdshader")
+	stars.material_override = material
+	stars.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	stars.set_meta("spots", spots)
+	return stars
 
 
 static func build(root: Node3D, departure := false) -> Dictionary:
@@ -182,6 +228,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		lamp_point.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		lamp_point.position = Vector3(-0.70, 2.50, -2.79)
 		root.add_child(lamp_point)
+		root.add_child(_window_stars(window_center, lamp_point.position))
 	# Rain on the visible half of the sash, drawn as one low-cost mesh instance.
 	if not departure:
 		var rain_mm := MultiMesh.new()
