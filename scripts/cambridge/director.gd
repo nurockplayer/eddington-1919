@@ -437,3 +437,9 @@ func _build_audio() -> void:
 		brown = clampf(brown + (randf() - 0.5) * 0.07, -1.0, 1.0) * 0.99
 		samples.append(brown * 0.4 + (randf() - 0.5) * 0.05)
 	_audio(samples, -21.0, true).play()
+
+
+## A loop still playing when the scene is freed leaks its playback at exit.
+func _exit_tree() -> void:
+	for player in find_children("*", "AudioStreamPlayer", true, false):
+		player.stop()
