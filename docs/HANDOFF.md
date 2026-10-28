@@ -6,7 +6,7 @@
 - Godot is GPU work, so it runs on the host, through the lock:
   - a single headless suite: `orb-test --host -- godot --headless --path . --script res://tests/<suite>.gd`;
   - all suites, `orb-test --heavy --host -- ./tools/e2e_headless.sh`, a windowed screenshot run or Blender: `orb-test --heavy --host -- <cmd>`.
-- `--heavy` queues for the one host-wide heavy lock and checks `memory_pressure` ≥20%.
+- `--heavy` queues for the one host-wide heavy lock. It starts only Mon–Fri 05:00–15:00 JST or after 45 min of keyboard/mouse idle (orb-test gate, seen 2026-10-29 03:07 JST), then checks `memory_pressure` ≥20%.
 - Python runs in the container: `orb-test --image python:3.12-slim -- python3 -I art/pipeline/test_budget.py`.
 - `tools/e2e_headless.sh` takes no lock of its own; orb-test holds it.
 - Every worker brief states this rule explicitly. The DS base prompt still says lockf.
@@ -73,7 +73,7 @@ Open PRs (all pass their headless suites):
 - #43 test_score handoff timing. Merged.
 
 Before merge:
-- Heavy set + e2e for all four in one integration worktree: 2026-10-29 03:00 JST or later.
+- Heavy set + e2e for all eight open branches, in one integration worktree: queued 2026-10-29 03:07 JST under `orb-test --heavy --host`; it starts when the gate opens (05:00 JST, or 45 min idle).
 - Windowed look at #39–#41 and #44: 09:00–15:00 JST, one run of `tools/look_shots.gd` (#45) on an integration worktree (main + #39 #40 #41 #44 + #45): `orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top -s tools/look_shots.gd -- --out=$PWD/build/look`. 8 stills; delete `build/look` after.
 
 Next items:
