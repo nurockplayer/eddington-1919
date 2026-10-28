@@ -69,6 +69,7 @@ Open PRs (all pass their headless suites):
 - #49 pinhole sun crescents under the palms. Draft; oracle approve after 2 blocker fixes (palm lean, cloud cut); windowed look pending; needs a fresh gate review on its final head.
 - #50 shadow bands on the ground around totality. Draft; oracle approve (0 findings); windowed look pending (judge in motion). Touches `_apply_light` next to #49: rebase whichever merges second.
 - `tools/look_shots.gd` (#45/#47/#48 merged; crescents view in #49): one windowed run covers all of the above.
+- Integration worktree (all 8 open branches): #49 conflicts with #41 and #50 only on adjacent `main.gd` lines; keep both sides. #50 is now stacked on #49. Checked 2026-10-29 00:45 JST: 7 touched suites green. **A fresh worktree must run `godot --headless --path . --import` first.** Without it, suites print `instantiate on null` and test_star_decor hangs. `perl alarm` kills only orb-test, not its godot child, so stop a hang via TaskStop.
 - #43 test_score handoff timing. Merged.
 
 Before merge:
