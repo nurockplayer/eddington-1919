@@ -60,6 +60,12 @@ static func _ground(delta: Vector3, sun_dir: Vector3) -> Vector2:
 	return Vector2(g.x, g.z)
 
 
+## Direct sunlight left for the pinholes: the sky shader's own cloud_visibility,
+## so a spot goes out exactly when cloud hides the Sun's disc.
+static func sunlight(vis: float, cloud_density: float) -> float:
+	return vis * (1.0 - smoothstep(0.35, 0.80, cloud_density))
+
+
 ## contact and the Moon's place match eclipse_sky.gdshader; brightness is the
 ## sunlight still reaching the ground (0 in totality, at night or under cloud).
 func set_eclipse(contact: float, brightness: float) -> void:

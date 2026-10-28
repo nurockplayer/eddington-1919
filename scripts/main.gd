@@ -290,7 +290,7 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	if darkness > 0.95 or night > 0.5:
 		sun.light_energy = 0.0
 	if world.has("sun_crescents"):
-		var lit := 0.0 if darkness > 0.95 or night > 0.5 else vis * (1.0 - dens * 0.85)
+		var lit := 0.0 if darkness > 0.95 or night > 0.5 else SunCrescents.sunlight(vis, dens)
 		world.sun_crescents.set_eclipse(contact, lit)
 	var amb_day := Color(0.55, 0.57, 0.6)
 	var amb_tot := Color(0.10, 0.11, 0.17)
