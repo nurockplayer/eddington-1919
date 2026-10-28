@@ -154,5 +154,9 @@ func _title() -> void:
 	for label in ["title_meteor_a", "title_meteor_b", "title_meteor_c"]:
 		await create_timer(0.2).timeout
 		await _save(label)
+	# The Taurus lines (#46) peak 10 s in, on a 16 s cycle.
+	if "figure" in sky[0] and sky[0].figure:
+		await create_timer(5.4).timeout
+		await _save("title_figure")
 	main.queue_free()
 	await frames(4)
