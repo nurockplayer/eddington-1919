@@ -18,6 +18,10 @@ uniform float cloud_shade = 0.22;  // daytime darkening of thick cloud (art look
 uniform float day_gain = 1.0;      // daytime sky brightness (art look; fades out with darkness)
 uniform vec2 star_pos[12];
 uniform float star_mag[12];
+// The night after: the real Príncipe sky (scripts/night_sky.gd) and the Milky Way.
+uniform vec4 night_stars[27];
+uniform vec3 gal_pole = vec3(0.0, 1.0, 0.0);
+uniform vec3 gal_centre = vec3(1.0, 0.0, 0.0);
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -108,6 +112,21 @@ void sky() {
 	// Keep background stars on the same cloud-compositing path as corona and
 	// field stars, so all eclipse detail has the same final transmittance.
 	solar += max(star_vis * 0.5, night) * cloud_visibility * background_stars * vec3(0.8, 0.85, 1.0);
+	if (night > 0.0 && h > 0.0) {
+		float named = 0.0;
+		for (int i = 0; i < 27; i++) {
+			float ang2 = 2.0 * (1.0 - dot(d, night_stars[i].xyz));
+			named += night_stars[i].w * exp(-ang2 / 0.0000035);
+		}
+		// Milky Way: a soft band about the galactic equator, brightest toward the
+		// core in Sagittarius, mottled by the cloud field, with a darker rift.
+		float b = dot(d, gal_pole);
+		float core = pow(max(dot(d, gal_centre), 0.0), 6.0);
+		float mottle = texture(cloud_tex, d.xz / (h + 0.4) * 1.7 + vec2(0.37, 0.11)).r;
+		float band = exp(-b * b / 0.012) * (0.35 + 1.2 * core) * mix(0.55, 1.1, mottle);
+		band *= 1.0 - 0.6 * exp(-b * b / 0.0006) * core;
+		solar += night * cloud_visibility * (named * vec3(1.3, 1.35, 1.5) + band * vec3(0.10, 0.105, 0.12));
+	}
 
 	// Clouds: the same sampled density shades the sky and hides luminous detail.
 	float shade = mix(0.22, cloud_shade, 1.0 - smoothstep(0.0, 0.15, darkness));

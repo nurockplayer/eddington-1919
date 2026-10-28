@@ -11,6 +11,7 @@ const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 const Look := preload("res://scripts/look.gd")
+const NightSky := preload("res://scripts/night_sky.gd")
 const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
 const DepartureWorkbook := preload("res://scripts/cambridge/departure_props.gd")
 const DepartureContent := preload("res://scripts/cambridge/content_departure.gd")
@@ -207,6 +208,7 @@ func _build_environment() -> void:
 	for i in sim.STAR_COUNT:
 		mags.append(1.0 - i * 0.06)
 	sky_mat.set_shader_parameter("star_mag", mags)
+	NightSky.apply(sky_mat)
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	sky.process_mode = Sky.PROCESS_MODE_REALTIME
