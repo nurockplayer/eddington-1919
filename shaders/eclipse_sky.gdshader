@@ -115,7 +115,8 @@ void sky() {
 	if (night > 0.0 && h > 0.0) {
 		float named = 0.0;
 		for (int i = 0; i < 27; i++) {
-			float ang2 = 2.0 * (1.0 - dot(d, night_stars[i].xyz));
+			vec3 delta = d - night_stars[i].xyz;  // chord², stable where 1 - dot is not
+			float ang2 = dot(delta, delta);
 			named += night_stars[i].w * exp(-ang2 / 0.0000035);
 		}
 		// Milky Way: a soft band about the galactic equator, brightest toward the
