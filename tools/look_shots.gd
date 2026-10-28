@@ -12,6 +12,7 @@ var out_dir := ""
 var only := PackedStringArray()
 var saved := 0
 var skipped: Array[String] = []
+var failed: Array[String] = []
 
 
 func _initialize() -> void:
@@ -57,7 +58,11 @@ func _save(label: String) -> void:
 		return
 	await RenderingServer.frame_post_draw
 	var img := root.get_viewport().get_texture().get_image()
-	img.save_png(out_dir.path_join(label + ".png"))
+	var err := img.save_png(out_dir.path_join(label + ".png"))
+	if err != OK:
+		failed.append(label)
+		print("FAIL: could not save %s (error %d)" % [label, err])
+		return
 	saved += 1
 	print("saved: ", label)
 
@@ -69,8 +74,8 @@ func _run() -> void:
 		await _night()
 	if _wanted("title"):
 		await _title()
-	print("look shots: %d saved, skipped %s" % [saved, skipped])
-	quit(0)
+	print("look shots: %d saved, skipped %s, failed %s" % [saved, skipped, failed])
+	quit(1 if failed else 0)
 
 
 func _study() -> void:
