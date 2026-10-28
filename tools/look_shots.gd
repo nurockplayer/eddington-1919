@@ -177,8 +177,17 @@ func _crescents() -> void:
 		await frames(4)
 		return
 	_hide_ui(main)
-	# Mid partial phase, clear sky: a thick crescent still lit.
-	main._apply_light(0.8, 0.1, -60.0, 0.0)
+	# Mid partial phase at the clearest moment of this run's clouds.
+	var clear_t := -60.0
+	for t in range(-120, 1):
+		if main.sim.cloud_over_sun(float(t)) < main.sim.cloud_over_sun(clear_t):
+			clear_t = float(t)
+	main._apply_light(0.8, 0.1, clear_t, 0.0)
+	if not sc.visible:
+		failed.append("crescents_shade (clouded out)")
+		main.queue_free()
+		await frames(4)
+		return
 	var spot: Vector3 = sc.spots[0].origin
 	_aim(main, spot + Vector3(1.2, 1.6, 1.2), spot)
 	await frames(6)
