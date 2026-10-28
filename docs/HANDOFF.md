@@ -69,7 +69,7 @@ Open PRs (all pass their headless suites):
 
 Before merge:
 - Heavy set + e2e for all four in one integration worktree: 2026-10-29 03:00 JST or later.
-- Windowed look at #39–#41: 09:00–15:00 JST.
+- Windowed look at #39–#41 and #44: 09:00–15:00 JST, one run of `tools/look_shots.gd` (#45) on an integration worktree (main + #39 #40 #41 #44 + #45): `orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top -s tools/look_shots.gd -- --out=$PWD/build/look`. 8 stills; delete `build/look` after.
 
 Next items:
 - bot 「完成計畫」 real-click flake
