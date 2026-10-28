@@ -8,6 +8,8 @@ extends Node3D
 ##   godot --path . res://tools/hg_preview/hg_preview.tscn -- --glb=<file> [--light=studio|study] [--shots=<dir>]
 ## --light=studio (default): neutral grey look-dev light, no grade, to judge materials.
 ## --light=study: the Cambridge-like lamp/window light with the game's grade.
+## --light=portrait: the c04 dialogue rig (soft area key, cool fill, warm rim) with the
+## game's grade; --shots then saves the four c04 framings plus a 30 s idle timing.
 ## With --shots it saves close-up/medium PNGs per mood (godot_<light>_<mood>.png) and quits.
 
 const LOOK := preload("res://scripts/look.gd")
@@ -41,6 +43,7 @@ var mood_i := 0
 var next_mood := 4.0
 var shots_dir := ""
 var light := "studio"
+var timing_idle := false   # portrait timing: run the idle even though --shots is set
 
 
 func _ready() -> void:
@@ -104,12 +107,14 @@ func _stage() -> void:
 	env.ssao_intensity = 1.2
 	env.glow_enabled = true
 	env.glow_intensity = 0.25
-	if light == "study":
+	if light != "studio":
 		LOOK.apply_grade(env)
 	we.environment = env
 	add_child(we)
 	if light == "studio":
 		_studio_lights()
+	elif light == "portrait":
+		_portrait_lights()
 	else:
 		_study_lights()
 	cam = Camera3D.new()
@@ -159,6 +164,53 @@ func _study_lights() -> void:
 	rim.global_position = head_pos + Vector3(0.45, 0.35, -0.65)
 
 
+## c04 dialogue rig: a soft area key 45° camera-left and above (warm lamp), a broad
+## cool fill camera-right at a quarter of it, a warm rim from behind for hair and
+## shoulders. Starting values from the c04 ChatGPT review; the lead tunes them by eye.
+func _portrait_lights() -> void:
+	var key := AreaLight3D.new()
+	key.area_size = Vector2(0.55, 0.75)
+	key.area_range = 3.0
+	key.light_energy = 2.4
+	key.light_color = Color(1.0, 0.82, 0.68)
+	key.shadow_enabled = true
+	add_child(key)
+	key.look_at_from_position(head_pos + Vector3(-0.7, 0.45, 0.65), head_pos)
+	var fill := SpotLight3D.new()
+	fill.spot_range = 3.0
+	fill.spot_angle = 55.0
+	fill.light_energy = 0.65
+	fill.light_color = Color(0.72, 0.83, 1.0)
+	fill.light_specular = 0.2
+	add_child(fill)
+	fill.look_at_from_position(head_pos + Vector3(0.7, 0.2, 0.65), head_pos)
+	var rim := SpotLight3D.new()
+	rim.spot_range = 3.0
+	rim.spot_angle = 48.0
+	rim.light_energy = 1.1
+	rim.light_color = Color(1.0, 0.86, 0.72)
+	add_child(rim)
+	rim.look_at_from_position(head_pos + Vector3(0.6, 0.4, -0.55), head_pos)
+
+
+## Camera framings for --light=portrait shots. Vertical FOV 27° ≈ 50 mm, 21° ≈ 65 mm.
+func _frame(kind: String) -> void:
+	match kind:
+		"front_close":
+			cam.fov = 21.0
+			cam.look_at_from_position(head_pos + Vector3(0, 0.02, 1.1), head_pos + Vector3(0, -0.02, 0))
+		"threeq_close":
+			cam.fov = 21.0
+			cam.look_at_from_position(head_pos + Vector3(-0.55, 0.04, 0.95), head_pos + Vector3(0, -0.02, 0))
+		"upper_body":
+			cam.fov = 27.0
+			cam.look_at_from_position(head_pos + Vector3(-0.45, -0.1, 1.9), head_pos + Vector3(0, -0.3, 0))
+		"full_body":
+			cam.fov = 35.0
+			cam.look_at_from_position(Vector3(head_pos.x - 0.6, head_pos.y * 0.6, head_pos.z + 4.2),
+				Vector3(head_pos.x, head_pos.y * 0.52, head_pos.z))
+
+
 func _close_up() -> void:
 	cam.fov = 22.0
 	cam.look_at_from_position(head_pos + Vector3(-0.32, 0.07, 1.25), head_pos + Vector3(0, 0.03, 0))
@@ -195,7 +247,7 @@ func _process(delta: float) -> void:
 	for k in mood_target:
 		mood_w[k] = lerpf(mood_w[k], mood_target[k], 1.0 - exp(-delta * 7.0))
 		_set_shape(k, mood_w[k])
-	if shots_dir == "":
+	if shots_dir == "" or timing_idle:
 		next_mood -= delta
 		if next_mood <= 0.0:
 			mood_i = (mood_i + 1) % MOOD_ORDER.size()
@@ -250,6 +302,10 @@ func _eyes() -> void:
 
 func _shots() -> void:
 	DirAccess.make_dir_recursive_absolute(shots_dir)
+	if light == "portrait":
+		await _portrait_shots()
+		get_tree().quit()
+		return
 	for m in MOOD_ORDER:
 		_set_mood(m)
 		for i in 40:
@@ -263,6 +319,43 @@ func _shots() -> void:
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(shots_dir.path_join("godot_%s_medium.png" % light))
 	get_tree().quit()
+
+
+func _save(name: String) -> void:
+	for i in 40:
+		await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(shots_dir.path_join("portrait_%s.png" % name))
+
+
+## Four framings in neutral, the close-ups again in warm, then 30 s of the idle
+## (blinks, saccades, breathing) with CPU/GPU frame times printed as PERF.
+func _portrait_shots() -> void:
+	_set_mood("neutral")
+	for kind in ["front_close", "threeq_close", "upper_body", "full_body"]:
+		_frame(kind)
+		await _save(kind)
+	_set_mood("warm")
+	_frame("threeq_close")
+	await _save("threeq_close_warm")
+	_set_mood("neutral")
+	_frame("upper_body")
+	timing_idle = true
+	var vp := get_viewport().get_viewport_rid()
+	RenderingServer.viewport_set_measure_render_time(vp, true)
+	var cpu: Array[float] = []
+	var gpu: Array[float] = []
+	var t0 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0 < 30000:
+		await RenderingServer.frame_post_draw
+		cpu.append(RenderingServer.viewport_get_measured_render_time_cpu(vp) + RenderingServer.get_frame_setup_time_cpu())
+		gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(vp))
+	cpu.sort()
+	gpu.sort()
+	var n := gpu.size()
+	print("PERF frames=%d size=%s gpu_ms p50=%.2f p95=%.2f cpu_ms p50=%.2f p95=%.2f vram_mb=%.0f" % [n,
+		get_viewport().get_visible_rect().size, gpu[n / 2], gpu[n * 95 / 100], cpu[n / 2], cpu[n * 95 / 100],
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0])
 
 
 func _debug(n: Node) -> void:

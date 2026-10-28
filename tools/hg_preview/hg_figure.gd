@@ -51,6 +51,20 @@ static func tune_materials(n: Node) -> void:
 				m.roughness = 0.42
 				m.anisotropy_enabled = true
 				m.anisotropy = 0.6
+			elif nm.begins_with("Haircards") or nm.begins_with("HG_Haircap"):
+				# c04: HG's own cards and haircap, baked colour/alpha/normal. Alpha hash
+				# keeps strands sorted and shadowed (blend would sort per mesh).
+				m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH
+				m.cull_mode = BaseMaterial3D.CULL_DISABLED
+				m.roughness = 0.46
+				m.anisotropy_enabled = true
+				m.anisotropy = 0.4
+			elif nm.begins_with("HG_Lab_Coat") or nm.begins_with("HG_Sweater") or nm.begins_with("HG_Chinos"):
+				# c04: HG garments carry baked normal/roughness maps; cloth, so no rim
+				m.cull_mode = BaseMaterial3D.CULL_DISABLED
+				m.roughness = 1.0 if m.roughness_texture else 0.88
+			elif nm.begins_with("HG_Leather"):
+				m.roughness = 1.0 if m.roughness_texture else 0.55
 			elif nm.begins_with("HG_Suit"):
 				m.cull_mode = BaseMaterial3D.CULL_DISABLED
 				m.roughness = 0.88
