@@ -1,12 +1,12 @@
 """Export the HG prototype (hg_person.py output) to a Godot-ready GLB.
 
-    blender -b <out_dir>/eddington_hg.blend --python art/pipeline/blender/hg_export.py -- <out_dir>
+    blender -b <out_dir>/<person>_hg.blend --python art/pipeline/blender/hg_export.py -- <out_dir>
 
   particle hair/eyebrows → HG haircards (convert_to_haircards)
   painted skin + suit node graphs → baked 2K albedo images (Cycles emission bake)
   masked body under the suit → deleted (shape keys kept), subsurf dropped
   posed arms → one-frame "idle" action; FACS shape keys → glTF morph targets
-  → <out_dir>/eddington_hg.glb
+  → <out_dir>/<person>_hg.glb (named from the opened .blend)
 
 The GLB contains HG assets: it stays outside the public repo (see hg_person.py).
 """
@@ -22,19 +22,25 @@ from HumGen3D import Human  # noqa: E402
 
 BAKE = 2048
 HAIR = (0.018, 0.012, 0.009, 1.0)
+# Strand colour per exported blend (linear); HG's Lightness/Redness only reach its own shader.
+HAIR_BY_STEM = {"kit_hg": (0.06, 0.034, 0.018, 1.0)}
 
 
 def haircards(h: Human) -> list:
     """Particle hair → thin ribbon strips, plus a hair-coloured scalp in the bake.
     HG's own convert_to_haircards needs hair/haircards/* which the trial lacks
     (Errno 2 on HairMediumLength_zones.json), so this is a stand-in."""
+    global HAIR
+    HAIR = HAIR_BY_STEM.get(Path(bpy.data.filepath).stem, HAIR)
     body = h.objects.body
     objs = []
     for m in [m for m in body.modifiers if m.type == "PARTICLE_SYSTEM"]:
         st = m.particle_system.settings
         if not (m.show_render and m.show_viewport) or st.count == 0:
             continue
-        head = m.particle_system.name.startswith("hair")
+        # HG female content names head systems A_base_*/B_strands, not hair_*:
+        # only eyebrow/eyelash systems take the fine-brow branch.
+        head = not m.particle_system.name.lower().startswith(("eyebrow", "brow", "eyelash"))
         if head:  # ~3000 strands per system: enough to read as hair, cheap in Godot
             st.child_percent = max(1, min(100, int(100 * 3000 / (st.count * max(1, st.rendered_child_count)))))
         else:  # brows: fewer, finer hairs so they read as hair, not a painted bar
@@ -74,9 +80,11 @@ def haircards(h: Human) -> list:
     return objs
 
 
-def scalp_zone(body: bpy.types.Object, strands: list) -> None:
+def scalp_zone(body: bpy.types.Object, strands: list, z_min: float) -> None:
     """Mark scalp skin under the strands ('scalp' attribute, mixed to hair colour
-    in the bake), so gaps between strands read as hair, not skin."""
+    in the bake), so gaps between strands read as hair, not skin. Only above
+    z_min (just over the eyes): long hair hanging past the cheeks otherwise
+    paints the face hair-coloured (c03 HG Kit read as bearded in game)."""
     from mathutils.kdtree import KDTree
     pts = [o.matrix_world @ v.co for o in strands if o.name.startswith("Hair_") for v in o.data.vertices]
     kd = KDTree(len(pts))
@@ -85,11 +93,25 @@ def scalp_zone(body: bpy.types.Object, strands: list) -> None:
     kd.balance()
     att = body.data.color_attributes.new("scalp", "FLOAT_COLOR", "POINT")
     vals = []
-    for v in body.data.vertices:
-        _co, _i, d = kd.find(body.matrix_world @ v.co)
-        f = 0.0 if d is None else max(0.0, min(1.0, (0.012 - d) / 0.006))
+    # Evaluated positions (shape keys + pose), where the strands are: the raw
+    # base-mesh coordinates sit elsewhere and painted a beard on Kit (c03).
+    # Keep topology: evaluate with only the armature modifier on.
+    off = [m for m in body.modifiers if m.type != "ARMATURE" and m.show_viewport]
+    for m in off:
+        m.show_viewport = False
+    ev = body.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    me = ev.to_mesh()
+    for m in off:
+        m.show_viewport = True
+    assert len(me.vertices) == len(body.data.vertices), (len(me.vertices), len(body.data.vertices))
+    for v in me.vertices:
+        w = body.matrix_world @ v.co
+        _co, _i, d = kd.find(w)
+        f = 0.0 if d is None or w.z < z_min else max(0.0, min(1.0, (0.012 - d) / 0.006))
         vals.extend((f, f, f, 1.0))
+    ev.to_mesh_clear()
     att.data.foreach_set("color", vals)
+    print("DBG scalp marked", sum(1 for i in range(0, len(vals), 4) if vals[i] > 0), "of", len(vals) // 4, flush=True)
 
 
 def bake_surface(ob: bpy.types.Object, out: Path) -> tuple:
@@ -213,19 +235,22 @@ def bake_albedo(ob: bpy.types.Object, name: str, out: Path, slot: int = 0) -> bp
 
 
 def bake_base_keys(ob: bpy.types.Object) -> None:
-    """Fold HG's base keys (Male, LIVE_KEY_*) and our eddington_face into the mesh,
-    as HG's own exporter does (_apply_base_shape_keys); every other key keeps its
-    offset. Without this Godot shows the raw base head (morph weights default 0)
-    and the eye sockets no longer meet the eyeballs."""
+    """Fold HG's base keys (Male/Female, LIVE_KEY_*) and our eddington_face into
+    the mesh, as HG's own exporter does (_apply_base_shape_keys); every other key
+    keeps its offset. Without this Godot shows the raw base head (morph weights
+    default 0) and the eye sockets no longer meet the eyeballs. `female` matters
+    for the c03 Kit bake-off, whose body is the female base."""
     keys = ob.data.shape_keys
     if not keys:
         return
     kb = keys.key_blocks
     basis = kb[0]
     n = len(ob.data.vertices)
+    folded = []
     for name in [k.name for k in kb[1:]]:
-        if not name.lower().startswith(("male", "live_key", "eddington_face")):
+        if not name.lower().startswith(("male", "female", "live_key", "eddington_face")):
             continue
+        folded.append(name)
         sk = kb[name]
         rel = sk.relative_key
         delta = [(sk.data[i].co - rel.data[i].co) * sk.value for i in range(n)]
@@ -237,7 +262,7 @@ def bake_base_keys(ob: bpy.types.Object) -> None:
         ob.shape_key_remove(sk)
     for i in range(n):
         ob.data.vertices[i].co = basis.data[i].co
-    print("DBG baked keys", ob.name, len(ob.data.shape_keys.key_blocks))
+    print("DBG baked keys", ob.name, folded, len(ob.data.shape_keys.key_blocks))
 
 
 def drop_masked(body: bpy.types.Object) -> None:
@@ -273,7 +298,10 @@ def main() -> None:
     h = Human.from_existing(rig)
     body = h.objects.body
     cards = haircards(h)
-    scalp_zone(body, cards)
+    eyes_ev = h.objects.eyes.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    eyes_top = max((h.objects.eyes.matrix_world @ v.co).z for v in eyes_ev.to_mesh().vertices)
+    eyes_ev.to_mesh_clear()
+    scalp_zone(body, cards, eyes_top + 0.02)
     rough, normal = bake_surface(body, out)
     bake_albedo(body, "skin_albedo", out)
     export_surface(body, rough, normal)
@@ -291,11 +319,14 @@ def main() -> None:
     drop_masked(body)
     idle_action(rig)
     objs = [rig, body, h.objects.eyes, h.objects.lower_teeth, h.objects.upper_teeth, suit] + cards
+    glasses = bpy.data.objects.get("Kit_Glasses")  # procedural, parented to the head bone
+    if glasses:
+        objs.append(glasses)
     for o in bpy.data.objects:
         o.select_set(o in objs)
     print("DBG export", [(o.name, o.type, len(o.data.vertices) if o.type == "MESH" else 0,
                           len(o.data.shape_keys.key_blocks) if o.type == "MESH" and o.data.shape_keys else 0) for o in objs])
-    bpy.ops.export_scene.gltf(filepath=str(out / "eddington_hg.glb"), export_format="GLB", use_selection=True,
+    bpy.ops.export_scene.gltf(filepath=str(out / (Path(bpy.data.filepath).stem + ".glb")), export_format="GLB", use_selection=True,
                               export_apply=False, export_morph=True, export_skins=True, export_animations=True,
                               export_copyright="Human Generator Asset License — not for redistribution")
 
