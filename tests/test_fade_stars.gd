@@ -68,9 +68,10 @@ func _run() -> void:
 	for i in 3200:
 		sky._t = 2.0 + i * 0.01
 		peak = maxf(peak, sky.figure_alpha())
-		low = minf(low, sky.figure_alpha())
+		if sky._t > 2.0 + FadeStars.FIGURE_PERIOD * 0.5:  # after the first peak
+			low = minf(low, sky.figure_alpha())
 	check(peak <= FadeStars.FIGURE_ALPHA + 0.0001 and peak > 0.15, "lines stay faint: peak %.3f" % peak)
-	check(low < 0.001, "lines fade fully away between showings")
+	check(low < 0.001, "lines fade fully away after each showing: %.4f" % low)
 	var plain := FadeStars.new()
 	root.add_child(plain)
 	for i in 2000:
