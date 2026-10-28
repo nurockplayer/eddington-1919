@@ -109,7 +109,7 @@ PERSONS = {
         # butch); the c03 values are all this character gets.
         "livekeys": {"skinny": 0.55, "jaw_width": 0.15, "browridge_center_size": 0.25},
         "face": {},           # no eddington_face sculpt for Kit
-        "hair_colour": (("Lightness", 0.12), ("Redness", 0.15), ("Pepper & Salt", 0.0),
+        "hair_colour": (("Lightness", 0.28), ("Redness", 0.2), ("Pepper & Salt", 0.0),
                         ("Fast/Accurate", 1.0), ("Roughness", 0.45)),
         "pupil": [0.20, 0.15, 0.10, 1.0],
         "sclera": [0.93, 0.9, 0.86, 1.0],
@@ -117,9 +117,11 @@ PERSONS = {
         "beard_shadow": False,
         "outfits": ["outfits/female/Casual/Smart_Casual.blend",
                     "outfits/female/Extra Outfits Pack/Lab Tech.blend"],
-        "drop": ("Jeans", "TSHIRT"),
+        "trousers": "outfits/female/Extra Outfits Pack/Pirate.blend",
+        "trouser_object": "Pirate_Pants",
+        "drop": ("Jeans", "TSHIRT", "Chinos"),
         "shoes": "footwear/female/Office/HG_Leather_Dress_Shoe.blend",
-        "tints": {"Lab_Coat": "#C7BCA3", "Sweater": "#4A4A4C", "Chinos": "#3E3830", "Shoe": "#2A211B"},
+        "tints": {"Lab_Coat": "#C7BCA3", "Sweater": "#4A4A4C", "Pirate_Pants": "#3E3830", "Shoe": "#2A211B"},
         "glasses": True,
         "zero_makeup": True,
     },
@@ -641,6 +643,37 @@ def suit(h: Human) -> bpy.types.Object:
     return ob
 
 
+def scan_trousers(h: Human) -> None:
+    root = Path(get_prefs().filepath)
+    prefs = get_prefs()
+    old = prefs.remove_clothes
+    try:
+        prefs.remove_clothes = True
+        knee = (h.objects.rig.matrix_world @ h.objects.rig.pose.bones["shin.L"].head).z
+        for path in sorted((root / "outfits/female").rglob("*.blend")):
+            with bpy.data.libraries.load(str(path), link=False) as (src, _dst):
+                names = [n for n in src.objects if any(k in n.lower() for k in ("pants", "trousers", "chinos", "suit"))]
+            if not names:
+                continue
+            relative = path.relative_to(root).as_posix()
+            h.clothing.outfit.set(relative, bpy.context)
+            bpy.context.view_layer.update()
+            for o in h.clothing.outfit.objects:
+                if not any(k in o.name.lower() for k in ("pants", "trousers", "chinos", "suit")):
+                    continue
+                evaluated = o.evaluated_get(bpy.context.evaluated_depsgraph_get())
+                mesh = evaluated.to_mesh()
+                try:
+                    xs = [(evaluated.matrix_world @ v.co).x for v in mesh.vertices
+                          if abs((evaluated.matrix_world @ v.co).z - knee) <= 0.01]
+                    width = max(xs) - min(xs) if xs else None
+                    print("HG_TROUSER_WIDTH", relative, o.name, "knee_z", knee, "width_m", width, "samples", len(xs), flush=True)
+                finally:
+                    evaluated.to_mesh_clear()
+    finally:
+        prefs.remove_clothes = old
+
+
 def native_clothes(h: Human) -> None:
     def clipping(label):
         modifiers = [(m, m.show_viewport) for m in h.objects.body.modifiers]
@@ -661,10 +694,15 @@ def native_clothes(h: Human) -> None:
         h.clothing.outfit.set(PERSON["outfits"][1], bpy.context)
         assert all(o in h.clothing.outfit.objects for o in first), "Smart Casual was removed"
         clipping(PERSON["outfits"][1] + " combined")
+        before_trousers = set(h.clothing.outfit.objects)
+        h.clothing.outfit.set(PERSON["trousers"], bpy.context)
+        imported_trousers = set(h.clothing.outfit.objects) - before_trousers
+        assert any(PERSON["trouser_object"] in o.name for o in imported_trousers)
     finally:
         prefs.remove_clothes = previous
     objects = list(h.clothing.outfit.objects)
-    removed = [o for o in objects if any(s.lower() in o.name.lower() for s in PERSON["drop"])]
+    removed = [o for o in objects if any(s.lower() in o.name.lower() for s in PERSON["drop"])
+               or (o in imported_trousers and PERSON["trouser_object"] not in o.name)]
     kept = [o for o in objects if o not in removed]
     keep_masks = {m for o in kept for m in find_masks(o)}
     remove_masks = {m for o in removed for m in find_masks(o)} - keep_masks
@@ -701,6 +739,27 @@ def native_clothes(h: Human) -> None:
         if not changed:
             raise RuntimeError(f"No HG colour input found for {o.name}")
     coat = next(o for o in kept if "Lab_Coat" in o.name)
+    # A topology-preserving outward offset can be stored as a shape key, so it
+    # survives glTF export alongside HG's corrective keys and skin weights.
+    offset = coat.modifiers.new("HG_coat_offset", "DISPLACE")
+    offset.direction = "NORMAL"
+    offset.strength = 0.02
+    offset.mid_level = 0.0
+    coat.modifiers.move(coat.modifiers.find(offset.name), 0)
+    for obj in bpy.context.selected_objects:
+        obj.select_set(False)
+    coat.select_set(True)
+    bpy.context.view_layer.objects.active = coat
+    bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=False, modifier=offset.name)
+    coat.data.shape_keys.key_blocks[-1].value = 0.0
+    solidify = next((m for m in coat.modifiers if m.type == "SOLIDIFY"), None)
+    if solidify is None:
+        solidify = coat.modifiers.new("HG_coat_solidify", "SOLIDIFY")
+    solidify.thickness = 0.02
+    solidify.offset = 1.0
+    solidify.show_viewport = solidify.show_render = True
+    print("HG_COAT_DIAG cause=sweater_poke_through", "offset_shape_key",
+          coat.data.shape_keys.key_blocks[-1].name, "distance_m", 0.02, flush=True)
     bpy.context.view_layer.update()
     evaluated = coat.evaluated_get(bpy.context.evaluated_depsgraph_get())
     mesh = evaluated.to_mesh()
@@ -842,6 +901,9 @@ def main() -> None:
     print("HG_PERSON", person, flush=True)
     hair = next((a.split("=", 1)[1] for a in argv if a.startswith("--hair=")), PERSON["hair"])
     h = build(hair)
+    if "--scan-trousers" in argv:
+        scan_trousers(h)
+        return
     lm = landmarks(h)
     if PERSON["face_shape"]:
         face_shape(h, lm)
@@ -889,10 +951,27 @@ def main() -> None:
             cam.data.lens = 35
             cam.data.dof.use_dof = False
             target = Vector((0, 0, 0.84))
-            cam.location = target + Vector((0, -4.0, 0))
+            cam.location = target + Vector((0, -2.0, 0))
             cam.rotation_euler = (target - cam.location).to_track_quat("-Z", "Y").to_euler()
             gaze(h, cam.location)
             render(out / f"hg_{person}_full.png")
+            if "--coat-diag" in argv:
+                diag = out / "diag"
+                diag.mkdir(parents=True, exist_ok=True)
+                sweater = next(o for o in h.clothing.outfit.objects if "Sweater" in o.name)
+                coat = next(o for o in h.clothing.outfit.objects if "Lab_Coat" in o.name)
+                sweater.hide_render = True
+                render(diag / "sweater_hidden.png")
+                sweater.hide_render = False
+                materials = list(coat.data.materials)
+                white = bpy.data.materials.new("diagnostic_white")
+                white.use_nodes = True
+                next(n for n in white.node_tree.nodes if n.type == "BSDF_PRINCIPLED").inputs["Base Color"].default_value = (1, 1, 1, 1)
+                for i in range(len(coat.data.materials)):
+                    coat.data.materials[i] = white
+                render(diag / "coat_white.png")
+                for i, mat in enumerate(materials):
+                    coat.data.materials[i] = mat
         if "--wide" in argv:
             set_mood(keys, "neutral")
             cam.data.lens = 40

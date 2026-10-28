@@ -309,6 +309,8 @@ def main() -> None:
         baking.resolution_body = 4096
         baking.resolution_clothes = 2048
         baking.resolution_eyes = 1024
+        bpy.context.scene.HG3D.process.baking.res_haircards = "2048"
+        print("HG_HAIRCARD_BAKE_RESOLUTION", bpy.context.scene.HG3D.process.baking.res_haircards, flush=True)
         # HG's baker requires a linked source for every non-normal bake. The
         # painted skin uses the Principled default specular, so expose that same
         # value as a node without changing the shader's appearance.
@@ -330,6 +332,35 @@ def main() -> None:
             if img.filepath_raw and Path(bpy.path.abspath(img.filepath_raw)).parent == bake_dir:
                 print("HG_BAKE_IMAGE", img.filepath_raw, tuple(img.size), flush=True)
         garments = list(h.clothing.outfit.objects) + list(h.clothing.footwear.objects)
+        coat = next(o for o in garments if "Lab_Coat" in o.name)
+        coat.data.shape_keys.key_blocks["HG_coat_offset"].value = 1.0
+        for modifier in list(coat.modifiers):
+            if modifier.type == "SOLIDIFY":
+                coat.modifiers.remove(modifier)
+        print("HG_COAT_EXPORT_OFFSET", coat.data.shape_keys.key_blocks["HG_coat_offset"].value, flush=True)
+        for o in cards:
+            print("HG_CARD_GROUPS_BEFORE", o.name, [g.name for g in o.vertex_groups],
+                  "parent", o.parent_type, o.parent_bone, flush=True)
+            world = o.matrix_world.copy()
+            o.parent = rig
+            o.parent_type = "OBJECT"
+            o.matrix_world = world
+            for group in list(o.vertex_groups):
+                o.vertex_groups.remove(group)
+            for modifier in list(o.modifiers):
+                if modifier.type == "ARMATURE":
+                    o.modifiers.remove(modifier)
+            head = rig.pose.bones["head"]
+            deform = rig.matrix_world @ head.matrix @ head.bone.matrix_local.inverted() @ rig.matrix_world.inverted()
+            to_rest = o.matrix_world.inverted() @ deform.inverted() @ o.matrix_world
+            for vertex in o.data.vertices:
+                vertex.co = to_rest @ vertex.co
+            vg = o.vertex_groups.new(name="head")
+            vg.add(list(range(len(o.data.vertices))), 1.0, "REPLACE")
+            arm = o.modifiers.new("head_armature", "ARMATURE")
+            arm.object = rig
+            print("HG_CARD_SKIN", o.name, "groups", [g.name for g in o.vertex_groups],
+                  "modifiers", [(m.name, m.type, m.object.name if m.type == "ARMATURE" and m.object else None) for m in o.modifiers], flush=True)
     else:
         cards = haircards(h)
         eyes_ev = h.objects.eyes.evaluated_get(bpy.context.evaluated_depsgraph_get())
