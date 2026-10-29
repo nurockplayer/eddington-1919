@@ -59,7 +59,7 @@ static func tune_materials(n: Node) -> void:
 				m.roughness = 0.46
 				m.anisotropy_enabled = true
 				m.anisotropy = 0.4
-			elif nm.begins_with("HG_Lab_Coat") or nm.begins_with("HG_Sweater") or nm.begins_with("HG_Chinos"):
+			elif nm.begins_with("HG_Lab_Coat") or nm.begins_with("HG_Sweater") or nm.begins_with("HG_Chinos") or nm.begins_with("HG_Pirate"):
 				# c04: HG garments carry baked normal/roughness maps; cloth, so no rim
 				m.cull_mode = BaseMaterial3D.CULL_DISABLED
 				m.roughness = 1.0 if m.roughness_texture else 0.88
