@@ -57,5 +57,12 @@ func run() -> void:
 	check(not paused, "departure starts unpaused")
 	await create_timer(3.0).timeout
 	check(current_scene.ui.fade.color.a < 0.5, "departure fades in (not stuck black)")
+	# The departure street loop still playing at exit leaks its AudioStreamWAV
+	# playback; stopping it needs a few frames to reach the audio server.
+	for player in root.find_children("*", "AudioStreamPlayer", true, false):
+		player.stop()
+	await frames()
+	current_scene.queue_free()
+	await frames()
 	print("%d bridge pause checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
