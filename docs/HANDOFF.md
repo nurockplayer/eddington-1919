@@ -79,7 +79,7 @@ Next items:
 - bot 「完成計畫」 real-click flake: #55 merged c7aa61f (2026-10-29 06:35 JST). The bot now waits for the button to enable and logs `disabled=` and the hovered control on a miss. Confirm in the 09:00 JST windowed run; if it still misses, the log names the cause.
 - Lens reset on an unframed speaker: already in `director.gd` `_frame_speaker` (returns to 55° when the speaker is hidden or a voice). test_score wall-clock flake: #43 times only the handoff. Both closed.
 - Coda sky: the coda plays in the darkroom under the same sky at `night = 1`, so the Príncipe night dome (#41) covers it; no separate item.
-- bridge_pause teardown leak: #56 merged 8af22f9 (2026-10-29 06:45 JST). Cambridge director stops its players in `_exit_tree`; the same in departure_director made test_prologue leak 4, so not done there.
+- bridge_pause teardown leak: closed. #64 (2026-10-29 21:37 JST): the departure street loop played at quit; the test now stops all players and waits a few frames before freeing the scene (an `_exit_tree` stop is too late at quit). No leak warning.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 
