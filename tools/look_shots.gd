@@ -76,6 +76,8 @@ func _run() -> void:
 		await _night()
 	if _wanted("title"):
 		await _title()
+	if _wanted("crescents"):
+		await _crescents()
 	if _wanted("totality"):
 		await _totality()
 	print("look shots: %d saved, skipped %s, failed %s" % [saved, skipped, failed])
@@ -181,6 +183,36 @@ func _title() -> void:
 		await _save("title_figure")
 	else:
 		skipped.append("title_figure")
+	main.queue_free()
+	await frames(4)
+
+
+func _crescents() -> void:
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	await frames(30)
+	var sc = main.world.get("sun_crescents")
+	if sc == null:
+		skipped.append("crescents")
+		main.queue_free()
+		await frames(4)
+		return
+	_hide_ui(main)
+	# Mid partial phase at the clearest moment of this run's clouds.
+	var clear_t := -60.0
+	for t in range(-120, 1):
+		if main.sim.cloud_over_sun(float(t)) < main.sim.cloud_over_sun(clear_t):
+			clear_t = float(t)
+	main._apply_light(0.8, 0.1, clear_t, 0.0)
+	if not sc.visible:
+		failed.append("crescents_shade (clouded out)")
+		main.queue_free()
+		await frames(4)
+		return
+	var spot: Vector3 = sc.spots[0].origin
+	_aim(main, spot + Vector3(1.2, 1.6, 1.2), spot)
+	await frames(6)
+	await _save("crescents_shade")
 	main.queue_free()
 	await frames(4)
 
