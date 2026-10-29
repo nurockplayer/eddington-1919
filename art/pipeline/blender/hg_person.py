@@ -101,8 +101,9 @@ PERSONS = {
     "kit": {  # c03 bake-off against the MPFB route (people.toml [person.kit])
         "preset": "models/female/Caucasian presets/Caucasian 1.json",
         # c03 r2 (lead): Bob Short read as a blunt fringe wig; the design's hair is
-        # side-parted and pushed back, no fringe.
-        "hair": "hair/head/female/Long/Wavy Bob Bangs.json",
+        # side-parted and pushed back, no fringe. c04 r3: Wavy Bob Bangs still hid
+        # the brows under a fringe; Medium Side Part is the closest HG style.
+        "hair": "hair/head/female/Long/Medium Side Part.json",
         "age": 23,
         "height_cm": 168,
         # A slight neutralising push only (Kit reads neither as a woman nor as
@@ -121,7 +122,7 @@ PERSONS = {
         "trouser_object": "Pirate_Pants",
         "drop": ("Jeans", "TSHIRT", "Chinos"),
         "shoes": "footwear/female/Office/HG_Leather_Dress_Shoe.blend",
-        "tints": {"Lab_Coat": "#C7BCA3", "Sweater": "#4A4A4C", "Pirate_Pants": "#3E3830", "Shoe": "#2A211B"},
+        "tints": {"Lab_Coat": "#C7BCA3", "Sweater": "#4A4A4C", "Pirate_Pants": "#6B6158", "Shoe": "#2A211B"},
         "glasses": True,
         "zero_makeup": True,
     },
@@ -948,7 +949,7 @@ def main() -> None:
             bpy.context.view_layer.update()
         if "--full" in argv:
             set_mood(keys, "neutral")
-            cam.data.lens = 35
+            cam.data.lens = 50  # c04 r3: at 35 mm the figure filled ~60% of the frame
             cam.data.dof.use_dof = False
             target = Vector((0, 0, 0.84))
             cam.location = target + Vector((0, -2.0, 0))
