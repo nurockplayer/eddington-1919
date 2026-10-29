@@ -55,7 +55,7 @@
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
-## Director backlog (edd-director) | 2026-10-29 17:35 JST
+## Director backlog (edd-director) | 2026-10-29 17:29 JST
 
 Characters (HG / c01–c03) are owned by the session eddington-1919-6c. edd-director stays off them.
 
