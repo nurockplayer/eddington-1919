@@ -78,6 +78,12 @@ func _run() -> void:
 		_check(glow[0.92] < glow[1.0] and glow[1.0] < glow[1.08] and is_equal_approx(glow[1.0], Room.EMBER_GLOW),
 			"Embers brighten with the fire's flicker: %s" % glow)
 		_check(glow[0.92] > 0.2, "Embers never go out at the flicker's low point")
+		# The slow wave moves the glow even while the fire's flicker holds still.
+		Room.glow_embers(embers, 1.0, PI / 1.2)
+		var crest := embers.emission_energy_multiplier
+		Room.glow_embers(embers, 1.0, PI / 0.4)
+		_check(crest > glow[1.0] and embers.emission_energy_multiplier < glow[1.0],
+			"Embers breathe on their own slow wave: %.3f / %.3f" % [crest, embers.emission_energy_multiplier])
 		room.free()
 	if failures == 0:
 		print("PASS: Cambridge room/corridor plaster is broad, soft, and low contrast; M1/M2 glass is smooth; departure lamp has a soft halo")
