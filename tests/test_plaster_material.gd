@@ -84,6 +84,15 @@ func _run() -> void:
 		Room.glow_embers(embers, 1.0, PI / 0.4)
 		_check(crest > glow[1.0] and embers.emission_energy_multiplier < glow[1.0],
 			"Embers breathe on their own slow wave: %.3f / %.3f" % [crest, embers.emission_energy_multiplier])
+		var pendulum: Node3D = built.pendulum
+		Room.swing_pendulum(pendulum, 3.0)
+		var at_tick := pendulum.rotation.x
+		Room.swing_pendulum(pendulum, 3.5)
+		var at_end := pendulum.rotation.x
+		_check(is_zero_approx(at_tick) and is_equal_approx(absf(at_end), deg_to_rad(Room.PENDULUM_SWING)),
+			"Pendulum crosses the middle on the tick and swings %.0f° out" % Room.PENDULUM_SWING)
+		var bob := (pendulum.get_child(1) as Node3D).global_position
+		_check(bob.y > 1.725 + 0.055 and bob.x > -4.23, "Pendulum bob hangs inside the case height, in front of it")
 		room.free()
 	if failures == 0:
 		print("PASS: Cambridge room/corridor plaster is broad, soft, and low contrast; M1/M2 glass is smooth; departure lamp has a soft halo")
