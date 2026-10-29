@@ -60,20 +60,12 @@
 Characters (HG / c01–c03) are owned by the session eddington-1919-6c. edd-director stays off them.
 
 Open PRs (all pass their headless suites):
-- #39 study celestial globe + Taurus chart. Draft; oracle findings fixed.
-- #40 lamp dust motes. Draft; oracle review pending.
-- #41 Príncipe night-after sky + Milky Way. Draft; oracle pending. This also covers the coda, which plays under the same night sky.
-- #42 lens reset on unframed lines. Merged 0f65df6 (2026-10-29 03:55 JST) after the integration run was green (19 suites + e2e 6/6). Codex reviewed it (ChatGPT was logged out in ego-lite; the Owner logged in again at 2026-10-29 03:53 JST and oracle is back). Merged by hand: `gh pr merge --auto` refuses when a CodeRabbit `skipping` check exists and repo auto-merge is off. Override reason is in the PR comment.
-- #44 title shooting stars. Draft; windowed look pending.
-- #46 title Taurus figure (stacked on #44). Draft; oracle approve, minor fixed; windowed look pending.
-- #49 pinhole sun crescents under the palms. Draft; oracle approve after 2 blocker fixes (palm lean, cloud cut); windowed look pending; needs a fresh gate review on its final head.
-- #50 shadow bands on the ground around totality. Draft; oracle approve (0 findings); windowed look pending (judge in motion). Touches `_apply_light` next to #49: rebase whichever merges second.
-- #53 Baily's beads + diamond ring at third contact. Draft; oracle approve, 1 major (runtime test) fixed: test_diamond_ring 10/0 drives the real _end_totality. Shader compile only checkable windowed. Needs a fresh gate review on its final head.
-- Dry run of the windowed merge (2026-10-29 06:50 JST, headless): all 9 drafts merge onto main, touched suites green, every look_shots view sets up. #58 (merged 3f4de17) fixed the diamond-ring view being skipped. #49 and #50 were updated with main (look_shots conflict resolved).
-- #57 departure-night stars through the uncurtained sash (+ look_shots `departure` view). Draft; oracle approve (0 findings); windowed look pending.
-- `tools/look_shots.gd` (#45/#47/#48 merged; crescents view in #49): one windowed run covers all of the above.
-- Integration worktree (all 8 open branches): #49 conflicts with #41 and #50 only on adjacent `main.gd` lines; keep both sides. #50 is now stacked on #49. Checked 2026-10-29 00:45 JST: 7 touched suites green. **A fresh worktree must run `godot --headless --path . --import` first.** Without it, suites print `instantiate on null` and test_star_decor hangs. `perl alarm` kills only orb-test, not its godot child, so stop a hang via TaskStop.
-- #43 test_score handoff timing. Merged.
+- Windowed look 2026-10-29 11:54 JST (15 stills). Merged after it: #39 globe + Taurus chart, #44 title meteors, #46 title Taurus figure, #49 sun crescents (codex review; oracle timed out on its 123 KB bundle; hand-merged, override comment), #57 departure window stars.
+- #40 lamp dust: read as white snow; warmer, alpha 0.4. Re-shoot pending.
+- #41 Príncipe night sky: Milky Way barely visible; stars wider and brighter, band x2.4. Re-shoot pending.
+- #50 shadow bands: invisible, the plane was under the dirt (y 0.01 < 0.02); lifted to 0.04, alpha 0.16. Now based on main. Re-shoot pending.
+- #53 diamond ring: still shows a flat grey sky, cause not found (cloud over Sun was thin). Draft.
+- Second windowed run (#40 #41 #50 #53) queued 2026-10-29 11:58 JST under orb-test --heavy; script skips itself after 15:00 JST.
 
 Before merge:
 - Heavy set + e2e for all eight open branches, in one integration worktree: queued 2026-10-29 03:07 JST under `orb-test --heavy --host`; it starts when the gate opens (05:00 JST, or 45 min idle).
