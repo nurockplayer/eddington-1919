@@ -113,6 +113,15 @@ func _study() -> void:
 		await _save("study_lamp_dust")
 	else:
 		skipped.append("study_lamp_dust")
+	if scene.find_child("RainStreaks", true, false):
+		# Rain runs down the sash: two stills 0.5 s apart (at --fixed-fps 60).
+		_aim(scene, Vector3(0.9, 1.7, -1.2), Vector3(0.9, 2.0, -2.8))
+		await frames(6)
+		await _save("study_window_rain_a")
+		await frames(30)
+		await _save("study_window_rain_b")
+	else:
+		skipped.append("study_window_rain")
 	scene.queue_free()
 	await frames(4)
 

@@ -84,6 +84,23 @@ func _run() -> void:
 		Room.glow_embers(embers, 1.0, PI / 0.4)
 		_check(crest > glow[1.0] and embers.emission_energy_multiplier < glow[1.0],
 			"Embers breathe on their own slow wave: %.3f / %.3f" % [crest, embers.emission_energy_multiplier])
+		var rain := room.get_node_or_null("RainStreaks") as MultiMeshInstance3D
+		_check((rain != null) == not departure, "Only the 1917 study has rain on the sash")
+		if rain != null:
+			var mm := rain.multimesh
+			var low := INF
+			var high := -INF
+			var rates := {}
+			for p in rain.get_meta("spots"):
+				low = minf(low, p.y - Room.RAIN_RUN)
+				high = maxf(high, p.y)
+			for r in rain.get_meta("rates"):
+				rates[snappedf(r, 0.01)] = true
+			_check(mm.use_custom_data and (rain.material_override as ShaderMaterial).shader.resource_path.ends_with("window_rain.gdshader"),
+				"Rain streaks run down the glass in the rain shader")
+			_check(low >= 1.2 and high <= 2.9, "Rain stays on the glass over its whole run: %.2f..%.2f" % [low, high])
+			_check(rates.size() > 10, "Streaks run at their own paces (%d rates)" % rates.size())
+			_check(rain.custom_aabb.has_point(Vector3(0.9, low, -2.79)), "Culling box covers the end of the run")
 		var pendulum: Node3D = built.pendulum
 		Room.swing_pendulum(pendulum, 3.0)
 		var at_tick := pendulum.rotation.x

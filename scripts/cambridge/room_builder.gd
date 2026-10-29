@@ -15,6 +15,7 @@ const ROOM_H := 3.6
 const WINDOW_STARS := 18
 const EMBER_GLOW := 0.75
 const PENDULUM_ROD := 0.55
+const RAIN_RUN := 0.5
 const PENDULUM_SWING := 4.0  # degrees either side
 
 
@@ -83,6 +84,43 @@ static func _window_glass_material(departure: bool) -> StandardMaterial3D:
 	material.roughness = 0.24
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	return material
+
+
+## Streaks rest on a staggered grid over the visible half of the sash; each runs
+## RAIN_RUN down the glass at its own pace (fixed seed), see window_rain.gdshader.
+static func _window_rain() -> MultiMeshInstance3D:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1917
+	var rain_mm := MultiMesh.new()
+	rain_mm.transform_format = MultiMesh.TRANSFORM_3D
+	rain_mm.use_custom_data = true
+	var rain_mesh := BoxMesh.new()
+	rain_mesh.size = Vector3(0.012, 0.16, 0.006)
+	rain_mm.mesh = rain_mesh
+	rain_mm.instance_count = 36
+	var spots: Array[Vector3] = []
+	var rates: Array[float] = []
+	for i in rain_mm.instance_count:
+		var x := -0.02 + float(i % 9) * 0.235
+		var y := 1.25 + RAIN_RUN + float((i * 7) % 17) * 0.098 * (1.66 - RAIN_RUN) / 1.66
+		spots.append(Vector3(x, y, -2.79))
+		rates.append(rng.randf_range(0.12, 0.3))
+		rain_mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, spots[i]))
+		rain_mm.set_instance_custom_data(i, Color(rng.randf(), rates[i], 0.0, 0.0))
+	var rain_streaks := MultiMeshInstance3D.new()
+	rain_streaks.name = "RainStreaks"
+	rain_streaks.multimesh = rain_mm
+	# Headless keeps no MultiMesh data, so the tests read the layout from here.
+	rain_streaks.set_meta("spots", spots)
+	rain_streaks.set_meta("rates", rates)
+	var rain_mat := ShaderMaterial.new()
+	rain_mat.shader = preload("res://shaders/window_rain.gdshader")
+	rain_mat.set_shader_parameter("run", RAIN_RUN)
+	rain_streaks.material_override = rain_mat
+	rain_streaks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# The shader moves the streaks down to RAIN_RUN below their rest points.
+	rain_streaks.custom_aabb = AABB(Vector3(-0.1, 1.1, -2.85), Vector3(2.15, 1.85, 0.12))
+	return rain_streaks
 
 
 ## With the blackout curtains gone, a few faint stars show above the street lamp.
@@ -245,33 +283,9 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		lamp_point.position = Vector3(-0.70, 2.50, -2.79)
 		root.add_child(lamp_point)
 		root.add_child(_window_stars(window_center, lamp_point.position))
-	# Rain on the visible half of the sash, drawn as one low-cost mesh instance.
+	# Rain running down the visible half of the sash, drawn as one low-cost mesh instance.
 	if not departure:
-		var rain_mm := MultiMesh.new()
-		rain_mm.transform_format = MultiMesh.TRANSFORM_3D
-		var rain_mesh := BoxMesh.new()
-		rain_mesh.size = Vector3(0.012, 0.16, 0.006)
-		rain_mm.mesh = rain_mesh
-		var rain_positions: Array[Vector3] = []
-		for i in range(36):
-			var x := -0.02 + float(i % 9) * 0.235
-			var y := 1.25 + float((i * 7) % 17) * 0.098
-			rain_positions.append(Vector3(x, y, -2.79))
-		rain_mm.instance_count = rain_positions.size()
-		for i in rain_positions.size():
-			rain_mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, rain_positions[i]))
-		var rain_streaks := MultiMeshInstance3D.new()
-		rain_streaks.name = "RainStreaks"
-		rain_streaks.multimesh = rain_mm
-		var rain_mat := StandardMaterial3D.new()
-		rain_mat.albedo_color = Color(0.53, 0.68, 0.78, 0.33)
-		rain_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		rain_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		rain_mat.no_depth_test = false
-		rain_mat.disable_receive_shadows = true
-		rain_streaks.material_override = rain_mat
-		rain_streaks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		root.add_child(rain_streaks)
+		root.add_child(_window_rain())
 	# Curtain drawn across the left half; folds are broad and economical.
 	if not departure:
 		w.box(Vector3(1.95, 2.15, 0.08), Vector3(-1.3, 1.95, -2.69), Color(0.29, 0.27, 0.23), null, false)
