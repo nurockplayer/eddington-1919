@@ -952,7 +952,7 @@ def main() -> None:
             cam.data.lens = 50  # c04 r3: at 35 mm the figure filled ~60% of the frame
             cam.data.dof.use_dof = False
             target = Vector((0, 0, 0.84))
-            cam.location = target + Vector((0, -2.0, 0))
+            cam.location = target + Vector((0, -2.7, 0))  # 50 mm at 2.0 m cropped head and feet
             cam.rotation_euler = (target - cam.location).to_track_quat("-Z", "Y").to_euler()
             gaze(h, cam.location)
             render(out / f"hg_{person}_full.png")
