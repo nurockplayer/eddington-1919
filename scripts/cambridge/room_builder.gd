@@ -493,10 +493,10 @@ static func _lamp_dust(root: Node3D, light_pos: Vector3) -> CPUParticles3D:
 	dust.scale_amount_min = 0.5
 	dust.scale_amount_max = 1.0
 	var fade := Gradient.new()
-	fade.set_color(0, Color(1.0, 0.82, 0.55, 0.0))
-	fade.set_color(1, Color(1.0, 0.82, 0.55, 0.0))
-	fade.add_point(0.3, Color(1.0, 0.82, 0.55, 0.75))
-	fade.add_point(0.7, Color(1.0, 0.82, 0.55, 0.75))
+	fade.set_color(0, Color(1.0, 0.74, 0.45, 0.0))
+	fade.set_color(1, Color(1.0, 0.74, 0.45, 0.0))
+	fade.add_point(0.3, Color(1.0, 0.74, 0.45, 0.4))
+	fade.add_point(0.7, Color(1.0, 0.74, 0.45, 0.4))
 	dust.color_ramp = fade
 	var quad := QuadMesh.new()
 	quad.size = Vector2(0.006, 0.006)
