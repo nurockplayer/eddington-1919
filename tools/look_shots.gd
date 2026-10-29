@@ -277,6 +277,7 @@ func _darkroom() -> void:
 		return
 	main._apply_light(0.0, 0.0, 400.0, 1.0)
 	_hide_ui(main)
+	main.world.lamp.light_energy = 1.1
 	main.world.safelight.light_energy = Look.NIGHT_SAFELIGHT
 	var eye: Vector3 = main.world.darkroom_spot + Vector3(0, 1.6, 0)
 	_aim(main, eye, glass.global_position)
