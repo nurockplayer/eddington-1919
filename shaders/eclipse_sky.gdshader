@@ -117,7 +117,7 @@ void sky() {
 		for (int i = 0; i < 27; i++) {
 			vec3 delta = d - night_stars[i].xyz;  // chord², stable where 1 - dot is not
 			float ang2 = dot(delta, delta);
-			named += night_stars[i].w * exp(-ang2 / 0.0000035);
+			named += night_stars[i].w * exp(-ang2 / 0.000007);
 		}
 		// Milky Way: a soft band about the galactic equator, brightest toward the
 		// core in Sagittarius, mottled by the cloud field, with a darker rift.
@@ -126,7 +126,7 @@ void sky() {
 		float mottle = texture(cloud_tex, d.xz / (h + 0.4) * 1.7 + vec2(0.37, 0.11)).r;
 		float band = exp(-b * b / 0.012) * (0.35 + 1.2 * core) * mix(0.55, 1.1, mottle);
 		band *= 1.0 - 0.6 * exp(-b * b / 0.0006) * core;
-		solar += night * cloud_visibility * (named * vec3(1.3, 1.35, 1.5) + band * vec3(0.10, 0.105, 0.12));
+		solar += night * cloud_visibility * (named * vec3(2.0, 2.05, 2.3) + band * vec3(0.24, 0.25, 0.29));
 	}
 
 	// Clouds: the same sampled density shades the sky and hides luminous detail.
