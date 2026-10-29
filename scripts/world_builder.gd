@@ -5,6 +5,7 @@ extends RefCounted
 ## the plantation house) is a plausible stage, not a documented plan.
 
 const Palette := preload("res://scripts/palette.gd")
+const PalmSway := preload("res://scripts/palm_sway.gd")
 const MODELS := "res://assets/models/"
 
 var root: Node3D
@@ -13,6 +14,7 @@ var _mats := {}
 ## gives a complete before/after: environment look AND these material changes.
 var look := true
 var palm_crowns: Array[Vector3] = []  # crown centres, for the pinhole crescents
+var palm_sway: Node  # moves every frond; built on the first palm
 
 
 func _init(p_root: Node3D) -> void:
@@ -577,12 +579,17 @@ func palm(pos: Vector3, h: float) -> void:
 	p.add_to_group("veg_palm")  # cost attribution: benchmark --bench-hide=veg_palm
 	palm_crowns.append(pos + p.basis * Vector3(0, h, 0))  # the crown leans with the trunk
 	root.add_child(p)
+	if palm_sway == null:
+		palm_sway = PalmSway.new()
+		palm_sway.name = "PalmSway"
+		root.add_child(palm_sway)
 	cyl(0.16, h, Vector3(0, h * 0.5, 0), Color(0.42, 0.34, 0.24), p, false, Vector3.ZERO, 0.11)
 	for i in 8:
 		var leaf := Node3D.new()
 		leaf.position = Vector3(0, h, 0)
 		leaf.rotation = Vector3(deg_to_rad(randf_range(-35, -15)), i * TAU / 8.0, 0)
 		p.add_child(leaf)
+		palm_sway.add(leaf, palm_crowns.size(), i)
 		box(Vector3(0.45, 0.03, 2.4), Vector3(0, -0.25, 1.15), P("foliage_deep").lightened(randf() * 0.12), leaf, false, Vector3(deg_to_rad(18), 0, 0))
 	var body := StaticBody3D.new()
 	var cs := CollisionShape3D.new()

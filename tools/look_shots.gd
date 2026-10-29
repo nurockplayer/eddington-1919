@@ -213,6 +213,17 @@ func _crescents() -> void:
 	_aim(main, spot + Vector3(1.2, 1.6, 1.2), spot)
 	await frames(6)
 	await _save("crescents_shade")
+	# The breeze in the fronds: up at the first crown, two stills 1 s apart.
+	var palms := main.get_tree().get_nodes_in_group("veg_palm")
+	if main.find_child("PalmSway", true, false) and not palms.is_empty():
+		var crown := (palms[0].get_child(1) as Node3D).global_position
+		_aim(main, crown + Vector3(4.0, -4.5, 4.0), crown)
+		await frames(6)
+		await _save("palm_sway_a")
+		await frames(60)
+		await _save("palm_sway_b")
+	else:
+		skipped.append("palm_sway")
 	main.queue_free()
 	await frames(4)
 
