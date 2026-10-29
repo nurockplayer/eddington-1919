@@ -27,7 +27,8 @@ func _run() -> void:
 	if sb == null:
 		_done()
 		return
-	check(sb.position.distance_to(Vector3(main.world.station_pos.x, 0.01, main.world.station_pos.z)) < 0.001, "bands lie on the ground at the station")
+	check(sb.position.distance_to(Vector3(main.world.station_pos.x, ShadowBands.LIFT, main.world.station_pos.z)) < 0.001, "bands lie on the ground at the station")
+	check(ShadowBands.LIFT > 0.035, "bands sit above the trampled earth and puddles, not under them")
 	var dens_clear := 1.0
 	var clear_t := 0.0
 	for t in range(-120, 1):

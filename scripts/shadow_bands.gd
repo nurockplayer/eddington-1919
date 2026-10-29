@@ -7,6 +7,8 @@ const SHADER := preload("res://shaders/shadow_bands.gdshader")
 const SIZE := 26.0  # metres of ground around the station
 const FULL_AT := 0.025  # crescent fraction where the bands are strongest
 const START_AT := 0.08  # crescent fraction where they begin
+## Above the trampled earth (top 0.02 m) and the puddles (top 0.035 m).
+const LIFT := 0.04
 
 
 func setup(centre: Vector3, sun_dir: Vector3) -> void:
@@ -15,7 +17,7 @@ func setup(centre: Vector3, sun_dir: Vector3) -> void:
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(SIZE, SIZE)
 	mesh = plane
-	position = Vector3(centre.x, 0.01, centre.z)
+	position = Vector3(centre.x, LIFT, centre.z)
 	var mat := ShaderMaterial.new()
 	mat.shader = SHADER
 	# Bands lie across the Sun's azimuth and drift along it.
