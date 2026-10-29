@@ -297,28 +297,96 @@ def main() -> None:
     rig = next(o for o in bpy.data.objects if o.type == "ARMATURE")
     h = Human.from_existing(rig)
     body = h.objects.body
-    cards = haircards(h)
-    eyes_ev = h.objects.eyes.evaluated_get(bpy.context.evaluated_depsgraph_get())
-    eyes_top = max((h.objects.eyes.matrix_world @ v.co).z for v in eyes_ev.to_mesh().vertices)
-    eyes_ev.to_mesh_clear()
-    scalp_zone(body, cards, eyes_top + 0.02)
-    rough, normal = bake_surface(body, out)
-    bake_albedo(body, "skin_albedo", out)
-    export_surface(body, rough, normal)
-    eyes = h.objects.eyes
-    inner = next(i for i, m in enumerate(eyes.data.materials) if "Inner" in m.name)
-    bake_albedo(eyes, "eye_albedo", out, inner)
-    suit = bpy.data.objects["HG_Suit"]
-    for m in [m for m in suit.modifiers if m.type == "SUBSURF"]:
-        suit.modifiers.remove(m)
-    for p in suit.data.polygons:  # the MakeHuman OBJ imports flat-shaded
-        p.use_smooth = True
-    bake_albedo(suit, "suit_albedo", out)
+    native = bpy.data.objects.get("HG_Suit") is None
+    if native:
+        cards = [h.hair.regular_hair.convert_to_haircards("high", bpy.context),
+                 h.hair.eyebrows.convert_to_haircards("high", bpy.context)]
+        for o in cards:
+            print("HG_CARD", o.name, "faces", len(o.data.polygons), "materials",
+                  [(m.name, [n.image.name for n in m.node_tree.nodes if n.type == "TEX_IMAGE" and n.image])
+                   for m in o.data.materials if m and m.use_nodes], flush=True)
+        baking = h.process.baking
+        baking.resolution_body = 4096
+        baking.resolution_clothes = 2048
+        baking.resolution_eyes = 1024
+        bpy.context.scene.HG3D.process.baking.res_haircards = "2048"
+        print("HG_HAIRCARD_BAKE_RESOLUTION", bpy.context.scene.HG3D.process.baking.res_haircards, flush=True)
+        # HG's baker requires a linked source for every non-normal bake. The
+        # painted skin uses the Principled default specular, so expose that same
+        # value as a node without changing the shader's appearance.
+        skin = body.data.materials[0]
+        bsdf = next(n for n in skin.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+        spec = bsdf.inputs.get("Specular IOR Level") or bsdf.inputs.get("Specular")
+        if spec and not spec.is_linked:
+            value = skin.node_tree.nodes.new("ShaderNodeValue")
+            value.outputs[0].default_value = spec.default_value
+            skin.node_tree.links.new(value.outputs[0], spec)
+            print("HG_SKIN_SPECULAR", spec.name, value.outputs[0].default_value, flush=True)
+        print("HG_BAKE_LIST", [(b.bake_object.name, b.material_slot, b.texture_type) for b in baking.get_baking_list()], flush=True)
+        print("HG_SKIN_BUMP", [(m.name, n.inputs["Strength"].default_value)
+              for m in body.data.materials if m and m.use_nodes for n in m.node_tree.nodes if n.type == "BUMP"], flush=True)
+        bake_dir = out / "bake"
+        bake_dir.mkdir(parents=True, exist_ok=True)
+        baking.bake_all(folder_path=str(bake_dir), samples=4)
+        for img in bpy.data.images:
+            if img.filepath_raw and Path(bpy.path.abspath(img.filepath_raw)).parent == bake_dir:
+                print("HG_BAKE_IMAGE", img.filepath_raw, tuple(img.size), flush=True)
+        garments = list(h.clothing.outfit.objects) + list(h.clothing.footwear.objects)
+        coat = next(o for o in garments if "Lab_Coat" in o.name)
+        coat.data.shape_keys.key_blocks["HG_coat_offset"].value = 1.0
+        for modifier in list(coat.modifiers):
+            if modifier.type == "SOLIDIFY":
+                coat.modifiers.remove(modifier)
+        print("HG_COAT_EXPORT_OFFSET", coat.data.shape_keys.key_blocks["HG_coat_offset"].value, flush=True)
+        for o in cards:
+            print("HG_CARD_GROUPS_BEFORE", o.name, [g.name for g in o.vertex_groups],
+                  "parent", o.parent_type, o.parent_bone, flush=True)
+            world = o.matrix_world.copy()
+            o.parent = rig
+            o.parent_type = "OBJECT"
+            o.matrix_world = world
+            for group in list(o.vertex_groups):
+                o.vertex_groups.remove(group)
+            for modifier in list(o.modifiers):
+                if modifier.type == "ARMATURE":
+                    o.modifiers.remove(modifier)
+            head = rig.pose.bones["head"]
+            deform = rig.matrix_world @ head.matrix @ head.bone.matrix_local.inverted() @ rig.matrix_world.inverted()
+            to_rest = o.matrix_world.inverted() @ deform.inverted() @ o.matrix_world
+            for vertex in o.data.vertices:
+                vertex.co = to_rest @ vertex.co
+            vg = o.vertex_groups.new(name="head")
+            vg.add(list(range(len(o.data.vertices))), 1.0, "REPLACE")
+            arm = o.modifiers.new("head_armature", "ARMATURE")
+            arm.object = rig
+            print("HG_CARD_SKIN", o.name, "groups", [g.name for g in o.vertex_groups],
+                  "modifiers", [(m.name, m.type, m.object.name if m.type == "ARMATURE" and m.object else None) for m in o.modifiers], flush=True)
+    else:
+        cards = haircards(h)
+        eyes_ev = h.objects.eyes.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        eyes_top = max((h.objects.eyes.matrix_world @ v.co).z for v in eyes_ev.to_mesh().vertices)
+        eyes_ev.to_mesh_clear()
+        scalp_zone(body, cards, eyes_top + 0.02)
+        rough, normal = bake_surface(body, out)
+        bake_albedo(body, "skin_albedo", out)
+        export_surface(body, rough, normal)
+        eyes = h.objects.eyes
+        inner = next(i for i, m in enumerate(eyes.data.materials) if "Inner" in m.name)
+        bake_albedo(eyes, "eye_albedo", out, inner)
+        suit = bpy.data.objects["HG_Suit"]
+        for m in [m for m in suit.modifiers if m.type == "SUBSURF"]:
+            suit.modifiers.remove(m)
+        for p in suit.data.polygons:
+            p.use_smooth = True
+        bake_albedo(suit, "suit_albedo", out)
+        garments = [suit]
     for o in (body, h.objects.eyes, h.objects.lower_teeth, h.objects.upper_teeth):
         bake_base_keys(o)
     drop_masked(body)
     idle_action(rig)
-    objs = [rig, body, h.objects.eyes, h.objects.lower_teeth, h.objects.upper_teeth, suit] + cards
+    objs = [rig, body, h.objects.eyes, h.objects.lower_teeth, h.objects.upper_teeth] + garments + cards
+    if body.data.shape_keys:
+        assert all(len(k.data) == len(body.data.vertices) for k in body.data.shape_keys.key_blocks)
     glasses = bpy.data.objects.get("Kit_Glasses")  # procedural, parented to the head bone
     if glasses:
         objs.append(glasses)
@@ -329,6 +397,7 @@ def main() -> None:
     bpy.ops.export_scene.gltf(filepath=str(out / (Path(bpy.data.filepath).stem + ".glb")), export_format="GLB", use_selection=True,
                               export_apply=False, export_morph=True, export_skins=True, export_animations=True,
                               export_copyright="Human Generator Asset License — not for redistribution")
+    print("HG_GLB_BYTES", (out / (Path(bpy.data.filepath).stem + ".glb")).stat().st_size, flush=True)
 
 
 main()
