@@ -21,10 +21,16 @@ const BACKGROUND := 70
 const CENTRE := Vector2(68.0, 20.0)  # field centre (RA, Dec), degrees
 const SPAN := 24.0  # degrees across the screen height
 const METEOR_LIFE := 0.9  # seconds a shooting star is visible
+## Taurus as star charts draw it, by NAMED index: the Hyades V from gamma Tau,
+## and the horns from Aldebaran to zeta Tau and from epsilon Tau to Elnath.
+const FIGURE := [[2, 1], [1, 0], [2, 3], [3, 4], [0, 10], [4, 9]]
+const FIGURE_PERIOD := 16.0  # seconds for the lines to fade in and out again
+const FIGURE_ALPHA := 0.16
 
 var target: ColorRect  # the UI fade rect whose alpha we follow
 var drop := 0.0  # shifts the field down by this fraction of the screen height
 var meteors := false  # the title sky lets an occasional shooting star through
+var figure := false  # the title sky slowly draws the bull's lines in and out
 var _stars: Array = []  # [Vector2 unit position, radius, brightness, phase, speed, colour]
 var _t := 0.0
 var _rng := RandomNumberGenerator.new()
@@ -85,9 +91,24 @@ func _step_meteor(delta: float) -> void:
 		_meteor = {}
 
 
+## Faint, then gone: the lines breathe in after a 2 s delay and never hold.
+func figure_alpha() -> float:
+	if not figure or _t < 2.0:
+		return 0.0
+	return FIGURE_ALPHA * (0.5 - 0.5 * cos(TAU * (_t - 2.0) / FIGURE_PERIOD))
+
+
 func _draw() -> void:
 	var h := size.y
 	var c := size * 0.5 + Vector2(0, drop * h)
+	var fa := figure_alpha()
+	if fa > 0.004:
+		for pair in FIGURE:
+			var a: Vector2 = c + _stars[pair[0]][0] * h
+			var b: Vector2 = c + _stars[pair[1]][0] * h
+			# Stop short of each star so the line never runs through its disc.
+			var gap := (b - a).normalized() * h * 0.012
+			draw_line(a + gap, b - gap, Color(0.75, 0.8, 0.95, fa), maxf(1.0, h / 720.0), true)
 	for s in _stars:
 		var twinkle := 0.72 + 0.28 * sin(_t * s[4] + s[3])
 		var col: Color = s[5]

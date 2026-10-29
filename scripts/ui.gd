@@ -660,6 +660,7 @@ func _build_title(root: Control) -> void:
 	sky.target = title_panel as ColorRect
 	sky.drop = 0.16  # keeps Aldebaran clear of the title buttons
 	sky.meteors = true
+	sky.figure = true
 	title_panel.add_child(sky)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)

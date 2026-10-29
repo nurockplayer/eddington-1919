@@ -56,11 +56,28 @@ func _run() -> void:
 	for k in range(1, starts.size()):
 		var gap: float = starts[k] - starts[k - 1] - FadeStars.METEOR_LIFE
 		check(gap >= 6.98 and gap <= 14.02, "dark pause between streaks is 7-14 s: %.2f" % gap)
+	# The bull's lines: real Taurus stars, faint, breathing in and out.
+	for pair in FadeStars.FIGURE:
+		for idx in pair:
+			check(idx < FadeStars.NAMED.size(), "figure line uses a named star: %d" % idx)
+	check(FadeStars.NAMED[2][0] < FadeStars.NAMED[1][0] and FadeStars.NAMED[1][0] < FadeStars.NAMED[0][0], "V arm runs gamma -> theta2 -> Aldebaran in RA")
+	var peak := 0.0
+	var low := 1.0
+	sky._t = 0.0
+	check(sky.figure_alpha() == 0.0, "lines wait before drawing")
+	for i in 3200:
+		sky._t = 2.0 + i * 0.01
+		peak = maxf(peak, sky.figure_alpha())
+		if sky._t > 2.0 + FadeStars.FIGURE_PERIOD * 0.5:  # after the first peak
+			low = minf(low, sky.figure_alpha())
+	check(peak <= FadeStars.FIGURE_ALPHA + 0.0001 and peak > 0.15, "lines stay faint: peak %.3f" % peak)
+	check(low < 0.001, "lines fade fully away after each showing: %.4f" % low)
 	var plain := FadeStars.new()
 	root.add_child(plain)
 	for i in 2000:
 		plain._process(0.01)
 	check(plain._meteor.is_empty(), "fade skies stay still")
+	check(plain.figure_alpha() == 0.0, "fade skies draw no figure")
 	plain.free()
 	ui.free()
 	print("%d fade stars checks, %d failures" % [checks, failures])
