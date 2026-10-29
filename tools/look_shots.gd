@@ -4,7 +4,7 @@ extends SceneTree
 ## a view whose node is missing (branch not merged) is reported and skipped.
 ##
 ## Run: orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top \
-##        -s tools/look_shots.gd -- --out=$PWD/build/look [--only=study,night,title]
+##        -s tools/look_shots.gd -- --out=$PWD/build/look [--only=study,departure,night,title]
 ## Headless the views are still set up and checked, but nothing is saved.
 
 
@@ -70,6 +70,8 @@ func _save(label: String) -> void:
 func _run() -> void:
 	if _wanted("study"):
 		await _study()
+	if _wanted("departure"):
+		await _departure()
 	if _wanted("night"):
 		await _night()
 	if _wanted("title"):
@@ -109,6 +111,23 @@ func _study() -> void:
 		await _save("study_lamp_dust")
 	else:
 		skipped.append("study_lamp_dust")
+	scene.queue_free()
+	await frames(4)
+
+
+func _departure() -> void:
+	var scene: Node = load("res://scenes/departure.tscn").instantiate()
+	root.add_child(scene)
+	await frames(30)
+	_hide_ui(scene)
+	var stars := scene.find_child("DepartureWindowStars", true, false) as Node3D
+	if stars:
+		# From mid-room up at the sash: lamp halo bottom-left, stars above it.
+		_aim(scene, Vector3(0.55, 1.75, 0.4), Vector3(0.55, 2.4, -2.82))
+		await frames(30)
+		await _save("departure_window_stars")
+	else:
+		skipped.append("departure_window_stars")
 	scene.queue_free()
 	await frames(4)
 
