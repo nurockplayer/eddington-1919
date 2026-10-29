@@ -66,6 +66,8 @@ Open PRs (all pass their headless suites):
 - #50 shadow bands: invisible, the plane was under the dirt (y 0.01 < 0.02); lifted to 0.04, alpha 0.16. Now based on main. Re-shoot pending.
 - #53 diamond ring: still shows a flat grey sky, cause not found (cloud over Sun was thin). Draft.
 - Second windowed run (#40 #41 #50 #53): not reached on 2026-10-29 (the heavy queue sat behind a 5.5 h gteki bench); ticket cancelled 17:28 JST, re-armed for 2026-10-30 09:07 JST (`windowed_r2.sh`, one run, all four branches).
+- #61 darkroom ruby safelight lantern: oracle approve (2nd round), draft until the 2026-10-30 windowed look.
+- #62 coal embers breathe with the fire's flicker: merged 2026-10-29 19:33 JST after oracle approve (a ChatGPT network error stalled the first try; retried).
 - #53: headless ray probe 2026-10-29 13:40 JST found no mesh between the eye and the Sun (alt 56°), so the grey is the sky shader at the values shot; the re-shoot uses the tween's peak values plus a wide still.
 
 Before merge:
