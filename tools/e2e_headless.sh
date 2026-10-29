@@ -32,6 +32,17 @@ ROUTES=(
   "prologue accuse|180|PREP|--prologue-autoplay=accuse --seed=79"
 )
 
+# A fresh checkout or worktree has no imported resources: every route would load
+# null scenes and fail (or hang) for a reason unrelated to the game.
+if [[ ! -d .godot/imported ]]; then
+  echo "e2e: importing resources first (fresh checkout)"
+  if ! perl -e 'alarm 600; exec @ARGV' "$GODOT" --headless --path . --import >"$tmp/import.log" 2>&1; then
+    echo "e2e: import failed; see below" >&2
+    tail -20 "$tmp/import.log" >&2
+    exit 1
+  fi
+fi
+
 failures=0
 rows=()
 

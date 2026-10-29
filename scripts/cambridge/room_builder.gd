@@ -7,10 +7,15 @@ const Look := preload("res://scripts/look.gd")
 const Figures := preload("res://scripts/cambridge/figures.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 const DepartureProps := preload("res://scripts/cambridge/departure_props.gd")
+const StarDecor := preload("res://scripts/cambridge/star_decor.gd")
 
 const ROOM_W := 9.0
 const ROOM_D := 6.0
 const ROOM_H := 3.6
+const WINDOW_STARS := 18
+const EMBER_GLOW := 0.75
+const PENDULUM_ROD := 0.55
+const PENDULUM_SWING := 4.0  # degrees either side
 
 
 static func _plaster_material(color: Color) -> StandardMaterial3D:
@@ -46,6 +51,18 @@ static func _plaster_material(color: Color) -> StandardMaterial3D:
 	return material
 
 
+## Embers breathe with the fire's flicker, brighter where the light swells, and
+## on a slower wave of their own so the coals never pulse in lockstep.
+static func glow_embers(ember_mat: StandardMaterial3D, flicker: float, t: float) -> void:
+	ember_mat.emission_energy_multiplier = EMBER_GLOW * (1.0 + 2.5 * (flicker - 1.0) + 0.12 * sin(t * 0.6))
+
+
+## A seconds pendulum: it crosses the middle on every whole second, when the
+## directors play the tick, and swings along the wall (about the x axis).
+static func swing_pendulum(pendulum: Node3D, t: float) -> void:
+	pendulum.rotation.x = deg_to_rad(PENDULUM_SWING) * sin(PI * t)
+
+
 static func _window_glass_material(departure: bool) -> StandardMaterial3D:
 	# Glazing has a broad, faint room reflection, never the timber weathering.
 	var reflection := Gradient.new()
@@ -66,6 +83,51 @@ static func _window_glass_material(departure: bool) -> StandardMaterial3D:
 	material.roughness = 0.24
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	return material
+
+
+## With the blackout curtains gone, a few faint stars show above the street lamp.
+## Upper sash only, clear of the glazing bars and the lamp halo; fixed seed.
+static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshInstance3D:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1919
+	var bars: Array[float] = []
+	for x in [-1.9, -0.625, 0.625, 1.9]:
+		bars.append(window_center.x + x)
+	var spots: Array[Vector3] = []
+	var tries := 0
+	while spots.size() < WINDOW_STARS and tries < 400:
+		tries += 1
+		var p := Vector3(window_center.x + rng.randf_range(-1.82, 1.82), rng.randf_range(2.16, 2.88), window_center.z + 0.025)
+		if Vector2(p.x - lamp.x, p.y - lamp.y).length() < 0.34:
+			continue
+		var on_bar := false
+		for b in bars:
+			on_bar = on_bar or absf(p.x - b) < 0.07
+		if not on_bar:
+			spots.append(p)
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
+	mm.use_custom_data = true
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE
+	mm.mesh = quad
+	mm.instance_count = spots.size()
+	for i in spots.size():
+		var size := rng.randf_range(0.022, 0.05)
+		mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(size, size, 1.0)), spots[i]))
+		var warm := rng.randf()
+		mm.set_instance_color(i, Color(0.80 + 0.2 * warm, 0.86, 1.0 - 0.15 * warm, rng.randf_range(0.35, 0.9)))
+		mm.set_instance_custom_data(i, Color(rng.randf() * TAU, rng.randf_range(0.6, 1.8), 0, 0))
+	var stars := MultiMeshInstance3D.new()
+	stars.name = "DepartureWindowStars"
+	stars.multimesh = mm
+	var material := ShaderMaterial.new()
+	material.shader = preload("res://shaders/window_stars.gdshader")
+	stars.material_override = material
+	stars.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	stars.set_meta("spots", spots)
+	return stars
 
 
 static func build(root: Node3D, departure := false) -> Dictionary:
@@ -182,6 +244,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		lamp_point.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		lamp_point.position = Vector3(-0.70, 2.50, -2.79)
 		root.add_child(lamp_point)
+		root.add_child(_window_stars(window_center, lamp_point.position))
 	# Rain on the visible half of the sash, drawn as one low-cost mesh instance.
 	if not departure:
 		var rain_mm := MultiMesh.new()
@@ -332,6 +395,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 
 	# Interactable set dressing along the walls. Hotspots are in the room side of props.
 	_shelf(w, Vector3(3.65, 0, -1.35), wood, dark_wood)
+	out.merge(StarDecor.build(w, brass, dark_wood))
 	var logbook := w.box(Vector3(0.42, 0.09, 0.31), Vector3(3.38, 1.42, -1.38), Color(0.37, 0.27, 0.18), null, false)
 	var log_hotspot := w.hotspot(Vector3(0.55, 0.3, 0.4), Vector3(3.28, 1.46, -1.34), "logbook", "查看 1915 年觀測日誌")
 	out.targets["logbook"] = log_hotspot.position
@@ -373,7 +437,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	var ember_mat := w.mat(Color(0.44, 0.15, 0.05)).duplicate() as StandardMaterial3D
 	ember_mat.emission_enabled = true
 	ember_mat.emission = Color(0.68, 0.19, 0.045)
-	ember_mat.emission_energy_multiplier = 0.75
+	ember_mat.emission_energy_multiplier = EMBER_GLOW
 	(embers as MeshInstance3D).material_override = ember_mat
 	for z in [1.12, 1.35, 1.58]:
 		w.box(Vector3(0.05, 0.29, 0.035), Vector3(4.025, 0.35, z), iron, null, false)
@@ -388,6 +452,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	fire_light.shadow_enabled = false
 	root.add_child(fire_light)
 	out.fire_light = fire_light
+	out.ember_mat = ember_mat
 	var fire_hotspot := w.hotspot(Vector3(0.6, 0.8, 0.9), Vector3(3.45, 0.58, 1.35), "fire", "查看爐火")
 	out.targets["fire"] = fire_hotspot.position
 
@@ -395,6 +460,14 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	w.box(Vector3(0.1, 1.15, 0.42), Vector3(-4.28, 2.3, -2.05), wood)
 	w.cyl(0.18, 0.07, Vector3(-4.18, 2.65, -2.05), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
 	w.cyl(0.14, 0.08, Vector3(-4.12, 2.65, -2.05), Color(0.75, 0.7, 0.55), null, false, Vector3(0, 0, deg_to_rad(90)))
+	# Its seconds pendulum hangs in front of the case, below the dial.
+	var pendulum := Node3D.new()
+	pendulum.name = "ClockPendulum"
+	pendulum.position = Vector3(-4.215, 2.47, -2.05)
+	root.add_child(pendulum)
+	w.box(Vector3(0.008, PENDULUM_ROD, 0.012), Vector3(0, -PENDULUM_ROD * 0.5, 0), brass, pendulum, false)
+	w.cyl(0.055, 0.02, Vector3(0, -PENDULUM_ROD, 0), brass, pendulum, false, Vector3(0, 0, deg_to_rad(90)))
+	out.pendulum = pendulum
 	var clock_hotspot := w.hotspot(Vector3(0.85, 1.35, 0.7), Vector3(-3.55, 2.3, -2.05), "clock", "查看調節鐘")
 	out.targets["clock"] = clock_hotspot.position
 

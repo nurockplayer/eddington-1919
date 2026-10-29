@@ -57,6 +57,42 @@ func _run() -> void:
 			_check(halo != null and halo.fill == GradientTexture2D.FILL_RADIAL \
 				and halo.gradient.get_color(halo.gradient.get_point_count() - 1).a == 0.0,
 				"Street lamp must soften to a transparent halo")
+		var stars := room.get_node_or_null("DepartureWindowStars") as MultiMeshInstance3D
+		_check((stars != null) == departure, "Only departure night shows stars through the window")
+		if stars != null:
+			var spots: Array = stars.get_meta("spots")
+			_check(spots.size() == Room.WINDOW_STARS and stars.multimesh.instance_count == spots.size(),
+				"Window stars: all %d placed" % Room.WINDOW_STARS)
+			var clear := true
+			for p in spots:
+				clear = clear and p.y > 2.1 and p.y < 2.925 and p.x > -1.275 and p.x < 2.375 \
+					and Vector2(p.x - lamp.position.x, p.y - lamp.position.y).length() >= 0.34
+			_check(clear, "Window stars sit in the upper sash, clear of the lamp halo")
+			_check(stars.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
+				"Window stars cast no shadow")
+		var embers: StandardMaterial3D = built.ember_mat
+		var glow := {}
+		for f in [0.92, 1.0, 1.08]:
+			Room.glow_embers(embers, f, 0.0)
+			glow[f] = embers.emission_energy_multiplier
+		_check(glow[0.92] < glow[1.0] and glow[1.0] < glow[1.08] and is_equal_approx(glow[1.0], Room.EMBER_GLOW),
+			"Embers brighten with the fire's flicker: %s" % glow)
+		_check(glow[0.92] > 0.2, "Embers never go out at the flicker's low point")
+		# The slow wave moves the glow even while the fire's flicker holds still.
+		Room.glow_embers(embers, 1.0, PI / 1.2)
+		var crest := embers.emission_energy_multiplier
+		Room.glow_embers(embers, 1.0, PI / 0.4)
+		_check(crest > glow[1.0] and embers.emission_energy_multiplier < glow[1.0],
+			"Embers breathe on their own slow wave: %.3f / %.3f" % [crest, embers.emission_energy_multiplier])
+		var pendulum: Node3D = built.pendulum
+		Room.swing_pendulum(pendulum, 3.0)
+		var at_tick := pendulum.rotation.x
+		Room.swing_pendulum(pendulum, 3.5)
+		var at_end := pendulum.rotation.x
+		_check(is_zero_approx(at_tick) and is_equal_approx(absf(at_end), deg_to_rad(Room.PENDULUM_SWING)),
+			"Pendulum crosses the middle on the tick and swings %.0f° out" % Room.PENDULUM_SWING)
+		var bob := (pendulum.get_child(1) as Node3D).global_position
+		_check(bob.y > 1.725 + 0.055 and bob.x > -4.23, "Pendulum bob hangs inside the case height, in front of it")
 		room.free()
 	if failures == 0:
 		print("PASS: Cambridge room/corridor plaster is broad, soft, and low contrast; M1/M2 glass is smooth; departure lamp has a soft halo")
