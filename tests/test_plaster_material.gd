@@ -70,6 +70,20 @@ func _run() -> void:
 			_check(clear, "Window stars sit in the upper sash, clear of the lamp halo")
 			_check(stars.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
 				"Window stars cast no shadow")
+		var embers: StandardMaterial3D = built.ember_mat
+		var glow := {}
+		for f in [0.92, 1.0, 1.08]:
+			Room.glow_embers(embers, f, 0.0)
+			glow[f] = embers.emission_energy_multiplier
+		_check(glow[0.92] < glow[1.0] and glow[1.0] < glow[1.08] and is_equal_approx(glow[1.0], Room.EMBER_GLOW),
+			"Embers brighten with the fire's flicker: %s" % glow)
+		_check(glow[0.92] > 0.2, "Embers never go out at the flicker's low point")
+		# The slow wave moves the glow even while the fire's flicker holds still.
+		Room.glow_embers(embers, 1.0, PI / 1.2)
+		var crest := embers.emission_energy_multiplier
+		Room.glow_embers(embers, 1.0, PI / 0.4)
+		_check(crest > glow[1.0] and embers.emission_energy_multiplier < glow[1.0],
+			"Embers breathe on their own slow wave: %.3f / %.3f" % [crest, embers.emission_energy_multiplier])
 		room.free()
 	if failures == 0:
 		print("PASS: Cambridge room/corridor plaster is broad, soft, and low contrast; M1/M2 glass is smooth; departure lamp has a soft halo")
