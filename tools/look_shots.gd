@@ -4,7 +4,7 @@ extends SceneTree
 ## a view whose node is missing (branch not merged) is reported and skipped.
 ##
 ## Run: orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top \
-##        -s tools/look_shots.gd -- --out=$PWD/build/look [--only=study,night,title]
+##        -s tools/look_shots.gd -- --out=$PWD/build/look [--only=study,departure,night,title]
 ## Headless the views are still set up and checked, but nothing is saved.
 
 
@@ -70,6 +70,8 @@ func _save(label: String) -> void:
 func _run() -> void:
 	if _wanted("study"):
 		await _study()
+	if _wanted("departure"):
+		await _departure()
 	if _wanted("night"):
 		await _night()
 	if _wanted("title"):
@@ -111,6 +113,23 @@ func _study() -> void:
 		await _save("study_lamp_dust")
 	else:
 		skipped.append("study_lamp_dust")
+	scene.queue_free()
+	await frames(4)
+
+
+func _departure() -> void:
+	var scene: Node = load("res://scenes/departure.tscn").instantiate()
+	root.add_child(scene)
+	await frames(30)
+	_hide_ui(scene)
+	var stars := scene.find_child("DepartureWindowStars", true, false) as Node3D
+	if stars:
+		# From mid-room up at the sash: lamp halo bottom-left, stars above it.
+		_aim(scene, Vector3(0.55, 1.75, 0.4), Vector3(0.55, 2.4, -2.82))
+		await frames(30)
+		await _save("departure_window_stars")
+	else:
+		skipped.append("departure_window_stars")
 	scene.queue_free()
 	await frames(4)
 
@@ -216,9 +235,14 @@ func _totality() -> void:
 		_aim(main, at + Vector3(2.0, 1.6, 2.0), at)
 		await frames(6)
 		await _save("totality_shadow_bands")
+		# Two more 0.4 s apart (at --fixed-fps 60): the bands must drift, not strobe.
+		for i in [1, 2]:
+			await frames(24)
+			await _save("totality_shadow_bands_t%d" % i)
 	else:
 		skipped.append("totality_shadow_bands")
-	if main.sky_mat.get_shader_parameter("third_contact") is Vector2:
+	# An unset uniform reads back null, so look for it in the shader source.
+	if main.sky_mat.shader.code.contains("uniform vec2 third_contact"):
 		main._apply_light(0.98, 0.9, clear_t, 0.0)
 		main.sky_mat.set_shader_parameter("third_contact", Vector2(0.0, 1.0))
 		var eye := Vector3(2.6, 1.65, 4.2)

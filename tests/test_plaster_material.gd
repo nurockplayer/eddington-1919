@@ -57,6 +57,19 @@ func _run() -> void:
 			_check(halo != null and halo.fill == GradientTexture2D.FILL_RADIAL \
 				and halo.gradient.get_color(halo.gradient.get_point_count() - 1).a == 0.0,
 				"Street lamp must soften to a transparent halo")
+		var stars := room.get_node_or_null("DepartureWindowStars") as MultiMeshInstance3D
+		_check((stars != null) == departure, "Only departure night shows stars through the window")
+		if stars != null:
+			var spots: Array = stars.get_meta("spots")
+			_check(spots.size() == Room.WINDOW_STARS and stars.multimesh.instance_count == spots.size(),
+				"Window stars: all %d placed" % Room.WINDOW_STARS)
+			var clear := true
+			for p in spots:
+				clear = clear and p.y > 2.1 and p.y < 2.925 and p.x > -1.275 and p.x < 2.375 \
+					and Vector2(p.x - lamp.position.x, p.y - lamp.position.y).length() >= 0.34
+			_check(clear, "Window stars sit in the upper sash, clear of the lamp halo")
+			_check(stars.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
+				"Window stars cast no shadow")
 		room.free()
 	if failures == 0:
 		print("PASS: Cambridge room/corridor plaster is broad, soft, and low contrast; M1/M2 glass is smooth; departure lamp has a soft halo")
