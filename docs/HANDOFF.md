@@ -55,7 +55,7 @@
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
-## Director backlog (edd-director) | 2026-10-28 17:15 JST
+## Director backlog (edd-director) | 2026-10-29 17:35 JST
 
 Characters (HG / c01–c03) are owned by the session eddington-1919-6c. edd-director stays off them.
 
@@ -65,7 +65,8 @@ Open PRs (all pass their headless suites):
 - #41 Príncipe night sky: Milky Way barely visible; stars wider and brighter, band x2.4. Re-shoot pending.
 - #50 shadow bands: invisible, the plane was under the dirt (y 0.01 < 0.02); lifted to 0.04, alpha 0.16. Now based on main. Re-shoot pending.
 - #53 diamond ring: still shows a flat grey sky, cause not found (cloud over Sun was thin). Draft.
-- Second windowed run (#40 #41 #50 #53) queued 2026-10-29 11:58 JST under orb-test --heavy; script skips itself after 15:00 JST.
+- Second windowed run (#40 #41 #50 #53): not reached on 2026-10-29 (the heavy queue sat behind a 5.5 h gteki bench); ticket cancelled 17:28 JST, re-armed for 2026-10-30 09:07 JST (`windowed_r2.sh`, one run, all four branches).
+- #53: headless ray probe 2026-10-29 13:40 JST found no mesh between the eye and the Sun (alt 56°), so the grey is the sky shader at the values shot; the re-shoot uses the tween's peak values plus a wide still.
 
 Before merge:
 - Heavy set + e2e for all eight open branches, in one integration worktree: queued 2026-10-29 03:07 JST under `orb-test --heavy --host`; it starts when the gate opens (05:00 JST, or 45 min idle).
@@ -73,6 +74,8 @@ Before merge:
 
 Next items:
 - bot 「完成計畫」 real-click flake: #55 merged c7aa61f (2026-10-29 06:35 JST). The bot now waits for the button to enable and logs `disabled=` and the hovered control on a miss. Confirm in the 09:00 JST windowed run; if it still misses, the log names the cause.
+- Lens reset on an unframed speaker: already in `director.gd` `_frame_speaker` (returns to 55° when the speaker is hidden or a voice). test_score wall-clock flake: #43 times only the handoff. Both closed.
+- Coda sky: the coda plays in the darkroom under the same sky at `night = 1`, so the Príncipe night dome (#41) covers it; no separate item.
 - bridge_pause teardown leak: #56 merged 8af22f9 (2026-10-29 06:45 JST). Cambridge director stops its players in `_exit_tree`; the same in departure_director made test_prologue leak 4, so not done there.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
