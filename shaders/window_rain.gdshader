@@ -15,5 +15,5 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = tint.rgb;
-	ALPHA = tint.a * smoothstep(0.0, 0.08, progress) * smoothstep(1.0, 0.75, progress);
+	ALPHA = tint.a * smoothstep(0.0, 0.08, progress) * (1.0 - smoothstep(0.75, 1.0, progress));
 }

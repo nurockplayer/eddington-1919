@@ -85,7 +85,7 @@ func _run() -> void:
 		_check(crest > glow[1.0] and embers.emission_energy_multiplier < glow[1.0],
 			"Embers breathe on their own slow wave: %.3f / %.3f" % [crest, embers.emission_energy_multiplier])
 		var rain := room.get_node_or_null("RainStreaks") as MultiMeshInstance3D
-		_check((rain != null) == not departure, "Only the 1917 study has rain on the sash")
+		_check((rain != null) == (not departure), "Only the 1917 study has rain on the sash")
 		if rain != null:
 			var mm := rain.multimesh
 			var low := INF
