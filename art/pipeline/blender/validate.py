@@ -1,6 +1,8 @@
 """Validate an exported GLB against its spec in art/assets.toml (Blender, headless).
 
     blender -b --factory-startup -P art/pipeline/blender/validate.py -- assets/models/coelostat.glb coelostat
+    # factory batches: another registry with the same schema, report elsewhere
+    blender -b ... validate.py -- <glb> <id> --registry art/factory/af01/batch.toml --out art/factory/af01/g2
 
 Checks (gate G2 in art/PIPELINE.md): triangle budget, material count, texture size,
 real-world dimensions within tolerance, bounds at bottom-centre, per-object
@@ -23,7 +25,9 @@ ROOT = Path(__file__).resolve().parents[3]
 def main() -> int:
     argv = sys.argv[sys.argv.index("--") + 1 :]
     glb, asset_id = Path(argv[0]).resolve(), argv[1]
-    spec = tomllib.loads((ROOT / "art/assets.toml").read_text())["asset"][asset_id]
+    opts = dict(zip(argv[2::2], argv[3::2]))  # --registry <toml>, --out <dir>
+    registry = ROOT / opts.get("--registry", "art/assets.toml")
+    spec = tomllib.loads(registry.read_text())["asset"][asset_id]
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(glb))
     # The glTF importer creates display meshes for bones (e.g. "Icosphere"); they
@@ -97,7 +101,7 @@ def main() -> int:
             checks[name]["skipped"] = True
     passed = all(c["ok"] for c in checks.values())
     report = {"asset": asset_id, "file": str(glb.relative_to(ROOT)) if glb.is_relative_to(ROOT) else str(glb), "pass": passed, "checks": checks}
-    out = ROOT / "art/validation" / f"{asset_id}.g2.json"
+    out = ROOT / opts.get("--out", "art/validation") / f"{asset_id}.g2.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False))
     for k, c in checks.items():

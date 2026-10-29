@@ -1,0 +1,85 @@
+{
+  "asset": "plate_rack",
+  "file": "assets/candidates/af01/plate_rack.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 1072,
+      "max": 2000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_plate_glass",
+        "E1919_teak",
+        "E1919_teak_dark"
+      ],
+      "max": 3,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.6,
+        0.26,
+        0.4
+      ],
+      "target": [
+        0.6,
+        0.26,
+        0.4
+      ],
+      "tolerance": 0.12,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "plate_rack": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "plate_rack"
+      ],
+      "ok": true
+    }
+  }
+}

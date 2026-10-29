@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        0.45,
+        0.38,
+        0.45
+      ],
+      "id": "camp_stool",
+      "min_y": 0.0,
+      "surfaces": 3,
+      "triangles": 464
+    }
+  ],
+  "frame_scale": 1.0
+}

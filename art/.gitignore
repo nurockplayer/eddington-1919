@@ -1,3 +1,9 @@
 # Benchmark/lookdev full-size captures stay local; compare.py writes committed JPEGs to shots/.
 validation/**/*.png
 __pycache__/
+# Asset Factory: full-size G3/in-game captures stay local (contact sheets are committed JPEGs);
+# raw generator meshes stay local (receipts with task ids are committed, so they can be re-downloaded).
+factory/**/*.png
+factory/**/logs/
+sources/**/*.glb
+factory/**/ledger.lock

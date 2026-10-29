@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        1.0,
+        0.55,
+        0.7
+      ],
+      "id": "sawhorse",
+      "min_y": 0.0,
+      "surfaces": 2,
+      "triangles": 308
+    }
+  ],
+  "frame_scale": 1.0
+}

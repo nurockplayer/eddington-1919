@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "dims_xzy_m": [
+        0.2,
+        0.18,
+        0.34
+      ],
+      "id": "hurricane_lantern",
+      "min_y": 0.0,
+      "surfaces": 3,
+      "triangles": 1176
+    }
+  ],
+  "frame_scale": 1.0
+}

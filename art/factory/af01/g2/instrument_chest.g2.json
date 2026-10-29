@@ -1,0 +1,104 @@
+{
+  "asset": "instrument_chest",
+  "file": "assets/candidates/af01/instrument_chest.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 1388,
+      "max": 2000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_brass",
+        "E1919_iron",
+        "E1919_teak"
+      ],
+      "max": 3,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.9,
+        0.5,
+        0.46
+      ],
+      "target": [
+        0.9,
+        0.5,
+        0.46
+      ],
+      "tolerance": 0.1,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "instrument_chest": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "instrument_chest_lid": {
+          "origin": [
+            0.0,
+            0.25,
+            0.4
+          ],
+          "expected": [
+            0.0,
+            0.25,
+            0.4000000059604645
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "instrument_chest",
+        "instrument_chest_lid"
+      ],
+      "ok": true
+    }
+  }
+}

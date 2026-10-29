@@ -1,0 +1,85 @@
+{
+  "asset": "water_cask",
+  "file": "assets/candidates/af01/water_cask.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 504,
+      "max": 600,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_iron",
+        "E1919_pine",
+        "E1919_teak_dark"
+      ],
+      "max": 3,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.56,
+        0.56,
+        0.8
+      ],
+      "target": [
+        0.56,
+        0.56,
+        0.8
+      ],
+      "tolerance": 0.1,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "water_cask": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "water_cask"
+      ],
+      "ok": true
+    }
+  }
+}
