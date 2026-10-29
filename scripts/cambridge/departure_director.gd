@@ -109,7 +109,9 @@ func _sync_player() -> void:
 
 func _process(delta: float) -> void:
 	_light_t += delta
-	world.fire_light.light_energy = 0.8 * (1.0 + 0.04 * sin(_light_t * 2.3) + 0.02 * sin(_light_t * 5.7))
+	var flicker := 1.0 + 0.04 * sin(_light_t * 2.3) + 0.02 * sin(_light_t * 5.7)
+	world.fire_light.light_energy = 0.8 * flicker
+	Room.glow_embers(world.ember_mat, flicker, _light_t)
 	_clock_t += delta
 	if _clock_t >= 1.0:
 		_clock_t -= 1.0

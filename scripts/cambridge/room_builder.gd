@@ -13,6 +13,7 @@ const ROOM_W := 9.0
 const ROOM_D := 6.0
 const ROOM_H := 3.6
 const WINDOW_STARS := 18
+const EMBER_GLOW := 0.75
 
 
 static func _plaster_material(color: Color) -> StandardMaterial3D:
@@ -46,6 +47,12 @@ static func _plaster_material(color: Color) -> StandardMaterial3D:
 	material.uv2_world_triplanar = true
 	material.uv2_scale = Vector3(0.3, 0.3, 0.3)
 	return material
+
+
+## Embers breathe with the fire's flicker, brighter where the light swells, and
+## on a slower wave of their own so the coals never pulse in lockstep.
+static func glow_embers(ember_mat: StandardMaterial3D, flicker: float, t: float) -> void:
+	ember_mat.emission_energy_multiplier = EMBER_GLOW * (1.0 + 2.5 * (flicker - 1.0) + 0.12 * sin(t * 0.6))
 
 
 static func _window_glass_material(departure: bool) -> StandardMaterial3D:
@@ -422,7 +429,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	var ember_mat := w.mat(Color(0.44, 0.15, 0.05)).duplicate() as StandardMaterial3D
 	ember_mat.emission_enabled = true
 	ember_mat.emission = Color(0.68, 0.19, 0.045)
-	ember_mat.emission_energy_multiplier = 0.75
+	ember_mat.emission_energy_multiplier = EMBER_GLOW
 	(embers as MeshInstance3D).material_override = ember_mat
 	for z in [1.12, 1.35, 1.58]:
 		w.box(Vector3(0.05, 0.29, 0.035), Vector3(4.025, 0.35, z), iron, null, false)
@@ -437,6 +444,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	fire_light.shadow_enabled = false
 	root.add_child(fire_light)
 	out.fire_light = fire_light
+	out.ember_mat = ember_mat
 	var fire_hotspot := w.hotspot(Vector3(0.6, 0.8, 0.9), Vector3(3.45, 0.58, 1.35), "fire", "查看爐火")
 	out.targets["fire"] = fire_hotspot.position
 
