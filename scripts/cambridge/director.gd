@@ -139,6 +139,7 @@ func _process(delta: float) -> void:
 	var flicker := 1.0 + 0.055 * sin(_light_t * 2.3) + 0.025 * sin(_light_t * 5.7)
 	world.fire_light.light_energy = (0.48 if _daylight else 1.0) * flicker
 	Room.glow_embers(world.ember_mat, flicker, _light_t)
+	Room.swing_pendulum(world.pendulum, _light_t)
 	_clock_t += delta
 	if _clock_t >= 1.0:
 		_clock_t -= 1.0

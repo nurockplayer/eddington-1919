@@ -14,6 +14,8 @@ const ROOM_D := 6.0
 const ROOM_H := 3.6
 const WINDOW_STARS := 18
 const EMBER_GLOW := 0.75
+const PENDULUM_ROD := 0.55
+const PENDULUM_SWING := 4.0  # degrees either side
 
 
 static func _plaster_material(color: Color) -> StandardMaterial3D:
@@ -53,6 +55,12 @@ static func _plaster_material(color: Color) -> StandardMaterial3D:
 ## on a slower wave of their own so the coals never pulse in lockstep.
 static func glow_embers(ember_mat: StandardMaterial3D, flicker: float, t: float) -> void:
 	ember_mat.emission_energy_multiplier = EMBER_GLOW * (1.0 + 2.5 * (flicker - 1.0) + 0.12 * sin(t * 0.6))
+
+
+## A seconds pendulum: it crosses the middle on every whole second, when the
+## directors play the tick, and swings along the wall (about the x axis).
+static func swing_pendulum(pendulum: Node3D, t: float) -> void:
+	pendulum.rotation.x = deg_to_rad(PENDULUM_SWING) * sin(PI * t)
 
 
 static func _window_glass_material(departure: bool) -> StandardMaterial3D:
@@ -452,6 +460,14 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	w.box(Vector3(0.1, 1.15, 0.42), Vector3(-4.28, 2.3, -2.05), wood)
 	w.cyl(0.18, 0.07, Vector3(-4.18, 2.65, -2.05), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
 	w.cyl(0.14, 0.08, Vector3(-4.12, 2.65, -2.05), Color(0.75, 0.7, 0.55), null, false, Vector3(0, 0, deg_to_rad(90)))
+	# Its seconds pendulum hangs in front of the case, below the dial.
+	var pendulum := Node3D.new()
+	pendulum.name = "ClockPendulum"
+	pendulum.position = Vector3(-4.215, 2.47, -2.05)
+	root.add_child(pendulum)
+	w.box(Vector3(0.008, PENDULUM_ROD, 0.012), Vector3(0, -PENDULUM_ROD * 0.5, 0), brass, pendulum, false)
+	w.cyl(0.055, 0.02, Vector3(0, -PENDULUM_ROD, 0), brass, pendulum, false, Vector3(0, 0, deg_to_rad(90)))
+	out.pendulum = pendulum
 	var clock_hotspot := w.hotspot(Vector3(0.85, 1.35, 0.7), Vector3(-3.55, 2.3, -2.05), "clock", "查看調節鐘")
 	out.targets["clock"] = clock_hotspot.position
 
