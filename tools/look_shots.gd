@@ -172,8 +172,25 @@ func _night() -> void:
 		_aim(main, eye, eye + _sky_dir(view[1], view[2]))
 		await frames(6)
 		await _save(view[0])
+	var m = main.get("meteors")
+	if m:
+		# One meteor frozen mid-flight, low in the south-east under the Milky Way.
+		m.set_process(false)
+		m.start = _sky_dir(50.0, 140.0)
+		m.finish = _sky_dir(40.0, 135.0)
+		m.age = _meteor_mid(m)
+		m.tick(0.0)
+		_aim(main, eye, eye + _sky_dir(44.0, 137.0))
+		await frames(6)
+		await _save("night_meteor")
+	else:
+		skipped.append("night_meteor")
 	main.queue_free()
 	await frames(4)
+
+
+func _meteor_mid(m) -> float:
+	return m.DURATION * 0.55
 
 
 # Same convention as night_sky.gd (loaded by name there; this tool also runs on main).

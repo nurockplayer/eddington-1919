@@ -12,6 +12,7 @@ const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 const Look := preload("res://scripts/look.gd")
 const NightSky := preload("res://scripts/night_sky.gd")
+const NightMeteors := preload("res://scripts/night_meteors.gd")
 const SunCrescents := preload("res://scripts/sun_crescents.gd")
 const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
 const DepartureWorkbook := preload("res://scripts/cambridge/departure_props.gd")
@@ -59,6 +60,7 @@ var _busy := false               # in a scripted transition
 var _pending := ""               # what the current dialogue is for
 
 var sky_mat: ShaderMaterial
+var meteors: Node  # NightMeteors, built with the sky
 var env: Environment
 var sun: DirectionalLight3D
 var audio_tick: AudioStreamPlayer
@@ -213,6 +215,9 @@ func _build_environment() -> void:
 		mags.append(1.0 - i * 0.06)
 	sky_mat.set_shader_parameter("star_mag", mags)
 	NightSky.apply(sky_mat)
+	meteors = NightMeteors.new()
+	meteors.setup(sky_mat)
+	add_child(meteors)
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	sky.process_mode = Sky.PROCESS_MODE_REALTIME
@@ -285,6 +290,8 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	sky_mat.set_shader_parameter("darkness", darkness)
 	sky_mat.set_shader_parameter("cloud_time", cloud_t)
 	sky_mat.set_shader_parameter("night", night)
+	if meteors:
+		meteors.set_night(night > 0.5)
 	sky_mat.set_shader_parameter("star_vis", clampf((darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night))
 	var dens: float = sim.cloud_over_sun(cloud_t)
 	var vis := _crescent(contact) * (1.0 - darkness)
