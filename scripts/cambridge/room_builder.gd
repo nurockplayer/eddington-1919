@@ -411,6 +411,10 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	# Interactable set dressing along the walls. Hotspots are in the room side of props.
 	_shelf(w, Vector3(3.65, 0, -1.35), wood, dark_wood)
 	out.merge(StarDecor.build(w, brass, dark_wood))
+	if not departure:
+		# Issue #37 loop 1: Newton's clockwork, and the small number it cannot fit.
+		var orrery_hotspot := w.hotspot(Vector3(0.36, 0.3, 0.3), out.orrery.position + Vector3(0, 0.1, 0.05), "orrery", "查看太陽系儀")
+		out.targets["orrery"] = orrery_hotspot.position
 	var logbook := w.box(Vector3(0.42, 0.09, 0.31), Vector3(3.38, 1.42, -1.38), Color(0.37, 0.27, 0.18), null, false)
 	var log_hotspot := w.hotspot(Vector3(0.55, 0.3, 0.4), Vector3(3.28, 1.46, -1.34), "logbook", "查看 1915 年觀測日誌")
 	out.targets["logbook"] = log_hotspot.position

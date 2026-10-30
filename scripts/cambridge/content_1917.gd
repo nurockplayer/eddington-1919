@@ -103,6 +103,15 @@ static func examine(id: String) -> Array:
 			return [{"s": "底片櫃", "t": "淺淺的抽屜，一格一張底片。每一張都有編號、日期和墨水寫的備註。\n這裡沒有一張底片被丟掉過。"}]
 		"kit_ledger":
 			return [{"s": "%s的帳簿" % K, "t": "同一顆變星，一行一行的亮度估計，字跡工整得近乎固執。\n最新一頁的角落，畫著一個很小的問號。"}]
+		"orrery":
+			# Issue #37 loop 1 (proposal). HISTORICAL_RECORD: Neptune found 1846 from Le Verrier's
+			# prediction; Mercury's unexplained perihelion advance about 43″/century (Le Verrier 1859,
+			# Newcomb 1882/1895); intra-Mercurial planet searches never confirmed.
+			return [
+				{"s": "太陽系儀", "t": "黃銅做的小太陽系，發條帶著水星、金星、地球和火星各走各的路。\n照牛頓的引力算，行星兩百多年來幾乎都準時到場——海王星甚至是先在紙上算出來，才在望遠鏡裡找到的。"},
+				{"s": "太陽系儀", "t": "只有水星不太聽話。把其他行星的拉扯全都算進去，它的近日點每一百年還多往前挪了大約 43 角秒——差不多是一百多公尺外一枚硬幣的寬度。\n有人照海王星的先例，去找一顆更靠近太陽的行星，始終沒有確認找到。也有人懷疑是別的地方出了錯。"},
+				{"s": "太陽系儀", "t": "這台小機器的軌道是齒輪定死的，演不出那 43 角秒。\n[color=#b8ad98]——最可靠的算法，也留著一個對不上的小數字。[/color]"},
+			]
 		"notebook_before":
 			return [{"s": "你的工作筆記", "t": "等核對完，就在這裡寫下結果。"}]
 	return []
