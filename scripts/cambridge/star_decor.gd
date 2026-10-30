@@ -1,6 +1,6 @@
 extends RefCounted
-## Astronomy set dressing for the Cambridge study: a brass celestial globe on the
-## bookcase and a framed Taurus chart above the mantel. Decoration only: no
+## Astronomy set dressing for the Cambridge study: a brass celestial globe and a
+## small clockwork orrery on the bookcase, and a framed Taurus chart above the mantel. Decoration only: no
 ## hotspots, no colliders, no game state. Star textures are drawn at build time.
 
 ## Bright stars: right ascension (deg), declination (deg), visual magnitude.
@@ -28,10 +28,93 @@ const FIGURE := [[2, 1], [1, 0], [2, 3], [3, 4], [4, 5], [0, 6]]
 const SUN_1919 := Vector2(65.28, 21.50)
 const INK := Color(0.20, 0.15, 0.10)
 const GOLD := Color(0.86, 0.70, 0.38)
+## Orrery arms: name, arm radius (m), period (years), ball radius (m), colour.
+## Mercury to Mars; arm lengths are a toy's, periods are the real ratios.
+const PLANETS := [
+	["Mercury", 0.034, 0.241, 0.0045, Color(0.62, 0.58, 0.52)],
+	["Venus", 0.050, 0.615, 0.0065, Color(0.86, 0.80, 0.62)],
+	["Earth", 0.068, 1.0, 0.0070, Color(0.30, 0.45, 0.62)],
+	["Mars", 0.088, 1.881, 0.0055, Color(0.66, 0.32, 0.20)],
+]
+const ORRERY_YEAR := 40.0  # seconds per Earth year, so the inner arms visibly creep
+const MOON_MONTH := 1.0 / 12.37  # sidereal months per year
 
 
 static func build(w, brass: Color, dark_wood: Color) -> Dictionary:
-	return {"globe": _globe(w, brass, dark_wood), "chart": _chart(w, dark_wood)}
+	return {"globe": _globe(w, brass, dark_wood), "chart": _chart(w, dark_wood), "orrery": _orrery(w, brass, dark_wood)}
+
+
+## Turn every arm to time t (seconds); the Moon circles the Earth on its own arm.
+static func turn_orrery(orrery: Node3D, t: float) -> void:
+	var years := t / ORRERY_YEAR
+	for arm in orrery.get_meta("arms"):
+		arm.rotation.y = float(arm.get_meta("phase")) + TAU * years / float(arm.get_meta("period"))
+	var moon_arm: Node3D = orrery.get_meta("moon_arm")
+	moon_arm.rotation.y = TAU * years / MOON_MONTH
+
+
+static func _orrery(w, brass: Color, dark_wood: Color) -> Node3D:
+	# On the bookcase's top board (y 2.185), in the front bay between the top-row
+	# books (they end at z -1.245) and the globe (its ring reaches -0.97), toward
+	# the room so nothing stands between it and the study.
+	var orrery := Node3D.new()
+	orrery.name = "Orrery"
+	orrery.position = Vector3(3.52, 2.185, -1.108)
+	w.root.add_child(orrery)
+	w.cyl(0.05, 0.02, Vector3(0, 0.01, 0), dark_wood, orrery)
+	w.cyl(0.006, 0.08, Vector3(0, 0.06, 0), brass, orrery)
+	var sun := _ball(0.016, Color(1.0, 0.78, 0.36), Vector3(0, 0.11, 0))
+	var glow := sun.material_override as StandardMaterial3D
+	glow.emission_enabled = true
+	glow.emission = Color(1.0, 0.70, 0.30)
+	glow.emission_energy_multiplier = 0.6
+	sun.name = "Sun"
+	orrery.add_child(sun)
+	var arms: Array[Node3D] = []
+	for i in PLANETS.size():
+		var p: Array = PLANETS[i]
+		var arm := Node3D.new()
+		arm.name = p[0]
+		arm.position = Vector3(0, 0.07 + i * 0.008, 0)
+		arm.set_meta("phase", i * 1.7)  # not lined up at the start
+		arm.set_meta("period", p[2])
+		orrery.add_child(arm)
+		w.box(Vector3(p[1], 0.002, 0.003), Vector3(p[1] * 0.5, 0, 0), brass, arm, false)
+		w.cyl(0.0012, 0.11 - arm.position.y, Vector3(p[1], (0.11 - arm.position.y) * 0.5, 0), brass, arm)
+		var planet := _ball(p[3], p[4], Vector3(p[1], 0.11 - arm.position.y, 0))
+		planet.name = "Ball"
+		arm.add_child(planet)
+		arms.append(arm)
+		if p[0] == "Earth":
+			var moon_arm := Node3D.new()
+			moon_arm.name = "MoonArm"
+			moon_arm.position = planet.position
+			arm.add_child(moon_arm)
+			var moon := _ball(0.0025, Color(0.78, 0.77, 0.74), Vector3(0.014, 0, 0))
+			moon.name = "Moon"
+			moon_arm.add_child(moon)
+			orrery.set_meta("moon_arm", moon_arm)
+	orrery.set_meta("arms", arms)
+	turn_orrery(orrery, 0.0)
+	return orrery
+
+
+static func _ball(radius: float, color: Color, pos: Vector3) -> MeshInstance3D:
+	var ball := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = radius
+	sphere.height = radius * 2.0
+	sphere.radial_segments = 16
+	sphere.rings = 8
+	ball.mesh = sphere
+	var m := StandardMaterial3D.new()
+	m.albedo_color = color
+	m.roughness = 0.4
+	m.metallic = 0.3
+	ball.material_override = m
+	ball.position = pos
+	ball.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return ball
 
 
 static func _globe(w, brass: Color, dark_wood: Color) -> Node3D:

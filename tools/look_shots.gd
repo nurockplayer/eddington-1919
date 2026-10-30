@@ -102,6 +102,15 @@ func _study() -> void:
 		await _save("study_globe")
 	else:
 		skipped.append("study_globe")
+	var orrery := scene.find_child("Orrery", true, false) as Node3D
+	if orrery:
+		var at := orrery.global_position + Vector3(0, 0.1, 0)
+		_aim(scene, at + Vector3(-0.6, 0.2, 0.0), at)  # from the room, square to the shelf
+		for label in ["study_orrery_a", "study_orrery_b"]:
+			await frames(120)  # 2 s at --fixed-fps 60: Mercury moves ~75 degrees
+			await _save(label)
+	else:
+		skipped.append("study_orrery")
 	if chart:
 		_aim(scene, chart.global_position + Vector3(-1.1, 0.0, 0.0), chart.global_position)
 		await frames(4)
