@@ -23,6 +23,10 @@ uniform float star_mag[12];
 uniform vec4 night_stars[27];
 uniform vec3 gal_pole = vec3(0.0, 1.0, 0.0);
 uniform vec3 gal_centre = vec3(1.0, 0.0, 0.0);
+// A shooting star now and then on the night after (scripts/night_meteors.gd).
+uniform vec3 meteor_head = vec3(0.0, 1.0, 0.0);
+uniform vec3 meteor_tail = vec3(0.0, 1.0, 0.0);
+uniform float meteor_glow = 0.0;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -143,6 +147,14 @@ void sky() {
 		float band = exp(-b * b / 0.012) * (0.35 + 1.2 * core) * mix(0.55, 1.1, mottle);
 		band *= 1.0 - 0.6 * exp(-b * b / 0.0006) * core;
 		solar += night * cloud_visibility * (named * vec3(2.0, 2.05, 2.3) + band * vec3(0.24, 0.25, 0.29));
+		if (meteor_glow > 0.0) {
+			// Nearest point on the chord tail→head; bright at the head, fading to the tail.
+			vec3 seg = meteor_head - meteor_tail;
+			float t = clamp(dot(d - meteor_tail, seg) / max(dot(seg, seg), 1e-8), 0.0, 1.0);
+			vec3 off = d - (meteor_tail + seg * t);
+			float streak = exp(-dot(off, off) / 0.0000035) * t * t;
+			solar += night * cloud_visibility * meteor_glow * streak * vec3(2.4, 2.3, 2.0);
+		}
 	}
 
 	// Clouds: the same sampled density shades the sky and hides luminous detail.
