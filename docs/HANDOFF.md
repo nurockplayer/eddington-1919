@@ -79,8 +79,10 @@ Open Director drafts (2026-10-30 12:29 JST), oracle approve on the current heads
 
 Windowed re-shoot (diamond ring after #53's fix, #67, #68):
 - orb-test #39 was queued 2026-10-30 09:11 JST. It sat behind a 3.5 h+ gteki job and will not run before 15:00 JST.
-- Re-queue it Monday 2026-11-02 early: `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`. A session cron is set for 05:13 JST; if the session is gone, do it by hand.
-- The script waits for 09:00 JST and quits after 15:00 JST. It merges art/fireflies + art/orrery onto main and shoots the totality, night and study groups.
+- The look is split into two steps, so the heavy lock never sits idle waiting for 09:00 JST (changed 2026-10-30 13:30 JST):
+  - `look_prep.sh` is a light, headless step: `orb-test --host -- bash <scratchpad>/look_prep.sh`. It builds /private/tmp/edd-look-r3 from main + art/fireflies + art/orrery and runs the import. It ran 2026-10-30 13:29 JST.
+  - `windowed_r3.sh <out>` is the heavy step: it only shoots (totality, night, study), then deletes the worktree.
+- Monday 2026-11-02: a session cron fires at 08:37 JST. It re-preps if the tree is stale, then queues `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`. If the session is gone, run the same two steps by hand.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 
