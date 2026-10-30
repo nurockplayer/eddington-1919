@@ -12,6 +12,7 @@ const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 const Look := preload("res://scripts/look.gd")
 const NightSky := preload("res://scripts/night_sky.gd")
+const Fireflies := preload("res://scripts/fireflies.gd")
 const SunCrescents := preload("res://scripts/sun_crescents.gd")
 const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
 const DepartureWorkbook := preload("res://scripts/cambridge/departure_props.gd")
@@ -98,6 +99,9 @@ func _ready() -> void:
 	world.sun_crescents = SunCrescents.new()
 	world.sun_crescents.setup(wb.palm_crowns, sim.sun_dir)
 	add_child(world.sun_crescents)
+	world.fireflies = Fireflies.new()
+	world.fireflies.setup(wb.palm_crowns)
+	add_child(world.fireflies)
 	if Story.departure_done or _came_from_departure:
 		_add_departure_loupe(wb)
 	world.eddington.rotation.y = PI
@@ -294,6 +298,8 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	if world.has("sun_crescents"):
 		var lit := 0.0 if darkness > 0.95 or night > 0.5 else SunCrescents.sunlight(vis, dens)
 		world.sun_crescents.set_eclipse(contact, lit)
+	if world.has("fireflies"):
+		world.fireflies.set_night(night > 0.5)
 	var amb_day := Color(0.55, 0.57, 0.6)
 	var amb_tot := Color(0.10, 0.11, 0.17)
 	var amb_night := Color(0.03, 0.035, 0.05)

@@ -163,6 +163,17 @@ func _night() -> void:
 		_aim(main, eye, eye + _sky_dir(view[1], view[2]))
 		await frames(6)
 		await _save(view[0])
+	var ff = main.world.get("fireflies")
+	if ff:
+		# Low across the nearest palm's foot; give them a few seconds to blink.
+		var foot: Vector3 = ff.palms[0]
+		foot.y = 1.0
+		_aim(main, foot + Vector3(2.6, 0.2, 2.6), foot)
+		for label in ["night_fireflies_a", "night_fireflies_b"]:
+			await frames(90)
+			await _save(label)
+	else:
+		skipped.append("night_fireflies")
 	main.queue_free()
 	await frames(4)
 
