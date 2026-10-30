@@ -48,17 +48,18 @@ static func build(w, brass: Color, dark_wood: Color) -> Dictionary:
 static func turn_orrery(orrery: Node3D, t: float) -> void:
 	var years := t / ORRERY_YEAR
 	for arm in orrery.get_meta("arms"):
-		arm.rotation.y = TAU * years / float(arm.get_meta("period"))
+		arm.rotation.y = float(arm.get_meta("phase")) + TAU * years / float(arm.get_meta("period"))
 	var moon_arm: Node3D = orrery.get_meta("moon_arm")
 	moon_arm.rotation.y = TAU * years / MOON_MONTH
 
 
 static func _orrery(w, brass: Color, dark_wood: Color) -> Node3D:
-	# On the bookcase's top board (y 2.185), in the back bay behind the top-row books
-	# (they end at z -1.965; the board at -2.2).
+	# On the bookcase's top board (y 2.185), in the front bay between the top-row
+	# books (they end at z -1.245) and the globe (its ring reaches -0.97), toward
+	# the room so nothing stands between it and the study.
 	var orrery := Node3D.new()
 	orrery.name = "Orrery"
-	orrery.position = Vector3(3.62, 2.185, -2.085)
+	orrery.position = Vector3(3.52, 2.185, -1.108)
 	w.root.add_child(orrery)
 	w.cyl(0.05, 0.02, Vector3(0, 0.01, 0), dark_wood, orrery)
 	w.cyl(0.006, 0.08, Vector3(0, 0.06, 0), brass, orrery)
@@ -75,7 +76,7 @@ static func _orrery(w, brass: Color, dark_wood: Color) -> Node3D:
 		var arm := Node3D.new()
 		arm.name = p[0]
 		arm.position = Vector3(0, 0.07 + i * 0.008, 0)
-		arm.rotation.y = i * 1.7  # not lined up at the start
+		arm.set_meta("phase", i * 1.7)  # not lined up at the start
 		arm.set_meta("period", p[2])
 		orrery.add_child(arm)
 		w.box(Vector3(p[1], 0.002, 0.003), Vector3(p[1] * 0.5, 0, 0), brass, arm, false)

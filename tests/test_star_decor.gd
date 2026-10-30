@@ -46,19 +46,20 @@ func _run() -> void:
 		check(img.get_pixelv(sun + Vector2(15, 0)).r > img.get_pixelv(sun + Vector2(15, 0)).b + 0.2, "1919 Sun position is ringed")
 		var orrery: Node3D = world.orrery
 		check(is_equal_approx(orrery.global_position.y, 2.185), "orrery stands on the bookcase top board")
-		# Whole sweep stays on the board's back bay, clear of the top-row books.
+		# Whole sweep stays in the front bay: clear of the top-row books and the globe.
 		var clear := true
 		for t in [0.0, 3.0, 11.0, 29.0]:
 			StarDecor.turn_orrery(orrery, t)
 			for mi in orrery.find_children("*", "MeshInstance3D", true, false):
 				var b: AABB = (mi as MeshInstance3D).global_transform * (mi as MeshInstance3D).get_aabb()
-				clear = clear and b.position.z > -2.2 and b.end.z < -1.965 and b.position.x > 3.31 and b.end.x < 3.99 and b.position.y >= 2.184
-		check(clear, "every arm sweeps inside the bay behind the books")
+				clear = clear and b.position.z > -1.245 and b.end.z < -0.97 and b.position.x > 3.31 and b.end.x < 3.99 and b.position.y >= 2.184
+		check(clear, "every arm sweeps between the books and the globe")
 		var arms: Array = orrery.get_meta("arms")
 		var start: Array = []
 		StarDecor.turn_orrery(orrery, 0.0)
 		for arm in arms:
 			start.append(arm.rotation.y)
+		check(absf(wrapf(start[0] - start[2], -PI, PI)) > 0.5 and absf(wrapf(start[3] - start[2], -PI, PI)) > 0.5, "planets start spread out, not in a line")
 		StarDecor.turn_orrery(orrery, 4.0)
 		var turned: Array = []
 		for i in arms.size():
