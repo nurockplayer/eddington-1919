@@ -4,7 +4,7 @@ extends CPUParticles3D
 
 const PER_PALM := 5
 const SPREAD := 1.6  # metres around a palm's foot where they hover
-const LOW := 0.35
+const LOW := 0.45  # above a life of drift (0.04 m/s x 8 s), so none sinks into the ground
 const HIGH := 1.7
 const GLOW := Color(0.78, 1.0, 0.38)
 
@@ -30,8 +30,8 @@ func setup(crowns: Array) -> void:
 	randomness = 1.0
 	direction = Vector3(0, 0.3, 0)
 	spread = 180.0
-	initial_velocity_min = 0.04
-	initial_velocity_max = 0.12
+	initial_velocity_min = 0.015
+	initial_velocity_max = 0.04
 	gravity = Vector3.ZERO
 	scale_amount_min = 0.7
 	scale_amount_max = 1.0

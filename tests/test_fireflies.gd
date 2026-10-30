@@ -43,6 +43,7 @@ func _run() -> void:
 			best = minf(best, Vector2(p.x - c.x, p.z - c.z).length())
 		near = near and best <= Fireflies.SPREAD + 0.01
 	check(low, "they hover between knee and head height")
+	check(Fireflies.LOW - ff.initial_velocity_max * ff.lifetime > 0.05, "a whole life of drift never reaches the ground")
 	check(near, "each one starts around a palm's foot")
 	# Count separate blinks over a life: dark, lit, dark again.
 	var blinks := 0
