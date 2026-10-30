@@ -21,6 +21,9 @@ void fragment() {
 	float b = sin((u * 0.83 - w) * 33.0 - TIME * 7.0);
 	float band = a * 0.6 + b * 0.4;
 	float edge = 1.0 - smoothstep(9.0, 13.0, length(local));
-	ALBEDO = band > 0.0 ? vec3(1.0, 0.95, 0.85) : vec3(0.0);
-	ALPHA = abs(band) * 0.16 * strength * edge;
+	// Real bands are a few percent of contrast: a soft light/dark ripple, not
+	// stripes. 0.16 with a hard white/black split read as zebra on the ground
+	// (windowed look 2026-10-30 09:07 JST).
+	ALBEDO = vec3(1.0, 0.95, 0.85) * (0.5 + 0.5 * band);
+	ALPHA = 0.07 * strength * edge;
 }
