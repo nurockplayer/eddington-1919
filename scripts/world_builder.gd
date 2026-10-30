@@ -6,6 +6,7 @@ extends RefCounted
 
 const Palette := preload("res://scripts/palette.gd")
 const PalmSway := preload("res://scripts/palm_sway.gd")
+const SafelightGlass := preload("res://scripts/safelight_glass.gd")
 const MODELS := "res://assets/models/"
 
 var root: Node3D
@@ -541,9 +542,29 @@ func _darkroom() -> Dictionary:
 	safe.omni_range = 3.5
 	root.add_child(safe)
 	out.safelight = safe
+	out.safelight_glass = _safelight_lantern(safe)
 	out.darkroom_spot = c + Vector3(-0.8, 0, 1.2)
 	out.eddington_night = c + Vector3(1.3, 0, 0.3)
 	return out
+
+
+## The ruby lantern the safelight shines from: an iron box hung on a wire from
+## the roof, its red pane facing the room (RECONSTRUCTION, a generic period lamp).
+func _safelight_lantern(safe: OmniLight3D) -> MeshInstance3D:
+	var iron := Color(0.12, 0.11, 0.1)
+	var p := safe.position
+	box(Vector3(0.16, 0.22, 0.14), p, iron, null, false)
+	cyl(0.035, 0.06, p + Vector3(0, 0.14, 0), iron)  # chimney
+	cyl(0.004, 0.36, p + Vector3(0, 0.35, 0), iron)  # wire to the roof
+	var glass := SafelightGlass.new()
+	var pane := BoxMesh.new()
+	pane.size = Vector3(0.11, 0.15, 0.01)
+	glass.mesh = pane
+	glass.name = "SafelightGlass"
+	glass.position = p + Vector3(0, 0, 0.072)
+	glass.light = safe
+	root.add_child(glass)
+	return glass
 
 
 func _plantation_house() -> void:

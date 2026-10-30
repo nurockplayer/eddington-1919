@@ -70,6 +70,7 @@ Open PRs (all pass their headless suites):
 - #62 coal embers breathe with the fire's flicker: merged 2026-10-29 19:33 JST after oracle approve (a ChatGPT network error stalled the first try; retried).
 - #63 regulator clock seconds pendulum (4° swing, crosses the middle on each tick): merged 2026-10-29 20:34 JST after oracle approve.
 - #65 rain runs down the 1917 study sash (shader): oracle approve round 2, draft until the windowed look. #41 merged with main (2026-10-29 22:40 JST; main.gd preload conflict), so all six r2 branches dry-merge cleanly.
+- #66 palm fronds nod in a sea breeze (PalmSway, rotations only): oracle approve, draft until the windowed look (2026-10-30 00:35 JST). Integration run of all seven open branches queued 2026-10-29 23:29 JST (orb-test #27; keep-both on the main.gd / world_builder.gd preload conflicts).
 - #53: headless ray probe 2026-10-29 13:40 JST found no mesh between the eye and the Sun (alt 56°), so the grey is the sky shader at the values shot; the re-shoot uses the tween's peak values plus a wide still.
 
 Before merge:
