@@ -2,6 +2,8 @@ extends SceneTree
 ## The study's celestial globe, orrery and Taurus chart: placed, textured, decoration only.
 const Room := preload("res://scripts/cambridge/room_builder.gd")
 const StarDecor := preload("res://scripts/cambridge/star_decor.gd")
+const C17 := preload("res://scripts/cambridge/content_1917.gd")
+const Player := preload("res://scripts/player.gd")
 var checks := 0
 var failures := 0
 
@@ -18,6 +20,8 @@ func check(ok: bool, message: String) -> void:
 
 
 func _run() -> void:
+	var talk := C17.examine("orrery")
+	check(talk.size() == 3 and str(talk[1].t).contains("43"), "the orrery tells of Mercury's 43″")
 	for departure in [false, true]:
 		var room := Node3D.new()
 		root.add_child(room)
@@ -25,6 +29,22 @@ func _run() -> void:
 		var globe: Node3D = world.globe
 		var chart: Node3D = world.chart
 		check(globe.name == "CelestialGlobe" and chart.name == "TaurusChart", "both decorations are built")
+		# Issue #37 loop 1: the orrery is a hotspot in the 1917 study only.
+		var hot = world.targets.get("orrery")
+		check((hot != null) != departure, "orrery hotspot only in the 1917 study (departure=%s)" % departure)
+		if hot != null:
+			check(hot.distance_to(world.orrery.position) < 0.25, "hotspot sits on the orrery")
+			# The real interaction ray, from where a player would stand to look up at it.
+			var player := Player.new()
+			room.add_child(player)
+			for spot in [Vector3(1.6, 0, -1.1), Vector3(2.4, 0, -0.8), Vector3(2.85, 0, -1.2)]:
+				player.global_position = spot
+				player.look_at_point(world.orrery.global_position + Vector3(0, 0.06, 0))
+				await physics_frame
+				await physics_frame
+				var aimed: Node = player.aimed_interactable()
+				check(aimed != null and aimed.get_meta("interact_id") == "orrery", "orrery answers the ray from %s: %s" % [spot, aimed.get_meta("interact_id") if aimed else "nothing"])
+			player.queue_free()
 		check(is_equal_approx(globe.global_position.y, 2.185), "globe stands on the bookcase top board")
 		var sky := globe.find_child("Sky", true, false) as MeshInstance3D
 		var sky_tex := (sky.material_override as StandardMaterial3D).albedo_texture
