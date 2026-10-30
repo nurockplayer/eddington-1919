@@ -12,6 +12,7 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform float sun_r = 0.02;
 uniform float contact = 0.8;      // 0 moon far off the disc … 1 centred (totality)
 uniform float darkness = 0.0;     // 0 daylight … 1 totality
+uniform vec2 third_contact = vec2(0.0); // x: Baily's beads, y: diamond ring (0..1)
 uniform float star_vis = 0.0;
 uniform float night = 0.0;        // 1 = the night after, for the darkroom scene
 uniform float cloud_shade = 0.22;  // daytime darkening of thick cloud (art look; 0.22 = v0.1)
@@ -102,6 +103,21 @@ void sky() {
 		solar += darkness * cloud_visibility * prom * vec3(2.5, 0.6, 0.7);
 		// The moon disc stays black against the corona.
 		solar *= mix(1.0, 1.0 - in_moon, darkness);
+		// Third contact: sunlight breaks through valleys on the Moon's limb, first
+		// as a few beads, then one blinding point, the diamond on the corona's ring.
+		if (third_contact.x + third_contact.y > 0.0) {
+			vec2 edge = -normalize(moon_c + vec2(1e-4, 0.0));  // the limb uncovered first
+			float ea = atan(edge.y, edge.x);
+			for (int k = 0; k < 4; k++) {
+				float ba = ea + (float(k) - 1.5) * 0.16 + 0.03 * sin(float(k) * 7.1);
+				vec2 bead = vec2(cos(ba), sin(ba));
+				float flicker = 0.6 + 0.4 * sin(TIME * (9.0 + float(k) * 3.7));
+				solar += third_contact.x * flicker * vec3(7.0, 6.6, 5.8) * exp(-dot(lp - bead, lp - bead) / 0.0016);
+			}
+			float dd = length(lp - edge);
+			solar += third_contact.y * vec3(9.0, 8.6, 7.6) * exp(-dd * dd / 0.006);
+			solar += third_contact.y * vec3(1.6, 1.5, 1.3) * exp(-dd * 1.6);  // its glare
+		}
 		col *= mix(1.0, 1.0 - in_moon * 0.9, darkness);
 		// Field stars, only visible near totality.
 		for (int i = 0; i < 12; i++) {

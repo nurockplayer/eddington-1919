@@ -267,7 +267,7 @@ func _totality() -> void:
 	# An unset uniform reads back null, so look for it in the shader source.
 	if main.sky_mat.shader.code.contains("uniform vec2 third_contact"):
 		# The values the third-contact tween passes at the diamond's peak (v = 0.24).
-		main._apply_light(0.952, 0.76, clear_t, 0.0)
+		main._apply_light(0.952, 1.0 - 0.24 * 0.24, clear_t, 0.0)
 		main.sky_mat.set_shader_parameter("third_contact", Vector2(0.0, 1.0))
 		var eye := Vector3(2.6, 1.65, 4.2)
 		var cam := _aim(main, eye, eye + main.sim.sun_dir)

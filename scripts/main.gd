@@ -858,8 +858,13 @@ func _end_totality() -> void:
 	audio_click.play()
 	ui.show_toast("第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。" + ("\n快門還開著——最後那張底片曝到了陽光。" if ruined else ""), 5.0)
 	var tw := create_tween()
-	tw.tween_method(func(v): _apply_light(1.0 - v * 0.2, 1.0 - v, t_game + v * 10.0, 0.0), 0.0, 1.0, 3.0)
+	tw.tween_method(func(v):
+		# Daylight returns slowly at first, so the beads and the diamond (v < 0.4)
+		# burn against a still-dark sky and a black Moon.
+		_apply_light(1.0 - v * 0.2, 1.0 - v * v, t_game + v * 10.0, 0.0)
+		sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v)), 0.0, 1.0, 3.0)
 	await tw.finished
+	sky_mat.set_shader_parameter("third_contact", Vector2.ZERO)
 	await get_tree().create_timer(1.5).timeout
 	_begin_night()
 
