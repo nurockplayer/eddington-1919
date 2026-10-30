@@ -80,6 +80,8 @@ Windowed look 3 (orb-test #39, ran 2026-10-30 ~14:00 JST, 13 stills, sent to the
 
 New draft #69: shooting stars on the night after (meteors). The test passes 14/0. Oracle review started 2026-10-30 15:50 JST.
 
+New draft #70: Issue #37 loop 1. The orrery becomes an optional prop that tells of Mercury's 43″; its 3 lines were fact-checked by Sonnet, history tags are in the PR. test_star_decor 36/0 and test_prologue 271/0. Oracle review started 2026-10-30 16:50 JST. It still needs an e2e prologue bot run (heavy, Monday) before merge.
+
 Monday 2026-11-02 re-shoot (night group: #67 fireflies + #69 meteors, the `night_meteor` still):
 - A session cron fires at 08:37 JST. Light prep: `orb-test --host -- bash <scratchpad>/look_prep.sh`, which merges main + art/fireflies + art/night-meteors and imports. Then the heavy shoot: `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`.
 - The shoot waits for 09:00 JST, quits after 15:00 JST, and deletes the worktree. If the session is gone, run both steps by hand.
