@@ -73,7 +73,14 @@ Decoration round 2 is done: no Director PR is open.
 Follow-ups, all closed: lens reset (`_frame_speaker`), test_score flake (#43), coda sky (covered by #41), bridge_pause leak (#64).
 - bot 「完成計畫」 flake: #55 logs the cause on a miss; no miss seen since.
 
-Next item: fireflies over the Príncipe night (the night after, `night = 1`). A small CPUParticles3D near the plantation edge, slow, warm green, blinking. Decoration only.
+Open Director drafts (2026-10-30 12:29 JST), oracle approve on the current heads; they wait only for a windowed look:
+- #67 fireflies among the palms on the night after.
+- #68 clockwork orrery on the study bookcase, in the front bay between the books and the globe.
+
+Windowed re-shoot (diamond ring after #53's fix, #67, #68):
+- orb-test #39 was queued 2026-10-30 09:11 JST. It sat behind a 3.5 h+ gteki job and will not run before 15:00 JST.
+- Re-queue it Monday 2026-11-02 early: `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`. A session cron is set for 05:13 JST; if the session is gone, do it by hand.
+- The script waits for 09:00 JST and quits after 15:00 JST. It merges art/fireflies + art/orrery onto main and shoots the totality, night and study groups.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 
