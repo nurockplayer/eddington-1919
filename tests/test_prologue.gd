@@ -479,6 +479,14 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	var seen: Array = C17.mentor_dyson({}, chapter.state())
 	check(seen.size() == plain.size() + 2 and str(seen[seen.size() - 5].t).contains("43"), "the mentor weighs Mercury fairly once the orrery is seen")
 	check(seen[seen.size() - 3].get("key", "") == "bridge" and plain[plain.size() - 3].get("key", "") == "bridge", "the bridge question still follows")
+	# The director itself hands the state on: finishing the mentor review plays Mercury's lines.
+	var saved_beat = chapter.beat
+	chapter._pending = "mentor_review"
+	chapter._dialogue_done({"revise_report": 1})
+	var shown: bool = chapter.ui._seq.any(func(line): return str(line.get("t", "")).contains("水星例外"))
+	check(chapter._pending == "dyson" and shown, "the director's Dyson scene carries Mercury's lines after the orrery")
+	_finish_test_dialogue(chapter)
+	chapter.beat = saved_beat
 
 	story.clues.merge({"label_mirrored": true, "arrow_tilted": true, "residual": true}, true)
 	chapter.residual_found = true
