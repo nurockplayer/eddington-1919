@@ -79,6 +79,8 @@ func _test_content_branches() -> void:
 		var bye: Array = Content.mentor_farewell(fix)
 		var at := bye.find(bye.filter(func(l): return l.get("key", "") == "light_box").front())
 		check(at > 0 and str(bye[at].t).contains("原子") and str(bye[at + 1].t).contains("不信"), "light in the box comes before Ashby's doubt, slip fix %d" % fix)
+		var answers: Array = bye[at].then if at > 0 else []
+		check(answers.size() == 2 and str(answers[0][0].t).contains("太陽") and str(answers[1][0].t).contains("量"), "both answers about the light get Ashby's reply, slip fix %d" % fix)
 	var montage := Content.montage()
 	check(not montage.is_empty(), "departure montage is present")
 	for caption in montage:
