@@ -37,6 +37,22 @@ func _run() -> void:
 				matched += 1
 				break
 	check(matched == wb.palm_crowns.size(), "crowns follow each trunk's lean: %d/%d" % [matched, wb.palm_crowns.size()])
+	# The breeze nods every frond a few degrees but never moves the crowns.
+	var sway = wb.palm_sway
+	check(sway != null and sway.fronds.size() == 15 * 8, "every frond sways")
+	if sway != null and not sway.fronds.is_empty():
+		var frond: Node3D = sway.fronds[5]
+		var rest := frond.rotation
+		var at := frond.global_position
+		var widest := 0.0
+		var moved := false
+		for step in 40:
+			sway.sway(step * 0.25)
+			widest = maxf(widest, rad_to_deg((frond.rotation - rest).length()))
+			moved = moved or not frond.rotation.is_equal_approx(rest)
+		check(moved and widest < 5.0, "fronds nod gently: at most %.1f°" % widest)
+		check(frond.global_position.is_equal_approx(at), "the crown stays put while fronds sway")
+		sway.sway(0.0)
 	var sc = SunCrescents.new()
 	sc.setup(wb.palm_crowns, sim.sun_dir)
 	root3d.add_child(sc)
