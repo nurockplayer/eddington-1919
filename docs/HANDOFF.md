@@ -73,16 +73,14 @@ Decoration round 2 is done: no Director PR is open.
 Follow-ups, all closed: lens reset (`_frame_speaker`), test_score flake (#43), coda sky (covered by #41), bridge_pause leak (#64).
 - bot 「完成計畫」 flake: #55 logs the cause on a miss; no miss seen since.
 
-Open Director drafts (2026-10-30 12:29 JST), oracle approve on the current heads; they wait only for a windowed look:
-- #67 fireflies among the palms on the night after.
-- #68 clockwork orrery on the study bookcase, in the front bay between the books and the globe.
+Windowed look 3 (orb-test #39, ran 2026-10-30 ~14:00 JST, 13 stills, sent to the Owner):
+- #68 orrery: reads well and the arms turn. Merged 2026-10-30 14:35 JST.
+- Diamond ring after #53's fix: the Moon is black and the bead burns. Good.
+- #67 fireflies: 5 cm sprites showed as single dim pixels. f34f36c makes them 16 cm, x2.2 over-bright, with longer blinks, plus a test (15/0). Oracle re-review is running; the PR stays a draft until a windowed look.
 
-Windowed re-shoot (diamond ring after #53's fix, #67, #68):
-- orb-test #39 was queued 2026-10-30 09:11 JST. It sat behind a 3.5 h+ gteki job and will not run before 15:00 JST.
-- The look is split into two steps, so the heavy lock never sits idle waiting for 09:00 JST (changed 2026-10-30 13:30 JST):
-  - `look_prep.sh` is a light, headless step: `orb-test --host -- bash <scratchpad>/look_prep.sh`. It builds /private/tmp/edd-look-r3 from main + art/fireflies + art/orrery and runs the import. It ran 2026-10-30 13:29 JST.
-  - `windowed_r3.sh <out>` is the heavy step: it only shoots (totality, night, study), then deletes the worktree.
-- Monday 2026-11-02: a session cron fires at 08:37 JST. It re-preps if the tree is stale, then queues `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`. If the session is gone, run the same two steps by hand.
+Monday 2026-11-02 re-shoot (fireflies only, night group):
+- A session cron fires at 08:37 JST. Light prep: `orb-test --host -- bash <scratchpad>/look_prep.sh`, which merges main + art/fireflies and imports. Then the heavy shoot: `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`.
+- The shoot waits for 09:00 JST, quits after 15:00 JST, and deletes the worktree. If the session is gone, run both steps by hand.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 
