@@ -490,6 +490,9 @@ static func _lamp_dust(root: Node3D, light_pos: Vector3) -> CPUParticles3D:
 	dust.initial_velocity_min = 0.004
 	dust.initial_velocity_max = 0.008
 	dust.gravity = Vector3.ZERO  # motes hang; drift stays between desk and shade
+	# Cull on the whole drift volume (box + a life of drift), not the emitter point.
+	var reach := dust.emission_box_extents + Vector3.ONE * (dust.initial_velocity_max * dust.lifetime + 0.05)
+	dust.visibility_aabb = AABB(-reach, reach * 2.0)
 	dust.scale_amount_min = 0.5
 	dust.scale_amount_max = 1.0
 	var fade := Gradient.new()

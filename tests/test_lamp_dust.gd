@@ -34,6 +34,9 @@ func _run() -> void:
 		var mat := (dust.mesh as QuadMesh).material as StandardMaterial3D
 		check(mat.blend_mode == BaseMaterial3D.BLEND_MODE_ADD and mat.vertex_color_use_as_albedo, "motes glint additively with the ramp colour")
 		check(dust.color_ramp.sample(0.0).a == 0.0 and dust.color_ramp.sample(1.0).a == 0.0, "motes fade in and out, never pop")
+		check(dust.color_ramp.sample(0.5).a > 0.2, "motes are visible mid-life")
+		var edge := dust.emission_box_extents + Vector3.ONE * dust.initial_velocity_max * dust.lifetime
+		check(dust.visibility_aabb.has_point(edge * 0.99) and dust.visibility_aabb.has_point(-edge * 0.99), "culling box covers the whole drift volume")
 		room.free()
 	print("%d lamp dust checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
