@@ -138,10 +138,16 @@ func _test_direct_and_prologue_paths() -> void:
 	check(prologue.coda_step == prologue.CodaStep.LOUPE, "workbook completion unlocks loupe")
 	prologue._interact("departure_workbook")
 	check(prologue._pending == "", "workbook cannot replay after its coda action")
+	# Found in the viewer after a report that still says not_found (revised later): clues win.
+	story.clues["residual"] = true
+	story.report["residual"] = "not_found"
 	prologue._interact("mentor_loupe")
 	check(prologue.coda_step == prologue.CodaStep.KIT and prologue._pending == "coda_loupe", "loupe interaction plays Ashby answer and unlocks Kit beat")
 	var loupe_text := text_of(prologue.ui._seq)
 	check(loupe_text.contains("放大鏡") and loupe_text.contains("關緊的箱子"), "the loupe beat carries the small numbers after Ashby's answer")
+	check(loupe_text.contains("14 號"), "the found residual returns even if a stale report says not_found")
+	story.clues.erase("residual")
+	story.report.erase("residual")
 	prologue._on_dialogue_done({})
 	check(prologue._pending == "coda_kit", "Ashby response advances to Kit close")
 	prologue._on_dialogue_done({})

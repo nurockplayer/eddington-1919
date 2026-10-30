@@ -556,7 +556,7 @@ func _interact(id: String) -> void:
 			coda_step = CodaStep.KIT
 			_focus_coda(get_node("AshbyLoupeHotspot").global_position)
 			var measured_any: bool = sim.combined().n > 0
-			var residual_found: bool = Story.report.get("residual", "not_found") != "not_found"
+			var residual_found: bool = Story.clues.get("residual", false)  # found, whatever the report says
 			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
 		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
