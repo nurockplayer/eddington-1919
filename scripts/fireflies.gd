@@ -7,6 +7,8 @@ const SPREAD := 1.6  # metres around a palm's foot where they hover
 const LOW := 0.45  # above a life of drift (0.04 m/s x 8 s), so none sinks into the ground
 const HIGH := 1.7
 const GLOW := Color(0.78, 1.0, 0.38)
+const SIZE := 0.16  # metres; the radial halo leaves a bright core of about a third
+const ENERGY := 2.2  # over-bright so the core blooms against the dark palms
 
 var spots: PackedVector3Array  # emission points, readable without a GPU
 var palms: Array  # the crowns they gather under
@@ -40,9 +42,9 @@ func setup(crowns: Array) -> void:
 	blink.set_color(0, Color(GLOW, 0.0))
 	blink.set_color(1, Color(GLOW, 0.0))
 	for peak in [0.12, 0.5, 0.86]:
-		blink.add_point(peak - 0.05, Color(GLOW, 0.0))
-		blink.add_point(peak, Color(GLOW, 0.9))
-		blink.add_point(peak + 0.06, Color(GLOW, 0.0))
+		blink.add_point(peak - 0.06, Color(GLOW, 0.0))
+		blink.add_point(peak, Color(GLOW, 1.0))
+		blink.add_point(peak + 0.1, Color(GLOW, 0.0))
 	color_ramp = blink
 	var halo := GradientTexture2D.new()
 	halo.fill = GradientTexture2D.FILL_RADIAL
@@ -51,8 +53,9 @@ func setup(crowns: Array) -> void:
 	halo.gradient = Gradient.new()
 	halo.gradient.set_color(0, Color(1, 1, 1, 1))
 	halo.gradient.set_color(1, Color(1, 1, 1, 0))
+	halo.gradient.add_point(0.3, Color(1, 1, 1, 0.55))
 	var quad := QuadMesh.new()
-	quad.size = Vector2(0.05, 0.05)
+	quad.size = Vector2(SIZE, SIZE)
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -61,6 +64,7 @@ func setup(crowns: Array) -> void:
 	mat.billboard_keep_scale = true
 	mat.vertex_color_use_as_albedo = true
 	mat.albedo_texture = halo
+	mat.albedo_color = Color(ENERGY, ENERGY, ENERGY)
 	quad.material = mat
 	mesh = quad
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

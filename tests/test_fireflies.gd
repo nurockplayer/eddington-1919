@@ -54,6 +54,9 @@ func _run() -> void:
 			blinks += 1
 		lit = a > 0.5
 	check(blinks == 3, "three short blinks a life: %d" % blinks)
+	# Windowed look 2026-10-30: 5 cm sprites at full alpha read as nothing on screen.
+	var quad := ff.mesh as QuadMesh
+	check(quad.size.x >= 0.12 and quad.material.albedo_color.r > 1.5, "big and bright enough to read: %.2f m, x%.1f" % [quad.size.x, quad.material.albedo_color.r])
 	check(ff.color_ramp.sample(0.0).a == 0.0 and ff.color_ramp.sample(1.0).a == 0.0, "they never pop in or out")
 	var reach: float = ff.initial_velocity_max * ff.lifetime
 	var covered := true
