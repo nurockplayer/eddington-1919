@@ -207,7 +207,7 @@ func _frame(kind: String) -> void:
 			cam.look_at_from_position(head_pos + Vector3(-0.45, -0.1, 1.9), head_pos + Vector3(0, -0.3, 0))
 		"full_body":
 			cam.fov = 35.0
-			cam.look_at_from_position(Vector3(head_pos.x - 0.6, head_pos.y * 0.6, head_pos.z + 4.2),
+			cam.look_at_from_position(Vector3(head_pos.x - 0.6, head_pos.y * 0.6, head_pos.z + 3.0),
 				Vector3(head_pos.x, head_pos.y * 0.52, head_pos.z))
 
 

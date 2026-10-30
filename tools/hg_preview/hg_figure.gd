@@ -38,6 +38,8 @@ static func tune_materials(n: Node) -> void:
 					m.roughness_texture = null
 				# a baked roughness map (T-zone, lips) is scaled by m.roughness
 				m.roughness = 1.0 if m.roughness_texture else 0.55
+				# HG's baked normal carries age lines a 23-year-old should not show
+				m.normal_scale = 0.4
 				m.subsurf_scatter_enabled = true
 				m.subsurf_scatter_strength = 0.12
 				m.subsurf_scatter_skin_mode = true
@@ -53,8 +55,13 @@ static func tune_materials(n: Node) -> void:
 				m.anisotropy = 0.6
 			elif nm.begins_with("Haircards") or nm.begins_with("HG_Haircap"):
 				# c04: HG's own cards and haircap, baked colour/alpha/normal. Alpha hash
-				# keeps strands sorted and shadowed (blend would sort per mesh).
-				m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH
+				# dithered the strands into dust over the face (c04 r3 shots); a scissor
+				# with coverage AA keeps them solid, sorted and shadowed.
+				m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+				m.alpha_scissor_threshold = 0.35
+				m.alpha_antialiasing_mode = BaseMaterial3D.ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE
+				# the baked colour reads lighter and redder in Godot than HG's Blender render
+				m.albedo_color = Color(0.55, 0.5, 0.47)
 				m.cull_mode = BaseMaterial3D.CULL_DISABLED
 				m.roughness = 0.46
 				m.anisotropy_enabled = true
