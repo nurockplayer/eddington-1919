@@ -11,6 +11,7 @@ const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 const Look := preload("res://scripts/look.gd")
+const SunCrescents := preload("res://scripts/sun_crescents.gd")
 const SKY_SHADER := preload("res://shaders/eclipse_sky.gdshader")
 const DepartureWorkbook := preload("res://scripts/cambridge/departure_props.gd")
 const DepartureContent := preload("res://scripts/cambridge/content_departure.gd")
@@ -93,6 +94,9 @@ func _ready() -> void:
 	var wb = World.new(self)
 	wb.look = not args.has("no-grade")
 	world = wb.build()
+	world.sun_crescents = SunCrescents.new()
+	world.sun_crescents.setup(wb.palm_crowns, sim.sun_dir)
+	add_child(world.sun_crescents)
 	if Story.departure_done or _came_from_departure:
 		_add_departure_loupe(wb)
 	world.eddington.rotation.y = PI
@@ -285,6 +289,9 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	sun.light_energy = (0.15 + 1.4 * vis * (1.0 - dens * 0.85)) * (1.0 - night) * _look_sun
 	if darkness > 0.95 or night > 0.5:
 		sun.light_energy = 0.0
+	if world.has("sun_crescents"):
+		var lit := 0.0 if darkness > 0.95 or night > 0.5 else SunCrescents.sunlight(vis, dens)
+		world.sun_crescents.set_eclipse(contact, lit)
 	var amb_day := Color(0.55, 0.57, 0.6)
 	var amb_tot := Color(0.10, 0.11, 0.17)
 	var amb_night := Color(0.03, 0.035, 0.05)

@@ -55,29 +55,33 @@
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
-## Director backlog (edd-director) | 2026-10-28 17:15 JST
+## Director backlog (edd-director) | 2026-10-29 17:29 JST
 
 Characters (HG / c01–c03) are owned by the session eddington-1919-6c. edd-director stays off them.
 
 Open PRs (all pass their headless suites):
-- #39 study celestial globe + Taurus chart. Draft; oracle findings fixed.
-- #40 lamp dust motes. Draft; oracle review pending.
-- #41 Príncipe night-after sky + Milky Way. Draft; oracle pending. This also covers the coda, which plays under the same night sky.
-- #42 lens reset on unframed lines. Merged 0f65df6 (2026-10-29 03:55 JST) after the integration run was green (19 suites + e2e 6/6). Codex reviewed it (ChatGPT was logged out in ego-lite; the Owner logged in again at 2026-10-29 03:53 JST and oracle is back). Merged by hand: `gh pr merge --auto` refuses when a CodeRabbit `skipping` check exists and repo auto-merge is off. Override reason is in the PR comment.
-- #44 title shooting stars. Draft; windowed look pending.
-- #46 title Taurus figure (stacked on #44). Draft; oracle approve, minor fixed; windowed look pending.
-- #49 pinhole sun crescents under the palms. Draft; oracle approve after 2 blocker fixes (palm lean, cloud cut); windowed look pending; needs a fresh gate review on its final head.
-- #50 shadow bands on the ground around totality. Draft; oracle approve (0 findings); windowed look pending (judge in motion). Touches `_apply_light` next to #49: rebase whichever merges second.
-- `tools/look_shots.gd` (#45/#47/#48 merged; crescents view in #49): one windowed run covers all of the above.
-- Integration worktree (all 8 open branches): #49 conflicts with #41 and #50 only on adjacent `main.gd` lines; keep both sides. #50 is now stacked on #49. Checked 2026-10-29 00:45 JST: 7 touched suites green. **A fresh worktree must run `godot --headless --path . --import` first.** Without it, suites print `instantiate on null` and test_star_decor hangs. `perl alarm` kills only orb-test, not its godot child, so stop a hang via TaskStop.
-- #43 test_score handoff timing. Merged.
+- Windowed look 2026-10-29 11:54 JST (15 stills). Merged after it: #39 globe + Taurus chart, #44 title meteors, #46 title Taurus figure, #49 sun crescents (codex review; oracle timed out on its 123 KB bundle; hand-merged, override comment), #57 departure window stars.
+- #40 lamp dust: read as white snow; warmer, alpha 0.4. Re-shoot pending.
+- #41 Príncipe night sky: Milky Way barely visible; stars wider and brighter, band x2.4. Re-shoot pending.
+- #50 shadow bands: invisible, the plane was under the dirt (y 0.01 < 0.02); lifted to 0.04, alpha 0.16. Now based on main. Re-shoot pending.
+- #53 diamond ring: still shows a flat grey sky, cause not found (cloud over Sun was thin). Draft.
+- Second windowed run (#40 #41 #50 #53): not reached on 2026-10-29 (the heavy queue sat behind a 5.5 h gteki bench); ticket cancelled 17:28 JST, re-armed for 2026-10-30 09:07 JST (`windowed_r2.sh`, one run, all four branches).
+- #61 darkroom ruby safelight lantern: oracle approve (2nd round), draft until the 2026-10-30 windowed look.
+- #62 coal embers breathe with the fire's flicker: merged 2026-10-29 19:33 JST after oracle approve (a ChatGPT network error stalled the first try; retried).
+- #63 regulator clock seconds pendulum (4° swing, crosses the middle on each tick): merged 2026-10-29 20:34 JST after oracle approve.
+- #65 rain runs down the 1917 study sash (shader): oracle approve round 2, draft until the windowed look. #41 merged with main (2026-10-29 22:40 JST; main.gd preload conflict), so all six r2 branches dry-merge cleanly.
+- #66 palm fronds nod in a sea breeze (PalmSway, rotations only): oracle approve, draft until the windowed look (2026-10-30 00:35 JST). Integration run of all seven open branches queued 2026-10-29 23:29 JST (orb-test #27; keep-both on the main.gd / world_builder.gd preload conflicts).
+- #53: headless ray probe 2026-10-29 13:40 JST found no mesh between the eye and the Sun (alt 56°), so the grey is the sky shader at the values shot; the re-shoot uses the tween's peak values plus a wide still.
 
 Before merge:
 - Heavy set + e2e for all eight open branches, in one integration worktree: queued 2026-10-29 03:07 JST under `orb-test --heavy --host`; it starts when the gate opens (05:00 JST, or 45 min idle).
 - Windowed look at #39–#41 and #44: 09:00–15:00 JST, one run of `tools/look_shots.gd` (#45) on an integration worktree (main + #39 #40 #41 #44 + #45): `orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top -s tools/look_shots.gd -- --out=$PWD/build/look`. 8 stills; delete `build/look` after.
 
 Next items:
-- bot 「完成計畫」 real-click flake
+- bot 「完成計畫」 real-click flake: #55 merged c7aa61f (2026-10-29 06:35 JST). The bot now waits for the button to enable and logs `disabled=` and the hovered control on a miss. Confirm in the 09:00 JST windowed run; if it still misses, the log names the cause.
+- Lens reset on an unframed speaker: already in `director.gd` `_frame_speaker` (returns to 55° when the speaker is hidden or a voice). test_score wall-clock flake: #43 times only the handoff. Both closed.
+- Coda sky: the coda plays in the darkroom under the same sky at `night = 1`, so the Príncipe night dome (#41) covers it; no separate item.
+- bridge_pause teardown leak: closed. #64 (2026-10-29 21:37 JST): the departure street loop played at quit; the test now stops all players and waits a few frames before freeing the scene (an `_exit_tree` stop is too late at quit). No leak warning.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
 

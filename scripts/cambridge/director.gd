@@ -136,7 +136,10 @@ func _sync_player() -> void:
 func _process(delta: float) -> void:
 	_light_t += delta
 	# Slow overlapping waves: a quiet coal fire, without particles or shadow redraw.
-	world.fire_light.light_energy = (0.48 if _daylight else 1.0) * (1.0 + 0.055 * sin(_light_t * 2.3) + 0.025 * sin(_light_t * 5.7))
+	var flicker := 1.0 + 0.055 * sin(_light_t * 2.3) + 0.025 * sin(_light_t * 5.7)
+	world.fire_light.light_energy = (0.48 if _daylight else 1.0) * flicker
+	Room.glow_embers(world.ember_mat, flicker, _light_t)
+	Room.swing_pendulum(world.pendulum, _light_t)
 	_clock_t += delta
 	if _clock_t >= 1.0:
 		_clock_t -= 1.0
@@ -437,3 +440,9 @@ func _build_audio() -> void:
 		brown = clampf(brown + (randf() - 0.5) * 0.07, -1.0, 1.0) * 0.99
 		samples.append(brown * 0.4 + (randf() - 0.5) * 0.05)
 	_audio(samples, -21.0, true).play()
+
+
+## A loop still playing when the scene is freed leaks its playback at exit.
+func _exit_tree() -> void:
+	for player in find_children("*", "AudioStreamPlayer", true, false):
+		player.stop()
