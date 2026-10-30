@@ -55,14 +55,18 @@ func _check_runtime() -> void:
 	main.tot_done = false
 	main._end_totality()
 	var peak := Vector2.ZERO
+	var dark_at_diamond := 0.0
 	var deadline := Time.get_ticks_msec() + 8000
 	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < deadline:
 		var g = main.sky_mat.get_shader_parameter("third_contact")
 		if g is Vector2:
+			if g.y > peak.y:
+				dark_at_diamond = main.sky_mat.get_shader_parameter("darkness")
 			peak = peak.max(g)
 		await process_frame
 	check(peak.x > 0.8, "real third contact shows Baily's beads: %.2f" % peak.x)
 	check(peak.y > 0.8, "real third contact shows the diamond ring: %.2f" % peak.y)
+	check(dark_at_diamond > 0.9, "the diamond burns against a still-dark sky: darkness %.2f" % dark_at_diamond)
 	var after = main.sky_mat.get_shader_parameter("third_contact")
 	check(after is Vector2 and after == Vector2.ZERO, "glint cleared by the time night begins: %s" % [after])
 	main.queue_free()
