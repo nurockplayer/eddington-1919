@@ -4,9 +4,10 @@ extends SceneTree
 ## a view whose node is missing (branch not merged) is reported and skipped.
 ##
 ## Run: orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top \
-##        -s tools/look_shots.gd -- --out=$PWD/build/look [--only=study,departure,night,title]
+##        -s tools/look_shots.gd -- --out=$PWD/build/look [--only=study,departure,night,title,crescents,totality,darkroom]
 ## Headless the views are still set up and checked, but nothing is saved.
 
+const Look := preload("res://scripts/look.gd")
 
 var out_dir := ""
 var only := PackedStringArray()
@@ -80,6 +81,8 @@ func _run() -> void:
 		await _crescents()
 	if _wanted("totality"):
 		await _totality()
+	if _wanted("darkroom"):
+		await _darkroom()
 	print("look shots: %d saved, skipped %s, failed %s" % [saved, skipped, failed])
 	quit(1 if failed else 0)
 
@@ -257,5 +260,28 @@ func _totality() -> void:
 		print("diamond ring view: cloud over Sun %.2f at t=%.0f" % [main.sim.cloud_over_sun(clear_t), clear_t])
 	else:
 		skipped.append("totality_diamond_ring")
+	main.queue_free()
+	await frames(4)
+
+
+# The ruby safelight lantern, at the night's darkroom level (main.gd _begin_night).
+func _darkroom() -> void:
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	await frames(30)
+	var glass = main.world.get("safelight_glass")
+	if glass == null:
+		skipped.append("darkroom_safelight")
+		main.queue_free()
+		await frames(4)
+		return
+	main._apply_light(0.0, 0.0, 400.0, 1.0)
+	_hide_ui(main)
+	main.world.lamp.light_energy = 1.1
+	main.world.safelight.light_energy = Look.NIGHT_SAFELIGHT
+	var eye: Vector3 = main.world.darkroom_spot + Vector3(0, 1.6, 0)
+	_aim(main, eye, glass.global_position)
+	await frames(6)
+	await _save("darkroom_safelight")
 	main.queue_free()
 	await frames(4)
