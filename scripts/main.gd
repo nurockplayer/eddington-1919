@@ -555,7 +555,9 @@ func _interact(id: String) -> void:
 		elif coda_step == CodaStep.LOUPE and id == "mentor_loupe":
 			coda_step = CodaStep.KIT
 			_focus_coda(get_node("AshbyLoupeHotspot").global_position)
-			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, sim.combined().n > 0), "coda_loupe")
+			var measured_any: bool = sim.combined().n > 0
+			var residual_found: bool = Story.report.get("residual", "not_found") != "not_found"
+			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
 		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		ui.show_toast("Ashby 先生給的放大鏡。", 4.0)

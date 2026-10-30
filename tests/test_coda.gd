@@ -74,6 +74,11 @@ func _test_grade_branches() -> void:
 	check(text_of(Coda.ashby_answer(2, false, true)).contains("把它補上"), "fit 2 dirty wording asks for a correction")
 	check(text_of(Coda.ashby_answer(1, true, true)).contains("問號不丟人"), "fit 1 wording retains the question mark")
 	check(text_of(Coda.ashby_answer(0, true, true)).contains("差一點就成了那個好故事"), "fit 0 wording recalls Ashby's clean-plate challenge")
+	# Issue #37 loop 5: the old small doubts return; nothing is called proof.
+	check(text_of(Coda.small_numbers(true, true)).contains("14 號") and not text_of(Coda.small_numbers(false, true)).contains("14 號"), "plate 14's residual returns only if it was found")
+	check(text_of(Coda.small_numbers(false, true)).contains("也不等於證明") and text_of(Coda.small_numbers(false, false)).contains("沒有數字"), "tonight's numbers are small, not proof; no numbers is still a record")
+	for args in [[true, true], [false, false]]:
+		check(not text_of(Coda.small_numbers(args[0], args[1])).contains("證明了"), "the coda never claims proof")
 
 
 func _test_kit_tones() -> void:
@@ -135,6 +140,8 @@ func _test_direct_and_prologue_paths() -> void:
 	check(prologue._pending == "", "workbook cannot replay after its coda action")
 	prologue._interact("mentor_loupe")
 	check(prologue.coda_step == prologue.CodaStep.KIT and prologue._pending == "coda_loupe", "loupe interaction plays Ashby answer and unlocks Kit beat")
+	var loupe_text := text_of(prologue.ui._seq)
+	check(loupe_text.contains("放大鏡") and loupe_text.contains("關緊的箱子"), "the loupe beat carries the small numbers after Ashby's answer")
 	prologue._on_dialogue_done({})
 	check(prologue._pending == "coda_kit", "Ashby response advances to Kit close")
 	prologue._on_dialogue_done({})
