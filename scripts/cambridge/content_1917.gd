@@ -254,8 +254,8 @@ static func mentor_review(report: Dictionary) -> Array:
 	return seq
 
 
-static func mentor_dyson(_report: Dictionary) -> Array:
-	return [
+static func mentor_dyson(_report: Dictionary, state := {}) -> Array:
+	var seq: Array = [
 		{"s": A, "t": "好了。說點比 14 號更麻煩的事。"},
 		{"s": A, "t": "（把一本濕了邊的期刊放在桌上）皇家天文學會的月報。今年春天，皇家天文學家 Dyson 寫了一篇短文。"},
 		{"s": A, "t": "1919 年 5 月 29 日有一次日全食。那天，太陽會停在金牛座一片星場的前面——那裡的亮星，多得不尋常。"},
@@ -271,6 +271,14 @@ static func mentor_dyson(_report: Dictionary) -> Array:
 		{"s": A, "t": "他還提到一件事：上一次拿日食底片來比，底片因為用了平面鏡反射，整張是反的，得翻過來、膜面對膜面才比得了。"},
 		{"s": A, "t": "聽起來耳熟嗎？"},
 		{"s": A, "t": "我教了三十年牛頓。潮汐、行星、彗星回來的日子——它從來沒讓我失望過。要我為了一張日食底片改掉這些，那張底片得比這張桌上任何東西都乾淨。"},
+	]
+	if state.get("orrery_seen", false):
+		# Issue #37: the Newtonian knows Mercury's residual and weighs it fairly.
+		# HISTORICAL_RECORD: about 43″/century unexplained since Le Verrier (1859); no
+		# intra-Mercurial planet confirmed. FICTION: the mentor's view.
+		seq.append({"s": A, "t": "（瞥了一眼書架上的太陽系儀）你看過那台小東西了。好吧——水星例外。那 43 角秒，算了快六十年，還沒人說得清。"})
+		seq.append({"s": A, "t": "也許是一顆還沒找到的行星，也許是我們哪裡量錯了。可是一個小數字，還不夠讓我拆掉整棟房子。要拆，得有第二個、第三個，而且每一個都乾淨。"})
+	seq.append_array([
 		{"s": A, "t": "現在你告訴我。（拿起你的紙）如果日食那張底片上的星「移動」了——我們怎麼知道，那不是有人把底片放反、放斜了？",
 			"key": "bridge", "choices": ["……不知道。除非先把這些都排除掉。", "用離太陽很遠的星來檢查？", "（沉默）"],
 			"then": [
@@ -280,7 +288,8 @@ static func mentor_dyson(_report: Dictionary) -> Array:
 			]},
 		{"s": A, "t": "Eddington 前幾天問我，這棟樓裡誰的紀錄最乾淨。"},
 		{"s": A, "t": "我會把你這張紙轉給他。照原樣轉——寫錯的、劃掉的，全部。"},
-	]
+	])
+	return seq
 
 
 static func interlude_caption() -> String:

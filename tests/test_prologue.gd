@@ -470,6 +470,15 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	check(chapter._pending == "double_check" and not chapter.guess_offered, "aligned copy still offers Kit independent check")
 	_finish_test_dialogue(chapter)
 	check(chapter.kit_checked, "Kit independent check completes after suppressing old guess")
+	# Issue #37: examining the orrery lets the mentor answer for Mercury later.
+	check(not chapter.state().orrery_seen, "orrery unseen at first")
+	chapter._interact("orrery")
+	check(chapter.state().orrery_seen and chapter.ui.dialog_active(), "examining the orrery is remembered")
+	_finish_test_dialogue(chapter)
+	var plain: Array = C17.mentor_dyson({}, {})
+	var seen: Array = C17.mentor_dyson({}, chapter.state())
+	check(seen.size() == plain.size() + 2 and str(seen[seen.size() - 5].t).contains("43"), "the mentor weighs Mercury fairly once the orrery is seen")
+	check(seen[seen.size() - 3].get("key", "") == "bridge" and plain[plain.size() - 3].get("key", "") == "bridge", "the bridge question still follows")
 
 	story.clues.merge({"label_mirrored": true, "arrow_tilted": true, "residual": true}, true)
 	chapter.residual_found = true
