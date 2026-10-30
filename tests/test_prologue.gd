@@ -479,6 +479,11 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	var seen: Array = C17.mentor_dyson({}, chapter.state())
 	check(seen.size() == plain.size() + 2 and str(seen[seen.size() - 5].t).contains("43"), "the mentor weighs Mercury fairly once the orrery is seen")
 	check(seen[seen.size() - 3].get("key", "") == "bridge" and plain[plain.size() - 3].get("key", "") == "bridge", "the bridge question still follows")
+	# Issue #37 loop 2: the closed box sits in Eddington's exam, before the clean-plate list.
+	var exam: Array = C17.eddington_exam({}, {})
+	var box_i := exam.find(exam.filter(func(l): return l.get("key", "") == "box").front())
+	check(box_i > 0 and exam[box_i].choices.size() == 3 and str(exam[box_i].then[2][0].t).contains("分不出來"), "the closed box asks where you are and accepts 'cannot tell'")
+	check(str(exam[exam.size() - 1].t).contains("清單"), "the exam still ends on the clean-plate list")
 	# The director itself hands the state on: finishing the mentor review plays Mercury's lines.
 	var saved_beat = chapter.beat
 	chapter._pending = "mentor_review"

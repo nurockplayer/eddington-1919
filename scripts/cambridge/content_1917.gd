@@ -320,6 +320,21 @@ static func eddington_exam(report: Dictionary, _state: Dictionary) -> Array:
 		{"s": E, "t": "你不信什麼？"},
 		{"s": A, "t": "我不信一張在雲底下、在熱帶、在戰時拍的底片，能乾淨到讓我改掉牛頓。"},
 		{"s": E, "t": "我也不信。"},
+		# Issue #37 loop 2 (proposal): the closed box. HISTORICAL_RECORD: Einstein's chest in empty
+		# space, pulled up by a rope (popular book, 1917, ch. 20); Einstein's theory reached Eddington
+		# through de Sitter's 1916 MNRAS papers; the principle alone says light bends, not by how much.
+		# FICTION: this conversation. No "lift/elevator": a later label.
+		{"s": E, "t": "可是不信以前，得先弄懂他在說什麼。陪我想一件事。"},
+		{"s": E, "t": "想像你在一個關緊的箱子裡，沒有窗。你一鬆手，鉛筆掉到地板上。你在哪裡？",
+			"key": "box", "choices": ["箱子放在地上。", "箱子在空無一物的太空裡，被一直往上拉。", "……光看箱子裡面，分不出來。"],
+			"then": [
+				[{"s": E, "t": "也許。可是箱子要是在太空裡被一直往上拉，地板會迎上來接住鉛筆——裡面看起來一模一樣。"}],
+				[{"s": E, "t": "也許。可是放在地上的箱子裡，鉛筆也是這樣掉。"}],
+				[{"s": E, "t": "對。只看箱子裡面，分不出來。"}],
+			]},
+		{"s": E, "t": "愛因斯坦的理論就從這裡開始：既然分不出來，就把它們當成同一件事——至少在一個小箱子裡。"},
+		{"s": A, "t": "一個小箱子、一枝鉛筆。我教了三十年的潮汐，可不在小箱子裡。"},
+		{"s": E, "t": "所以不能只靠想。照這個想法，連光也逃不掉引力——日食那天，我們就去看光有沒有彎、彎了多少。"},
 		{"s": E, "t": "所以我想先把「乾淨」這兩個字，寫成一張清單。（把一張白紙放到桌子中間）你們兩位幫我寫。"},
 	]
 
