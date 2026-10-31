@@ -7,6 +7,11 @@ reverb is applied as a circular convolution so the reverb tail wraps around
 the loop seam too. The result is normalised to a fixed peak and written as a
 16-bit stereo WAV for oggenc.
 
+With `--oneshot` the cue does not loop: nothing is folded, the reverb is a
+linear convolution whose tail rings past the last note, the mix is padded or
+cut to `--seconds`, and the last `--fade` seconds get a raised-cosine fade so
+the cut does not click. Peak normalisation is the same as for the loop.
+
 Usage:
   uv run --with numpy python tools/music/mix.py --out mix.wav --seconds 64 \
       --stem harmonium harm.wav 0.8 0.0 --stem cello cello.wav 1.0 -0.2 ...
@@ -47,6 +52,13 @@ def fold(x: np.ndarray, count: int) -> np.ndarray:
     return out
 
 
+def fit(x: np.ndarray, count: int) -> np.ndarray:
+    """Pad with silence or cut to exactly `count` samples."""
+    if x.size >= count:
+        return x[:count].copy()
+    return np.pad(x, (0, count - x.size))
+
+
 def make_ir(seed: int) -> np.ndarray:
     """Deterministic stereo small-room impulse response, RT60 1.6 s."""
     pre = int(PREDELAY_S * RATE)
@@ -73,6 +85,10 @@ def main() -> None:
     parser.add_argument("--seconds", type=float, default=64.0)
     parser.add_argument("--wet", type=float, default=0.25)
     parser.add_argument("--peak", type=float, default=0.5)
+    parser.add_argument("--oneshot", action="store_true",
+                        help="no folding, linear reverb tail, fade out instead")
+    parser.add_argument("--fade", type=float, default=1.5,
+                        help="raised-cosine fade over the last N s (--oneshot only)")
     parser.add_argument("--stem", nargs=4, action="append", metavar=("NAME", "PATH", "GAIN", "PAN"))
     args = parser.parse_args()
     if not args.stem:
@@ -83,7 +99,8 @@ def main() -> None:
     cello_rms = None
     rms_by_stem = {}
     for name, path, gain, pan in args.stem:
-        mono = fold(decode(path), count) * float(gain)
+        samples = decode(path)
+        mono = (fit(samples, count) if args.oneshot else fold(samples, count)) * float(gain)
         angle = (float(pan) + 1.0) * np.pi / 4.0
         dry[0] += mono * np.cos(angle)
         dry[1] += mono * np.sin(angle)
@@ -99,13 +116,29 @@ def main() -> None:
     irs = make_ir(SEED)
     dry_rms = float(np.sqrt(np.mean(dry * dry)))
     wet = np.zeros_like(dry)
-    for channel in range(2):
-        wet[channel] = np.fft.irfft(
-            np.fft.rfft(dry[channel]) * np.fft.rfft(irs[channel], count), count)
+    if args.oneshot:
+        # Linear convolution: the tail rings out past the last note instead of
+        # wrapping onto the top, then we keep just the cue length.
+        nfft = 1 << (count + irs[0].size - 1).bit_length()
+        for channel in range(2):
+            wet[channel] = np.fft.irfft(
+                np.fft.rfft(dry[channel], nfft) * np.fft.rfft(irs[channel], nfft),
+                nfft)[:count]
+    else:
+        for channel in range(2):
+            wet[channel] = np.fft.irfft(
+                np.fft.rfft(dry[channel]) * np.fft.rfft(irs[channel], count), count)
     wet_rms = float(np.sqrt(np.mean(wet * wet)))
     if wet_rms > 0.0:
         wet *= args.wet * dry_rms / wet_rms
     mix = dry + wet
+
+    if args.oneshot:
+        mix = fit(mix, count)
+        fade = int(round(min(args.fade, args.seconds) * RATE))
+        if fade > 0:
+            window = 0.5 * (1.0 + np.cos(np.pi * (np.arange(fade) + 0.5) / fade))
+            mix[:, -fade:] *= window
 
     # check_cue.py decodes with `ffmpeg -ac 1`, whose downmix is (L+R)/sqrt(2),
     # so the target peak has to hold for that downmix as well as per channel.
