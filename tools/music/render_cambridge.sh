@@ -67,6 +67,6 @@ uv run --with numpy python tools/music/mix.py \
     --stem piano "$WORK/stems/piano.wav" "$GAIN_piano" "$PAN_piano"
 
 echo "encode $OUT"
-oggenc -q 5 -o "$OUT" "$WORK/cambridge_rain.wav"
+oggenc -q 5 --serial 1919 -o "$OUT" "$WORK/cambridge_rain.wav"
 
 uv run --with numpy python tools/music/check_cue.py "$OUT"

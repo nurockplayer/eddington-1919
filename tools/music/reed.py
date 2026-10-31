@@ -32,15 +32,13 @@ def read_var(data: bytes, pos: int) -> tuple[int, int]:
 
 
 def read_midi(path: str) -> list[tuple[float, float, int]]:
-    """Return (start_s, gate_s, midi_note) for every note, plus tempo changes."""
+    """Return (start_s, gate_s, midi_note) for every note."""
     data = open(path, "rb").read()
     assert data[:4] == b"MThd", path
     header_len = struct.unpack(">I", data[4:8])[0]
     _fmt, track_count, division = struct.unpack(">HHH", data[8:14])
     pos = 8 + header_len
-    default_tempo = 500000
-    tempo = default_tempo
-    seconds_at = {}  # tick -> seconds, rebuilt while walking the first track
+    tempo = 500000
     tempo_events = []
     raw_notes = []  # (tick, note, on/off)
     for _ in range(track_count):
@@ -92,7 +90,7 @@ def read_midi(path: str) -> list[tuple[float, float, int]]:
         notes.append((tick_seconds(start_tick, tempo_events, division),
                       tick_seconds(end_tick, tempo_events, division)
                       - tick_seconds(start_tick, tempo_events, division), note))
-    return notes, seconds_at
+    return notes
 
 
 def tick_seconds(tick: int, tempo_events: list[tuple[int, int]], division: int) -> float:
@@ -172,7 +170,7 @@ def write_wav(path: str, samples: np.ndarray) -> None:
 def main() -> None:
     if len(sys.argv) != 3:
         sys.exit(__doc__)
-    notes, _ = read_midi(sys.argv[1])
+    notes = read_midi(sys.argv[1])
     total_s = max(MIN_SECONDS, max(start + gate + RELEASE_S for start, gate, _ in notes))
     out = np.zeros(int(np.ceil(total_s * RATE)))
     for start, gate, note in notes:
