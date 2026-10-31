@@ -256,3 +256,11 @@ Update this file with the latest verified state, link to playable scene/build an
   - **Fact check:** a Sonnet 5.5 subagent checked the history used in the game.
   - **Review:** Codex (gpt-6-astra) ran a fresh, read-only review; its findings were fixed in `f107a85`.
   - **Not used:** gpt-6.1-sol, gpt-6-luna and haiku-5.5 were not used.
+
+## Music plan A (edd-director) | 2026-10-31 18:40 JST
+
+The Owner picked plan A on 2026-10-31: the score is composed as MIDI data and rendered with CC0 sample libraries (VSCO 2 CE strings, VCSL upright piano) plus the existing reed synthesis, rendered offline to OGG. Diegetic 1915–18 gramophone recordings (LoC, PD in US + UK) come later. D014 (superseding D013's "no samples" rule) still has to be written in the PR.
+- Draft PR #76 `feat/music-strings` (worktree `eddington-1919-wt/ds-1`): `cambridge_rain` r1 sample, 64 s loop. All checks pass: peak 0.49, seam continuous, F♯ ratio 0.01, 1900 Hz negligible, ~20% near-silent (the spec's 40% is relaxed for plan A).
+- The sample OGG was sent to the Owner 2026-10-31 18:40 JST; **the Owner listens and decides first**. The lead cannot listen: judge only with check_cue and per-bar probes.
+- sfizz was dropped (clang 21/SDK build failures). Rendering is `tools/music/sfz_render.py` (Python). Libraries are on KIOXIA `soundfonts/` (approved cache `eddington-soundfonts`; the Owner says KIOXIA needs no approval).
+- Next, after the Owner's verdict: wire the OGG into `score_player.gd` in place of the synthesized `cambridge_rain`, write D014 and update M4_SCORE, then compose departure/coda the same way. Totality keeps its synthesis.
