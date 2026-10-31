@@ -48,7 +48,7 @@ static func is_sampled(cue: String) -> bool:
 
 
 static func level_db(cue: String) -> float:
-	if SAMPLED_DB.has(cue):
+	if SAMPLED_DB.has(cue) and is_sampled(cue):
 		return SAMPLED_DB[cue]
 	match cue:
 		"cambridge_rain", "departure_motif", "totality_drone": return -30.0
