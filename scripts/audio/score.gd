@@ -1,8 +1,15 @@
 extends RefCounted
-## Original, deterministic procedural music for the 1919 score.
-## All signals are synthesized here; this script has no sample-file dependencies.
+## Music for the 1919 score. Cues with a rendered OGG in SAMPLED_DIR play the
+## sample; every other cue (and the totality layers) is synthesized here.
 
 const RATE := 22050
+const SAMPLED_DIR := "res://assets/music/"
+## Level of each sampled cue, matched to its synthesis RMS (see D014).
+const SAMPLED_DB := {
+	"cambridge_rain": -38.5,
+	"departure_motif": -38.5,
+	"coda_resolution": -34.0,
+}
 const CUES := [
 	"cambridge_rain",
 	"departure_motif",
@@ -36,7 +43,13 @@ static func is_loop(cue: String) -> bool:
 	return cue in ["cambridge_rain", "totality_drone", "totality_glass", "totality_edge"]
 
 
+static func is_sampled(cue: String) -> bool:
+	return ResourceLoader.exists(SAMPLED_DIR + cue + ".ogg")
+
+
 static func level_db(cue: String) -> float:
+	if SAMPLED_DB.has(cue):
+		return SAMPLED_DB[cue]
 	match cue:
 		"cambridge_rain", "departure_motif", "totality_drone": return -30.0
 		"totality_glass": return -34.0
@@ -45,26 +58,37 @@ static func level_db(cue: String) -> float:
 	return -80.0
 
 
-static func stream(cue: String) -> AudioStreamWAV:
+static func stream(cue: String) -> AudioStream:
 	if not CUES.has(cue):
 		return null
 	_cache_mutex.lock()
 	if _cache.has(cue):
-		var cached: AudioStreamWAV = _cache[cue]
+		var cached: AudioStream = _cache[cue]
 		_cache_mutex.unlock()
 		return cached
 	_cache_mutex.unlock()
 
-	# Synthesis and PCM conversion can take hundreds of milliseconds. Keep that
-	# work outside the dictionary mutex so a ready cue is never held behind it.
-	var rendered := render(cue)
-	var candidate := _wav(rendered, RATE, is_loop(cue))
+	# Synthesis, PCM conversion and the OGG decode can take hundreds of
+	# milliseconds. Keep that work outside the dictionary mutex so a ready cue
+	# is never held behind it.
+	var candidate: AudioStream
+	if is_sampled(cue):
+		candidate = _sampled(cue)
+	else:
+		candidate = _wav(render(cue), RATE, is_loop(cue))
 	_cache_mutex.lock()
 	if not _cache.has(cue):
 		_cache[cue] = candidate
-	var result: AudioStreamWAV = _cache[cue]
+	var result: AudioStream = _cache[cue]
 	_cache_mutex.unlock()
 	return result
+
+
+static func _sampled(cue: String) -> AudioStreamOggVorbis:
+	var ogg := load(SAMPLED_DIR + cue + ".ogg") as AudioStreamOggVorbis
+	ogg.loop = is_loop(cue)
+	ogg.loop_offset = 0.0
+	return ogg
 
 
 static func render(cue: String) -> PackedFloat32Array:
