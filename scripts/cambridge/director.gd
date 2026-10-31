@@ -242,6 +242,10 @@ func _gramophone_start() -> void:
 		_gramophone.max_distance = 12.0
 		world.gramophone.add_child(_gramophone)
 		_gramophone.finished.connect(_gramophone_end.bind(false))
+	if _gramophone.stream == null:
+		# Without the record, never duck the rain behind a silent machine.
+		push_warning("gramophone record missing; not playing")
+		return
 	if DisplayServer.get_name() != "headless":
 		_gramophone.play()
 	gramophone_playing = true
