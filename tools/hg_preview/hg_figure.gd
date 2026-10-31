@@ -54,18 +54,25 @@ static func tune_materials(n: Node) -> void:
 				m.anisotropy_enabled = true
 				m.anisotropy = 0.6
 			elif nm.begins_with("Haircards") or nm.begins_with("HG_Haircap"):
-				# c04: HG's own cards and haircap, baked colour/alpha/normal. Alpha hash
-				# dithered the strands into dust over the face (c04 r3 shots); a scissor
-				# with coverage AA keeps them solid, sorted and shadowed.
-				m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
-				m.alpha_scissor_threshold = 0.35
-				m.alpha_antialiasing_mode = BaseMaterial3D.ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE
-				# the baked colour reads lighter and redder in Godot than HG's Blender render
-				m.albedo_color = Color(0.55, 0.5, 0.47)
+				# c04: HG's own cards, baked colour/alpha/normal. Alpha hash dithered
+				# the strands into dust over the face (r3 shots). r4 compares a depth
+				# pre-pass (default) with scissor + alpha-to-coverage: HG_HAIRMODE=scissor.
+				# The atlas mean is sRGB (58, 42, 35), already darker than the concept,
+				# so no albedo multiplier: the light, red read came from key and specular.
+				if OS.get_environment("HG_HAIRMODE") == "scissor":
+					m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+					m.alpha_scissor_threshold = 0.2  # 0.35 kept only 64% of the atlas coverage
+					m.alpha_antialiasing_mode = BaseMaterial3D.ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE
+				else:
+					m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 				m.cull_mode = BaseMaterial3D.CULL_DISABLED
-				m.roughness = 0.46
+				m.roughness = 0.55
+				m.metallic_specular = 0.3
 				m.anisotropy_enabled = true
-				m.anisotropy = 0.4
+				# the highlight runs across the strands if the card tangent is not along them
+				m.anisotropy = -0.4 if OS.get_environment("HG_ANISO") == "-" else 0.4
+				m.backlight_enabled = true
+				m.backlight = Color(0.12, 0.09, 0.07)
 			elif nm.begins_with("HG_Lab_Coat") or nm.begins_with("HG_Sweater") or nm.begins_with("HG_Chinos") or nm.begins_with("HG_Pirate"):
 				# c04: HG garments carry baked normal/roughness maps; cloth, so no rim
 				m.cull_mode = BaseMaterial3D.CULL_DISABLED
