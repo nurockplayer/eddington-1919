@@ -101,9 +101,11 @@ PERSONS = {
     "kit": {  # c03 bake-off against the MPFB route (people.toml [person.kit])
         "preset": "models/female/Caucasian presets/Caucasian 1.json",
         # c03 r2 (lead): Bob Short read as a blunt fringe wig; the design's hair is
-        # side-parted and pushed back, no fringe. c04 r3: Wavy Bob Bangs still hid
-        # the brows under a fringe; Medium Side Part is the closest HG style.
-        "hair": "hair/head/female/Long/Medium Side Part.json",
+        # side-parted and pushed back, no fringe. c04 r3: Medium Side Part lost the
+        # design's length and wave; c04 r4 trims the fringe of Wavy Bob Bangs
+        # instead of switching style.
+        "hair": "hair/head/female/Long/Wavy Bob Bangs.json",
+        "trim_fringe": True,  # c04 r4: remove the strands hanging over the brows
         "age": 23,
         "height_cm": 168,
         # A slight neutralising push (Kit reads neither as a woman nor as butch).
@@ -320,6 +322,125 @@ def print_face_measure(label: str, h: Human) -> None:
     values = face_measures(landmarks(h))
     print("FACE_MEASURE %s mm eye_to_chin=%.2f jaw_width=%.2f bizygomatic_width=%.2f nose_forward=%.2f" %
           ((label,) + values), flush=True)
+
+
+def trim_fringe(h: Human, lm: dict) -> None:
+    """c04 r4 (lead): Wavy Bob Bangs' fringe covers the brows and HG has no separate
+    fringe system, so the fringe goes strand by strand. A fringe strand is a parent
+    (guide) hair rooted on the frontal scalp that reaches in front of the forehead
+    below the hairline; children are interpolated from parents, so they follow.
+
+    Probed on the c03 Kit blend (2026-11-01 08:5x JST): HG hair is a groomed system
+    (is_edited True, ~34 guides per system with 100 children each), the stored
+    ParticleHairKey.co of every key reads (0, 0, 0) while the evaluated copy holds
+    the real object-space positions, and the density vertex group does not re-emit
+    an edited groom. Writing every key of a parent to its root's stored co collapses
+    that one strand onto its root, leaves the other strands untouched, holds through
+    a depsgraph update and survives save/reload. So that is the method: the fringe
+    parents become zero-length hairs at the scalp, which is what bpy.ops.particle
+    .delete would have done if particle edit exposed a per-strand selection (it only
+    offers select_all / select_random / select_roots / select_tips / select_linked,
+    and the viewport circle-select needs a window that -b does not have).
+    """
+    body = h.objects.body
+    ez = (lm["eye_l"].z + lm["eye_r"].z) / 2
+    # Forehead front: the frontmost skin between the brows and the hairline.
+    band = [p.y for p in lm["co"] if abs(p.x) < 0.04 and ez + 0.02 < p.z < ez + 0.06]
+    if not band:
+        raise RuntimeError("trim_fringe: no forehead vertices above the brows")
+    forehead_y = min(band)
+    z_max = ez + 0.055   # below the hairline
+    y_max = forehead_y + 0.015
+    print("HG_TRIM eye_z %.4f forehead_front_y %.4f -> key z<%.4f y<%.4f "
+          "(frontal scalp: |root x|<0.07, root y<0)" % (ez, forehead_y, z_max, y_max), flush=True)
+
+    pts = lm["co"]  # landmarks() evaluates with only the armature on: same indexing
+    assert len(pts) == len(body.data.vertices), (len(pts), len(body.data.vertices))
+    from mathutils.kdtree import KDTree
+    kd = KDTree(len(pts))
+    for i, p in enumerate(pts):
+        kd.insert(p, i)
+    kd.balance()
+
+    systems = [m.particle_system for m in body.modifiers if m.type == "PARTICLE_SYSTEM"]
+    head = [ps for ps in systems
+            if not ps.name.lower().startswith(("eyebrow", "brow", "eyelash"))]
+
+    # The guides only exist on the evaluated body; their co is object space.
+    def evaluated(co):
+        ev = body.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        return [ev.particle_systems[ps.name].particles for ps in head]
+
+    def world(key):
+        return body.matrix_world @ key.co
+
+    def is_fringe(particle):
+        if not particle.hair_keys:
+            return False
+        root = world(particle.hair_keys[0])
+        if not (abs(root.x) < 0.07 and root.y < 0.0):
+            return False
+        return any(k.z < z_max and k.y < y_max for k in (world(key) for key in particle.hair_keys))
+
+    bpy.context.view_layer.update()
+    parts = evaluated(body)
+    roots = [world(p.hair_keys[0]) for prts in parts for p in prts if p.hair_keys]
+    print("HG_TRIM %d guides, mean root to skin %.4f m" %
+          (len(roots), sum(kd.find(r)[2] for r in roots) / max(1, len(roots))), flush=True)
+
+    fringe = {}
+    for ps, prts in zip(head, parts):
+        fringe[ps.name] = [i for i, particle in enumerate(prts) if is_fringe(particle)]
+        print("HG_TRIM %s parents %d fringe %d children_amount %d child_percent %.0f "
+              "is_edited %s" % (ps.name, len(prts), len(fringe[ps.name]),
+                                ps.settings.rendered_child_count,
+                                ps.settings.child_percent, ps.is_edited), flush=True)
+    marked = sum(len(ids) for ids in fringe.values())
+    if not marked:
+        print("HG_TRIM no fringe strands found", flush=True)
+        return
+
+    def signature(prts_list):
+        """Checksum of the guides that are not fringe, to prove they did not move."""
+        total, count = 0.0, 0
+        for ps, prts in zip(head, prts_list):
+            for i, particle in enumerate(prts):
+                if i in fringe[ps.name]:
+                    continue
+                for key in particle.hair_keys:
+                    total += key.co.x + 2 * key.co.y + 3 * key.co.z
+                    count += 1
+        return round(total, 6), count
+
+    before = signature(parts)
+    for ps, prts in zip(head, parts):
+        stored = body.particle_systems[ps.name]
+        if len(stored.particles) != len(prts):
+            print("HG_TRIM WARNING %s stores %d guides but evaluates %d: "
+                  "guide order not trusted, skipped" % (ps.name, len(stored.particles), len(prts)),
+                  flush=True)
+            continue
+        for i in fringe[ps.name]:
+            keys = stored.particles[i].hair_keys
+            root = keys[0].co.copy()
+            for key in keys:
+                key.co = root
+    body.update_tag()
+    bpy.context.view_layer.update()
+
+    after_parts = evaluated(body)
+    left = 0
+    for ps, prts in zip(head, after_parts):
+        collapsed = sum(1 for i in fringe[ps.name]
+                        if all((k.co - prts[i].hair_keys[0].co).length < 1e-6
+                               for k in prts[i].hair_keys))
+        left += len(fringe[ps.name]) - collapsed
+        print("HG_TRIM after %s parents %d fringe %d collapsed, %d left, children_amount %d" %
+              (ps.name, len(prts), collapsed, len(fringe[ps.name]) - collapsed,
+               ps.settings.rendered_child_count), flush=True)
+    after = signature(after_parts)
+    print("HG_TRIM kept-guide checksum before %r after %r (%d keys); %d of %d fringe "
+          "guides still stand" % (before[0], after[0], after[1], left, marked), flush=True)
 
 
 def face_shape(h: Human, lm: dict) -> None:
@@ -910,6 +1031,8 @@ def main() -> None:
         scan_trousers(h)
         return
     lm = landmarks(h)
+    if PERSON.get("trim_fringe"):
+        trim_fringe(h, lm)
     if PERSON["face_shape"]:
         face_shape(h, lm)
     print_face_measure("final", h)
