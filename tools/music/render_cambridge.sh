@@ -39,7 +39,7 @@ uv run --with numpy python tools/music/reed.py \
 echo "mix"
 uv run --with numpy python tools/music/mix.py \
     --out "$WORK/cambridge_rain.wav" \
-    --seconds "$SECONDS_PER_LOOP" \
+    --seconds "$SECONDS_PER_LOOP" --peak 0.495 \
     --stem harmonium "$WORK/stems/harmonium.wav" "$GAIN_harmonium" "$PAN_harmonium" \
     --stem cello "$WORK/stems/cello.wav" "$GAIN_cello" "$PAN_cello" \
     --stem viola "$WORK/stems/viola.wav" "$GAIN_viola" "$PAN_viola" \
