@@ -106,9 +106,12 @@ PERSONS = {
         "hair": "hair/head/female/Long/Medium Side Part.json",
         "age": 23,
         "height_cm": 168,
-        # A slight neutralising push only (Kit reads neither as a woman nor as
-        # butch); the c03 values are all this character gets.
-        "livekeys": {"skinny": 0.55, "jaw_width": 0.15, "browridge_center_size": 0.25},
+        # A slight neutralising push (Kit reads neither as a woman nor as butch).
+        # c04 r4: the concept face is long and narrow with high cheekbones, a small
+        # chin and thin lips; r3 read as a round, soft female face.
+        "livekeys": {"skinny": 0.75, "jaw_width": 0.0, "browridge_center_size": 0.25,
+                     "cheek_fullness": -0.4, "cheek_zygomatic_bone": 0.3, "chin_width": -0.2,
+                     "lip_height": -0.2, "nose_bridge_height": 0.2},
         "face": {},           # no eddington_face sculpt for Kit
         "hair_colour": (("Lightness", 0.28), ("Redness", 0.2), ("Pepper & Salt", 0.0),
                         ("Fast/Accurate", 1.0), ("Roughness", 0.45)),
@@ -122,7 +125,7 @@ PERSONS = {
         "trouser_object": "Pirate_Pants",
         "drop": ("Jeans", "TSHIRT", "Chinos"),
         "shoes": "footwear/female/Office/HG_Leather_Dress_Shoe.blend",
-        "tints": {"Lab_Coat": "#C7BCA3", "Sweater": "#4A4A4C", "Pirate_Pants": "#6B6158", "Shoe": "#2A211B"},
+        "tints": {"Lab_Coat": "#C7B89E", "Sweater": "#4A4A4C", "Pirate_Pants": "#6B6158", "Shoe": "#2A211B"},
         "glasses": True,
         "zero_makeup": True,
     },
@@ -791,12 +794,13 @@ def mask_under(h: Human, cloth: bpy.types.Object) -> None:
 
 def glasses(c: Vector, front: float, name: str) -> list:
     """Thin rimless-style spectacles (c.1915 portrait): two fine rims + bridge.
-    Ported from build_person.py:109-117 so both routes wear the same spectacles."""
+    Ported from build_person.py:109-117; c04 r4 thins the wire to 0.8 mm (the
+    1.2 mm rims read as heavy black frames in Godot)."""
     parts = []
     for sx in (-1, 1):
-        r = kit.torus(f"{name}_rim", 0.017, 0.0012, (c.x + sx * 0.032, front - 0.008, c.z), "iron", rot=(90, 0, 0), major_seg=16, minor_seg=4)
+        r = kit.torus(f"{name}_rim", 0.017, 0.0008, (c.x + sx * 0.032, front - 0.008, c.z), "iron", rot=(90, 0, 0), major_seg=16, minor_seg=4)
         parts.append(r)
-    parts.append(kit.cyl(f"{name}_bridge", 0.0012, 0.03, (c.x, front - 0.01, c.z + 0.004), "iron", rot=(0, 90, 0), verts=4, bevel=0))
+    parts.append(kit.cyl(f"{name}_bridge", 0.0008, 0.03, (c.x, front - 0.01, c.z + 0.004), "iron", rot=(0, 90, 0), verts=4, bevel=0))
     return parts
 
 
