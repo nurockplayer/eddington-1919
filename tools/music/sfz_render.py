@@ -47,6 +47,8 @@ def parse_sfz(path: str) -> tuple[dict, list[dict], set[str]]:
         match = re.match(r"([A-Za-z_0-9]+)\s*=\s*(.*)$", line)
         if match and kind is not None:
             ops[match.group(1).lower()] = match.group(2).strip()
+    if kind is not None:
+        sections.append((kind, ops))
 
     control = {}
     global_ops = {}
