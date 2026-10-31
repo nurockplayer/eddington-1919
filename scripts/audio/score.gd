@@ -85,7 +85,11 @@ static func stream(cue: String) -> AudioStream:
 
 
 static func _sampled(cue: String) -> AudioStreamOggVorbis:
-	var ogg := load(SAMPLED_DIR + cue + ".ogg") as AudioStreamOggVorbis
+	# A private instance: the shared resource cache would hand the same stream
+	# to concurrent callers, and Godot forbids mutating a shared resource while
+	# another thread may use it.
+	var ogg := ResourceLoader.load(SAMPLED_DIR + cue + ".ogg", "",
+		ResourceLoader.CACHE_MODE_IGNORE) as AudioStreamOggVorbis
 	ogg.loop = is_loop(cue)
 	ogg.loop_offset = 0.0
 	return ogg
