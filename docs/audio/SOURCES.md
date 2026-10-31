@@ -33,3 +33,5 @@ The harmonium is not sampled: `tools/music/reed.py` ports the reed voice from
 | Asset | Sources |
 | --- | --- |
 | `assets/music/cambridge_rain.ogg` | VSCO 2 CE `SViolinVib.sfz`, `ViolaEnsSusVib.sfz`, `CelloEnsSusVib.sfz`; VCSL `Upright Piano, Knight.sfz`; original harmonium synthesis (`tools/music/reed.py`). Composed by `tools/music/compose_cambridge.py`. |
+| `assets/music/departure_motif.ogg` | VSCO 2 CE `CelloEnsSusVib.sfz`; original harmonium synthesis (`tools/music/reed.py`). Composed by `tools/music/compose_cues.py`, rendered by `tools/music/render_cue.sh` (same patches and gains as the loop). |
+| `assets/music/coda_resolution.ogg` | VSCO 2 CE `SViolinVib.sfz`, `ViolaEnsSusVib.sfz`, `CelloEnsSusVib.sfz`; VCSL `Upright Piano, Knight.sfz`; original harmonium synthesis (`tools/music/reed.py`). Composed by `tools/music/compose_cues.py`, rendered by `tools/music/render_cue.sh` (same patches and gains as the loop). |

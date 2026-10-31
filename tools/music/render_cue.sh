@@ -53,10 +53,12 @@ for voice in harmonium cello viola violin piano; do
     STEMS+=(--stem "$voice" "$wav" "${!gain_var}" "${!pan_var}")
 done
 
+# oggenc overshoots the WAV peak by a few thousandths on these short cues
+# (0.5011 from a 0.5 target), so normalise 0.05 dB below the loop's 0.5.
 echo "mix"
 uv run --with numpy python tools/music/mix.py \
     --out "$WORK/$CUE.wav" \
-    --oneshot --seconds "$LENGTH" \
+    --oneshot --seconds "$LENGTH" --peak 0.495 \
     "${STEMS[@]}"
 
 echo "encode $OUT"
