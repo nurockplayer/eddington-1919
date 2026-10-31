@@ -10,7 +10,9 @@ Rules kept from docs/design/M4_SCORE.md:
   unresolved. F-sharp never appears here: it belongs to the coda only.
 - D minor colour: Dm -> Gm/D -> C/D -> Am, with silences between.
 
-Usage: python3 tools/music/compose_cambridge.py out.mid
+Usage: python3 tools/music/compose_cambridge.py <outdir>
+Writes one Standard MIDI File per voice, cambridge_<voice>.mid, each carrying
+the same tempo/meta track so a single voice can be rendered on its own.
 """
 import struct
 import sys
@@ -117,27 +119,26 @@ def track(events: list[tuple[int, bytes]]) -> bytes:
     return b"MTrk" + struct.pack(">I", len(body)) + body
 
 
-def build() -> bytes:
+def build(only: str) -> bytes:
     meta = [
         (0, b"\xff\x51\x03" + TEMPO_US.to_bytes(3, "big")),
         (0, b"\xff\x58\x04\x04\x02\x18\x08"),
         (tick(BARS + 1, 1), b"\xff\x01\x04loop"),
     ]
-    tracks = [track(meta)]
-    for voice, (channel, program) in VOICES.items():
-        events = [
-            (0, bytes([0xFF, 0x03, len(voice)]) + voice.encode()),
-            (0, bytes([0xC0 | channel, program])),
-        ]
-        for name, bar, beat, beats, note, velocity in SCORE:
-            if name != voice:
-                continue
-            start = tick(bar, beat)
-            end = start + round(beats * PPQ)
-            assert end <= tick(BARS + 1, 1), (voice, bar, note)
-            events.append((start, bytes([0x90 | channel, midi_note(note), velocity])))
-            events.append((end, bytes([0x80 | channel, midi_note(note), 0])))
-        tracks.append(track(events))
+    channel, program = VOICES[only]
+    events = [
+        (0, bytes([0xFF, 0x03, len(only)]) + only.encode()),
+        (0, bytes([0xC0 | channel, program])),
+    ]
+    for name, bar, beat, beats, note, velocity in SCORE:
+        if name != only:
+            continue
+        start = tick(bar, beat)
+        end = start + round(beats * PPQ)
+        assert end <= tick(BARS + 1, 1), (only, bar, note)
+        events.append((start, bytes([0x90 | channel, midi_note(note), velocity])))
+        events.append((end, bytes([0x80 | channel, midi_note(note), 0])))
+    tracks = [track(meta), track(events)]
     header = b"MThd" + struct.pack(">IHHH", 6, 1, len(tracks), PPQ)
     return header + b"".join(tracks)
 
@@ -145,6 +146,8 @@ def build() -> bytes:
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         sys.exit(__doc__)
-    assert all(note[4] != "F#4" and "#" not in note[4] for note in SCORE)
-    with open(sys.argv[1], "wb") as f:
-        f.write(build())
+    assert all("#" not in note[4] for note in SCORE)
+    outdir = sys.argv[1]
+    for voice in VOICES:
+        with open(f"{outdir}/cambridge_{voice}.mid", "wb") as f:
+            f.write(build(voice))
