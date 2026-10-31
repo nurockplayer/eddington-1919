@@ -31,12 +31,23 @@ FRAME_S = 0.05
 SILENT_RMS = 0.005
 
 
-def decode(path: str) -> np.ndarray:
+def decode(path: str, channels: int = 1) -> np.ndarray:
+    """Decode to float64 at RATE: mono by default, or the given channel count."""
     raw = subprocess.run(
-        ["ffmpeg", "-v", "error", "-i", path, "-f", "f32le", "-ac", "1", "-ar", str(RATE), "-"],
+        ["ffmpeg", "-v", "error", "-i", path, "-f", "f32le", "-ac", str(channels), "-ar", str(RATE), "-"],
         check=True, capture_output=True,
     ).stdout
     return np.frombuffer(raw, dtype="<f4").astype(np.float64)
+
+
+def channel_peak(path: str) -> float:
+    """Largest |sample| over every source channel, not just the mono downmix."""
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=channels",
+         "-of", "csv=p=0", path],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    return float(np.max(np.abs(decode(path, int(probe or "1")))))
 
 
 def goertzel_amplitude(x: np.ndarray, frequency: float) -> float:
@@ -61,7 +72,7 @@ def main() -> None:
             print("strict violation empty audio")
             sys.exit(1)
         return
-    peak = float(np.max(np.abs(x)))
+    peak = max(float(np.max(np.abs(x))), channel_peak(args.path))
     rms = float(np.sqrt(np.mean(x * x)))
     steps = np.abs(np.diff(x))
     seam = float(abs(x[0] - x[-1]))
