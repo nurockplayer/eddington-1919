@@ -4,7 +4,7 @@
 # departure_motif and coda_resolution do not loop: compose_cues.py writes the
 # MIDI, sfz_render.py / reed.py render the voices the cue uses, mix.py mixes
 # them with --oneshot (linear reverb tail, cut to the cue length, faded out),
-# oggenc encodes, then check_cue.py --oneshot prints the numbers.
+# oggenc encodes, then the strict check_cue.py --oneshot check runs.
 #
 # Needs tools/music/setup_libs.sh to have run once (the two sample libraries).
 # Scratch output stays in $WORK (default /private/tmp/edd-music-r2).
@@ -64,4 +64,4 @@ uv run --with numpy python tools/music/mix.py \
 echo "encode $OUT"
 oggenc -q 5 --serial 1919 -o "$OUT" "$WORK/$CUE.wav"
 
-uv run --with numpy python tools/music/check_cue.py --oneshot "$OUT"
+uv run --with numpy python tools/music/check_cue.py --oneshot --strict --expect-seconds "$LENGTH" "$OUT"

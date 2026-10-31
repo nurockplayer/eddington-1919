@@ -3,7 +3,7 @@
 #
 # Steps: write one MIDI file per voice, render the sampled voices with
 # sfz_render.py, synthesise the harmonium with reed.py, mix/fold/reverb in
-# mix.py, encode with oggenc, then print check_cue.py numbers.
+# mix.py, encode with oggenc, then run the strict check_cue.py check.
 #
 # Needs tools/music/setup_libs.sh to have run once (the two sample libraries).
 # Scratch output stays in $WORK (default /private/tmp/edd-music-r1).
@@ -49,4 +49,4 @@ uv run --with numpy python tools/music/mix.py \
 echo "encode $OUT"
 oggenc -q 5 --serial 1919 -o "$OUT" "$WORK/cambridge_rain.wav"
 
-uv run --with numpy python tools/music/check_cue.py "$OUT"
+uv run --with numpy python tools/music/check_cue.py --strict --expect-seconds "$SECONDS_PER_LOOP" "$OUT"
