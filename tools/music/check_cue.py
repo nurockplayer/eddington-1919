@@ -110,8 +110,11 @@ def main() -> None:
             violations.append(f"F#4/F4 {ratio:.4f} > 0.05")
     if args.expect_seconds is not None:
         duration = x.size / RATE
-        delta = abs(duration - args.expect_seconds)
-        if delta > 0.01:
+        # Compare sample counts: the float difference is 0.010000000000005
+        # at exactly 0.01 s, which would fail a "> 0.01" test on the boundary.
+        delta_samples = abs(x.size - round(args.expect_seconds * RATE))
+        delta = delta_samples / RATE
+        if delta_samples > round(0.01 * RATE):
             violations.append(f"duration {duration:.3f} s differs from "
                               f"{args.expect_seconds:.3f} s by {delta:.3f} s > 0.01")
     for violation in violations:
