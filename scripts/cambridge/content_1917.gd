@@ -112,6 +112,20 @@ static func examine(id: String) -> Array:
 				{"s": "太陽系儀", "t": "只有水星不太聽話。把其他行星的拉扯全都算進去，它的近日點每一百年還多往前挪了大約 43 角秒——差不多是一百多公尺外一枚硬幣的寬度。\n有人照海王星的先例，去找一顆更靠近太陽的行星，始終沒有確認找到。也有人懷疑是別的地方出了錯。"},
 				{"s": "太陽系儀", "t": "這台小機器的軌道是齒輪定死的，演不出那 43 角秒。\n[color=#b8ad98]——最可靠的算法，也留著一個對不上的小數字。[/color]"},
 			]
+		"gramophone":
+			# Music round 2 (proposal). Fact check (Sonnet, 2026-10-31): table-top hornless
+			# machines existed by 1917, and Victor and Gramophone Co. discs are both lateral-cut;
+			# the disc is shellac with a black batwing label with gold print (1914–26);
+			# transatlantic post ran through 1917. No machine make, ship or person is named.
+			return [
+				{"s": "留聲機", "t": "一台桌上型留聲機。唱盤旁放著一張蟲膠唱片，黑色標籤上印著金字，是美國 Victor 公司的。\n信封還夾在一旁——一位美國同行隨信寄來的，說「給雨天的劍橋」。"},
+				{"s": "留聲機", "t": "〈Keep the Home-Fires Burning〉。開戰頭幾個月寫的歌，到現在英國還有很多人在唱：把家裡的爐火燒著，等孩子們回家。"},
+				{"s": "留聲機", "t": "[color=#b8ad98]你放下唱針。[/color]"},
+			]
+		"gramophone_again":
+			return [{"s": "留聲機", "t": "[color=#b8ad98]你又放了一次。[/color]"}]
+		"gramophone_stop":
+			return [{"s": "留聲機", "t": "[color=#b8ad98]你抬起唱針。房間裡又只剩下雨聲。[/color]"}]
 		"notebook_before":
 			return [{"s": "你的工作筆記", "t": "等核對完，就在這裡寫下結果。"}]
 	return []
