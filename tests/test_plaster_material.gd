@@ -83,6 +83,21 @@ func _run() -> void:
 			_check(named["Dubhe"].y > named["Polaris"].y and named["Polaris"].y > named["Caph"].y \
 				and named["Schedar"].x < named["Polaris"].x and named["Polaris"].x < named["Dubhe"].x,
 				"Plough high to the north-east, Cassiopeia low to the north-west, Polaris between")
+			# Magnitude drives size and strength: every named star outshines every filler star,
+			# and a brighter named star never draws smaller than a fainter one.
+			var looks: Array = stars.get_meta("looks")
+			var n: int = Room.NORTH_SKY.size()
+			var outshine := looks.size() == spots.size()
+			for i in n:
+				for j in range(n, looks.size()):
+					outshine = outshine and looks[i].x > looks[j].x and looks[i].y > looks[j].y
+			_check(outshine, "Named stars draw larger and stronger than the faint filler")
+			var ordered := true
+			for i in n:
+				for j in n:
+					if Room.NORTH_SKY[i][3] < Room.NORTH_SKY[j][3]:
+						ordered = ordered and looks[i].x >= looks[j].x and looks[i].y >= looks[j].y
+			_check(ordered, "Brighter magnitude never draws smaller or dimmer")
 			_check(stars.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
 				"Window stars cast no shadow")
 		var embers: StandardMaterial3D = built.ember_mat

@@ -177,6 +177,7 @@ static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshIns
 	quad.size = Vector2.ONE
 	mm.mesh = quad
 	mm.instance_count = spots.size()
+	var looks: Array[Vector2] = []  # (size, strength) per star; headless drops MultiMesh data
 	for i in spots.size():
 		# Brighter stars draw larger and stronger; magnitude 1.8 -> 0.05 m at 0.9, 4.2 -> 0.022 m at 0.3.
 		var bright := clampf((4.2 - mags[i]) / 2.4, 0.0, 1.0)
@@ -184,6 +185,7 @@ static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshIns
 		mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(size, size, 1.0)), spots[i]))
 		var warm := rng.randf()
 		mm.set_instance_color(i, Color(0.80 + 0.2 * warm, 0.86, 1.0 - 0.15 * warm, lerpf(0.3, 0.9, bright)))
+		looks.append(Vector2(size, lerpf(0.3, 0.9, bright)))
 		mm.set_instance_custom_data(i, Color(rng.randf() * TAU, rng.randf_range(0.6, 1.8), 0, 0))
 	var stars := MultiMeshInstance3D.new()
 	stars.name = "DepartureWindowStars"
@@ -193,6 +195,7 @@ static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshIns
 	stars.material_override = material
 	stars.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	stars.set_meta("spots", spots)
+	stars.set_meta("looks", looks)
 	return stars
 
 
