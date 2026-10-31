@@ -101,9 +101,11 @@ PERSONS = {
     "kit": {  # c03 bake-off against the MPFB route (people.toml [person.kit])
         "preset": "models/female/Caucasian presets/Caucasian 1.json",
         # c03 r2 (lead): Bob Short read as a blunt fringe wig; the design's hair is
-        # side-parted and pushed back, no fringe. c04 r3: Wavy Bob Bangs still hid
-        # the brows under a fringe; Medium Side Part is the closest HG style.
-        "hair": "hair/head/female/Long/Medium Side Part.json",
+        # side-parted and pushed back, no fringe. c04 r3: Medium Side Part lost the
+        # design's length and wave; c04 r4 trims the fringe of Wavy Bob Bangs
+        # instead of switching style.
+        "hair": "hair/head/female/Long/Wavy Bob Bangs.json",
+        "trim_fringe": True,  # c04 r4: remove the strands hanging over the brows
         "age": 23,
         "height_cm": 168,
         # A slight neutralising push (Kit reads neither as a woman nor as butch).
@@ -320,6 +322,103 @@ def print_face_measure(label: str, h: Human) -> None:
     values = face_measures(landmarks(h))
     print("FACE_MEASURE %s mm eye_to_chin=%.2f jaw_width=%.2f bizygomatic_width=%.2f nose_forward=%.2f" %
           ((label,) + values), flush=True)
+
+
+def trim_fringe(h: Human, lm: dict) -> None:
+    """c04 r4 (lead): Wavy Bob Bangs' fringe covers the brows, and HG has no separate
+    fringe system, so the fringe has to go strand by strand. A fringe strand is a
+    parent (guide) hair rooted on the frontal scalp that reaches in front of the
+    forehead below the hairline; children are interpolated from parents, so they go
+    with them.
+
+    bpy.ops.particle.delete would be the obvious tool, but particle edit mode gives
+    Python no per-strand selection: the only selection ops are select_all,
+    select_random, select_roots/select_tips and select_linked, and the viewport
+    circle-select needs a window that -b does not have. Method used instead: a
+    density vertex group that is 0 on the scalp vertices carrying fringe roots; the
+    systems re-emit against it (children follow), and the same group feeds HG's
+    haircap density vertex colour in convert_to_haircards.
+    """
+    body = h.objects.body
+    ez = (lm["eye_l"].z + lm["eye_r"].z) / 2
+    # Forehead front: the frontmost skin between the brows and the hairline.
+    band = [p.y for p in lm["co"] if abs(p.x) < 0.04 and ez + 0.02 < p.z < ez + 0.06]
+    if not band:
+        raise RuntimeError("trim_fringe: no forehead vertices above the brows")
+    forehead_y = min(band)
+    z_max = ez + 0.055   # below the hairline
+    y_max = forehead_y + 0.015
+    print("HG_TRIM eye_z %.4f forehead_front_y %.4f -> key z<%.4f y<%.4f "
+          "(frontal scalp: |root x|<0.07, root y<0)" % (ez, forehead_y, z_max, y_max), flush=True)
+
+    pts = lm["co"]  # evaluated body vertices, same indexing as the base mesh
+    from mathutils.kdtree import KDTree
+    kd = KDTree(len(pts))
+    for i, p in enumerate(pts):
+        kd.insert(p, i)
+    kd.balance()
+
+    def root_world(particle):
+        key = particle.hair_keys[0] if particle.hair_keys else None
+        return body.matrix_world @ (key.co_local if key else particle.location)
+
+    systems = [m.particle_system for m in body.modifiers if m.type == "PARTICLE_SYSTEM"]
+    head = [ps for ps in systems
+            if not ps.name.lower().startswith(("eyebrow", "brow", "eyelash"))]
+    fringe_verts, kept = set(), {}
+    for ps in head:
+        before = len(ps.particles)
+        fringe = []
+        for particle in ps.particles:
+            root = root_world(particle)
+            if not (abs(root.x) < 0.07 and root.y < 0.0):
+                continue
+            keys = [body.matrix_world @ k.co_local for k in particle.hair_keys]
+            if any(k.z < z_max and k.y < y_max for k in keys):
+                fringe.append(particle)
+        kept[ps.name] = (before, len(fringe))
+        for particle in fringe:
+            fringe_verts.add(kd.find(root_world(particle))[1])
+        print("HG_TRIM %s parents %d fringe %d children_amount %d child_percent %.0f "
+              "density_group %r" % (ps.name, before, len(fringe),
+                                    ps.settings.rendered_child_count,
+                                    ps.settings.child_percent, ps.vertex_group_density), flush=True)
+    if not fringe_verts:
+        print("HG_TRIM no fringe strands found", flush=True)
+        return
+
+    # HG hair assets carry their own density group (length zones): keep it and only
+    # zero the fringe vertices, so the rest of the style is untouched.
+    names = {ps.vertex_group_density or "fringe_trim" for ps in head}
+    for name in sorted(names):
+        vg = body.vertex_groups.get(name)
+        if vg is None:
+            vg = body.vertex_groups.new(name=name)
+            vg.add(list(range(len(pts))), 1.0, "REPLACE")
+        vg.add(sorted(fringe_verts), 0.0, "REPLACE")
+        print("HG_TRIM density group %s: 0 on %d of %d body vertices" %
+              (name, len(fringe_verts), len(pts)), flush=True)
+    for ps in head:
+        ps.vertex_group_density = ps.vertex_group_density or "fringe_trim"
+    bpy.context.view_layer.update()
+
+    def fringe_left():
+        dg = bpy.context.evaluated_depsgraph_get()
+        ev = body.evaluated_get(dg)
+        return {ps.name: sum(1 for p in ev.particle_systems[ps.name].particles
+                             if kd.find(root_world(p))[1] in fringe_verts) for ps in head}
+
+    left = fringe_left()
+    if sum(left.values()):  # density edit did not re-emit: nudge one update callback
+        for ps in head:
+            ps.seed = ps.seed
+        bpy.context.view_layer.update()
+        left = fringe_left()
+    for ps in head:
+        before, fringe = kept[ps.name]
+        print("HG_TRIM after %s parents %d (fringe %d removed, %d left) children_amount %d" %
+              (ps.name, before, fringe, left[ps.name],
+               ps.settings.rendered_child_count), flush=True)
 
 
 def face_shape(h: Human, lm: dict) -> None:
@@ -910,6 +1009,8 @@ def main() -> None:
         scan_trousers(h)
         return
     lm = landmarks(h)
+    if PERSON.get("trim_fringe"):
+        trim_fringe(h, lm)
     if PERSON["face_shape"]:
         face_shape(h, lm)
     print_face_measure("final", h)
