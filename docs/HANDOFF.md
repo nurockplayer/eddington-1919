@@ -257,10 +257,12 @@ Update this file with the latest verified state, link to playable scene/build an
   - **Review:** Codex (gpt-6-astra) ran a fresh, read-only review; its findings were fixed in `f107a85`.
   - **Not used:** gpt-6.1-sol, gpt-6-luna and haiku-5.5 were not used.
 
-## Music plan A (edd-director) | 2026-10-31 18:40 JST
+## Music plan A (edd-director) | 2026-10-31 19:20 JST
 
-The Owner picked plan A on 2026-10-31: the score is composed as MIDI data and rendered with CC0 sample libraries (VSCO 2 CE strings, VCSL upright piano) plus the existing reed synthesis, rendered offline to OGG. Diegetic 1915–18 gramophone recordings (LoC, PD in US + UK) come later. D014 (superseding D013's "no samples" rule) still has to be written in the PR.
-- Draft PR #76 `feat/music-strings` (worktree `eddington-1919-wt/ds-1`): `cambridge_rain` r1 sample, 64 s loop. All checks pass: peak 0.49, seam continuous, F♯ ratio 0.01, 1900 Hz negligible, ~20% near-silent (the spec's 40% is relaxed for plan A).
-- The sample OGG was sent to the Owner 2026-10-31 18:40 JST; **the Owner listens and decides first**. The lead cannot listen: judge only with check_cue and per-bar probes.
-- sfizz was dropped (clang 21/SDK build failures). Rendering is `tools/music/sfz_render.py` (Python). Libraries are on KIOXIA `soundfonts/` (approved cache `eddington-soundfonts`; the Owner says KIOXIA needs no approval).
-- Next, after the Owner's verdict: wire the OGG into `score_player.gd` in place of the synthesized `cambridge_rain`, write D014 and update M4_SCORE, then compose departure/coda the same way. Totality keeps its synthesis.
+#76 merged on 2026-10-31. The Owner listened to the three cues and approved them. `cambridge_rain`, `departure_motif` and `coda_resolution` now play composed, sample-rendered OGGs (`assets/music/`). The totality layers stay synthesized, and the synthesis is the fallback when an OGG is missing. Decision: [D014](DECISIONS.md).
+- Levels are matched to the old synthesis RMS: −38.5 / −38.5 / −34 dB (`Score.SAMPLED_DB`).
+- Suites passed headless: test_score 105/0, test_departure 220/0, test_coda 73/0, and honest prologue autoplay reached ENDING with clean cue checks. The oracle review approved (0 blockers).
+- **Not run yet:** the full e2e (heavy window closed on the weekend). Run it Monday with the #67/#69/#75 integration run. Not verified: in-context listening against the rain bed (−38.5 dB may be too quiet; ask the Owner after a windowed run).
+- To re-render: `tools/music/setup_libs.sh` (libraries on KIOXIA `soundfonts/`), then `render_cambridge.sh` or `render_cue.sh <cue>`. Rendering is Python (`sfz_render.py`); sfizz was dropped. Follow-ups: #77 (pin the libraries, strict OGG checks, SFZ last-section bug).
+- The Owner listens from WAV copies in `~/Desktop/eddington-music/` (macOS cannot play OGG).
+- Next, music round 2: a diegetic gramophone in Cambridge playing a 1915–18 LoC recording (public domain in the US and UK). It needs an item-level rights check and a Sonnet fact check, and the score must duck while it plays. Candidates are in the oracle research: "Keep the Home Fires Burning" (Victor 17881, 1915) and "Auld Lang Syne" (Peerless Quartet, Victor 18792, 1918).
