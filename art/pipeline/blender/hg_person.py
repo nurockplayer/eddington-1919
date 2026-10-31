@@ -405,20 +405,26 @@ def trim_fringe(h: Human, lm: dict) -> None:
     def fringe_left():
         dg = bpy.context.evaluated_depsgraph_get()
         ev = body.evaluated_get(dg)
-        return {ps.name: sum(1 for p in ev.particle_systems[ps.name].particles
-                             if kd.find(root_world(p))[1] in fringe_verts) for ps in head}
+        out = {}
+        for ps in head:
+            parts = ev.particle_systems[ps.name].particles
+            out[ps.name] = (len(parts), sum(1 for p in parts
+                                            if kd.find(root_world(p))[1] in fringe_verts))
+        return out
 
     left = fringe_left()
-    if sum(left.values()):  # density edit did not re-emit: nudge one update callback
+    if any(fringe for _total, fringe in left.values()):  # density edit did not re-emit
         for ps in head:
             ps.seed = ps.seed
         bpy.context.view_layer.update()
         left = fringe_left()
     for ps in head:
         before, fringe = kept[ps.name]
-        print("HG_TRIM after %s parents %d (fringe %d removed, %d left) children_amount %d" %
-              (ps.name, before, fringe, left[ps.name],
-               ps.settings.rendered_child_count), flush=True)
+        total, resting = left[ps.name]
+        print("HG_TRIM after %s parents %d -> %d evaluated (fringe %d marked, %d still on "
+              "fringe vertices) children_amount %d" %
+              (ps.name, before, total, fringe, resting, ps.settings.rendered_child_count),
+              flush=True)
 
 
 def face_shape(h: Human, lm: dict) -> None:
