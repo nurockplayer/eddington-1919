@@ -27,8 +27,8 @@ PATCH_piano="VCSL/Chordophones/Zithers/Upright Piano, Knight.sfz"
 GAIN_harmonium=0.05; PAN_harmonium=0.0
 GAIN_cello=1.0;      PAN_cello=-0.2
 GAIN_viola=0.8;      PAN_viola=0.15
-GAIN_violin=0.9;     PAN_violin=0.3
-GAIN_piano=1.7;      PAN_piano=0.0
+GAIN_violin=1.4;     PAN_violin=0.3
+GAIN_piano=2.4;      PAN_piano=0.0
 
 patch_for() {
     case "$1" in
