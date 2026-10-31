@@ -68,6 +68,21 @@ func _run() -> void:
 				clear = clear and p.y > 2.1 and p.y < 2.925 and p.x > -1.275 and p.x < 2.375 \
 					and Vector2(p.x - lamp.position.x, p.y - lamp.position.y).length() >= 0.34
 			_check(clear, "Window stars sit in the upper sash, clear of the lamp halo")
+			# The real north sky of 1919 March 7 sits first in the list (Room.NORTH_SKY order).
+			var named := {}
+			for i in Room.NORTH_SKY.size():
+				named[Room.NORTH_SKY[i][0]] = spots[i]
+			var bars_clear := true
+			for p in named.values():
+				for b in [-1.9, -0.625, 0.625, 1.9]:
+					bars_clear = bars_clear and absf(p.x - (0.55 + b)) >= 0.09
+			_check(bars_clear, "No named star hides behind a glazing bar")
+			var pointer: Vector3 = (named["Dubhe"] - named["Merak"]).normalized()
+			var to_pole: Vector3 = (named["Polaris"] - named["Dubhe"]).normalized()
+			_check(pointer.dot(to_pole) > 0.99, "The Plough's pointers aim at Polaris")
+			_check(named["Dubhe"].y > named["Polaris"].y and named["Polaris"].y > named["Caph"].y \
+				and named["Schedar"].x < named["Polaris"].x and named["Polaris"].x < named["Dubhe"].x,
+				"Plough high to the north-east, Cassiopeia low to the north-west, Polaris between")
 			_check(stars.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
 				"Window stars cast no shadow")
 		var embers: StandardMaterial3D = built.ember_mat
