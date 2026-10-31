@@ -12,7 +12,23 @@ const StarDecor := preload("res://scripts/cambridge/star_decor.gd")
 const ROOM_W := 9.0
 const ROOM_D := 6.0
 const ROOM_H := 3.6
-const WINDOW_STARS := 18
+## The north sky over Cambridge through the sash on departure night, 1919 March 7 21:00 GMT:
+## Cassiopeia low in the north-west, Polaris, and the Plough high in the north-east, handle
+## down. [name, x, y, magnitude]: a flat projection about altitude 47, azimuth 8 (east to the
+## right, up is up), from J2000 positions; precession since 1919 (about 1 degree) is ignored.
+## The pointers Merak -> Dubhe aim at Polaris (within about 3 degrees).
+const NORTH_SKY := [
+	["Schedar", -0.765, -0.063, 2.2], ["Caph", -0.664, -0.127, 2.3], ["Gamma Cas", -0.669, 0.002, 2.4],
+	["Ruchbah", -0.693, 0.077, 2.7], ["Segin", -0.609, 0.145, 3.4], ["Polaris", -0.099, 0.099, 2.0],
+	["Kochab", 0.177, 0.004, 2.1], ["Dubhe", 0.342, 0.425, 1.8], ["Merak", 0.439, 0.506, 2.4],
+	["Phecda", 0.568, 0.401, 2.4], ["Megrez", 0.513, 0.308, 3.3], ["Alioth", 0.557, 0.207, 1.8],
+	["Mizar", 0.586, 0.123, 2.2], ["Alkaid", 0.720, 0.046, 1.9],
+]
+## Fitted so no named star sits behind a glazing bar or in the street lamp's halo.
+const NORTH_SKY_SCALE := 1.06
+const NORTH_SKY_OFFSET := Vector2(0.94, 2.18)
+const FILLER_STARS := 10
+const WINDOW_STARS := 24  # NORTH_SKY + FILLER_STARS
 const EMBER_GLOW := 0.75
 const PENDULUM_ROD := 0.55
 const RAIN_RUN := 0.5
@@ -123,7 +139,8 @@ static func _window_rain() -> MultiMeshInstance3D:
 	return rain_streaks
 
 
-## With the blackout curtains gone, a few faint stars show above the street lamp.
+## With the blackout curtains gone, the north sky shows above the street lamp: the real
+## Cassiopeia, Polaris and Plough (NORTH_SKY), plus a few faint filler stars.
 ## Upper sash only, clear of the glazing bars and the lamp halo; fixed seed.
 static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshInstance3D:
 	var rng := RandomNumberGenerator.new()
@@ -132,6 +149,11 @@ static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshIns
 	for x in [-1.9, -0.625, 0.625, 1.9]:
 		bars.append(window_center.x + x)
 	var spots: Array[Vector3] = []
+	var mags: Array[float] = []
+	for star in NORTH_SKY:
+		spots.append(Vector3(window_center.x + NORTH_SKY_OFFSET.x + star[1] * NORTH_SKY_SCALE,
+			NORTH_SKY_OFFSET.y + (star[2] + 0.13) * NORTH_SKY_SCALE, window_center.z + 0.025))
+		mags.append(star[3])
 	var tries := 0
 	while spots.size() < WINDOW_STARS and tries < 400:
 		tries += 1
@@ -141,8 +163,12 @@ static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshIns
 		var on_bar := false
 		for b in bars:
 			on_bar = on_bar or absf(p.x - b) < 0.07
-		if not on_bar:
+		var crowded := false
+		for q in spots:
+			crowded = crowded or Vector2(p.x - q.x, p.y - q.y).length() < 0.09
+		if not on_bar and not crowded:
 			spots.append(p)
+			mags.append(4.2)  # faint filler, so the named shapes read first
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
@@ -151,11 +177,15 @@ static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshIns
 	quad.size = Vector2.ONE
 	mm.mesh = quad
 	mm.instance_count = spots.size()
+	var looks: Array[Vector2] = []  # (size, strength) per star; headless drops MultiMesh data
 	for i in spots.size():
-		var size := rng.randf_range(0.022, 0.05)
+		# Brighter stars draw larger and stronger; magnitude 1.8 -> 0.05 m at 0.9, 4.2 -> 0.022 m at 0.3.
+		var bright := clampf((4.2 - mags[i]) / 2.4, 0.0, 1.0)
+		var size := lerpf(0.022, 0.05, bright)
 		mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(size, size, 1.0)), spots[i]))
 		var warm := rng.randf()
-		mm.set_instance_color(i, Color(0.80 + 0.2 * warm, 0.86, 1.0 - 0.15 * warm, rng.randf_range(0.35, 0.9)))
+		mm.set_instance_color(i, Color(0.80 + 0.2 * warm, 0.86, 1.0 - 0.15 * warm, lerpf(0.3, 0.9, bright)))
+		looks.append(Vector2(size, lerpf(0.3, 0.9, bright)))
 		mm.set_instance_custom_data(i, Color(rng.randf() * TAU, rng.randf_range(0.6, 1.8), 0, 0))
 	var stars := MultiMeshInstance3D.new()
 	stars.name = "DepartureWindowStars"
@@ -165,6 +195,7 @@ static func _window_stars(window_center: Vector3, lamp: Vector3) -> MultiMeshIns
 	stars.material_override = material
 	stars.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	stars.set_meta("spots", spots)
+	stars.set_meta("looks", looks)
 	return stars
 
 
