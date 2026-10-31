@@ -150,3 +150,16 @@
   - Most of the game stays unscored: 1919 PREP, the night and almost all of M2.
 - **Unchanged:** the sim, grading, all dialogue, and the bot outcomes (careful 4, rushed 0, cherry 3, honest ENDING with coda).
 - **Not verified:** human listening in context, and mix levels on speakers versus headphones.
+
+## D014 — Composed score rendered from CC0 samples (Owner, 2026-10-31)
+- **Why:** The procedural reed voice (D013) could not carry the emotional, cinematic weight the Owner asked for after playing (2026-10-25). The Owner chose plan A on 2026-10-31 and approved the result after listening the same day.
+- **What changed:**
+  - `cambridge_rain`, `departure_motif` and `coda_resolution` are composed as MIDI data in `tools/music/` and rendered offline to `assets/music/<cue>.ogg`. The instruments are a string trio from VSCO 2 CE, a VCSL upright piano, and the original reed synthesis rendered from the same MIDI.
+  - The game plays the OGG when it exists. The GDScript synthesis stays as the fallback and still voices the three totality layers.
+  - Rendering is reproducible from the repo: `tools/music/setup_libs.sh`, `render_cambridge.sh` and `render_cue.sh`. The sample libraries stay outside the repo (KIOXIA cache); only the rendered OGGs ship.
+- **Rules:**
+  - Sample sources must be CC0, or have a licence that allows commercial redistribution of rendered audio. Each one is recorded in `docs/audio/SOURCES.md`. No AI-generated music.
+  - The D013 musical rules still hold: one motif; F♯ only in the coda; the metronome stays the only pulse during totality; no energy at 1.9 kHz; music never reads cloud density or feeds back into play.
+  - The `cambridge_rain` silence floor drops from 40% to about 20%. Plan A deliberately gives Cambridge more melody.
+- **Supersedes:** D013's "no sample files, no SoundFonts, no downloaded audio" rule. The rest of D013 stands.
+- **Next:** diegetic period gramophone recordings (1915–18, public domain in the US and UK) need an item-level rights check and a fact check before any of them ships.

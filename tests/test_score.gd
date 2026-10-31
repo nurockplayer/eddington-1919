@@ -52,6 +52,7 @@ func _run() -> void:
 	_check_music_toggle()
 	_check_player_log_and_fades()
 	await _check_async_worker_lifecycle()
+	_check_sampled_cues()
 	await _check_totality_black_handoff()
 	print("test_score: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
@@ -266,6 +267,30 @@ func _check_player_log_and_fades() -> void:
 	player.queue_free()
 
 
+func _check_sampled_cues() -> void:
+	var sampled_lengths := {
+		"cambridge_rain": 64.0,
+		"departure_motif": 10.5,
+		"coda_resolution": 16.5,
+	}
+	for cue in sampled_lengths:
+		check(Score.is_sampled(cue), "%s has a rendered OGG" % cue)
+		var stream: AudioStream = Score.stream(cue)
+		check(stream is AudioStreamOggVorbis, "%s plays its sampled OGG" % cue)
+		if stream is AudioStreamOggVorbis:
+			var ogg := stream as AudioStreamOggVorbis
+			check(ogg.loop == Score.is_loop(cue), "%s OGG loop matches the cue contract" % cue)
+			var length := ogg.get_length()
+			check(absf(length - sampled_lengths[cue]) <= 0.05,
+				"%s OGG length %.3f s, expected %.1f s" % [cue, length, sampled_lengths[cue]])
+		var db := Score.level_db(cue)
+		check(db >= -40.0 and db <= -20.0, "%s sampled level %.1f dB is within [-40, -20]" % [cue, db])
+	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
+		check(not Score.is_sampled(cue), "%s has no sampled OGG" % cue)
+		var stream: AudioStream = Score.stream(cue)
+		check(stream is AudioStreamWAV, "%s still synthesizes to AudioStreamWAV" % cue)
+
+
 func _check_async_worker_lifecycle() -> void:
 	var starts_before := 0
 	for entry in ScorePlayer.cue_log:
@@ -311,7 +336,7 @@ func _check_async_worker_lifecycle() -> void:
 	# Hold the synthesis mutex indirectly by running a long, uncached cue on a
 	# worker, then read a cached stream from the main thread while it is active.
 	var render_thread := Thread.new()
-	var thread_error: Error = render_thread.start(Callable(Score, "stream").bind("cambridge_rain"))
+	var thread_error: Error = render_thread.start(Callable(Score, "stream").bind("totality_edge"))
 	check(thread_error == OK, "unrelated cue render starts on a worker thread")
 	var render_busy := false
 	deadline = Time.get_ticks_msec() + 5000
@@ -324,7 +349,7 @@ func _check_async_worker_lifecycle() -> void:
 		await process_frame
 	check(render_busy, "worker reaches synthesis while cached cue remains available")
 	var cache_read_started := Time.get_ticks_usec()
-	var cached_stream: AudioStreamWAV = Score.stream("coda_resolution")
+	var cached_stream: AudioStream = Score.stream("coda_resolution")
 	var cache_read_ms := float(Time.get_ticks_usec() - cache_read_started) / 1000.0
 	print("score cache contention: render_busy=%s cached_main_ms=%.3f" % [render_busy, cache_read_ms])
 	check(cached_stream != null and cache_read_ms <= 30.0,
