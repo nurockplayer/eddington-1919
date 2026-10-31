@@ -203,7 +203,8 @@ func _check_director_flow() -> void:
 
 	# The finished signal: state and score come back without a re-examine.
 	mark = ScorePlayer.cue_log.size()
-	chapter._gramophone_end(false)
+	# Emit the player's real signal, so a missing connection fails here.
+	chapter._gramophone.finished.emit()
 	check(not chapter.gramophone_playing, "the finished path ends the playback state")
 	var ended := _layer_since("cambridge_rain", mark)
 	check(is_equal_approx(ended.get("db", 0.0), Score.level_db("cambridge_rain")) and is_equal_approx(ended.get("fade", 0.0), 3.0),
