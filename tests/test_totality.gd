@@ -427,6 +427,20 @@ func _test_callouts() -> void:
 		_step(game, log)
 	check(_count(log, "Eddington 抬頭看了一眼：「雲還是很厚……繼續。」") == 1, "half-way glance uses the callout line")
 	check(not game.ui.toast.text.contains("抬頭看了一眼"), "glance no longer overwrites the shutter toast")
+	# A thin patch over the Sun at the half-way mark delays the glance until
+	# the cloud closes again; it never claims thick cloud during the gap.
+	_reset_game(game, 1919, 149.0)
+	game.sim.gaps = [{"t": 147.0, "d": 12.0, "depth": 0.1}]
+	game.sim._make_clouds()
+	log = []
+	var glance := "Eddington 抬頭看了一眼：「雲還是很厚……繼續。」"
+	var thin_seen := false
+	while game.t_game < 175.0 and _count(log, glance) == 0:
+		thin_seen = thin_seen or game.sim.cloud_over_sun(game.t_game) < game.GLANCE_THICK
+		_step(game, log)
+	check(thin_seen, "the test gap really thins the cloud after 150 s")
+	check(_count(log, glance) == 1 and game.sim.cloud_over_sun(game.t_game) >= game.GLANCE_THICK,
+		"the glance waits for thick cloud again (t=%.1f)" % game.t_game)
 	_reset_game(game, 1919, 0.0)
 	log = []
 	for i in int(285.0 / GAME_STEP):
