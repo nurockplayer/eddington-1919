@@ -442,7 +442,9 @@ func _test_cambridge_pause_restore() -> void:
 func _test_cambridge_rain() -> void:
 	var chapter = load("res://scripts/cambridge/director.gd").new()
 	root.add_child(chapter)
-	await create_timer(1.2).timeout
+	# _ready() fades in and shows the caption (~3.5 s) before the opening dialogue.
+	while chapter._pending != "opening":
+		await process_frame
 	check(chapter.rain.playing, "Cambridge rain plays before the daylight interlude")
 	_finish_test_dialogue(chapter)
 	chapter._say(C17.mentor_dyson({}, chapter.state()), "dyson")
@@ -469,6 +471,22 @@ func _test_cambridge_rain() -> void:
 	check(not chapter.rain.playing, "the killed fade does not bring the rain back")
 	await _drain_chapter_audio(chapter)
 	chapter.free()
+	await process_frame
+
+	# A reader who stays in mentor_after: the fade's own callback stops the rain.
+	var slow = load("res://scripts/cambridge/director.gd").new()
+	root.add_child(slow)
+	while slow._pending != "opening":
+		await process_frame
+	_finish_test_dialogue(slow)
+	slow._pending = "trial"
+	slow._dialogue_done({})
+	check(slow._pending == "mentor_after", "the trial result opens mentor_after")
+	await create_timer(3.3).timeout
+	check(slow._pending == "mentor_after" and slow.beat != slow.Beat.CODA, "the slow reader is still in mentor_after")
+	check(not slow.rain.playing and slow.rain_stopped, "the 3 s fade stops the rain by itself")
+	await _drain_chapter_audio(slow)
+	slow.free()
 	await process_frame
 
 
