@@ -439,6 +439,37 @@ func _test_cambridge_pause_restore() -> void:
 	await process_frame
 
 
+func _test_cambridge_rain() -> void:
+	var chapter = load("res://scripts/cambridge/director.gd").new()
+	root.add_child(chapter)
+	await create_timer(1.2).timeout
+	check(chapter.rain.playing, "Cambridge rain plays before the daylight interlude")
+	_finish_test_dialogue(chapter)
+	chapter._say(C17.mentor_dyson({}, chapter.state()), "dyson")
+	_finish_test_dialogue(chapter)
+	while chapter.beat == chapter.Beat.INTERLUDE:
+		await process_frame
+	check(is_equal_approx(chapter.rain.volume_db, -30.0), "Cambridge daylight rain settles at -30 dB")
+	_finish_test_dialogue(chapter)
+	chapter._finish_plan(["comparison", "far_stars", "rules_first"])
+	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.
+	while chapter._pending in ["plan_finish", "trial"]:
+		if not chapter.ui._choice_buttons.is_empty():
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+	await create_timer(3.2).timeout
+	check(not chapter.rain.playing, "Cambridge rain stops after the trial result")
+	check(chapter.rain_stopped, "Cambridge rain records the completed stop")
+	_finish_test_dialogue(chapter)
+	while chapter.beat == chapter.Beat.CODA and chapter._busy:
+		await process_frame
+	check(not chapter.rain.playing, "Kit's night coda keeps the rain stopped")
+	await _drain_chapter_audio(chapter)
+	chapter.free()
+	await process_frame
+
+
 func _finish_test_dialogue(chapter) -> void:
 	var guard := 50
 	while chapter.ui.dialog_active() and guard > 0:
@@ -617,6 +648,7 @@ func _run() -> void:
 	await _test_dialogue_history()
 	await _test_viewer_hint_progress()
 	await _test_cambridge_pause_restore()
+	await _test_cambridge_rain()
 	await _test_totality_log_suspension()
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
