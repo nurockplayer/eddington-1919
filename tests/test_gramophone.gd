@@ -179,6 +179,7 @@ func _check_director_flow() -> void:
 	check(not chapter.gramophone_playing and chapter.gramophone_plays == 0, "playback waits for the last line")
 	_finish_dialogue(chapter)
 	check(chapter.gramophone_playing, "the record plays after the last line")
+	check(chapter._gramophone.bus == "Music", "the live gramophone uses Music after creation completes")
 	check(chapter.gramophone_plays == 1, "the first playing is counted")
 	var duck := _layer_since("cambridge_rain", mark)
 	check(duck.get("db", 0.0) <= ScorePlayer.SILENCE_DB and is_equal_approx(duck.get("fade", 0.0), 1.5),

@@ -99,7 +99,8 @@ func _ready() -> void:
 	var music_ready := Time.get_ticks_usec()
 	ScorePlayer.load_settings()
 	Settings.load_settings()
-	Settings.apply()
+	Settings.apply_audio()
+	Settings.apply_video()
 	music_ready_usec = Time.get_ticks_usec() - music_ready
 	font = SystemFont.new()
 	font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "Source Han Sans TC", "sans-serif"])
@@ -926,6 +927,8 @@ func toggle_pause() -> void:
 	get_tree().paused = p
 	pause_panel.visible = p
 	if p:
+		Settings.sync_fullscreen()
+		fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	# Only the chapter knows every form and scripted input lock it owns.

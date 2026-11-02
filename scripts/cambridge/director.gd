@@ -239,11 +239,10 @@ func _say(seq: Array, purpose: String) -> void:
 func _gramophone_start() -> void:
 	if not is_instance_valid(_gramophone):
 		_gramophone = AudioStreamPlayer3D.new()
-		_gramophone.bus = "SFX"
+		_gramophone.bus = "Music"
 		_gramophone.name = "GramophoneRecord"
 		_gramophone.position = Vector3(0, 1.17, 0)  # 0.25 m above the cabinet lid
 		_gramophone.stream = load("res://assets/audio/gramophone_home_fires_1915.ogg")
-		_gramophone.bus = "Master"
 		_gramophone.volume_db = -16.0
 		_gramophone.unit_size = 3.0
 		_gramophone.max_distance = 12.0

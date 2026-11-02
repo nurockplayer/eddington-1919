@@ -7,6 +7,7 @@ const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db
 
 static var volumes := {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 static var fullscreen := false
+static var video_apply_count := 0
 
 
 static func ensure_sfx_bus() -> int:
@@ -36,7 +37,7 @@ static func save_settings(path := SETTINGS_PATH) -> Error:
 	return cfg.save(path)
 
 
-static func apply() -> void:
+static func apply_audio() -> void:
 	ScorePlayer.ensure_bus()
 	ensure_sfx_bus()
 	for bus in VOLUME_KEYS:
@@ -44,17 +45,27 @@ static func apply() -> void:
 		var volume: float = volumes[bus]
 		AudioServer.set_bus_volume_db(index, linear_to_db(volume))
 		AudioServer.set_bus_mute(index, volume == 0.0 or (bus == "Music" and not ScorePlayer.music_enabled()))
+
+
+static func apply_video() -> void:
+	video_apply_count += 1
 	if DisplayServer.get_name() != "headless":
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
 
 
+static func sync_fullscreen() -> void:
+	if DisplayServer.get_name() != "headless":
+		fullscreen = DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN, DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]
+
+
 static func set_volume(bus: String, value: float, path := SETTINGS_PATH) -> Error:
 	volumes[bus] = clampf(value, 0.0, 1.0)
-	apply()
+	apply_audio()
 	return save_settings(path)
 
 
 static func toggle_fullscreen(path := SETTINGS_PATH) -> Error:
+	sync_fullscreen()
 	fullscreen = not fullscreen
-	apply()
+	apply_video()
 	return save_settings(path)
