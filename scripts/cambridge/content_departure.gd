@@ -171,7 +171,7 @@ static func principe_workbook(bond_tone: String, plates: Array, plate_changed: b
 	if "clear" in bands:
 		sky += "有幾秒，雲薄到看得見日冕——像有人在霧後面點了一盞燈。」"
 	elif "mixed" in bands:
-		sky += "有一陣，雲裂開一半，透出一點光；日冕始終沒有露出來。」"
+		sky += "有一陣，雲裂開一半，透出一點光。」"
 	elif "cloud" in bands and bands.all(func(b): return b == "cloud"):
 		sky += "我們拍的每一張，都在雲後面。」"
 	elif "cloud" in bands:
