@@ -52,6 +52,7 @@ var comparison_tex: Texture2D
 var _tick_acc := 0.0
 var _warned_end := false
 var _glanced := false
+const GLANCE_THICK := 0.6  # cloud_over_sun at or above this reads as 「雲還是很厚」
 # M5 callouts: one-shot per run unless noted (long exposure resets per plate).
 var _ever_exposed := false
 var _long_called := false
@@ -1000,7 +1001,9 @@ func _process_totality(delta: float) -> void:
 		_tick_acc -= 1.0
 		audio_tick.play()
 	_totality_callouts()
-	if t_game > 150.0 and not _glanced:
+	# The glance states what the sky is doing, so it waits out a thin patch
+	# and is dropped once the third-contact warning has fired.
+	if t_game > 150.0 and not _glanced and not _warned_end and dens >= GLANCE_THICK:
 		_glanced = true
 		ui.set_callout("Eddington 抬頭看了一眼：「雲還是很厚……繼續。」", 3.5)
 	if t_game > sim.TOTALITY_S - 18.0 and not _warned_end:
