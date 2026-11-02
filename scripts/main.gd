@@ -868,7 +868,8 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			coda_step = CodaStep.LOUPE
 			_highlight_coda(get_node("AshbyLoupeHotspot").global_position)
 		"coda_loupe":
-			_say(CodaContent.kit_close(Story.bond_tone), "coda_kit")
+			_say(CodaContent.kit_close(Story.bond_tone, Story.kit_choice,
+				Judgment.TELEGRAMS[_telegram].id == "confirmed"), "coda_kit")
 		"coda_kit":
 			_end_coda()
 	_refresh_objectives()
