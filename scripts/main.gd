@@ -206,6 +206,7 @@ static func _ensure_inputs() -> void:
 		"move_forward": [KEY_W], "move_back": [KEY_S], "move_left": [KEY_A], "move_right": [KEY_D],
 		"look_left": [KEY_LEFT], "look_right": [KEY_RIGHT], "look_up": [KEY_UP], "look_down": [KEY_DOWN],
 		"run": [KEY_SHIFT], "interact": [KEY_E], "shutter": [KEY_SPACE], "pause": [KEY_ESCAPE],
+		"toggle_fullscreen": [KEY_F11],
 	}
 	for action in map:
 		if not InputMap.has_action(action):
@@ -368,6 +369,7 @@ func _build_audio() -> void:
 		var t := i / 22050.0
 		tick.append(sin(t * TAU * 1900.0) * exp(-t * 180.0) * 0.6 + (randf() - 0.5) * exp(-t * 400.0) * 0.4)
 	audio_tick = AudioStreamPlayer.new()
+	audio_tick.bus = "SFX"
 	audio_tick.stream = _wav(tick)
 	audio_tick.volume_db = -8.0
 	add_child(audio_tick)
@@ -376,6 +378,7 @@ func _build_audio() -> void:
 		var t := i / 22050.0
 		click.append((randf() - 0.5) * exp(-t * 60.0) + sin(t * TAU * 220.0) * exp(-t * 40.0) * 0.5)
 	audio_click = AudioStreamPlayer.new()
+	audio_click.bus = "SFX"
 	audio_click.stream = _wav(click)
 	audio_click.volume_db = -4.0
 	add_child(audio_click)
@@ -394,6 +397,7 @@ func _build_audio() -> void:
 			+ (low - slow) * sin(PI * t / 0.18) * 0.50) * tail)
 	_sfx_samples["open"] = opening
 	audio_open = AudioStreamPlayer.new()
+	audio_open.bus = "SFX"
 	audio_open.stream = _wav(opening)
 	audio_open.volume_db = -8.0
 	add_child(audio_open)
@@ -418,6 +422,7 @@ func _build_audio() -> void:
 		changing.append(sample)
 	_sfx_samples["change"] = changing
 	audio_change = AudioStreamPlayer.new()
+	audio_change.bus = "SFX"
 	audio_change.stream = _wav(changing)
 	audio_change.volume_db = -10.0
 	add_child(audio_change)
@@ -428,6 +433,7 @@ func _build_audio() -> void:
 		third.append((sin(TAU * 1320.0 * t) * 0.22 + sin(TAU * 1980.0 * t) * 0.12) * envelope)
 	_sfx_samples["third"] = third
 	audio_third = AudioStreamPlayer.new()
+	audio_third.bus = "SFX"
 	audio_third.stream = _wav(third)
 	audio_third.volume_db = -18.0
 	add_child(audio_third)
@@ -453,6 +459,7 @@ func _build_audio() -> void:
 		insects.append(sample)
 	_sfx_samples["insects"] = insects
 	audio_insects = AudioStreamPlayer.new()
+	audio_insects.bus = "SFX"
 	audio_insects.stream = _wav(insects, 22050, true)
 	audio_insects.volume_db = -26.0
 	add_child(audio_insects)
@@ -475,6 +482,7 @@ func _build_audio() -> void:
 		surf[i] *= 0.6 / surf_peak
 	_sfx_samples["surf"] = surf
 	audio_surf = AudioStreamPlayer.new()
+	audio_surf.bus = "SFX"
 	audio_surf.stream = _wav(surf, 22050, true)
 	audio_surf.volume_db = -32.0
 	add_child(audio_surf)
@@ -498,6 +506,7 @@ func _build_audio() -> void:
 				birds[offset + i] = sin(angle) * envelope * 0.6
 	_sfx_samples["birds"] = birds
 	audio_birds = AudioStreamPlayer.new()
+	audio_birds.bus = "SFX"
 	audio_birds.stream = _wav(birds, 22050, true)
 	audio_birds.volume_db = -28.0
 	add_child(audio_birds)
@@ -512,6 +521,7 @@ func _build_audio() -> void:
 			drip = 0.5
 		amb.append(b * 0.5 + drip)
 	audio_amb = AudioStreamPlayer.new()
+	audio_amb.bus = "SFX"
 	audio_amb.stream = _wav(amb, 22050, true)
 	audio_amb.volume_db = -20.0
 	add_child(audio_amb)

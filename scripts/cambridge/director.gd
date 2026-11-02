@@ -239,6 +239,7 @@ func _say(seq: Array, purpose: String) -> void:
 func _gramophone_start() -> void:
 	if not is_instance_valid(_gramophone):
 		_gramophone = AudioStreamPlayer3D.new()
+		_gramophone.bus = "SFX"
 		_gramophone.name = "GramophoneRecord"
 		_gramophone.position = Vector3(0, 1.17, 0)  # 0.25 m above the cabinet lid
 		_gramophone.stream = load("res://assets/audio/gramophone_home_fires_1915.ogg")
@@ -489,6 +490,7 @@ func _montage() -> void:
 
 func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
+	p.bus = "SFX"
 	p.stream = ExistingDirector._wav(samples, 22050, loop)
 	p.volume_db = db
 	add_child(p)
