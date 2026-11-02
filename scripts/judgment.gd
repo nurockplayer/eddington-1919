@@ -220,7 +220,7 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		# Two usable plates need ~4.5 s of clear sky each plus the 4 s change, so
 		# only a long single plate (≥ 14 s) could have been split.
 		if not sim.read_plan and good[0].get("duration", 0.0) >= SPLIT_MIN_S:
-			out.append("曝光計畫上寫著：晴窗有十四秒以上時，拆成兩張短片勝過一張長片。")
+			out.append("那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。")
 	if rule != "strict" and clean and sim.included_usable().size() > 0:
 		out.append("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。")
 	return out

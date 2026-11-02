@@ -105,7 +105,7 @@ func _init() -> void:
 	]
 	var agreement := "第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"
 	var single := "只有一張好片——一張底片只能提出問題，還不能回答。"
-	var reminder := "曝光計畫上寫著：晴窗有十四秒以上時，拆成兩張短片勝過一張長片。"
+	var reminder := "那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。"
 	check(Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "two agreeing good plates corroborate with their plate numbers")
 	# Oracle on #103: a third agreeing plate shrinks the combined σ; agreement must survive it.
 	var trio = Sim.new(77)
