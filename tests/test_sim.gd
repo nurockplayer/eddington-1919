@@ -97,6 +97,44 @@ func _init() -> void:
 	check(r_ok.score > r_over.score, "hedged telegram scores above overclaim")
 	var r_none: Dictionary = Judgment.grade(sim, "none", "nostars")
 	check(r_none.title == "被丟下的星光", "'no results' with a usable plate is called out")
+	# Independent good plates corroborate only when every value agrees with the mean.
+	var pair = Sim.new(77)
+	pair.plates = [
+		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 1.7, "sigma": 0.2, "duration": 4.0},
+		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2, "duration": 4.0},
+	]
+	var agreement := "第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"
+	var single := "只有一張好片——一張底片只能提出問題，還不能回答。"
+	var reminder := "曝光計畫上寫著：晴窗有十四秒以上時，拆成兩張短片勝過一張長片。"
+	check(Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "two agreeing good plates corroborate with their plate numbers")
+	# Oracle on #103: a third agreeing plate shrinks the combined σ; agreement must survive it.
+	var trio = Sim.new(77)
+	trio.plates = [
+		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 1.40, "sigma": 0.3, "duration": 4.0},
+		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 2.10, "sigma": 0.3, "duration": 4.0},
+		{"number": 6, "usable": true, "quality": "good", "included": true, "value": 1.75, "sigma": 0.3, "duration": 4.0},
+	]
+	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4、6 號各自量，數字彼此對得上。這 3 張互相印證，比一張長片更難被說成巧合。"),
+		"three good plates within their own 2σ still corroborate")
+	# Oracle on #103: poor plates pulling the overall mean must not decide it.
+	trio.plates[2].quality = "poor"
+	trio.plates[2].value = 1.00
+	trio.plates[2].sigma = 0.4
+	trio.plates.append({"number": 8, "usable": true, "quality": "poor", "included": true, "value": 1.00, "sigma": 0.4, "duration": 4.0})
+	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"),
+		"poor plates do not break the good plates' agreement")
+	pair.plates[1].value = 2.5
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "disagreeing good plates do not corroborate")
+	pair.plates[1].included = false
+	check(Judgment.grade(pair, "hopeful", "measured").lines.has(single), "one included good plate echoes the 1917 caution")
+	pair.read_plan = false
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "one short good plate does not trigger the plan reminder")
+	pair.plates[0].duration = 11.0
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "an 11 s plate could not have been split; no reminder")
+	pair.plates[0].duration = 14.0
+	check(Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "one long good plate reminds a player who skipped the plan")
+	pair.read_plan = true
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "reading the plan suppresses the long-plate reminder")
 	# Omitting a good plate and reselecting are noticed.
 	var sim4 = Sim.new(11)
 	sim4.drive_wound = true

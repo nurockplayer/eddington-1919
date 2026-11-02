@@ -26,6 +26,9 @@ const FIT := {
 	"favors_half": {"confirmed": 0, "hopeful": 1, "undecided": 2, "none": 0},
 }
 
+## A single plate at least this long could have been two usable plates.
+const SPLIT_MIN_S := 14.0
+
 const REASON_FIT := {
 	"none": ["nostars", "uncertain"],
 	"favors_e": ["measured", "uncertain"],
@@ -156,6 +159,27 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		out.append("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。" % _nums(sel.included_unusable))
 	if sel.reselected:
 		out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
+	var good: Array = sim.plates.filter(func(p): return p.included and p.quality == "good")
+	if good.size() >= 2:
+		# The good plates' own weighted mean: poor plates must not decide whether
+		# good ones agree. Each plate is held to its own 2σ, so more agreeing
+		# plates (a smaller combined σ) cannot turn agreement into disagreement.
+		var wsum := 0.0
+		var vsum := 0.0
+		for p in good:
+			var w: float = 1.0 / (p.sigma * p.sigma)
+			wsum += w
+			vsum += w * p.value
+		var mean := vsum / wsum
+		if good.all(func(p): return absf(p.value - mean) <= 2.0 * p.sigma):
+			var count := "兩張" if good.size() == 2 else "這 %d 張" % good.size()
+			out.append("第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。" % [_nums(good.map(func(p): return p.number)), count])
+	elif good.size() == 1:
+		out.append("只有一張好片——一張底片只能提出問題，還不能回答。")
+		# Two usable plates need ~4.5 s of clear sky each plus the 4 s change, so
+		# only a long single plate (≥ 14 s) could have been split.
+		if not sim.read_plan and good[0].get("duration", 0.0) >= SPLIT_MIN_S:
+			out.append("曝光計畫上寫著：晴窗有十四秒以上時，拆成兩張短片勝過一張長片。")
 	if rule != "strict" and clean and sim.included_usable().size() > 0:
 		out.append("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。")
 	return out
