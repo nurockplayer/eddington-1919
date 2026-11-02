@@ -271,6 +271,10 @@ func _test_dialogue_history() -> void:
 	ui.history.clear()
 	root.add_child(ui)
 	await process_frame
+	var version_label := ui.title_panel.get_node("Version") as Label
+	check(version_label.text == "v" + str(ProjectSettings.get_setting("application/config/version")), "title displays project version")
+	var title_rect: Rect2 = ui.title_panel.get_global_rect()
+	check(title_rect.encloses(version_label.get_global_rect()) and version_label.get_global_rect().get_center().x > title_rect.get_center().x and version_label.get_global_rect().get_center().y > title_rect.get_center().y, "title version fits in bottom-right corner")
 	var sequence: Array = []
 	for i in 61:
 		sequence.append({"s": "Speaker", "t": "line_%d" % i})

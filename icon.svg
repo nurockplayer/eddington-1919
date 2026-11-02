@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="corona">
+      <stop offset="0.6977" stop-color="#F2E2B0" stop-opacity="0.85"/>
+      <stop offset="0.76" stop-color="#F2E2B0" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#F2E2B0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bead-glow">
+      <stop offset="0.3" stop-color="#FFF6DA" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FFF6DA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="180" fill="#101826"/>
+  <circle cx="512" cy="512" r="430" fill="url(#corona)"/>
+  <circle cx="512" cy="512" r="303" fill="none" stroke="#F2E2B0" stroke-width="8" stroke-opacity="0.8"/>
+  <circle cx="512" cy="512" r="318" fill="none" stroke="#F2E2B0" stroke-width="12" stroke-opacity="0.12"/>
+  <circle cx="512" cy="512" r="300" fill="#050608"/>
+  <circle cx="771.8" cy="362" r="64" fill="url(#bead-glow)"/>
+  <circle cx="771.8" cy="362" r="26" fill="#FFF6DA"/>
+</svg>

@@ -783,6 +783,13 @@ func _build_title(root: Control) -> void:
 	var q := _button("　離開　")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	var version := _label("v" + str(ProjectSettings.get_setting("application/config/version")), 15, Color("8f8676"))
+	version.name = "Version"
+	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	title_panel.add_child(version)
+	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	version.position -= version.get_minimum_size() + Vector2(24, 18)
+	version.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func hide_title() -> void:
