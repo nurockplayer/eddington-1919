@@ -218,10 +218,12 @@ func _test_judgment_reasons() -> void:
 	game.sim = Sim.new(1919)
 	game.phase = game.Phase.TOTALITY
 	game.sim.plates = [
-		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2},
-		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 2.0, "sigma": 0.2},
+		{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.8, "sigma": 0.2},
+		{"number": 2, "usable": true, "quality": "good", "included": true, "trail": 0.3, "value": 2.0, "sigma": 0.2},
 	]
 	game._start_judgment()
+	check(game._reasons.size() == 5, "judgment offers five reasons")
+	check(game._reasons[4].text.contains("星像平均拖長 0.20"), "instrument reason quotes the mean included trail")
 	var c: Dictionary = game.sim.combined()
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
 	game._after_judgment({"telegram": 1, "reason": 0})

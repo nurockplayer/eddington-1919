@@ -16,6 +16,7 @@ const REASONS := [
 	{"id": "uncertain", "text": "底片少、誤差大；需要 Sobral 的結果與回國後的完整量測。"},
 	{"id": "corona", "text": "日冕那麼清楚——我們一定成功了。"},
 	{"id": "nostars", "text": "雲太厚，底片上沒有足夠的星點可以量。"},
+	{"id": "trailed", "text": "星像拖長了——走速沒校過。數值偏低，可能是儀器，不是星。"},
 ]
 
 ## How well each telegram fits each evidence class: 2 best, 1 defensible, 0 wrong.
@@ -43,7 +44,21 @@ static func reasons_for(sim) -> Array:
 	if c.n > 0:
 		reasons[0].text = "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。" % [c.value, c.sigma, c.n]
 		reasons[1].text = "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。" % [c.value, c.sigma]
+		var trail_sum := 0.0
+		for p in sim.included_usable():
+			trail_sum += p.trail
+		reasons[4].text = "星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。" % (trail_sum / c.n)
 	return reasons
+
+
+static func trailed_case(sim) -> bool:
+	if sim.drive_rate_checked or sim.evidence_class() not in ["favors_half", "ambiguous"]:
+		return false
+	var plates: Array = sim.included_usable()
+	var trail_sum := 0.0
+	for p in plates:
+		trail_sum += p.trail
+	return trail_sum / plates.size() >= 0.35
 
 
 static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
@@ -52,6 +67,8 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var any_usable: bool = sim.plates.any(func(p): return p.usable)
 	var any_good: bool = sim.plates.any(func(p): return p.usable and p.quality == "good")
 	var reason_ok: bool = reason_id in REASON_FIT[ev]
+	if reason_id == "trailed":
+		reason_ok = trailed_case(sim)
 	if reason_id == "nostars" and any_usable:
 		reason_ok = false  # the stars are there, just not measured
 	if ev == "none" and telegram_id == "none" and any_usable:
@@ -60,7 +77,7 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var clean: bool = sel.omitted_good.is_empty() and sel.included_poor.is_empty() and sel.included_unusable.is_empty() and not sel.reselected
 	var lines: Array[String] = []
 	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, any_good, sim))
-	lines.append(_reason_line(ev, reason_id, reason_ok))
+	lines.append(_reason_line(ev, reason_id, reason_ok, sim))
 	lines.append_array(_selection_lines(sel, clean, sim))
 	var title := _title(ev, telegram_id, fit, reason_ok, clean, any_usable)
 	return {
@@ -113,7 +130,7 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 	return out
 
 
-static func _reason_line(ev: String, reason_id: String, ok: bool) -> String:
+static func _reason_line(ev: String, reason_id: String, ok: bool, sim) -> String:
 	if reason_id == "corona":
 		return "日冕很美，我也看了一眼。但美不是量測——量測在底片上。"
 	if ok:
@@ -124,11 +141,17 @@ static func _reason_line(ev: String, reason_id: String, ok: bool) -> String:
 				return "你記得我們只是其中一站。Dyson 會比較兩地的結果。"
 			"nostars":
 				return "你按星點數判斷，而不是按心情。"
+			"trailed":
+				return "你分得出哪些偏差是我們自己帶進去的。Cottingham 會記得這句。"
 	match reason_id:
 		"measured":
 			return "你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。"
 		"nostars":
 			return "可是你的底片上明明有五顆以上的星。"
+		"trailed":
+			if sim.drive_rate_checked:
+				return "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
+			return "數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。"
 		_:
 			return "你的理由和你寫下的電報不太對得上。"
 
