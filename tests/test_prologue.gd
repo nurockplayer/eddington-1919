@@ -443,8 +443,10 @@ func _test_cambridge_rain() -> void:
 	var chapter = load("res://scripts/cambridge/director.gd").new()
 	root.add_child(chapter)
 	# _ready() fades in and shows the caption (~3.5 s) before the opening dialogue.
-	while chapter._pending != "opening":
+	var chapter_deadline := Time.get_ticks_msec() + 12000
+	while chapter._pending != "opening" and Time.get_ticks_msec() < chapter_deadline:
 		await process_frame
+	check(chapter._pending == "opening", "Cambridge reaches the opening dialogue within 12 s (chapter)")
 	check(chapter.rain.playing, "Cambridge rain plays before the daylight interlude")
 	_finish_test_dialogue(chapter)
 	chapter._say(C17.mentor_dyson({}, chapter.state()), "dyson")
@@ -476,8 +478,10 @@ func _test_cambridge_rain() -> void:
 	# A reader who stays in mentor_after: the fade's own callback stops the rain.
 	var slow = load("res://scripts/cambridge/director.gd").new()
 	root.add_child(slow)
-	while slow._pending != "opening":
+	var slow_deadline := Time.get_ticks_msec() + 12000
+	while slow._pending != "opening" and Time.get_ticks_msec() < slow_deadline:
 		await process_frame
+	check(slow._pending == "opening", "Cambridge reaches the opening dialogue within 12 s (slow)")
 	_finish_test_dialogue(slow)
 	slow._pending = "trial"
 	slow._dialogue_done({})
