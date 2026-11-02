@@ -25,9 +25,12 @@ static func workbook_again() -> Array:
 
 ## fit: Judgment fit of the telegram (2 best, 1 defensible, 0 wrong). clean: plate selection
 ## was made by image quality before seeing values. measured_any: at least one plate measured.
-static func ashby_answer(fit: int, clean: bool, measured_any: bool) -> Array:
+static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable := false) -> Array:
 	var seq: Array = [{"s": "", "t": "（你拿起 %s的放大鏡。）" % CAST.MENTOR}]
-	if not measured_any:
+	if not measured_any and any_usable:
+		seq.append({"s": YOU, "t": "（放大鏡底下有星點——是你沒有拿去量的那幾張。）"})
+		seq.append({"s": YOU, "t": "（雲很厚，可是不是什麼都沒留下。回去以後，先把它們量完。）"})
+	elif not measured_any:
 		seq.append({"s": YOU, "t": "（放大鏡底下沒有可以量的東西——只有雲留下的一片灰。）"})
 		seq.append({"s": YOU, "t": "（可是你把雲記下來了。他說過：無論看見什麼。）"})
 	elif fit == 2 and clean:
@@ -63,12 +66,14 @@ static func small_numbers(residual_found: bool, measured_any: bool) -> Array:
 ## bond_tone: "close" | "warm" (Story). Restrained; no confession, no letter.
 ## kit_choice is the 1917 answer about the childhood star chart (-1: no prologue).
 ## overclaimed: the telegram said more than the plates (CONFIRMED).
-static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false) -> Array:
+static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false, misread := false) -> Array:
 	var seq: Array = [{"s": YOU, "t": "（工作簿後面還有很多空白頁。回去的路還很長。）"}]
 	match kit_choice:
 		0:
 			if overclaimed:
 				seq.append({"s": YOU, "t": "（小時候那張星圖。畫錯，跟說謊，不是一回事——可是今晚的電報，寫得比底片上的多。）"})
+			elif misread:
+				seq.append({"s": YOU, "t": "（小時候那張星圖。畫錯，跟說謊，不是一回事——今晚的電報，和底片上的不一樣。）"})
 			else:
 				seq.append({"s": YOU, "t": "（小時候那張星圖。畫錯，跟說謊，不是一回事。今晚的電報，只寫了底片上有的。）"})
 		2:
