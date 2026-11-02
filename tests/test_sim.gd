@@ -209,6 +209,13 @@ func _init() -> void:
 	var checked_trail: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
 	check(not checked_trail.reason_ok, "checked drive rejects the instrument reason for the same plates")
 	check(checked_trail.lines.any(func(line): return line.contains("走速校過了")), "checked drive explains why the instrument reason is rejected")
+	# Unchecked drive, low result, but the measured plates did not trail.
+	trail_case_sim.drive_rate_checked = false
+	for p in trail_case_sim.plates:
+		p.trail = 0.1
+	var untrailed: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
+	check(not untrailed.reason_ok and untrailed.lines.any(func(line): return line.contains("星像沒有拖長")),
+		"untrailed low plates reject the instrument reason and say the plates did not trail")
 
 	# Use real exposures from seed 7 for clean and contaminated selections.
 	var strict_clean := "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"

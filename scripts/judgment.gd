@@ -151,6 +151,8 @@ static func _reason_line(ev: String, reason_id: String, ok: bool, sim) -> String
 		"trailed":
 			if sim.drive_rate_checked:
 				return "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
+			if ev in ["favors_half", "ambiguous"]:
+				return "你量的這幾張星像沒有拖長——偏差不是走速帶進來的。別替不合期望的結果先找好理由。"
 			return "數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。"
 		_:
 			return "你的理由和你寫下的電報不太對得上。"
