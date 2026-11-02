@@ -406,9 +406,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	if departure:
 		var plate_label := Label3D.new()
 		plate_label.text = "KIT 的變星底片"
-		var label_font := SystemFont.new()
-		label_font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC"])
-		plate_label.font = label_font
+		plate_label.font = preload("res://scripts/fonts.gd").cjk()
 		plate_label.font_size = 24
 		plate_label.pixel_size = 0.0025
 		plate_label.modulate = Color(0.72, 0.65, 0.52)

@@ -1,5 +1,6 @@
 extends CanvasLayer
 
+const Fonts := preload("res://scripts/fonts.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Content := preload("res://scripts/content.gd")
 const Strip := preload("res://scripts/totality_strip.gd")
@@ -27,7 +28,7 @@ const INK := Color(0.10, 0.09, 0.08)
 const DIM := Color(0.70, 0.66, 0.58)
 const ACCENT := Color(0.95, 0.72, 0.38)
 
-var font: SystemFont
+var font: Font
 var theme_res: Theme
 var hud: Control
 var clock_label: Label
@@ -94,8 +95,7 @@ var pause_enabled := false
 
 func _ready() -> void:
 	layer = 10
-	font = SystemFont.new()
-	font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "Source Han Sans TC", "sans-serif"])
+	font = Fonts.cjk()
 	theme_res = Theme.new()
 	theme_res.default_font = font
 	theme_res.default_font_size = 21
