@@ -86,6 +86,8 @@ var _viewer_sel := -1
 var _viewer_plates: Array = []
 ## Set by main before open_viewer: the 1917 plan line for the comparison plate.
 var comparison_recall := ""
+## Set by main before open_viewer: the drive line under each eclipse plate.
+var drive_note := ""
 var _viewer_locked := false
 var pause_enabled := false
 
@@ -687,6 +689,8 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 		lines.append("[color=#e88]%s[/color]" % stars_line if p.stars < 5 else stars_line)
 	if not p.sunlit and p.get("sky_read", "") != "":
 		lines.append(Content.totality_read_night(p.sky_read))
+	if not p.sunlit and p.duration >= 0.5 and drive_note != "":
+		lines.append(drive_note)
 	if p.sunlit:
 		lines.append("[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]")
 	if p.duration < 0.5:

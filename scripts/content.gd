@@ -80,6 +80,16 @@ static func night_intro(n_plates: int) -> Array:
 	]
 
 
+## The 1917 "conditions" card: each plate's note also records the drive.
+## Without the prologue everyone gets it; after it, only if the card was planned.
+static func drive_note(plan: Array, played: bool, rate_checked: bool) -> String:
+	if played and not plan.has("conditions"):
+		return ""
+	if rate_checked:
+		return "走速：早上已對著天文鐘校過。"
+	return "走速：沒有校過——曝光越久，星像拖得越長。"
+
+
 ## The 1917 plan board remembered in the darkroom; empty without the prologue.
 ## A core card the player left off was added by Eddington at the bottom.
 static func comparison_recall(plan: Array, played: bool) -> String:
