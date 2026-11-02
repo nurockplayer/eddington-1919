@@ -1211,6 +1211,7 @@ func _end_coda() -> void:
 
 
 func _open_viewer() -> void:
+	ui.comparison_recall = Content.comparison_recall(Story.plan, Story.prologue_done)
 	ui.open_viewer(sim.plates, comparison_tex, plate_textures, sim.measured)
 	_sync_player_input()
 	_refresh_viewer()
@@ -1231,6 +1232,9 @@ func _refresh_viewer() -> void:
 		var c: Dictionary = sim.combined()
 		if c.n > 0:
 			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″[/color]" % [c.value, c.sigma]
+		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
+		if recall != "":
+			note += "\n" + recall
 	ui.set_viewer_note(note)
 	ui.refresh_thumbs()
 

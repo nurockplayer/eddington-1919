@@ -84,6 +84,8 @@ var _results := {}
 var _choice_buttons: Array[Button] = []
 var _viewer_sel := -1
 var _viewer_plates: Array = []
+## Set by main before open_viewer: the 1917 plan line for the comparison plate.
+var comparison_recall := ""
 var _viewer_locked := false
 var pause_enabled := false
 
@@ -670,6 +672,8 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	big_plate.texture = tex
 	if i == -2:
 		plate_info.text = "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
+		if comparison_recall != "":
+			plate_info.text += "\n[i]%s[/i]" % comparison_recall
 		include_box.visible = false
 		return
 	include_box.visible = true
