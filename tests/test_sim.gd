@@ -105,7 +105,7 @@ func _init() -> void:
 	]
 	var agreement := "第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"
 	var single := "只有一張好片——一張底片只能提出問題，還不能回答。"
-	var reminder := "曝光計畫上寫著：一個晴窗，兩張短片勝過一張長片。"
+	var reminder := "曝光計畫上寫著：晴窗有十四秒以上時，拆成兩張短片勝過一張長片。"
 	check(Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "two agreeing good plates corroborate with their plate numbers")
 	# Oracle on #103: a third agreeing plate shrinks the combined σ; agreement must survive it.
 	var trio = Sim.new(77)
@@ -122,7 +122,9 @@ func _init() -> void:
 	check(Judgment.grade(pair, "hopeful", "measured").lines.has(single), "one included good plate echoes the 1917 caution")
 	pair.read_plan = false
 	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "one short good plate does not trigger the plan reminder")
-	pair.plates[0].duration = 10.0
+	pair.plates[0].duration = 11.0
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "an 11 s plate could not have been split; no reminder")
+	pair.plates[0].duration = 14.0
 	check(Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "one long good plate reminds a player who skipped the plan")
 	pair.read_plan = true
 	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "reading the plan suppresses the long-plate reminder")

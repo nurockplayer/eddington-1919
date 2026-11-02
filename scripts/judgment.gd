@@ -26,6 +26,9 @@ const FIT := {
 	"favors_half": {"confirmed": 0, "hopeful": 1, "undecided": 2, "none": 0},
 }
 
+## A single plate at least this long could have been two usable plates.
+const SPLIT_MIN_S := 14.0
+
 const REASON_FIT := {
 	"none": ["nostars", "uncertain"],
 	"favors_e": ["measured", "uncertain"],
@@ -166,8 +169,10 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 			out.append("第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。" % [_nums(good.map(func(p): return p.number)), count])
 	elif good.size() == 1:
 		out.append("只有一張好片——一張底片只能提出問題，還不能回答。")
-		if not sim.read_plan and good[0].get("duration", 0.0) >= 10.0:
-			out.append("曝光計畫上寫著：一個晴窗，兩張短片勝過一張長片。")
+		# Two usable plates need ~4.5 s of clear sky each plus the 4 s change, so
+		# only a long single plate (≥ 14 s) could have been split.
+		if not sim.read_plan and good[0].get("duration", 0.0) >= SPLIT_MIN_S:
+			out.append("曝光計畫上寫著：晴窗有十四秒以上時，拆成兩張短片勝過一張長片。")
 	if rule != "strict" and clean and sim.included_usable().size() > 0:
 		out.append("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。")
 	return out
