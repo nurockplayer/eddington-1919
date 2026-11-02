@@ -57,18 +57,19 @@
 
 ## Resume here (edd-director, written 2026-11-03 00:5x JST before /clear)
 - **Standing Owner request:** 2026-11-02 16:5x JST, 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」. It overrides the old heartbeat text's "no new features" hold.
-- **Done:** waves 1–6, #83–#106, all merged. main = 494e68c+. Bots: careful 4, rushed 0, cherry 3, prologue honest 4. No open implementation PR.
+- **Done:** waves 1–7, #83–#111, all merged (2026-11-03 01:47 JST). main = 08cb22f+. Bots: careful 4, rushed 0, cherry 3, prologue honest 4. No open implementation PR. #111 drained headless audio (leaks careful 6→0, prologue 8→0) and fixed test_coda's GradeFixture (EINSTEIN/HALF). Its review fell back to codex (oracle-ego submit failed, exit 5); ego-lite restarted 01:47 JST.
 - **Waiting on the Owner:**
   - draft #93 `departure_promise` (listen: `~/Desktop/eddington-music/departure_promise.wav`; D014: no merge without the OK);
   - SFX WAVs in `~/Desktop/eddington-sfx/`.
-- **Queued:** the full e2e on main (`orb-test --heavy --host -- ./tools/e2e_headless.sh`, ticket #140). It starts at the heavy gate (Mon–Fri 05:00 JST or after 45 min idle); check with `orb-test --status`. Its result was not yet read.
+- **e2e:** green on main and on every wave-7 branch (run light under the Owner's one-off heavy authorization of 2026-11-03 00:4x JST; that authorization is used up).
 - **Windowed look due (Mon–Fri 09–15 JST):**
   - #84 plate readability (trail and fog visible now that counts are hidden);
   - #98 2σ whiskers on the darkroom chart.
 - **Next wave candidates:**
-  - a Fable pass for wave 7 (story/audio angles, or a fresh "what is still thin" read);
-  - an ObjectDB-leak cleanup at exit;
-  - test_coda fade checks that flake at load average > 20.
+  - a missing `comparison` plan card → a short recovery step at the Oxford plate before measuring (from the wave-7 critique; unscored, no data loss);
+  - test_coda fade checks that flake at load average > 20;
+  - a fresh design pass (Codex astra read-only critique worked well: `cx-exec -m gpt-6-astra` with a ≤600-word ranked-list brief).
+- **Worker habits to brief against:** Codex adds `--heavy` to e2e and writes logs to host `/tmp`; every brief must forbid both.
 - **Review flow:** run from the main checkout, never a worktree, because `.claude/ds-workers.tsv` is untracked and the bundle would come out not oracle-OK:
   1. `review-bundle <pr>` → `review-run --provider oracle <bundle>`, waiting on exit 75.
   2. If oracle fails (exit 5/8/9), retry once, then restart ego-lite (`osascript -e 'quit app "ego lite"'; open -a "ego lite"`, only when `pgrep -f oracle-ego` is empty), then oracle again.
