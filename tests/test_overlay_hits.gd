@@ -93,6 +93,29 @@ func _run() -> void:
 	check(plate_rect.size.x > 0.0 and plate_rect.size.y > 0.0, "plate 14 glyph bounds are non-empty")
 	check(overlay._try_detail_click(local_from_screen(overlay, plate_rect.get_center())), "fixed plate 14 label is clickable")
 
+	# Foley cues: each hand action on the light box names its sound once.
+	var sounds: Array[String] = []
+	var quiet = make_overlay()
+	await process_frame
+	quiet.sound.connect(func(kind): sounds.append(kind))
+	quiet._rotate(0.5)
+	check(sounds == ["nudge"], "a rotation step nudges the plate: %s" % str(sounds))
+	sounds.clear()
+	quiet.flipped = false
+	quiet.angle_deg = quiet.SOURCE_TILT
+	quiet.offset = Vector2.ZERO
+	quiet._update_alignment()
+	check(sounds.is_empty() and not quiet.aligned, "unflipped tracing paper does not settle: %s" % str(sounds))
+	quiet._toggle_flip()
+	check(quiet.aligned and sounds == ["flip", "settle"], "turning the paper over settles the fields once: %s" % str(sounds))
+	sounds.clear()
+	quiet._update_alignment()
+	check(sounds.is_empty(), "staying aligned makes no second settle")
+	quiet._found_clue("label_mirrored")
+	quiet._found_clue("label_mirrored")
+	check(sounds == ["mark"], "a clue is marked once: %s" % str(sounds))
+	quiet.queue_free()
+
 	print("test_overlay_hits: %d checks, %d failures" % [checks, failures])
 	get_root().content_scale_factor = 1.0
 	overlay.queue_free()

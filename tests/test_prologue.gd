@@ -417,6 +417,9 @@ func _test_cambridge_pause_restore() -> void:
 	chapter.plan_board.hide()
 	chapter.overlay.open()
 	chapter._sync_player()
+	chapter.overlay._rotate(0.5)
+	chapter.overlay._rotate(-0.5)
+	check(chapter.sfx_log == ["nudge", "nudge"] and chapter._foley.nudge.stream is AudioStreamWAV, "the director plays the light-box foley: %s" % str(chapter.sfx_log))
 	# The overlay owns Esc to close; pause/resume via the UI exercises its lock.
 	await _pause_round_trip(chapter, "Cambridge overlay", false)
 	check(chapter.overlay.visible, "pause/resume retains overlay")
