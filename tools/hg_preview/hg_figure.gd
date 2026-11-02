@@ -56,15 +56,16 @@ static func tune_materials(n: Node) -> void:
 			elif nm.begins_with("Haircards") or nm.begins_with("HG_Haircap"):
 				# c04: HG's own cards, baked colour/alpha/normal. Alpha hash dithered
 				# the strands into dust over the face (r3 shots). r4 compares a depth
-				# pre-pass (default) with scissor + alpha-to-coverage: HG_HAIRMODE=scissor.
+				# pre-pass with scissor + alpha-to-coverage; scissor won (2026-11-02 shots:
+				# pre-pass sorts a dark band across the crown), HG_HAIRMODE=prepass to compare.
 				# The atlas mean is sRGB (58, 42, 35), already darker than the concept,
 				# so no albedo multiplier: the light, red read came from key and specular.
-				if OS.get_environment("HG_HAIRMODE") == "scissor":
+				if OS.get_environment("HG_HAIRMODE") == "prepass":
+					m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+				else:
 					m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 					m.alpha_scissor_threshold = 0.2  # 0.35 kept only 64% of the atlas coverage
 					m.alpha_antialiasing_mode = BaseMaterial3D.ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE
-				else:
-					m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 				m.cull_mode = BaseMaterial3D.CULL_DISABLED
 				m.roughness = 0.55
 				m.metallic_specular = 0.3
