@@ -42,7 +42,8 @@ func _run() -> void:
 	var dark_for := 0.0
 	var was_lit := false
 	var steps := 0
-	var drawn := 0  # lit frames where the sky shader carries this meteor's head and tail
+	var drawn := 0  # lit frames where the sky shader carries a streak (head apart from tail)
+	var stale := 0  # lit frames where the sky shader lags the meteor's head or tail
 	for i in 2400:  # two minutes at 20 Hz
 		m.tick(0.05)
 		var lit: bool = m.glow > 0.0
@@ -52,7 +53,9 @@ func _run() -> void:
 			peak = maxf(peak, m.glow)
 			var h = main.sky_mat.get_shader_parameter("meteor_head")  # null until pushed
 			var t = main.sky_mat.get_shader_parameter("meteor_tail")
-			if h is Vector3 and t is Vector3 and h.is_equal_approx(m.head) and t.is_equal_approx(m.tail) and not h.is_equal_approx(t):
+			if not (h is Vector3 and t is Vector3 and h.is_equal_approx(m.head) and t.is_equal_approx(m.tail)):
+				stale += 1
+			elif not h.is_equal_approx(t):
 				drawn += 1
 			if not was_lit and m.count > 1:  # the first waits only 3 s after dark
 				gaps.append(dark_for)
@@ -69,7 +72,7 @@ func _run() -> void:
 	check(gaps.min() >= NightMeteors.GAP_MIN - 0.1, "quiet between them: %.1f s at least" % gaps.min())
 	var sampled: float = main.sky_mat.get_shader_parameter("meteor_glow")
 	check(is_equal_approx(sampled, m.glow), "the sky shader gets the glow")
-	check(drawn > 0 and drawn >= steps / 2, "the sky shader gets each streak's head and tail: %d lit frames" % drawn)
+	check(stale == 0 and drawn > 0, "the sky shader gets each streak's head and tail: %d lit frames, %d stale" % [drawn, stale])
 	# Glow ramps from zero: no pop at launch or at the end.
 	m.set_night(false)
 	m.set_night(true)
