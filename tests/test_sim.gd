@@ -180,6 +180,17 @@ func _init() -> void:
 			check(actual == expected, "rule %s dirty=%s adds only its expected response" % [rule, dirty])
 			for field in ["score", "clean", "fit", "title"]:
 				check(result[field] == baseline[field], "rule %s dirty=%s preserves %s" % [rule, dirty, field])
+	# The strict rule bars a poor plate only beside a clear one: measured alone, it keeps the rule.
+	var foggy = Sim.new(6)
+	foggy.rule_id = "strict"
+	foggy.plates = [
+		{"number": 1, "usable": true, "quality": "good", "included": false, "value": 1.8, "sigma": 0.3},
+		{"number": 2, "usable": true, "quality": "poor", "included": true, "value": 1.2, "sigma": 0.6},
+	]
+	var broke := func(r: Dictionary) -> bool: return r.lines.any(func(l): return l.contains("違反了你自己寫下的規則"))
+	check(not broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate measured without a clear one is no violation")
+	foggy.plates[0].included = true
+	check(broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate averaged with a clear one is a violation")
 	# Legacy sims receive neither a rule response nor a missing-rule penalty.
 	sim.rule_id = ""
 	cloudy.included = false

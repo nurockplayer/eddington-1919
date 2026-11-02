@@ -126,7 +126,9 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 	var rule: String = sim.get("rule_id") if sim.get("rule_id") != null else ""
 	match rule:
 		"strict":
-			var violations: Array = sel.included_poor + sel.included_unusable
+			# The rule bars plates under five stars, and poor plates only beside a clear one.
+			var with_good: bool = sim.plates.any(func(p): return p.included and p.quality == "good")
+			var violations: Array = (sel.included_poor if with_good else []) + sel.included_unusable
 			if not violations.is_empty():
 				out.append("你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號違反了你自己寫下的規則。" % _nums(violations))
 			elif clean and sim.included_usable().size() > 0:
