@@ -61,8 +61,18 @@ static func small_numbers(residual_found: bool, measured_any: bool) -> Array:
 
 
 ## bond_tone: "close" | "warm" (Story). Restrained; no confession, no letter.
-static func kit_close(bond_tone: String) -> Array:
+## kit_choice is the 1917 answer about the childhood star chart (-1: no prologue).
+## overclaimed: the telegram said more than the plates (CONFIRMED).
+static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false) -> Array:
 	var seq: Array = [{"s": YOU, "t": "（工作簿後面還有很多空白頁。回去的路還很長。）"}]
+	match kit_choice:
+		0:
+			if overclaimed:
+				seq.append({"s": YOU, "t": "（小時候那張星圖。畫錯，跟說謊，不是一回事——可是今晚的電報，寫得比底片上的多。）"})
+			else:
+				seq.append({"s": YOU, "t": "（小時候那張星圖。畫錯，跟說謊，不是一回事。今晚的電報，只寫了底片上有的。）"})
+		2:
+			seq.append({"s": YOU, "t": "（那天晚上 Kit 問起那張星圖，你沒有回答。見了面，也許可以從那張圖說起。）"})
 	if bond_tone == "close":
 		seq.append({"s": YOU, "t": "（有些話，也許可以等到見了面再說。）"})
 		seq.append({"s": YOU, "t": "（也許。）"})
