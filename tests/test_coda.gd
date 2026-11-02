@@ -75,6 +75,9 @@ func _test_grade_branches() -> void:
 	check(text_of(Coda.ashby_answer(2, false, true)).contains("把它補上"), "fit 2 dirty wording asks for a correction")
 	check(text_of(Coda.ashby_answer(1, true, true)).contains("問號不丟人"), "fit 1 wording retains the question mark")
 	check(text_of(Coda.ashby_answer(0, true, true)).contains("差一點就成了那個好故事"), "fit 0 wording recalls Ashby's clean-plate challenge")
+	var skipped_text := text_of(Coda.ashby_answer(0, true, false, true))
+	check(skipped_text.contains("沒有拿去量") and not skipped_text.contains("一片灰"), "unmeasured usable plates are acknowledged instead of blamed on clouds")
+	check(text_of(Coda.ashby_answer(0, true, false, false)).contains("一片灰"), "no usable plates retains the cloud wording")
 	# Issue #37 loop 5: the old small doubts return; nothing is called proof.
 	check(text_of(Coda.small_numbers(true, true)).contains("14 號") and not text_of(Coda.small_numbers(false, true)).contains("14 號"), "plate 14's residual returns only if it was found")
 	check(text_of(Coda.small_numbers(false, true)).contains("也不等於證明") and text_of(Coda.small_numbers(false, false)).contains("沒有數字"), "tonight's numbers are small, not proof; no numbers is still a record")
@@ -89,6 +92,10 @@ func _test_kit_tones() -> void:
 	check(close_text.contains("也許。") and close_text.contains("你吹熄了燈"), "close bond ends with hesitation and lamp out")
 	check(warm_text.contains("Kit 一定會先問天空，再問底片"), "warm bond anticipates Kit's question")
 	check(warm_text.contains("你吹熄了燈"), "warm bond ends with lamp out")
+	var misread_text := text_of(Coda.kit_close("", 0, false, true))
+	check(misread_text.contains("和底片上的不一樣") and not misread_text.contains("只寫了底片上有的"), "a misread telegram does not receive truthful praise")
+	check(text_of(Coda.kit_close("", 0, true, true)).contains("寫得比底片上的多"), "overclaiming keeps precedence over misreading")
+	check(text_of(Coda.kit_close("", 0)).contains("只寫了底片上有的"), "a truthful telegram retains its existing line")
 
 
 func _new_main(prologue := false):
@@ -233,6 +240,28 @@ func _test_rules_before_viewer() -> void:
 	await process_frame
 
 
+func _test_unmeasured_usable_coda() -> void:
+	var chapter = await _new_main(true)
+	root.get_node("Story").kit_choice = 0
+	chapter.sim.open_shutter(199.0)
+	chapter.sim.accumulate(10.0, 0.0)
+	var plate: Dictionary = chapter.sim.close_shutter()
+	check(plate.usable and chapter.sim.combined().n == 0, "real exposure produces a usable plate left unmeasured")
+	chapter._telegram = 3  # CLOUD. NO RESULTS.
+	chapter._grade = Judgment.grade(chapter.sim, "none", "nostars")
+	check(chapter._grade.fit == 0, "no-results telegram is wrong when a usable plate was ignored")
+	chapter.phase = chapter.Phase.CODA
+	chapter.coda_step = chapter.CodaStep.LOUPE
+	chapter._interact("mentor_loupe")
+	var loupe_text := text_of(chapter.ui._seq)
+	check(loupe_text.contains("沒有拿去量") and not loupe_text.contains("一片灰"), "main passes usable plates into Ashby's answer")
+	chapter._on_dialogue_done({})
+	var kit_text := text_of(chapter.ui._seq)
+	check(kit_text.contains("和底片上的不一樣") and not kit_text.contains("只寫了底片上有的"), "main passes the wrong non-confirmed telegram into Kit's close")
+	chapter.queue_free()
+	await process_frame
+
+
 func _test_replay_keeps_prologue_origin() -> void:
 	# Codex review (PR #12): a 1919 replay after the prologue must keep the coda and continuity.
 	var story = root.get_node("Story")
@@ -266,6 +295,7 @@ func _run() -> void:
 	_test_kit_tones()
 	await _test_rules_before_viewer()
 	await _test_direct_and_prologue_paths()
+	await _test_unmeasured_usable_coda()
 	await _test_replay_keeps_prologue_origin()
 	# Headless teardown: AudioServer releases the freed chapter's ambient playback
 	# asynchronously; drain it so exit does not report leaked AudioStreamWAV objects.
