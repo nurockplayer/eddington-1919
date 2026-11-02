@@ -458,13 +458,15 @@ func _test_cambridge_rain() -> void:
 			chapter.ui._choose(1)
 		else:
 			chapter.ui._advance()
-	await create_timer(3.2).timeout
-	check(not chapter.rain.playing, "Cambridge rain stops after the trial result")
-	check(chapter.rain_stopped, "Cambridge rain records the completed stop")
+	await create_timer(0.5).timeout
+	check(chapter.rain.playing and chapter.rain.volume_db < -22.0, "Cambridge rain fades after the trial result")
+	# A quick reader leaves mentor_after before the 3 s fade has finished.
 	_finish_test_dialogue(chapter)
-	while chapter.beat == chapter.Beat.CODA and chapter._busy:
+	while chapter.beat != chapter.Beat.CODA or chapter._busy:
 		await process_frame
-	check(not chapter.rain.playing, "Kit's night coda keeps the rain stopped")
+	check(not chapter.rain.playing and chapter.rain_stopped, "Kit's night coda starts with the rain stopped")
+	await create_timer(3.0).timeout
+	check(not chapter.rain.playing, "the killed fade does not bring the rain back")
 	await _drain_chapter_audio(chapter)
 	chapter.free()
 	await process_frame
