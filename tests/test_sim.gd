@@ -215,6 +215,9 @@ func _init() -> void:
 	var high = Sim.new(6)
 	high.plates = [{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 1.90, "sigma": 0.6}]
 	check(high.evidence_class() == "ambiguous" and not Judgment.trailed_case(high), "a high ambiguous value is not credited to trailing")
+	var high_line: Dictionary = Judgment.grade(high, "undecided", "trailed")
+	check(high_line.lines.any(func(l): return l.contains("星像確實拖長了")) and not high_line.lines.any(func(l): return l.contains("沒有拖長")),
+		"trailed plates with a high value are called trailed, not untrailed")
 	# Unchecked drive, low result, but the measured plates did not trail.
 	trail_case_sim.drive_rate_checked = false
 	for p in trail_case_sim.plates:
