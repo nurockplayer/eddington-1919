@@ -84,6 +84,24 @@
 | 普林西比夜晚寫在工作簿上的雨與雲 | FICTION，背景依史實 | 1919 年 5 月 29 日普林西比上午大雨、全食時隔著雲：依 Dyson, Eddington & Davidson（Phil. Trans. A 220, 1920）報告，經二手文獻轉引（原文未取得，見上）。文字不影響量測與評分。 |
 
 
+## Fonts
+
+The Traditional Chinese UI uses the existing system-font preference order
+(PingFang TC first) and a bundled Noto Sans TC Regular fallback, licensed under
+the SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
+
+- Official release: [Noto Sans CJK 2.004](https://github.com/notofonts/noto-cjk/releases/tag/Sans2.004).
+- Font download: https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/TC/NotoSansTC-Regular.otf
+- Bundled path: `assets/fonts/NotoSansTC-Regular.otf`; upstream version 2.004,
+  unchanged official static TC regional subset, 5,683,368 bytes (below 10 MB).
+- Font SHA-256: `5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537`.
+- Licence download: https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/LICENSE
+- Licence SHA-256: `6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2`.
+
+No game-specific subsetting was needed. `tests/test_fonts.gd` checks the bundled
+FontFile directly for every non-ASCII character in `scripts/**/*.gd`, so new
+text outside its coverage fails even on machines with Chinese system fonts.
+
 ## Score (M4)
 
 All six music cues are original, procedural compositions synthesized in repository GDScript (`scripts/audio/score.gd`), following [the Director’s M4 score specification](design/M4_SCORE.md). The harmonium uses additive oscillators and a low-pass response; the totality glass uses beating sine waves. The unresolved A3–D4–E4–F4 motif answers with F♯4 only in the coda.

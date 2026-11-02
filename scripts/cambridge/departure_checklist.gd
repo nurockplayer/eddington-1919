@@ -180,7 +180,7 @@ func _build() -> void:
 		plate_lines.append(plate_line)
 		var buttons: Array = []
 		for mark in [true, false]:
-			var button := _button("✓" if mark else "✗")
+			var button := _button("✓" if mark else "×")
 			button.disabled = true
 			button.pressed.connect(_mark.bind(i, mark))
 			row.add_child(button)

@@ -8,6 +8,7 @@ signal hint_requested
 signal sound(kind: String)  # flip / nudge / settle / mark, for the director's foley
 
 const MathModel = preload("res://scripts/cambridge/overlay_math.gd")
+const Fonts := preload("res://scripts/fonts.gd")
 const PAPER := Color(0.79, 0.785, 0.75)
 const PAPER_LIGHT := Color(0.88, 0.875, 0.84)
 const GLASS := Color(0.66, 0.74, 0.76)
@@ -39,8 +40,7 @@ var _root_panel: PanelContainer
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	_font = SystemFont.new()
-	(_font as SystemFont).font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "Source Han Sans TC", "sans-serif"])
+	_font = Fonts.cjk()
 	_build_ui()
 	visible = false
 
@@ -106,8 +106,8 @@ func _build_ui() -> void:
 	add_child(row)
 	buttons = {
 		"flip": _button("翻面"),
-		"left": _button("⟲　−0.5°"),
-		"right": _button("+0.5°　⟳"),
+		"left": _button("Q　−0.5°"),
+		"right": _button("+0.5°　E"),
 		"reset": _button("重設"),
 		"close": _button("關閉"),
 	}
