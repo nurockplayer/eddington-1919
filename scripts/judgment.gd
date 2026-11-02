@@ -156,6 +156,15 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		out.append("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。" % _nums(sel.included_unusable))
 	if sel.reselected:
 		out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
+	var good: Array = sim.plates.filter(func(p): return p.included and p.quality == "good")
+	if good.size() >= 2:
+		var c: Dictionary = sim.combined()
+		if good.all(func(p): return absf(p.value - c.value) <= 2.0 * c.sigma):
+			out.append("第 %s 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。" % _nums(good.map(func(p): return p.number)))
+	elif good.size() == 1:
+		out.append("只有一張好片——一張底片只能提出問題，還不能回答。")
+		if not sim.read_plan and good[0].get("duration", 0.0) >= 10.0:
+			out.append("曝光計畫上寫著：一個晴窗，兩張短片勝過一張長片。")
 	if rule != "strict" and clean and sim.included_usable().size() > 0:
 		out.append("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。")
 	return out
