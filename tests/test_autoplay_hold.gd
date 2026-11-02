@@ -46,9 +46,7 @@ func _run() -> void:
 	Engine.max_fps = 60
 	Engine.time_scale = 1.0
 	# Let the audio thread release the ambient loop before tearing down the scene.
-	game.audio_amb.stop()
-	game.audio_click.stop()
-	game.audio_tick.stop()
+	game.stop_all_audio()
 	await create_timer(0.1).timeout
 	bot.queue_free()
 	game.queue_free()

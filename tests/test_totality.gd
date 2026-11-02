@@ -29,7 +29,8 @@ func _run() -> void:
 	_test_bands()
 	_test_strip_model()
 	await _test_sim_invariance()
-	_test_shutter_read()
+	await _test_shutter_read()
+	await _test_sfx_buffers()
 	await _test_callouts()
 	await _test_night_viewer()
 	print("%d checks, %d failures" % [checks, failures])
@@ -141,9 +142,7 @@ func _test_sim_invariance() -> void:
 					mismatch = "%s %s=%s vs %s" % [mismatch, key, str(a.get(key)), str(b.get(key))]
 			check(mismatch == "", "seed %d plate %d matches on every sim key%s" % [seed_, i + 1, mismatch])
 			check(a.get("sky_read", "") in ["clear", "mixed", "cloud", "brief"], "seed %d plate %d carries a hindsight band" % [seed_, i + 1])
-		game.audio_amb.stop()
-		game.audio_click.stop()
-		game.audio_tick.stop()
+		game.stop_all_audio()
 		game.queue_free()
 		await process_frame
 
@@ -166,14 +165,40 @@ func _test_shutter_read() -> void:
 	for i in 12:
 		game._process_totality(STEP)
 	game._toggle_shutter()
+	check(game._sfx_log == ["open", "close", "change"], "shutter logs open, close, then plate change")
 	var p: Dictionary = game.sim.plates[0]
 	check(p.has("sky_read"), "closed plate stores p.sky_read")
 	check(p.sky_read == Cues.sky_band(p.clear, p.duration), "sky_read comes from the clear fraction")
 	var want := Content.totality_read(p.sky_read)
 	check(want != "" and game.ui.toast.text.contains(want), "shutter toast appends Cottingham's read")
-	game.audio_amb.stop()
-	game.audio_click.stop()
-	game.audio_tick.stop()
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+
+
+func _test_sfx_buffers() -> void:
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	for name in ["open", "change", "third", "insects"]:
+		var sound: AudioStreamPlayer = game.get("audio_" + name)
+		check(sound.stream is AudioStreamWAV, "%s is a synthesized WAV" % name)
+		if not sound.stream is AudioStreamWAV:
+			continue
+		var wav: AudioStreamWAV = sound.stream
+		if name == "insects":
+			check(wav.loop_mode != AudioStreamWAV.LOOP_DISABLED, "insects WAV loops")
+		var peak := 0.0
+		for sample in game._sfx_samples[name]:
+			peak = maxf(peak, absf(sample))
+		var data := wav.data
+		for i in data.size() / 2:
+			peak = maxf(peak, absf(data.decode_s16(i * 2) / 32768.0))
+		check(peak <= 0.9, "%s source and decoded WAV peak <= 0.9" % name)
+	game._start_night_bed()
+	check(game.audio_insects.playing, "night bed starts playing")
+	check("insects" in game._sfx_log, "night bed logs insects")
+	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
 
@@ -366,9 +391,7 @@ func _test_callouts() -> void:
 		_step(game, log)
 	check(_count(log, "太陽西緣開始發亮——第三接觸快到了！") == 1, "third-contact warning uses the callout line")
 
-	game.audio_amb.stop()
-	game.audio_click.stop()
-	game.audio_tick.stop()
+	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
 
