@@ -77,6 +77,14 @@ Wave 5 (Fable-ranked, merged 2026-11-02 20:1x–22:1x JST):
 Bots unchanged: careful 4, rushed 0, cherry 3, prologue honest 4.
 Lesson: delete a worker branch only after its PR shows MERGED. A remote delete closed #99; it was restored at the same sha and reopened.
 Next from Fable's list: all five are done. Open: an ObjectDB leak cleanup, a composed darkroom-night cue (needs the Owner's ear), and a new design pass.
+Wave 6 (depth, Fable-ranked; merged 2026-11-02 22:2x – 2026-11-03 00:4x JST):
+- #102: the 1919 rule prompt recalls the player's 1917 exam answer (q1; `Story.exam`).
+- #104: the `conditions` plan card adds the drive's state to each darkroom plate note.
+- #103: the plan advises splitting a clear window of 14 s or more into two short plates (`Judgment.SPLIT_MIN_S`). Judgment says when good plates corroborate, each within its own 2σ of the good-only mean, and cautions on a single good plate.
+- #105: a fifth telegram reason, 「數值偏低，可能是儀器，不是星」. It is right only when the drive is unchecked, the evidence is favors_half or ambiguous, the mean trail is ≥ 0.35 and the value is < 1.75″. Every wrong case has its own true line. No bot route picks it; test_totality drives it through the real judgment path.
+- #106 follow-up: when nothing is measured.
+Oracle rounds caught 4 real logic bugs in #103/#105. Scores unchanged: careful 4, rushed 0, cherry 3, honest 4.
+test_coda's fade-timing checks can fail at load average > 20 (seen once at 26; reruns 80/0).
 Known noise: headless runs print 1–2 "ObjectDB instances leaked at exit" warnings (seen on main too); a cleanup candidate.
 Next candidates: the daylight interlude cue in 1917, a 1919 consequence for a missing core plan card, the ObjectDB leak cleanup, and the windowed look for #84 (Mon–Fri 09–15 JST).
 
