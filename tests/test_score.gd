@@ -427,9 +427,7 @@ func _check_totality_black_handoff() -> void:
 	var settle_deadline := Time.get_ticks_msec() + 1000
 	while main._busy and Time.get_ticks_msec() < settle_deadline:
 		await process_frame
-	for audio_player in [main.audio_amb, main.audio_click, main.audio_tick]:
-		if is_instance_valid(audio_player):
-			audio_player.stop()
+	main.stop_all_audio()
 	await create_timer(0.1).timeout # Drain headless audio callbacks before freeing the real scene.
 	main.queue_free()
 	await process_frame
