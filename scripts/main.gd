@@ -1233,6 +1233,7 @@ func _refresh_viewer() -> void:
 		var c: Dictionary = sim.combined()
 		if c.n > 0:
 			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″[/color]" % [c.value, c.sigma]
+			note += "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
 		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
 		if recall != "":
 			note += "\n" + recall

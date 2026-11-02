@@ -7,6 +7,7 @@ const Cues := preload("res://scripts/totality_cues.gd")
 const Content := preload("res://scripts/content.gd")
 const UI := preload("res://scripts/ui.gd")
 const Judgment := preload("res://scripts/judgment.gd")
+const Chart := preload("res://scripts/chart.gd")
 
 const STEP := 0.1                      # real seconds per scripted frame
 const GAME_STEP := STEP * Sim.TIME_SCALE   # 0.25 game-seconds per frame
@@ -441,6 +442,7 @@ func _test_callouts() -> void:
 # --------------------------------------------------------- 5. night viewer line
 
 func _test_viewer_note() -> void:
+	check(Chart.two_sigma_span(2.10, 0.20).is_equal_approx(Vector2(1.70, 2.50)), "chart span shows two sigma around the measured value")
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
@@ -458,11 +460,15 @@ func _test_viewer_note() -> void:
 		for i in 12:
 			game._process_totality(STEP)
 		game._toggle_shutter()
+	# Select one measurable plate so the combined-result note is exercised.
+	game.sim.plates[0].merge({"included": true, "usable": true, "value": 2.10, "sigma": 0.20}, true)
 	game._refresh_viewer()
 	check(not game.ui.viewer_note.text.contains("星像清楚"), "viewer note hides quality counts before measuring")
+	check(not game.ui.viewer_note.text.contains("兩倍誤差"), "viewer note hides the two-sigma criterion before measuring")
 	game.sim.measured = true
 	game._refresh_viewer()
 	check(game.ui.viewer_note.text.contains("星像清楚"), "viewer note shows quality counts after measuring")
+	check(game.ui.viewer_note.text.contains("兩倍誤差"), "viewer note explains the two-sigma criterion after measuring")
 	game.stop_all_audio()
 	game.queue_free()
 

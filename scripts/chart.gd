@@ -20,6 +20,10 @@ func _x(v: float, w: float) -> float:
 	return 60.0 + clampf(v, -0.4, X_MAX) / X_MAX * (w - 90.0)
 
 
+static func two_sigma_span(value: float, sigma: float) -> Vector2:
+	return Vector2(value - 2.0 * sigma, value + 2.0 * sigma)
+
+
 func _draw() -> void:
 	var w := size.x
 	var h := size.y
@@ -46,6 +50,13 @@ func _draw() -> void:
 		var r: Dictionary = rows[i]
 		var y := top + 16.0 + i * step
 		var col := Color(0.85, 0.82, 0.75) if not r.weak else Color(0.85, 0.5, 0.45)
+		var span := two_sigma_span(r.value, r.sigma)
+		var thin := Color(col, 0.45)
+		var x2_lo := _x(span.x, w)
+		var x2_hi := _x(span.y, w)
+		draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
+		draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
+		draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
 		var x0 := _x(r.value - r.sigma, w)
 		var x1 := _x(r.value + r.sigma, w)
 		draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
@@ -56,10 +67,17 @@ func _draw() -> void:
 	if combined.get("n", 0) > 0:
 		var y := top + 16.0 + rows.size() * step + 10.0
 		var c := Color(1.0, 0.92, 0.6)
+		var span := two_sigma_span(combined.value, combined.sigma)
+		var thin := Color(c, 0.55)
+		var x2_lo := _x(span.x, w)
+		var x2_hi := _x(span.y, w)
+		draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.5)
+		draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.5)
+		draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.5)
 		var x0 := _x(combined.value - combined.sigma, w)
 		var x1 := _x(combined.value + combined.sigma, w)
 		draw_line(Vector2(x0, y), Vector2(x1, y), c, 4.0)
 		var cx := _x(combined.value, w)
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
 		draw_string(font, Vector2(4, y + 5), "合併", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, c)
-		draw_string(font, Vector2(cx + 14, y - 10), "%.2f″ ± %.2f″" % [combined.value, combined.sigma], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, c)
+		draw_string(font, Vector2(cx + 14, y - 10), "%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）" % [combined.value, combined.sigma, span.x, span.y], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, c)
