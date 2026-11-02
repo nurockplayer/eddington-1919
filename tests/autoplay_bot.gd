@@ -7,6 +7,7 @@ extends Node
 ## Run: godot --path . -- --autoplay=careful --shots=/tmp/shots [--seed=N] [--speed=2]
 ## Scenarios: careful | rushed | cherry
 
+const Judgment := preload("res://scripts/judgment.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 
 static var runs := 0
@@ -416,7 +417,7 @@ func _night() -> void:
 			reason = 2
 		_:
 			tele = {"none": 3, "favors_e": 1, "ambiguous": 2, "favors_half": 2}[ev]
-			reason = {"none": 3, "favors_e": 0, "ambiguous": 1, "favors_half": 1}[ev]
+			reason = 4 if Judgment.trailed_case(main.sim) else {"none": 3, "favors_e": 0, "ambiguous": 1, "favors_half": 1}[ev]
 	await talk([tele, reason])
 	await _wait(0.5)
 	await talk()

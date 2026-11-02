@@ -167,7 +167,7 @@ func _init() -> void:
 	# Regressions from the 2026-10-19 Codex review.
 	var rs = Sim.new(3)
 	rs.plates = [
-		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 2.0, "sigma": 0.41},
+		{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.0, "value": 2.0, "sigma": 0.41},
 		{"number": 2, "usable": false, "quality": "unusable", "included": false, "value": 0.0, "sigma": 1.0},
 	]
 	var reasons: Array = Judgment.reasons_for(rs)
@@ -197,6 +197,34 @@ func _init() -> void:
 	]
 	var poor_none: Dictionary = Judgment.grade(poor_unmeasured, "none", "uncertain")
 	check(poor_none.lines[0].contains("可量的底片") and not poor_none.lines[0].contains("星點清楚的底片"), "'no results' describes poor but measurable plates without calling them clear")
+
+	var trail_case_sim = Sim.new(6)
+	trail_case_sim.drive_rate_checked = false
+	trail_case_sim.plates = [
+		{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
+		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
+	]
+	check(Judgment.grade(trail_case_sim, "undecided", "trailed").reason_ok, "unchecked drive and trailed low values support the instrument reason")
+	trail_case_sim.drive_rate_checked = true
+	var checked_trail: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
+	check(not checked_trail.reason_ok, "checked drive rejects the instrument reason for the same plates")
+	check(checked_trail.lines.any(func(line): return line.contains("走速校過了")), "checked drive explains why the instrument reason is rejected")
+	# Checked drive but a very long exposure still trails: the line must not deny the trail.
+	check(checked_trail.lines.any(func(line): return line.contains("是曝光太久，不是走速沒校")), "checked drive with trailed plates blames the exposure length")
+	# Trailing biases low; an ambiguous result above 1.75″ is not that bias.
+	var high = Sim.new(6)
+	high.plates = [{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 1.90, "sigma": 0.6}]
+	check(high.evidence_class() == "ambiguous" and not Judgment.trailed_case(high), "a high ambiguous value is not credited to trailing")
+	var high_line: Dictionary = Judgment.grade(high, "undecided", "trailed")
+	check(high_line.lines.any(func(l): return l.contains("星像確實拖長了")) and not high_line.lines.any(func(l): return l.contains("沒有拖長")),
+		"trailed plates with a high value are called trailed, not untrailed")
+	# Unchecked drive, low result, but the measured plates did not trail.
+	trail_case_sim.drive_rate_checked = false
+	for p in trail_case_sim.plates:
+		p.trail = 0.1
+	var untrailed: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
+	check(not untrailed.reason_ok and untrailed.lines.any(func(line): return line.contains("星像沒有拖長")),
+		"untrailed low plates reject the instrument reason and say the plates did not trail")
 
 	# Use real exposures from seed 7 for clean and contaminated selections.
 	var strict_clean := "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
@@ -231,8 +259,8 @@ func _init() -> void:
 	var foggy = Sim.new(6)
 	foggy.rule_id = "strict"
 	foggy.plates = [
-		{"number": 1, "usable": true, "quality": "good", "included": false, "value": 1.8, "sigma": 0.3},
-		{"number": 2, "usable": true, "quality": "poor", "included": true, "value": 1.2, "sigma": 0.6},
+		{"number": 1, "usable": true, "quality": "good", "included": false, "trail": 0.0, "value": 1.8, "sigma": 0.3},
+		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 1.2, "sigma": 0.6},
 	]
 	var broke := func(r: Dictionary) -> bool: return r.lines.any(func(l): return l.contains("違反了你自己寫下的規則"))
 	check(not broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate measured without a clear one is no violation")
