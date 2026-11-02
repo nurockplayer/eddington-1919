@@ -479,11 +479,30 @@ func _test_night_viewer() -> void:
 		{"number": 5, "start": 40.0, "duration": 6.0, "sunlit": false, "included": false, "usable": true, "sky_read": "mixed", "stars": 6, "quality": "poor"},
 	]
 	ui.open_viewer(plates, null, [null, null, null, null, null], false)
+	check(ui.viewer_sfx_log.is_empty(), "night viewer automatic selection is silent")
+	for name in ["plate", "mark", "measure"]:
+		var stream = ui._viewer_sfx[name].stream
+		check(stream is AudioStreamWAV, "%s viewer sound is a synthesized WAV" % name)
+		if not stream is AudioStreamWAV:
+			continue
+		check(stream.mix_rate == 22050, "%s viewer sound is 22050 Hz" % name)
+		var peak := 0.0
+		var data: PackedByteArray = stream.data
+		for i in data.size() / 2:
+			peak = maxf(peak, absf(data.decode_s16(i * 2) / 32768.0))
+		check(peak <= 0.8, "%s viewer sound peak <= 0.8" % name)
+		if name == "measure":
+			check(stream.get_length() >= 0.8 and stream.get_length() <= 1.0, "viewer measure sound lasts 0.8-1.0 seconds")
 	ui._select_plate(0, null)
+	ui.include_box.button_pressed = true
+	check(ui.viewer_sfx_log.back() == "mark", "including a plate sounds a pencil mark")
+	ui.measure_btn.pressed.emit()
+	check(ui.viewer_sfx_log.back() == "measure", "measuring sounds the micrometer")
 	check(ui.plate_info.text.contains(Content.totality_read_night("clear")), "night viewer shows the clear read")
 	check(ui.plate_info.text.contains("可辨識的星點：7 顆"), "night viewer shows seven visible stars")
 	check(not ui.plate_info.text.contains("星像清楚"), "night viewer hides good quality before measuring")
 	ui._select_plate(1, null)
+	check(ui.viewer_sfx_log.back() == "plate", "selecting a real plate sounds glass")
 	check(ui.plate_info.text.contains(Content.totality_read_night("brief")), "night viewer shows the brief read")
 	ui._select_plate(2, null)
 	check(not ui.plate_info.text.contains("拍攝時："), "sunlit plate has no read")
@@ -493,7 +512,11 @@ func _test_night_viewer() -> void:
 	check(not ui.plate_info.text.contains("星像清楚"), "night viewer does not label an unusable plate clear")
 	ui._select_plate(4, null)
 	check(not ui.plate_info.text.contains("拖長或被雲霧蓋住"), "night viewer hides poor quality before measuring")
+	ui._select_plate(-2, null)
+	check(ui.viewer_sfx_log.back() == "plate", "selecting the comparison plate sounds glass")
 	ui.set_viewer_locked(true)
+	ui.reselect_btn.pressed.emit()
+	check(ui.viewer_sfx_log.back() == "mark", "reselecting sounds a pencil mark")
 	ui._select_plate(0, null)
 	check(ui.plate_info.text.contains("星像清楚"), "night viewer shows good quality after measuring")
 	ui._select_plate(4, null)

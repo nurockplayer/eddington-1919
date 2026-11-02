@@ -75,6 +75,8 @@ var reselect_btn: Button
 var report_btn: Button
 var chart: Control
 var viewer_note: RichTextLabel
+var viewer_sfx_log: Array[String] = []
+var _viewer_sfx := {}
 
 var _seq: Array = []
 var _seq_i := 0
@@ -525,7 +527,11 @@ func _build_viewer(root: Control) -> void:
 	include_box.add_theme_font_size_override("font_size", 20)
 	include_box.add_theme_color_override("font_color", PAPER)
 	include_box.focus_mode = Control.FOCUS_NONE
-	include_box.toggled.connect(func(on): if _viewer_sel >= 0: plate_toggled.emit(_viewer_sel, on))
+	include_box.toggled.connect(func(on):
+		if _viewer_sel >= 0:
+			_viewer_sound("mark")
+			plate_toggled.emit(_viewer_sel, on)
+	)
 	mid.add_child(include_box)
 	# Right: chart + actions.
 	var right := VBoxContainer.new()
@@ -540,10 +546,16 @@ func _build_viewer(root: Control) -> void:
 	btns.add_theme_constant_override("separation", 10)
 	right.add_child(btns)
 	measure_btn = _button("量測所選底片")
-	measure_btn.pressed.connect(func(): measure_pressed.emit())
+	measure_btn.pressed.connect(func():
+		_viewer_sound("measure")
+		measure_pressed.emit()
+	)
 	btns.add_child(measure_btn)
 	reselect_btn = _button("重新選片")
-	reselect_btn.pressed.connect(func(): reselect_pressed.emit())
+	reselect_btn.pressed.connect(func():
+		_viewer_sound("mark")
+		reselect_pressed.emit()
+	)
 	btns.add_child(reselect_btn)
 	report_btn = _button("向 Eddington 報告 →")
 	report_btn.pressed.connect(func(): report_pressed.emit())
@@ -555,6 +567,8 @@ func _build_viewer(root: Control) -> void:
 
 
 func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, locked: bool) -> void:
+	if _viewer_sfx.is_empty():
+		_build_viewer_sfx()
 	viewer.visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_viewer_plates = plates
@@ -569,9 +583,64 @@ func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, lock
 		thumbs.add_child(b)
 	set_viewer_locked(locked)
 	if plates.size() > 0:
-		_select_plate(0, textures[0])
+		_select_plate(0, textures[0], false)
 	else:
-		_select_plate(-2, comparison_tex)
+		_select_plate(-2, comparison_tex, false)
+
+
+static func _wav(samples: PackedFloat32Array, rate := 22050, loop := false) -> AudioStreamWAV:
+	var data := PackedByteArray()
+	data.resize(samples.size() * 2)
+	for i in samples.size():
+		data.encode_s16(i * 2, int(clampf(samples[i], -0.8, 0.8) * 32767.0))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = rate
+	wav.data = data
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD if loop else AudioStreamWAV.LOOP_DISABLED
+	wav.loop_end = samples.size()
+	return wav
+
+
+func _build_viewer_sfx() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1919
+	var rate := 22050
+	for name in ["plate", "mark", "measure"]:
+		var duration: float = {"plate": 0.22, "mark": 0.07, "measure": 0.9}[name]
+		var samples := PackedFloat32Array()
+		samples.resize(int(duration * rate))
+		var previous_noise := 0.0
+		for i in samples.size():
+			var t := float(i) / rate
+			match name:
+				"plate":
+					samples[i] = (0.38 * sin(TAU * 2900.0 * t) + 0.22 * sin(TAU * 4400.0 * t)) * exp(-25.0 * t) + 0.18 * sin(TAU * 120.0 * t) * exp(-40.0 * t)
+				"mark":
+					var noise := rng.randf_range(-1.0, 1.0)
+					samples[i] = 0.35 * (noise - previous_noise) * exp(-90.0 * t)
+					previous_noise = noise
+				"measure":
+					var click := i / 2205
+					var click_t := float(i % 2205) / rate
+					if click_t < 0.008:
+						var burst := 0.32 * rng.randf_range(-1.0, 1.0) + 0.25 * sin(TAU * 1600.0 * click_t)
+						samples[i] = burst * exp(-400.0 * click_t) * (1.2 if click == 8 else 1.0)
+		var player := AudioStreamPlayer.new()
+		player.stream = _wav(samples, rate)
+		player.volume_db = -18.0 if name == "measure" else -20.0
+		add_child(player)
+		_viewer_sfx[name] = player
+
+
+func _viewer_sound(name: String) -> void:
+	_viewer_sfx[name].play()
+	viewer_sfx_log.append(name)
+
+
+func _exit_tree() -> void:
+	for player in _viewer_sfx.values():
+		player.stop()
 
 
 func _thumb(tex: Texture2D, text: String) -> Button:
@@ -594,7 +663,9 @@ func refresh_thumbs() -> void:
 			kids[i + 1].text = "第 %d 號%s" % [_viewer_plates[i].number, " ✓" if _viewer_plates[i].included else ""]
 
 
-func _select_plate(i: int, tex: Texture2D) -> void:
+func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
+	if sound and (i >= 0 or i == -2):
+		_viewer_sound("plate")
 	_viewer_sel = i
 	big_plate.texture = tex
 	if i == -2:
@@ -636,7 +707,7 @@ func set_viewer_locked(locked: bool) -> void:
 	report_btn.disabled = not locked
 	include_box.disabled = locked
 	if _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size():
-		_select_plate(_viewer_sel, big_plate.texture)
+		_select_plate(_viewer_sel, big_plate.texture, false)
 
 
 func set_viewer_note(bb: String) -> void:
