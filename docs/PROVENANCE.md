@@ -104,6 +104,4 @@ text outside its coverage fails even on machines with Chinese system fonts.
 
 ## Score (M4)
 
-All six music cues are original, procedural compositions synthesized in repository GDScript (`scripts/audio/score.gd`), following [the Director’s M4 score specification](design/M4_SCORE.md). The harmonium uses additive oscillators and a low-pass response; the totality glass uses beating sine waves. The unresolved A3–D4–E4–F4 motif answers with F♯4 only in the coda.
-
-No samples, SoundFonts, external audio assets, downloaded or externally generated recordings, or third-party melodies are used. Audition WAVs are temporary outputs generated from this code and are not shipped source assets. The score is a fictional dramatic composition, not a reconstruction of music performed by the historical expedition.
+The in-engine score (`scripts/audio/score.gd`) is procedural. Three cues are rendered from CC0 sample libraries, and one historical recording is used; see [audio sources](audio/SOURCES.md) for details. The score is a fictional dramatic composition, not a reconstruction of music performed by the historical expedition.
