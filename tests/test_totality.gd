@@ -298,6 +298,9 @@ func _test_judgment_reasons() -> void:
 	game._start_judgment()
 	check(game.ui._seq[0].t.contains("兩倍誤差是 1.35″ 到 1.74″") and Judgment.interval_truth(game.sim) == 3 and game.sim.evidence_class() == "ambiguous",
 		"exact upper edge 1.7496 excludes 1.75 in the prompt, answer, and evidence class")
+	game.sim.measured = true
+	game._refresh_viewer()
+	check(game.ui.viewer_note.text.contains("1.35–1.74″"), "viewer note matches the judgment interval at the upper edge")
 	game.sim.plates = []
 	game._start_judgment()
 	check(game.ui._seq.map(func(line): return line.key) == ["telegram", "reason"], "real judgment skips the interval when nothing was measured")
