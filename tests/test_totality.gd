@@ -437,8 +437,9 @@ func _test_night_viewer() -> void:
 		{"number": 2, "start": 20.0, "duration": 0.4, "sunlit": false, "included": false, "usable": false, "sky_read": "brief"},
 		{"number": 3, "start": 24.0, "duration": 2.0, "sunlit": true, "included": false, "usable": false},
 		{"number": 4, "start": 30.0, "duration": 3.0, "sunlit": false, "included": false, "usable": false, "stars": 3, "quality": "unusable"},
+		{"number": 5, "start": 40.0, "duration": 6.0, "sunlit": false, "included": false, "usable": true, "sky_read": "mixed", "stars": 6, "quality": "poor"},
 	]
-	ui.open_viewer(plates, null, [null, null, null, null], false)
+	ui.open_viewer(plates, null, [null, null, null, null, null], false)
 	ui._select_plate(0, null)
 	check(ui.plate_info.text.contains(Content.totality_read_night("clear")), "night viewer shows the clear read")
 	check(ui.plate_info.text.contains("可辨識的星點：7 顆"), "night viewer shows seven visible stars")
@@ -451,9 +452,13 @@ func _test_night_viewer() -> void:
 	check(not ui.plate_info.text.contains("拍攝時："), "plate without a band has no read")
 	check(ui.plate_info.text.contains("[color=#e88]可辨識的星點：3 顆[/color]"), "night viewer warns about three visible stars")
 	check(not ui.plate_info.text.contains("星像清楚"), "night viewer does not label an unusable plate clear")
+	ui._select_plate(4, null)
+	check(not ui.plate_info.text.contains("拖長或被雲霧蓋住"), "night viewer hides poor quality before measuring")
 	ui.set_viewer_locked(true)
 	ui._select_plate(0, null)
 	check(ui.plate_info.text.contains("星像清楚"), "night viewer shows good quality after measuring")
+	ui._select_plate(4, null)
+	check(ui.plate_info.text.contains("可量，但星像拖長或被雲霧蓋住。") and not ui.plate_info.text.contains("星像清楚"), "night viewer explains a poor plate after measuring")
 	# A callout that has faded out releases its space in the panel.
 	ui.set_callout("測試提示", 0.5)
 	check(ui.callout.visible and ui.callout.text == "測試提示", "callout shows while active")
