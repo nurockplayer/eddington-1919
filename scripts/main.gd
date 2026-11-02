@@ -1244,8 +1244,8 @@ func _refresh_viewer() -> void:
 		note = "共 %d 張：星像清楚 %d、可量但有瑕疵 %d、星不足五顆 %d。\n已勾選 %d 張。" % [sim.plates.size(), good, poor, bad, sel]
 		var c: Dictionary = sim.combined()
 		if c.n > 0:
-			var span: Vector2 = Chart.two_sigma_span(c.value, c.sigma)
-			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]" % [c.value, c.sigma, span.x, span.y]
+			var b: Dictionary = Judgment.interval_bounds(sim)
+			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]" % [c.value, c.sigma, b.lo, b.hi]
 			note += "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
 		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
 		if recall != "":
