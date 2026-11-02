@@ -12,7 +12,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | A2 | Bundled CJK font | PARTIAL | `scripts/ui.gd:98`, `overlay_viewer.gd:43`, `departure_props.gd:43` use `SystemFont` names only; Linux/Deck have none → tofu | bundle Noto Sans TC (OFL) as the fallback after the system names; licence file in repo |
 | A3 | Credits screen | MISSING | `scripts/ui.gd:792` ending menu has no credits | credits from `docs/PROVENANCE.md`, `docs/audio/SOURCES.md`, `art/people/LICENSES.md`, Godot notice |
 | A4 | Licence notices complete and consistent | PARTIAL | `docs/PROVENANCE.md:91` says no external audio; `docs/audio/SOURCES.md:31–64` lists sampled cues | reconcile; one `THIRD_PARTY_NOTICES` shipped with the build, Godot licence included |
-| A5 | Settings: per-bus volume, fullscreen/window | PARTIAL | `scripts/ui.gd:879` music on/off only | master/music/SFX sliders + fullscreen toggle, saved in `user://settings.cfg` |
+| A5 | Settings: per-bus volume, fullscreen/window | DONE | [PR #115](https://github.com/nurockplayer/eddington-1919/pull/115): pause-menu master/music/SFX sliders + fullscreen button and F11; non-music players use SFX | saved in `user://settings.cfg`; music on/off preserved; headless window calls skipped; `tests/test_settings.gd` |
 | A6 | Gamepad + Steam Deck navigation | MISSING | `scripts/main.gd:205` keyboard/mouse actions only | joypad bindings for move/interact/dialogue/menus; UI focus navigation |
 | A7 | Text size option | PARTIAL | fixed font sizes (`theme_res.default_font_size = 21`) | small/normal/large scale on the theme |
 | A8 | Placeholder text on the player path | PARTIAL | `scripts/ui.gd:771` 「姓名暫定」 | resolve each placeholder; grep gate in a test |
