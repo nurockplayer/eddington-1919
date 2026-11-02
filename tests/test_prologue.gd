@@ -688,5 +688,7 @@ func _run() -> void:
 	await _test_cambridge_pause_restore()
 	await _test_cambridge_rain()
 	await _test_totality_log_suspension()
+	# Drain releases queued by the final chapter's teardown before AudioServer exits.
+	await create_timer(0.1).timeout
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
