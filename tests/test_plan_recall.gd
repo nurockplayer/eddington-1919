@@ -37,6 +37,8 @@ func _run() -> void:
 	for case in [[["conditions"], true, false, "沒有校過"], [["conditions"], true, true, "已對著天文鐘校過"],
 			[["comparison"], true, false, ""], [[], false, false, "沒有校過"], [[], false, true, "已對著天文鐘校過"]]:
 		await _check_drive(story, case[0], case[1], case[2], case[3])
+	for case in [[["far_stars"], true, true], [["comparison"], true, false], [[], false, false]]:
+		await _check_comparison_fetch(story, case[0], case[1], case[2])
 	story.reset()
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
@@ -99,3 +101,60 @@ func _check_drive(story: Node, plan: Array, played: bool, rate_checked: bool, ex
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
+
+
+func _check_comparison_fetch(story: Node, plan: Array, played: bool, needs_fetch: bool) -> void:
+	var label := "fetch plan %s played=%s" % [plan, played]
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	await process_frame
+	story.plan = plan.duplicate()
+	story.prologue_done = played
+	game.set_process(false)
+	game.ui.hide_title()
+	game.sim = Sim.new(1919)
+	# Exercise the real night handoff: the Oxford case must survive it.
+	if needs_fetch:
+		await game._begin_night()
+		_drain_dialogue(game)
+	else:
+		game.phase = game.Phase.NIGHT
+	game._refresh_objectives()
+	check(game.ui.objectives.text.contains("去拿牛津比對底片") == needs_fetch, "%s: fetch objective only when needed" % label)
+	game._interact("measure")
+	if needs_fetch:
+		check(game.ui._seq == Content.comparison_errand(), "%s: table shows the errand" % label)
+		check(game._pending == "" and game.sim.rule_id == "" and not game.ui.viewer.visible, "%s: no rules or viewer before fetching" % label)
+		_drain_dialogue(game)
+		# Stand on the open side of the observing table and use the player's real ray.
+		game.player.global_position = Vector3(-2.65, 0.05, -2.1)
+		game.player.look_at_point(Vector3(-2.65, 0.95, -3.45))
+		await physics_frame
+		await physics_frame
+		var target: Node = game.player.aimed_interactable()
+		check(target != null and target.get_meta("interact_id", "") == "oxford_case", "Oxford case remains reachable by the night interaction ray")
+		if target != null:
+			check(game._prompt_for("oxford_case", target) == "［E］看牛津比對底片", "night Oxford case has an interaction prompt")
+		game._interact("oxford_case")
+		check(game.ui._seq == Content.comparison_fetched(), "fetching shows the authored narration")
+		check(not game.ui.objectives.text.contains("去拿牛津比對底片"), "fetching clears the errand objective")
+		check(game.ui.objectives.text.contains("到測量桌檢視並量測底片"), "fetching restores the measuring objective")
+		check(story.plan == plan and game.sim.plates.is_empty(), "fetching preserves the plan and plate data")
+		_drain_dialogue(game)
+		game._interact("oxford_case")
+		check(game.ui._seq == Content.oxford_text(), "the errand happens only once")
+		_drain_dialogue(game)
+		game._interact("measure")
+	check(game._pending == "rules" and game.ui._seq == Content.rules_prompt(false), "%s: table reaches the rules prompt" % label)
+	check(not game.ui.viewer.visible, "%s: viewer waits for a rule choice" % label)
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+
+
+func _drain_dialogue(game: Node) -> void:
+	while game.ui.dialog_active():
+		if game.ui._seq[game.ui._seq_i].has("choices"):
+			game.ui._choose(0)
+		else:
+			game.ui._advance()
