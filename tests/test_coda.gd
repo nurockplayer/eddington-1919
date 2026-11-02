@@ -5,6 +5,7 @@ extends SceneTree
 const Coda := preload("res://scripts/content_coda.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const MAIN_PATH := "res://scripts/main.gd"
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 
 class GradeFixture extends RefCounted:
 	var evidence := "none"
@@ -109,10 +110,30 @@ func _test_direct_and_prologue_paths() -> void:
 	var direct = await _new_main()
 	check(not direct._came_from_departure, "direct entry caches a false prologue origin")
 	check(not story.prologue_done and not story.departure_done and not story.from_prologue, "direct entry clears stale prologue continuity")
+	direct.phase = direct.Phase.NIGHT
+	direct.world.lamp.light_energy = 1.1
+	direct.world.safelight.light_energy = 0.25
+	var starts_before := ScorePlayer.cue_log.filter(func(event): return event.get("event", "") == "start" and event.get("cue", "") == "coda_resolution").size()
 	direct._grade = {"title": "direct", "fit": 1, "clean": true, "lines": ["direct response"]}
 	direct._pending = "reaction"
 	direct._on_dialogue_done({})
-	check(direct.phase == direct.Phase.ENDING, "direct 1919 reaction proceeds straight to ending")
+	check(direct.phase != direct.Phase.ENDING and direct._busy, "direct reaction starts the lamp-out beat before ending")
+	await create_timer(0.2).timeout
+	check(direct.world.lamp.light_energy > 0.0 and direct.world.lamp.light_energy < 1.1, "direct reaction fades the darkroom lamp")
+	var direct_lamp_at_pause: float = direct.world.lamp.light_energy
+	direct.ui.log_toggled.emit(true)
+	await create_timer(0.2, true, false, true).timeout
+	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Tab log holds the direct lamp-out beat")
+	direct.ui.log_toggled.emit(false)
+	direct_lamp_at_pause = direct.world.lamp.light_energy
+	direct.ui.toggle_pause()
+	await create_timer(0.2, true, false, true).timeout
+	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Esc pause holds the direct lamp-out beat")
+	direct.ui.toggle_pause()
+	await create_timer(2.8).timeout
+	check(direct.phase == direct.Phase.ENDING, "direct lamp-out beat reaches ending")
+	var starts_after := ScorePlayer.cue_log.filter(func(event): return event.get("event", "") == "start" and event.get("cue", "") == "coda_resolution").size()
+	check(starts_after == starts_before + 1, "direct lamp-out and ending start coda_resolution exactly once")
 	check(direct.coda_step == direct.CodaStep.OPENING, "direct 1919 path never advances the coda")
 	check(direct.ui.ending_panel.visible and not direct.ui.ending_history.visible, "direct ending screen opens with history collapsed")
 	direct.queue_free()
