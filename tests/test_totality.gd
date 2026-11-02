@@ -422,9 +422,7 @@ func _test_viewer_note() -> void:
 	game.sim.measured = true
 	game._refresh_viewer()
 	check(game.ui.viewer_note.text.contains("星像清楚"), "viewer note shows quality counts after measuring")
-	game.audio_amb.stop()
-	game.audio_click.stop()
-	game.audio_tick.stop()
+	game.stop_all_audio()
 	game.queue_free()
 
 
