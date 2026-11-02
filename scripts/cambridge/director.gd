@@ -44,6 +44,8 @@ var _last_speaker := ""
 var score: Node
 var tick: AudioStreamPlayer
 var click: AudioStreamPlayer
+var _foley := {}  # light-box foley players by overlay sound kind
+var sfx_log: Array[String] = []
 
 
 func _ready() -> void:
@@ -101,6 +103,7 @@ func _ready() -> void:
 		if on: Story.clues["aligned"] = true)
 	overlay.hint_requested.connect(func(): ui.show_toast(C17.viewer_hint(state()), 7.0))
 	overlay.closed.connect(_viewer_closed)
+	overlay.sound.connect(_overlay_sound)
 	report_sheet.closed.connect(_resume)
 	report_sheet.submitted.connect(_submit_report)
 	plan_board.reaction.connect(func(seq): plan_board.hide(); _say(seq, "board_reaction"))
@@ -499,6 +502,47 @@ func _build_audio() -> void:
 		brown = clampf(brown + (randf() - 0.5) * 0.07, -1.0, 1.0) * 0.99
 		samples.append(brown * 0.4 + (randf() - 0.5) * 0.05)
 	_audio(samples, -21.0, true).play()
+	_build_foley()
+
+
+## Light-box foley: tracing paper turned over, the plate nudged on the glass, the
+## two star fields settling into register, a pencil tick at a found clue.
+func _build_foley() -> void:
+	var r := RandomNumberGenerator.new()
+	r.seed = 1917
+	var paper := PackedFloat32Array()
+	var crinkle := 0.0
+	for i in int(22050 * 0.38):
+		var t := i / 22050.0
+		if r.randf() < 0.02:
+			crinkle = r.randf_range(0.4, 1.0)
+		crinkle *= 0.995
+		var env := minf(t / 0.03, 1.0) * exp(-t * 7.0)
+		paper.append((r.randf() - 0.5) * (0.35 + crinkle) * env)
+	var nudge := PackedFloat32Array()
+	for i in int(22050 * 0.06):
+		var t := i / 22050.0
+		nudge.append(sin(t * TAU * 900.0) * exp(-t * 120.0) * 0.5 + (r.randf() - 0.5) * exp(-t * 300.0) * 0.3)
+	var settle := PackedFloat32Array()
+	for i in int(22050 * 0.45):
+		var t := i / 22050.0
+		var env := minf(t / 0.004, 1.0) * exp(-t * 11.0)
+		settle.append((sin(t * TAU * 2400.0) * 0.4 + sin(t * TAU * 3710.0) * 0.22) * env)
+	var mark := PackedFloat32Array()
+	var last := 0.0
+	for i in int(22050 * 0.07):
+		var t := i / 22050.0
+		var n := r.randf() - 0.5
+		mark.append((n - last) * exp(-t * 70.0) * 0.6)  # differenced noise: a dry graphite scratch
+		last = n
+	_foley = {"flip": _audio(paper, -16.0), "nudge": _audio(nudge, -24.0), "settle": _audio(settle, -20.0), "mark": _audio(mark, -17.0)}
+
+
+func _overlay_sound(kind: String) -> void:
+	var p: AudioStreamPlayer = _foley.get(kind)
+	if p:
+		p.play()
+		sfx_log.append(kind)
 
 
 ## A loop still playing when the scene is freed leaks its playback at exit.

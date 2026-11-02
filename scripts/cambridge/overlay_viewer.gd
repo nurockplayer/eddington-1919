@@ -5,6 +5,7 @@ signal clue_found(id: String)
 signal aligned_changed(on: bool)
 signal closed
 signal hint_requested
+signal sound(kind: String)  # flip / nudge / settle / mark, for the director's foley
 
 const MathModel = preload("res://scripts/cambridge/overlay_math.gd")
 const PAPER := Color(0.79, 0.785, 0.75)
@@ -213,12 +214,14 @@ func _gui_input(event: InputEvent) -> void:
 
 func _toggle_flip() -> void:
 	flipped = not flipped
+	sound.emit("flip")
 	_update_alignment()
 	queue_redraw()
 
 
 func _rotate(amount: float) -> void:
 	angle_deg += amount
+	sound.emit("nudge")
 	_update_alignment()
 	queue_redraw()
 
@@ -250,6 +253,8 @@ func _update_alignment() -> void:
 	if next != aligned:
 		aligned = next
 		aligned_changed.emit(aligned)
+		if aligned:
+			sound.emit("settle")
 	if is_instance_valid(_status_label):
 		if aligned:
 			_status_label.text = "17 個點重合了，還有 1 個沒有對上。"
@@ -281,6 +286,7 @@ func _found_clue(id: String) -> void:
 		return
 	_clues[id] = true
 	_record_progress_stage()
+	sound.emit("mark")
 	clue_found.emit(id)
 
 
