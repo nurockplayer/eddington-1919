@@ -159,8 +159,11 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 	var good: Array = sim.plates.filter(func(p): return p.included and p.quality == "good")
 	if good.size() >= 2:
 		var c: Dictionary = sim.combined()
-		if good.all(func(p): return absf(p.value - c.value) <= 2.0 * c.sigma):
-			out.append("第 %s 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。" % _nums(good.map(func(p): return p.number)))
+		# Each plate against its own error: more agreeing plates shrink the
+		# combined σ, and that must not turn agreement into disagreement.
+		if good.all(func(p): return absf(p.value - c.value) <= 2.0 * p.sigma):
+			var count := "兩張" if good.size() == 2 else "這 %d 張" % good.size()
+			out.append("第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。" % [_nums(good.map(func(p): return p.number)), count])
 	elif good.size() == 1:
 		out.append("只有一張好片——一張底片只能提出問題，還不能回答。")
 		if not sim.read_plan and good[0].get("duration", 0.0) >= 10.0:

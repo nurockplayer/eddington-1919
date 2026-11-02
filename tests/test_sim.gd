@@ -107,6 +107,15 @@ func _init() -> void:
 	var single := "只有一張好片——一張底片只能提出問題，還不能回答。"
 	var reminder := "曝光計畫上寫著：一個晴窗，兩張短片勝過一張長片。"
 	check(Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "two agreeing good plates corroborate with their plate numbers")
+	# Oracle on #103: a third agreeing plate shrinks the combined σ; agreement must survive it.
+	var trio = Sim.new(77)
+	trio.plates = [
+		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 1.40, "sigma": 0.3, "duration": 4.0},
+		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 2.10, "sigma": 0.3, "duration": 4.0},
+		{"number": 6, "usable": true, "quality": "good", "included": true, "value": 1.75, "sigma": 0.3, "duration": 4.0},
+	]
+	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4、6 號各自量，數字彼此對得上。這 3 張互相印證，比一張長片更難被說成巧合。"),
+		"three good plates within their own 2σ still corroborate")
 	pair.plates[1].value = 2.5
 	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "disagreeing good plates do not corroborate")
 	pair.plates[1].included = false
