@@ -25,6 +25,7 @@ var residual_found := false
 var kit_checked := false
 var report_done := false
 var viewer_opens := 0
+var orrery_seen := false
 var guess_offered := false
 var _pending := ""
 var _busy := true
@@ -113,7 +114,7 @@ func _ready() -> void:
 func state() -> Dictionary:
 	var result := Story.clues.duplicate(true)
 	result.merge({"aligned": aligned, "residual_found": residual_found, "kit_checked": kit_checked,
-		"report_done": report_done, "viewer_opens": viewer_opens}, true)
+		"report_done": report_done, "viewer_opens": viewer_opens, "orrery_seen": orrery_seen}, true)
 	return result
 
 
@@ -179,6 +180,8 @@ func _interact(id: String) -> void:
 			else:
 				_say(C17.kit_talk(state()), "")
 		_:
+			if id == "orrery":
+				orrery_seen = true
 			_say(C17.examine(id), "logbook" if id == "logbook" else "")
 
 
@@ -294,7 +297,7 @@ func _dialogue_done(results: Dictionary) -> void:
 				report_sheet.open(state(), Story.report)
 				_sync_player()
 				return
-			_say(C17.mentor_dyson(Story.report), "dyson")
+			_say(C17.mentor_dyson(Story.report, state()), "dyson")
 			return
 		"dyson":
 			_interlude()

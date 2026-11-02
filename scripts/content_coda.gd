@@ -46,6 +46,20 @@ static func ashby_answer(fit: int, clean: bool, measured_any: bool) -> Array:
 	return seq
 
 
+## Issue #37 loop 5 (proposal): the old small doubts come back beside tonight's numbers.
+## residual_found: the plate-14 residual was found in 1917. FICTION; claims no proof.
+static func small_numbers(residual_found: bool, measured_any: bool) -> Array:
+	var seq: Array = []
+	if residual_found:
+		seq.append({"s": YOU, "t": "（14 號底片上那一點極淡的白。兩年了，還是沒有人知道它是什麼。）"})
+	seq.append({"s": YOU, "t": "（Eddington 那個關緊的箱子。從裡面分不出來——所以才要到這裡，看太陽旁邊的星。）"})
+	if measured_any:
+		seq.append({"s": YOU, "t": "（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）"})
+	else:
+		seq.append({"s": YOU, "t": "（今晚什麼也沒量到。沒有數字，也是一筆紀錄。）"})
+	return seq
+
+
 ## bond_tone: "close" | "warm" (Story). Restrained; no confession, no letter.
 static func kit_close(bond_tone: String) -> Array:
 	var seq: Array = [{"s": YOU, "t": "（工作簿後面還有很多空白頁。回去的路還很長。）"}]

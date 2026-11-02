@@ -78,8 +78,21 @@ Windowed look 3 (orb-test #39, ran 2026-10-30 ~14:00 JST, 13 stills, sent to the
 - Diamond ring after #53's fix: the Moon is black and the bead burns. Good.
 - #67 fireflies: 5 cm sprites showed as single dim pixels. f34f36c makes them 16 cm, x2.2 over-bright, with longer blinks, plus a test (15/0). Oracle re-review is running; the PR stays a draft until a windowed look.
 
-Monday 2026-11-02 re-shoot (fireflies only, night group):
-- A session cron fires at 08:37 JST. Light prep: `orb-test --host -- bash <scratchpad>/look_prep.sh`, which merges main + art/fireflies and imports. Then the heavy shoot: `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`.
+New draft #69: shooting stars on the night after (meteors). The test passes 14/0. Oracle review started 2026-10-30 15:50 JST.
+
+#70 (Issue #37 loop 1, the orrery tells of Mercury's 43″) merged 2026-10-30 20:30 JST as e9ae232. It passed an oracle approve after a hotspot ray fix, and an integration run of #67, #69 and #70 (orb-test #48): GREEN, 22 suites and 6 e2e routes. #71 merged 2026-10-30 23:30 JST as bc436fd: once the player has examined the orrery, the mentor gives Mercury a fair hearing in two lines of the Dyson scene. e2e GREEN, prologue 278/0. Merged 2026-10-31 04:30 JST: #72, loop 2 (Eddington's closed box in the exam, 5 lines + 1 choice, 68e8f25), and #73, loop 3 (on departure night Ashby works the box again with light; no real box could show it, f9f6ab9).
+- Both were fact-checked by Sonnet: it is Einstein's own chest, pulled by a rope (1917 book); "lift" is avoided; the box gives no number, so 1.75″ stays with the full theory.
+- e2e GREEN, and each PR got an oracle approve after a minor test fix.
+- Loop 4 (eclipse predictions 0 / 0.87 / 1.75) was already in content.gd. Loop 5 merged 2026-10-31 11:45 JST as #74 (6f00d94). In the Príncipe coda, after the loupe, plate 14's residual (if it was found; read from Story.clues), Eddington's box and tonight's small numbers come back; none of them is called proof, and "no numbers is still a record".
+- e2e: the single `prologue honest` route, the only one that reaches the coda, ran light because the heavy queue was stuck behind a 7.5 h job.
+- All five #37 loops now exist in their smallest form. All are proposals; the next step is the Owner's reaction.
+
+New draft #75 (2026-10-31 13:00 JST): the departure-night sash shows the real north sky of 1919-03-07 21:00 GMT (Cassiopeia, Polaris, the Plough, with the pointers aimed at Polaris). Oracle approved head 6a5419c after a test fix (magnitude drives size and strength).
+
+State 2026-10-31 16:30 JST: nothing of edd-director is running. The 3 drafts #67, #69 and #75 all have an oracle approve on their current heads and wait only for the Monday windowed look. For each good one: `gh pr ready`, then `review-gate` (rerun once on "auto merge not allowed"). All 5 loops of #37 are merged as proposals and await the Owner's reaction.
+
+Monday 2026-11-02 re-shoot (night + departure groups: #67 fireflies, #69 meteors, #75 north sky; the stills `night_meteor` and `departure_window_stars`):
+- A session cron fires at 08:37 JST. Light prep: `orb-test --host -- bash <scratchpad>/look_prep.sh`, which merges main + art/fireflies + art/night-meteors + art/departure-north-sky and imports. Then the heavy shoot: `orb-test --heavy --host -- bash <scratchpad>/windowed_r3.sh <scratchpad>/look3`.
 - The shoot waits for 09:00 JST, quits after 15:00 JST, and deletes the worktree. If the session is gone, run both steps by hand.
 
 Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next item. A question to the Owner never blocks other items.
@@ -243,3 +256,17 @@ Update this file with the latest verified state, link to playable scene/build an
   - **Fact check:** a Sonnet 5.5 subagent checked the history used in the game.
   - **Review:** Codex (gpt-6-astra) ran a fresh, read-only review; its findings were fixed in `f107a85`.
   - **Not used:** gpt-6.1-sol, gpt-6-luna and haiku-5.5 were not used.
+
+## Music plan A (edd-director) | 2026-10-31 19:20 JST
+
+#76 merged on 2026-10-31. The Owner listened to the three cues and approved them. `cambridge_rain`, `departure_motif` and `coda_resolution` now play composed, sample-rendered OGGs (`assets/music/`). The totality layers stay synthesized, and the synthesis is the fallback when an OGG is missing. Decision: [D014](DECISIONS.md).
+- Levels are matched to the old synthesis RMS: −38.5 / −38.5 / −34 dB (`Score.SAMPLED_DB`).
+- Suites passed headless: test_score 105/0, test_departure 220/0, test_coda 73/0, and honest prologue autoplay reached ENDING with clean cue checks. The oracle review approved (0 blockers).
+- **Not run yet:** the full e2e (heavy window closed on the weekend). Run it Monday with the #67/#69/#75 integration run. Not verified: in-context listening against the rain bed (−38.5 dB may be too quiet; ask the Owner after a windowed run).
+- To re-render: `tools/music/setup_libs.sh` (libraries on KIOXIA `soundfonts/`), then `render_cambridge.sh` or `render_cue.sh <cue>`. Rendering is Python (`sfz_render.py`); sfizz was dropped. Follow-ups: #77 (pin the libraries, strict OGG checks, SFZ last-section bug).
+- The Owner listens from WAV copies in `~/Desktop/eddington-music/` (macOS cannot play OGG).
+- #78 merged 2026-10-31 (closes #77): libraries pinned, `check_cue.py --strict` gates renders (per-channel peak), SFZ EOF fix; cambridge loop re-rendered at peak 0.495 (−0.03 dB).
+- Music round 2 = draft PR #79 `feat/gramophone` (worktree ds-2): a 1915 Victor record ("Keep the Home-Fires Burning", LoC jukebox-15093, rights cleared, Sonnet fact-checked text) on a table-top gramophone by the east wall of the 1917 room; the score ducks while it plays. Suites: gramophone 55/0, prologue 280/0, departure 220/0, score 105/0, honest ENDING. **Monday 2026-11-02 09:00+ JST windowed look** (placement at (3.95,0,−0.25), silhouette, spin, record level −16 dB vs rain) → then review-gate (oracle approved head 246e9c4 on 2026-10-31 20:13 JST; its remaining major — real audio fade/stop on the montage — is exactly what the windowed look must hear). Spec: docs/design/GRAMOPHONE.md. Owner may comment on the 77 s trim (WAV on Desktop).
+- 2026-10-31 20:50 JST: the Monday shoot now covers the gramophone. `look_prep.sh` also merges `feat/gramophone` (merge-tree dry run: clean) and applies `gramophone_shots.patch` (two stills, `study_gramophone` placement + `study_gramophone_disc`, verified headless: view ready). `windowed_r3.sh` runs `--only=study,night,departure`. The patch lives in the scratchpad only, so PR #79's approved head 246e9c4 stays put. The fade/stop on the montage still needs ears in a played run, not stills.
+- 2026-11-02 04:40 JST (edd-director af055252, back in herdr w7:pA): two reboots (2026-11-01 ~12:20 JST and 2026-11-02 ~03:35 JST) lost the session crons and the scratchpad scripts. Rebuilt them on KIOXIA `eddington-1919-cache/director/` (`look_prep.sh`, `windowed_r4.sh`, `monday_chain.sh`; the gramophone stills are now an in-script edit of the temp tree, no patch file). Prep ran 04:34 JST: tree `/private/tmp/edd-look-r4` = main + #67 + #69 + #75 + #79, import ok, 16 views ready headless. Detached `monday_chain.sh` (log `monday_chain.log`) queues the heavy shoot at 08:45 JST → stills in `director/look4/` (one-off: delete after judging), then the characters lane's `c04_windowed_r4.sh` (its own chain died in the reboot). If the chain is gone: run `orb-test --heavy --host -- bash $D/windowed_r4.sh $D/look4` by hand (rerun `look_prep.sh` first if `/private/tmp/edd-look-r4` is missing).
+- Sessions: kept edd-director (w7:pA) and the characters lead (w7:pB). Closed the idle Asset Factory pane (b1d5a931, idle since 2026-10-25, waiting only on the Owner's Meshy approval for #15); resume with `claude --resume b1d5a931-5898-43ff-81f5-32c41e6ed600` from `.claude/worktrees/asset-factory-eddington-pilot-1822c7` when the Owner approves.

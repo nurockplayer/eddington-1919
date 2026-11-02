@@ -1,5 +1,7 @@
 # M4 — Original procedural score (Game Director spec)
 
+> **Superseded in part by [D014](../DECISIONS.md) (2026-10-31):** `cambridge_rain`, `departure_motif` and `coda_resolution` now ship as composed, sample-rendered OGGs (`tools/music/`). The totality layers and every musical rule below still apply, except hard rule 2 (no samples) and the 40% silence floor for `cambridge_rain` (now about 20%).
+
 Owner direction (2026-10-20): "an original procedural score (no external assets): Cambridge rain, totality tension, coda resolution. Keep it restrained."
 
 ## Intent

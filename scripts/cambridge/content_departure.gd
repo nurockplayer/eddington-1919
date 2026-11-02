@@ -130,6 +130,17 @@ static func mentor_farewell(slip_fix: int) -> Array:
 				[{"s": A, "t": "好。"}],
 				[{"s": A, "t": "貴重的是用它看見的東西。這個只是黃銅。"}],
 			]},
+		# Issue #37 loop 3 (proposal): the closed box again, now with light. FICTION: Ashby's own
+		# working. Physics: relative to an accelerating box, a light ray lands lower on the far wall;
+		# across a room the drop is far smaller than an atom, so no real box could show it.
+		{"s": A, "t": "Eddington 那個箱子，我後來又想了一次。這回在一面牆上開個小洞，讓一道光照進去。"},
+		{"s": A, "t": "箱子一直往上走，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"},
+		{"s": A, "t": "低多少？一個房間那麼寬，比一個原子還小得多。誰也看不見。",
+			"key": "light_box", "choices": ["「所以要用太陽。」", "「那就只是想像。」"],
+			"then": [
+				[{"s": A, "t": "對。要一個重得多的東西——太陽。讓星光擦著它的邊走過去。"}],
+				[{"s": A, "t": "到今天為止，是。所以你要去量。"}],
+			]},
 		{"s": A, "t": "我還是不信。你知道的。"},
 		{"s": A, "t": "可是我希望你帶回來的，是一張讓我不得不信、或者讓他不得不放棄的底片。哪一種都好——只要是乾淨的。"},
 		{"s": A, "t": "去看看吧。無論你看見什麼，都把它記下來。"},

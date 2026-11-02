@@ -103,6 +103,15 @@ static func examine(id: String) -> Array:
 			return [{"s": "底片櫃", "t": "淺淺的抽屜，一格一張底片。每一張都有編號、日期和墨水寫的備註。\n這裡沒有一張底片被丟掉過。"}]
 		"kit_ledger":
 			return [{"s": "%s的帳簿" % K, "t": "同一顆變星，一行一行的亮度估計，字跡工整得近乎固執。\n最新一頁的角落，畫著一個很小的問號。"}]
+		"orrery":
+			# Issue #37 loop 1 (proposal). HISTORICAL_RECORD: Neptune found 1846 from Le Verrier's
+			# prediction; Mercury's unexplained perihelion advance about 43″/century (Le Verrier 1859,
+			# Newcomb 1882/1895); intra-Mercurial planet searches never confirmed.
+			return [
+				{"s": "太陽系儀", "t": "黃銅做的小太陽系，發條帶著水星、金星、地球和火星各走各的路。\n照牛頓的引力算，行星兩百多年來幾乎都準時到場——海王星甚至是先在紙上算出來，才在望遠鏡裡找到的。"},
+				{"s": "太陽系儀", "t": "只有水星不太聽話。把其他行星的拉扯全都算進去，它的近日點每一百年還多往前挪了大約 43 角秒——差不多是一百多公尺外一枚硬幣的寬度。\n有人照海王星的先例，去找一顆更靠近太陽的行星，始終沒有確認找到。也有人懷疑是別的地方出了錯。"},
+				{"s": "太陽系儀", "t": "這台小機器的軌道是齒輪定死的，演不出那 43 角秒。\n[color=#b8ad98]——最可靠的算法，也留著一個對不上的小數字。[/color]"},
+			]
 		"notebook_before":
 			return [{"s": "你的工作筆記", "t": "等核對完，就在這裡寫下結果。"}]
 	return []
@@ -245,8 +254,8 @@ static func mentor_review(report: Dictionary) -> Array:
 	return seq
 
 
-static func mentor_dyson(_report: Dictionary) -> Array:
-	return [
+static func mentor_dyson(_report: Dictionary, state := {}) -> Array:
+	var seq: Array = [
 		{"s": A, "t": "好了。說點比 14 號更麻煩的事。"},
 		{"s": A, "t": "（把一本濕了邊的期刊放在桌上）皇家天文學會的月報。今年春天，皇家天文學家 Dyson 寫了一篇短文。"},
 		{"s": A, "t": "1919 年 5 月 29 日有一次日全食。那天，太陽會停在金牛座一片星場的前面——那裡的亮星，多得不尋常。"},
@@ -262,6 +271,14 @@ static func mentor_dyson(_report: Dictionary) -> Array:
 		{"s": A, "t": "他還提到一件事：上一次拿日食底片來比，底片因為用了平面鏡反射，整張是反的，得翻過來、膜面對膜面才比得了。"},
 		{"s": A, "t": "聽起來耳熟嗎？"},
 		{"s": A, "t": "我教了三十年牛頓。潮汐、行星、彗星回來的日子——它從來沒讓我失望過。要我為了一張日食底片改掉這些，那張底片得比這張桌上任何東西都乾淨。"},
+	]
+	if state.get("orrery_seen", false):
+		# Issue #37: the Newtonian knows Mercury's residual and weighs it fairly.
+		# HISTORICAL_RECORD: about 43″/century unexplained since Le Verrier (1859); no
+		# intra-Mercurial planet confirmed. FICTION: the mentor's view.
+		seq.append({"s": A, "t": "（瞥了一眼書架上的太陽系儀）你看過那台小東西了。好吧——水星例外。那 43 角秒，算了快六十年，還沒人說得清。"})
+		seq.append({"s": A, "t": "也許是一顆還沒找到的行星，也許是我們哪裡量錯了。可是一個小數字，還不夠讓我拆掉整棟房子。要拆，得有第二個、第三個，而且每一個都乾淨。"})
+	seq.append_array([
 		{"s": A, "t": "現在你告訴我。（拿起你的紙）如果日食那張底片上的星「移動」了——我們怎麼知道，那不是有人把底片放反、放斜了？",
 			"key": "bridge", "choices": ["……不知道。除非先把這些都排除掉。", "用離太陽很遠的星來檢查？", "（沉默）"],
 			"then": [
@@ -271,7 +288,8 @@ static func mentor_dyson(_report: Dictionary) -> Array:
 			]},
 		{"s": A, "t": "Eddington 前幾天問我，這棟樓裡誰的紀錄最乾淨。"},
 		{"s": A, "t": "我會把你這張紙轉給他。照原樣轉——寫錯的、劃掉的，全部。"},
-	]
+	])
+	return seq
 
 
 static func interlude_caption() -> String:
@@ -302,6 +320,21 @@ static func eddington_exam(report: Dictionary, _state: Dictionary) -> Array:
 		{"s": E, "t": "你不信什麼？"},
 		{"s": A, "t": "我不信一張在雲底下、在熱帶、在戰時拍的底片，能乾淨到讓我改掉牛頓。"},
 		{"s": E, "t": "我也不信。"},
+		# Issue #37 loop 2 (proposal): the closed box. HISTORICAL_RECORD: Einstein's chest in empty
+		# space, pulled up by a rope (popular book, 1917, ch. 20); Einstein's theory reached Eddington
+		# through de Sitter's 1916 MNRAS papers; the principle alone says light bends, not by how much.
+		# FICTION: this conversation. No "lift/elevator": a later label.
+		{"s": E, "t": "可是不信以前，得先弄懂他在說什麼。陪我想一件事。"},
+		{"s": E, "t": "想像你在一個關緊的箱子裡，沒有窗。你一鬆手，鉛筆掉到地板上。你在哪裡？",
+			"key": "box", "choices": ["箱子放在地上。", "箱子在空無一物的太空裡，被一直往上拉。", "……光看箱子裡面，分不出來。"],
+			"then": [
+				[{"s": E, "t": "也許。可是箱子要是在太空裡被一直往上拉，地板會迎上來接住鉛筆——裡面看起來一模一樣。"}],
+				[{"s": E, "t": "也許。可是放在地上的箱子裡，鉛筆也是這樣掉。"}],
+				[{"s": E, "t": "對。只看箱子裡面，分不出來。"}],
+			]},
+		{"s": E, "t": "愛因斯坦的理論就從這裡開始：既然分不出來，就把它們當成同一件事——至少在一個小箱子裡。"},
+		{"s": A, "t": "一個小箱子、一枝鉛筆。我教了三十年的潮汐，可不在小箱子裡。"},
+		{"s": E, "t": "所以不能只靠想。照這個想法，連光也逃不掉引力——日食那天，我們就去看光有沒有彎、彎了多少。"},
 		{"s": E, "t": "所以我想先把「乾淨」這兩個字，寫成一張清單。（把一張白紙放到桌子中間）你們兩位幫我寫。"},
 	]
 
