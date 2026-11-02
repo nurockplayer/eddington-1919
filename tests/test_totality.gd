@@ -31,6 +31,7 @@ func _run() -> void:
 	await _test_sim_invariance()
 	await _test_shutter_read()
 	await _test_sfx_buffers()
+	await _test_viewer_note()
 	await _test_callouts()
 	await _test_night_viewer()
 	print("%d checks, %d failures" % [checks, failures])
@@ -398,25 +399,64 @@ func _test_callouts() -> void:
 
 # --------------------------------------------------------- 5. night viewer line
 
+func _test_viewer_note() -> void:
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	game.sim = Sim.new(1919)
+	game.phase = game.Phase.TOTALITY
+	game.t_game = 0.0
+	game.plates_left = game.sim.plates_available()
+	game.change_left = 0.0
+	game._busy = false
+	game.tot_done = false
+	game._score_exposing = false
+	for plate in 2:
+		game.change_left = 0.0
+		game._toggle_shutter()
+		for i in 12:
+			game._process_totality(STEP)
+		game._toggle_shutter()
+	game._refresh_viewer()
+	check(not game.ui.viewer_note.text.contains("星像清楚"), "viewer note hides quality counts before measuring")
+	game.sim.measured = true
+	game._refresh_viewer()
+	check(game.ui.viewer_note.text.contains("星像清楚"), "viewer note shows quality counts after measuring")
+	game.stop_all_audio()
+	game.queue_free()
+
+
 func _test_night_viewer() -> void:
 	var ui = UI.new()
 	root.add_child(ui)
 	await process_frame
 	var plates := [
-		{"number": 1, "start": 10.0, "duration": 8.0, "sunlit": false, "included": false, "usable": true, "sky_read": "clear"},
+		{"number": 1, "start": 10.0, "duration": 8.0, "sunlit": false, "included": false, "usable": true, "sky_read": "clear", "stars": 7, "quality": "good"},
 		{"number": 2, "start": 20.0, "duration": 0.4, "sunlit": false, "included": false, "usable": false, "sky_read": "brief"},
 		{"number": 3, "start": 24.0, "duration": 2.0, "sunlit": true, "included": false, "usable": false},
-		{"number": 4, "start": 30.0, "duration": 3.0, "sunlit": false, "included": false, "usable": true},
+		{"number": 4, "start": 30.0, "duration": 3.0, "sunlit": false, "included": false, "usable": false, "stars": 3, "quality": "unusable"},
+		{"number": 5, "start": 40.0, "duration": 6.0, "sunlit": false, "included": false, "usable": true, "sky_read": "mixed", "stars": 6, "quality": "poor"},
 	]
-	ui.open_viewer(plates, null, [null, null, null, null], false)
+	ui.open_viewer(plates, null, [null, null, null, null, null], false)
 	ui._select_plate(0, null)
 	check(ui.plate_info.text.contains(Content.totality_read_night("clear")), "night viewer shows the clear read")
+	check(ui.plate_info.text.contains("可辨識的星點：7 顆"), "night viewer shows seven visible stars")
+	check(not ui.plate_info.text.contains("星像清楚"), "night viewer hides good quality before measuring")
 	ui._select_plate(1, null)
 	check(ui.plate_info.text.contains(Content.totality_read_night("brief")), "night viewer shows the brief read")
 	ui._select_plate(2, null)
 	check(not ui.plate_info.text.contains("拍攝時："), "sunlit plate has no read")
 	ui._select_plate(3, null)
 	check(not ui.plate_info.text.contains("拍攝時："), "plate without a band has no read")
+	check(ui.plate_info.text.contains("[color=#e88]可辨識的星點：3 顆[/color]"), "night viewer warns about three visible stars")
+	check(not ui.plate_info.text.contains("星像清楚"), "night viewer does not label an unusable plate clear")
+	ui._select_plate(4, null)
+	check(not ui.plate_info.text.contains("拖長或被雲霧蓋住"), "night viewer hides poor quality before measuring")
+	ui.set_viewer_locked(true)
+	ui._select_plate(0, null)
+	check(ui.plate_info.text.contains("星像清楚"), "night viewer shows good quality after measuring")
+	ui._select_plate(4, null)
+	check(ui.plate_info.text.contains("可量，但星像拖長或被雲霧蓋住。") and not ui.plate_info.text.contains("星像清楚"), "night viewer explains a poor plate after measuring")
 	# A callout that has faded out releases its space in the panel.
 	ui.set_callout("測試提示", 0.5)
 	check(ui.callout.visible and ui.callout.text == "測試提示", "callout shows while active")
