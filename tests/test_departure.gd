@@ -89,14 +89,36 @@ func _test_content_branches() -> void:
 	var dialogue: Array = [Content.opening(), Content.before_closing(), Content.sky_promise("close"), Content.sky_promise("warm"),
 		Content.slip_found(false, false), Content.slip_found(false, true),
 		Content.slip_found(true, false), Content.slip_found(true, true),
-		Content.mentor_farewell(0), Content.mentor_farewell(1), Content.principe_workbook("close"),
-		Content.principe_workbook("warm")]
+		Content.mentor_farewell(0), Content.mentor_farewell(1), Content.principe_workbook("close", []),
+		Content.principe_workbook("warm", []), Content.principe_workbook("warm", [{"sky_read": "clear"}])]
 	for entry in Content.check_entries():
 		dialogue.append(Content.kit_reads(entry))
 	for seq in dialogue:
 		_collect_text(seq, text)
 	for line in text:
 		check(not line.contains("喜歡你") and not line.contains("愛"), "departure dialogue contains no confession: %s" % line)
+
+
+## The workbook page records the sky this run had, not a fixed one.
+func _test_workbook_sky() -> void:
+	var clear := [{"sky_read": "cloud"}, {"sky_read": "clear"}]
+	var mixed := [{"sky_read": "mixed"}, {"sky_read": "brief"}]
+	var cloud := [{"sky_read": "cloud"}, {"sky_read": "brief"}, {}]
+	for tone in ["close", "warm"]:
+		check(_page(tone, clear).contains("日冕——像有人"), "a clear gap writes the corona line (%s)" % tone)
+		for plates in [mixed, cloud, []]:
+			check(not _page(tone, plates).contains("看得見日冕"), "no corona line without a clear gap (%s, %d plates)" % [tone, plates.size()])
+		check(_page(tone, mixed).contains("裂開一半"), "a half-thin gap is written as such (%s)" % tone)
+		check(_page(tone, cloud).contains("拍了 3 張"), "a clouded run counts its plates (%s)" % tone)
+		check(_page(tone, []).contains("一張底片也沒有拍成"), "no plates is written as no plates (%s)" % tone)
+	check(not _page("warm", []).contains("換底片"), "no plate change is remembered when none was made")
+	check(_page("warm", cloud).contains("換底片"), "the warm page keeps the plate change when plates were made")
+
+
+func _page(tone: String, plates: Array) -> String:
+	var out: Array[String] = []
+	_collect_text(Content.principe_workbook(tone, plates), out)
+	return "\n".join(out)
 
 
 func _test_checklist_logic() -> void:
@@ -293,6 +315,7 @@ func _run() -> void:
 	await process_frame
 	_test_content_branches()
 	_test_checklist_logic()
+	_test_workbook_sky()
 	await _test_checklist_controls()
 	await _test_story_persistence()
 	await _test_director_input_and_story()

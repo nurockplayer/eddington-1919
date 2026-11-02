@@ -682,7 +682,7 @@ func _interact(id: String) -> void:
 		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
 			_night_departure_workbook.call("open_workbook")
 			_focus_coda(_night_departure_workbook.global_position)
-			var seq: Array = CodaContent.workbook_again() if _departure_workbook_seen else DepartureContent.principe_workbook(Story.bond_tone)
+			var seq: Array = CodaContent.workbook_again() if _departure_workbook_seen else DepartureContent.principe_workbook(Story.bond_tone, sim.plates)
 			_departure_workbook_seen = true
 			_say(seq, "coda_workbook")
 		elif coda_step == CodaStep.LOUPE and id == "mentor_loupe":
@@ -711,7 +711,7 @@ func _interact(id: String) -> void:
 				if Story.departure_done and not _departure_workbook_seen:
 					_departure_workbook_seen = true
 					_night_departure_workbook.call("open_workbook")
-					_say(DepartureContent.principe_workbook(Story.bond_tone), "")
+					_say(DepartureContent.principe_workbook(Story.bond_tone, sim.plates), "")
 		return
 	if phase != Phase.PREP:
 		return
