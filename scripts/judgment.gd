@@ -38,12 +38,18 @@ const REASON_FIT := {
 }
 
 
+static func interval_bounds(sim) -> Dictionary:
+	var c: Dictionary = sim.combined()
+	return {"lo": snappedf(c.value - 2*c.sigma, 0.01), "hi": snappedf(c.value + 2*c.sigma, 0.01)}
+
+
 static func interval_truth(sim) -> int:
 	var c: Dictionary = sim.combined()
 	if c.n == 0:
 		return -1
-	var contains_e: bool = absf(c.value - sim.EINSTEIN) <= 2 * c.sigma
-	var contains_half: bool = absf(c.value - sim.HALF) <= 2 * c.sigma
+	var bounds := interval_bounds(sim)
+	var contains_e: bool = bounds.lo <= sim.EINSTEIN and sim.EINSTEIN <= bounds.hi
+	var contains_half: bool = bounds.lo <= sim.HALF and sim.HALF <= bounds.hi
 	if contains_e and contains_half:
 		return 0
 	if contains_e:

@@ -216,8 +216,9 @@ func _test_sfx_buffers() -> void:
 func _test_interval_truth() -> void:
 	var sim := Sim.new(1919)
 	check(Judgment.interval_truth(sim) == -1, "no measured plates means no interval answer")
-	# Both, full only, half only, neither; last two check inclusive 2σ edges.
-	for case in [[1.3, 0.3, 0], [1.75, 0.1, 1], [0.87, 0.1, 2], [3.0, 0.1, 3], [2.25, 0.25, 1], [1.25, 0.25, 0]]:
+	# All four answers, inclusive edges, and exact edges rounded onto either prediction.
+	for case in [[1.3, 0.3, 0], [1.75, 0.1, 1], [0.87, 0.1, 2], [3.0, 0.1, 3], [2.25, 0.25, 1], [1.25, 0.25, 0],
+		[1.5496, 0.1, 1], [1.9504, 0.1, 1], [0.6696, 0.1, 2], [1.0704, 0.1, 2]]:
 		sim.plates = [{"usable": true, "included": true, "value": case[0], "sigma": case[1]}]
 		check(Judgment.interval_truth(sim) == case[2], "interval %.2f ± %.2f has answer %d" % case)
 
@@ -262,6 +263,10 @@ func _test_judgment_reasons() -> void:
 	game._after_judgment({"interval": 1, "telegram": 1, "reason": 0})
 	check(game.ui._seq[0] == {"s": Content.E, "t": "對，範圍就是這樣讀的。"}, "correct interval answer is acknowledged first")
 	check(game._grade == original_grade, "correct interval answer leaves grading unchanged")
+	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.5496, "sigma": 0.1}]
+	game._start_judgment()
+	check(game.ui._seq[0].t.contains("兩倍誤差是 1.35″ 到 1.75″") and Judgment.interval_truth(game.sim) == 1,
+		"displayed 1.75 upper edge and accepted answer agree when the exact edge is 1.7496")
 	game.sim.plates = []
 	game._start_judgment()
 	check(game.ui._seq.map(func(line): return line.key) == ["telegram", "reason"], "real judgment skips the interval when nothing was measured")

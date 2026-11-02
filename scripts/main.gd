@@ -1300,7 +1300,8 @@ func _start_judgment() -> void:
 	var c: Dictionary = sim.combined()
 	var interval := ""
 	if c.n > 0:
-		interval = "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, c.value - 2*c.sigma, c.value + 2*c.sigma]
+		var bounds := Judgment.interval_bounds(sim)
+		interval = "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, bounds.lo, bounds.hi]
 	_say(Content.judgment_prompt(tele, rea, interval), "judgment")
 
 
