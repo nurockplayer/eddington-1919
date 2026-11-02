@@ -123,6 +123,20 @@ static func _reason_line(ev: String, reason_id: String, ok: bool) -> String:
 
 static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]:
 	var out: Array[String] = []
+	var rule: String = sim.get("rule_id") if sim.get("rule_id") != null else ""
+	match rule:
+		"strict":
+			# The rule bars plates under five stars, and poor plates only beside a clear one.
+			var with_good: bool = sim.plates.any(func(p): return p.included and p.quality == "good")
+			var violations: Array = (sel.included_poor if with_good else []) + sel.included_unusable
+			if not violations.is_empty():
+				out.append("你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號違反了你自己寫下的規則。" % _nums(violations))
+			elif clean and sim.included_usable().size() > 0:
+				out.append("你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。")
+		"after":
+			out.append("『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。")
+		"none":
+			out.append("沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。")
 	if sim.plates.is_empty():
 		return out
 	if not sel.omitted_good.is_empty():
@@ -133,7 +147,7 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		out.append("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。" % _nums(sel.included_unusable))
 	if sel.reselected:
 		out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
-	if clean and sim.included_usable().size() > 0:
+	if rule != "strict" and clean and sim.included_usable().size() > 0:
 		out.append("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。")
 	return out
 

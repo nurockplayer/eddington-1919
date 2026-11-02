@@ -698,7 +698,10 @@ func _interact(id: String) -> void:
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
-				_open_viewer()
+				if sim.rule_id == "":
+					_say(Content.rules_prompt(Story.plan.has("rules_first")), "rules")
+				else:
+					_open_viewer()
 			"eddington":
 				if sim.measured:
 					_start_judgment()
@@ -778,6 +781,9 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"eddington_prep":
 			if results.get("prep", -1) == 0:
 				_begin_totality()
+		"rules":
+			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
+			_open_viewer()
 		"judgment":
 			_after_judgment(results)
 		"reaction":

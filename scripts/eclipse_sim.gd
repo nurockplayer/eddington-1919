@@ -43,6 +43,7 @@ var plates: Array = []        # developed plate dictionaries, in exposure order
 var _open: Dictionary = {}    # exposure in progress
 
 # --- analysis/judgment state ------------------------------------------------
+var rule_id := ""
 var measured := false
 var reselected_after_seeing := false
 var measured_selection = null    # plate numbers included at the last measurement
