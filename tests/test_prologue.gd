@@ -442,32 +442,34 @@ func _test_cambridge_pause_restore() -> void:
 func _test_cambridge_rain() -> void:
 	var chapter = load("res://scripts/cambridge/director.gd").new()
 	root.add_child(chapter)
+	# Every wait is bounded: on a timeout the case fails and stops here.
 	# _ready() fades in and shows the caption (~3.5 s) before the opening dialogue.
-	var chapter_deadline := Time.get_ticks_msec() + 12000
-	while chapter._pending != "opening" and Time.get_ticks_msec() < chapter_deadline:
-		await process_frame
-	check(chapter._pending == "opening", "Cambridge reaches the opening dialogue within 12 s (chapter)")
+	if not await _rain_wait(chapter, func(): return chapter._pending == "opening", "Cambridge reaches the opening dialogue"):
+		return
 	check(chapter.rain.playing, "Cambridge rain plays before the daylight interlude")
 	_finish_test_dialogue(chapter)
 	chapter._say(C17.mentor_dyson({}, chapter.state()), "dyson")
 	_finish_test_dialogue(chapter)
-	while chapter.beat == chapter.Beat.INTERLUDE:
-		await process_frame
+	if not await _rain_wait(chapter, func(): return chapter.beat != chapter.Beat.INTERLUDE, "the daylight interlude ends"):
+		return
 	check(is_equal_approx(chapter.rain.volume_db, -30.0), "Cambridge daylight rain settles at -30 dB")
 	_finish_test_dialogue(chapter)
 	chapter._finish_plan(["comparison", "far_stars", "rules_first"])
 	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.
-	while chapter._pending in ["plan_finish", "trial"]:
+	var guard := 100
+	while chapter._pending in ["plan_finish", "trial"] and guard > 0:
+		guard -= 1
 		if not chapter.ui._choice_buttons.is_empty():
 			chapter.ui._choose(1)
 		else:
 			chapter.ui._advance()
+	check(guard > 0, "the plan and trial dialogue finish")
 	await create_timer(0.5).timeout
 	check(chapter.rain.playing and chapter.rain.volume_db < -22.0, "Cambridge rain fades after the trial result")
 	# A quick reader leaves mentor_after before the 3 s fade has finished.
 	_finish_test_dialogue(chapter)
-	while chapter.beat != chapter.Beat.CODA or chapter._busy:
-		await process_frame
+	if not await _rain_wait(chapter, func(): return chapter.beat == chapter.Beat.CODA and not chapter._busy, "Kit's night coda opens"):
+		return
 	check(not chapter.rain.playing and chapter.rain_stopped, "Kit's night coda starts with the rain stopped")
 	await create_timer(3.0).timeout
 	check(not chapter.rain.playing, "the killed fade does not bring the rain back")
@@ -478,10 +480,8 @@ func _test_cambridge_rain() -> void:
 	# A reader who stays in mentor_after: the fade's own callback stops the rain.
 	var slow = load("res://scripts/cambridge/director.gd").new()
 	root.add_child(slow)
-	var slow_deadline := Time.get_ticks_msec() + 12000
-	while slow._pending != "opening" and Time.get_ticks_msec() < slow_deadline:
-		await process_frame
-	check(slow._pending == "opening", "Cambridge reaches the opening dialogue within 12 s (slow)")
+	if not await _rain_wait(slow, func(): return slow._pending == "opening", "Cambridge reaches the opening dialogue (slow reader)"):
+		return
 	_finish_test_dialogue(slow)
 	slow._pending = "trial"
 	slow._dialogue_done({})
@@ -492,6 +492,20 @@ func _test_cambridge_rain() -> void:
 	await _drain_chapter_audio(slow)
 	slow.free()
 	await process_frame
+
+
+## Waits up to 12 s for cond. On a timeout it records the failure, frees the
+## chapter and returns false so the caller stops instead of hanging.
+func _rain_wait(chapter, cond: Callable, what: String) -> bool:
+	var deadline := Time.get_ticks_msec() + 12000
+	while not cond.call() and Time.get_ticks_msec() < deadline:
+		await process_frame
+	var ok: bool = cond.call()
+	check(ok, "%s within 12 s" % what)
+	if not ok:
+		chapter.free()
+		await process_frame
+	return ok
 
 
 func _finish_test_dialogue(chapter) -> void:
