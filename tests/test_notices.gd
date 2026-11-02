@@ -15,6 +15,8 @@ func check(ok: bool, message: String) -> void:
 
 func _initialize() -> void:
 	var notice := Notices.text()
+	check(notice.contains(Engine.get_license_text()), "notice contains verbatim engine licence")
+	check(notice.contains("Permission is hereby granted"), "notice contains MIT permission text")
 	for phrase in ["Godot", "SIL Open Font License", "Library of Congress", "CC0"]:
 		check(notice.contains(phrase), "notice contains " + phrase)
 	var config := ConfigFile.new()
