@@ -14,11 +14,11 @@ if grep -Eq '(^|/)(assets/licensed|tests)/' <<<"$entries"; then
   exit 1
 fi
 
-# Inspect the pack in an empty resource root so checkout files cannot mask omissions.
+# Locate the separate PCK bundled inside the macOS app and parse its directory.
 scratch=$(mktemp -d "$PWD/build/release-check.XXXXXX")
 trap 'rm -rf "$scratch"' EXIT
-pack=$(grep -E '\.pck$' <<<"$entries")
-[[ -n "$pack" && "$pack" != *$'\n'* ]] || { echo 'Expected one PCK in release ZIP' >&2; exit 1; }
+pack=$(grep -E '(^|/)[^/]+\.app/Contents/Resources/[^/]+\.pck$' <<<"$entries" || true)
+[[ -n "$pack" && "$pack" != *$'\n'* ]] || { echo 'Expected one PCK inside .app/Contents/Resources in release ZIP' >&2; exit 1; }
 unzip -p "$archive" "$pack" >"$scratch/release.pck"
 godot --headless --path "$scratch" --script "$PWD/tools/check_release_pack.gd" -- "$scratch/release.pck"
 echo "Release package checked: $archive"

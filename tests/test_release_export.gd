@@ -18,6 +18,7 @@ func _initialize() -> void:
 	check(version == "0.3.0", "project defines release version")
 	check(project.get_value("application", "config/icon", "") == "res://icon.svg", "project defines SVG icon")
 	_test_icon()
+	_test_committed_icon()
 	var config := ConfigFile.new()
 	var error := config.load("res://export_presets.cfg")
 	check(error == OK, "export presets load")
@@ -26,6 +27,8 @@ func _initialize() -> void:
 		if not section.begins_with("preset.") or not section.trim_prefix("preset.").is_valid_int():
 			continue
 		presets += 1
+		if config.get_value(section, "platform", "") == "macOS":
+			check(config.get_value(section + ".options", "application/icon", "") == "res://assets/icon/icon_1024.png", "macOS preset uses committed PNG")
 		for key in ["application/short_version", "application/version"]:
 			check(config.get_value(section + ".options", key, "") == version, section + " " + key + " matches project version")
 		var filters := str(config.get_value(section, "exclude_filter", "")).split(",")
@@ -64,3 +67,26 @@ func _test_icon() -> void:
 			var luminance := 0.2126 * pixel.r + 0.7152 * pixel.g + 0.0722 * pixel.b
 			bright = bright or (pixel.a > 0.8 and luminance > 0.8)
 	check(bright, "2 o'clock bead has luminance > 0.8 within 20 SVG px at 32 px")
+
+
+func _test_committed_icon() -> void:
+	var image := Image.load_from_file("res://assets/icon/icon_1024.png")
+	check(image != null and image.get_size() == Vector2i(1024, 1024), "committed macOS icon is 1024 × 1024")
+	if image == null or image.get_size() != Vector2i(1024, 1024):
+		return
+	var centre := image.get_pixel(512, 512)
+	check(centre.a > 0.99 and maxf(centre.r, maxf(centre.g, centre.b)) < 0.04, "committed PNG Moon centre is opaque near-black")
+	var bead := Vector2(771.8, 362.0)
+	var bright := false
+	for y in range(342, 383):
+		for x in range(751, 793):
+			if Vector2(x + 0.5, y + 0.5).distance_to(bead) > 20.0:
+				continue
+			var pixel := image.get_pixel(x, y)
+			var luminance := 0.2126 * pixel.r + 0.7152 * pixel.g + 0.0722 * pixel.b
+			bright = bright or (pixel.a > 0.8 and luminance > 0.8)
+	check(bright, "committed PNG has a bright 2 o'clock bead")
+	var corner := image.get_pixel(0, 0)
+	var background := Color("101826")
+	var matches_background := absf(corner.r - background.r) < 0.01 and absf(corner.g - background.g) < 0.01 and absf(corner.b - background.b) < 0.01
+	check(corner.a < 0.01 or matches_background, "committed PNG corner is transparent or night-blue")
