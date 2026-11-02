@@ -98,8 +98,14 @@ static func calibration_recall(plan: Array, played: bool) -> String:
 	return "比例和方向，先用遠處的星校正過——那一條是 Eddington 補上的。"
 
 
-static func rules_prompt(planned: bool) -> Array:
+## exam_q1: the 1917 answer to "what would you have handed in without the 14" (-1: none).
+static func rules_prompt(planned: bool, exam_q1 := -1) -> Array:
 	var out: Array = []
+	match exam_q1:
+		0:
+			out.append({"s": "", "t": "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：交上差異，寫「原因未明」。）"})
+		1:
+			out.append({"s": "", "t": "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：照最像的那樣對齊，交上去。他說，猜沒有錯，只是要寫明是猜。）"})
 	if planned:
 		out.append({"s": "", "t": "（你想起 1917 年計畫板上那張卡：量之前，先寫下什麼樣的底片不能用。）"})
 	out.append({"s": E, "t": "量之前，先在記錄本上寫一句：哪些底片不納入？", "key": "rule", "choices": [
