@@ -84,6 +84,18 @@
 | 普林西比夜晚寫在工作簿上的雨與雲 | FICTION，背景依史實 | 1919 年 5 月 29 日普林西比上午大雨、全食時隔著雲：依 Dyson, Eddington & Davidson（Phil. Trans. A 220, 1920）報告，經二手文獻轉引（原文未取得，見上）。文字不影響量測與評分。 |
 
 
+## App icon (A9)
+
+`icon.svg` is original project artwork, drawn as SVG in this repository without
+third-party art: a deep night-blue rounded square, black Moon, warm pale-gold
+corona, and a diamond-ring bead at two o'clock. It is an illustrative eclipse
+symbol, not a depiction of the clouded Príncipe observation.
+`tools/render_icon.gd` uses Godot's `Image.load_svg_from_string` at native scale
+and `save_png` to generate the committed `assets/icon/icon_1024.png` for macOS.
+Rebuild with `orb-test --host -- godot --headless --path . --script res://tools/render_icon.gd`.
+`tests/test_release_export.gd` also renders a temporary 32 px PNG and checks the
+dark centre and bright bead, then removes it.
+
 ## Fonts
 
 The Traditional Chinese UI uses the existing system-font preference order
