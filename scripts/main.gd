@@ -765,7 +765,8 @@ func _interact(id: String) -> void:
 		match id:
 			"measure":
 				if sim.rule_id == "":
-					_say(Content.rules_prompt(Story.plan.has("rules_first")), "rules")
+					_say(Content.rules_prompt(Story.plan.has("rules_first"),
+						int(Story.exam.get("q1", -1)) if Story.prologue_done else -1), "rules")
 				else:
 					_open_viewer()
 			"eddington":

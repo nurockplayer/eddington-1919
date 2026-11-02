@@ -356,6 +356,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			_interlude()
 			return
 		"exam":
+			Story.exam = results.duplicate()
 			beat = Beat.PLAN
 			_say(C17.plan_intro(), "plan_intro")
 			return
