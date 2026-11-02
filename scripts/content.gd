@@ -80,6 +80,18 @@ static func night_intro(n_plates: int) -> Array:
 	]
 
 
+static func rules_prompt(planned: bool) -> Array:
+	var out: Array = []
+	if planned:
+		out.append({"s": "", "t": "（你想起 1917 年計畫板上那張卡：量之前，先寫下什麼樣的底片不能用。）"})
+	out.append({"s": E, "t": "量之前，先在記錄本上寫一句：哪些底片不納入？", "key": "rule", "choices": [
+		"星點不足五顆的不量；星像拖長或被雲霧蓋住的，不和清楚的平均。",
+		"先全部量，看了數字再決定留哪些。",
+		"不用先寫，看片子的時候自然知道。",
+	]})
+	return out
+
+
 static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
 	return [
 		{"s": E, "t": "我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？", "key": "telegram", "choices": telegrams},

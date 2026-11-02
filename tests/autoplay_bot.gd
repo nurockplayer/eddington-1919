@@ -365,6 +365,10 @@ func _night() -> void:
 	var id := await interact(m)
 	_log("night interact -> %s" % id)
 	await _frames(5)
+	if main.ui.dialog_active():
+		var rule := 1 if scenario == "rushed" else 0
+		await talk([rule])
+	await _frames(5)
 	if not main.ui.viewer.visible:
 		_log("viewer did not open; walking closer")
 		await walk([m + Vector3(-1.0, 0, 0)])

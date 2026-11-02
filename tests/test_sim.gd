@@ -151,6 +151,39 @@ func _init() -> void:
 	var poor_none: Dictionary = Judgment.grade(poor_unmeasured, "none", "uncertain")
 	check(poor_none.lines[0].contains("可量的底片") and not poor_none.lines[0].contains("星點清楚的底片"), "'no results' describes poor but measurable plates without calling them clear")
 
+	# Use real exposures from seed 7 for clean and contaminated selections.
+	var strict_clean := "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
+	var strict_dirty := "你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號違反了你自己寫下的規則。" % cloudy.number
+	var after_line := "『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。"
+	var none_line := "沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。"
+	var generic := "你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。"
+	for dirty in [false, true]:
+		good.included = true
+		cloudy.included = dirty
+		sim.rule_id = ""
+		var baseline: Dictionary = Judgment.grade(sim, "hopeful", "measured")
+		for rule in ["", "strict", "after", "none"]:
+			sim.rule_id = rule
+			var result: Dictionary = Judgment.grade(sim, "hopeful", "measured")
+			var expected: Array = [] if dirty or rule == "strict" else [generic]
+			match rule:
+				"strict":
+					if dirty:
+						expected.append(strict_dirty)
+					else:
+						expected.append(strict_clean)
+				"after":
+					expected.append(after_line)
+				"none":
+					expected.append(none_line)
+			var actual: Array = [generic, strict_clean, strict_dirty, after_line, none_line].filter(func(line): return result.lines.has(line))
+			check(actual == expected, "rule %s dirty=%s adds only its expected response" % [rule, dirty])
+			for field in ["score", "clean", "fit", "title"]:
+				check(result[field] == baseline[field], "rule %s dirty=%s preserves %s" % [rule, dirty, field])
+	# Legacy sims receive neither a rule response nor a missing-rule penalty.
+	sim.rule_id = ""
+	cloudy.included = false
+
 	# Every telegram × reason × evidence combination produces text.
 	for t in Judgment.TELEGRAMS:
 		for r in Judgment.REASONS:

@@ -200,6 +200,18 @@ func _test_direct_and_prologue_paths() -> void:
 	await process_frame
 
 
+func _test_rules_before_viewer() -> void:
+	var chapter = await _new_main()
+	chapter.phase = chapter.Phase.NIGHT
+	chapter._interact("measure")
+	check(chapter.ui.dialog_active() and not chapter.ui.viewer.visible, "night measurement asks for a rule before opening the viewer")
+	chapter._pending = "rules"
+	chapter._on_dialogue_done({"rule": 0})
+	check(chapter.sim.rule_id == "strict" and chapter.ui.viewer.visible, "finishing the rule dialogue records strict and opens the viewer")
+	chapter.queue_free()
+	await process_frame
+
+
 func _test_replay_keeps_prologue_origin() -> void:
 	# Codex review (PR #12): a 1919 replay after the prologue must keep the coda and continuity.
 	var story = root.get_node("Story")
@@ -231,6 +243,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 func _run() -> void:
 	_test_grade_branches()
 	_test_kit_tones()
+	await _test_rules_before_viewer()
 	await _test_direct_and_prologue_paths()
 	await _test_replay_keeps_prologue_origin()
 	# Headless teardown: AudioServer releases the freed chapter's ambient playback
