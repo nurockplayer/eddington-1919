@@ -1299,7 +1299,12 @@ func _start_judgment() -> void:
 	var tele := Judgment.TELEGRAMS.map(func(t): return t.text)
 	_reasons = Judgment.reasons_for(sim)
 	var rea := _reasons.map(func(r): return r.text)
-	_say(Content.judgment_prompt(tele, rea), "judgment")
+	var c: Dictionary = sim.combined()
+	var interval := ""
+	if c.n > 0:
+		var bounds := Judgment.interval_bounds(sim)
+		interval = "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, bounds.lo, bounds.hi]
+	_say(Content.judgment_prompt(tele, rea, interval), "judgment")
 
 
 func _after_judgment(results: Dictionary) -> void:
@@ -1307,6 +1312,13 @@ func _after_judgment(results: Dictionary) -> void:
 	_reason = results.get("reason", 1)
 	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
 	var seq := []
+	if results.has("interval"):
+		var truth := Judgment.interval_truth(sim)
+		var feedback := "對，範圍就是這樣讀的。"
+		if results.interval != truth:
+			var contains := ["範圍同時容得下 0.87″ 和 1.75″", "範圍只容得下 1.75″", "範圍只容得下 0.87″", "0.87″ 和 1.75″ 都不在範圍裡"]
+			feedback = "再看一次：%s。" % contains[truth]
+		seq.append({"s": Content.E, "t": feedback})
 	for l in _grade.lines:
 		seq.append({"s": Content.E, "t": l})
 	seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})

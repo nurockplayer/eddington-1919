@@ -38,6 +38,45 @@ const REASON_FIT := {
 }
 
 
+static func interval_bounds(sim) -> Dictionary:
+	var c: Dictionary = sim.combined()
+	var lo := ("%.2f" % (c.value - 2*c.sigma)).to_float()
+	var hi := ("%.2f" % (c.value + 2*c.sigma)).to_float()
+	for prediction in [sim.HALF, sim.EINSTEIN]:
+		var contained: bool = absf(c.value - prediction) / c.sigma <= 2.0
+		if contained:
+			if lo > prediction:
+				lo -= 0.01
+			if hi < prediction:
+				hi += 0.01
+		elif lo <= prediction and prediction <= hi:
+			# Keep an excluded prediction outside the displayed interval too.
+			if prediction < c.value:
+				lo = prediction + 0.01
+			else:
+				hi = prediction - 0.01
+	return {"lo": lo, "hi": hi}
+
+
+static func interval_truth(sim) -> int:
+	var c: Dictionary = sim.combined()
+	if c.n == 0:
+		return -1
+	var contains_e: bool = absf(c.value - sim.EINSTEIN) / c.sigma <= 2.0
+	var contains_half: bool = absf(c.value - sim.HALF) / c.sigma <= 2.0
+	if contains_e and contains_half:
+		return 0
+	if contains_e:
+		return 1
+	if contains_half:
+		return 2
+	return 3
+
+
+static func interval_holds_neither(sim) -> bool:
+	return interval_truth(sim) == 3
+
+
 static func reasons_for(sim) -> Array:
 	var reasons := REASONS.duplicate(true)
 	var c: Dictionary = sim.combined()
@@ -115,7 +154,10 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 				"favors_half":
 					out.append("「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。")
 				_:
-					out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。")
+					if interval_holds_neither(sim):
+						out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。")
+					else:
+						out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。")
 		"undecided":
 			match ev:
 				"favors_e":
@@ -125,7 +167,10 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 				"favors_half":
 					out.append("對。這幾張偏向較小的偏折，可是片子少、誤差大，還不能說什麼。我們照實說。")
 				_:
-					out.append("對。誤差範圍同時容得下兩種答案。我們照實說。")
+					if interval_holds_neither(sim):
+						out.append("對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。")
+					else:
+						out.append("對。誤差範圍同時容得下兩種答案。我們照實說。")
 		"none":
 			if any_usable:
 				if any_good:

@@ -34,6 +34,9 @@ func _run() -> void:
 	await _test_shutter_read()
 	await _test_sfx_buffers()
 	await _test_viewer_note()
+	_test_interval_truth()
+	_test_judgment_neither()
+	_test_judgment_prompt()
 	await _test_judgment_reasons()
 	await _test_birds_quiet()
 	await _test_callouts()
@@ -211,6 +214,59 @@ func _test_sfx_buffers() -> void:
 	await process_frame
 
 
+func _test_interval_truth() -> void:
+	var sim := Sim.new(1919)
+	check(Judgment.interval_truth(sim) == -1, "no measured plates means no interval answer")
+	check(not Judgment.interval_holds_neither(sim), "no measurements is not a neither-contained interval")
+	# Exact classification wins; adjust rounded bounds only when they would change it.
+	for case in [[1.3, 0.3, 0, "0.70", "1.90"], [1.75, 0.1, 1, "1.55", "1.95"], [0.87, 0.1, 2, "0.67", "1.07"],
+		[3.0, 0.1, 3, "2.80", "3.20"], [2.25, 0.25, 1, "1.75", "2.75"], [1.25, 0.25, 0, "0.75", "1.75"],
+		[1.5496, 0.1, 3, "1.35", "1.74"], [1.9504, 0.1, 3, "1.76", "2.15"], [0.6696, 0.1, 3, "0.47", "0.86"], [1.0704, 0.1, 3, "0.88", "1.27"],
+		[1.5504, 0.1, 1, "1.35", "1.75"], [1.9496, 0.1, 1, "1.75", "2.15"], [0.6704, 0.1, 2, "0.47", "0.87"], [1.0696, 0.1, 2, "0.87", "1.27"]]:
+		sim.plates = [{"usable": true, "included": true, "value": case[0], "sigma": case[1]}]
+		var truth := Judgment.interval_truth(sim)
+		check(truth == case[2], "interval %.4f ± %.2f has answer %d" % [case[0], case[1], case[2]])
+		check(sim.evidence_class() == ["ambiguous", "favors_e", "favors_half", "ambiguous"][truth], "interval truth agrees with evidence_class")
+		check(Judgment.interval_holds_neither(sim) == (truth == 3), "neither helper agrees with interval truth")
+		var bounds := Judgment.interval_bounds(sim)
+		var lo := "%.2f" % bounds.lo
+		var hi := "%.2f" % bounds.hi
+		check(lo == case[3] and hi == case[4], "displayed bounds preserve exact containment: %s to %s" % [lo, hi])
+		check((lo.to_float() <= sim.EINSTEIN and sim.EINSTEIN <= hi.to_float()) == (case[2] in [0, 1]), "displayed interval agrees about 1.75")
+		check((lo.to_float() <= sim.HALF and sim.HALF <= hi.to_float()) == (case[2] in [0, 2]), "displayed interval agrees about 0.87")
+
+
+func _test_judgment_neither() -> void:
+	var sim := Sim.new(1919)
+	sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 2.12, "sigma": 0.17}]
+	var neither := Judgment.grade(sim, "undecided", "uncertain")
+	check(neither.evidence == "ambiguous" and Judgment.interval_holds_neither(sim), "2.12 ± 0.17 is ambiguous with neither prediction contained")
+	check(neither.lines.any(func(line): return line.contains("都對不上")) and not neither.lines.any(func(line): return line.contains("同時容得下")), "neither-contained undecided response does not claim both fit")
+	var hopeful_neither := Judgment.grade(sim, "hopeful", "uncertain")
+	check(hopeful_neither.lines.has("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"), "neither-contained hopeful response names the distance from both predictions")
+	sim.plates[0].value = 1.3
+	sim.plates[0].sigma = 0.3
+	var both := Judgment.grade(sim, "undecided", "uncertain")
+	check(both.evidence == "ambiguous" and Judgment.interval_truth(sim) == 0, "both-contained interval is also ambiguous")
+	check(both.lines.has("對。誤差範圍同時容得下兩種答案。我們照實說。"), "both-contained undecided response keeps its original line")
+	var hopeful_both := Judgment.grade(sim, "hopeful", "uncertain")
+	check(hopeful_both.lines.has("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。"), "both-contained hopeful response keeps its original line")
+	check(both.score == neither.score and hopeful_both.score == hopeful_neither.score, "distinguishing neither from both leaves scores unchanged")
+
+
+func _test_judgment_prompt() -> void:
+	var tele := ["telegram"]
+	var reasons := ["reason"]
+	var plain := Content.judgment_prompt(tele, reasons)
+	check(plain.map(func(line): return line.key) == ["telegram", "reason"], "no interval skips the question")
+	var interval := "1.75″ ± 0.10″，兩倍誤差是 1.55″ 到 1.95″"
+	var prompt := Content.judgment_prompt(tele, reasons, interval)
+	check(prompt.map(func(line): return line.key) == ["interval", "telegram", "reason"], "interval question precedes telegram and reason")
+	check(prompt[0].s == Content.E and prompt[0].t == "先看你的數字：%s。兩倍誤差的範圍裡，容得下哪一個預測？" % interval, "Eddington asks about the formatted interval")
+	check(prompt[0].choices == ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"], "interval choices use truth index order")
+	check(prompt.slice(1) == plain, "telegram and reason prompts stay unchanged")
+
+
 func _test_judgment_reasons() -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -226,8 +282,25 @@ func _test_judgment_reasons() -> void:
 	check(game._reasons[4].text.contains("星像平均拖長 0.20"), "instrument reason quotes the mean included trail")
 	var c: Dictionary = game.sim.combined()
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
+	check(game.ui._seq[0].key == "interval" and game.ui._seq[0].t.contains("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, c.value - 2*c.sigma, c.value + 2*c.sigma]), "real judgment opens with the combined 2σ interval")
 	game._after_judgment({"telegram": 1, "reason": 0})
 	check(game._grade.reason_ok == Judgment.grade(game.sim, "hopeful", "measured").reason_ok, "judgment grades the stored measured reason")
+	var original_grade: Dictionary = game._grade.duplicate(true)
+	var original_reaction: Array = game.ui._seq.duplicate(true)
+	game._after_judgment({"interval": 0, "telegram": 1, "reason": 0})
+	check(game.ui._seq[0] == {"s": Content.E, "t": "再看一次：範圍只容得下 1.75″。"}, "wrong interval answer gets factual correction first")
+	check(game._grade.score == original_grade.score and game._grade == original_grade, "wrong interval answer leaves score and grading unchanged")
+	check(game.ui._seq.slice(1) == original_reaction, "correction precedes the unchanged grade lines and coda")
+	game._after_judgment({"interval": 1, "telegram": 1, "reason": 0})
+	check(game.ui._seq[0] == {"s": Content.E, "t": "對，範圍就是這樣讀的。"}, "correct interval answer is acknowledged first")
+	check(game._grade == original_grade, "correct interval answer leaves grading unchanged")
+	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.5496, "sigma": 0.1}]
+	game._start_judgment()
+	check(game.ui._seq[0].t.contains("兩倍誤差是 1.35″ 到 1.74″") and Judgment.interval_truth(game.sim) == 3 and game.sim.evidence_class() == "ambiguous",
+		"exact upper edge 1.7496 excludes 1.75 in the prompt, answer, and evidence class")
+	game.sim.plates = []
+	game._start_judgment()
+	check(game.ui._seq.map(func(line): return line.key) == ["telegram", "reason"], "real judgment skips the interval when nothing was measured")
 	# The fifth reason through the real judgment path (no bot route reaches it).
 	game.sim.drive_rate_checked = false
 	game.sim.plates = [

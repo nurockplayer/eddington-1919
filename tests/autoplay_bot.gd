@@ -418,7 +418,10 @@ func _night() -> void:
 		_:
 			tele = {"none": 3, "favors_e": 1, "ambiguous": 2, "favors_half": 2}[ev]
 			reason = 4 if Judgment.trailed_case(main.sim) else {"none": 3, "favors_e": 0, "ambiguous": 1, "favors_half": 1}[ev]
-	await talk([tele, reason])
+	if main.sim.combined().n > 0:
+		await talk([Judgment.interval_truth(main.sim), tele, reason])
+	else:
+		await talk([tele, reason])
 	await _wait(0.5)
 	await talk()
 

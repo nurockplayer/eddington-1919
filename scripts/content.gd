@@ -126,11 +126,15 @@ static func rules_prompt(planned: bool, exam_q1 := -1) -> Array:
 	return out
 
 
-static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
-	return [
+static func judgment_prompt(telegrams: Array, reasons: Array, interval := "") -> Array:
+	var out: Array = []
+	if interval != "":
+		out.append({"s": E, "t": "先看你的數字：%s。兩倍誤差的範圍裡，容得下哪一個預測？" % interval, "key": "interval", "choices": ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"]})
+	out.append_array([
 		{"s": E, "t": "我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？", "key": "telegram", "choices": telegrams},
 		{"s": E, "t": "根據什麼？", "key": "reason", "choices": reasons},
-	]
+	])
+	return out
 
 
 static func cottingham_coda(sim) -> String:
