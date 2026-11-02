@@ -8,6 +8,8 @@ const MAIN_PATH := "res://scripts/main.gd"
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 
 class GradeFixture extends RefCounted:
+	const EINSTEIN := 1.75
+	const HALF := 0.87
 	var evidence := "none"
 	var clean := true
 	var measured := false
