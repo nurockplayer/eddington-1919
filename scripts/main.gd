@@ -121,6 +121,7 @@ func _ready() -> void:
 		_add_departure_loupe(wb)
 	world.eddington.rotation.y = PI
 	player = Player.new()
+	player.step_surface = "earth"
 	player.position = Vector3(2.6, 0.05, 4.2)
 	add_child(player)
 	player.yaw = deg_to_rad(20)

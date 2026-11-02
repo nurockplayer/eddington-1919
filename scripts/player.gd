@@ -12,6 +12,11 @@ var can_look := true
 var yaw := 0.0
 var pitch := 0.0
 var _bob := 0.0
+var step_surface := "wood"
+var steps_taken := 0
+var _steps := {}
+var _step_player: AudioStreamPlayer
+var _step_rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
@@ -28,6 +33,57 @@ func _ready() -> void:
 	camera.near = 0.05
 	add_child(camera)
 	camera.make_current()
+	_step_rng.seed = 1919
+	for surface in ["wood", "earth"]:
+		_steps[surface] = []
+		for variant in 3:
+			_steps[surface].append(_synth_step(surface))
+	_step_player = AudioStreamPlayer.new()
+	_step_player.volume_db = -24.0
+	add_child(_step_player)
+
+
+func _synth_step(surface: String) -> AudioStreamWAV:
+	var rate := 22050
+	var duration := 0.14 if surface == "wood" else 0.18
+	var samples := PackedFloat32Array()
+	samples.resize(int(duration * rate))
+	var pitch := 97.5 * _step_rng.randf_range(0.92, 1.08)
+	var level := db_to_linear(_step_rng.randf_range(-2.0, 2.0))
+	var grain := _step_rng.randf_range(0.08, 0.16)
+	var noise := 0.0
+	for i in samples.size():
+		var t := float(i) / rate
+		var white := _step_rng.randf_range(-1.0, 1.0)
+		var sample: float
+		if surface == "wood":
+			# Low knock with a brighter, band-limited tap at the attack.
+			noise += 0.55 * (white - noise)
+			sample = level * (0.5 * sin(TAU * pitch * t) * exp(-30.0 * t)
+				+ 0.22 * noise * exp(-120.0 * t))
+		else:
+			noise += grain * (white - noise)
+			var envelope := 0.5 - 0.5 * cos(TAU * i / (samples.size() - 1))
+			sample = 0.7 * noise * envelope + 0.1 * sin(TAU * 70.0 * t) * exp(-35.0 * t)
+		samples[i] = clampf(sample, -0.8, 0.8)
+	return _wav(samples, rate)
+
+
+static func _wav(samples: PackedFloat32Array, rate: int) -> AudioStreamWAV:
+	var data := PackedByteArray()
+	data.resize(samples.size() * 2)
+	for i in samples.size():
+		data.encode_s16(i * 2, int(samples[i] * 32000.0))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = rate
+	wav.stereo = false
+	wav.data = data
+	return wav
+
+
+func _exit_tree() -> void:
+	_step_player.stop()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -67,8 +123,13 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -0.1
 	move_and_slide()
 	if input.length() > 0.1 and is_on_floor():
+		var previous_step := floori(_bob / PI)
 		_bob += delta * speed * 2.2
 		camera.position.y = 1.62 + sin(_bob) * 0.035
+		if floori(_bob / PI) > previous_step:
+			_step_player.stream = _steps[step_surface][_step_rng.randi_range(0, 2)]
+			_step_player.play()
+			steps_taken += 1
 	else:
 		camera.position.y = lerpf(camera.position.y, 1.62, delta * 8.0)
 
