@@ -215,6 +215,10 @@ func _init() -> void:
 	var high = Sim.new(6)
 	high.plates = [{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 1.90, "sigma": 0.6}]
 	check(high.evidence_class() == "ambiguous" and not Judgment.trailed_case(high), "a high ambiguous value is not credited to trailing")
+	var empty = Sim.new(6)
+	empty.plates = []
+	var empty_line: Dictionary = Judgment.grade(empty, "none", "trailed")
+	check(not empty_line.reason_ok and empty_line.lines.any(func(l): return l.contains("還沒有量出任何數字")), "with nothing measured the instrument reason gets no talk of numbers")
 	var high_line: Dictionary = Judgment.grade(high, "undecided", "trailed")
 	check(high_line.lines.any(func(l): return l.contains("星像確實拖長了")) and not high_line.lines.any(func(l): return l.contains("沒有拖長")),
 		"trailed plates with a high value are called trailed, not untrailed")

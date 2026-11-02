@@ -163,6 +163,8 @@ static func _reason_line(ev: String, reason_id: String, ok: bool, sim) -> String
 					return "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
 				return "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
 			# Unchecked drive: say what the measured plates actually show.
+			if ev == "none":
+				return "還沒有量出任何數字，談不上偏低，也就輪不到儀器來解釋。"
 			if _mean_trail(sim) >= 0.35:
 				return "星像確實拖長了——可是拖長只會把數字拉低，這個結果並沒有偏低。"
 			if ev in ["favors_half", "ambiguous"]:
