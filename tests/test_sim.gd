@@ -209,6 +209,12 @@ func _init() -> void:
 	var checked_trail: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
 	check(not checked_trail.reason_ok, "checked drive rejects the instrument reason for the same plates")
 	check(checked_trail.lines.any(func(line): return line.contains("走速校過了")), "checked drive explains why the instrument reason is rejected")
+	# Checked drive but a very long exposure still trails: the line must not deny the trail.
+	check(checked_trail.lines.any(func(line): return line.contains("是曝光太久，不是走速沒校")), "checked drive with trailed plates blames the exposure length")
+	# Trailing biases low; an ambiguous result above 1.75″ is not that bias.
+	var high = Sim.new(6)
+	high.plates = [{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 1.90, "sigma": 0.6}]
+	check(high.evidence_class() == "ambiguous" and not Judgment.trailed_case(high), "a high ambiguous value is not credited to trailing")
 	# Unchecked drive, low result, but the measured plates did not trail.
 	trail_case_sim.drive_rate_checked = false
 	for p in trail_case_sim.plates:

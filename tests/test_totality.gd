@@ -228,6 +228,16 @@ func _test_judgment_reasons() -> void:
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
 	game._after_judgment({"telegram": 1, "reason": 0})
 	check(game._grade.reason_ok == Judgment.grade(game.sim, "hopeful", "measured").reason_ok, "judgment grades the stored measured reason")
+	# The fifth reason through the real judgment path (no bot route reaches it).
+	game.sim.drive_rate_checked = false
+	game.sim.plates = [
+		{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
+		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
+	]
+	game._start_judgment()
+	game._after_judgment({"telegram": 2, "reason": 4})
+	check(game._grade.reason_ok and game._grade.lines.any(func(l): return l.contains("Cottingham 會記得")),
+		"choosing the instrument reason in the real dialogue is graded and answered")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame

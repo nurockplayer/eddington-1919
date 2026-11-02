@@ -54,11 +54,20 @@ static func reasons_for(sim) -> Array:
 static func trailed_case(sim) -> bool:
 	if sim.drive_rate_checked or sim.evidence_class() not in ["favors_half", "ambiguous"]:
 		return false
+	# Trailing biases the fit low; a value at or above 1.75″ is not that bias.
+	if sim.combined().value >= sim.EINSTEIN:
+		return false
+	return _mean_trail(sim) >= 0.35
+
+
+static func _mean_trail(sim) -> float:
 	var plates: Array = sim.included_usable()
+	if plates.is_empty():
+		return 0.0
 	var trail_sum := 0.0
 	for p in plates:
-		trail_sum += p.trail
-	return trail_sum / plates.size() >= 0.35
+		trail_sum += p.get("trail", 0.0)
+	return trail_sum / plates.size()
 
 
 static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
@@ -150,6 +159,8 @@ static func _reason_line(ev: String, reason_id: String, ok: bool, sim) -> String
 			return "可是你的底片上明明有五顆以上的星。"
 		"trailed":
 			if sim.drive_rate_checked:
+				if _mean_trail(sim) >= 0.35:
+					return "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
 				return "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
 			if ev in ["favors_half", "ambiguous"]:
 				return "你量的這幾張星像沒有拖長——偏差不是走速帶進來的。別替不合期望的結果先找好理由。"
