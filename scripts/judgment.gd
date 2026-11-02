@@ -38,6 +38,21 @@ const REASON_FIT := {
 }
 
 
+static func interval_truth(sim) -> int:
+	var c: Dictionary = sim.combined()
+	if c.n == 0:
+		return -1
+	var contains_e: bool = absf(c.value - sim.EINSTEIN) <= 2 * c.sigma
+	var contains_half: bool = absf(c.value - sim.HALF) <= 2 * c.sigma
+	if contains_e and contains_half:
+		return 0
+	if contains_e:
+		return 1
+	if contains_half:
+		return 2
+	return 3
+
+
 static func reasons_for(sim) -> Array:
 	var reasons := REASONS.duplicate(true)
 	var c: Dictionary = sim.combined()
