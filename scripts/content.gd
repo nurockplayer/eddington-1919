@@ -100,6 +100,17 @@ static func comparison_recall(plan: Array, played: bool) -> String:
 	return "（1917 年的計畫板上漏了它，是 Eddington 補在最下面的。）"
 
 
+static func comparison_errand() -> Array:
+	return [
+		{"s": E, "t": "等一下——比對片還在箱子裡。1917 年的板上漏了它，是我補上的；今晚由你去拿。"},
+		{"s": E, "t": "沒有它，這些星就沒有「原來的位置」可以比。"},
+	]
+
+
+static func comparison_fetched() -> Array:
+	return [{"s": "", "t": "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）"}]
+
+
 static func calibration_recall(plan: Array, played: bool) -> String:
 	if not played:
 		return ""

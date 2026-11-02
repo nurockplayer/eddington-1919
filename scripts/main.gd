@@ -49,6 +49,7 @@ var hold_id := ""
 var met_cottingham := false
 var plate_textures: Array = []
 var comparison_tex: Texture2D
+var _comparison_fetched := false
 var _tick_acc := 0.0
 var _warned_end := false
 var _glanced := false
@@ -695,6 +696,8 @@ func _prompt_for(id: String, n: Node) -> String:
 		match id:
 			"measure":
 				return "［E］檢視底片"
+			"oxford_case":
+				return "［E］看牛津比對底片"
 			"eddington":
 				return "［E］和 Eddington 說話"
 			"departure_workbook":
@@ -765,11 +768,21 @@ func _interact(id: String) -> void:
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
+				if _needs_comparison_fetch():
+					_say(Content.comparison_errand(), "")
+					return
 				if sim.rule_id == "":
 					_say(Content.rules_prompt(Story.plan.has("rules_first"),
 						int(Story.exam.get("q1", -1)) if Story.prologue_done else -1), "rules")
 				else:
 					_open_viewer()
+			"oxford_case":
+				if _needs_comparison_fetch():
+					_comparison_fetched = true
+					_say(Content.comparison_fetched(), "")
+					_refresh_objectives()
+				else:
+					_say(Content.oxford_text(), "")
 			"eddington":
 				if sim.measured:
 					_start_judgment()
@@ -881,6 +894,10 @@ func _on_dialogue_done(results: Dictionary) -> void:
 	_sync_player_input()
 
 
+func _needs_comparison_fetch() -> bool:
+	return Story.prologue_done and not Story.plan.has("comparison") and not _comparison_fetched
+
+
 func _refresh_objectives() -> void:
 	if phase == Phase.PREP:
 		var ok := func(b: bool) -> String: return "[color=#9c9]✓[/color]" if b else "□"
@@ -901,7 +918,9 @@ func _refresh_objectives() -> void:
 			objective = "拿起 Ashby 先生給的放大鏡"
 		ui.set_objectives("[b]夜晚・暗房[/b]\n□ " + objective if objective != "" else "")
 	elif phase == Phase.NIGHT:
-		if sim.measured:
+		if _needs_comparison_fetch():
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n□ 到測量桌檢視並量測底片")
+		elif sim.measured:
 			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷")
 		else:
 			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 到測量桌檢視並量測底片")
