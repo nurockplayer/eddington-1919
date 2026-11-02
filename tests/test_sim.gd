@@ -132,11 +132,20 @@ func _init() -> void:
 		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 2.0, "sigma": 0.41},
 		{"number": 2, "usable": false, "quality": "unusable", "included": false, "value": 0.0, "sigma": 1.0},
 	]
+	var reasons: Array = Judgment.reasons_for(rs)
+	check(reasons.map(func(r): return r.id) == Judgment.REASONS.map(func(r): return r.id), "reason ids retain their order")
+	check(reasons[0].text.contains("2.00″ ± 0.41″"), "measured reason quotes the combined value and sigma")
+	check(reasons[0].text.contains("（1 張）"), "measured reason quotes the included plate count")
+	check(reasons[1].text.contains("2.00″ ± 0.41″"), "uncertain reason quotes the combined value and sigma")
+	check(Judgment.grade(rs, "hopeful", "measured").reason_ok, "measured reason still fits 2.00±0.41")
 	check(rs.evidence_class() == "favors_e", "2.00±0.41 is favors_e, not ambiguous (%s)" % rs.evidence_class())
 	rs.plates[1].included = true
 	check(not Judgment.grade(rs, "hopeful", "measured").clean, "including an unusable plate is not a clean selection")
 	rs.plates[0].included = false
 	rs.plates[1].included = false
+	var empty_reasons: Array = Judgment.reasons_for(rs)
+	for i in Judgment.REASONS.size():
+		check(empty_reasons[i].text == Judgment.REASONS[i].text, "unmeasured reason %d retains the default text" % i)
 	check(not Judgment.grade(rs, "none", "nostars").reason_ok, "'no stars' is not accepted when a usable plate exists")
 	var good_unmeasured = Sim.new(4)
 	good_unmeasured.plates = [

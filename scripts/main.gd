@@ -1207,18 +1207,20 @@ func _on_report() -> void:
 var _grade: Dictionary
 var _telegram := 0
 var _reason := 0
+var _reasons: Array = []
 
 
 func _start_judgment() -> void:
 	var tele := Judgment.TELEGRAMS.map(func(t): return t.text)
-	var rea := Judgment.REASONS.map(func(r): return r.text)
+	_reasons = Judgment.reasons_for(sim)
+	var rea := _reasons.map(func(r): return r.text)
 	_say(Content.judgment_prompt(tele, rea), "judgment")
 
 
 func _after_judgment(results: Dictionary) -> void:
 	_telegram = results.get("telegram", 1)
 	_reason = results.get("reason", 1)
-	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, Judgment.REASONS[_reason].id)
+	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
 	var seq := []
 	for l in _grade.lines:
 		seq.append({"s": Content.E, "t": l})
@@ -1242,8 +1244,9 @@ func _show_ending() -> void:
 	player.can_look = false
 	ui.fade.color.a = 0.0
 	var c: Dictionary = sim.combined()
+	var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
 	var lines := []
-	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=26][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Judgment.TELEGRAMS[_telegram].text, Judgment.REASONS[_reason].text])
+	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=26][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text])
 	lines.append("[b]Eddington 的回應[/b]")
 	for l in _grade.lines:
 		lines.append("· " + l)
