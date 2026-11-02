@@ -227,6 +227,9 @@ func _run() -> void:
 			f.close()
 		else:
 			_log("restart seed differs=%s title_visible=%s" % [main.sim.run_seed != first_seed, main.ui.title_panel.visible])
+		# Drain stopped ambient playbacks before shutting down AudioServer.
+		main.stop_all_audio()
+		await get_tree().create_timer(0.1).timeout
 		get_tree().quit()
 		return
 	first_seed = main.sim.run_seed
@@ -475,4 +478,6 @@ func _finish() -> void:
 					ev.pressed = pressed
 					Input.parse_input_event(ev)
 				return
+	main.stop_all_audio()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit()

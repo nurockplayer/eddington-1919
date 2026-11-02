@@ -41,6 +41,8 @@ func _run() -> void:
 	await _test_birds_quiet()
 	await _test_callouts()
 	await _test_night_viewer()
+	# AudioServer releases stopped WAV playbacks asynchronously, after node teardown.
+	await create_timer(0.1).timeout
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
 
