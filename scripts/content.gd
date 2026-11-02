@@ -80,6 +80,24 @@ static func night_intro(n_plates: int) -> Array:
 	]
 
 
+## The 1917 plan board remembered in the darkroom; empty without the prologue.
+## A core card the player left off was added by Eddington at the bottom.
+static func comparison_recall(plan: Array, played: bool) -> String:
+	if not played:
+		return ""
+	if plan.has("comparison"):
+		return "（1917 年的計畫板上，這張比對片是你放上去的。）"
+	return "（1917 年的計畫板上漏了它，是 Eddington 補在最下面的。）"
+
+
+static func calibration_recall(plan: Array, played: bool) -> String:
+	if not played:
+		return ""
+	if plan.has("far_stars"):
+		return "比例和方向，先用遠處的星校正過——1917 年你寫進了計畫。"
+	return "比例和方向，先用遠處的星校正過——那一條是 Eddington 補上的。"
+
+
 static func rules_prompt(planned: bool) -> Array:
 	var out: Array = []
 	if planned:
