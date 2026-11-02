@@ -172,6 +172,7 @@ func _test_shutter_read() -> void:
 	check(p.sky_read == Cues.sky_band(p.clear, p.duration), "sky_read comes from the clear fraction")
 	var want := Content.totality_read(p.sky_read)
 	check(want != "" and game.ui.toast.text.contains(want), "shutter toast appends Cottingham's read")
+	check(game.plate_changed and game.change_left > 0.0, "closing a plate with holders left starts a remembered plate change")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
