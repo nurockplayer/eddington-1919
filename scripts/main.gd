@@ -1153,12 +1153,13 @@ func _refresh_viewer() -> void:
 	for p in sim.included_usable():
 		rows.append({"label": "第%d號" % p.number, "value": p.value, "sigma": p.sigma, "weak": p.quality != "good"})
 	ui.chart.set_data(rows, sim.combined(), sim.measured)
-	var good: int = sim.count_quality("good")
-	var poor: int = sim.count_quality("poor")
-	var bad: int = sim.count_quality("unusable")
 	var sel: int = sim.plates.filter(func(p): return p.included).size()
-	var note := "共 %d 張：星像清楚 %d、可量但有瑕疵 %d、星不足五顆 %d。\n已勾選 %d 張。" % [sim.plates.size(), good, poor, bad, sel]
+	var note := "共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。" % [sim.plates.size(), sel]
 	if sim.measured:
+		var good: int = sim.count_quality("good")
+		var poor: int = sim.count_quality("poor")
+		var bad: int = sim.count_quality("unusable")
+		note = "共 %d 張：星像清楚 %d、可量但有瑕疵 %d、星不足五顆 %d。\n已勾選 %d 張。" % [sim.plates.size(), good, poor, bad, sel]
 		var c: Dictionary = sim.combined()
 		if c.n > 0:
 			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″[/color]" % [c.value, c.sigma]

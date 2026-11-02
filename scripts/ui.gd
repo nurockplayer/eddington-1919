@@ -607,12 +607,21 @@ func _select_plate(i: int, tex: Texture2D) -> void:
 	include_box.disabled = _viewer_locked
 	var lines := []
 	lines.append("[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）" % [p.number, p.duration, int(p.start)])
+	if not p.sunlit and p.duration >= 0.5 and p.has("stars"):
+		var stars_line := "可辨識的星點：%d 顆" % p.stars
+		lines.append("[color=#e88]%s[/color]" % stars_line if p.stars < 5 else stars_line)
 	if not p.sunlit and p.get("sky_read", "") != "":
 		lines.append(Content.totality_read_night(p.sky_read))
 	if p.sunlit:
 		lines.append("[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]")
 	if p.duration < 0.5:
 		lines.append("[color=#e88]幾乎沒有曝光。[/color]")
+	if _viewer_locked:
+		match p.get("quality", ""):
+			"good":
+				lines.append("星像清楚。")
+			"poor":
+				lines.append("[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]")
 	if p.has("value") and _viewer_locked and p.included and p.usable:
 		lines.append("量得偏折：[b]%.2f″ ± %.2f″[/b]" % [p.value, p.sigma])
 	elif _viewer_locked and p.included and not p.usable:
