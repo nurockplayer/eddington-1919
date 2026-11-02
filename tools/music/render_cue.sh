@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 # Render one of the one-shot cues to assets/music/<cue>.ogg.
 #
-# departure_motif and coda_resolution do not loop: compose_cues.py writes the
+# departure_promise, departure_motif and coda_resolution do not loop: compose_cues.py writes the
 # MIDI, sfz_render.py / reed.py render the voices the cue uses, mix.py mixes
 # them with --oneshot (linear reverb tail, cut to the cue length, faded out),
 # oggenc encodes, then the strict check_cue.py --oneshot check runs.
 #
 # Needs tools/music/setup_libs.sh to have run once (the two sample libraries).
 # Scratch output stays in $WORK (default /private/tmp/edd-music-r2).
-# Usage: bash tools/music/render_cue.sh departure_motif|coda_resolution
+# Usage: bash tools/music/render_cue.sh departure_promise|departure_motif|coda_resolution
 set -euo pipefail
 
-CUE=${1:?usage: bash tools/music/render_cue.sh departure_motif|coda_resolution}
+CUE=${1:?usage: bash tools/music/render_cue.sh departure_promise|departure_motif|coda_resolution}
 CACHE=${EDD_SOUNDFONTS:-/Volumes/KIOXIA/eddington-1919-cache/soundfonts}
 WORK=${EDD_MUSIC_WORK:-/private/tmp/edd-music-r2}
 OUT=assets/music/$CUE.ogg
 
 case "$CUE" in
+    departure_promise) LENGTH=24.0 ;;
     departure_motif) LENGTH=10.5 ;;
     coda_resolution) LENGTH=16.5 ;;
     *) echo "unknown cue: $CUE" >&2; exit 1 ;;

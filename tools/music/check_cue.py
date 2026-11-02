@@ -12,7 +12,8 @@ RMS of the last 50 ms, which the fade-out is meant to bring under 0.002.
 With `--strict` the same numbers are checked against the limits the render
 scripts rely on and any violation exits 1: peak <= 0.5; a loop's seam step <=
 its p99 step; a one-shot's last-50 ms RMS <= 0.002; F#4/F4 <= 0.05 (F-sharp is
-coda-only, so coda_resolution is exempt); and, when `--expect-seconds` is
+coda-only, so coda_resolution is exempt). departure_promise has neither F4
+nor F#4, so it checks F#4/RMS <= 0.02 instead; and, when `--expect-seconds` is
 given, a duration within 0.01 s of it.
 
 Usage: uv run --with numpy python tools/music/check_cue.py
@@ -115,7 +116,14 @@ def main() -> None:
             violations.append(f"last-50ms rms {tail_rms:.6f} > 0.002")
     elif seam > p99:
         violations.append(f"seam |delta| {seam:.6f} > p99 {p99:.6f}")
-    if Path(args.path).stem != "coda_resolution":
+    if Path(args.path).stem == "departure_promise":
+        # This cue never states F natural either: F#4/F4 would compare two
+        # spectral-leakage values. Use the synthesis test's F#4/RMS limit.
+        ratio = fs4 / rms if rms > 0 else 0.0
+        print(f"F#4/RMS          {ratio:.6f}")
+        if ratio > 0.02:
+            violations.append(f"F#4/RMS {ratio:.6f} > 0.02")
+    elif Path(args.path).stem != "coda_resolution":
         ratio = fs4 / f4 if f4 > 0 else (float("inf") if fs4 > 0 else 0.0)
         if ratio > 0.05:
             violations.append(f"F#4/F4 {ratio:.4f} > 0.05")

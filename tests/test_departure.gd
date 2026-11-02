@@ -4,6 +4,7 @@ extends SceneTree
 
 const Content = preload("res://scripts/cambridge/content_departure.gd")
 const Checklist = preload("res://scripts/cambridge/departure_checklist.gd")
+const ScorePlayer = preload("res://scripts/audio/score_player.gd")
 
 var failures := 0
 var checks := 0
@@ -205,6 +206,7 @@ func _drain_dialogue(chapter, choices: Dictionary = {}) -> void:
 
 
 func _test_director_input_and_story() -> void:
+	ScorePlayer.cue_log.clear()
 	var story = root.get_node("Story")
 	story.bond_tone = "warm"
 	story.slip_fix = 0
@@ -268,6 +270,12 @@ func _test_director_input_and_story() -> void:
 	await _drain_dialogue(chapter, {"bond": 0, "promise": 0})
 	check(story.bond_tone == "close" and chapter.beat == chapter.Beat.FAREWELL,
 		"bond choice sets close tone and advances through promise")
+	var promise_request := -1
+	for i in ScorePlayer.cue_log.size():
+		var event: Dictionary = ScorePlayer.cue_log[i]
+		if event.event == "request" and event.cue == "departure_promise":
+			promise_request = i
+	check(promise_request >= 0, "bond choice requests departure_promise under the sky promise")
 	var date_label: Label3D = chapter.world.workbook.get_meta("date_label")
 	check(date_label.visible, "authored sky promise visibly opens the dated workbook page")
 	chapter.player.global_position = Vector3(0, 0, 5.0)
@@ -293,6 +301,16 @@ func _test_director_input_and_story() -> void:
 	while chapter.beat != chapter.Beat.MONTAGE and Time.get_ticks_msec() < deadline:
 		await process_frame
 	check(chapter.beat == chapter.Beat.MONTAGE, "unpausing resumes departure into montage")
+	var promise_stop := -1
+	var motif_request := -1
+	for i in ScorePlayer.cue_log.size():
+		var event: Dictionary = ScorePlayer.cue_log[i]
+		if event.event == "stop" and event.cue == "departure_promise":
+			promise_stop = i
+		if event.event == "request" and event.cue == "departure_motif":
+			motif_request = i
+	check(promise_stop > promise_request and motif_request > promise_stop,
+		"montage stops departure_promise before requesting departure_motif")
 	chapter.ui.toggle_pause()
 	var fade_alpha: float = chapter.ui.fade.color.a
 	await create_timer(1.1, true, false, true).timeout

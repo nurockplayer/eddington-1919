@@ -8,11 +8,13 @@ const SAMPLED_DIR := "res://assets/music/"
 const SAMPLED_DB := {
 	"cambridge_rain": -38.5,
 	"departure_motif": -38.5,
+	"departure_promise": -40.5,
 	"coda_resolution": -34.0,
 }
 const CUES := [
 	"cambridge_rain",
 	"departure_motif",
+	"departure_promise",
 	"totality_drone",
 	"totality_glass",
 	"totality_edge",
@@ -34,6 +36,7 @@ static func duration(cue: String) -> float:
 	match cue:
 		"cambridge_rain": return 56.0
 		"departure_motif": return 9.2
+		"departure_promise": return 24.0
 		"totality_drone", "totality_glass", "totality_edge": return 24.0
 		"coda_resolution": return 16.5
 	return 0.0
@@ -54,6 +57,7 @@ static func level_db(cue: String) -> float:
 		"cambridge_rain", "departure_motif", "totality_drone": return -30.0
 		"totality_glass": return -34.0
 		"totality_edge": return -32.0
+		"departure_promise": return -32.0
 		"coda_resolution": return -28.0
 	return -80.0
 
@@ -108,6 +112,7 @@ static func render(cue: String) -> PackedFloat32Array:
 	match cue:
 		"cambridge_rain": _render_cambridge(samples)
 		"departure_motif": _render_departure(samples)
+		"departure_promise": _render_promise(samples)
 		"totality_drone": _render_drone(samples)
 		"totality_glass": _render_glass(samples)
 		"totality_edge": _render_edge(samples)
@@ -134,6 +139,13 @@ static func _render_departure(out: PackedFloat32Array) -> void:
 	_add_motif(out, 0.25, false, 0.105, 1.5)
 	# A final gentle tail gives the one-shot statement a clear fade.
 	_fade_region(out, 7.0, 9.2, false)
+
+
+static func _render_promise(out: PackedFloat32Array) -> void:
+	_add_chord(out, 0.5, 17.5, ["D3", "A3"], 0.045)
+	_add_reed(out, 2.0, 4.0, "A3", 0.05, 0.9, 1.5)
+	_add_reed(out, 9.0, 5.0, "D4", 0.05, 0.9, 1.5)
+	_fade_region(out, 19.0, 24.0, false)
 
 
 static func _render_drone(out: PackedFloat32Array) -> void:
