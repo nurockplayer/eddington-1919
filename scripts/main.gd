@@ -40,6 +40,7 @@ var phase := Phase.TITLE
 var prep_left := PREP_S
 var t_game := 0.0                # totality clock, game-seconds
 var change_left := 0.0           # plate change in progress
+var plate_changed := false       # a plate change was made this run (the workbook remembers it)
 var plates_left := 0
 var tot_done := false
 var hold_t := 0.0
@@ -682,7 +683,7 @@ func _interact(id: String) -> void:
 		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
 			_night_departure_workbook.call("open_workbook")
 			_focus_coda(_night_departure_workbook.global_position)
-			var seq: Array = CodaContent.workbook_again() if _departure_workbook_seen else DepartureContent.principe_workbook(Story.bond_tone, sim.plates)
+			var seq: Array = CodaContent.workbook_again() if _departure_workbook_seen else DepartureContent.principe_workbook(Story.bond_tone, sim.plates, plate_changed)
 			_departure_workbook_seen = true
 			_say(seq, "coda_workbook")
 		elif coda_step == CodaStep.LOUPE and id == "mentor_loupe":
@@ -711,7 +712,7 @@ func _interact(id: String) -> void:
 				if Story.departure_done and not _departure_workbook_seen:
 					_departure_workbook_seen = true
 					_night_departure_workbook.call("open_workbook")
-					_say(DepartureContent.principe_workbook(Story.bond_tone, sim.plates), "")
+					_say(DepartureContent.principe_workbook(Story.bond_tone, sim.plates, plate_changed), "")
 		return
 	if phase != Phase.PREP:
 		return
@@ -896,6 +897,7 @@ func _toggle_shutter() -> void:
 		if plates_left > 0:
 			change_left = sim.PLATE_CHANGE_S
 			_sfx("change")
+			plate_changed = true
 	elif change_left > 0.0:
 		ui.show_toast("Eddington 還在換片……", 1.5)
 	elif plates_left <= 0:

@@ -161,19 +161,23 @@ static func montage() -> Array:
 
 
 ## 1919 night phase hook (text only; never alters measurement or score): the workbook's blank page.
-## plates: the run's developed plates (EclipseSim.plates). The page records the sky
-## this run actually had, read from Cottingham's band on each closed plate.
-static func principe_workbook(bond_tone: String, plates: Array) -> Array:
+## plates: the run's developed plates (EclipseSim.plates); plate_changed: a plate change
+## was actually made. The page says only what the run's exposures saw, read from
+## Cottingham's band on each plate the player closed (brief or unread plates say nothing
+## about the sky).
+static func principe_workbook(bond_tone: String, plates: Array, plate_changed: bool) -> Array:
 	var bands: Array = plates.map(func(p): return p.get("sky_read", ""))
-	var sky: String
+	var sky := "「早上下大雨。全食的時候，雲在太陽前面走。"
 	if "clear" in bands:
-		sky = "「早上下大雨。全食的時候，雲在太陽前面走。有幾秒，雲薄到看得見日冕——像有人在霧後面點了一盞燈。」"
+		sky += "有幾秒，雲薄到看得見日冕——像有人在霧後面點了一盞燈。」"
 	elif "mixed" in bands:
-		sky = "「早上下大雨。全食的時候，雲在太陽前面走。有一陣，雲裂開一半，透出一點光；日冕始終沒有露出來。」"
+		sky += "有一陣，雲裂開一半，透出一點光；日冕始終沒有露出來。」"
+	elif "cloud" in bands:
+		sky += "我們拍的每一張，都在雲後面。」"
 	elif not plates.is_empty():
-		sky = "「早上下大雨。全食的時候，雲一直沒有散開。我們拍了 %d 張底片，我不知道上面會留下什麼。」" % plates.size()
+		sky += "底片拍了 %d 張，我不知道上面會留下什麼。」" % plates.size()
 	else:
-		sky = "「早上下大雨。全食的時候，雲在太陽前面走。我一張底片也沒有拍成。」"
+		sky += "我一張底片也沒有拍成。」"
 	var seq: Array = [
 		{"s": "", "t": "（工作簿最後一頁。日期是 Kit 的字：1919 年 5 月 29 日。）"},
 		{"s": YOU, "t": "（你想了很久，只寫了幾行。）"},
@@ -181,8 +185,8 @@ static func principe_workbook(bond_tone: String, plates: Array) -> Array:
 	]
 	if bond_tone == "close":
 		seq.append({"s": "", "t": "「你說，要我自己抬頭看。我看了。」"})
-	elif plates.is_empty():
-		seq.append({"s": "", "t": "「我抬頭看了很久。」"})
-	else:
+	elif plate_changed:
 		seq.append({"s": "", "t": "「換底片的空檔，我還是抬頭看了一眼。」"})
+	else:
+		seq.append({"s": "", "t": "「我抬頭看了很久。」"})
 	return seq
