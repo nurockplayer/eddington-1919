@@ -44,6 +44,9 @@ var _last_speaker := ""
 var score: Node
 var tick: AudioStreamPlayer
 var click: AudioStreamPlayer
+var rain: AudioStreamPlayer
+var rain_stopped := false
+var _rain_fade: Tween
 var _foley := {}  # light-box foley players by overlay sound kind
 var sfx_log: Array[String] = []
 
@@ -366,6 +369,9 @@ func _dialogue_done(results: Dictionary) -> void:
 			return
 		"trial":
 			world.eddington.hide()
+			_rain_fade = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_STOP)
+			_rain_fade.tween_property(rain, "volume_db", -80.0, 3.0)
+			_rain_fade.tween_callback(_stop_rain)
 			_say(C17.mentor_after(Story.report), "mentor_after")
 			return
 		"mentor_after":
@@ -404,6 +410,7 @@ func _interlude() -> void:
 	_sync_player()
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_daylight = true
+	create_tween().set_pause_mode(Tween.TWEEN_PAUSE_STOP).tween_property(rain, "volume_db", -30.0, 2.0)
 	world.lamp.light_energy = 0.0
 	world.floor_bounce.light_energy = 1.0
 	world.floor_bounce.light_color = Color(0.73, 0.79, 0.85)
@@ -428,11 +435,20 @@ func _finish_plan(ids: Array) -> void:
 	_say(C17.plan_finish(Story.plan), "plan_finish")
 
 
+func _stop_rain() -> void:
+	if _rain_fade and _rain_fade.is_valid():
+		_rain_fade.kill()
+	rain.stop()
+	rain_stopped = true
+
+
 func _coda() -> void:
 	_busy = true
 	beat = Beat.CODA
 	_sync_player()
 	await ui.fade_to(1.0, 0.6).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+	# A quick reader can reach the night before the 3 s rain fade ends.
+	_stop_rain()
 	world.mentor.hide()
 	_daylight = false
 	world.lamp.light_energy = 1.5
@@ -501,7 +517,8 @@ func _build_audio() -> void:
 	for i in 22050 * 3:
 		brown = clampf(brown + (randf() - 0.5) * 0.07, -1.0, 1.0) * 0.99
 		samples.append(brown * 0.4 + (randf() - 0.5) * 0.05)
-	_audio(samples, -21.0, true).play()
+	rain = _audio(samples, -21.0, true)
+	rain.play()
 	_build_foley()
 
 
