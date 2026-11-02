@@ -34,6 +34,7 @@ func _run() -> void:
 	await _test_sfx_buffers()
 	await _test_viewer_note()
 	await _test_judgment_reasons()
+	await _test_birds_quiet()
 	await _test_callouts()
 	await _test_night_viewer()
 	print("%d checks, %d failures" % [checks, failures])
@@ -184,14 +185,14 @@ func _test_sfx_buffers() -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
-	for name in ["open", "change", "third", "insects"]:
+	for name in ["open", "change", "third", "insects", "surf", "birds"]:
 		var sound: AudioStreamPlayer = game.get("audio_" + name)
 		check(sound.stream is AudioStreamWAV, "%s is a synthesized WAV" % name)
 		if not sound.stream is AudioStreamWAV:
 			continue
 		var wav: AudioStreamWAV = sound.stream
-		if name == "insects":
-			check(wav.loop_mode != AudioStreamWAV.LOOP_DISABLED, "insects WAV loops")
+		if name in ["insects", "surf", "birds"]:
+			check(wav.loop_mode != AudioStreamWAV.LOOP_DISABLED, "%s WAV loops" % name)
 		var peak := 0.0
 		for sample in game._sfx_samples[name]:
 			peak = maxf(peak, absf(sample))
@@ -199,6 +200,8 @@ func _test_sfx_buffers() -> void:
 		for i in data.size() / 2:
 			peak = maxf(peak, absf(data.decode_s16(i * 2) / 32768.0))
 		check(peak <= 0.9, "%s source and decoded WAV peak <= 0.9" % name)
+	check(game.audio_surf.playing, "surf starts playing in PREP")
+	check(game.audio_birds.playing, "birds start playing in PREP")
 	game._start_night_bed()
 	check(game.audio_insects.playing, "night bed starts playing")
 	check("insects" in game._sfx_log, "night bed logs insects")
@@ -222,6 +225,21 @@ func _test_judgment_reasons() -> void:
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
 	game._after_judgment({"telegram": 1, "reason": 0})
 	check(game._grade.reason_ok == Judgment.grade(game.sim, "hopeful", "measured").reason_ok, "judgment grades the stored measured reason")
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+
+
+func _test_birds_quiet() -> void:
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	game._quiet_birds()
+	game._quiet_birds()
+	check(game._sfx_log.count("birds_quiet") == 1, "birds quiet logs only once")
+	await create_timer(6.3).timeout
+	check(not game.audio_birds.playing, "birds stop after the totality fade")
+	check(game.audio_surf.playing, "surf continues after birds fall quiet")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame

@@ -72,6 +72,10 @@ var audio_open: AudioStreamPlayer
 var audio_change: AudioStreamPlayer
 var audio_third: AudioStreamPlayer
 var audio_insects: AudioStreamPlayer
+var audio_surf: AudioStreamPlayer
+var audio_birds: AudioStreamPlayer
+var _birds_tween: Tween
+var _birds_quiet := false
 var _sfx_log: Array[String] = []
 var _sfx_samples: Dictionary = {}
 var _night_bed_tween: Tween
@@ -448,6 +452,52 @@ func _build_audio() -> void:
 	audio_insects.stream = _wav(insects, 22050, true)
 	audio_insects.volume_db = -26.0
 	add_child(audio_insects)
+	var surf := PackedFloat32Array()
+	var brown := 0.0
+	low = 0.0
+	for i in 22050 * 8:
+		brown = clampf(brown + rng.randf_range(-0.03, 0.03), -1.0, 1.0) * 0.996
+		low = lerpf(low, brown, 0.02)
+		surf.append(low)
+	# Remove endpoint drift before swelling, so the distant rumble joins quietly.
+	var first := surf[0]
+	var drift := surf[surf.size() - 1] - first
+	var surf_peak := 0.0
+	for i in surf.size():
+		var t := i / 22050.0
+		surf[i] = (surf[i] - drift * i / (surf.size() - 1.0)) * (0.55 + 0.45 * pow(sin(PI * t / 8.0), 2.0))
+		surf_peak = maxf(surf_peak, absf(surf[i]))
+	for i in surf.size():
+		surf[i] *= 0.6 / surf_peak
+	_sfx_samples["surf"] = surf
+	audio_surf = AudioStreamPlayer.new()
+	audio_surf.stream = _wav(surf, 22050, true)
+	audio_surf.volume_db = -32.0
+	add_child(audio_surf)
+	audio_surf.play()
+	var birds := PackedFloat32Array()
+	birds.resize(22050 * 10)
+	# Eight seeded calls, spaced far enough apart for four notes and seam silence.
+	for call in 8:
+		var start := 0.4 + call * 1.15 + rng.randf_range(0.0, 0.15)
+		var notes := rng.randi_range(2, 4)
+		var rising := rng.randf() < 0.5
+		for note in notes:
+			var duration := rng.randf_range(0.06, 0.18)
+			var from_hz := 2600.0 if rising else 3800.0
+			var to_hz := 3400.0 if rising else 2900.0
+			var offset := int((start + note * 0.22) * 22050)
+			for i in int(duration * 22050):
+				var t := i / 22050.0
+				var envelope := 0.5 - 0.5 * cos(TAU * t / duration)
+				var angle := TAU * (from_hz * t + 0.5 * (to_hz - from_hz) * t * t / duration)
+				birds[offset + i] = sin(angle) * envelope * 0.6
+	_sfx_samples["birds"] = birds
+	audio_birds = AudioStreamPlayer.new()
+	audio_birds.stream = _wav(birds, 22050, true)
+	audio_birds.volume_db = -28.0
+	add_child(audio_birds)
+	audio_birds.play()
 	# Soft wind / dripping-leaves bed (brown noise loop).
 	var amb := PackedFloat32Array()
 	var b := 0.0
@@ -468,6 +518,16 @@ func _sfx(name: String) -> void:
 	var sounds := {"open": audio_open, "close": audio_click, "change": audio_change, "third": audio_third}
 	sounds[name].play()
 	_sfx_log.append(name)
+
+
+func _quiet_birds() -> void:
+	if _birds_quiet:
+		return
+	_birds_quiet = true
+	_sfx_log.append("birds_quiet")
+	_birds_tween = create_tween()
+	_birds_tween.tween_property(audio_birds, "volume_db", -60.0, 6.0)
+	_birds_tween.tween_callback(audio_birds.stop)
 
 
 func _start_night_bed() -> void:
@@ -493,9 +553,11 @@ func _stop_night_bed() -> void:
 
 
 func stop_all_audio() -> void:
+	if _birds_tween and _birds_tween.is_valid():
+		_birds_tween.kill()
 	if _night_bed_tween and _night_bed_tween.is_valid():
 		_night_bed_tween.kill()
-	for sound in [audio_tick, audio_click, audio_amb, audio_open, audio_change, audio_third, audio_insects]:
+	for sound in [audio_tick, audio_click, audio_amb, audio_open, audio_change, audio_third, audio_insects, audio_surf, audio_birds]:
 		sound.stop()
 
 
@@ -847,6 +909,7 @@ func _begin_totality() -> void:
 		return
 	_busy = true
 	phase = Phase.TOTALITY
+	_quiet_birds()
 	ui.set_prompt("")
 	ui.set_objectives("")
 	if sim.plates_carried > 0:
@@ -1018,6 +1081,8 @@ func _end_totality() -> void:
 func _begin_night() -> void:
 	_busy = true
 	await ui.fade_to(1.0, 1.2).finished
+	audio_surf.stop()
+	audio_birds.stop()
 	_start_night_bed()
 	phase = Phase.NIGHT
 	# Tab can hold the outgoing audio ramp while the authored transition continues.
