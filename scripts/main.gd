@@ -854,7 +854,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			if _came_from_departure:
 				_begin_coda()
 			else:
-				_show_ending()
+				_lamp_out_then_ending()
 		"coda_opening":
 			coda_step = CodaStep.WORKBOOK
 			if _departure_workbook_seen:
@@ -1184,7 +1184,7 @@ func _focus_coda(target: Vector3) -> void:
 
 
 func _sync_coda_log(open: bool) -> void:
-	if phase != Phase.CODA:
+	if phase != Phase.CODA and not (_coda_transition and _coda_transition.is_valid()):
 		return
 	for tw in [_camera_turn, _coda_transition]:
 		if tw and tw.is_valid():
@@ -1197,9 +1197,13 @@ func _sync_coda_log(open: bool) -> void:
 func _end_coda() -> void:
 	_stop_night_bed()
 	coda_step = CodaStep.FADING
+	_coda_highlight.light_energy = 0.0
+	await _lamp_out_then_ending()
+
+
+func _lamp_out_then_ending() -> void:
 	_play_resolution()
 	_busy = true
-	_coda_highlight.light_energy = 0.0
 	# Lamp out, a breath of darkness, then the ending. Esc and Tab hold this beat.
 	_coda_transition = create_tween().set_parallel(true).set_pause_mode(Tween.TWEEN_PAUSE_STOP)
 	_coda_transition.tween_property(world.lamp, "light_energy", 0.0, 0.7)

@@ -122,6 +122,9 @@ func _run() -> void:
 			main._grade = {"title": "probe", "fit": 2, "clean": true, "lines": ["probe response"]}
 			main._pending = "reaction"
 			main._on_dialogue_done({})
+			if not prologue:
+				check(main.phase == main.Phase.PREP and main._busy, "direct replay holds for lamp-out before ending")
+				await create_timer(2.8).timeout
 			check(main.phase == (main.Phase.CODA if prologue else main.Phase.ENDING), "reaction routes correctly after replay")
 			# Prepare another restart from an active 1919 phase.
 			main.ui.dialog_panel.hide()
