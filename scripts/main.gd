@@ -67,6 +67,14 @@ var sun: DirectionalLight3D
 var audio_tick: AudioStreamPlayer
 var audio_click: AudioStreamPlayer
 var audio_amb: AudioStreamPlayer
+var audio_open: AudioStreamPlayer
+var audio_change: AudioStreamPlayer
+var audio_third: AudioStreamPlayer
+var audio_insects: AudioStreamPlayer
+var _sfx_log: Array[String] = []
+var _sfx_samples: Dictionary = {}
+var _night_bed_tween: Tween
+var _night_bed_stopping := false
 var bot: Node
 var _look_sun := 1.0             # art-look gains (scripts/look.gd); 1.0 with --no-grade
 var _look_ambient := 1.0
@@ -362,6 +370,83 @@ func _build_audio() -> void:
 	audio_click.stream = _wav(click)
 	audio_click.volume_db = -4.0
 	add_child(audio_click)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 19190529
+	var opening := PackedFloat32Array()
+	var low := 0.0
+	var slow := 0.0
+	for i in int(22050 * 0.18):
+		var t := i / 22050.0
+		var noise := rng.randf_range(-1.0, 1.0)
+		low = lerpf(low, noise, 0.20)
+		slow = lerpf(slow, noise, 0.035)
+		var tail := minf((0.18 - t) / 0.025, 1.0)
+		opening.append((sin(TAU * 140.0 * t) * exp(-t * 35.0) * 0.48
+			+ (low - slow) * sin(PI * t / 0.18) * 0.50) * tail)
+	_sfx_samples["open"] = opening
+	audio_open = AudioStreamPlayer.new()
+	audio_open.stream = _wav(opening)
+	audio_open.volume_db = -8.0
+	add_child(audio_open)
+	var changing := PackedFloat32Array()
+	low = 0.0
+	slow = 0.0
+	for i in int(22050 * 1.5):
+		var t := i / 22050.0
+		var noise := rng.randf_range(-1.0, 1.0)
+		low = lerpf(low, noise, 0.28)
+		slow = lerpf(slow, noise, 0.045)
+		var sample := 0.0
+		for start in [0.0, 0.8]:
+			var local: float = t - start
+			if local >= 0.0 and local < 0.35:
+				sample += (low - slow) * sin(PI * local / 0.35) * 0.55
+		for start in [0.45, 1.25]:
+			var local: float = t - start
+			if local >= 0.0 and local < 0.20:
+				sample += (sin(TAU * 180.0 * local) * 0.42
+					+ sin(TAU * 310.0 * local) * 0.12) * exp(-local * 45.0)
+		changing.append(sample)
+	_sfx_samples["change"] = changing
+	audio_change = AudioStreamPlayer.new()
+	audio_change.stream = _wav(changing)
+	audio_change.volume_db = -10.0
+	add_child(audio_change)
+	var third := PackedFloat32Array()
+	for i in int(22050 * 1.6):
+		var t := i / 22050.0
+		var envelope := minf(t / 0.05, 1.0) * exp(-t * 3.8) * minf((1.6 - t) / 0.1, 1.0)
+		third.append((sin(TAU * 1320.0 * t) * 0.22 + sin(TAU * 1980.0 * t) * 0.12) * envelope)
+	_sfx_samples["third"] = third
+	audio_third = AudioStreamPlayer.new()
+	audio_third.stream = _wav(third)
+	audio_third.volume_db = -18.0
+	add_child(audio_third)
+	var insects := PackedFloat32Array()
+	var periods := [0.5, 0.6, 0.75, 6.0 / 7.0]
+	var phases := [0.04, 0.17, 0.31, 0.48]
+	var carriers := [4100.0, 4370.0, 4660.0, 4930.0]
+	var previous_noise := 0.0
+	for i in 22050 * 6:
+		var t := i / 22050.0
+		var sample := 0.0
+		for voice in 4:
+			var local := fposmod(t + phases[voice], periods[voice])
+			var duration := (3.0 + (voice % 2)) / 30.0
+			if local < duration:
+				var pulse := sin(PI * fposmod(local * 30.0, 1.0))
+				sample += sin(TAU * carriers[voice] * t) * pulse * pulse * sin(PI * local / duration) * 0.10
+		var noise := rng.randf_range(-1.0, 1.0)
+		# Every voice completes whole chirp/carrier periods; taper only the hiss.
+		var edge := minf(minf(t, 6.0 - t) / 0.01, 1.0)
+		sample += (noise - previous_noise) * 0.006 * edge
+		previous_noise = noise
+		insects.append(sample)
+	_sfx_samples["insects"] = insects
+	audio_insects = AudioStreamPlayer.new()
+	audio_insects.stream = _wav(insects, 22050, true)
+	audio_insects.volume_db = -26.0
+	add_child(audio_insects)
 	# Soft wind / dripping-leaves bed (brown noise loop).
 	var amb := PackedFloat32Array()
 	var b := 0.0
@@ -376,6 +461,41 @@ func _build_audio() -> void:
 	audio_amb.volume_db = -20.0
 	add_child(audio_amb)
 	audio_amb.play()
+
+
+func _sfx(name: String) -> void:
+	var sounds := {"open": audio_open, "close": audio_click, "change": audio_change, "third": audio_third}
+	sounds[name].play()
+	_sfx_log.append(name)
+
+
+func _start_night_bed() -> void:
+	if audio_insects.playing:
+		return
+	_night_bed_stopping = false
+	audio_insects.volume_db = -60.0
+	audio_insects.play()
+	_sfx_log.append("insects")
+	_night_bed_tween = create_tween()
+	_night_bed_tween.tween_property(audio_insects, "volume_db", -26.0, 3.0)
+
+
+func _stop_night_bed() -> void:
+	if not audio_insects.playing or _night_bed_stopping:
+		return
+	_night_bed_stopping = true
+	if _night_bed_tween and _night_bed_tween.is_valid():
+		_night_bed_tween.kill()
+	_night_bed_tween = create_tween()
+	_night_bed_tween.tween_property(audio_insects, "volume_db", -60.0, 1.0)
+	_night_bed_tween.tween_callback(audio_insects.stop)
+
+
+func stop_all_audio() -> void:
+	if _night_bed_tween and _night_bed_tween.is_valid():
+		_night_bed_tween.kill()
+	for sound in [audio_tick, audio_click, audio_amb, audio_open, audio_change, audio_third, audio_insects]:
+		sound.stop()
 
 
 # ------------------------------------------------------------------------ Flow
@@ -764,11 +884,12 @@ func _toggle_shutter() -> void:
 	if sim.is_exposing():
 		var p: Dictionary = sim.close_shutter(false)
 		p.sky_read = Cues.sky_band(p.clear, p.duration)
-		audio_click.play()
+		_sfx("close")
 		plates_left -= 1
 		ui.show_toast("你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。\n%s" % [p.number, p.duration, Content.totality_read(p.sky_read)], 3.5)
 		if plates_left > 0:
 			change_left = sim.PLATE_CHANGE_S
+			_sfx("change")
 	elif change_left > 0.0:
 		ui.show_toast("Eddington 還在換片……", 1.5)
 	elif plates_left <= 0:
@@ -777,7 +898,7 @@ func _toggle_shutter() -> void:
 		sim.open_shutter(t_game)
 		_ever_exposed = true
 		_long_called = false
-		audio_click.play()
+		_sfx("open")
 		ui.show_toast("你：「開始！」　Cottingham 移開遮光板。", 2.0)
 
 
@@ -870,7 +991,7 @@ func _end_totality() -> void:
 	if ruined:
 		sim.close_shutter(true)
 	ui.set_totality(false)
-	audio_click.play()
+	_sfx("third")
 	ui.show_toast("第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。" + ("\n快門還開著——最後那張底片曝到了陽光。" if ruined else ""), 5.0)
 	var tw := create_tween()
 	tw.tween_method(func(v):
@@ -889,6 +1010,7 @@ func _end_totality() -> void:
 func _begin_night() -> void:
 	_busy = true
 	await ui.fade_to(1.0, 1.2).finished
+	_start_night_bed()
 	phase = Phase.NIGHT
 	# Tab can hold the outgoing audio ramp while the authored transition continues.
 	# At the black handoff, cancel any remaining voices; NIGHT is always unscored.
@@ -998,6 +1120,7 @@ func _sync_coda_log(open: bool) -> void:
 
 
 func _end_coda() -> void:
+	_stop_night_bed()
 	coda_step = CodaStep.FADING
 	_play_resolution()
 	_busy = true
@@ -1101,6 +1224,7 @@ func _play_resolution() -> void:
 
 
 func _show_ending() -> void:
+	_stop_night_bed()
 	_play_resolution()
 	phase = Phase.ENDING
 	ui.pause_enabled = false
