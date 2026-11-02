@@ -8,7 +8,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 
 | # | Item | Status | Evidence | Next action |
 |---|---|---|---|---|
-| A1 | Human Generator assets cannot ship | DONE | #113: export presets exclude `assets/licensed/*`; regression test checks each preset | — |
+| A1 | Human Generator assets cannot ship | PARTIAL | #113: export presets exclude `assets/licensed/*`; regression test checks each preset (oracle major: config only, not the package) | in A11, list the exported pck and assert no `assets/licensed/` or `tests/` file |
 | A2 | Bundled CJK font | PARTIAL | `scripts/ui.gd:98`, `overlay_viewer.gd:43`, `departure_props.gd:43` use `SystemFont` names only; Linux/Deck have none → tofu | bundle Noto Sans TC (OFL) as the fallback after the system names; licence file in repo |
 | A3 | Credits screen | MISSING | `scripts/ui.gd:792` ending menu has no credits | credits from `docs/PROVENANCE.md`, `docs/audio/SOURCES.md`, `art/people/LICENSES.md`, Godot notice |
 | A4 | Licence notices complete and consistent | PARTIAL | `docs/PROVENANCE.md:91` says no external audio; `docs/audio/SOURCES.md:31–64` lists sampled cues | reconcile; one `THIRD_PARTY_NOTICES` shipped with the build, Godot licence included |
