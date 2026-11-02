@@ -116,6 +116,13 @@ func _init() -> void:
 	]
 	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4、6 號各自量，數字彼此對得上。這 3 張互相印證，比一張長片更難被說成巧合。"),
 		"three good plates within their own 2σ still corroborate")
+	# Oracle on #103: poor plates pulling the overall mean must not decide it.
+	trio.plates[2].quality = "poor"
+	trio.plates[2].value = 1.00
+	trio.plates[2].sigma = 0.4
+	trio.plates.append({"number": 8, "usable": true, "quality": "poor", "included": true, "value": 1.00, "sigma": 0.4, "duration": 4.0})
+	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"),
+		"poor plates do not break the good plates' agreement")
 	pair.plates[1].value = 2.5
 	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "disagreeing good plates do not corroborate")
 	pair.plates[1].included = false
