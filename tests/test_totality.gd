@@ -222,9 +222,7 @@ func _test_judgment_reasons() -> void:
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
 	game._after_judgment({"telegram": 1, "reason": 0})
 	check(game._grade.reason_ok == Judgment.grade(game.sim, "hopeful", "measured").reason_ok, "judgment grades the stored measured reason")
-	game.audio_amb.stop()
-	game.audio_click.stop()
-	game.audio_tick.stop()
+	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
 
