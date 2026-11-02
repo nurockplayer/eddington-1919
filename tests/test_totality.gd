@@ -6,6 +6,7 @@ const Sim := preload("res://scripts/eclipse_sim.gd")
 const Cues := preload("res://scripts/totality_cues.gd")
 const Content := preload("res://scripts/content.gd")
 const UI := preload("res://scripts/ui.gd")
+const Judgment := preload("res://scripts/judgment.gd")
 
 const STEP := 0.1                      # real seconds per scripted frame
 const GAME_STEP := STEP * Sim.TIME_SCALE   # 0.25 game-seconds per frame
@@ -32,6 +33,7 @@ func _run() -> void:
 	await _test_shutter_read()
 	await _test_sfx_buffers()
 	await _test_viewer_note()
+	await _test_judgment_reasons()
 	await _test_callouts()
 	await _test_night_viewer()
 	print("%d checks, %d failures" % [checks, failures])
@@ -201,6 +203,28 @@ func _test_sfx_buffers() -> void:
 	check(game.audio_insects.playing, "night bed starts playing")
 	check("insects" in game._sfx_log, "night bed logs insects")
 	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+
+
+func _test_judgment_reasons() -> void:
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	game.sim = Sim.new(1919)
+	game.phase = game.Phase.TOTALITY
+	game.sim.plates = [
+		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2},
+		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 2.0, "sigma": 0.2},
+	]
+	game._start_judgment()
+	var c: Dictionary = game.sim.combined()
+	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
+	game._after_judgment({"telegram": 1, "reason": 0})
+	check(game._grade.reason_ok == Judgment.grade(game.sim, "hopeful", "measured").reason_ok, "judgment grades the stored measured reason")
+	game.audio_amb.stop()
+	game.audio_click.stop()
+	game.audio_tick.stop()
 	game.queue_free()
 	await process_frame
 

@@ -34,6 +34,15 @@ const REASON_FIT := {
 }
 
 
+static func reasons_for(sim) -> Array:
+	var reasons := REASONS.duplicate(true)
+	var c: Dictionary = sim.combined()
+	if c.n > 0:
+		reasons[0].text = "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。" % [c.value, c.sigma, c.n]
+		reasons[1].text = "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。" % [c.value, c.sigma]
+	return reasons
+
+
 static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var ev: String = sim.evidence_class()
 	var fit: int = FIT[ev][telegram_id]
