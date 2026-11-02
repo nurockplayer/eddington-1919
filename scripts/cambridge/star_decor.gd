@@ -41,7 +41,8 @@ const MOON_MONTH := 1.0 / 12.37  # sidereal months per year
 
 
 static func build(w, brass: Color, dark_wood: Color) -> Dictionary:
-	return {"globe": _globe(w, brass, dark_wood), "chart": _chart(w, dark_wood), "orrery": _orrery(w, brass, dark_wood)}
+	return {"globe": _globe(w, brass, dark_wood), "chart": _chart(w, dark_wood),
+		"orrery": _orrery(w, brass, dark_wood), "gramophone": _gramophone(w, brass, dark_wood)}
 
 
 ## Turn every arm to time t (seconds); the Moon circles the Earth on its own arm.
@@ -97,6 +98,44 @@ static func _orrery(w, brass: Color, dark_wood: Color) -> Node3D:
 	orrery.set_meta("arms", arms)
 	turn_orrery(orrery, 0.0)
 	return orrery
+
+
+## 78 rpm while the record plays; the turntable stands still otherwise.
+static func spin_gramophone(g: Node3D, delta: float, playing: bool) -> void:
+	if not playing:
+		return
+	var turntable := g.get_node_or_null("Turntable") as Node3D
+	if turntable:
+		turntable.rotation.y = fposmod(turntable.rotation.y + TAU * 78.0 / 60.0 * delta, TAU)
+
+
+static func _gramophone(w, brass: Color, dark_wood: Color) -> Node3D:
+	# Music round 2 (proposal): on a side table against the east wall, between the
+	# shelf (z -1.35) and the fireplace (z 1.35). The front faces -x, into the room.
+	var g := Node3D.new()
+	g.name = "Gramophone"
+	g.position = Vector3(3.95, 0, -0.25)
+	g.rotation.y = PI * 0.5
+	w.root.add_child(g)
+	w.box(Vector3(0.5, 0.04, 0.5), Vector3(0, 0.70, 0), dark_wood, g)
+	for x in [-0.21, 0.21]:
+		for z in [-0.21, 0.21]:
+			w.box(Vector3(0.04, 0.68, 0.04), Vector3(x, 0.34, z), dark_wood, g, false)
+	# Hornless table-top cabinet, lid closed.
+	w.box(Vector3(0.42, 0.20, 0.42), Vector3(0, 0.82, 0), dark_wood, g)
+	var turntable := Node3D.new()
+	turntable.name = "Turntable"
+	turntable.position = Vector3(0, 0.92, 0)
+	g.add_child(turntable)
+	w.cyl(0.15, 0.010, Vector3(0, 0.005, 0), Color(0.10, 0.23, 0.13), turntable, false)
+	w.cyl(0.125, 0.005, Vector3(0, 0.012, 0), Color(0.05, 0.05, 0.05), turntable, false)
+	w.cyl(0.04, 0.003, Vector3(0, 0.016, 0), Color(0.36, 0.09, 0.09), turntable, false)
+	# A glint of gold print on the label: without it a spinning disc reads as still.
+	w.cyl(0.006, 0.002, Vector3(0.024, 0.019, 0), brass, turntable, false)
+	w.cyl(0.004, 0.020, Vector3(0, 0.020, 0), brass, turntable, false)
+	# The brass tone arm rests at the disc's edge.
+	w.cyl(0.008, 0.19, Vector3(0.10, 0.945, 0), brass, g, false, Vector3(0, 0, deg_to_rad(80.0)))
+	return g
 
 
 static func _ball(radius: float, color: Color, pos: Vector3) -> MeshInstance3D:
