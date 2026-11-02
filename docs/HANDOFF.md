@@ -55,6 +55,28 @@
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
+## Resume here (edd-director, written 2026-11-03 00:5x JST before /clear)
+- **Standing Owner request:** 2026-11-02 16:5x JST, 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」. It overrides the old heartbeat text's "no new features" hold.
+- **Done:** waves 1–6, #83–#106, all merged. main = 494e68c+. Bots: careful 4, rushed 0, cherry 3, prologue honest 4. No open implementation PR.
+- **Waiting on the Owner:**
+  - draft #93 `departure_promise` (listen: `~/Desktop/eddington-music/departure_promise.wav`; D014: no merge without the OK);
+  - SFX WAVs in `~/Desktop/eddington-sfx/`.
+- **Queued:** the full e2e on main (`orb-test --heavy --host -- ./tools/e2e_headless.sh`, ticket #140). It starts at the heavy gate (Mon–Fri 05:00 JST or after 45 min idle); check with `orb-test --status`. Its result was not yet read.
+- **Windowed look due (Mon–Fri 09–15 JST):**
+  - #84 plate readability (trail and fog visible now that counts are hidden);
+  - #98 2σ whiskers on the darkroom chart.
+- **Next wave candidates:**
+  - a Fable pass for wave 7 (story/audio angles, or a fresh "what is still thin" read);
+  - an ObjectDB-leak cleanup at exit;
+  - test_coda fade checks that flake at load average > 20.
+- **Review flow:** run from the main checkout, never a worktree, because `.claude/ds-workers.tsv` is untracked and the bundle would come out not oracle-OK:
+  1. `review-bundle <pr>` → `review-run --provider oracle <bundle>`, waiting on exit 75.
+  2. If oracle fails (exit 5/8/9), retry once, then restart ego-lite (`osascript -e 'quit app "ego lite"'; open -a "ego lite"`, only when `pgrep -f oracle-ego` is empty), then oracle again.
+  3. Still failing: `--provider codex`, and say so in the PR.
+  4. `review-gate <pr>`; run it a second time if it says "Auto merge is not allowed".
+  If ego-browser says the task space is under the user's control, stop and ask the Owner. After they say continue: `ego-browser nodejs` → `await takeOverTaskSpace(2)` ("oracle-review").
+- **Cleanup:** remove a worktree or branch only after `gh pr view <n> --json state` says MERGED.
+
 ## Improvement program (Owner 2026-11-02 16:5x JST: 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」)
 
 This lifts the "no new features before the playtest" hold. A fresh Fable design critique (2026-11-02 17:00 JST) ranked the weak spots: prologue choices return only as text, the night viewer gave away the answer key, the judgment is a 2×2 dressed as 4×4, the workbook page ignored the run, plan board/checklist are flavour, Príncipe is nearly silent, music sits off the emotional beats.
