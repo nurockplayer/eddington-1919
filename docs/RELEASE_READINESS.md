@@ -9,7 +9,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | # | Item | Status | Evidence | Next action |
 |---|---|---|---|---|
 | A1 | Human Generator assets cannot ship | PARTIAL | `export_presets.cfg:10` excludes only tests/lookdev | add `assets/licensed/*` (and any HG path) to `exclude_filter`; a test that lists the exported pck has no HG file |
-| A2 | Bundled CJK font | PARTIAL | `scripts/ui.gd:98`, `overlay_viewer.gd:43`, `departure_props.gd:43` use `SystemFont` names only; Linux/Deck have none → tofu | bundle Noto Sans TC (OFL) as the fallback after the system names; licence file in repo |
+| A2 | Bundled CJK font | DONE | [PR #114](https://github.com/nurockplayer/eddington-1919/pull/114): `scripts/fonts.gd` adds bundled Noto Sans TC Regular after system names; OFL and hashes recorded; `tests/test_fonts.gd` checks every non-ASCII script character | included in PR #114; merge with this release change |
 | A3 | Credits screen | MISSING | `scripts/ui.gd:792` ending menu has no credits | credits from `docs/PROVENANCE.md`, `docs/audio/SOURCES.md`, `art/people/LICENSES.md`, Godot notice |
 | A4 | Licence notices complete and consistent | PARTIAL | `docs/PROVENANCE.md:91` says no external audio; `docs/audio/SOURCES.md:31–64` lists sampled cues | reconcile; one `THIRD_PARTY_NOTICES` shipped with the build, Godot licence included |
 | A5 | Settings: per-bus volume, fullscreen/window | PARTIAL | `scripts/ui.gd:879` music on/off only | master/music/SFX sliders + fullscreen toggle, saved in `user://settings.cfg` |
