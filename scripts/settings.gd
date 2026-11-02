@@ -8,6 +8,7 @@ const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db
 static var volumes := {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 static var fullscreen := false
 static var video_apply_count := 0
+static var _video_applied := false
 
 
 static func ensure_sfx_bus() -> int:
@@ -35,6 +36,13 @@ static func save_settings(path := SETTINGS_PATH) -> Error:
 		cfg.set_value("audio", VOLUME_KEYS[bus], volumes[bus])
 	cfg.set_value("video", "fullscreen", fullscreen)
 	return cfg.save(path)
+
+
+static func apply_startup() -> void:
+	apply_audio()
+	if not _video_applied:
+		apply_video()
+		_video_applied = true
 
 
 static func apply_audio() -> void:

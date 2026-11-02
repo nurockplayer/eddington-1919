@@ -99,8 +99,7 @@ func _ready() -> void:
 	var music_ready := Time.get_ticks_usec()
 	ScorePlayer.load_settings()
 	Settings.load_settings()
-	Settings.apply_audio()
-	Settings.apply_video()
+	Settings.apply_startup()
 	music_ready_usec = Time.get_ticks_usec() - music_ready
 	font = SystemFont.new()
 	font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "Source Han Sans TC", "sans-serif"])

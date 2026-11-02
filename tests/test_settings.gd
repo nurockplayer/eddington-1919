@@ -22,6 +22,11 @@ func _run() -> void:
 	Settings.load_settings(TEST_PATH)
 	check(Settings.volumes == {"Master": 1.0, "Music": 1.0, "SFX": 1.0} and not Settings.fullscreen,
 		"missing settings default to full volume and windowed")
+	Settings.apply_startup()
+	AudioServer.set_bus_volume_db(0, -12.0)
+	Settings.apply_startup()
+	check(Settings.video_apply_count == 1, "two startup calls apply video only once per process")
+	check(is_zero_approx(AudioServer.get_bus_volume_db(0)), "later startup still applies audio")
 	ScorePlayer.set_music_enabled(false, TEST_PATH)
 	Settings.volumes = {"Master": 0.5, "Music": 0.25, "SFX": 0.0}
 	Settings.fullscreen = true
@@ -86,9 +91,11 @@ func _check_routes(node: Node, gramophone: Node = null) -> int:
 
 func _check_chapter_routes() -> void:
 	for script in ["director.gd", "departure_director.gd"]:
+		var video_calls := Settings.video_apply_count
 		var chapter = load("res://scripts/cambridge/" + script).new()
 		root.add_child(chapter)
 		await process_frame
+		check(Settings.video_apply_count == video_calls, script + " startup does not reapply video")
 		check(chapter.is_node_ready(), script + " ready before routing checks")
 		var gramophone: Node = null
 		if script == "director.gd":
@@ -114,9 +121,11 @@ func _check_pause_menu() -> void:
 	# Exercise real input and persistence while preserving the user's settings bytes.
 	var had_settings := FileAccess.file_exists(Settings.SETTINGS_PATH)
 	var original := FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) if had_settings else PackedByteArray()
+	var startup_video_calls := Settings.video_apply_count
 	var main = load("res://scripts/main.gd").new()
 	root.add_child(main)
 	await process_frame
+	check(Settings.video_apply_count == startup_video_calls, "1919 startup does not reapply video")
 	check(main.is_node_ready() and _check_routes(main) > 0, "1919 has live audio players after ready")
 	var ui = main.ui
 	var video_calls := Settings.video_apply_count
