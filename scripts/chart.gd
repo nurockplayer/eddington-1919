@@ -80,4 +80,4 @@ func _draw() -> void:
 		var cx := _x(combined.value, w)
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
 		draw_string(font, Vector2(4, y + 5), "合併", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, c)
-		draw_string(font, Vector2(cx + 14, y - 10), "%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）" % [combined.value, combined.sigma, span.x, span.y], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, c)
+		draw_string(font, Vector2(cx + 14, y - 10), "%.2f″ ± %.2f″" % [combined.value, combined.sigma], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, c)
