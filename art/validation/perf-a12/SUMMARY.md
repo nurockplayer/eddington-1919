@@ -16,3 +16,17 @@ Run 2026-11-03 13:59–14:01 JST on the M2 Pro dev Mac at main bb407c2, 1600×90
 
 Low cuts render cost ~45–50% and VRAM ~40–47%; draw calls unchanged (156–389). Not covered: the Cambridge 1917 chapter (no benchmark bookmarks there) and any machine slower than the dev Mac — a minimum-spec claim needs a run on target hardware (Steam Deck class), which waits on B2/B10.
 Screenshots were deleted after the run (one-off data); JSON + provenance kept.
+
+## Cambridge 1917 (PR #128, `--bench-cambridge`)
+
+Run 2026-11-03 14:12–14:14 JST, same Mac and window, interleaved × 3, host load 7; data in `art/validation/perf-a12-cam/`.
+
+| bookmark | forced p95 std → low (ms) | VRAM std → low (MB) |
+|---|---|---|
+| lightbox | 3.42 → 1.50 | 279 → 155 |
+| fire | 3.13 → 1.70 | 279 → 155 |
+| orrery | 2.99 → 1.00 | 279 → 155 |
+| cabinet | 3.47 → 1.00 | 279 → 155 |
+| clock | 3.46 → 1.59 | 279 → 155 |
+
+Cambridge is no heavier than 1919 (draw calls 237–269); low cuts its render cost 45–70%.
