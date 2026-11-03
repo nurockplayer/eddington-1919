@@ -1,5 +1,8 @@
 extends Control
+
 class_name CambridgePlanBoard
+
+const Settings := preload("res://scripts/settings.gd")
 ## Four-slot plan picker with a reconsideration gate for biased cards.
 
 signal reaction(seq: Array)
@@ -83,7 +86,7 @@ func _build() -> void:
 	var title := Label.new()
 	title.text = "怎樣的日食觀測，才算公平的比較？"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 28)
+	Settings.track_font(title, 28)
 	title.add_theme_color_override("font_color", INK)
 	layout.add_child(title)
 	var slot_row := GridContainer.new()

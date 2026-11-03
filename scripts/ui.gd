@@ -77,7 +77,6 @@ var ending_history_toggle: Button
 var pause_panel: Control
 var fullscreen_button: Button
 var text_size_button: Button
-var _font_nodes: Array[Control] = []
 var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
@@ -118,7 +117,7 @@ func _ready() -> void:
 	font = Fonts.cjk()
 	theme_res = Theme.new()
 	theme_res.default_font = font
-	theme_res.default_font_size = _fs(21)
+	theme_res.default_font_size = Settings.fs(21)
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -143,7 +142,7 @@ func _ready() -> void:
 	caption.set_anchors_preset(Control.PRESET_FULL_RECT)
 	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_track_font(caption, 34)
+	Settings.track_font(caption, 34)
 	caption.add_theme_color_override("font_color", PAPER)
 	caption.modulate.a = 0.0
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -161,42 +160,21 @@ func _panel_style(bg: Color, border := Color(0, 0, 0, 0)) -> StyleBoxFlat:
 	return sb
 
 
-func _fs(px: int) -> int:
-	return roundi(px * Settings.text_scale)
-
-
-func _track_font(node: Control, px: int) -> void:
-	node.set_meta("base_font_size", px)
-	_font_nodes.append(node)
-	_apply_font(node)
-
-
-func _apply_font(node: Control) -> void:
-	var size := _fs(int(node.get_meta("base_font_size")))
-	if node is RichTextLabel:
-		for key in ["normal_font_size", "bold_font_size", "italics_font_size", "bold_italics_font_size", "mono_font_size"]:
-			node.add_theme_font_size_override(key, size)
-	else:
-		node.add_theme_font_size_override("font_size", size)
-
-
 func _text_size_caption() -> String:
 	return "文字大小：" + ["小", "標準", "大"][Settings.TEXT_SCALES.find(Settings.text_scale)]
 
 
 func _cycle_text_size() -> void:
 	Settings.cycle_text_scale()
-	theme_res.default_font_size = _fs(21)
-	_font_nodes = _font_nodes.filter(func(node): return is_instance_valid(node))
-	for node in _font_nodes:
-		_apply_font(node)
+	theme_res.default_font_size = Settings.fs(21)
+	Settings.refresh_fonts(get_tree())
 	text_size_button.text = _text_size_caption()
 
 
 func _label(text: String, size := 21, color := PAPER) -> Label:
 	var l := Label.new()
 	l.text = text
-	_track_font(l, size)
+	Settings.track_font(l, size)
 	l.add_theme_color_override("font_color", color)
 	return l
 
@@ -206,7 +184,7 @@ func _rich(size := 20) -> RichTextLabel:
 	r.bbcode_enabled = true
 	r.fit_content = true
 	r.scroll_active = false
-	_track_font(r, size)
+	Settings.track_font(r, size)
 	r.add_theme_color_override("default_color", PAPER)
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return r
@@ -215,7 +193,7 @@ func _rich(size := 20) -> RichTextLabel:
 func _button(text: String) -> Button:
 	var b := Button.new()
 	b.text = text
-	_track_font(b, 20)
+	Settings.track_font(b, 20)
 	b.focus_mode = Control.FOCUS_ALL
 	var normal := _panel_style(Color(0.18, 0.15, 0.12, 0.95), Color(0.55, 0.45, 0.3))
 	normal.set_content_margin_all(10)
@@ -604,7 +582,7 @@ func _build_viewer(root: Control) -> void:
 	mid.add_child(plate_info)
 	include_box = CheckBox.new()
 	include_box.text = "納入量測"
-	_track_font(include_box, 20)
+	Settings.track_font(include_box, 20)
 	include_box.add_theme_color_override("font_color", PAPER)
 	include_box.focus_mode = Control.FOCUS_ALL
 	include_box.toggled.connect(func(on):
@@ -733,7 +711,7 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 	b.text = text
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	_track_font(b, 14)
+	Settings.track_font(b, 14)
 	b.focus_mode = Control.FOCUS_ALL
 	return b
 

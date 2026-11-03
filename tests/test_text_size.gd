@@ -3,6 +3,9 @@ extends SceneTree
 const Settings := preload("res://scripts/settings.gd")
 const UI := preload("res://scripts/ui.gd")
 const Content := preload("res://scripts/content.gd")
+const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
+const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
+const Sim := preload("res://scripts/eclipse_sim.gd")
 const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const TEST_PATH := "user://test_text_size.cfg"
 var checks := 0
@@ -60,6 +63,11 @@ func _run() -> void:
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	root.add_child(ui)
 	await process_frame
+	var overlay := Overlay.new()
+	root.add_child(overlay)
+	var checklist := Checklist.new()
+	root.add_child(checklist)
+	checklist.open()
 	ui.hide_title()
 	ui.set_objectives("測量底片")
 	ui.play([C17.trial_task()[3]])
@@ -78,6 +86,8 @@ func _run() -> void:
 	ui.text_size_button.grab_focus()
 	await _press_a()
 	check(Settings.text_scale == 1.2 and ui.text_size_button.text == "文字大小：大", "gamepad A cycles standard to large once")
+	check(overlay.buttons.flip.get_theme_font_size("font_size") == 22, "large overlay button scales from 18 to 22 px")
+	check(checklist.plate_lines[0].get_theme_font_size("font_size") == 22 and checklist.values[0].get_theme_font_size("bold_font_size") == 30, "large checklist label and rich text scale")
 	check(ui.theme_res.default_font_size == 25, "large theme is 25 px")
 	check(ui.text_label.get_theme_font_size("normal_font_size") == 25, "visible dialogue updates to 25 px")
 	check(ui.objectives.get_theme_font_size("normal_font_size") == 22, "visible objectives scale from 18 to 22 px")
@@ -117,11 +127,25 @@ func _run() -> void:
 		"revert-check restores theme and dialogue to 21 px")
 	check(ui.clock_label.get_theme_font_size("font_size") == 24
 		and ui.objectives.get_theme_font_size("normal_font_size") == 18, "revert-check restores HUD sizes without compounding")
+	check(overlay.buttons.flip.get_theme_font_size("font_size") == 18 and checklist.plate_lines[0].get_theme_font_size("font_size") == 18 and checklist.values[0].get_theme_font_size("normal_font_size") == 25, "revert-check restores chapter panel sizes")
 	Settings.text_scale = 0.0
 	Settings.load_settings()
 	check(Settings.text_scale == 1.0, "pause cycle saves immediately")
 	ui.toggle_pause()
 	ui.free()
+	overlay.free()
+	checklist.free()
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	game.sim = Sim.new(1919)
+	game.phase = game.Phase.TOTALITY
+	game.t_game = game.sim.TOTALITY_S - 5.0
+	game.plates_left = game.sim.plates_available()
+	Settings.text_scale = 1.2
+	game._process_totality(0.0)
+	check(game.ui.tot_label.text.contains("font_size=50"), "large totality header uses 50 px BBCode")
+	game.free()
 	if had_settings:
 		var file := FileAccess.open(Settings.SETTINGS_PATH, FileAccess.WRITE)
 		file.store_buffer(original)

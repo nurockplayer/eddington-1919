@@ -1,4 +1,6 @@
 extends PanelContainer
+
+const Settings := preload("res://scripts/settings.gd")
 ## Owner-selected P1 prints. This CanvasLayer control never receives the 3D
 ## environment grade: the source images already carry their toned-print look.
 const Cast := preload("res://scripts/cambridge/cast.gd")
@@ -39,7 +41,7 @@ func setup(muted: Color) -> void:
 	disclosure = Label.new()
 	disclosure.text = "重建肖像，非歷史照片"
 	disclosure.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	disclosure.add_theme_font_size_override("font_size", 18)
+	Settings.track_font(disclosure, 18)
 	disclosure.add_theme_color_override("font_color", muted)
 	disclosure.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(disclosure)

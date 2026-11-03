@@ -1,5 +1,7 @@
 extends Node3D
 
+const Settings := preload("res://scripts/settings.gd")
+
 const Prompts := preload("res://scripts/prompts.gd")
 ## Game director for the slice: phases, interactions, and the loop
 ## prepare → expose through cloud → inspect plates → judge → reaction.
@@ -1096,7 +1098,7 @@ func _process_totality(delta: float) -> void:
 		status = "[color=#e88]底片用完了[/color]"
 	var header := ""
 	if left > 0.0 and left <= 10.0:
-		header = "[b]全食[/b]　[font_size=42][color=#e88]%d[/color][/font_size] 秒" % int(ceil(left))
+		header = "[b]全食[/b]　[font_size=%d][color=#e88]%d[/color][/font_size] 秒" % [Settings.fs(42), int(ceil(left))]
 	else:
 		header = "[b]全食[/b]　剩餘 %d 秒（共 302）" % int(left)
 	header += "\n" + status
@@ -1414,7 +1416,7 @@ func _show_ending() -> void:
 	var c: Dictionary = sim.combined()
 	var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
 	var lines := []
-	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=26][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text])
+	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=%d][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Settings.fs(26), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text])
 	lines.append("[b]Eddington 的回應[/b]")
 	for l in _grade.lines:
 		lines.append("· " + l)
@@ -1430,7 +1432,7 @@ func _show_ending() -> void:
 	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
 	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
 	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
-	history.append("\n[color=#8f8676][font_size=15]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]")
+	history.append("\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]" % Settings.fs(15))
 	ui.show_ending(_grade.title, "\n".join(lines), "\n".join(history))
 	if bot:
 		bot.on_phase("ending")
