@@ -1,7 +1,6 @@
 class_name Credits
 extends RefCounted
 
-const Notices := preload("res://scripts/notices.gd")
 const AUTHOR := "（姓名待 Owner 確認）"
 const DISCLAIMER := "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構（姓名暫定），場景為推測重建。"
 
@@ -13,7 +12,7 @@ static func text() -> String:
 			str(ProjectSettings.get_setting("application/config/version")).replace("[", "[lb]")],
 		"[b]製作[/b]\n%s\n以 Godot Engine 製作" % AUTHOR,
 		"[b]史實與虛構[/b]\n" + DISCLAIMER,
-		"[b]第三方素材與授權[/b]\n" + Notices.text().replace("[", "[lb]"),
+		"[b]第三方素材與授權[/b]\n" + _md_to_bbcode(FileAccess.get_file_as_string("res://THIRD_PARTY_NOTICES.md")) + "\n\n" + Engine.get_license_text().replace("[", "[lb]"),
 		"[b]Godot 第三方元件[/b]",
 	])
 	for component in Engine.get_copyright_info():
@@ -27,3 +26,16 @@ static func text() -> String:
 	for license in licenses:
 		lines.append(str(license).replace("[", "[lb]") + "\n" + str(licenses[license]).replace("[", "[lb]"))
 	return "\n\n".join(lines)
+
+
+static func _md_to_bbcode(md: String) -> String:
+	var rendered := md.replace("[", "[lb]")
+	var regex := RegEx.new()
+	regex.compile("\\[lb\\]([^]\\n]+)\\]\\([^)]*\\)")
+	rendered = regex.sub(rendered, "$1", true)
+	regex.compile("\\*\\*(.+?)\\*\\*")
+	rendered = regex.sub(rendered, "[b]$1[/b]", true)
+	regex.compile("(?m)^#{1,2} (.+)$")
+	rendered = regex.sub(rendered, "[b]$1[/b]", true)
+	regex.compile("(?m)^- ")
+	return regex.sub(rendered, "・ ", true)

@@ -7,7 +7,3 @@
 - **MakeHuman / MPFB character assets** — CC0. Credits: MakeHuman Community and Data Collection AB. See [character asset licences](art/people/LICENSES.md).
 
 The dialogue portraits are AI-assisted generated images.
-
-## Open questions
-
-- The exported package and its reachable credits/notices still need qualification (A11).
