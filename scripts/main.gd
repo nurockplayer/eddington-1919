@@ -223,6 +223,7 @@ static func _ensure_inputs() -> void:
 		"move_left": [JOY_AXIS_LEFT_X, -1.0], "move_right": [JOY_AXIS_LEFT_X, 1.0],
 		"move_forward": [JOY_AXIS_LEFT_Y, -1.0], "move_back": [JOY_AXIS_LEFT_Y, 1.0],
 		"look_left": [JOY_AXIS_RIGHT_X, -1.0], "look_right": [JOY_AXIS_RIGHT_X, 1.0],
+		"overlay_rotate_left": [JOY_AXIS_RIGHT_X, -1.0], "overlay_rotate_right": [JOY_AXIS_RIGHT_X, 1.0],
 		"look_up": [JOY_AXIS_RIGHT_Y, -1.0], "look_down": [JOY_AXIS_RIGHT_Y, 1.0],
 	}
 	for action in axes:

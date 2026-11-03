@@ -64,6 +64,7 @@ var log_panel: PanelContainer
 var log_text: RichTextLabel
 static var history: Array[String] = []
 var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
+var ending_replay: Button
 var ending_panel: Control
 var credits_panel: Control
 var ending_text: RichTextLabel
@@ -460,6 +461,12 @@ func _advance() -> void:
 		dialogue_done.emit(_results)
 		return
 	_show_entry()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if pause_enabled and event.is_action_pressed("pause"):
+		toggle_pause()
+		get_viewport().set_input_as_handled()
 
 
 func _dialogue_input(event: InputEvent) -> void:
@@ -876,6 +883,7 @@ func _build_ending(root: Control) -> void:
 	hb.add_theme_constant_override("separation", 16)
 	ending_panel.add_child(hb)
 	var same := _button("同一片雲，再試一次")
+	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
 	hb.add_child(same)
 	var fresh := _button("新的天空")
@@ -942,10 +950,8 @@ func show_ending(title: String, bb: String, history_bb := "") -> void:
 	ending_history_toggle.visible = not history_bb.is_empty()
 	ending_history_toggle.text = "歷史上發生了什麼"
 	ending_panel.visible = true
-	for button in ending_panel.find_children("*", "Button", true, false):
-		if button.is_visible_in_tree():
-			button.grab_focus()
-			break
+	ending_replay.grab_focus()
+	(ending_text.get_parent().get_parent() as ScrollContainer).scroll_vertical = 0
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
@@ -1120,11 +1126,7 @@ func _input(event: InputEvent) -> void:
 		toggle_pause()
 		get_viewport().set_input_as_handled()
 		return
-	if pause_enabled and event.is_action_pressed("pause"):
-		toggle_pause()
-		get_viewport().set_input_as_handled()
-		return
-	if log_panel.visible and event.is_action_pressed("ui_cancel"):
+	if log_panel.visible and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause"):
 		toggle_log()
 		get_viewport().set_input_as_handled()
 
@@ -1132,9 +1134,9 @@ func _input(event: InputEvent) -> void:
 		toggle_log()
 		get_viewport().set_input_as_handled()
 	elif log_panel.visible:
-		if event is InputEventKey and not event.is_action("ui_accept") and not event.is_action("ui_up") and not event.is_action("ui_down"):
+		if event is InputEventKey and not event.is_action("pause") and not event.is_action("ui_accept") and not event.is_action("ui_up") and not event.is_action("ui_down"):
 			get_viewport().set_input_as_handled()
-	elif viewer.visible and event.is_action_pressed("ui_cancel") and not get_tree().paused:
+	elif viewer.visible and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause") and not get_tree().paused:
 		viewer_closed.emit()
 		get_viewport().set_input_as_handled()
 	else:

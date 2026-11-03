@@ -32,6 +32,15 @@ func button(index: JoyButton) -> void:
 	await process_frame
 
 
+func key(code: Key, pressed: bool) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = pressed
+	Input.parse_input_event(event)
+	await process_frame
+
+
 func _run() -> void:
 	var main := load("res://scripts/main.gd")
 	main._ensure_inputs()
@@ -93,7 +102,19 @@ func _run() -> void:
 	check(paused and root.gui_get_focus_owner() is Button and ui.pause_panel.is_ancestor_of(root.gui_get_focus_owner()), "Start opens pause with button focus")
 	await button(JOY_BUTTON_B)
 	check(not paused and not ui.pause_panel.visible, "B closes pause")
-	ui.show_ending("結局", "雲層之後", "歷史")
+	# Long real ending text must stay at its beginning even with history available.
+	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史")
+	for frame in 4:
+		await process_frame
+	var ending_scroll := ui.ending_text.get_parent().get_parent() as ScrollContainer
+	check(ending_scroll.get_v_scroll_bar().max_value > ending_scroll.size.y, "ending regression text overflows the scroll container")
+	check(ending_scroll.scroll_vertical == 0, "opening ending keeps narrative scrolled to the top")
+	check(not ending_scroll.is_ancestor_of(root.gui_get_focus_owner()), "ending focuses a button outside the narrative scroll")
+	ending_scroll.scroll_vertical = int(ending_scroll.get_v_scroll_bar().max_value)
+	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史")
+	for frame in 4:
+		await process_frame
+	check(ending_scroll.scroll_vertical == 0, "reopening ending resets narrative scroll to the top")
 	var ending_focus := root.gui_get_focus_owner()
 	check(ending_focus is Button and ui.ending_panel.is_ancestor_of(ending_focus), "ending focuses a button")
 	ui._open_credits()
@@ -109,6 +130,29 @@ func _run() -> void:
 	root.add_child(overlay)
 	overlay.open()
 	check(root.gui_get_focus_owner() == overlay.buttons.flip, "overlay focuses Flip")
+	await key(KEY_ESCAPE, true)
+	await key(KEY_ESCAPE, false)
+	check(not overlay.visible and not paused, "Escape closes the focused overlay without pausing")
+	if paused:
+		ui.toggle_pause()
+	overlay.open()
+	var before_angle := overlay.angle_deg
+	await key(KEY_RIGHT, true)
+	await create_timer(0.08).timeout
+	await key(KEY_RIGHT, false)
+	check(root.gui_get_focus_owner() != overlay.buttons.flip, "right arrow moves overlay button focus")
+	check(is_equal_approx(overlay.angle_deg, before_angle), "right arrow navigates focus without rotating the overlay")
+	var stick := InputEventJoypadMotion.new()
+	stick.axis = JOY_AXIS_RIGHT_X
+	stick.axis_value = 0.5
+	Input.parse_input_event(stick)
+	await create_timer(0.08).timeout
+	stick.axis_value = 0.0
+	Input.parse_input_event(stick)
+	await process_frame
+	check(overlay.angle_deg > before_angle, "right stick still rotates the overlay smoothly")
+	overlay._reset()
+	overlay.buttons.flip.grab_focus()
 	await button(JOY_BUTTON_A)
 	check(overlay.flipped, "A flips tracing")
 	for i in 6:
