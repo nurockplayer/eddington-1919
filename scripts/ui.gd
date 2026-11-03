@@ -76,6 +76,8 @@ var ending_history: RichTextLabel
 var ending_history_toggle: Button
 var pause_panel: Control
 var fullscreen_button: Button
+var text_size_button: Button
+var _font_nodes: Array[Control] = []
 var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
@@ -116,7 +118,7 @@ func _ready() -> void:
 	font = Fonts.cjk()
 	theme_res = Theme.new()
 	theme_res.default_font = font
-	theme_res.default_font_size = 21
+	theme_res.default_font_size = _fs(21)
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -141,7 +143,7 @@ func _ready() -> void:
 	caption.set_anchors_preset(Control.PRESET_FULL_RECT)
 	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	caption.add_theme_font_size_override("font_size", 34)
+	_track_font(caption, 34)
 	caption.add_theme_color_override("font_color", PAPER)
 	caption.modulate.a = 0.0
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -159,10 +161,42 @@ func _panel_style(bg: Color, border := Color(0, 0, 0, 0)) -> StyleBoxFlat:
 	return sb
 
 
+func _fs(px: int) -> int:
+	return roundi(px * Settings.text_scale)
+
+
+func _track_font(node: Control, px: int) -> void:
+	node.set_meta("base_font_size", px)
+	_font_nodes.append(node)
+	_apply_font(node)
+
+
+func _apply_font(node: Control) -> void:
+	var size := _fs(int(node.get_meta("base_font_size")))
+	if node is RichTextLabel:
+		for key in ["normal_font_size", "bold_font_size", "italics_font_size", "bold_italics_font_size", "mono_font_size"]:
+			node.add_theme_font_size_override(key, size)
+	else:
+		node.add_theme_font_size_override("font_size", size)
+
+
+func _text_size_caption() -> String:
+	return "文字大小：" + ["小", "標準", "大"][Settings.TEXT_SCALES.find(Settings.text_scale)]
+
+
+func _cycle_text_size() -> void:
+	Settings.cycle_text_scale()
+	theme_res.default_font_size = _fs(21)
+	_font_nodes = _font_nodes.filter(func(node): return is_instance_valid(node))
+	for node in _font_nodes:
+		_apply_font(node)
+	text_size_button.text = _text_size_caption()
+
+
 func _label(text: String, size := 21, color := PAPER) -> Label:
 	var l := Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", size)
+	_track_font(l, size)
 	l.add_theme_color_override("font_color", color)
 	return l
 
@@ -172,8 +206,7 @@ func _rich(size := 20) -> RichTextLabel:
 	r.bbcode_enabled = true
 	r.fit_content = true
 	r.scroll_active = false
-	r.add_theme_font_size_override("normal_font_size", size)
-	r.add_theme_font_size_override("bold_font_size", size)
+	_track_font(r, size)
 	r.add_theme_color_override("default_color", PAPER)
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return r
@@ -182,7 +215,7 @@ func _rich(size := 20) -> RichTextLabel:
 func _button(text: String) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.add_theme_font_size_override("font_size", 20)
+	_track_font(b, 20)
 	b.focus_mode = Control.FOCUS_ALL
 	var normal := _panel_style(Color(0.18, 0.15, 0.12, 0.95), Color(0.55, 0.45, 0.3))
 	normal.set_content_margin_all(10)
@@ -360,7 +393,7 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.add_child(v)
 	speaker_label = _label("", 22, ACCENT)
 	v.add_child(speaker_label)
-	text_label = _rich(22)
+	text_label = _rich(21)
 	text_label.custom_minimum_size = Vector2(1080, 0)
 	v.add_child(text_label)
 	choice_box = VBoxContainer.new()
@@ -571,7 +604,7 @@ func _build_viewer(root: Control) -> void:
 	mid.add_child(plate_info)
 	include_box = CheckBox.new()
 	include_box.text = "納入量測"
-	include_box.add_theme_font_size_override("font_size", 20)
+	_track_font(include_box, 20)
 	include_box.add_theme_color_override("font_color", PAPER)
 	include_box.focus_mode = Control.FOCUS_ALL
 	include_box.toggled.connect(func(on):
@@ -700,7 +733,7 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 	b.text = text
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	b.add_theme_font_size_override("font_size", 14)
+	_track_font(b, 14)
 	b.focus_mode = Control.FOCUS_ALL
 	return b
 
@@ -814,9 +847,11 @@ func _build_title(root: Control) -> void:
 	var body := _rich(19)
 	body.text = ("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
 		+ "有人會說，對不上的東西就是假的。\n"
-		+ "兩年後，在赤道的雲層底下，你只有 302 秒。[/center]\n\n"
-		+ "[color=#8f8676][font_size=15]" + Credits.DISCLAIMER + "[/font_size][/color]")
+		+ "兩年後，在赤道的雲層底下，你只有 302 秒。[/center]\n")
 	v.add_child(body)
+	var disclaimer := _rich(15)
+	disclaimer.text = "[color=#8f8676]" + Credits.DISCLAIMER + "[/color]"
+	v.add_child(disclaimer)
 	title_controls = _label("", 18, DIM)
 	title_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(title_controls)
@@ -991,7 +1026,8 @@ func _build_pause(root: Control) -> void:
 	root.add_child(pause_panel)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)
-	v.position = Vector2(-150, -240)
+	v.grow_vertical = Control.GROW_DIRECTION_BOTH
+	v.position = Vector2(-150, 0)
 	v.custom_minimum_size = Vector2(300, 0)
 	v.add_theme_constant_override("separation", 12)
 	pause_panel.add_child(v)
@@ -1023,6 +1059,9 @@ func _build_pause(root: Control) -> void:
 	fullscreen_button = _button("全螢幕：開" if Settings.fullscreen else "全螢幕：關")
 	fullscreen_button.pressed.connect(_toggle_fullscreen)
 	v.add_child(fullscreen_button)
+	text_size_button = _button(_text_size_caption())
+	text_size_button.pressed.connect(_cycle_text_size)
+	v.add_child(text_size_button)
 	var rs := _button("從頭開始")
 	rs.pressed.connect(func():
 		get_tree().paused = false
