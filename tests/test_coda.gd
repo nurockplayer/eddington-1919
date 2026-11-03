@@ -128,19 +128,25 @@ func _test_direct_and_prologue_paths() -> void:
 	direct._pending = "reaction"
 	direct._on_dialogue_done({})
 	check(direct.phase != direct.Phase.ENDING and direct._busy, "direct reaction starts the lamp-out beat before ending")
-	await create_timer(0.2).timeout
+	# Sample exactly 0.2 s of tween time, regardless of host frame duration.
+	direct._coda_transition.pause()
+	direct._coda_transition.custom_step(0.2)
 	check(direct.world.lamp.light_energy > 0.0 and direct.world.lamp.light_energy < 1.1, "direct reaction fades the darkroom lamp")
 	var direct_lamp_at_pause: float = direct.world.lamp.light_energy
+	direct._coda_transition.play()
 	direct.ui.log_toggled.emit(true)
-	await create_timer(0.2, true, false, true).timeout
+	check(not direct._coda_transition.is_running(), "Tab log pauses the direct transition")
+	await process_frame
+	await process_frame
 	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Tab log holds the direct lamp-out beat")
 	direct.ui.log_toggled.emit(false)
 	direct_lamp_at_pause = direct.world.lamp.light_energy
 	direct.ui.toggle_pause()
-	await create_timer(0.2, true, false, true).timeout
+	await process_frame
+	await process_frame
 	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Esc pause holds the direct lamp-out beat")
 	direct.ui.toggle_pause()
-	await create_timer(2.8).timeout
+	await direct._coda_transition.finished
 	check(direct.phase == direct.Phase.ENDING, "direct lamp-out beat reaches ending")
 	var starts_after := ScorePlayer.cue_log.filter(func(event): return event.get("event", "") == "start" and event.get("cue", "") == "coda_resolution").size()
 	check(starts_after == starts_before + 1, "direct lamp-out and ending start coda_resolution exactly once")
@@ -183,26 +189,38 @@ func _test_direct_and_prologue_paths() -> void:
 	check(prologue._pending == "coda_kit", "Ashby response advances to Kit close")
 	prologue._on_dialogue_done({})
 	check(prologue.coda_step == prologue.CodaStep.FADING and prologue._busy, "Kit close starts the lamp-out fade")
+	check(prologue._coda_transition != null and prologue._coda_transition.is_running(), "coda fade has an active tween")
 	if prologue._coda_transition and prologue._coda_transition.is_valid():
+		prologue._coda_transition.pause()
+		prologue._coda_transition.custom_step(0.2)
+		prologue._coda_transition.play()
 		prologue.ui.log_toggled.emit(true)
 		var lamp_at_pause: float = prologue.world.lamp.light_energy
-		await create_timer(3.0, true, false, true).timeout
+		check(not prologue._coda_transition.is_running(), "Tab log pauses the coda transition")
+		await process_frame
+		await process_frame
 		check(is_equal_approx(prologue.world.lamp.light_energy, lamp_at_pause), "Tab log pauses the coda fade")
 		prologue.ui.log_toggled.emit(false)
 		check(prologue._coda_transition.is_running(), "closing Tab log resumes the coda fade")
+		# Reach the screen-fade segment using simulated tween time.
+		prologue._coda_transition.pause()
+		prologue._coda_transition.custom_step(0.5)
+		prologue._coda_transition.custom_step(0.6)
+		prologue._coda_transition.custom_step(0.3)
+		prologue._coda_transition.play()
+		check(prologue.ui.fade.color.a > 0.0 and prologue.ui.fade.color.a < 1.0, "coda screen fade is in progress before Esc pause")
 		var lamp_at_tree_pause: float = prologue.world.lamp.light_energy
 		var safelight_at_tree_pause: float = prologue.world.safelight.light_energy
 		var fade_at_tree_pause: float = prologue.ui.fade.color.a
 		prologue.ui.toggle_pause()
-		await create_timer(3.0, true, false, true).timeout
+		await process_frame
+		await process_frame
 		check(is_equal_approx(prologue.world.lamp.light_energy, lamp_at_tree_pause), "Esc pause holds the coda lamp transition")
 		check(is_equal_approx(prologue.world.safelight.light_energy, safelight_at_tree_pause), "Esc pause holds the coda safelight transition")
 		check(is_equal_approx(prologue.ui.fade.color.a, fade_at_tree_pause), "Esc pause holds the coda screen fade")
-		check(prologue.phase == prologue.Phase.CODA and prologue.coda_step == prologue.CodaStep.FADING and prologue._busy, "three seconds of Esc pause keep coda before ending")
+		check(prologue.phase == prologue.Phase.CODA and prologue.coda_step == prologue.CodaStep.FADING and prologue._busy, "Esc pause keeps coda before ending")
 		prologue.ui.toggle_pause()
-	var deadline := Time.get_ticks_msec() + 5000
-	while prologue.phase != prologue.Phase.ENDING and Time.get_ticks_msec() < deadline:
-		await process_frame
+		await prologue._coda_transition.finished
 	check(prologue.phase == prologue.Phase.ENDING and prologue.ui.ending_panel.visible, "prologue coda fade reaches ending")
 	check(is_equal_approx(prologue.world.lamp.light_energy, 0.0) and is_equal_approx(prologue.world.safelight.light_energy, 0.0), "resumed coda fade extinguishes both lamps")
 	check(is_equal_approx(prologue.ui.fade.color.a, 0.0), "ending clears the completed coda screen fade")
