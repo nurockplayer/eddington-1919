@@ -55,26 +55,14 @@
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
-## Resume here (edd-director, written 2026-11-03 00:5x JST before /clear)
-- **Standing Owner request:** 2026-11-02 16:5x JST, 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」. It overrides the old heartbeat text's "no new features" hold.
-- **Done:** waves 1–7, #83–#111, all merged (2026-11-03 01:47 JST). main = 08cb22f+. Bots: careful 4, rushed 0, cherry 3, prologue honest 4. No open implementation PR. #111 drained headless audio (leaks careful 6→0, prologue 8→0) and fixed test_coda's GradeFixture (EINSTEIN/HALF). Its review fell back to codex (oracle-ego submit failed, exit 5); ego-lite restarted 01:47 JST.
-- **Waiting on the Owner:**
-  - draft #93 `departure_promise` (listen: `~/Desktop/eddington-music/departure_promise.wav`; D014: no merge without the OK);
-  - SFX WAVs in `~/Desktop/eddington-sfx/`.
-- **e2e:** green on main and on every wave-7 branch (run light under the Owner's one-off heavy authorization of 2026-11-03 00:4x JST; that authorization is used up).
-- **Windowed look done 2026-11-03 09:3x–09:5x JST** (careful/rushed/cherry stills, deleted after judging): #84 fog and trailed stars read clearly on plates and thumbnails; #98 whiskers (thin 2σ, thick 1σ on the combined bar) read well; #109 interval prompt readable; F11 numerically correct; credits showed raw Markdown + an internal A11 note → #119.
-- **Steam release:** the heartbeat now asks whether the game is Steam-ready, judged against `docs/RELEASE_READINESS.md`; it is a one-shot cron re-armed 45 min after every turn. Merged 2026-11-03: #112 fetch comparison, #113 exclude licensed, #114 font, #115 settings, #116 notices, #117 icon/version/export script, #118 credits.
-- **Next wave candidates:**
-  - a missing `comparison` plan card → a short recovery step at the Oxford plate before measuring (from the wave-7 critique; unscored, no data loss);
-  - test_coda fade checks that flake at load average > 20;
-  - a fresh design pass (Codex astra read-only critique worked well: `cx-exec -m gpt-6-astra` with a ≤600-word ranked-list brief).
-- **Worker habits to brief against:** Codex adds `--heavy` to e2e and writes logs to host `/tmp`; every brief must forbid both.
-- **Review flow:** run from the main checkout, never a worktree, because `.claude/ds-workers.tsv` is untracked and the bundle would come out not oracle-OK:
-  1. `review-bundle <pr>` → `review-run --provider oracle <bundle>`, waiting on exit 75.
-  2. If oracle fails (exit 5/8/9), retry once, then restart ego-lite (`osascript -e 'quit app "ego lite"'; open -a "ego lite"`, only when `pgrep -f oracle-ego` is empty), then oracle again.
-  3. Still failing: `--provider codex`, and say so in the PR.
-  4. `review-gate <pr>`; run it a second time if it says "Auto merge is not allowed".
-  If ego-browser says the task space is under the user's control, stop and ask the Owner. After they say continue: `ego-browser nodejs` → `await takeOverTaskSpace(2)` ("oracle-review").
+## Resume here (edd-director, written 2026-11-03 14:2x JST)
+- **Standing Owner request:** 2026-11-02 16:5x JST, 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」. Heartbeat (Owner 2026-11-03 07:5x JST): asks 「遊戲目前是否已達 production release、可以在 Steam 上架？」 against `docs/RELEASE_READINESS.md`; one-shot cron re-armed 45 min after every turn.
+- **Steam release, merged 2026-11-03:** #112–#119, #120 gamepad (6 review rounds), #121 UTF-8 release-zip check, #122–#124 text size (UI, chapter panels, ink smudge), #125 e2e caps ×2 (`E2E_CAP_SCALE`), #126 畫質 低/標準, #127–#128 benchmark `--bench-quality` / `--bench-cambridge` (results `art/validation/perf-a12/SUMMARY.md`: low ≈ half the render cost, VRAM 330→195 MB). main = 8e80d77+. Bots careful 4 / rushed 0 / cherry 3 / prologue honest 4.
+- **Section A state:** A1–A7, A9, A10 DONE. Left, all Owner-gated: A8 → B11 names; A11 → a human plays the exported build (B10); A12 min spec/FPS target → target hardware (B2/B10); A13 Windows preset → B2.
+- **Waiting on the Owner:** ego-lite ChatGPT is logged out (oracle exit 5 since 2026-11-03 11:3x JST; reviews go to codex, said in each PR); section B decisions (B1–B11); draft #93 `departure_promise` (`~/Desktop/eddington-music/departure_promise.wav`, D014); SFX WAVs `~/Desktop/eddington-sfx/`.
+- **Next if idle:** improvement-program candidates — a missing `comparison` plan card → short recovery step at the Oxford plate; test_coda fade flake at load > 20; a fresh Codex astra design critique (`cx-exec -m gpt-6-astra`, ≤600-word ranked list).
+- **Worker habits to brief against:** Codex adds `--heavy` to e2e and writes to host `/tmp`; every brief forbids both. A merge that adds scripts needs `godot --headless --import` in the main checkout before suites (else they hang). Tests must not leave `user://settings.cfg` changed.
+- **Review flow:** from the main checkout: `review-bundle <pr>` → `review-run --provider oracle` (loop on 75; exit 5 → `--provider codex`, say so in the PR) → `review-gate <pr>` (rerun once on "Auto merge is not allowed").
 - **Cleanup:** remove a worktree or branch only after `gh pr view <n> --json state` says MERGED.
 
 ## Improvement program (Owner 2026-11-02 16:5x JST: 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」)
