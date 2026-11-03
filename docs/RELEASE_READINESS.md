@@ -8,7 +8,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 
 | # | Item | Status | Evidence | Next action |
 |---|---|---|---|---|
-| A1 | Human Generator assets cannot ship | PARTIAL | #113: export presets exclude `assets/licensed/*`; regression test checks each preset (oracle major: config only, not the package) | in A11, list the exported pck and assert no `assets/licensed/` or `tests/` file |
+| A1 | Human Generator assets cannot ship | DONE (macOS) | #113 presets exclude `assets/licensed/*`; #121 `tools/export_release.sh` parses the exported 0.3.0 macOS PCK and fails on any `assets/licensed/` or `tests/` path — passed 2026-11-03 12:1x JST | repeat for the Windows/Linux packages once B2 picks platforms (A13) |
 | A2 | Bundled CJK font | DONE | [PR #114](https://github.com/nurockplayer/eddington-1919/pull/114): `scripts/fonts.gd` adds bundled Noto Sans TC Regular after system names; OFL and hashes recorded; `tests/test_fonts.gd` checks every non-ASCII script character | — |
 | A3 | Credits screen | DONE | Title and ending menus open the shared scrollable credits; `scripts/credits.gd` supplies version, production, shared historical disclaimer and notices; `tests/test_credits.gd` drives both menus | Owner name pending in B8: change `Credits.AUTHOR` |
 | A4 | Licence notices complete and consistent | DONE | Credits expose `Notices.text()`, Godot’s engine licence, all bundled component copyrights and licence texts with BBCode escaping; notice/font export filters from [PR #116](https://github.com/nurockplayer/eddington-1919/pull/116) retained | A11: qualify the exported package and its reachable credits/notices |
@@ -18,7 +18,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | A8 | Placeholder text on the player path | PARTIAL | the only hit is `scripts/ui.gd:771` 「姓名暫定」 (fictional names provisional) → Owner decision B11 | when B11 is decided, drop 「（姓名暫定）」 and add a grep gate test |
 | A9 | App icon, version from one place, release export script | DONE | [PR #117](https://github.com/nurockplayer/eddington-1919/pull/117): original `icon.svg`, Godot-rendered macOS PNG, `config/version="0.3.0"` with preset/title checks, `tools/export_release.sh` checks ZIP and PCK contents | A11: run the release export and qualify the packaged app; export intentionally not run for A9 |
 | A10 | Every ending reached in tests | PARTIAL | the 1919 endings are reached by autoplay careful/rushed/cherry + prologue honest; `tidy`/`accuse` stop at PREP by contract (their prologue differences are checked at PREP); coda variants covered in test_coda | low priority: extend tidy/accuse to ENDING only if their bond/slip choices change a later line |
-| A11 | Exported-build qualification | PARTIAL | last export is v0.2 (`d3bb69d`) | export current main, play start → credits per platform, keep runtime/exit logs clean |
+| A11 | Exported-build qualification | PARTIAL | macOS 0.3.0 export from main + package check pass (#121, 2026-11-03 12:1x JST); exported app not yet played | export current main, play start → credits per platform, keep runtime/exit logs clean |
 | A12 | Low-end performance budget | PARTIAL | `art/validation/perf-r04` M2 Pro only | set minimum spec + FPS target, measure (heavy job) |
 | A13 | Windows x86_64 preset | MISSING | only a macOS preset | add preset + test (if the Owner picks Windows, B2) |
 
