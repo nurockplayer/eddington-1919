@@ -1018,15 +1018,19 @@ func _build_ending(root: Control) -> void:
 	ending_history.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ending_history.visible = false
 	v.add_child(ending_history)
-	var hb := HBoxContainer.new()
+	var hb := HFlowContainer.new()
 	hb.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	hb.offset_left = 20
 	hb.offset_right = -20
-	hb.offset_top = -90
-	hb.offset_bottom = -40
-	hb.alignment = BoxContainer.ALIGNMENT_CENTER
-	hb.add_theme_constant_override("separation", 16)
+	hb.offset_top = -48
+	hb.offset_bottom = -48
+	hb.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	hb.alignment = FlowContainer.ALIGNMENT_CENTER
+	hb.add_theme_constant_override("h_separation", 16)
+	hb.add_theme_constant_override("v_separation", 12)
 	ending_panel.add_child(hb)
+	hb.minimum_size_changed.connect(func(): hb.offset_top = -48 - hb.get_combined_minimum_size().y)
+	hb.resized.connect(func(): scroll.offset_bottom = -48 - hb.size.y - 20)
 	var same := _button("同一片雲，再試一次")
 	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
@@ -1043,6 +1047,17 @@ func _build_ending(root: Control) -> void:
 	var q := _button("離開")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	# Right/left traverse visual reading order even across a wrapped line.
+	# Up/down remain reserved for scrolling the narrative.
+	hb.sort_children.connect(func():
+		var buttons := hb.get_children().filter(func(b): return b.visible)
+		for i in buttons.size():
+			var b: Button = buttons[i]
+			b.focus_neighbor_left = b.get_path_to(buttons[(i - 1 + buttons.size()) % buttons.size()])
+			b.focus_neighbor_right = b.get_path_to(buttons[(i + 1) % buttons.size()])
+			b.focus_previous = b.focus_neighbor_left
+			b.focus_next = b.focus_neighbor_right
+	)
 	var hint := _label("↑↓ 或右搖桿：捲動", 16, DIM)
 	hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	hint.position = Vector2(-220, -32)
