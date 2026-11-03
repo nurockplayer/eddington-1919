@@ -300,7 +300,7 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 			await frames(3)
 			if main.ui.dialog_panel.get_global_rect().end.y > get_viewport().get_visible_rect().end.y + 1.0:
 				failures.append("dialogue choices extend below the viewport")
-			var choice_label: String = main.Beat.keys()[main.beat].to_lower() + "_" + str(main._pending)
+			var choice_label: String = "coda_kit_first" if entry.get("key", "") == "kit_first" else main.Beat.keys()[main.beat].to_lower() + "_" + str(main._pending)
 			if not _choice_shots.has(choice_label):
 				_choice_shots[choice_label] = true
 				await _wait_for_camera_settle()

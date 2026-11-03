@@ -190,6 +190,8 @@ func talk(choices: Array = []) -> void:
 		var e: Dictionary = main.ui._seq[main.ui._seq_i]
 		if e.has("choices"):
 			var pick: int = choices[ci] if ci < choices.size() else 0
+			if e.get("key", "") == "kit_first":
+				pick = 0
 			ci += 1
 			_log("choose %d: %s" % [pick, e.choices[pick]])
 			await _tap(KEY_1 + pick)
