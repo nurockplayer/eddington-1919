@@ -447,11 +447,25 @@ static func trial_task() -> Array:
 	]
 
 
-static func mentor_after(_report: Dictionary) -> Array:
+## The cabinet plate and its 0.3″ discrepancy are fictional.
+static func trial_check() -> Array:
+	return [
+		{"s": "", "t": "（你從櫃子取出畢宿星團的舊底片，攤開 Eddington 的清單。）"},
+		{"s": "", "t": "清單標著第一顆星的位置。舊底片上的星，卻離那個位置約 0.3″。",
+			"key": "trial_note", "choices": [
+				"照實寫：這顆對不上，差約 0.3″。",
+				"先跳過這顆，等量多幾張再說。",
+				"應該是舊底片量錯了，照星表寫。",
+			]},
+	]
+
+
+static func mentor_after(_report: Dictionary, trial_note: int) -> Array:
+	var note: String = ["我看到你寫了『對不上』。", "跳過也是一種選擇——但要寫下你跳過了。", "星表也是人量的。"][trial_note]
 	return [
 		{"s": "", "t": "（雨停了。Eddington 的腳步聲消失在走廊盡頭。）"},
 		{"s": A, "t": "他喜歡你。他不會說出來——那個人連喜歡什麼都要先量一量。"},
-		{"s": A, "t": "我要說的只有一句：做他的清單，就像做我的一樣。哪顆星對不上，就寫它對不上。不管那對誰有利。",
+		{"s": A, "t": note + "我要說的只有一句：做他的清單，就像做我的一樣。哪顆星對不上，就寫它對不上。不管那對誰有利。",
 			"key": "after", "choices": ["我會的。", "先生……您真的不信嗎？"],
 			"then": [
 				[{"s": A, "t": "我知道。"}],
