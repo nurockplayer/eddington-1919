@@ -6,6 +6,7 @@ const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Plan := preload("res://scripts/cambridge/plan_board.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
+const Settings := preload("res://scripts/settings.gd")
 var checks := 0
 var failures := 0
 
@@ -71,6 +72,65 @@ func motion(axis: JoyAxis, value: float) -> void:
 	Input.parse_input_event(event)
 	Input.flush_buffered_events()
 	await process_frame
+
+
+func _ending_layout(ui: UI) -> void:
+	var original_size := root.size
+	var original_scale_size := root.content_scale_size
+	var original_scale := Settings.text_scale
+	var buttons := ui.ending_replay.get_parent().get_children()
+	var hint := ui.ending_panel.get_child(ui.ending_panel.get_child_count() - 1) as Label
+	var original_scroll_bottom := ui.ending_scroll.offset_bottom
+	for window_size in [Vector2i(1600, 900), Vector2i(1280, 960), Vector2i(800, 900)]:
+		# The third case forces wrapping even with the expand aspect's base width.
+		root.content_scale_size = window_size if window_size.x == 800 else Vector2i(1600, 900)
+		root.size = window_size
+		for scale in [1.0, 1.2]:
+			Settings.text_scale = scale
+			Settings.refresh_fonts(self)
+			ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史", "證據與評語")
+			for frame in 6:
+				await process_frame
+			var context := "%s scale %s" % [window_size, scale]
+			var expected_size := Vector2(1600, 1200) if window_size.x == 1280 else Vector2(window_size)
+			check(root.get_visible_rect().size.is_equal_approx(expected_size), "expanded canvas: " + context)
+			if window_size.x == 800:
+				check(buttons[-1].position.y > buttons[0].position.y, "narrow canvas wraps buttons: " + context)
+			check(root.gui_get_focus_owner() == buttons[0], "Replay starts focused: " + context)
+			for i in buttons.size():
+				var rect: Rect2 = buttons[i].get_global_rect()
+				check(root.get_visible_rect().encloses(rect), "ending button fits: %s %s" % [buttons[i].text, context])
+				check(not rect.intersects(ui.ending_scroll.get_global_rect()), "button clears ending scroll: " + context)
+				check(not rect.intersects(hint.get_global_rect()), "button clears scroll hint: " + context)
+				for j in range(i):
+					check(not rect.intersects(buttons[j].get_global_rect()), "ending buttons do not overlap: " + context)
+				if i > 0:
+					var previous: Rect2 = buttons[i - 1].get_global_rect()
+					check(rect.position.y > previous.position.y or (is_equal_approx(rect.position.y, previous.position.y)
+						and rect.position.x > previous.position.x), "buttons follow visual reading order: " + context)
+				check(root.gui_get_focus_owner() == buttons[i], "ui_right reaches button %d: %s" % [i, context])
+				await button(JOY_BUTTON_DPAD_DOWN)
+				check(root.gui_get_focus_owner() == buttons[i], "ui_down scrolls without stranding focus: " + context)
+				if i == 4:
+					await button(JOY_BUTTON_A)
+					check(ui.credits_panel.visible, "focused credits opens: " + context)
+					await button(JOY_BUTTON_B)
+					check(not ui.credits_panel.visible and root.gui_get_focus_owner() == buttons[i],
+						"credits restores Credits focus: " + context)
+				await button(JOY_BUTTON_DPAD_RIGHT)
+			check(root.gui_get_focus_owner() == buttons[0], "ui_right wraps to Replay: " + context)
+			for i in range(buttons.size() - 1, -1, -1):
+				await button(JOY_BUTTON_DPAD_LEFT)
+				check(root.gui_get_focus_owner() == buttons[i], "ui_left reverses reading order: " + context)
+	# Returning to standard size must release any space used by wrapped rows.
+	root.size = original_size
+	root.content_scale_size = original_scale_size
+	Settings.text_scale = original_scale
+	Settings.refresh_fonts(self)
+	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史", "證據與評語")
+	for frame in 6:
+		await process_frame
+	check(is_equal_approx(ui.ending_scroll.offset_bottom, original_scroll_bottom), "returning to original layout releases wrapped row space")
 
 
 func _run() -> void:
@@ -218,6 +278,7 @@ func _run() -> void:
 	ui._open_credits()
 	await button(JOY_BUTTON_B)
 	check(not ui.credits_panel.visible and root.gui_get_focus_owner() == ending_focus, "B returns credits focus to ending")
+	await _ending_layout(ui)
 	ui.ending_panel.hide()
 	await button(JOY_BUTTON_BACK)
 	check(ui.log_open(), "Back opens dialogue log")

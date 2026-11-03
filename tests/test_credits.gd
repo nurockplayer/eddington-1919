@@ -84,6 +84,7 @@ func _run() -> void:
 		check(open != null, "menu contains credits button")
 		if open == null or back == null:
 			continue
+		open.grab_focus()
 		open.pressed.emit()
 		await process_frame
 		await process_frame
@@ -98,6 +99,7 @@ func _run() -> void:
 		check(back.is_visible_in_tree(), "return remains visible at bottom of credits")
 		back.pressed.emit()
 		check(not ui.credits_panel.visible, "return hides credits")
+		check(open.has_focus(), "return restores focus to originating Credits button")
 		check(menu.visible, "return preserves originating menu")
 		open.pressed.emit()
 		check(scroll.scroll_vertical == 0, "reopening credits resets scroll")
@@ -107,6 +109,7 @@ func _run() -> void:
 		root.push_input(escape)
 		await process_frame
 		check(not ui.credits_panel.visible and not paused, "Escape closes credits without pausing main")
+		check(open.has_focus(), "Escape restores focus to originating Credits button")
 		open.pressed.emit()
 		var accept := InputEventAction.new()
 		accept.action = "ui_accept"
@@ -118,6 +121,7 @@ func _run() -> void:
 		root.push_input(accept)
 		await process_frame
 		check(not ui.credits_panel.visible, "focused return closes with ui_accept")
+		check(open.has_focus(), "ui_accept restores focus to originating Credits button")
 	current_scene.queue_free()
 	await process_frame
 	print("%d credits checks, %d failures" % [checks, failures])
