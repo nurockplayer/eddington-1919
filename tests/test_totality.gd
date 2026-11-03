@@ -33,6 +33,8 @@ func _run() -> void:
 	_test_strip_model()
 	await _test_sim_invariance()
 	await _test_rehearsal()
+	await _test_ready_status()
+	await _test_empty_rack_wait()
 	await _test_shutter_read()
 	await _test_sfx_buffers()
 	await _test_viewer_note()
@@ -197,8 +199,9 @@ func _test_rehearsal() -> void:
 		root.push_input(device)
 		await process_frame
 		game._interact("eddington")
+		game.ui._advance()
 		check(game.ui._choice_buttons.size() == 4, "PREP offers rehearsal and keeps dismiss last")
-		check(game.ui._seq[0].choices[3] == "沒事。", "dismiss stays at PREP index 3")
+		check(game.ui._seq[1].choices[3] == "沒事。", "dismiss stays at PREP index 3")
 		game.ui._choose(2)
 		check(game.rehearsing and not game.ui.dialog_active(), "choice 2 starts a repeatable dry run")
 		check(not game.player.can_move and game.player.can_look, "rehearsal freezes movement while retaining look and input")
@@ -235,14 +238,17 @@ func _test_rehearsal() -> void:
 	game._process_prep(0.5)
 	check(game.prep_left == prep_before - 0.5, "PREP countdown resumes after rehearsal")
 	game._interact("eddington")
+	game.ui._advance()
 	game.ui._choose(3)
 	check(not game.rehearsing and game.phase == game.Phase.PREP, "dismiss remains a no-op")
 	game._interact("eddington")
+	game.ui._advance()
 	game.ui._choose(1)
 	check(game.ui.text_label.text.contains("雲薄的時候"), "choice 1 still explains exposure")
 	while game.ui.dialog_active():
 		game.ui._advance()
 	game._interact("eddington")
+	game.ui._advance()
 	game.ui._choose(0)
 	await create_timer(2.2).timeout
 	check(game.phase == game.Phase.TOTALITY and not game._busy, "choice 0 still begins real totality")
@@ -257,6 +263,86 @@ func _test_rehearsal() -> void:
 	game.queue_free()
 	await process_frame
 	Prompts.joypad = false
+
+
+func _test_ready_status() -> void:
+	var states := [
+		[true, true, 0, "可用底片 6 張。時鐘驅動：上了發條並校過走速。", 6],
+		[true, false, 0, "可用底片 6 張。時鐘驅動：上了發條但沒校走速。", 6],
+		[false, false, 0, "可用底片 6 張。時鐘驅動：還沒上發條。", 6],
+		[true, true, 2, "可用底片 8 張（你手上的 2 張會交給 Cottingham）。時鐘驅動：上了發條並校過走速。", 8],
+	]
+	for state in states:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game._start_game()
+		game.sim.briefed = true
+		game.sim.plates_delivered = 2
+		game.sim.drive_wound = state[0]
+		game.sim.drive_rate_checked = state[1]
+		game.sim.plates_carried = state[2]
+		game._interact("eddington")
+		check(game.ui.text_label.text == state[3], "real PREP dialogue reports plates, handoff and drive: " + state[3])
+		check(game.ui._choice_buttons.is_empty(), "status appears before the PREP question")
+		game.ui._advance()
+		check(game.ui._seq[1].choices[0] == "開始——就位等待全食。", "choice 0 explicitly starts totality")
+		game.ui._choose(0)
+		await create_timer(2.2).timeout
+		check(game.phase == game.Phase.TOTALITY and not game._busy, "every drive state can start totality without gating")
+		check(game.plates_left == state[4] and game.sim.plates_available() == state[4], "totality has exactly the advertised plate count")
+		check(game.sim.plates_carried == 0 and game.sim.plates_delivered == state[4] - Sim.BASE_PLATES, "starting totality hands over the carried plates")
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
+
+
+func _test_empty_rack_wait() -> void:
+	for action in ["shutter", "interact"]:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game._start_game()
+		await game._begin_totality()
+		while game.plates_left > 0:
+			game._toggle_shutter()
+			game._process_totality(1.0 / Sim.TIME_SCALE)
+			check(game.ui.prompt_label.text == "［%s］開始／停" % Prompts.key("shutter"), "an exposing plate keeps the normal stop prompt")
+			var before_stop: float = game.t_game
+			game._toggle_shutter()
+			check(game.t_game == before_stop and not game.sim.is_exposing(), "stop closes the exposure without skipping time, including the last plate")
+			game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
+		check(game.t_game < 30.0, "rack was exhausted early through actual exposures and plate changes")
+		check(game.ui.prompt_label.text == "底片用完了。［%s］等待第三接觸" % Prompts.key("shutter"), "empty rack offers waiting for third contact")
+		var evidence: Array = game.sim.plates.duplicate(true)
+		var press := InputEventAction.new()
+		press.action = action
+		await _rehearsal_press(press)
+		check(game.t_game == Sim.TOTALITY_S - 3.0, action + " jumps to three game-seconds before contact")
+		game._process_totality(1.0 / Sim.TIME_SCALE)
+		await _rehearsal_press(press)
+		check(game.t_game == Sim.TOTALITY_S - 2.0, "repeated wait cannot move time backwards")
+		game._process_totality(1.0 / Sim.TIME_SCALE)
+		check(not game.tot_done, "third contact does not arrive before three game-seconds")
+		game._process_totality(1.0 / Sim.TIME_SCALE)
+		check(game.tot_done and game._sfx_log.count("third") == 1, "third contact arrives after three game-seconds exactly once")
+		check(game.ui.toast.text.begins_with("第三接觸。陽光像鑽石一樣"), "waiting preserves the diamond-ring announcement")
+		await create_timer(0.2).timeout
+		check(game.sky_mat.get_shader_parameter("third_contact") != Vector2.ZERO, "the actual diamond-ring tween still runs")
+		var night_entries: Array = []
+		game.ui.dialogue_entry.connect(func(_speaker):
+			if game.phase == game.Phase.NIGHT:
+				night_entries.append(game.ui.text_label.text))
+		# Run beyond contact repeatedly while its authored transition completes.
+		for i in 100:
+			game._process_totality(STEP)
+			await create_timer(STEP).timeout
+		check(game.phase == game.Phase.NIGHT and not game._busy, "empty rack reaches the real NIGHT scene")
+		check(night_entries.size() == 1 and game._sfx_log.count("third") == 1, "NIGHT introduction and third contact each run once")
+		check(game.sim.plates == evidence, "waiting and NIGHT preserve every exposure field")
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
 
 
 func _test_shutter_read() -> void:
