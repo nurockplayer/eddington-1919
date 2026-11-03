@@ -259,7 +259,8 @@ func _run() -> void:
 	move_stick.axis = JOY_AXIS_LEFT_X
 	move_stick.axis_value = 1.0
 	Input.parse_input_event(move_stick.duplicate())
-	await create_timer(0.08).timeout
+	for i in 4:
+		await process_frame
 	move_stick.axis_value = 0.0
 	Input.parse_input_event(move_stick.duplicate())
 	await process_frame
@@ -279,7 +280,8 @@ func _run() -> void:
 	stick.axis = JOY_AXIS_RIGHT_X
 	stick.axis_value = 0.5
 	Input.parse_input_event(stick.duplicate())
-	await create_timer(0.08).timeout
+	for i in 4:
+		await process_frame
 	stick.axis_value = 0.0
 	Input.parse_input_event(stick.duplicate())
 	await process_frame
