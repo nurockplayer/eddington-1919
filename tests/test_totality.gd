@@ -728,6 +728,7 @@ func _test_reselect_reason() -> void:
 	game.ui.measure_btn.pressed.emit()
 	game.ui._choice_buttons[0].pressed.emit()
 	check(not Judgment.grade(game.sim, "hopeful", "measured").clean, "later quality correction cannot clear an earlier result-driven change")
+	check(Judgment.grade(game.sim, "hopeful", "measured").lines.has("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"), "earlier result admission wins over a later quality reason in judgment text")
 	check(game.sim.reselect_history == [{"reason": "result", "added": [3], "removed": []}, {"reason": "quality", "added": [], "removed": [2]}], "both reselection reasons and plate changes survive")
 	check(game.sim.first_result == original, "multiple reselections still retain the first result")
 	game.stop_all_audio()

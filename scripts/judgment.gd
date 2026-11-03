@@ -244,10 +244,13 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 	if not sel.included_unusable.is_empty():
 		out.append("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。" % _nums(sel.included_unusable))
 	if sel.reselected:
-		if sel.reselect_justified:
-			out.append("你改了選片，也寫下了原因：第 %s 號是因為星像品質。兩次結果都留著，誰都能對照。" % _nums(sel.reselect_removed + sel.reselect_added))
-		elif sel.reselect_reason == "result":
+		if sim.reselect_history.any(func(change): return change.reason == "result"):
 			out.append("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。")
+		elif sel.reselect_justified:
+			var changed_plates: Array = []
+			for change in sim.reselect_history:
+				changed_plates.append_array(change.removed + change.added)
+			out.append("你改了選片，也寫下了原因：第 %s 號是因為星像品質。兩次結果都留著，誰都能對照。" % _nums(changed_plates))
 		else:
 			out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
 	var good: Array = sim.plates.filter(func(p): return p.included and p.quality == "good")

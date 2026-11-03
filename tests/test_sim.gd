@@ -166,10 +166,11 @@ func _init() -> void:
 	corrected.reselect_reason = "quality"
 	corrected.reselect_added = [1]
 	corrected.reselect_removed = [2, 3]
+	corrected.reselect_history = [{"reason": "quality", "removed": [2], "added": [1]}, {"reason": "quality", "removed": [3], "added": []}]
 	var report: Dictionary = corrected.selection_report()
 	check(report.reselect_added == [1] and report.reselect_removed == [2, 3] and report.reselect_reason == "quality", "report retains documented changes")
 	check(report.reselect_justified and Judgment.grade(corrected, "hopeful", "measured").clean, "quality correction removing poor and unusable plates is clean")
-	check(Judgment.grade(corrected, "hopeful", "measured").lines.any(func(line): return line.contains("第 2、3、1 號是因為星像品質")), "justified correction names the changed plates")
+	check(Judgment.grade(corrected, "hopeful", "measured").lines.any(func(line): return line.contains("第 2、1、3 號是因為星像品質")), "justified correction names plates from every quality change")
 	check(corrected.first_result == first and corrected.first_result != corrected.combined(), "first result survives a changed combination")
 	corrected.reselect_removed = [1]
 	check(not corrected.selection_report().reselect_justified and not Judgment.grade(corrected, "hopeful", "measured").clean, "claiming quality after removing a good plate is not clean")
@@ -178,10 +179,12 @@ func _init() -> void:
 	check(not corrected.selection_report().reselect_justified, "adding a poor plate is not justified")
 	corrected.reselect_added = [1]
 	corrected.reselect_reason = "result"
+	corrected.reselect_history = [{"reason": "result", "removed": [2, 3], "added": [1]}]
 	var result_grade: Dictionary = Judgment.grade(corrected, "hopeful", "measured")
 	check(not result_grade.clean, "a result-driven correction is not clean")
 	check(result_grade.lines.has("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"), "result-driven correction gets its recorded-reason line")
 	corrected.reselect_reason = "none"
+	corrected.reselect_history = [{"reason": "none", "removed": [2, 3], "added": [1]}]
 	check(not Judgment.grade(corrected, "hopeful", "measured").clean, "an unexplained correction is not clean")
 
 	# Careful play (checked drive, exposures inside the late gap) should not point
