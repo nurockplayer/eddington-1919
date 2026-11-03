@@ -191,6 +191,7 @@ func _dialogue_done(results: Dictionary) -> void:
 		"bond":
 			Story.bond_tone = "close" if int(results.get("bond", 0)) == 0 else "warm"
 			beat = Beat.PROMISE
+			score.play("departure_promise", 2.0)
 			_say(Content.sky_promise(Story.bond_tone), "promise")
 			return
 		"promise": beat = Beat.FAREWELL
@@ -258,6 +259,7 @@ func _build_keepsake() -> void:
 
 
 func _montage() -> void:
+	score.stop("departure_promise", 1.5)
 	score.play("departure_motif", 0.6)
 	beat = Beat.MONTAGE
 	_busy = true
@@ -286,7 +288,7 @@ func _build_audio() -> void:
 	var score_ready := Time.get_ticks_usec()
 	score = ScorePlayer.new()
 	add_child(score)
-	score.warm(["departure_motif"])
+	score.warm(["departure_motif", "departure_promise"])
 	ui.log_toggled.connect(score.set_log_open)
 	print("[SCORE READY] scene=departure added_ms=%.3f" % [(Time.get_ticks_usec() - score_ready + ui.music_ready_usec) / 1000.0])
 	var samples := PackedFloat32Array()
