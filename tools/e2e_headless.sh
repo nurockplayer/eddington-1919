@@ -17,19 +17,26 @@ set -u
 
 GODOT=${GODOT:-godot}
 FPS=60
+caps=$(perl -MPOSIX=ceil -e '
+  $scale = shift;
+  die "E2E_CAP_SCALE must be a positive number\n" unless $scale =~ /\A(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?\z/ && $scale > 0;
+  print join " ", map { ceil($_ * $scale) } @ARGV;
+' "${E2E_CAP_SCALE:-1}" 240 240 240 480 360 360) || exit 1
+read -r careful_cap rushed_cap cherry_cap honest_cap tidy_cap accuse_cap <<<"$caps"
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/e2e_headless.XXXXXX") || exit 1
 trap 'rm -rf "$tmp"' EXIT
 
 # route|cap_seconds|expected_terminal_phase|godot user args
 # Prologue tidy/accuse end at PREP by contract (their 1919 receipt); honest runs
-# the whole cross-era route to ENDING.
+# the whole cross-era route to ENDING. E2E_CAP_SCALE scales caps (default 1),
+# rounding up to whole seconds.
 ROUTES=(
-  "autoplay careful|120|ENDING|--autoplay=careful --seed=77"
-  "autoplay rushed|120|ENDING|--autoplay=rushed --seed=515"
-  "autoplay cherry|120|ENDING|--autoplay=cherry --seed=4242"
-  "prologue honest|240|ENDING|--prologue-autoplay=honest --seed=77"
-  "prologue tidy|180|PREP|--prologue-autoplay=tidy --seed=78"
-  "prologue accuse|180|PREP|--prologue-autoplay=accuse --seed=79"
+  "autoplay careful|$careful_cap|ENDING|--autoplay=careful --seed=77"
+  "autoplay rushed|$rushed_cap|ENDING|--autoplay=rushed --seed=515"
+  "autoplay cherry|$cherry_cap|ENDING|--autoplay=cherry --seed=4242"
+  "prologue honest|$honest_cap|ENDING|--prologue-autoplay=honest --seed=77"
+  "prologue tidy|$tidy_cap|PREP|--prologue-autoplay=tidy --seed=78"
+  "prologue accuse|$accuse_cap|PREP|--prologue-autoplay=accuse --seed=79"
 )
 
 # A fresh checkout or worktree has no imported resources: every route would load
