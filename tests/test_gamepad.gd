@@ -364,5 +364,8 @@ func _run() -> void:
 	await button(JOY_BUTTON_B)
 	check(not ui.viewer.visible, "B leaves darkroom viewer")
 	ui.free()
+	# UI stops its viewer SFX on exit; let AudioServer release the playback
+	# before this harness immediately shuts down the engine.
+	await create_timer(0.1).timeout
 	print("test_gamepad: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

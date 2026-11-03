@@ -621,6 +621,14 @@ func _stop_night_bed() -> void:
 	_night_bed_tween.tween_callback(audio_insects.stop)
 
 
+func _exit_tree() -> void:
+	# Scene changes and normal quit need the same cleanup as the autoplay path.
+	for tween in [_camera_turn, _coda_transition]:
+		if tween and tween.is_valid():
+			tween.kill()
+	stop_all_audio()
+
+
 func stop_all_audio() -> void:
 	if _birds_tween and _birds_tween.is_valid():
 		_birds_tween.kill()
