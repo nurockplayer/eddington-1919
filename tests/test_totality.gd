@@ -574,40 +574,66 @@ func _click_control(control: Control) -> void:
 
 
 func _test_report_rule_layout() -> void:
-	root.size = Vector2i(1600, 900)
-	var game: Node = load("res://scenes/main.tscn").instantiate()
-	root.add_child(game)
-	game.set_process(false)
+	var old_size := root.size
 	var old_scale := Settings.text_scale
-	Settings.text_scale = 1.2
-	Settings.refresh_fonts(self)
-	game.ui.theme_res.default_font_size = Settings.fs(21)
-	game.sim = Sim.new(1919)
-	game.phase = game.Phase.NIGHT
-	game.sim.rule_id = "strict"
-	game.sim.measured = true
-	for i in 12:
-		game.sim.plates.append({"number": i + 1, "start": float(i * 10), "duration": 6.0, "sunlit": false,
-			"usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.75, "sigma": 0.2})
-		game.plate_textures.append(null)
-	game.ui.hide_title()
-	game._open_viewer()
-	for frame in 4:
+	root.size = Vector2i(1600, 900)
+	for scale in [1.0, 1.2]:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		Settings.text_scale = scale
+		Settings.refresh_fonts(self)
+		game.ui.theme_res.default_font_size = Settings.fs(21)
+		game.sim = Sim.new(1919)
+		game.phase = game.Phase.NIGHT
+		game.sim.rule_id = "strict"
+		game.sim.measured = true
+		for i in 12:
+			game.sim.plates.append({"number": i + 1, "start": float(i * 10), "duration": 6.0, "sunlit": false,
+				"usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.75, "sigma": 0.2})
+			game.plate_textures.append(null)
+		game.ui.hide_title()
+		game._open_viewer()
+		for frame in 4:
+			await process_frame
+		var note_before: String = game.ui.viewer_note.text
+		await _click_control(game.ui.report_btn)
+		for stage in ["interval", "feedback", "telegram", "reason"]:
+			for frame in 4:
+				await process_frame
+			var chart_rect: Rect2 = game.ui.chart.get_global_rect()
+			var dialog_rect: Rect2 = game.ui.dialog_panel.get_global_rect()
+			print("report layout scale=%s stage=%s chart=%s dialogue=%s" % [scale, stage, chart_rect, dialog_rect])
+			check(root.get_visible_rect().encloses(chart_rect) and not dialog_rect.intersects(chart_rect),
+				"scale %s %s leaves the whole chart visible" % [scale, stage])
+			check(root.get_visible_rect().encloses(dialog_rect), "scale %s %s dialogue fits viewport" % [scale, stage])
+			var rule_rect: Rect2 = game.ui.viewer_rule.get_global_rect()
+			check(root.get_visible_rect().encloses(rule_rect) and not dialog_rect.intersects(rule_rect),
+				"scale %s %s rule fits viewport and stays above dialogue" % [scale, stage])
+			match stage:
+				"interval":
+					check(game.ui._seq[game.ui._seq_i].key == "interval", "real report starts at interval")
+					await _click_control(game.ui._choice_buttons[Judgment.interval_truth(game.sim)])
+				"feedback":
+					game.ui._advance()
+				"telegram":
+					check(game.ui._seq[game.ui._seq_i].key == "telegram", "real report reaches telegram")
+					await _click_control(game.ui._choice_buttons[1])
+				"reason":
+					check(game.ui._seq[game.ui._seq_i].key == "reason" and game.ui._choice_buttons.size() == 5,
+						"real report reaches five reason choices")
+		check(game.ui.thumbs.get_child_count() == 13, "report rule layout has twelve plates and a comparison thumbnail")
+		check(game.ui.viewer_rule.is_visible_in_tree() and game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "report shows the complete authored rule")
+		check(game.ui.viewer_note.text == note_before and not note_before.contains("你寫下的規則"), "report rule leaves the measurement note unchanged")
+		game.ui.close_viewer()
+		game._open_viewer()
+		check(game.ui.chart.custom_minimum_size.y == 420.0, "reopening the viewer restores the measurement chart height")
+		game.stop_all_audio()
+		game.queue_free()
 		await process_frame
-	var note_before: String = game.ui.viewer_note.text
-	await _click_control(game.ui.report_btn)
-	for frame in 4:
-		await process_frame
-	check(game.ui.thumbs.get_child_count() == 13, "report rule layout has twelve plates and a comparison thumbnail")
-	check(game.ui.viewer_rule.is_visible_in_tree() and game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "large report shows the complete authored rule")
-	var rule_rect: Rect2 = game.ui.viewer_rule.get_global_rect()
-	check(root.get_visible_rect().encloses(rule_rect) and not game.ui.dialog_panel.get_global_rect().intersects(rule_rect), "large report rule fits the viewport and stays above dialogue")
-	check(game.ui.viewer_note.text == note_before and not note_before.contains("你寫下的規則"), "report rule leaves the measurement note unchanged")
 	Settings.text_scale = old_scale
 	Settings.refresh_fonts(self)
-	game.stop_all_audio()
-	game.queue_free()
-	await process_frame
+	root.size = old_size
 
 
 func _test_birds_quiet() -> void:

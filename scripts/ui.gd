@@ -902,6 +902,10 @@ func set_viewer_locked(locked: bool) -> void:
 
 func set_viewer_report(reporting: bool) -> void:
 	_viewer_reporting = reporting
+	# Leave room for the five-reason dialogue at 1600×900 with large text.
+	chart.custom_minimum_size.y = 280.0 if reporting else 420.0
+	if reporting:
+		_set_loupe(false)
 	viewer_rule.visible = reporting and viewer_rule.text != ""
 	# Keep every viewer control out of dialogue focus navigation.
 	for button in viewer.find_children("*", "BaseButton", true, false):

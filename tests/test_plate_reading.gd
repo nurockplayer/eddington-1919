@@ -163,6 +163,12 @@ func _run() -> void:
 	ui.set_viewer_locked(false)
 	check(not ui.plate_info.text.contains("量得偏折"), "reselect hides measured values again")
 	check(plates == original, "reference and loupe leave player plate data untouched")
+	# Comparison selection bypasses the measured-plate refresh in set_viewer_locked.
+	ui._select_plate(-2, textures[0], false)
+	await click_plate(ui, Vector2(0.5, 0.5))
+	check(ui.loupe_btn.button_pressed and ui.big_plate.texture is AtlasTexture, "comparison plate is zoomed before report")
+	ui.set_viewer_report(true)
+	check(not ui.loupe_btn.button_pressed and ui.big_plate.texture == textures[0], "entering report turns loupe off and restores the full comparison plate")
 	var many_plates := []
 	var many_textures := []
 	for i in 12:
