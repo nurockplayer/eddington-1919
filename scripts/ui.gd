@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 const Fonts := preload("res://scripts/fonts.gd")
+const Credits := preload("res://scripts/credits.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Settings := preload("res://scripts/settings.gd")
 const Content := preload("res://scripts/content.gd")
@@ -62,6 +63,7 @@ var log_text: RichTextLabel
 static var history: Array[String] = []
 var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_panel: Control
+var credits_panel: Control
 var ending_text: RichTextLabel
 var ending_title: Label
 var ending_history: RichTextLabel
@@ -776,7 +778,7 @@ func _build_title(root: Control) -> void:
 		+ "兩年後，在赤道的雲層底下，你只有 302 秒。[/center]\n\n"
 		+ "[color=#b8ad98]WASD 移動 · 滑鼠／方向鍵 觀看 · Shift 跑 · E 互動 · Tab 對話紀錄\n"
 		+ "全食時：空白鍵／E／左鍵 開始與停 · Esc 暫停[/color]\n\n"
-		+ "[color=#8f8676][font_size=15]Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構（姓名暫定），場景為推測重建。[/font_size][/color]")
+		+ "[color=#8f8676][font_size=15]" + Credits.DISCLAIMER + "[/font_size][/color]")
 	v.add_child(body)
 	var hb := HBoxContainer.new()
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -788,6 +790,10 @@ func _build_title(root: Control) -> void:
 	start_btn = _button("普林西比，1919")
 	start_btn.pressed.connect(func(): start_pressed.emit())
 	hb.add_child(start_btn)
+	var credits := _button("製作名單")
+	credits.focus_mode = Control.FOCUS_ALL
+	credits.pressed.connect(_open_credits)
+	hb.add_child(credits)
 	var q := _button("　離開　")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
@@ -848,9 +854,54 @@ func _build_ending(root: Control) -> void:
 	var fresh := _button("新的天空")
 	fresh.pressed.connect(func(): restart_pressed.emit(false))
 	hb.add_child(fresh)
+	var credits := _button("製作名單")
+	credits.focus_mode = Control.FOCUS_ALL
+	credits.pressed.connect(_open_credits)
+	hb.add_child(credits)
 	var q := _button("離開")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	_build_credits(root)
+
+
+func _build_credits(root: Control) -> void:
+	credits_panel = ColorRect.new()
+	credits_panel.name = "Credits"
+	(credits_panel as ColorRect).color = Color(0.03, 0.03, 0.04, 0.97)
+	credits_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	credits_panel.visible = false
+	credits_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	credits_panel.z_index = 2
+	root.add_child(credits_panel)
+	var v := VBoxContainer.new()
+	v.set_anchors_preset(Control.PRESET_FULL_RECT)
+	v.offset_left = 80
+	v.offset_right = -80
+	v.offset_top = 40
+	v.offset_bottom = -40
+	v.add_theme_constant_override("separation", 16)
+	credits_panel.add_child(v)
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	v.add_child(scroll)
+	var content := _rich(18)
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.text = Credits.text()
+	scroll.add_child(content)
+	var back := _button("返回")
+	back.focus_mode = Control.FOCUS_ALL
+	back.add_theme_stylebox_override("focus", back.get_theme_stylebox("hover"))
+	back.pressed.connect(func(): credits_panel.hide())
+	v.add_child(back)
+
+
+func _open_credits() -> void:
+	credits_panel.show()
+	var scroll := credits_panel.find_child("Scroll", true, false) as ScrollContainer
+	scroll.scroll_vertical = 0
+	(credits_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
 
 
 func show_ending(title: String, bb: String, history_bb := "") -> void:
@@ -987,7 +1038,15 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_fullscreen"):
 		_toggle_fullscreen()
 		get_viewport().set_input_as_handled()
-	elif log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
+		return
+	if credits_panel.visible:
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
+			credits_panel.hide()
+			get_viewport().set_input_as_handled()
+		elif event is InputEventKey and event.keycode == KEY_TAB:
+			get_viewport().set_input_as_handled()
+		return
+	if log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
 		toggle_pause()
 		get_viewport().set_input_as_handled()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_TAB and not get_tree().paused:
