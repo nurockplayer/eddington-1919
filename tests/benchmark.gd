@@ -1,5 +1,6 @@
 extends Node
 const Look := preload("res://scripts/look.gd")
+const Settings := preload("res://scripts/settings.gd")
 ## In-game visual benchmark (gate G4 in art/PIPELINE.md). It runs inside the
 ## real game scene with the game's own lighting code: the camera visits fixed
 ## bookmarks under fixed lighting states, then saves a screenshot and render
@@ -40,9 +41,26 @@ var main
 var out_dir := ""
 
 
+static func quality_arg(args: PackedStringArray) -> String:
+	for arg in args:
+		if arg.begins_with("--bench-quality="):
+			var quality := arg.trim_prefix("--bench-quality=")
+			if quality in ["low", "standard"]:
+				return quality
+	return ""
+
+
+func apply_quality_arg(args: PackedStringArray) -> void:
+	var quality := quality_arg(args)
+	if quality != "":
+		Settings.quality = quality
+		Settings.apply_quality(get_tree())
+
+
 func _ready() -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
+	apply_quality_arg(OS.get_cmdline_user_args())
 	# --bench-stress=N renders the 3D scene at N× resolution scale (N² pixels) so the
 	# GPU, not the display refresh, limits the frame: frame time then reflects scene cost.
 	for a in OS.get_cmdline_user_args():
@@ -164,6 +182,7 @@ func _run() -> void:
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"viewport": [get_viewport().size.x, get_viewport().size.y],
 		"seed": main.sim.run_seed,
+		"quality": Settings.quality,
 		"hidden_groups": hidden,
 		"scaling_3d_scale": get_viewport().scaling_3d_scale,
 		"bookmarks": results,
