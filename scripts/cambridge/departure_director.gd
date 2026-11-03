@@ -83,6 +83,7 @@ func _ready() -> void:
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
 	_build_keepsake()
+	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
 	_sync_player()

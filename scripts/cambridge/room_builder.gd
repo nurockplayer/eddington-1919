@@ -426,6 +426,8 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	lamp.omni_range = 5.0
 	lamp.omni_attenuation = 1.35
 	lamp.shadow_enabled = true
+	lamp.set_meta("standard_shadow", lamp.shadow_enabled)
+	lamp.add_to_group("quality_shadow")
 	if not departure:
 		lamp.light_size = 0.10
 		lamp.light_energy = 1.5
@@ -691,5 +693,7 @@ static func _environment(root: Node3D) -> WorldEnvironment:
 	var node := WorldEnvironment.new()
 	node.name = "CambridgeRoomEnvironment"
 	node.environment = env
+	node.set_meta("standard_ssao", env.ssao_enabled)
+	node.add_to_group("quality_env")
 	root.add_child(node)
 	return node

@@ -533,6 +533,8 @@ func _darkroom() -> Dictionary:
 	lamp.omni_attenuation = 1.6 if look else 1.0
 	# light_size (PCSS soft shadow) cost +2 ms forced-draw for a barely visible edge: off (perf-r05).
 	lamp.shadow_enabled = true
+	lamp.set_meta("standard_shadow", lamp.shadow_enabled)
+	lamp.add_to_group("quality_shadow")
 	root.add_child(lamp)
 	out.lamp = lamp
 	var safe := OmniLight3D.new()

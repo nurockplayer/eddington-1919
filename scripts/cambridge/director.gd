@@ -1,5 +1,6 @@
 extends Node3D
 
+const Settings := preload("res://scripts/settings.gd")
 const Prompts := preload("res://scripts/prompts.gd")
 ## M1 sequence orchestration. Text and replaceable cast stay in C17/Cast.
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
@@ -87,6 +88,8 @@ func _ready() -> void:
 	_speaker_fill.spot_attenuation = 1.3
 	_speaker_fill.light_specular = 0.0
 	_speaker_fill.shadow_enabled = true
+	_speaker_fill.set_meta("standard_shadow", _speaker_fill.shadow_enabled)
+	_speaker_fill.add_to_group("quality_shadow")
 	_speaker_fill.light_size = 0.1
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
@@ -115,6 +118,7 @@ func _ready() -> void:
 	plan_board.reaction.connect(func(seq): plan_board.hide(); _say(seq, "board_reaction"))
 	plan_board.blocked.connect(func(card): plan_board.hide(); _say(C17.plan_blocked(card), "board_reaction"))
 	plan_board.finished.connect(_finish_plan)
+	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
 	_sync_player()
