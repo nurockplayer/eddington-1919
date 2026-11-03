@@ -1,5 +1,7 @@
 extends Node3D
 
+const Settings := preload("res://scripts/settings.gd")
+
 const Prompts := preload("res://scripts/prompts.gd")
 ## M2 staging only; all authored dialogue remains in Content.
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
@@ -247,7 +249,7 @@ func _build_keepsake() -> void:
 	keepsake.add_child(icon)
 	var label := Label.new()
 	label.text = Cast.MENTOR_GIFT
-	label.add_theme_font_size_override("font_size", 20)
+	Settings.track_font(label, 20)
 	label.add_theme_color_override("font_color", UI.PAPER)
 	keepsake.add_child(label)
 	ui.get_child(0).add_child(keepsake)

@@ -1,4 +1,6 @@
 extends Control
+
+const Settings := preload("res://scripts/settings.gd")
 ## Full-screen, self-contained Cambridge plate comparison modal.
 
 signal clue_found(id: String)
@@ -136,7 +138,7 @@ func _label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_override("font", _font)
-	label.add_theme_font_size_override("font_size", size)
+	Settings.track_font(label, size)
 	label.add_theme_color_override("font_color", color)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
@@ -146,7 +148,7 @@ func _button(text: String) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.add_theme_font_override("font", _font)
-	button.add_theme_font_size_override("font_size", 18)
+	Settings.track_font(button, 18)
 	button.focus_mode = Control.FOCUS_ALL
 	button.custom_minimum_size = Vector2(142, 48)
 	var normal := StyleBoxFlat.new()

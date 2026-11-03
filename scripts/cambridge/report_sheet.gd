@@ -1,5 +1,8 @@
 extends Control
+
 class_name CambridgeReportSheet
+
+const Settings := preload("res://scripts/settings.gd")
 ## Full-screen, scrollable report form. Row content is owned by C17.
 
 signal submitted(report: Dictionary)
@@ -89,7 +92,7 @@ func _build() -> void:
 	var title := Label.new()
 	title.text = "核對紀錄"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 30)
+	Settings.track_font(title, 30)
 	title.add_theme_color_override("font_color", INK)
 	page.add_child(title)
 	for row in C17.report_rows():
@@ -121,7 +124,7 @@ func _build() -> void:
 func _add_row(page: VBoxContainer, row: Dictionary) -> void:
 	var heading := Label.new()
 	heading.text = row.text
-	heading.add_theme_font_size_override("font_size", 23)
+	Settings.track_font(heading, 23)
 	heading.add_theme_color_override("font_color", INK)
 	page.add_child(heading)
 	var available := available_options(row, _state)

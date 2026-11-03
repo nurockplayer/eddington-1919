@@ -15,6 +15,31 @@ static var video_call: Callable = _window_call
 static var _video_applied := false
 
 
+static func fs(px: int) -> int:
+	return roundi(px * text_scale)
+
+
+static func track_font(node: Control, px: int) -> void:
+	node.set_meta("base_font_size", px)
+	node.add_to_group("scaled_text")
+	_apply_font(node)
+
+
+static func _apply_font(node: Control) -> void:
+	var size := fs(int(node.get_meta("base_font_size")))
+	if node is RichTextLabel:
+		for key in ["normal_font_size", "bold_font_size", "italics_font_size", "bold_italics_font_size", "mono_font_size"]:
+			node.add_theme_font_size_override(key, size)
+	else:
+		node.add_theme_font_size_override("font_size", size)
+
+
+static func refresh_fonts(tree: SceneTree) -> void:
+	for node in tree.get_nodes_in_group("scaled_text"):
+		if is_instance_valid(node):
+			_apply_font(node)
+
+
 static func ensure_sfx_bus() -> int:
 	var index := AudioServer.get_bus_index("SFX")
 	if index < 0:

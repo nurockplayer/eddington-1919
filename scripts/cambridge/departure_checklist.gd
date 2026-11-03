@@ -1,4 +1,6 @@
 extends Control
+
+const Settings := preload("res://scripts/settings.gd")
 ## Last shared page. A row cannot be marked until Kit has finished reading it.
 signal row_requested(index: int)
 signal completed(result: Dictionary)
@@ -68,7 +70,7 @@ func open() -> void:
 func _label(text_: String, size_: int = 20) -> Label:
 	var label := Label.new()
 	label.text = text_
-	label.add_theme_font_size_override("font_size", size_)
+	Settings.track_font(label, size_)
 	label.add_theme_color_override("font_color", Report.INK)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
@@ -78,7 +80,7 @@ func _button(text_: String) -> Button:
 	var button := Button.new()
 	button.text = text_
 	button.custom_minimum_size = Vector2(72, 44)
-	button.add_theme_font_size_override("font_size", 22)
+	Settings.track_font(button, 22)
 	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
 		var style := StyleBoxFlat.new()
 		style.bg_color = Color(0.91, 0.85, 0.73) if state != "disabled" else Color(0.79, 0.74, 0.65)
@@ -152,7 +154,7 @@ func _build() -> void:
 		hand.font_names = PackedStringArray(["Snell Roundhand", "Baskerville", "serif"] if entry.hand == "kit" else ["Baskerville", "Georgia", "serif"])
 		hand.font_italic = true
 		value.add_theme_font_override("normal_font", hand)
-		value.add_theme_font_size_override("normal_font_size", 25)
+		Settings.track_font(value, 25)
 		value.add_theme_color_override("default_color", Color(0.10, 0.23, 0.31) if entry.hand == "kit" else Color(0.30, 0.16, 0.09))
 		value.text = entry.list
 		column.add_child(value)
@@ -169,7 +171,7 @@ func _build() -> void:
 			ghost.text = "18.63"
 			ghost.position = Vector2(4, -1)
 			ghost.add_theme_font_override("font", hand)
-			ghost.add_theme_font_size_override("font_size", 25)
+			Settings.track_font(ghost, 25)
 			ghost.add_theme_color_override("font_color", Color(0.30, 0.16, 0.09, 0.25))
 			ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_smudge.add_child(ghost)
