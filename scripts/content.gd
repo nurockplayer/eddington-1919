@@ -58,6 +58,8 @@ static func plan_text() -> Array:
 
 	var tree := Engine.get_main_loop() as SceneTree
 	var story = tree.root.get_node_or_null("Story") if tree else null
+	if story and not story.runs.is_empty():
+		lines.append({"s": "上一回的曝光", "t": exposure_summary(story.runs.back())})
 	if story and story.prologue_done:
 		var names: Array[String] = []
 		for card in preload("res://scripts/cambridge/content_1917.gd").plan_cards():
@@ -123,8 +125,10 @@ static func calibration_recall(plan: Array, played: bool) -> String:
 
 
 ## exam_q1: the 1917 answer to "what would you have handed in without the 14" (-1: none).
-static func rules_prompt(planned: bool, exam_q1 := -1) -> Array:
+static func rules_prompt(planned: bool, exam_q1 := -1, previous_rule := "") -> Array:
 	var out: Array = []
+	if previous_rule != "":
+		out.append({"s": E, "t": "上一回寫的是：%s。這回仍請在量之前決定。" % rule_wording(previous_rule)})
 	match exam_q1:
 		0:
 			out.append({"s": "", "t": "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：交上差異，寫「原因未明」。）"})
@@ -216,3 +220,61 @@ static func totality_plates_left(n: int) -> String:
 ## No exposure in the first 45 s: say where to look, never when.
 static func totality_first_nudge() -> String:
 	return "Eddington：「看太陽周圍那一小片，不是整片天。那裡變薄了就喊。」"
+
+
+static func replay_opening(trial: int, same_sky: bool) -> Array:
+	return [
+		{"s": "", "t": "本子翻到新的一頁：第 %d 次試驗。上一回的記錄留在旁邊。" % trial},
+		{"s": E, "t": ("同一片雲。" if same_sky else "天空換了；差異也可能來自雲況。") + "這回，你想改哪一步？先記住自己的打算。"},
+		{"s": E, "t": "到了晚上，把兩回的做法和數字並排看看。"},
+	]
+
+
+static func rule_wording(id: String) -> String:
+	var i := ["strict", "after", "none"].find(id)
+	return rules_prompt(false)[-1].choices[i] if i >= 0 else "未寫規則"
+
+
+static func exposure_summary(run: Dictionary) -> String:
+	var times: Array[String] = []
+	var selected: Array[String] = []
+	var usable := 0
+	for p in run.exposures:
+		times.append("%.0f/%.0f" % [p.start, p.duration])
+		if p.included:
+			selected.append(str(p.number))
+		if p.usable:
+			usable += 1
+	return "起/曝（約秒）：%s；選片：%s；可用 %d 張" % [",".join(times) if not times.is_empty() else "無", ",".join(selected) if not selected.is_empty() else "無", usable]
+
+
+static func run_value(run: Dictionary) -> String:
+	var c: Dictionary = run.combined
+	return "%.2f″ ± %.2f″（量 %d 張）" % [c.value, c.sigma, c.n] if c.n > 0 else "沒有量出數值。"
+
+
+static func run_comparison(previous: Dictionary, current: Dictionary) -> String:
+	var precision := ""
+	if previous.combined.n > 0 and current.combined.n > 0:
+		var old_sigma := ("%.2f" % previous.combined.sigma).to_float()
+		var new_sigma := ("%.2f" % current.combined.sigma).to_float()
+		if new_sigma < old_sigma:
+			precision = "這回的誤差較小；仍要看選片與儀器。"
+		elif new_sigma == old_sigma:
+			precision = "誤差與上回相同；量值照實並列。"
+		else:
+			precision = "這回的誤差較大；把不確定也記下來。"
+	var old_rule := rule_wording(previous.rule_id)
+	var new_rule := rule_wording(current.rule_id)
+	var rule := "選片規則：『%s』→『%s』。" % [old_rule, new_rule]
+	if previous.rule_id != current.rule_id:
+		rule = "選片規則改了：『%s』→『%s』。兩回依據不同。" % [old_rule, new_rule]
+	var reason := "電報的理由%s：『%s』→『%s』。" % ["改了" if previous.reason_id != current.reason_id else "", previous.reason_text, current.reason_text]
+	var rows: Array[String] = [
+		exposure_summary(previous) + " → " + exposure_summary(current),
+		"上回：%s → 這回：%s %s" % [run_value(previous), run_value(current), precision],
+		rule,
+		reason,
+		"Eddington 的評分：%d／4 → %d／4" % [previous.score, current.score],
+	]
+	return "[b]本子上的兩次試驗｜上回 → 這回[/b]\n[font_size=%d]%s[/font_size]" % [preload("res://scripts/settings.gd").fs(15), "\n".join(rows)]

@@ -36,6 +36,11 @@ static var next_seed := -1
 ## Survives a 1919 replay (reload) so a prologue player keeps Story continuity and the coda;
 ## choosing the prologue again resets Story in Cambridge.
 static var replay_from_prologue := false
+static var replay_pending := false
+static var replay_same_sky := true
+
+var _is_replay := false
+var _run_record_index := -1
 
 var sim
 var ui
@@ -108,8 +113,10 @@ func _ready() -> void:
 	_ensure_inputs()
 	_came_from_departure = Story.from_prologue or replay_from_prologue
 	replay_from_prologue = false
+	_is_replay = replay_pending
+	replay_pending = false
 	if not _came_from_departure:
-		Story.reset()
+		Story.reset(_is_replay)
 	Story.kit_first = -1
 	var args := _user_args()
 	# A restart's chosen sky wins over the command line, which only seeds the first run.
@@ -649,13 +656,18 @@ func _start_game() -> void:
 	player.can_move = true
 	player.can_look = true
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	ui.show_toast("上午的雷雨在十一點半左右停了。日偏食已經開始，太陽在雲後時隱時現。\n找 Eddington 報到——他在望遠鏡旁。", 7.0)
+	if _is_replay and not Story.runs.is_empty():
+		_say(Content.replay_opening(Story.runs.size() + 1, replay_same_sky), "")
+	else:
+		ui.show_toast("上午的雷雨在十一點半左右停了。日偏食已經開始，太陽在雲後時隱時現。\n找 Eddington 報到——他在望遠鏡旁。", 7.0)
 	_refresh_objectives()
 
 
 func _restart(same_sky: bool) -> void:
 	next_seed = sim.run_seed if same_sky else randi() % 100000
 	replay_from_prologue = _came_from_departure
+	replay_pending = true
+	replay_same_sky = same_sky
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
@@ -854,7 +866,8 @@ func _interact(id: String) -> void:
 					return
 				if sim.rule_id == "":
 					_say(Content.rules_prompt(Story.plan.has("rules_first"),
-						int(Story.exam.get("q1", -1)) if Story.prologue_done else -1), "rules")
+						int(Story.exam.get("q1", -1)) if Story.prologue_done else -1,
+						Story.runs.back().rule_id if not Story.runs.is_empty() else ""), "rules")
 				else:
 					_open_viewer()
 			"oxford_case":
@@ -1508,6 +1521,16 @@ func _show_ending() -> void:
 	ui.fade.color.a = 0.0
 	var c: Dictionary = sim.combined()
 	var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
+	if _run_record_index < 0:
+		var exposures: Array = []
+		for p in sim.plates:
+			exposures.append({"number": p.number, "start": p.start, "duration": p.duration,
+				"included": p.included, "usable": p.usable, "quality": p.quality})
+		_run_record_index = Story.runs.size()
+		Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
+			"rule_id": sim.rule_id, "telegram_id": Judgment.TELEGRAMS[_telegram].id,
+			"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
+			"score": _grade.get("score", 0), "clean": _grade.clean}.duplicate(true))
 	var workbook := "本子上：%.2f″ ± %.2f″（示意模擬）" % [c.value, c.sigma] if c.n > 0 else "本子上：沒有量出任何數值。"
 	if sim.first_result != null and sim.reselected_after_seeing:
 		var first_result := "第一次量：%.2f″ ± %.2f″" % [sim.first_result.value, sim.first_result.sigma] if sim.first_result.n > 0 else "第一次量：沒有量出任何數值。"
@@ -1537,6 +1560,8 @@ func _show_ending() -> void:
 	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
 	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
 	history.append("\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]" % Settings.fs(15))
+	if _run_record_index > 0:
+		tableau += "\n\n" + Content.run_comparison(Story.runs[_run_record_index - 1], Story.runs[_run_record_index])
 	ui.show_ending(_grade.title, tableau, "\n".join(history), "\n".join(lines))
 	if bot:
 		bot.on_phase("ending")
