@@ -1,7 +1,6 @@
 extends Node
 ## Presentation only. Workers own synthesis; the scene clock owns totality fades.
 const Score := preload("res://scripts/audio/score.gd")
-const SETTINGS_PATH := "user://settings.cfg"
 const SILENCE_DB := -80.0
 
 static var cue_log: Array[Dictionary] = []
@@ -14,6 +13,11 @@ static var _enabled := true
 var layers: Dictionary = {}
 var playback_enabled := DisplayServer.get_name() != "headless"
 var _log_open := false
+
+
+static func settings_path() -> String:
+	var path := OS.get_environment("EDD_SETTINGS_PATH")
+	return path if not path.is_empty() else "user://settings.cfg"
 
 
 static func ensure_bus() -> int:
@@ -31,7 +35,7 @@ static func music_enabled() -> bool:
 	return _enabled
 
 
-static func load_settings(path := SETTINGS_PATH) -> void:
+static func load_settings(path := settings_path()) -> void:
 	var cfg := ConfigFile.new()
 	_enabled = true
 	if cfg.load(path) == OK:
@@ -39,7 +43,7 @@ static func load_settings(path := SETTINGS_PATH) -> void:
 	ensure_bus()
 
 
-static func set_music_enabled(enabled: bool, path := SETTINGS_PATH) -> Error:
+static func set_music_enabled(enabled: bool, path := settings_path()) -> Error:
 	_enabled = enabled
 	ensure_bus()
 	var cfg := ConfigFile.new()

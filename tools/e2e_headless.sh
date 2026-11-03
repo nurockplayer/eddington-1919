@@ -8,9 +8,9 @@
 # the route. Windowed runs (--always-on-top) are only for screenshots; see
 # docs/PLAYTEST_BOT_DRIVE.md.
 #
-# Usage: orb-test --heavy --host -- ./tools/e2e_headless.sh
-# (Owner rule 2026-10-25: tests never run bare on the host; orb-test holds the
-# host-wide heavy lock, so this script takes no lock of its own.)
+# Usage: orb-test --host -- ./tools/e2e_headless.sh
+# (Owner rule 2026-10-25 JST: tests never run bare on the host; orb-test holds the
+# host-wide test slot, so this script takes no lock of its own.)
 # Exits non-zero if any route fails.
 
 set -u
@@ -23,8 +23,10 @@ caps=$(perl -MPOSIX=ceil -e '
   print join " ", map { ceil($_ * $scale) } @ARGV;
 ' "${E2E_CAP_SCALE:-1}" 240 240 240 480 360 360) || exit 1
 read -r careful_cap rushed_cap cherry_cap honest_cap tidy_cap accuse_cap <<<"$caps"
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/e2e_headless.XXXXXX") || exit 1
+mkdir -p .godot
+tmp=$(mktemp -d "$PWD/.godot/e2e_headless.XXXXXX") || exit 1
 trap 'rm -rf "$tmp"' EXIT
+export EDD_SETTINGS_PATH="${EDD_SETTINGS_PATH:-$tmp/settings.cfg}"
 
 # route|cap_seconds|expected_terminal_phase|godot user args
 # Prologue tidy/accuse end at PREP by contract (their 1919 receipt); honest runs

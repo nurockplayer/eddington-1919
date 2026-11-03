@@ -1,12 +1,24 @@
 # v0.1 bot hold and plate-feedback verification
 
-**Default E2E is now headless (2026-10-25):** `orb-test --heavy --host -- ./tools/e2e_headless.sh` runs all six routes
+**Default E2E is now headless (2026-10-25 JST):** `orb-test --host -- ./tools/e2e_headless.sh` runs all six routes
 (`--autoplay=careful|rushed|cherry`, `--prologue-autoplay=honest|tidy|accuse`) with
 `godot --headless --path . --fixed-fps 60`, one Godot at a time, and prints a result table.
 A single route is `orb-test --host -- godot --headless --path . --fixed-fps 60 -- <route args>`. The
 `--always-on-top --shots=DIR` runs recorded below are the historical screenshot runs and are
 no longer the default; use them only when someone must look at the screen or capture frames
 (Owner's windowed-run rule in [HANDOFF](HANDOFF.md)).
+
+Each e2e run defaults `EDD_SETTINGS_PATH` to a settings file in its temporary
+worktree-local directory and removes that directory on exit. An existing non-empty
+override is preserved. Single-suite and single-route runs should set an absolute
+path too, using a different file for each concurrent run:
+
+```sh
+EDD_SETTINGS_PATH="$PWD/.godot/test-settings.cfg" orb-test --host -- godot --headless --path . --script res://tests/test_settings.gd
+```
+
+`orb-test --host` passes the caller's environment through. Without a non-empty
+`EDD_SETTINGS_PATH`, the game still uses `user://settings.cfg` as shipped.
 
 2026-10-20 JST · Godot 4.7.2.stable.official.ed1daf0bf · macOS / Apple M2 Pro / Metal Forward+.
 Worktree: `eddington-1919-wt/fix-sol`, branch `fix/v01-bot-drive`, base `aa730ef`.

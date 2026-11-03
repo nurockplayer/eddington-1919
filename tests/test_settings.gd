@@ -2,7 +2,7 @@ extends SceneTree
 
 const Settings := preload("res://scripts/settings.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
-const TEST_PATH := "user://test_settings.cfg"
+var test_path := Settings.settings_path() + ".test_settings"
 var checks := 0
 var failures := 0
 
@@ -19,7 +19,8 @@ func check(ok: bool, message: String) -> void:
 
 
 func _run() -> void:
-	Settings.load_settings(TEST_PATH)
+	_check_settings_path()
+	Settings.load_settings(test_path)
 	check(Settings.volumes == {"Master": 1.0, "Music": 1.0, "SFX": 1.0} and not Settings.fullscreen,
 		"missing settings default to full volume and windowed")
 	Settings.apply_startup()
@@ -28,17 +29,17 @@ func _run() -> void:
 	check(Settings.video_apply_count == 1, "two startup calls apply video only once per process")
 	check(is_zero_approx(AudioServer.get_bus_volume_db(0)), "later startup still applies audio")
 	_check_video_calls()
-	ScorePlayer.set_music_enabled(false, TEST_PATH)
+	ScorePlayer.set_music_enabled(false, test_path)
 	Settings.volumes = {"Master": 0.5, "Music": 0.25, "SFX": 0.0}
 	Settings.fullscreen = true
-	check(Settings.save_settings(TEST_PATH) == OK, "settings save to a separate test path")
+	check(Settings.save_settings(test_path) == OK, "settings save to a separate test path")
 	Settings.volumes = {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 	Settings.fullscreen = false
-	Settings.load_settings(TEST_PATH)
+	Settings.load_settings(test_path)
 	check(Settings.volumes == {"Master": 0.5, "Music": 0.25, "SFX": 0.0} and Settings.fullscreen,
 		"all settings roundtrip")
 	var cfg := ConfigFile.new()
-	cfg.load(TEST_PATH)
+	cfg.load(test_path)
 	check(cfg.get_value("audio", "master_db") == 0.5 and cfg.get_value("audio", "music_db") == 0.25
 		and cfg.get_value("audio", "sfx_db") == 0.0, "audio keys store linear values")
 	check(not cfg.get_value("audio", "music_enabled"), "volume save preserves the music toggle")
@@ -52,31 +53,73 @@ func _run() -> void:
 	check(AudioServer.bus_count == bus_count, "SFX creation is idempotent")
 	for bus in ["Master", "Music", "SFX"]:
 		video_calls = Settings.video_apply_count
-		Settings.set_volume(bus, 0.5, TEST_PATH)
+		Settings.set_volume(bus, 0.5, test_path)
 		check(Settings.video_apply_count == video_calls, bus + " volume change never enters the video path")
 		var index := AudioServer.get_bus_index(bus)
 		check(absf(AudioServer.get_bus_volume_db(index) + 6.0206) < 0.01, bus + " half volume is about -6 dB")
-		Settings.set_volume(bus, 0.0, TEST_PATH)
+		Settings.set_volume(bus, 0.0, test_path)
 		check(AudioServer.is_bus_mute(index), bus + " zero volume mutes")
-		Settings.set_volume(bus, 1.0, TEST_PATH)
+		Settings.set_volume(bus, 1.0, test_path)
 		check(AudioServer.is_bus_mute(index) == (bus == "Music"), bus + " restored volume respects music toggle")
-	Settings.set_volume("Music", 0.0, TEST_PATH)
-	ScorePlayer.set_music_enabled(true, TEST_PATH)
+	Settings.set_volume("Music", 0.0, test_path)
+	ScorePlayer.set_music_enabled(true, test_path)
 	check(AudioServer.is_bus_mute(ScorePlayer.ensure_bus()), "enabling music preserves zero volume mute")
-	Settings.set_volume("Music", 0.5, TEST_PATH)
+	Settings.set_volume("Music", 0.5, test_path)
 	check(not AudioServer.is_bus_mute(ScorePlayer.ensure_bus()), "raising enabled music volume unmutes")
-	ScorePlayer.set_music_enabled(false, TEST_PATH)
+	ScorePlayer.set_music_enabled(false, test_path)
 	check(AudioServer.is_bus_mute(ScorePlayer.ensure_bus()), "disabling music mutes over a nonzero volume")
 	video_calls = Settings.video_apply_count
-	Settings.toggle_fullscreen(TEST_PATH)
+	Settings.toggle_fullscreen(test_path)
 	check(Settings.video_apply_count == video_calls + 1, "fullscreen toggle applies video once")
-	Settings.load_settings(TEST_PATH)
+	Settings.load_settings(test_path)
 	check(not Settings.fullscreen, "fullscreen toggle persists and applies safely headless")
 	await _check_pause_menu()
 	await _check_chapter_routes()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	print("test_settings: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _check_settings_path() -> void:
+	var had_override := OS.has_environment("EDD_SETTINGS_PATH")
+	var previous_path := OS.get_environment("EDD_SETTINGS_PATH")
+	var shared_path := "user://settings.cfg"
+	var shared_exists := FileAccess.file_exists(shared_path)
+	var shared_bytes := FileAccess.get_file_as_bytes(shared_path) if shared_exists else PackedByteArray()
+	var shared_mtime := FileAccess.get_modified_time(shared_path) if shared_exists else 0
+	var override_path := ProjectSettings.globalize_path("res://.godot/settings-override-%d.cfg" % OS.get_process_id())
+	OS.set_environment("EDD_SETTINGS_PATH", override_path)
+	check(Settings.settings_path() == override_path and ScorePlayer.settings_path() == override_path,
+		"settings and score resolve the environment override")
+	Settings.text_scale = 1.2
+	check(Settings.save_settings() == OK, "default save uses the environment override")
+	check(ScorePlayer.set_music_enabled(false) == OK, "default music save uses the environment override")
+	var cfg := ConfigFile.new()
+	check(cfg.load(override_path) == OK and cfg.get_value("ui", "text_scale", 0.0) == 1.2
+		and not cfg.get_value("audio", "music_enabled", true), "both writers preserve settings in the override file")
+	Settings.text_scale = 0.85
+	Settings.load_settings()
+	check(Settings.text_scale == 1.2, "default load reads the environment override")
+	cfg.set_value("audio", "music_enabled", true)
+	cfg.save(override_path)
+	ScorePlayer.load_settings()
+	check(ScorePlayer.music_enabled(), "default music load reads the environment override")
+	OS.unset_environment("EDD_SETTINGS_PATH")
+	check(Settings.settings_path() == shared_path and ScorePlayer.settings_path() == shared_path,
+		"without an override the shipped settings path is unchanged")
+	OS.set_environment("EDD_SETTINGS_PATH", "")
+	check(Settings.settings_path() == shared_path, "an empty override uses the shipped settings path")
+	check(FileAccess.file_exists(shared_path) == shared_exists, "override leaves shared settings existence unchanged")
+	if shared_exists:
+		check(FileAccess.get_file_as_bytes(shared_path) == shared_bytes
+			and FileAccess.get_modified_time(shared_path) == shared_mtime,
+			"override leaves shared settings bytes and modification time unchanged")
+	if had_override:
+		OS.set_environment("EDD_SETTINGS_PATH", previous_path)
+	else:
+		OS.unset_environment("EDD_SETTINGS_PATH")
+	DirAccess.remove_absolute(override_path)
+	ScorePlayer.load_settings()
 
 
 func _check_video_calls() -> void:
@@ -123,12 +166,12 @@ func _check_chapter_routes() -> void:
 			await process_frame
 			gramophone = chapter._gramophone
 			check(is_instance_valid(gramophone), "gramophone exists before live routing check")
-			Settings.set_volume("Music", 0.5, TEST_PATH)
+			Settings.set_volume("Music", 0.5, test_path)
 			var music_bus := AudioServer.get_bus_index(gramophone.bus)
 			check(absf(AudioServer.get_bus_volume_db(music_bus) + 6.0206) < 0.01, "music slider controls the gramophone bus")
-			ScorePlayer.set_music_enabled(false, TEST_PATH)
+			ScorePlayer.set_music_enabled(false, test_path)
 			check(AudioServer.is_bus_mute(music_bus), "music off mutes the gramophone bus")
-			ScorePlayer.set_music_enabled(true, TEST_PATH)
+			ScorePlayer.set_music_enabled(true, test_path)
 			check(not AudioServer.is_bus_mute(music_bus), "music on restores the gramophone bus")
 		check(_check_routes(chapter, gramophone) > 0, script + " has live audio players")
 		chapter.free()
@@ -139,8 +182,8 @@ func _check_chapter_routes() -> void:
 
 func _check_pause_menu() -> void:
 	# Exercise real input and persistence while preserving the user's settings bytes.
-	var had_settings := FileAccess.file_exists(Settings.SETTINGS_PATH)
-	var original := FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) if had_settings else PackedByteArray()
+	var had_settings := FileAccess.file_exists(Settings.settings_path())
+	var original := FileAccess.get_file_as_bytes(Settings.settings_path()) if had_settings else PackedByteArray()
 	var startup_video_calls := Settings.video_apply_count
 	var main = load("res://scripts/main.gd").new()
 	root.add_child(main)
@@ -199,11 +242,11 @@ func _check_pause_menu() -> void:
 	ui.toggle_pause()
 	main.free()
 	if had_settings:
-		var file := FileAccess.open(Settings.SETTINGS_PATH, FileAccess.WRITE)
+		var file := FileAccess.open(Settings.settings_path(), FileAccess.WRITE)
 		file.store_buffer(original)
 		file.close()
 	else:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.SETTINGS_PATH))
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.settings_path()))
 	ScorePlayer.load_settings()
 	Settings.load_settings()
 	Settings.apply_audio()
@@ -212,7 +255,7 @@ func _check_pause_menu() -> void:
 
 func cfg_reload_check(bus: String, value: float) -> void:
 	var cfg := ConfigFile.new()
-	cfg.load(Settings.SETTINGS_PATH)
+	cfg.load(Settings.settings_path())
 	check(is_equal_approx(cfg.get_value("audio", Settings.VOLUME_KEYS[bus]), value), bus + " UI saves immediately")
 	check(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(bus)) - linear_to_db(value)) < 0.01,
 		bus + " UI applies immediately")
