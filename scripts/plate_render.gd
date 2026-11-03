@@ -9,6 +9,22 @@ const SUN_PX := 34.0
 const TRAIL_DIR := Vector2(0.83, 0.56)
 
 
+static func render_example(kind: String) -> ImageTexture:
+	# A fixed teaching field, independent of the player's run and plate selection.
+	var sim := {"run_seed": 19190529, "STAR_COUNT": 12, "star_offsets": PackedVector2Array()}
+	for i in sim.STAR_COUNT:
+		var angle: float = TAU * i / sim.STAR_COUNT
+		sim.star_offsets.append(Vector2(cos(angle), sin(angle)) * (3.2 + 0.4 * (i % 3)))
+	var plate := {"index": 0, "fog": 0.05, "trail": 0.0, "stars": sim.STAR_COUNT,
+		"duration": 6.0, "sunlit": false}
+	if kind == "trailed":
+		plate.trail = 0.6
+	elif kind == "fogged":
+		plate.fog = 0.7
+		plate.stars = 3
+	return render(sim, plate)
+
+
 static func render(sim, plate) -> ImageTexture:
 	var img := Image.create_empty(SIZE, SIZE, false, Image.FORMAT_RGB8)
 	var buf := PackedFloat32Array()

@@ -84,6 +84,12 @@ var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
 var plate_info: RichTextLabel
+var reference_btn: Button
+var reference_close_btn: Button
+var reference_panel: PanelContainer
+var loupe_btn: Button
+var _plate_texture: Texture2D
+var _loupe_center := Vector2.ZERO
 var include_box: CheckBox
 var measure_btn: Button
 var reselect_btn: Button
@@ -324,6 +330,10 @@ func show_toast(text: String, seconds := 4.0) -> void:
 
 
 func _process(delta: float) -> void:
+	if viewer.visible and loupe_btn.button_pressed and loupe_btn.has_focus() and not get_tree().paused and not log_panel.visible:
+		var pan := Input.get_vector("gamepad_look_left", "gamepad_look_right", "gamepad_look_up", "gamepad_look_down")
+		if pan != Vector2.ZERO:
+			_show_loupe(_loupe_center + pan * 120.0 * delta)
 	var scroll := _active_menu_scroll()
 	if scroll:
 		_menu_scroll_remainder += Input.get_axis("gamepad_look_up", "gamepad_look_down") * 900.0 * delta
@@ -571,10 +581,21 @@ func _build_viewer(root: Control) -> void:
 	viewer.add_child(h)
 	# Left: thumbnails.
 	var left := VBoxContainer.new()
-	left.custom_minimum_size = Vector2(330, 0)
+	left.custom_minimum_size = Vector2(458, 0)
 	h.add_child(left)
 	left.add_child(_label("已沖洗的底片", 24, ACCENT))
 	left.add_child(_label("點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。", 16, DIM))
+	reference_btn = _button("參考底片")
+	reference_btn.toggle_mode = true
+	left.add_child(reference_btn)
+	reference_panel = PanelContainer.new()
+	reference_panel.visible = false
+	reference_btn.toggled.connect(func(on):
+		if on and reference_panel.get_child_count() == 0:
+			_build_reference_plates()
+		reference_panel.visible = on
+		(reference_close_btn if on else reference_btn).grab_focus()
+	)
 	thumbs = GridContainer.new()
 	thumbs.columns = 3
 	thumbs.add_theme_constant_override("h_separation", 6)
@@ -586,11 +607,19 @@ func _build_viewer(root: Control) -> void:
 	var mid := VBoxContainer.new()
 	mid.custom_minimum_size = Vector2(470, 0)
 	h.add_child(mid)
+	var plate_stage := Control.new()
+	plate_stage.custom_minimum_size = Vector2(470, 460)
+	mid.add_child(plate_stage)
 	big_plate = TextureRect.new()
 	big_plate.custom_minimum_size = Vector2(460, 460)
 	big_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	big_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	mid.add_child(big_plate)
+	plate_stage.add_child(big_plate)
+	big_plate.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	big_plate.gui_input.connect(_plate_gui_input)
+	plate_stage.add_child(reference_panel)
+	reference_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	reference_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.05, 0.045, 0.04, 1.0), ACCENT))
 	plate_info = _rich(18)
 	mid.add_child(plate_info)
 	include_box = CheckBox.new()
@@ -603,7 +632,14 @@ func _build_viewer(root: Control) -> void:
 			_viewer_sound("mark")
 			plate_toggled.emit(_viewer_sel, on)
 	)
-	mid.add_child(include_box)
+	var plate_controls := HBoxContainer.new()
+	mid.add_child(plate_controls)
+	plate_controls.add_child(include_box)
+	loupe_btn = _button("放大鏡 ×2")
+	loupe_btn.toggle_mode = true
+	loupe_btn.tooltip_text = "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。"
+	loupe_btn.toggled.connect(_set_loupe)
+	plate_controls.add_child(loupe_btn)
 	# Right: chart + actions.
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -613,8 +649,10 @@ func _build_viewer(root: Control) -> void:
 	chart = preload("res://scripts/chart.gd").new()
 	chart.custom_minimum_size = Vector2(560, 420)
 	right.add_child(chart)
-	var btns := HBoxContainer.new()
-	btns.add_theme_constant_override("separation", 10)
+	var btns := GridContainer.new()
+	btns.columns = 2
+	btns.add_theme_constant_override("h_separation", 10)
+	btns.add_theme_constant_override("v_separation", 10)
 	right.add_child(btns)
 	measure_btn = _button("量測所選底片")
 	measure_btn.pressed.connect(func():
@@ -634,7 +672,69 @@ func _build_viewer(root: Control) -> void:
 	var close := _button("離開桌子")
 	close.pressed.connect(func(): viewer_closed.emit())
 	btns.add_child(close)
-	right.add_child(_label("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。", 15, DIM))
+	var model_note := _label("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。", 15, DIM)
+	model_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	right.add_child(model_note)
+
+
+func _build_reference_plates() -> void:
+	var card := VBoxContainer.new()
+	reference_panel.add_child(card)
+	var examples := HBoxContainer.new()
+	examples.add_theme_constant_override("separation", 4)
+	card.add_child(examples)
+	var captions := ["星點清楚：小而圓", "拖長：每顆星都拉成同方向的短線（時鐘走速不準）", "起霧：雲光蓋住，星點淡、數得到的少"]
+	var kinds := ["sharp", "trailed", "fogged"]
+	for i in kinds.size():
+		var column := VBoxContainer.new()
+		column.custom_minimum_size.x = 150
+		examples.add_child(column)
+		var image := TextureRect.new()
+		image.custom_minimum_size = Vector2(150, 150)
+		image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		image.texture = preload("res://scripts/plate_render.gd").render_example(kinds[i])
+		column.add_child(image)
+		var caption_label := _label(captions[i], 15)
+		caption_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(caption_label)
+	card.add_child(_label("示意圖，不是你的底片。", 15, DIM))
+	reference_close_btn = _button("收起參考")
+	reference_close_btn.pressed.connect(func(): reference_btn.button_pressed = false)
+	card.add_child(reference_close_btn)
+
+
+func _set_loupe(on: bool) -> void:
+	if on and _plate_texture != null:
+		_show_loupe(_plate_texture.get_size() * 0.5)
+	else:
+		loupe_btn.set_pressed_no_signal(false)
+		big_plate.texture = _plate_texture
+
+
+func _show_loupe(center: Vector2) -> void:
+	var half := _plate_texture.get_size() * 0.5
+	_loupe_center = center.clamp(half * 0.5, _plate_texture.get_size() - half * 0.5)
+	var zoom := AtlasTexture.new()
+	zoom.atlas = _plate_texture
+	zoom.region = Rect2(_loupe_center - half * 0.5, half)
+	big_plate.texture = zoom
+
+
+func _plate_gui_input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton or not event.pressed or event.button_index != MOUSE_BUTTON_LEFT or _plate_texture == null:
+		return
+	var shown := big_plate.texture.get_size()
+	var drawn := shown * minf(big_plate.size.x / shown.x, big_plate.size.y / shown.y)
+	var local: Vector2 = event.position - (big_plate.size - drawn) * 0.5
+	if not Rect2(Vector2.ZERO, drawn).has_point(local):
+		return
+	var region := Rect2(Vector2.ZERO, _plate_texture.get_size())
+	if big_plate.texture is AtlasTexture:
+		region = big_plate.texture.region
+	loupe_btn.set_pressed_no_signal(true)
+	_show_loupe(region.position + local / drawn * region.size)
+	big_plate.accept_event()
 
 
 func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, locked: bool) -> void:
@@ -740,7 +840,8 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	if sound and (i >= 0 or i == -2):
 		_viewer_sound("plate")
 	_viewer_sel = i
-	big_plate.texture = tex
+	_plate_texture = tex
+	_set_loupe(false)
 	if i == -2:
 		plate_info.text = "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
 		if comparison_recall != "":
@@ -788,7 +889,7 @@ func set_viewer_locked(locked: bool) -> void:
 	if action_focused and focused.disabled:
 		(reselect_btn if locked else measure_btn).grab_focus()
 	if _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size():
-		_select_plate(_viewer_sel, big_plate.texture, false)
+		_select_plate(_viewer_sel, _plate_texture, false)
 
 
 func set_viewer_note(bb: String) -> void:
@@ -1197,6 +1298,14 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventKey or event is InputEventMouse:
 		Prompts.joypad = false
 	_refresh_hints()
+	if viewer.visible and loupe_btn.button_pressed and loupe_btn.has_focus() and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
+		var directions := {"ui_left": Vector2.LEFT, "ui_right": Vector2.RIGHT, "ui_up": Vector2.UP, "ui_down": Vector2.DOWN}
+		for action in directions:
+			if event.is_action(action):
+				if event.is_pressed():
+					_show_loupe(_loupe_center + directions[action] * 18.0)
+				get_viewport().set_input_as_handled()
+				return
 	if event.is_action_pressed("toggle_fullscreen"):
 		_toggle_fullscreen()
 		get_viewport().set_input_as_handled()
