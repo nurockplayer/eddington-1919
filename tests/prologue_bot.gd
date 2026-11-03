@@ -271,6 +271,8 @@ func look(target: Vector3) -> void:
 
 func walk(target: Vector3) -> void:
 	await _monkey_step("walk", true)
+	if monkey:
+		print("[PROLOGUE monkey] WALK target=%s from=%s elapsed_s=%.2f" % [target, main.player.global_position, _elapsed])
 	var budget := 9.0
 	while budget > 0.0:
 		var p = main.player
@@ -285,6 +287,10 @@ func walk(target: Vector3) -> void:
 	await frames(3)
 	if budget <= 0.0:
 		failures.append("movement blocked on way to " + str(target))
+		if monkey:
+			print("[PROLOGUE monkey] STUCK target=%s at=%s can_move=%s busy=%s dialog=%s log=%s paused=%s" % [target, main.player.global_position, main.player.can_move, main.get("_busy"), main.ui.dialog_active(), main.ui.log_open(), get_tree().paused])
+	if monkey:
+		print("[PROLOGUE monkey] WALK done target=%s at=%s budget=%.2f elapsed_s=%.2f" % [target, main.player.global_position, budget, _elapsed])
 
 
 func interact(id: String) -> void:
