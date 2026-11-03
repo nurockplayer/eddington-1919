@@ -47,6 +47,12 @@ var rule_id := ""
 var measured := false
 var reselected_after_seeing := false
 var measured_selection = null    # plate numbers included at the last measurement
+var first_result = null
+var reselect_reason := ""
+var reselect_added: Array = []
+var reselect_removed: Array = []
+var reselect_history: Array = []
+var reselect_justified_so_far := true
 
 
 func _init(p_seed: int = 1919) -> void:
@@ -303,9 +309,19 @@ func selection_report() -> Dictionary:
 	var omitted_good := plates.filter(func(p): return p.quality == "good" and not p.included)
 	var included_poor := plates.filter(func(p): return p.quality == "poor" and p.included)
 	var included_unusable := plates.filter(func(p): return p.quality == "unusable" and p.included)
+	var justified := reselect_justified_so_far and reselect_reason == "quality"
+	for number in reselect_removed:
+		justified = justified and plates.any(func(p): return p.number == number and p.quality in ["poor", "unusable"])
+	for number in reselect_added:
+		justified = justified and plates.any(func(p): return p.number == number and p.quality == "good")
 	return {
 		"omitted_good": omitted_good.map(func(p): return p.number),
 		"included_poor": included_poor.map(func(p): return p.number),
 		"included_unusable": included_unusable.map(func(p): return p.number),
 		"reselected": reselected_after_seeing,
+		"reselect_reason": reselect_reason,
+		"reselect_added": reselect_added.duplicate(),
+		"reselect_removed": reselect_removed.duplicate(),
+		"reselect_justified": justified,
+		"reselect_history": reselect_history.duplicate(true),
 	}

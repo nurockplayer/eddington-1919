@@ -22,7 +22,8 @@ class GradeFixture extends RefCounted:
 		return {"n": 1 if measured else 0, "value": 1.75, "sigma": 0.1}
 
 	func selection_report() -> Dictionary:
-		return {"omitted_good": [], "included_poor": [], "included_unusable": [], "reselected": not clean}
+		return {"omitted_good": [], "included_poor": [], "included_unusable": [], "reselected": not clean,
+			"reselect_reason": "", "reselect_added": [], "reselect_removed": [], "reselect_justified": false}
 
 var failures := 0
 var checks := 0
