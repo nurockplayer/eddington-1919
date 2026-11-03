@@ -37,7 +37,22 @@ func key(code: Key, pressed: bool) -> void:
 	event.keycode = code
 	event.physical_keycode = code
 	event.pressed = pressed
-	Input.parse_input_event(event)
+	Input.parse_input_event(event.duplicate())
+	await process_frame
+
+
+func scroll_stick(value: float, frames := 6) -> void:
+	var event := InputEventJoypadMotion.new()
+	event.axis = JOY_AXIS_RIGHT_Y
+	event.axis_value = value
+	Input.parse_input_event(event.duplicate())
+	Input.flush_buffered_events()
+	for frame in frames:
+		await process_frame
+		await physics_frame
+	event.axis_value = 0.0
+	Input.parse_input_event(event.duplicate())
+	Input.flush_buffered_events()
 	await process_frame
 
 
@@ -88,12 +103,12 @@ func _run() -> void:
 	var motion := InputEventJoypadMotion.new()
 	motion.axis = JOY_AXIS_RIGHT_X
 	motion.axis_value = 0.5
-	Input.parse_input_event(motion)
+	Input.parse_input_event(motion.duplicate())
 	await process_frame
 	check(Prompts.joypad, "analog input switches prompts")
 	check(Input.get_axis("look_left", "look_right") > 0.0 and Input.get_axis("look_left", "look_right") < 1.0, "half stick preserves analog look strength")
 	motion.axis_value = 0.0
-	Input.parse_input_event(motion)
+	Input.parse_input_event(motion.duplicate())
 	ui.hide_title()
 	ui.play([{"s": "Kit", "t": "一"}, {"s": "Kit", "t": "二", "key": "answer", "choices": ["甲", "乙"]}])
 	await button(JOY_BUTTON_A)
@@ -123,8 +138,47 @@ func _run() -> void:
 	check(ending_scroll.scroll_vertical == 0, "reopening ending resets narrative scroll to the top")
 	var ending_focus := root.gui_get_focus_owner()
 	check(ending_focus is Button and ui.ending_panel.is_ancestor_of(ending_focus), "ending focuses a button")
+	await button(JOY_BUTTON_DPAD_DOWN)
+	check(ending_scroll.scroll_vertical == 80 and root.gui_get_focus_owner() == ending_focus, "D-pad down scrolls ending 80 pixels with Replay still focused")
+	var before_stick := ending_scroll.scroll_vertical
+	await scroll_stick(0.5)
+	check(ending_scroll.scroll_vertical > before_stick and root.gui_get_focus_owner() == ending_focus, "right stick scrolls ending continuously without changing Replay focus")
+	var before_arrow := ending_scroll.scroll_vertical
+	await key(KEY_UP, true)
+	await key(KEY_UP, false)
+	check(ending_scroll.scroll_vertical == maxi(before_arrow - 80, 0) and root.gui_get_focus_owner() == ending_focus, "up arrow scrolls ending without moving button focus")
+	var before_history := ending_scroll.scroll_vertical
+	await button(JOY_BUTTON_DPAD_RIGHT)
+	check(root.gui_get_focus_owner() == ui.ending_history_toggle, "D-pad right reaches the external history button")
+	await button(JOY_BUTTON_A)
+	for frame in 4:
+		await process_frame
+	check(not ending_scroll.follow_focus and not ending_scroll.is_ancestor_of(ui.ending_history_toggle)
+		and ending_scroll.scroll_vertical == before_history, "history toggle stays outside narrative and does not jump the scroll")
+	ui.ending_replay.grab_focus()
+	var before_pause := ending_scroll.scroll_vertical
+	ui.toggle_pause()
+	await button(JOY_BUTTON_DPAD_DOWN)
+	await scroll_stick(0.5)
+	check(ending_scroll.scroll_vertical == before_pause, "pause on top blocks ending D-pad and stick scrolling")
+	ui.toggle_pause()
 	ui._open_credits()
+	for frame in 4:
+		await process_frame
 	check(root.gui_get_focus_owner() is Button and ui.credits_panel.is_ancestor_of(root.gui_get_focus_owner()), "credits focus Return")
+	var credits_scroll := ui.credits_panel.find_child("Scroll", true, false) as ScrollContainer
+	var credits_focus := root.gui_get_focus_owner()
+	await button(JOY_BUTTON_DPAD_DOWN)
+	check(credits_scroll.scroll_vertical == 80 and root.gui_get_focus_owner() == credits_focus, "D-pad down scrolls credits with Return still focused")
+	before_stick = credits_scroll.scroll_vertical
+	await scroll_stick(0.5)
+	check(credits_scroll.scroll_vertical > before_stick and root.gui_get_focus_owner() == credits_focus, "right stick scrolls credits continuously without changing Return focus")
+	var ending_under_credits := ending_scroll.scroll_vertical
+	await button(JOY_BUTTON_DPAD_DOWN)
+	check(ending_scroll.scroll_vertical == ending_under_credits, "credits scrolling leaves ending underneath unchanged")
+	await button(JOY_BUTTON_A)
+	check(not ui.credits_panel.visible and root.gui_get_focus_owner() == ending_focus, "A on Return still closes scrolled credits")
+	ui._open_credits()
 	await button(JOY_BUTTON_B)
 	check(not ui.credits_panel.visible and root.gui_get_focus_owner() == ending_focus, "B returns credits focus to ending")
 	ui.ending_panel.hide()
@@ -147,10 +201,10 @@ func _run() -> void:
 	var move_stick := InputEventJoypadMotion.new()
 	move_stick.axis = JOY_AXIS_LEFT_X
 	move_stick.axis_value = 1.0
-	Input.parse_input_event(move_stick)
+	Input.parse_input_event(move_stick.duplicate())
 	await create_timer(0.08).timeout
 	move_stick.axis_value = 0.0
-	Input.parse_input_event(move_stick)
+	Input.parse_input_event(move_stick.duplicate())
 	await process_frame
 	check(overlay.offset.x > paper_before.x, "left stick moves the tracing paper")
 	check(root.gui_get_focus_owner() == focus_before, "left stick leaves overlay button focus unchanged")
@@ -167,10 +221,10 @@ func _run() -> void:
 	var stick := InputEventJoypadMotion.new()
 	stick.axis = JOY_AXIS_RIGHT_X
 	stick.axis_value = 0.5
-	Input.parse_input_event(stick)
+	Input.parse_input_event(stick.duplicate())
 	await create_timer(0.08).timeout
 	stick.axis_value = 0.0
-	Input.parse_input_event(stick)
+	Input.parse_input_event(stick.duplicate())
 	await process_frame
 	check(overlay.angle_deg > before_angle, "right stick still rotates the overlay smoothly")
 	overlay._reset()

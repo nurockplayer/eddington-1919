@@ -65,6 +65,10 @@ var log_text: RichTextLabel
 static var history: Array[String] = []
 var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_replay: Button
+var ending_scroll: ScrollContainer
+var credits_scroll: ScrollContainer
+var _menu_scroll_axis := 0.0
+var _menu_scroll_remainder := 0.0
 var ending_panel: Control
 var credits_panel: Control
 var ending_text: RichTextLabel
@@ -297,6 +301,12 @@ func show_toast(text: String, seconds := 4.0) -> void:
 
 
 func _process(delta: float) -> void:
+	var scroll := _active_menu_scroll()
+	if scroll:
+		_menu_scroll_remainder += _menu_scroll_axis * 900.0 * delta
+		var pixels := int(_menu_scroll_remainder)
+		_menu_scroll_remainder -= pixels
+		scroll.scroll_vertical += pixels
 	if _toast_t > 0.0:
 		_toast_t -= delta
 		if _toast_t < 0.6:
@@ -850,7 +860,8 @@ func _build_ending(root: Control) -> void:
 	ending_panel.visible = false
 	root.add_child(ending_panel)
 	var scroll := ScrollContainer.new()
-	scroll.follow_focus = true
+	scroll.follow_focus = false
+	ending_scroll = scroll
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scroll.offset_left = 200
 	scroll.offset_right = -200
@@ -870,7 +881,6 @@ func _build_ending(root: Control) -> void:
 	ending_history_toggle = _button("歷史上發生了什麼")
 	ending_history_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	ending_history_toggle.pressed.connect(_toggle_ending_history)
-	v.add_child(ending_history_toggle)
 	ending_history = _rich(17)
 	ending_history.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ending_history.visible = false
@@ -886,6 +896,7 @@ func _build_ending(root: Control) -> void:
 	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
 	hb.add_child(same)
+	hb.add_child(ending_history_toggle)
 	var fresh := _button("新的天空")
 	fresh.pressed.connect(func(): restart_pressed.emit(false))
 	hb.add_child(fresh)
@@ -896,6 +907,12 @@ func _build_ending(root: Control) -> void:
 	var q := _button("離開")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	var hint := _label("↑↓ 或右搖桿：捲動", 16, DIM)
+	hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	hint.position = Vector2(-220, -32)
+	hint.size = Vector2(440, 24)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ending_panel.add_child(hint)
 	_build_credits(root)
 
 
@@ -917,6 +934,7 @@ func _build_credits(root: Control) -> void:
 	v.add_theme_constant_override("separation", 16)
 	credits_panel.add_child(v)
 	var scroll := ScrollContainer.new()
+	credits_scroll = scroll
 	scroll.follow_focus = true
 	scroll.name = "Scroll"
 	scroll.focus_mode = Control.FOCUS_ALL
@@ -932,13 +950,17 @@ func _build_credits(root: Control) -> void:
 	back.add_theme_stylebox_override("focus", back.get_theme_stylebox("hover"))
 	back.pressed.connect(_close_credits)
 	v.add_child(back)
+	var hint := _label("↑↓ 或右搖桿：捲動", 16, DIM)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(hint)
 
 
 func _open_credits() -> void:
 	_credits_focus = get_viewport().gui_get_focus_owner()
 	credits_panel.show()
-	var scroll := credits_panel.find_child("Scroll", true, false) as ScrollContainer
-	scroll.scroll_vertical = 0
+	credits_scroll.scroll_vertical = 0
+	_menu_scroll_axis = 0.0
+	_menu_scroll_remainder = 0.0
 	(credits_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
 
 
@@ -951,7 +973,9 @@ func show_ending(title: String, bb: String, history_bb := "") -> void:
 	ending_history_toggle.text = "歷史上發生了什麼"
 	ending_panel.visible = true
 	ending_replay.grab_focus()
-	(ending_text.get_parent().get_parent() as ScrollContainer).scroll_vertical = 0
+	ending_scroll.scroll_vertical = 0
+	_menu_scroll_axis = 0.0
+	_menu_scroll_remainder = 0.0
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
@@ -1105,7 +1129,17 @@ func _refresh_hints() -> void:
 		hint_label.text = "［%s］繼續" % Prompts.key("interact") if Prompts.joypad else "［E／空白鍵／點擊］繼續"
 
 
+func _active_menu_scroll() -> ScrollContainer:
+	if pause_panel.visible or log_panel.visible or dialog_panel.visible or viewer.visible:
+		return null
+	if credits_panel.visible:
+		return credits_scroll
+	return ending_scroll if ending_panel.visible else null
+
+
 func _input(event: InputEvent) -> void:
+	if event is InputEventJoypadMotion and event.axis == JOY_AXIS_RIGHT_Y:
+		_menu_scroll_axis = event.get_action_strength("look_down") - event.get_action_strength("look_up")
 	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.25):
 		Prompts.joypad = true
 	elif event is InputEventKey or event is InputEventMouse:
@@ -1113,6 +1147,12 @@ func _input(event: InputEvent) -> void:
 	_refresh_hints()
 	if event.is_action_pressed("toggle_fullscreen"):
 		_toggle_fullscreen()
+		get_viewport().set_input_as_handled()
+		return
+	var scroll := _active_menu_scroll()
+	if scroll and (event.is_action("ui_up") or event.is_action("ui_down")):
+		if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down"):
+			scroll.scroll_vertical += 80 if event.is_action_pressed("ui_down") else -80
 		get_viewport().set_input_as_handled()
 		return
 	if credits_panel.visible:
