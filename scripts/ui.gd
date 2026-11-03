@@ -77,6 +77,7 @@ var ending_history_toggle: Button
 var pause_panel: Control
 var fullscreen_button: Button
 var text_size_button: Button
+var quality_button: Button
 var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
@@ -169,6 +170,16 @@ func _cycle_text_size() -> void:
 	theme_res.default_font_size = Settings.fs(21)
 	Settings.refresh_fonts(get_tree())
 	text_size_button.text = _text_size_caption()
+
+
+func _quality_caption() -> String:
+	return "畫質：低" if Settings.quality == "low" else "畫質：標準"
+
+
+func _cycle_quality() -> void:
+	Settings.cycle_quality()
+	Settings.apply_quality(get_tree())
+	quality_button.text = _quality_caption()
 
 
 func _label(text: String, size := 21, color := PAPER) -> Label:
@@ -1040,6 +1051,9 @@ func _build_pause(root: Control) -> void:
 	text_size_button = _button(_text_size_caption())
 	text_size_button.pressed.connect(_cycle_text_size)
 	v.add_child(text_size_button)
+	quality_button = _button(_quality_caption())
+	quality_button.pressed.connect(_cycle_quality)
+	v.add_child(quality_button)
 	var rs := _button("從頭開始")
 	rs.pressed.connect(func():
 		get_tree().paused = false
@@ -1064,6 +1078,7 @@ func toggle_pause() -> void:
 	get_tree().paused = p
 	pause_panel.visible = p
 	if p:
+		quality_button.text = _quality_caption()
 		Settings.sync_fullscreen()
 		fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

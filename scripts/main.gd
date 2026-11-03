@@ -148,6 +148,7 @@ func _ready() -> void:
 	ui.reselect_pressed.connect(_on_reselect)
 	ui.report_pressed.connect(_on_report)
 	ui.viewer_closed.connect(_on_viewer_closed)
+	Settings.apply_quality(get_tree())
 	_build_audio()
 	player.can_move = false
 	player.can_look = false
@@ -317,6 +318,8 @@ func _build_environment() -> void:
 		Look.apply_cinematic(env, sun, sky_mat)
 		_look_sun = Look.SUN_GAIN
 		_look_ambient = Look.AMBIENT_GAIN
+	we.set_meta("standard_ssao", env.ssao_enabled)
+	we.add_to_group("quality_env")
 
 
 ## r06: characters turn their heads toward the player at conversation distance

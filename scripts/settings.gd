@@ -8,6 +8,7 @@ const TEXT_SCALES := [0.85, 1.0, 1.2]
 const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db"}
 
 static var volumes := {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
+static var quality := "standard"
 static var text_scale := 1.0
 static var fullscreen := false
 static var video_apply_count := 0
@@ -55,6 +56,9 @@ static func load_settings(path := SETTINGS_PATH) -> void:
 	cfg.load(path)
 	for bus in VOLUME_KEYS:
 		volumes[bus] = clampf(float(cfg.get_value("audio", VOLUME_KEYS[bus], 1.0)), 0.0, 1.0)
+	quality = str(cfg.get_value("video", "quality", "standard"))
+	if quality not in ["low", "standard"]:
+		quality = "standard"
 	fullscreen = bool(cfg.get_value("video", "fullscreen", false))
 	text_scale = float(cfg.get_value("ui", "text_scale", 1.0))
 	if text_scale not in TEXT_SCALES:
@@ -66,6 +70,7 @@ static func save_settings(path := SETTINGS_PATH) -> Error:
 	cfg.load(path)
 	for bus in VOLUME_KEYS:
 		cfg.set_value("audio", VOLUME_KEYS[bus], volumes[bus])
+	cfg.set_value("video", "quality", quality)
 	cfg.set_value("video", "fullscreen", fullscreen)
 	cfg.set_value("ui", "text_scale", text_scale)
 	return cfg.save(path)
@@ -73,6 +78,7 @@ static func save_settings(path := SETTINGS_PATH) -> Error:
 
 static func apply_startup() -> void:
 	apply_audio()
+	apply_quality(Engine.get_main_loop() as SceneTree)
 	if not _video_applied:
 		apply_video()
 		_video_applied = true
@@ -121,3 +127,18 @@ static func toggle_fullscreen(path := SETTINGS_PATH) -> Error:
 static func cycle_text_scale(path := SETTINGS_PATH) -> Error:
 	text_scale = TEXT_SCALES[(TEXT_SCALES.find(text_scale) + 1) % TEXT_SCALES.size()]
 	return save_settings(path)
+
+
+static func cycle_quality(path := SETTINGS_PATH) -> Error:
+	quality = "low" if quality == "standard" else "standard"
+	return save_settings(path)
+
+
+static func apply_quality(tree: SceneTree) -> void:
+	var low := quality == "low"
+	tree.root.scaling_3d_scale = 0.75 if low else 1.0
+	tree.root.msaa_3d = Viewport.MSAA_DISABLED if low else ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_3d")
+	for node in tree.get_nodes_in_group("quality_env"):
+		node.environment.ssao_enabled = false if low else node.get_meta("standard_ssao")
+	for light in tree.get_nodes_in_group("quality_shadow"):
+		light.shadow_enabled = false if low else light.get_meta("standard_shadow")
