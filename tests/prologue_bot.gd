@@ -51,6 +51,12 @@ func _process(delta: float) -> void:
 	if _elapsed > 900.0 and not _done:
 		failures.append("900 second watchdog")
 		_finish()
+	if monkey and is_instance_valid(main) and main.get_script() and main.get_script().resource_path == "res://scripts/main.gd":
+		var phase_name: String = main.Phase.keys()[main.phase]
+		var marker := "1919_" + phase_name
+		if not _shot_beats.has(marker):
+			_shot_beats[marker] = true
+			print("[PROLOGUE monkey] PHASE " + phase_name)
 	var scene = get_tree().current_scene
 	if is_instance_valid(main) and main.get_script() and main.get_script().resource_path == "res://scripts/main.gd" and main.phase == main.Phase.CODA and main.coda_step == main.CodaStep.FADING and not _coda_fade_capture_started:
 		_coda_fade_capture_started = true
