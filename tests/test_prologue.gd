@@ -267,6 +267,7 @@ func _test_dialogue_history() -> void:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
 			added_actions.append(action)
+	load("res://scripts/main.gd")._ensure_inputs()
 	var ui = UI.new()
 	ui.history.clear()
 	root.add_child(ui)

@@ -50,6 +50,7 @@ func open(state: Dictionary, previous_report: Dictionary = {}) -> void:
 		child.queue_free()
 	_build()
 	visible = true
+	find_children("*", "BaseButton", true, false)[0].grab_focus()
 
 
 func _build() -> void:
@@ -73,6 +74,7 @@ func _build() -> void:
 	sheet.add_theme_stylebox_override("panel", sheet_style)
 	add_child(sheet)
 	var scroll := ScrollContainer.new()
+	scroll.follow_focus = true
 	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	scroll.anchor_left = 0.075
 	scroll.anchor_top = 0.055

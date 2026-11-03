@@ -1,4 +1,6 @@
 extends Node3D
+
+const Prompts := preload("res://scripts/prompts.gd")
 ## M1 sequence orchestration. Text and replaceable cast stay in C17/Cast.
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Score := preload("res://scripts/audio/score.gd")
@@ -159,7 +161,7 @@ func _process(delta: float) -> void:
 		tick.play()
 	if _free() and beat == Beat.INVESTIGATE:
 		var target: Node = player.aimed_interactable()
-		ui.set_prompt("［E］" + str(target.get_meta("prompt")) if target else "")
+		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if target else "")
 	else:
 		ui.set_prompt("")
 
@@ -364,6 +366,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			plan_board.open()
 		"board_reaction":
 			plan_board.show()
+			plan_board.card_buttons.values()[0].grab_focus()
 		"plan_finish":
 			beat = Beat.TRIAL
 			_say(C17.trial_task(), "trial")

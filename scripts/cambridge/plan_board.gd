@@ -50,6 +50,7 @@ func open() -> void:
 		child.queue_free()
 	_build()
 	visible = true
+	card_buttons.values()[0].grab_focus()
 
 
 func _build() -> void:

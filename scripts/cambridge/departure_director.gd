@@ -1,4 +1,6 @@
 extends Node3D
+
+const Prompts := preload("res://scripts/prompts.gd")
 ## M2 staging only; all authored dialogue remains in Content.
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const ExistingDirector := preload("res://scripts/main.gd")
@@ -122,7 +124,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt("［E］" + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -182,6 +184,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			# Reading time for the changed paper; progress always requires a click.
 			await get_tree().create_timer(0.85, false).timeout
 			checklist.continue_btn.disabled = false
+			checklist.continue_btn.grab_focus()
 		"bond":
 			Story.bond_tone = "close" if int(results.get("bond", 0)) == 0 else "warm"
 			beat = Beat.PROMISE
