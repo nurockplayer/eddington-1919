@@ -20,6 +20,7 @@ var _step_rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	preload("res://scripts/settings.gd").ensure_sfx_bus()
 	var shape := CollisionShape3D.new()
 	var cap := CapsuleShape3D.new()
 	cap.radius = 0.3
@@ -39,6 +40,7 @@ func _ready() -> void:
 		for variant in 3:
 			_steps[surface].append(_synth_step(surface))
 	_step_player = AudioStreamPlayer.new()
+	_step_player.bus = "SFX"
 	_step_player.volume_db = -24.0
 	add_child(_step_player)
 

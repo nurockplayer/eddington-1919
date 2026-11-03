@@ -269,6 +269,7 @@ func _montage() -> void:
 
 func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStreamPlayer:
 	var audio := AudioStreamPlayer.new()
+	audio.bus = "SFX"
 	audio.stream = ExistingDirector._wav(samples, 22050, loop)
 	audio.volume_db = db
 	add_child(audio)

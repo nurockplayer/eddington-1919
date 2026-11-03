@@ -3,6 +3,7 @@ extends CanvasLayer
 const Fonts := preload("res://scripts/fonts.gd")
 const Credits := preload("res://scripts/credits.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
+const Settings := preload("res://scripts/settings.gd")
 const Content := preload("res://scripts/content.gd")
 const Strip := preload("res://scripts/totality_strip.gd")
 const DialoguePortrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
@@ -68,6 +69,7 @@ var ending_title: Label
 var ending_history: RichTextLabel
 var ending_history_toggle: Button
 var pause_panel: Control
+var fullscreen_button: Button
 var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
@@ -97,6 +99,11 @@ var pause_enabled := false
 
 func _ready() -> void:
 	layer = 10
+	var music_ready := Time.get_ticks_usec()
+	ScorePlayer.load_settings()
+	Settings.load_settings()
+	Settings.apply_startup()
+	music_ready_usec = Time.get_ticks_usec() - music_ready
 	font = Fonts.cjk()
 	theme_res = Theme.new()
 	theme_res.default_font = font
@@ -633,6 +640,7 @@ func _build_viewer_sfx() -> void:
 						var burst := 0.32 * rng.randf_range(-1.0, 1.0) + 0.25 * sin(TAU * 1600.0 * click_t)
 						samples[i] = burst * exp(-400.0 * click_t) * (1.2 if click == 8 else 1.0)
 		var player := AudioStreamPlayer.new()
+		player.bus = "SFX"
 		player.stream = _wav(samples, rate)
 		player.volume_db = -18.0 if name == "measure" else -20.0
 		add_child(player)
@@ -922,7 +930,7 @@ func _build_pause(root: Control) -> void:
 	root.add_child(pause_panel)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)
-	v.position = Vector2(-150, -120)
+	v.position = Vector2(-150, -240)
 	v.custom_minimum_size = Vector2(300, 0)
 	v.add_theme_constant_override("separation", 12)
 	pause_panel.add_child(v)
@@ -932,14 +940,28 @@ func _build_pause(root: Control) -> void:
 	var r := _button("繼續")
 	r.pressed.connect(func(): toggle_pause())
 	v.add_child(r)
-	var music_ready := Time.get_ticks_usec()
-	ScorePlayer.load_settings()
 	var music := _button("音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
 	music.pressed.connect(func():
 		ScorePlayer.set_music_enabled(not ScorePlayer.music_enabled())
 		music.text = "音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
 	v.add_child(music)
-	music_ready_usec = Time.get_ticks_usec() - music_ready
+	for bus in ["Master", "Music", "SFX"]:
+		var row := HBoxContainer.new()
+		var label := _label({"Master": "主音量", "Music": "音樂", "SFX": "音效"}[bus], 20)
+		label.custom_minimum_size.x = 80
+		row.add_child(label)
+		var slider := HSlider.new()
+		slider.max_value = 1.0
+		slider.step = 0.05
+		slider.value = Settings.volumes[bus]
+		slider.focus_mode = Control.FOCUS_ALL
+		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slider.value_changed.connect(func(value: float): Settings.set_volume(bus, value))
+		row.add_child(slider)
+		v.add_child(row)
+	fullscreen_button = _button("全螢幕：開" if Settings.fullscreen else "全螢幕：關")
+	fullscreen_button.pressed.connect(_toggle_fullscreen)
+	v.add_child(fullscreen_button)
 	var rs := _button("從頭開始")
 	rs.pressed.connect(func():
 		get_tree().paused = false
@@ -948,6 +970,13 @@ func _build_pause(root: Control) -> void:
 	var q := _button("離開遊戲")
 	q.pressed.connect(func(): quit_pressed.emit())
 	v.add_child(q)
+	for button in [r, music, fullscreen_button, rs, q]:
+		button.focus_mode = Control.FOCUS_ALL
+
+
+func _toggle_fullscreen() -> void:
+	Settings.toggle_fullscreen()
+	fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 
 
 func toggle_pause() -> void:
@@ -955,7 +984,10 @@ func toggle_pause() -> void:
 	get_tree().paused = p
 	pause_panel.visible = p
 	if p:
+		Settings.sync_fullscreen()
+		fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	# Only the chapter knows every form and scripted input lock it owns.
 	pause_toggled.emit(p)
 
@@ -1003,6 +1035,10 @@ func toggle_log() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_fullscreen"):
+		_toggle_fullscreen()
+		get_viewport().set_input_as_handled()
+		return
 	if credits_panel.visible:
 		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 			credits_panel.hide()

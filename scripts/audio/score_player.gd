@@ -23,7 +23,7 @@ static func ensure_bus() -> int:
 		index = AudioServer.bus_count - 1
 		AudioServer.set_bus_name(index, "Music")
 		AudioServer.set_bus_send(index, "Master")
-	AudioServer.set_bus_mute(index, not _enabled)
+	AudioServer.set_bus_mute(index, not _enabled or AudioServer.get_bus_volume_linear(index) == 0.0)
 	return index
 
 
