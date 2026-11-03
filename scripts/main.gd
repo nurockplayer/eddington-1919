@@ -884,7 +884,8 @@ func _interact(id: String) -> void:
 					seq.append({"s": Content.E, "t": preload("res://scripts/cambridge/content_1917.gd").principe_callback(Story)})
 				_say(seq, "briefing")
 			else:
-				_say(Content.eddington_prep(), "eddington_prep")
+				var plates: int = sim.BASE_PLATES + mini(sim.plates_delivered + sim.plates_carried, sim.MAX_EXTRA_PLATES)
+				_say(Content.eddington_prep(plates, sim.drive_wound, sim.drive_rate_checked, sim.plates_carried), "eddington_prep")
 		"cottingham":
 			if not met_cottingham:
 				met_cottingham = true
@@ -1113,7 +1114,7 @@ func _toggle_shutter() -> void:
 	elif change_left > 0.0:
 		ui.show_toast("Eddington 還在換片……", 1.5)
 	elif plates_left <= 0:
-		ui.show_toast("底片用完了。", 2.0)
+		t_game = maxf(t_game, sim.TOTALITY_S - 3.0)
 	else:
 		sim.open_shutter(t_game)
 		_ever_exposed = true
@@ -1129,8 +1130,8 @@ func _process_totality(delta: float) -> void:
 	score.advance(delta)
 	if _busy or tot_done:
 		return
-	ui.set_prompt("［%s］開始／停" % Prompts.key("shutter"))
 	var exposing: bool = sim.is_exposing()
+	ui.set_prompt(("底片用完了。［%s］等待第三接觸" if plates_left <= 0 and not exposing else "［%s］開始／停") % Prompts.key("shutter"))
 	if exposing != _score_exposing:
 		_score_exposing = exposing
 		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else -34.0, 0.4 if exposing else 1.2)
