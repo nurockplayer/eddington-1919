@@ -1401,8 +1401,7 @@ func _refresh_viewer() -> void:
 		if recall != "":
 			note += "\n" + recall
 	var rule_index := ["strict", "after", "none"].find(sim.rule_id)
-	if rule_index >= 0:
-		note += "\n你寫下的規則：" + Content.rules_prompt(false)[-1].choices[rule_index]
+	ui.viewer_rule.text = "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[rule_index] if rule_index >= 0 else ""
 	ui.set_viewer_note(note)
 	ui.refresh_thumbs()
 

@@ -9,6 +9,7 @@ const UI := preload("res://scripts/ui.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const Chart := preload("res://scripts/chart.gd")
 const Prompts := preload("res://scripts/prompts.gd")
+const Settings := preload("res://scripts/settings.gd")
 
 const STEP := 0.1                      # real seconds per scripted frame
 const GAME_STEP := STEP * Sim.TIME_SCALE   # 0.25 game-seconds per frame
@@ -40,6 +41,7 @@ func _run() -> void:
 	_test_judgment_neither()
 	_test_judgment_prompt()
 	await _test_judgment_reasons()
+	await _test_report_rule_layout()
 	await _test_birds_quiet()
 	await _test_callouts()
 	await _test_night_viewer()
@@ -407,7 +409,7 @@ func _test_judgment_reasons() -> void:
 	var chart_span := Chart.two_sigma_span(c.value, c.sigma)
 	check(("%.2f" % chart_span.x).to_float() == bounds.lo and ("%.2f" % chart_span.y).to_float() == bounds.hi, "report chart interval agrees with judgment bounds")
 	check(game.ui.viewer_note.text.contains("%.2f–%.2f″" % [bounds.lo, bounds.hi]), "report note agrees with the prompt interval")
-	check(game.ui.viewer_note.text.contains("你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0]), "report repeats the rule in the player's own words")
+	check(game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "report repeats the rule in the player's own words")
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
 	check(game.ui._seq[0].key == "interval" and game.ui._seq[0].t.contains("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, c.value - 2*c.sigma, c.value + 2*c.sigma]), "real judgment opens with the combined 2σ interval")
 	check(game.ui._seq.size() == 1 and game.ui._choice_buttons.size() == 4, "only interval choices exist before the answer")
@@ -482,6 +484,43 @@ func _click_control(control: Control) -> void:
 	await process_frame
 	event.pressed = false
 	root.push_input(event)
+	await process_frame
+
+
+func _test_report_rule_layout() -> void:
+	root.size = Vector2i(1600, 900)
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	var old_scale := Settings.text_scale
+	Settings.text_scale = 1.2
+	Settings.refresh_fonts(self)
+	game.ui.theme_res.default_font_size = Settings.fs(21)
+	game.sim = Sim.new(1919)
+	game.phase = game.Phase.NIGHT
+	game.sim.rule_id = "strict"
+	game.sim.measured = true
+	for i in 12:
+		game.sim.plates.append({"number": i + 1, "start": float(i * 10), "duration": 6.0, "sunlit": false,
+			"usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.75, "sigma": 0.2})
+		game.plate_textures.append(null)
+	game.ui.hide_title()
+	game._open_viewer()
+	for frame in 4:
+		await process_frame
+	var note_before: String = game.ui.viewer_note.text
+	await _click_control(game.ui.report_btn)
+	for frame in 4:
+		await process_frame
+	check(game.ui.thumbs.get_child_count() == 13, "report rule layout has twelve plates and a comparison thumbnail")
+	check(game.ui.viewer_rule.is_visible_in_tree() and game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "large report shows the complete authored rule")
+	var rule_rect: Rect2 = game.ui.viewer_rule.get_global_rect()
+	check(root.get_visible_rect().encloses(rule_rect) and not game.ui.dialog_panel.get_global_rect().intersects(rule_rect), "large report rule fits the viewport and stays above dialogue")
+	check(game.ui.viewer_note.text == note_before and not note_before.contains("你寫下的規則"), "report rule leaves the measurement note unchanged")
+	Settings.text_scale = old_scale
+	Settings.refresh_fonts(self)
+	game.stop_all_audio()
+	game.queue_free()
 	await process_frame
 
 
@@ -740,7 +779,7 @@ func _test_viewer_note() -> void:
 	for i in 3:
 		game.sim.rule_id = ["strict", "after", "none"][i]
 		game._refresh_viewer()
-		check(game.ui.viewer_note.text.contains("你寫下的規則：" + Content.rules_prompt(false)[-1].choices[i]), "viewer recalls rule %s verbatim" % game.sim.rule_id)
+		check(game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[i], "viewer recalls rule %s verbatim" % game.sim.rule_id)
 	game.stop_all_audio()
 	game.queue_free()
 

@@ -95,6 +95,7 @@ var measure_btn: Button
 var reselect_btn: Button
 var report_btn: Button
 var chart: Control
+var viewer_rule: RichTextLabel
 var viewer_note: RichTextLabel
 var viewer_sfx_log: Array[String] = []
 var _viewer_sfx := {}
@@ -647,6 +648,9 @@ func _build_viewer(root: Control) -> void:
 	right.add_theme_constant_override("separation", 10)
 	h.add_child(right)
 	right.add_child(_label("星光偏折（太陽邊緣，角秒）", 22, ACCENT))
+	viewer_rule = _rich(15)
+	viewer_rule.visible = false
+	right.add_child(viewer_rule)
 	chart = preload("res://scripts/chart.gd").new()
 	chart.custom_minimum_size = Vector2(560, 420)
 	right.add_child(chart)
@@ -898,6 +902,7 @@ func set_viewer_locked(locked: bool) -> void:
 
 func set_viewer_report(reporting: bool) -> void:
 	_viewer_reporting = reporting
+	viewer_rule.visible = reporting and viewer_rule.text != ""
 	# Keep every viewer control out of dialogue focus navigation.
 	for button in viewer.find_children("*", "BaseButton", true, false):
 		button.disabled = reporting
