@@ -1,0 +1,10 @@
+Windows icon regeneration (Python 3 + Pillow 12.3.0), from the repository root:
+
+python3 - <<'PYTHON'
+from PIL import Image
+image = Image.open("assets/icon/icon_1024.png").convert("RGBA")
+image.save("assets/icon/icon.ico", format="ICO",
+           sizes=[(s, s) for s in (16, 32, 48, 64, 128, 256)])
+PYTHON
+
+The ICO contains all six sizes, including the 256 x 256 PNG entry.
