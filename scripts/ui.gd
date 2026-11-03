@@ -83,6 +83,7 @@ var thumbs: GridContainer
 var big_plate: TextureRect
 var plate_info: RichTextLabel
 var reference_btn: Button
+var reference_close_btn: Button
 var reference_panel: PanelContainer
 var loupe_btn: Button
 var _plate_texture: Texture2D
@@ -587,11 +588,11 @@ func _build_viewer(root: Control) -> void:
 	left.add_child(reference_btn)
 	reference_panel = PanelContainer.new()
 	reference_panel.visible = false
-	left.add_child(reference_panel)
 	reference_btn.toggled.connect(func(on):
 		if on and reference_panel.get_child_count() == 0:
 			_build_reference_plates()
 		reference_panel.visible = on
+		(reference_close_btn if on else reference_btn).grab_focus()
 	)
 	thumbs = GridContainer.new()
 	thumbs.columns = 3
@@ -604,12 +605,19 @@ func _build_viewer(root: Control) -> void:
 	var mid := VBoxContainer.new()
 	mid.custom_minimum_size = Vector2(470, 0)
 	h.add_child(mid)
+	var plate_stage := Control.new()
+	plate_stage.custom_minimum_size = Vector2(470, 460)
+	mid.add_child(plate_stage)
 	big_plate = TextureRect.new()
 	big_plate.custom_minimum_size = Vector2(460, 460)
 	big_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	big_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	mid.add_child(big_plate)
+	plate_stage.add_child(big_plate)
+	big_plate.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	big_plate.gui_input.connect(_plate_gui_input)
+	plate_stage.add_child(reference_panel)
+	reference_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	reference_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.05, 0.045, 0.04, 1.0), ACCENT))
 	plate_info = _rich(18)
 	mid.add_child(plate_info)
 	include_box = CheckBox.new()
@@ -689,6 +697,9 @@ func _build_reference_plates() -> void:
 		caption_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		column.add_child(caption_label)
 	card.add_child(_label("示意圖，不是你的底片。", 15, DIM))
+	reference_close_btn = _button("收起參考")
+	reference_close_btn.pressed.connect(func(): reference_btn.button_pressed = false)
+	card.add_child(reference_close_btn)
 
 
 func _set_loupe(on: bool) -> void:
@@ -1266,13 +1277,14 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventKey or event is InputEventMouse:
 		Prompts.joypad = false
 	_refresh_hints()
-	if viewer.visible and loupe_btn.button_pressed and loupe_btn.has_focus() and not get_tree().paused and not log_panel.visible and event is InputEventJoypadButton:
-		var directions := {JOY_BUTTON_DPAD_LEFT: Vector2.LEFT, JOY_BUTTON_DPAD_RIGHT: Vector2.RIGHT, JOY_BUTTON_DPAD_UP: Vector2.UP, JOY_BUTTON_DPAD_DOWN: Vector2.DOWN}
-		if directions.has(event.button_index):
-			if event.pressed:
-				_show_loupe(_loupe_center + directions[event.button_index] * 18.0)
-			get_viewport().set_input_as_handled()
-			return
+	if viewer.visible and loupe_btn.button_pressed and loupe_btn.has_focus() and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
+		var directions := {"ui_left": Vector2.LEFT, "ui_right": Vector2.RIGHT, "ui_up": Vector2.UP, "ui_down": Vector2.DOWN}
+		for action in directions:
+			if event.is_action(action):
+				if event.is_pressed():
+					_show_loupe(_loupe_center + directions[action] * 18.0)
+				get_viewport().set_input_as_handled()
+				return
 	if event.is_action_pressed("toggle_fullscreen"):
 		_toggle_fullscreen()
 		get_viewport().set_input_as_handled()

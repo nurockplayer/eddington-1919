@@ -53,8 +53,12 @@ func pad(index: JoyButton) -> void:
 
 func click_plate(ui, fraction: Vector2) -> void:
 	var drawn := Vector2.ONE * minf(ui.big_plate.size.x, ui.big_plate.size.y)
+	await click_at(ui.big_plate.global_position + (ui.big_plate.size - drawn) * 0.5 + drawn * fraction)
+
+
+func click_at(point: Vector2) -> void:
 	var event := InputEventMouseButton.new()
-	event.position = ui.big_plate.global_position + (ui.big_plate.size - drawn) * 0.5 + drawn * fraction
+	event.position = point
 	event.button_index = MOUSE_BUTTON_LEFT
 	event.pressed = true
 	root.push_input(event)
@@ -107,6 +111,9 @@ func _run() -> void:
 	check(not ui.reference_panel.visible, "reference button hides panel")
 	await pad(JOY_BUTTON_A)
 	check(ui.reference_panel.find_children("*", "TextureRect", true, false)[0].texture == examples[0].texture, "reopening reuses the same textures")
+	check(ui.reference_close_btn.text == "收起參考" and ui.reference_close_btn.has_focus(), "reference overlay focuses its close button")
+	await pad(JOY_BUTTON_A)
+	check(not ui.reference_panel.visible and not ui.reference_btn.button_pressed and ui.reference_btn.has_focus(), "close button resets toggle and restores focus")
 	for i in plates.size():
 		ui._select_plate(i, textures[i], false)
 		check(not ui.plate_info.text.contains("星像清楚") and not ui.plate_info.text.contains("拖長或被雲霧蓋住") and not ui.plate_info.text.contains("量得偏折") and not ui.plate_info.text.contains("±"), "player quality and values stay hidden before measuring")
@@ -117,6 +124,17 @@ func _run() -> void:
 	check(zoom != null and zoom.atlas == textures[1] and zoom.region == Rect2(90, 90, 180, 180), "loupe shows centred half-size region of current plate")
 	await pad(JOY_BUTTON_DPAD_RIGHT)
 	check(ui.big_plate.texture.region.position.x > 90 and ui.loupe_btn.has_focus(), "D-pad pans without moving focus")
+	var before_arrow: Vector2 = ui.big_plate.texture.region.position
+	var arrow := InputEventKey.new()
+	arrow.keycode = KEY_LEFT
+	arrow.physical_keycode = KEY_LEFT
+	arrow.pressed = true
+	root.push_input(arrow)
+	await process_frame
+	arrow.pressed = false
+	root.push_input(arrow)
+	await process_frame
+	check(ui.big_plate.texture.region.position.x < before_arrow.x and ui.loupe_btn.has_focus(), "keyboard arrow pans without moving loupe focus")
 	var before: Vector2 = ui.big_plate.texture.region.position
 	var motion := InputEventJoypadMotion.new()
 	motion.axis = JOY_AXIS_RIGHT_Y
@@ -144,8 +162,33 @@ func _run() -> void:
 	check(ui.big_plate.texture == textures[0], "measurement refresh retains original texture")
 	ui.set_viewer_locked(false)
 	check(not ui.plate_info.text.contains("量得偏折"), "reselect hides measured values again")
+	check(plates == original, "reference and loupe leave player plate data untouched")
+	var many_plates := []
+	var many_textures := []
+	for i in 12:
+		var plate: Dictionary = plates[i % 2].duplicate(true)
+		plate.number = i + 1
+		many_plates.append(plate)
+		many_textures.append(textures[i % 2])
+	ui.open_viewer(many_plates, textures[0], many_textures, false)
 	for frame in 4:
 		await process_frame
+	var thumb_rects := []
+	for thumb in ui.thumbs.get_children():
+		thumb_rects.append(thumb.get_global_rect())
+	ui.reference_btn.grab_focus()
+	await pad(JOY_BUTTON_A)
+	for frame in 4:
+		await process_frame
+	check(ui.reference_panel.visible and ui.thumbs.get_child_count() == 13, "reference opens alongside twelve developed plates and comparison")
+	check(ui.reference_panel.get_global_rect().encloses(ui.big_plate.get_global_rect()), "reference overlay covers the big plate")
+	for i in ui.thumbs.get_child_count():
+		var thumb := ui.thumbs.get_child(i) as Button
+		check(thumb.get_global_rect() == thumb_rects[i], "opening reference leaves thumbnail in place: %d" % i)
+		check(root.get_visible_rect().encloses(thumb.get_global_rect()), "large-text thumbnail fits viewport: %d" % i)
+		check(not ui.reference_panel.get_global_rect().intersects(thumb.get_global_rect()), "reference does not cover thumbnail: %d" % i)
+		await click_at(thumb.get_global_rect().get_center())
+		check(ui._viewer_sel == (-2 if i == 0 else i - 1) and thumb.has_focus(), "thumbnail remains clickable with reference open: %d" % i)
 	check(root.get_visible_rect().size == Vector2(1600, 900) and Settings.text_scale == 1.2, "layout runs at base size with large text")
 	check(root.get_visible_rect().encloses(ui.measure_btn.get_parent().get_global_rect()), "viewer action rows fit viewport at large text")
 	check(root.get_visible_rect().encloses(ui.reference_panel.get_global_rect()), "open reference card fits viewport")
@@ -154,7 +197,6 @@ func _run() -> void:
 		for other in ui.viewer.find_children("*", "BaseButton", true, false) + [ui.big_plate, ui.reference_panel]:
 			if other != control and other.is_visible_in_tree():
 				check(not control.get_global_rect().intersects(other.get_global_rect()), control.text + " does not overlap " + other.name)
-	check(plates == original, "reference and loupe leave player plate data untouched")
 	Settings.text_scale = old_scale
 	Settings.refresh_fonts(self)
 	ui.free()
