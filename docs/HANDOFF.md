@@ -1,11 +1,11 @@
 # Game Director Handoff
 
-**Windowed-run rule (Owner, 2026-10-25, in force now):** windowed Godot (`--always-on-top`, autoplay bots, `--shots`) blocks the middle of the Owner's screen. Run it only when someone must look at the screen or take screenshots: 1–2 routes before a milestone merge, at most. Schedule it only Mon–Fri 09:00–15:00 JST (Owner 2026-10-28 02:15 JST moved the start from 03:00; headless runs are fine at any time), never nights, evenings or weekends, and always add `--fixed-fps 60`. Everything else is headless: `orb-test --heavy --host -- ./tools/e2e_headless.sh` runs every autoplay route (`careful`/`rushed`/`cherry`, `prologue-autoplay=honest`/`tidy`/`accuse`) headless, one at a time, with a wall-clock cap and a result table; a single route is `orb-test --host -- godot --headless --path . --fixed-fps 60 -- <route args>`. Possible later option (not verified): a virtual display (BetterDisplay) with `--screen 1`.
+**Windowed-run rule (Owner, 2026-10-25, in force now):** windowed Godot (`--always-on-top`, autoplay bots, `--shots`) blocks the middle of the Owner's screen. Run it only when someone must look at the screen or take screenshots: 1–2 routes before a milestone merge, at most. Schedule it only Mon–Fri 09:00–15:00 JST (Owner 2026-10-28 02:15 JST moved the start from 03:00; headless runs are fine at any time), never nights, evenings or weekends, and always add `--fixed-fps 60`. Everything else is headless: `orb-test --host -- ./tools/e2e_headless.sh` runs every autoplay route (`careful`/`rushed`/`cherry`, `prologue-autoplay=honest`/`tidy`/`accuse`) headless, one at a time, with a wall-clock cap and a result table; a single route is `orb-test --host -- godot --headless --path . --fixed-fps 60 -- <route args>`. Possible later option (not verified): a virtual display (BetterDisplay) with `--screen 1`.
 
 **Test-run rule (Owner, 2026-10-25, all projects; see `orb-test --help`):** no test runs bare on the host. Wrap it in `orb-test`, run from the worktree root.
 - Godot is GPU work, so it runs on the host, through the lock:
   - a single headless suite: `orb-test --host -- godot --headless --path . --script res://tests/<suite>.gd`;
-  - all suites, `orb-test --heavy --host -- ./tools/e2e_headless.sh`, a windowed screenshot run or Blender: `orb-test --heavy --host -- <cmd>`.
+  - a windowed screenshot run or Blender: `orb-test --heavy --host -- <cmd>`.
 - `--heavy` queues for the one host-wide heavy lock. It starts only Mon–Fri 05:00–15:00 JST or after 45 min of keyboard/mouse idle (orb-test gate, seen 2026-10-29 03:07 JST), then checks `memory_pressure` ≥20%.
 - Python runs in the container: `orb-test --image python:3.12-slim -- python3 -I art/pipeline/test_budget.py`.
 - `tools/e2e_headless.sh` takes no lock of its own; orb-test holds it.
@@ -168,7 +168,7 @@ Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next 
   - Review: gpt-6-astra (independent, read-only). astra-6-gps was not accessible; nothing is claimed for it.
 - **History/fiction:** see the M1 table in [PROVENANCE](PROVENANCE.md) and the "Fact-check applied" section of [the M1 spec](design/M1_CAMBRIDGE_PROLOGUE.md).
 - **Tests:** see [M1_VERIFICATION](M1_VERIFICATION.md).
-- **Automated routes:** headless by default: `orb-test --heavy --host -- ./tools/e2e_headless.sh` (all six routes) or `orb-test --host -- godot --headless --path . --fixed-fps 60 -- --prologue-autoplay=honest|tidy|accuse`. Add `--shots=DIR` (windowed) only for screenshots.
+- **Automated routes:** headless by default: `orb-test --host -- ./tools/e2e_headless.sh` (all six routes) or `orb-test --host -- godot --headless --path . --fixed-fps 60 -- --prologue-autoplay=honest|tidy|accuse`. Add `--shots=DIR` (windowed) only for screenshots.
 - **Not done / open:**
   - No human playtest yet. Run [PLAYTEST_NEWCOMER](PLAYTEST_NEWCOMER.md) and post the results to Issue #1. This is the most valuable next input.
   - The childhood keepsake/microimage is untouched. Its canon is open and must not be invented.
@@ -195,7 +195,7 @@ Working rule (Owner 2026-10-28): never idle. An hourly heartbeat picks the next 
 - **Resume recipe:**
   - Worktrees live under `~/Developer/eddington-1919-wt/`.
   - Codex runs with `codex exec -m <model> --dangerously-bypass-approvals-and-sandbox -C <wt> -o <out> "<prompt>" < /dev/null`, in at most 3 parallel jobs.
-  - E2E (default): `orb-test --heavy --host -- ./tools/e2e_headless.sh` — every autoplay route, headless, one Godot at a time, table + non-zero exit on failure.
+  - E2E (default): `orb-test --host -- ./tools/e2e_headless.sh` — every autoplay route, headless, one Godot at a time, table + non-zero exit on failure.
   - Windowed Godot runs need `--always-on-top` and are only for looking at the screen or taking screenshots.
   - There is no `timeout` command on this Mac.
 
