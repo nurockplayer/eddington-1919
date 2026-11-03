@@ -30,7 +30,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | B2 | Platforms: macOS / Windows / Linux-Deck | Windows is most of Steam; Deck needs A6 |
 | B3 | Languages: zh-TW only, or English too | strings are hard-coded in `.gd`; English = extraction + translation project |
 | B4 | Price or free, release date | |
-| B5 | Store page: capsules, screenshots, trailer, description | director can draft from in-game stills; draft: docs/store/STORE_PAGE.md (PR …) |
+| B5 | Store page: capsules, screenshots, trailer, description | director can draft from in-game stills; draft: docs/store/STORE_PAGE.md (PR #135) |
 | B6 | Content survey + AI disclosure | generated portraits (`art/people/LICENSES.md:26`), sampled music |
 | B7 | Save/continue: chapter select enough, or checkpoints? | today: two start chapters, story state in memory |
 | B8 | Names in credits; territory rights for recorded music | |
