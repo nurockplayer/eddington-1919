@@ -7,7 +7,7 @@ const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const C17 := preload("res://scripts/cambridge/content_1917.gd")
-const TEST_PATH := "user://test_text_size.cfg"
+var test_path := Settings.settings_path() + ".test_text_size"
 var checks := 0
 var failures := 0
 
@@ -35,23 +35,23 @@ func _press_a() -> void:
 
 
 func _run() -> void:
-	var had_settings := FileAccess.file_exists(Settings.SETTINGS_PATH)
-	var original := FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) if had_settings else PackedByteArray()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
-	Settings.load_settings(TEST_PATH)
+	var had_settings := FileAccess.file_exists(Settings.settings_path())
+	var original := FileAccess.get_file_as_bytes(Settings.settings_path()) if had_settings else PackedByteArray()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
+	Settings.load_settings(test_path)
 	check(Settings.text_scale == 1.0, "missing setting defaults to standard")
 	for scale in Settings.TEXT_SCALES:
 		Settings.text_scale = scale
-		check(Settings.save_settings(TEST_PATH) == OK, "save text scale %s" % scale)
+		check(Settings.save_settings(test_path) == OK, "save text scale %s" % scale)
 		Settings.text_scale = 0.0
-		Settings.load_settings(TEST_PATH)
+		Settings.load_settings(test_path)
 		check(Settings.text_scale == scale, "text scale %s roundtrips" % scale)
 	var cfg := ConfigFile.new()
-	cfg.load(TEST_PATH)
+	cfg.load(test_path)
 	check(cfg.get_value("ui", "text_scale") == 1.2, "persisted key is ui/text_scale")
 	cfg.set_value("ui", "text_scale", -1.0)
-	cfg.save(TEST_PATH)
-	Settings.load_settings(TEST_PATH)
+	cfg.save(test_path)
+	Settings.load_settings(test_path)
 	check(Settings.text_scale == 1.0, "invalid stored scale defaults to standard")
 	Settings.load_settings()
 	Settings.text_scale = 1.0
@@ -155,12 +155,12 @@ func _run() -> void:
 	check(game.ui.tot_label.text.contains("font_size=50"), "large totality header uses 50 px BBCode")
 	game.free()
 	if had_settings:
-		var file := FileAccess.open(Settings.SETTINGS_PATH, FileAccess.WRITE)
+		var file := FileAccess.open(Settings.settings_path(), FileAccess.WRITE)
 		file.store_buffer(original)
 		file.close()
 	else:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.SETTINGS_PATH))
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.settings_path()))
 	Settings.load_settings()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	print("test_text_size: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

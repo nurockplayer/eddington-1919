@@ -2,7 +2,7 @@ extends SceneTree
 
 const Settings := preload("res://scripts/settings.gd")
 const Benchmark := preload("res://tests/benchmark.gd")
-const TEST_PATH := "user://test_graphics_quality.cfg"
+var test_path := Settings.settings_path() + ".test_graphics_quality"
 class TestBenchmark extends Benchmark:
 	func _ready() -> void:
 		pass
@@ -46,8 +46,8 @@ func _check_quality(low: bool) -> void:
 
 
 func _run() -> void:
-	var had_settings := FileAccess.file_exists(Settings.SETTINGS_PATH)
-	var original := FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) if had_settings else PackedByteArray()
+	var had_settings := FileAccess.file_exists(Settings.settings_path())
+	var original := FileAccess.get_file_as_bytes(Settings.settings_path()) if had_settings else PackedByteArray()
 	check(Benchmark.quality_arg(PackedStringArray(["--bench-quality=low"])) == "low", "benchmark parses low")
 	check(Benchmark.quality_arg(PackedStringArray(["--bench-quality=standard"])) == "standard", "benchmark parses standard")
 	check(Benchmark.quality_arg(PackedStringArray(["--bench-quality=invalid"])) == "", "benchmark ignores invalid quality")
@@ -56,24 +56,24 @@ func _run() -> void:
 	Settings.quality = "standard"
 	bench.apply_quality_arg(PackedStringArray(["--bench-quality=low"]))
 	check(Settings.quality == "low" and is_equal_approx(root.scaling_3d_scale, 0.75), "benchmark applies low quality")
-	check(FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) == original if had_settings
-		else not FileAccess.file_exists(Settings.SETTINGS_PATH), "benchmark leaves settings file unchanged")
+	check(FileAccess.get_file_as_bytes(Settings.settings_path()) == original if had_settings
+		else not FileAccess.file_exists(Settings.settings_path()), "benchmark leaves settings file unchanged")
 	bench.free()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
-	Settings.load_settings(TEST_PATH)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
+	Settings.load_settings(test_path)
 	check(Settings.quality == "standard", "missing quality defaults to standard")
 	for quality in ["low", "standard"]:
 		Settings.quality = quality
-		check(Settings.save_settings(TEST_PATH) == OK, "save " + quality)
+		check(Settings.save_settings(test_path) == OK, "save " + quality)
 		Settings.quality = ""
-		Settings.load_settings(TEST_PATH)
+		Settings.load_settings(test_path)
 		check(Settings.quality == quality, "roundtrip " + quality)
 	var cfg := ConfigFile.new()
-	cfg.load(TEST_PATH)
+	cfg.load(test_path)
 	check(cfg.get_value("video", "quality") == "standard", "stored key is video/quality")
 	cfg.set_value("video", "quality", "invalid")
-	cfg.save(TEST_PATH)
-	Settings.load_settings(TEST_PATH)
+	cfg.save(test_path)
+	Settings.load_settings(test_path)
 	check(Settings.quality == "standard", "invalid quality defaults to standard")
 	Settings.load_settings()
 	Settings.quality = "low"
@@ -129,15 +129,15 @@ func _run() -> void:
 		chapter.free()
 		Settings.quality = "low"
 	if had_settings:
-		var file := FileAccess.open(Settings.SETTINGS_PATH, FileAccess.WRITE)
+		var file := FileAccess.open(Settings.settings_path(), FileAccess.WRITE)
 		file.store_buffer(original)
 		file.close()
 	else:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.SETTINGS_PATH))
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.settings_path()))
 	Settings.load_settings()
 	Settings.apply_quality(self)
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
-	check(FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) == original if had_settings
-		else not FileAccess.file_exists(Settings.SETTINGS_PATH), "real settings bytes restored")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
+	check(FileAccess.get_file_as_bytes(Settings.settings_path()) == original if had_settings
+		else not FileAccess.file_exists(Settings.settings_path()), "real settings bytes restored")
 	print("test_graphics_quality: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

@@ -183,19 +183,19 @@ func _window_rms(samples: PackedFloat32Array, start_s: float, end_s: float) -> f
 
 
 func _check_music_toggle() -> void:
-	const TEST_SETTINGS := "user://test_score_settings.cfg"
+	var test_settings := ScorePlayer.settings_path() + ".test_score"
 	var prior := ScorePlayer.music_enabled()
 	ScorePlayer.ensure_bus()
-	var disable_error: Error = ScorePlayer.set_music_enabled(false, TEST_SETTINGS)
+	var disable_error: Error = ScorePlayer.set_music_enabled(false, test_settings)
 	check(disable_error == OK, "music toggle writes disabled value to test ConfigFile")
 	check(AudioServer.is_bus_mute(ScorePlayer.ensure_bus()), "music toggle mutes Music bus")
-	ScorePlayer.load_settings(TEST_SETTINGS)
+	ScorePlayer.load_settings(test_settings)
 	check(not ScorePlayer.music_enabled() and AudioServer.is_bus_mute(ScorePlayer.ensure_bus()),
 		"music toggle reload keeps Music muted from test ConfigFile")
-	var restore_error: Error = ScorePlayer.set_music_enabled(prior, TEST_SETTINGS)
+	var restore_error: Error = ScorePlayer.set_music_enabled(prior, test_settings)
 	check(restore_error == OK and ScorePlayer.music_enabled() == prior,
 		"music bus restored to its original state")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SETTINGS))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_settings))
 
 
 func _check_player_log_and_fades() -> void:

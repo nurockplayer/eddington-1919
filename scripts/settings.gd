@@ -2,7 +2,6 @@ class_name GameSettings
 extends RefCounted
 
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
-const SETTINGS_PATH := ScorePlayer.SETTINGS_PATH
 const TEXT_SCALES := [0.85, 1.0, 1.2]
 
 const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db"}
@@ -14,6 +13,10 @@ static var fullscreen := false
 static var video_apply_count := 0
 static var video_call: Callable = _window_call
 static var _video_applied := false
+
+
+static func settings_path() -> String:
+	return ScorePlayer.settings_path()
 
 
 static func fs(px: int) -> int:
@@ -51,7 +54,7 @@ static func ensure_sfx_bus() -> int:
 	return index
 
 
-static func load_settings(path := SETTINGS_PATH) -> void:
+static func load_settings(path := settings_path()) -> void:
 	var cfg := ConfigFile.new()
 	cfg.load(path)
 	for bus in VOLUME_KEYS:
@@ -65,7 +68,7 @@ static func load_settings(path := SETTINGS_PATH) -> void:
 		text_scale = 1.0
 
 
-static func save_settings(path := SETTINGS_PATH) -> Error:
+static func save_settings(path := settings_path()) -> Error:
 	var cfg := ConfigFile.new()
 	cfg.load(path)
 	for bus in VOLUME_KEYS:
@@ -111,25 +114,25 @@ static func sync_fullscreen() -> void:
 		fullscreen = DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN, DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]
 
 
-static func set_volume(bus: String, value: float, path := SETTINGS_PATH) -> Error:
+static func set_volume(bus: String, value: float, path := settings_path()) -> Error:
 	volumes[bus] = clampf(value, 0.0, 1.0)
 	apply_audio()
 	return save_settings(path)
 
 
-static func toggle_fullscreen(path := SETTINGS_PATH) -> Error:
+static func toggle_fullscreen(path := settings_path()) -> Error:
 	sync_fullscreen()
 	fullscreen = not fullscreen
 	apply_video()
 	return save_settings(path)
 
 
-static func cycle_text_scale(path := SETTINGS_PATH) -> Error:
+static func cycle_text_scale(path := settings_path()) -> Error:
 	text_scale = TEXT_SCALES[(TEXT_SCALES.find(text_scale) + 1) % TEXT_SCALES.size()]
 	return save_settings(path)
 
 
-static func cycle_quality(path := SETTINGS_PATH) -> Error:
+static func cycle_quality(path := settings_path()) -> Error:
 	quality = "low" if quality == "standard" else "standard"
 	return save_settings(path)
 
