@@ -10,6 +10,7 @@ const HANDOFF_BUDGET_MS := 7500  # authored ≈5.6 s; measured 5.7 s at load avg
 const EXPECTED_CUES := [
 	"cambridge_rain",
 	"departure_motif",
+	"departure_promise",
 	"totality_drone",
 	"totality_glass",
 	"totality_edge",
@@ -35,7 +36,7 @@ func check(condition: bool, message: String) -> void:
 
 
 func _run() -> void:
-	check(Score.CUES == EXPECTED_CUES, "score exposes the six specified cues in order")
+	check(Score.CUES == EXPECTED_CUES, "score exposes the seven specified cues in order")
 	check(Score.RATE == 22050, "score renders at 22050 Hz")
 	_check_global_rng_untouched()
 	var renders := {}
@@ -73,6 +74,7 @@ func _check_duration(cue: String, sample_count: int) -> void:
 	var limits := {
 		"cambridge_rain": Vector2(48.0, 64.0),
 		"departure_motif": Vector2(8.0, 10.0),
+		"departure_promise": Vector2(22.0, 26.0),
 		"totality_drone": Vector2(20.0, 30.0),
 		"totality_glass": Vector2(20.0, 30.0),
 		"totality_edge": Vector2(20.0, 30.0),
@@ -129,6 +131,7 @@ func _check_motif_placement(renders: Dictionary) -> void:
 	var probes := {
 		"cambridge_rain": Vector2(15.2, 16.2),
 		"departure_motif": Vector2(5.55, 6.4),
+		"departure_promise": Vector2(2.0, 20.0),
 		"totality_drone": Vector2(4.0, 20.0),
 		"totality_glass": Vector2(4.0, 18.0),
 		"totality_edge": Vector2(4.0, 18.0),
@@ -271,6 +274,7 @@ func _check_sampled_cues() -> void:
 	var sampled_lengths := {
 		"cambridge_rain": 64.0,
 		"departure_motif": 10.5,
+		"departure_promise": 24.0,
 		"coda_resolution": 16.5,
 	}
 	for cue in sampled_lengths:
@@ -284,7 +288,8 @@ func _check_sampled_cues() -> void:
 			check(absf(length - sampled_lengths[cue]) <= 0.05,
 				"%s OGG length %.3f s, expected %.1f s" % [cue, length, sampled_lengths[cue]])
 		var db := Score.level_db(cue)
-		check(db >= -40.0 and db <= -20.0, "%s sampled level %.1f dB is within [-40, -20]" % [cue, db])
+		var min_db := -40.5 if cue == "departure_promise" else -40.0
+		check(db >= min_db and db <= -20.0, "%s sampled level %.1f dB is within [%.1f, -20]" % [cue, db, min_db])
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
 		check(not Score.is_sampled(cue), "%s has no sampled OGG" % cue)
 		var stream: AudioStream = Score.stream(cue)

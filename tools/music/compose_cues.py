@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Write the one-shot cues `departure_motif` and `coda_resolution` as MIDI.
+"""Write the one-shot cues `departure_promise`, `departure_motif` and `coda_resolution` as MIDI.
 
 Same conventions as compose_cambridge.py (60 bpm, 4/4, one beat = 1 s) and
 the same writer. These cues do not loop: the renderer keeps the release
 tails after the last note instead of folding them.
 
+- departure_promise: an open fifth, two viola notes and three piano stars;
+  it leaves the full motif for the montage. 24 s including the release tail.
 - departure_motif: the cello states A-D-E-F once over an open harmonium
   fifth; F stays open. About 9 s of notes.
 - coda_resolution: the violin answers A-D-E-F#, and the whole group lands
@@ -16,6 +18,17 @@ Usage: python3 tools/music/compose_cues.py <outdir>
 import sys
 
 import compose_cambridge as cc
+
+PROMISE_BARS = 6
+PROMISE = [
+    ("harmonium", 1, 1, 18, "D3", 24),
+    ("harmonium", 1, 1, 18, "A3", 22),
+    ("viola", 1, 3, 4, "A3", 34),
+    ("viola", 3, 2, 5, "D4", 36),
+    ("piano", 2, 2, 4, "A5", 20),
+    ("piano", 3, 4, 4, "E6", 18),
+    ("piano", 5, 1, 4, "D6", 18),
+]
 
 DEPARTURE_BARS = 3
 DEPARTURE = [
@@ -50,13 +63,14 @@ CODA = [
 ]
 
 CUES = {
+    "departure_promise": (PROMISE, PROMISE_BARS),
     "departure_motif": (DEPARTURE, DEPARTURE_BARS),
     "coda_resolution": (CODA, CODA_BARS),
 }
 
 
 def main(outdir: str) -> None:
-    assert all("#" not in note[4] for note in DEPARTURE)
+    assert all("#" not in note[4] for note in DEPARTURE + PROMISE)
     for cue, (score, bars) in CUES.items():
         for voice in sorted({part[0] for part in score}):
             with open(f"{outdir}/{cue}_{voice}.mid", "wb") as f:
