@@ -47,6 +47,7 @@ func open(state: Dictionary, previous_report: Dictionary = {}) -> void:
 	selected.merge(previous_report, true)
 	option_buttons.clear()
 	for child in get_children():
+		remove_child(child)
 		child.queue_free()
 	_build()
 	visible = true

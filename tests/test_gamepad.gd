@@ -43,6 +43,12 @@ func key(code: Key, pressed: bool) -> void:
 
 func _run() -> void:
 	var main := load("res://scripts/main.gd")
+	# Exercise desktop ui_right defaults even when the headless server omits them.
+	var ui_stick := InputEventJoypadMotion.new()
+	ui_stick.axis = JOY_AXIS_LEFT_X
+	ui_stick.axis_value = 1.0
+	if not InputMap.action_has_event("ui_right", ui_stick):
+		InputMap.action_add_event("ui_right", ui_stick)
 	main._ensure_inputs()
 	# Derive the action names from the authored map so new actions cannot escape this check.
 	var source := FileAccess.get_file_as_string("res://scripts/main.gd")
@@ -136,6 +142,22 @@ func _run() -> void:
 	if paused:
 		ui.toggle_pause()
 	overlay.open()
+	var paper_before := overlay.offset
+	var focus_before := root.gui_get_focus_owner()
+	var move_stick := InputEventJoypadMotion.new()
+	move_stick.axis = JOY_AXIS_LEFT_X
+	move_stick.axis_value = 1.0
+	Input.parse_input_event(move_stick)
+	await create_timer(0.08).timeout
+	move_stick.axis_value = 0.0
+	Input.parse_input_event(move_stick)
+	await process_frame
+	check(overlay.offset.x > paper_before.x, "left stick moves the tracing paper")
+	check(root.gui_get_focus_owner() == focus_before, "left stick leaves overlay button focus unchanged")
+	await button(JOY_BUTTON_DPAD_RIGHT)
+	check(root.gui_get_focus_owner() is Button and root.gui_get_focus_owner() != focus_before, "D-pad right still moves overlay button focus")
+	overlay._reset()
+	overlay.buttons.flip.grab_focus()
 	var before_angle := overlay.angle_deg
 	await key(KEY_RIGHT, true)
 	await create_timer(0.08).timeout
@@ -175,6 +197,15 @@ func _run() -> void:
 	root.add_child(report)
 	report.open({})
 	check(root.gui_get_focus_owner() is BaseButton and report.is_ancestor_of(root.gui_get_focus_owner()), "report focuses a button")
+	var old_report_focus_id := root.gui_get_focus_owner().get_instance_id()
+	var previous_report := report.selected.duplicate(true)
+	report._submit()
+	report.open({}, previous_report)
+	await process_frame
+	var revised_focus := root.gui_get_focus_owner()
+	check(is_instance_valid(revised_focus) and revised_focus is BaseButton and revised_focus.is_inside_tree()
+		and report.is_ancestor_of(revised_focus) and revised_focus.get_instance_id() != old_report_focus_id
+		and report.option_buttons.values().has(revised_focus), "revising report keeps focus on a new in-tree form button after old controls are freed")
 	report.free()
 	var checklist := Checklist.new()
 	root.add_child(checklist)

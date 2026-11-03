@@ -233,6 +233,11 @@ static func _ensure_inputs() -> void:
 		motion.axis_value = axes[action][1]
 		if not InputMap.action_has_event(action, motion):
 			InputMap.action_add_event(action, motion)
+	# Sticks move the player/paper; only arrows and D-pad navigate UI focus.
+	for action in ["ui_left", "ui_right", "ui_up", "ui_down"]:
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadMotion:
+				InputMap.action_erase_event(action, event)
 	var buttons := {
 		"ui_accept": [JOY_BUTTON_A], "ui_cancel": [JOY_BUTTON_B],
 		"ui_up": [JOY_BUTTON_DPAD_UP], "ui_down": [JOY_BUTTON_DPAD_DOWN],
