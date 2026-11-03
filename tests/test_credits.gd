@@ -31,7 +31,16 @@ func _run() -> void:
 	check(text.contains("以 Godot Engine 製作"), "credits name the engine")
 	check(text.contains("史實與虛構") and text.contains(Credits.DISCLAIMER), "credits contain historical disclaimer")
 	var notice := FileAccess.get_file_as_string("res://THIRD_PARTY_NOTICES.md")
-	check(text.contains(notice.replace("[", "[lb]")), "credits contain complete escaped third-party notice")
+	check(not notice.contains("Open questions"), "notice omits internal open questions")
+	var rendered_notice := text.get_slice("[b]第三方素材與授權[/b]\n", 1).get_slice("\n\n" + Engine.get_license_text().replace("[", "[lb]"), 0)
+	check(not rendered_notice.contains("**") and not rendered_notice.contains("]("), "rendered notice omits Markdown emphasis and links")
+	check(not text.contains("Open questions") and not text.contains("A11"), "credits omit internal notes")
+	check(text.contains("Godot Engine") and text.contains("SIL Open Font License"), "credits retain notice names")
+	var has_heading := false
+	for line in text.split("\n"):
+		has_heading = has_heading or line.begins_with("#")
+	check(not has_heading, "credits omit Markdown headings")
+	check(Credits._md_to_bbcode("## Heading\n- **Bold** [label](docs/file) [literal]") == "[b]Heading[/b]\n・ [b]Bold[/b] label [lb]literal]", "notice Markdown converts headings, lists, links, and literal brackets")
 	check(text.contains(Engine.get_license_text().replace("[", "[lb]")), "credits contain complete escaped engine licence")
 	var components := Engine.get_copyright_info()
 	check(not components.is_empty(), "engine supplies third-party components")
@@ -64,7 +73,8 @@ func _run() -> void:
 	check(label != null and label.text == text, "scroll panel displays all credits")
 	check(label.get_theme_font("normal_font") == ui.font, "credits inherit the theme font")
 	check(label.get_parsed_text().contains(Engine.get_license_text()), "BBCode parsing preserves engine licence verbatim")
-	check(label.get_parsed_text().contains(notice), "BBCode parsing preserves notice links and brackets verbatim")
+	check(label.get_parsed_text().contains("audio sources") and not label.get_parsed_text().contains("docs/audio/SOURCES.md"), "notice links show labels without targets")
+	check(label.get_parsed_text().contains("・ Godot Engine"), "notice list and emphasis render as text")
 	ui.hide_title()
 	ui.show_ending("結局", "雲層之後")
 	for menu in [ui.ending_panel, ui.title_panel]:
