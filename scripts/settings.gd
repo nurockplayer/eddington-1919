@@ -8,6 +8,7 @@ const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db
 static var volumes := {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 static var fullscreen := false
 static var video_apply_count := 0
+static var video_call: Callable = _window_call
 static var _video_applied := false
 
 
@@ -57,8 +58,14 @@ static func apply_audio() -> void:
 
 static func apply_video() -> void:
 	video_apply_count += 1
+	video_call.call(&"window_set_mode", [DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED])
+	if not fullscreen:
+		video_call.call(&"window_set_flag", [DisplayServer.WINDOW_FLAG_BORDERLESS, false])
+
+
+static func _window_call(method: StringName, arguments: Array) -> void:
 	if DisplayServer.get_name() != "headless":
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.callv(method, arguments)
 
 
 static func sync_fullscreen() -> void:

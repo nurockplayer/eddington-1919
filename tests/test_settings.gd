@@ -27,6 +27,7 @@ func _run() -> void:
 	Settings.apply_startup()
 	check(Settings.video_apply_count == 1, "two startup calls apply video only once per process")
 	check(is_zero_approx(AudioServer.get_bus_volume_db(0)), "later startup still applies audio")
+	_check_video_calls()
 	ScorePlayer.set_music_enabled(false, TEST_PATH)
 	Settings.volumes = {"Master": 0.5, "Music": 0.25, "SFX": 0.0}
 	Settings.fullscreen = true
@@ -76,6 +77,25 @@ func _run() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
 	print("test_settings: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _check_video_calls() -> void:
+	var previous_call := Settings.video_call
+	var previous_fullscreen := Settings.fullscreen
+	var calls: Array = []
+	Settings.video_call = func(method: StringName, arguments: Array): calls.append([method, arguments])
+	Settings.fullscreen = false
+	Settings.apply_video()
+	check(calls == [[&"window_set_mode", [DisplayServer.WINDOW_MODE_WINDOWED]],
+		[&"window_set_flag", [DisplayServer.WINDOW_FLAG_BORDERLESS, false]]],
+		"windowed video sets mode then clears borderless")
+	calls.clear()
+	Settings.fullscreen = true
+	Settings.apply_video()
+	check(calls == [[&"window_set_mode", [DisplayServer.WINDOW_MODE_FULLSCREEN]]],
+		"fullscreen video sets mode without clearing borderless")
+	Settings.video_call = previous_call
+	Settings.fullscreen = previous_fullscreen
 
 
 func _check_routes(node: Node, gramophone: Node = null) -> int:
