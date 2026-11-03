@@ -1,5 +1,6 @@
 extends CanvasLayer
 
+const Prompts := preload("res://scripts/prompts.gd")
 const Fonts := preload("res://scripts/fonts.gd")
 const Credits := preload("res://scripts/credits.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
@@ -56,12 +57,17 @@ var cambridge_portraits := false
 var fade: ColorRect
 var caption: Label
 var title_panel: Control
+var title_controls: Label
 var prologue_btn: Button
 var start_btn: Button
 var log_panel: PanelContainer
 var log_text: RichTextLabel
 static var history: Array[String] = []
 var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
+var ending_replay: Button
+var ending_scroll: ScrollContainer
+var credits_scroll: ScrollContainer
+var _menu_scroll_remainder := 0.0
 var ending_panel: Control
 var credits_panel: Control
 var ending_text: RichTextLabel
@@ -95,6 +101,9 @@ var comparison_recall := ""
 var drive_note := ""
 var _viewer_locked := false
 var pause_enabled := false
+var _pause_focus: Control
+var _credits_focus: Control
+var _log_focus: Control
 
 
 func _ready() -> void:
@@ -174,13 +183,14 @@ func _button(text: String) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.add_theme_font_size_override("font_size", 20)
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_ALL
 	var normal := _panel_style(Color(0.18, 0.15, 0.12, 0.95), Color(0.55, 0.45, 0.3))
 	normal.set_content_margin_all(10)
 	var hover := _panel_style(Color(0.32, 0.25, 0.16, 0.98), ACCENT)
 	hover.set_content_margin_all(10)
 	b.add_theme_stylebox_override("normal", normal)
 	b.add_theme_stylebox_override("hover", hover)
+	b.add_theme_stylebox_override("focus", hover)
 	b.add_theme_stylebox_override("pressed", hover)
 	b.add_theme_stylebox_override("disabled", normal)
 	b.add_theme_color_override("font_color", PAPER)
@@ -290,6 +300,12 @@ func show_toast(text: String, seconds := 4.0) -> void:
 
 
 func _process(delta: float) -> void:
+	var scroll := _active_menu_scroll()
+	if scroll:
+		_menu_scroll_remainder += Input.get_axis("gamepad_look_up", "gamepad_look_down") * 900.0 * delta
+		var pixels := int(_menu_scroll_remainder)
+		_menu_scroll_remainder -= pixels
+		scroll.scroll_vertical += pixels
 	if _toast_t > 0.0:
 		_toast_t -= delta
 		if _toast_t < 0.6:
@@ -410,6 +426,8 @@ func _show_entry() -> void:
 		_layout_dialogue_portrait()
 		dialogue_portrait.show_entry(e)
 	for b in _choice_buttons:
+		b.release_focus()
+		b.hide()
 		b.queue_free()
 	_choice_buttons.clear()
 	var choices: Array = e.get("choices", [])
@@ -420,6 +438,9 @@ func _show_entry() -> void:
 		b.pressed.connect(_choose.bind(i))
 		choice_box.add_child(b)
 		_choice_buttons.append(b)
+	if not _choice_buttons.is_empty():
+		_choice_buttons[0].grab_focus()
+	_refresh_hints()
 	dialogue_entry.emit(str(e.get("s", "")))
 
 
@@ -442,6 +463,8 @@ func _advance() -> void:
 	if _seq_i >= _seq.size():
 		dialog_panel.visible = false
 		for b in _choice_buttons:
+			b.release_focus()
+			b.hide()
 			b.queue_free()
 		_choice_buttons.clear()
 		dialogue_done.emit(_results)
@@ -450,10 +473,12 @@ func _advance() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause") and pause_enabled:
-		get_viewport().set_input_as_handled()
+	if pause_enabled and event.is_action_pressed("pause"):
 		toggle_pause()
-		return
+		get_viewport().set_input_as_handled()
+
+
+func _dialogue_input(event: InputEvent) -> void:
 	if get_tree().paused or log_panel.visible or not dialog_panel.visible:
 		return
 	var e: Dictionary = _seq[_seq_i]
@@ -464,7 +489,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			_choose(n)
 			return
-	if not has_choices:
+	if has_choices:
+		var selected := _choice_buttons.find(get_viewport().gui_get_focus_owner())
+		if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down"):
+			var step := 1 if event.is_action_pressed("ui_down") else -1
+			_choice_buttons[posmod(maxi(selected, 0) + step, _choice_buttons.size())].grab_focus()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_accept"):
+			get_viewport().set_input_as_handled()
+			_choose(maxi(selected, 0))
+	else:
 		var adv := event.is_action_pressed("interact") or event.is_action_pressed("shutter") or event.is_action_pressed("ui_accept")
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			adv = true
@@ -539,7 +573,7 @@ func _build_viewer(root: Control) -> void:
 	include_box.text = "納入量測"
 	include_box.add_theme_font_size_override("font_size", 20)
 	include_box.add_theme_color_override("font_color", PAPER)
-	include_box.focus_mode = Control.FOCUS_NONE
+	include_box.focus_mode = Control.FOCUS_ALL
 	include_box.toggled.connect(func(on):
 		if _viewer_sel >= 0:
 			_viewer_sound("mark")
@@ -594,6 +628,7 @@ func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, lock
 		var b := _thumb(textures[i], "第 %d 號%s" % [plates[i].number, " ✓" if plates[i].included else ""])
 		b.pressed.connect(_select_plate.bind(i, textures[i]))
 		thumbs.add_child(b)
+	comp.grab_focus()
 	set_viewer_locked(locked)
 	if plates.size() > 0:
 		_select_plate(0, textures[0], false)
@@ -666,7 +701,7 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	b.add_theme_font_size_override("font_size", 14)
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_ALL
 	return b
 
 
@@ -719,11 +754,15 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 
 
 func set_viewer_locked(locked: bool) -> void:
+	var focused := get_viewport().gui_get_focus_owner() as BaseButton
+	var action_focused := focused in [measure_btn, reselect_btn, report_btn, include_box]
 	_viewer_locked = locked
 	measure_btn.disabled = locked
 	reselect_btn.disabled = not locked
 	report_btn.disabled = not locked
 	include_box.disabled = locked
+	if action_focused and focused.disabled:
+		(reselect_btn if locked else measure_btn).grab_focus()
 	if _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size():
 		_select_plate(_viewer_sel, big_plate.texture, false)
 
@@ -776,10 +815,12 @@ func _build_title(root: Control) -> void:
 	body.text = ("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
 		+ "有人會說，對不上的東西就是假的。\n"
 		+ "兩年後，在赤道的雲層底下，你只有 302 秒。[/center]\n\n"
-		+ "[color=#b8ad98]WASD 移動 · 滑鼠／方向鍵 觀看 · Shift 跑 · E 互動 · Tab 對話紀錄\n"
-		+ "全食時：空白鍵／E／左鍵 開始與停 · Esc 暫停[/color]\n\n"
 		+ "[color=#8f8676][font_size=15]" + Credits.DISCLAIMER + "[/font_size][/color]")
 	v.add_child(body)
+	title_controls = _label("", 18, DIM)
+	title_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(title_controls)
+	_refresh_hints()
 	var hb := HBoxContainer.new()
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER
 	hb.add_theme_constant_override("separation", 20)
@@ -804,6 +845,7 @@ func _build_title(root: Control) -> void:
 	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	version.position -= version.get_minimum_size() + Vector2(24, 18)
 	version.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prologue_btn.grab_focus()
 
 
 func hide_title() -> void:
@@ -817,6 +859,8 @@ func _build_ending(root: Control) -> void:
 	ending_panel.visible = false
 	root.add_child(ending_panel)
 	var scroll := ScrollContainer.new()
+	scroll.follow_focus = false
+	ending_scroll = scroll
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scroll.offset_left = 200
 	scroll.offset_right = -200
@@ -836,7 +880,6 @@ func _build_ending(root: Control) -> void:
 	ending_history_toggle = _button("歷史上發生了什麼")
 	ending_history_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	ending_history_toggle.pressed.connect(_toggle_ending_history)
-	v.add_child(ending_history_toggle)
 	ending_history = _rich(17)
 	ending_history.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ending_history.visible = false
@@ -849,8 +892,10 @@ func _build_ending(root: Control) -> void:
 	hb.add_theme_constant_override("separation", 16)
 	ending_panel.add_child(hb)
 	var same := _button("同一片雲，再試一次")
+	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
 	hb.add_child(same)
+	hb.add_child(ending_history_toggle)
 	var fresh := _button("新的天空")
 	fresh.pressed.connect(func(): restart_pressed.emit(false))
 	hb.add_child(fresh)
@@ -861,6 +906,12 @@ func _build_ending(root: Control) -> void:
 	var q := _button("離開")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	var hint := _label("↑↓ 或右搖桿：捲動", 16, DIM)
+	hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	hint.position = Vector2(-220, -32)
+	hint.size = Vector2(440, 24)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ending_panel.add_child(hint)
 	_build_credits(root)
 
 
@@ -882,7 +933,10 @@ func _build_credits(root: Control) -> void:
 	v.add_theme_constant_override("separation", 16)
 	credits_panel.add_child(v)
 	var scroll := ScrollContainer.new()
+	credits_scroll = scroll
+	scroll.follow_focus = true
 	scroll.name = "Scroll"
+	scroll.focus_mode = Control.FOCUS_ALL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	v.add_child(scroll)
@@ -893,14 +947,18 @@ func _build_credits(root: Control) -> void:
 	var back := _button("返回")
 	back.focus_mode = Control.FOCUS_ALL
 	back.add_theme_stylebox_override("focus", back.get_theme_stylebox("hover"))
-	back.pressed.connect(func(): credits_panel.hide())
+	back.pressed.connect(_close_credits)
 	v.add_child(back)
+	var hint := _label("↑↓ 或右搖桿：捲動", 16, DIM)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(hint)
 
 
 func _open_credits() -> void:
+	_credits_focus = get_viewport().gui_get_focus_owner()
 	credits_panel.show()
-	var scroll := credits_panel.find_child("Scroll", true, false) as ScrollContainer
-	scroll.scroll_vertical = 0
+	credits_scroll.scroll_vertical = 0
+	_menu_scroll_remainder = 0.0
 	(credits_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
 
 
@@ -912,6 +970,9 @@ func show_ending(title: String, bb: String, history_bb := "") -> void:
 	ending_history_toggle.visible = not history_bb.is_empty()
 	ending_history_toggle.text = "歷史上發生了什麼"
 	ending_panel.visible = true
+	ending_replay.grab_focus()
+	ending_scroll.scroll_vertical = 0
+	_menu_scroll_remainder = 0.0
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
@@ -981,6 +1042,8 @@ func _toggle_fullscreen() -> void:
 
 func toggle_pause() -> void:
 	var p := not get_tree().paused
+	if p:
+		_pause_focus = get_viewport().gui_get_focus_owner()
 	get_tree().paused = p
 	pause_panel.visible = p
 	if p:
@@ -988,6 +1051,8 @@ func toggle_pause() -> void:
 		fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
+	else:
+		_restore_focus(_pause_focus)
 	# Only the chapter knows every form and scripted input lock it owns.
 	pause_toggled.emit(p)
 
@@ -1026,31 +1091,96 @@ func toggle_log() -> void:
 	# The dialogue panel's bottom edge sits below the log; its input hint is inert while reading.
 	hint_label.visible = not log_panel.visible
 	if log_panel.visible:
+		_log_focus = get_viewport().gui_get_focus_owner()
+		log_panel.find_children("*", "Button", true, false)[0].grab_focus()
 		_log_mouse_mode = Input.mouse_mode
 		log_text.text = "\n\n".join(history)
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
 		Input.mouse_mode = _log_mouse_mode
+		_restore_focus(_log_focus)
 	log_toggled.emit(log_panel.visible)
 
 
+func _restore_focus(previous: Control) -> void:
+	if is_instance_valid(previous) and previous.is_visible_in_tree():
+		previous.grab_focus()
+	else:
+		var owner := get_viewport().gui_get_focus_owner()
+		if owner:
+			owner.release_focus()
+
+
+func _close_credits() -> void:
+	credits_panel.hide()
+	_restore_focus(_credits_focus)
+
+
+func _refresh_hints() -> void:
+	if title_controls:
+		title_controls.text = "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停" % [Prompts.key("interact"), Prompts.key("toggle_log"), Prompts.key("shutter"), Prompts.key("pause")]
+	tot_hint.text = "［%s／%s］開始・停" % [Prompts.key("shutter"), Prompts.key("interact")]
+	if not _choice_buttons.is_empty():
+		hint_label.text = "［方向鍵／A 鍵］選擇" if Prompts.joypad else "［1–%d 或點擊］選擇" % _choice_buttons.size()
+	else:
+		hint_label.text = "［%s］繼續" % Prompts.key("interact") if Prompts.joypad else "［E／空白鍵／點擊］繼續"
+
+
+func blocks_world_input() -> bool:
+	return log_panel.visible or pause_panel.visible or credits_panel.visible or dialog_active()
+
+
+func _active_menu_scroll() -> ScrollContainer:
+	if pause_panel.visible or log_panel.visible or dialog_panel.visible or viewer.visible:
+		return null
+	if credits_panel.visible:
+		return credits_scroll
+	return ending_scroll if ending_panel.visible else null
+
+
 func _input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.25):
+		Prompts.joypad = true
+	elif event is InputEventKey or event is InputEventMouse:
+		Prompts.joypad = false
+	_refresh_hints()
 	if event.is_action_pressed("toggle_fullscreen"):
 		_toggle_fullscreen()
 		get_viewport().set_input_as_handled()
 		return
+	var scroll := _active_menu_scroll()
+	if scroll and (event.is_action("ui_up") or event.is_action("ui_down")):
+		if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down"):
+			scroll.scroll_vertical += 80 if event.is_action_pressed("ui_down") else -80
+		get_viewport().set_input_as_handled()
+		return
 	if credits_panel.visible:
 		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
-			credits_panel.hide()
+			_close_credits()
 			get_viewport().set_input_as_handled()
-		elif event is InputEventKey and event.keycode == KEY_TAB:
+		elif event.is_action_pressed("toggle_log"):
 			get_viewport().set_input_as_handled()
 		return
-	if log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
+	if pause_panel.visible and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
 		toggle_pause()
 		get_viewport().set_input_as_handled()
-	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_TAB and not get_tree().paused:
+		return
+	if log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
+		get_viewport().set_input_as_handled()
+		toggle_pause()
+		return
+	if log_panel.visible and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause"):
 		toggle_log()
 		get_viewport().set_input_as_handled()
-	elif log_panel.visible and event is InputEventKey:
+
+	elif event.is_action_pressed("toggle_log") and not get_tree().paused:
+		toggle_log()
 		get_viewport().set_input_as_handled()
+	elif log_panel.visible:
+		if event is InputEventKey and not event.is_action("pause") and not event.is_action("ui_accept") and not event.is_action("ui_up") and not event.is_action("ui_down"):
+			get_viewport().set_input_as_handled()
+	elif viewer.visible and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause") and not get_tree().paused:
+		viewer_closed.emit()
+		get_viewport().set_input_as_handled()
+	else:
+		_dialogue_input(event)

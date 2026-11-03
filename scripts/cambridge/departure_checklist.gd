@@ -212,6 +212,7 @@ func allow_mark() -> void:
 		button.disabled = false
 		button.add_theme_color_override("font_color", Report.INK)
 	_scroll.ensure_control_visible(_rows[active_index])
+	row_buttons[active_index][0].grab_focus()
 
 
 func _mark(index: int, correct: bool) -> void:

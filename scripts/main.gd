@@ -1,4 +1,6 @@
 extends Node3D
+
+const Prompts := preload("res://scripts/prompts.gd")
 ## Game director for the slice: phases, interactions, and the loop
 ## prepare → expose through cloud → inspect plates → judge → reaction.
 
@@ -206,15 +208,55 @@ static func _ensure_inputs() -> void:
 		"move_forward": [KEY_W], "move_back": [KEY_S], "move_left": [KEY_A], "move_right": [KEY_D],
 		"look_left": [KEY_LEFT], "look_right": [KEY_RIGHT], "look_up": [KEY_UP], "look_down": [KEY_DOWN],
 		"run": [KEY_SHIFT], "interact": [KEY_E], "shutter": [KEY_SPACE], "pause": [KEY_ESCAPE],
-		"toggle_fullscreen": [KEY_F11],
+		"toggle_fullscreen": [KEY_F11], "toggle_log": [KEY_TAB],
+		"overlay_rotate_left": [KEY_Q], "overlay_rotate_right": [KEY_E],
 	}
 	for action in map:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
-			for k in map[action]:
-				var ev := InputEventKey.new()
-				ev.physical_keycode = k
+		for k in map[action]:
+			var ev := InputEventKey.new()
+			ev.physical_keycode = k
+			if not InputMap.action_has_event(action, ev):
 				InputMap.action_add_event(action, ev)
+	var axes := {
+		"gamepad_look_left": [JOY_AXIS_RIGHT_X, -1.0], "gamepad_look_right": [JOY_AXIS_RIGHT_X, 1.0],
+		"gamepad_look_up": [JOY_AXIS_RIGHT_Y, -1.0], "gamepad_look_down": [JOY_AXIS_RIGHT_Y, 1.0],
+		"move_left": [JOY_AXIS_LEFT_X, -1.0], "move_right": [JOY_AXIS_LEFT_X, 1.0],
+		"move_forward": [JOY_AXIS_LEFT_Y, -1.0], "move_back": [JOY_AXIS_LEFT_Y, 1.0],
+		"look_left": [JOY_AXIS_RIGHT_X, -1.0], "look_right": [JOY_AXIS_RIGHT_X, 1.0],
+		"overlay_rotate_left": [JOY_AXIS_RIGHT_X, -1.0], "overlay_rotate_right": [JOY_AXIS_RIGHT_X, 1.0],
+		"look_up": [JOY_AXIS_RIGHT_Y, -1.0], "look_down": [JOY_AXIS_RIGHT_Y, 1.0],
+	}
+	for action in axes:
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
+		InputMap.action_set_deadzone(action, 0.25)
+		var motion := InputEventJoypadMotion.new()
+		motion.axis = axes[action][0]
+		motion.axis_value = axes[action][1]
+		if not InputMap.action_has_event(action, motion):
+			InputMap.action_add_event(action, motion)
+	# Sticks move the player/paper; only arrows and D-pad navigate UI focus.
+	for action in ["ui_left", "ui_right", "ui_up", "ui_down"]:
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadMotion:
+				InputMap.action_erase_event(action, event)
+	var buttons := {
+		"ui_accept": [JOY_BUTTON_A], "ui_cancel": [JOY_BUTTON_B],
+		"ui_up": [JOY_BUTTON_DPAD_UP], "ui_down": [JOY_BUTTON_DPAD_DOWN],
+		"ui_left": [JOY_BUTTON_DPAD_LEFT], "ui_right": [JOY_BUTTON_DPAD_RIGHT],
+		"run": [JOY_BUTTON_LEFT_STICK], "interact": [JOY_BUTTON_A],
+		"shutter": [JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_X], "pause": [JOY_BUTTON_START],
+		"toggle_log": [JOY_BUTTON_BACK], "overlay_rotate_left": [JOY_BUTTON_LEFT_SHOULDER],
+		"overlay_rotate_right": [JOY_BUTTON_RIGHT_SHOULDER],
+	}
+	for action in buttons:
+		for index in buttons[action]:
+			var button := InputEventJoypadButton.new()
+			button.button_index = index
+			if not InputMap.action_has_event(action, button):
+				InputMap.action_add_event(action, button)
 	var mb := InputEventMouseButton.new()
 	mb.button_index = MOUSE_BUTTON_LEFT
 	if not InputMap.action_has_event("shutter", mb):
@@ -696,45 +738,45 @@ func _prompt_for(id: String, n: Node) -> String:
 	var name_: String = n.get_meta("prompt")
 	if phase == Phase.CODA:
 		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
-			return "［E］再讀工作簿最後一頁。" if _departure_workbook_seen else "［E］在工作簿記下你看到的天空。"
+			return "［" + Prompts.key("interact") + "］再讀工作簿最後一頁。" if _departure_workbook_seen else "［" + Prompts.key("interact") + "］在工作簿記下你看到的天空。"
 		if coda_step == CodaStep.LOUPE and id == "mentor_loupe":
-			return "［E］拿起 Ashby 先生給的放大鏡。"
+			return "［" + Prompts.key("interact") + "］拿起 Ashby 先生給的放大鏡。"
 		return ""
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
-		return "［E］Ashby 先生給的放大鏡。"
+		return "［" + Prompts.key("interact") + "］Ashby 先生給的放大鏡。"
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
-				return "［E］檢視底片"
+				return "［" + Prompts.key("interact") + "］檢視底片"
 			"oxford_case":
-				return "［E］看牛津比對底片"
+				return "［" + Prompts.key("interact") + "］看牛津比對底片"
 			"eddington":
-				return "［E］和 Eddington 說話"
+				return "［" + Prompts.key("interact") + "］和 Eddington 說話"
 			"departure_workbook":
-				return "［E］在工作簿記下你看到的天空。" if not _departure_workbook_seen else ""
+				return "［" + Prompts.key("interact") + "］在工作簿記下你看到的天空。" if not _departure_workbook_seen else ""
 		return ""
 	match id:
 		"eddington", "cottingham":
-			return "［E］和 %s 說話" % name_
+			return "［" + Prompts.key("interact") + "］和 %s 說話" % name_
 		"drive":
-			return "［按住 E］上發條" if not sim.drive_wound else "時鐘驅動：發條已上滿"
+			return "［按住 " + Prompts.key("interact") + "］上發條" if not sim.drive_wound else "時鐘驅動：發條已上滿"
 		"chronometer":
 			if sim.drive_wound and not sim.drive_rate_checked:
-				return "［按住 E］替 Cottingham 報秒、校走速"
-			return "［E］看天文鐘"
+				return "［按住 " + Prompts.key("interact") + "］替 Cottingham 報秒、校走速"
+			return "［" + Prompts.key("interact") + "］看天文鐘"
 		"plate_box":
 			var left: int = sim.MAX_EXTRA_PLATES - sim.plates_carried - sim.plates_delivered
 			if left <= 0:
 				return "底片匣都拿完了"
-			return "［按住 E］拿底片匣（手上 %d，箱裡還有 %d）" % [sim.plates_carried, left]
+			return "［按住 " + Prompts.key("interact") + "］拿底片匣（手上 %d，箱裡還有 %d）" % [sim.plates_carried, left]
 		"station":
 			if sim.plates_carried > 0:
-				return "［E］把 %d 個底片匣放上架子" % sim.plates_carried
+				return "［" + Prompts.key("interact") + "］把 %d 個底片匣放上架子" % sim.plates_carried
 			return "底片架：可用底片 %d 張" % sim.plates_available()
 		"plan":
-			return "［E］讀曝光計畫"
+			return "［" + Prompts.key("interact") + "］讀曝光計畫"
 		"oxford_case":
-			return "［E］看牛津比對底片"
+			return "［" + Prompts.key("interact") + "］看牛津比對底片"
 		"measure":
 			return "測量桌——今晚才會用到"
 	return name_
@@ -981,7 +1023,7 @@ func _begin_totality() -> void:
 		note = "\nCottingham 只能自己趕著上發條，來不及對時。"
 	elif not sim.drive_rate_checked:
 		note = "\n發條上滿了，但走速沒有校過。"
-	ui.show_toast("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［空白鍵］喊「開始」，雲厚或快結束時再按一次喊「停」。" + note, 7.0)
+	ui.show_toast("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［" + Prompts.key("shutter") + "］喊「開始」，雲厚或快結束時再按一次喊「停」。" + note, 7.0)
 	if bot:
 		bot.on_phase("totality")
 

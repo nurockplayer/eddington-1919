@@ -578,6 +578,7 @@ func _test_viewer_note() -> void:
 
 
 func _test_night_viewer() -> void:
+	load("res://scripts/main.gd")._ensure_inputs()
 	var ui = UI.new()
 	root.add_child(ui)
 	await process_frame
