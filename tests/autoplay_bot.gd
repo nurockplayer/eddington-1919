@@ -7,6 +7,7 @@ extends Node
 ## Run: godot --path . -- --autoplay=careful --shots=/tmp/shots [--seed=N] [--speed=2]
 ## Scenarios: careful | rushed | cherry
 
+const Judgment := preload("res://scripts/judgment.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 
 static var runs := 0
@@ -226,6 +227,9 @@ func _run() -> void:
 			f.close()
 		else:
 			_log("restart seed differs=%s title_visible=%s" % [main.sim.run_seed != first_seed, main.ui.title_panel.visible])
+		# Drain stopped ambient playbacks before shutting down AudioServer.
+		main.stop_all_audio()
+		await get_tree().create_timer(0.1).timeout
 		get_tree().quit()
 		return
 	first_seed = main.sim.run_seed
@@ -416,8 +420,11 @@ func _night() -> void:
 			reason = 2
 		_:
 			tele = {"none": 3, "favors_e": 1, "ambiguous": 2, "favors_half": 2}[ev]
-			reason = {"none": 3, "favors_e": 0, "ambiguous": 1, "favors_half": 1}[ev]
-	await talk([tele, reason])
+			reason = 4 if Judgment.trailed_case(main.sim) else {"none": 3, "favors_e": 0, "ambiguous": 1, "favors_half": 1}[ev]
+	if main.sim.combined().n > 0:
+		await talk([Judgment.interval_truth(main.sim), tele, reason])
+	else:
+		await talk([tele, reason])
 	await _wait(0.5)
 	await talk()
 
@@ -471,4 +478,6 @@ func _finish() -> void:
 					ev.pressed = pressed
 					Input.parse_input_event(ev)
 				return
+	main.stop_all_audio()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit()

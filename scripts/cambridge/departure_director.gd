@@ -1,4 +1,8 @@
 extends Node3D
+
+const Settings := preload("res://scripts/settings.gd")
+
+const Prompts := preload("res://scripts/prompts.gd")
 ## M2 staging only; all authored dialogue remains in Content.
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const ExistingDirector := preload("res://scripts/main.gd")
@@ -79,6 +83,7 @@ func _ready() -> void:
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
 	_build_keepsake()
+	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
 	_sync_player()
@@ -122,7 +127,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt("［E］" + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -182,6 +187,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			# Reading time for the changed paper; progress always requires a click.
 			await get_tree().create_timer(0.85, false).timeout
 			checklist.continue_btn.disabled = false
+			checklist.continue_btn.grab_focus()
 		"bond":
 			Story.bond_tone = "close" if int(results.get("bond", 0)) == 0 else "warm"
 			beat = Beat.PROMISE
@@ -245,7 +251,7 @@ func _build_keepsake() -> void:
 	keepsake.add_child(icon)
 	var label := Label.new()
 	label.text = Cast.MENTOR_GIFT
-	label.add_theme_font_size_override("font_size", 20)
+	Settings.track_font(label, 20)
 	label.add_theme_color_override("font_color", UI.PAPER)
 	keepsake.add_child(label)
 	ui.get_child(0).add_child(keepsake)
@@ -271,6 +277,7 @@ func _montage() -> void:
 
 func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStreamPlayer:
 	var audio := AudioStreamPlayer.new()
+	audio.bus = "SFX"
 	audio.stream = ExistingDirector._wav(samples, 22050, loop)
 	audio.volume_db = db
 	add_child(audio)

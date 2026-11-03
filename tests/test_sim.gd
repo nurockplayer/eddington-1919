@@ -97,6 +97,44 @@ func _init() -> void:
 	check(r_ok.score > r_over.score, "hedged telegram scores above overclaim")
 	var r_none: Dictionary = Judgment.grade(sim, "none", "nostars")
 	check(r_none.title == "被丟下的星光", "'no results' with a usable plate is called out")
+	# Independent good plates corroborate only when every value agrees with the mean.
+	var pair = Sim.new(77)
+	pair.plates = [
+		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 1.7, "sigma": 0.2, "duration": 4.0},
+		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2, "duration": 4.0},
+	]
+	var agreement := "第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"
+	var single := "只有一張好片——一張底片只能提出問題，還不能回答。"
+	var reminder := "那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。"
+	check(Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "two agreeing good plates corroborate with their plate numbers")
+	# Oracle on #103: a third agreeing plate shrinks the combined σ; agreement must survive it.
+	var trio = Sim.new(77)
+	trio.plates = [
+		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 1.40, "sigma": 0.3, "duration": 4.0},
+		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 2.10, "sigma": 0.3, "duration": 4.0},
+		{"number": 6, "usable": true, "quality": "good", "included": true, "value": 1.75, "sigma": 0.3, "duration": 4.0},
+	]
+	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4、6 號各自量，數字彼此對得上。這 3 張互相印證，比一張長片更難被說成巧合。"),
+		"three good plates within their own 2σ still corroborate")
+	# Oracle on #103: poor plates pulling the overall mean must not decide it.
+	trio.plates[2].quality = "poor"
+	trio.plates[2].value = 1.00
+	trio.plates[2].sigma = 0.4
+	trio.plates.append({"number": 8, "usable": true, "quality": "poor", "included": true, "value": 1.00, "sigma": 0.4, "duration": 4.0})
+	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"),
+		"poor plates do not break the good plates' agreement")
+	pair.plates[1].value = 2.5
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "disagreeing good plates do not corroborate")
+	pair.plates[1].included = false
+	check(Judgment.grade(pair, "hopeful", "measured").lines.has(single), "one included good plate echoes the 1917 caution")
+	pair.read_plan = false
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "one short good plate does not trigger the plan reminder")
+	pair.plates[0].duration = 11.0
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "an 11 s plate could not have been split; no reminder")
+	pair.plates[0].duration = 14.0
+	check(Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "one long good plate reminds a player who skipped the plan")
+	pair.read_plan = true
+	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(reminder), "reading the plan suppresses the long-plate reminder")
 	# Omitting a good plate and reselecting are noticed.
 	var sim4 = Sim.new(11)
 	sim4.drive_wound = true
@@ -129,7 +167,7 @@ func _init() -> void:
 	# Regressions from the 2026-10-19 Codex review.
 	var rs = Sim.new(3)
 	rs.plates = [
-		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 2.0, "sigma": 0.41},
+		{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.0, "value": 2.0, "sigma": 0.41},
 		{"number": 2, "usable": false, "quality": "unusable", "included": false, "value": 0.0, "sigma": 1.0},
 	]
 	var reasons: Array = Judgment.reasons_for(rs)
@@ -159,6 +197,38 @@ func _init() -> void:
 	]
 	var poor_none: Dictionary = Judgment.grade(poor_unmeasured, "none", "uncertain")
 	check(poor_none.lines[0].contains("可量的底片") and not poor_none.lines[0].contains("星點清楚的底片"), "'no results' describes poor but measurable plates without calling them clear")
+
+	var trail_case_sim = Sim.new(6)
+	trail_case_sim.drive_rate_checked = false
+	trail_case_sim.plates = [
+		{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
+		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
+	]
+	check(Judgment.grade(trail_case_sim, "undecided", "trailed").reason_ok, "unchecked drive and trailed low values support the instrument reason")
+	trail_case_sim.drive_rate_checked = true
+	var checked_trail: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
+	check(not checked_trail.reason_ok, "checked drive rejects the instrument reason for the same plates")
+	check(checked_trail.lines.any(func(line): return line.contains("走速校過了")), "checked drive explains why the instrument reason is rejected")
+	# Checked drive but a very long exposure still trails: the line must not deny the trail.
+	check(checked_trail.lines.any(func(line): return line.contains("是曝光太久，不是走速沒校")), "checked drive with trailed plates blames the exposure length")
+	# Trailing biases low; an ambiguous result above 1.75″ is not that bias.
+	var high = Sim.new(6)
+	high.plates = [{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 1.90, "sigma": 0.6}]
+	check(high.evidence_class() == "ambiguous" and not Judgment.trailed_case(high), "a high ambiguous value is not credited to trailing")
+	var empty = Sim.new(6)
+	empty.plates = []
+	var empty_line: Dictionary = Judgment.grade(empty, "none", "trailed")
+	check(not empty_line.reason_ok and empty_line.lines.any(func(l): return l.contains("還沒有量出任何數字")), "with nothing measured the instrument reason gets no talk of numbers")
+	var high_line: Dictionary = Judgment.grade(high, "undecided", "trailed")
+	check(high_line.lines.any(func(l): return l.contains("星像確實拖長了")) and not high_line.lines.any(func(l): return l.contains("沒有拖長")),
+		"trailed plates with a high value are called trailed, not untrailed")
+	# Unchecked drive, low result, but the measured plates did not trail.
+	trail_case_sim.drive_rate_checked = false
+	for p in trail_case_sim.plates:
+		p.trail = 0.1
+	var untrailed: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
+	check(not untrailed.reason_ok and untrailed.lines.any(func(line): return line.contains("星像沒有拖長")),
+		"untrailed low plates reject the instrument reason and say the plates did not trail")
 
 	# Use real exposures from seed 7 for clean and contaminated selections.
 	var strict_clean := "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
@@ -193,8 +263,8 @@ func _init() -> void:
 	var foggy = Sim.new(6)
 	foggy.rule_id = "strict"
 	foggy.plates = [
-		{"number": 1, "usable": true, "quality": "good", "included": false, "value": 1.8, "sigma": 0.3},
-		{"number": 2, "usable": true, "quality": "poor", "included": true, "value": 1.2, "sigma": 0.6},
+		{"number": 1, "usable": true, "quality": "good", "included": false, "trail": 0.0, "value": 1.8, "sigma": 0.3},
+		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 1.2, "sigma": 0.6},
 	]
 	var broke := func(r: Dictionary) -> bool: return r.lines.any(func(l): return l.contains("違反了你自己寫下的規則"))
 	check(not broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate measured without a clear one is no violation")

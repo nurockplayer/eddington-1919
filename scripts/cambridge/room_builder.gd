@@ -406,9 +406,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	if departure:
 		var plate_label := Label3D.new()
 		plate_label.text = "KIT 的變星底片"
-		var label_font := SystemFont.new()
-		label_font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC"])
-		plate_label.font = label_font
+		plate_label.font = preload("res://scripts/fonts.gd").cjk()
 		plate_label.font_size = 24
 		plate_label.pixel_size = 0.0025
 		plate_label.modulate = Color(0.72, 0.65, 0.52)
@@ -428,6 +426,8 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	lamp.omni_range = 5.0
 	lamp.omni_attenuation = 1.35
 	lamp.shadow_enabled = true
+	lamp.set_meta("standard_shadow", lamp.shadow_enabled)
+	lamp.add_to_group("quality_shadow")
 	if not departure:
 		lamp.light_size = 0.10
 		lamp.light_energy = 1.5
@@ -693,5 +693,7 @@ static func _environment(root: Node3D) -> WorldEnvironment:
 	var node := WorldEnvironment.new()
 	node.name = "CambridgeRoomEnvironment"
 	node.environment = env
+	node.set_meta("standard_ssao", env.ssao_enabled)
+	node.add_to_group("quality_env")
 	root.add_child(node)
 	return node

@@ -49,8 +49,8 @@ static func kit_reads(entry: Dictionary) -> Array:
 	return [{"s": K, "t": "%s。%s。" % [entry.label, entry.plate]}]
 
 
-## After the five marks. caught_by_player: the player marked the slip ✗ themselves.
-## false_alarm: the player marked a correct entry ✗ (Kit re-reads it; no penalty).
+## After the five marks. caught_by_player: the player marked the slip x themselves.
+## false_alarm: the player marked a correct entry x (Kit re-reads it; no penalty).
 static func slip_found(caught_by_player: bool, false_alarm: bool) -> Array:
 	var seq: Array = []
 	if false_alarm:

@@ -50,7 +50,7 @@ static func cottingham_done() -> Array:
 
 static func plan_text() -> Array:
 	var lines: Array = [
-		{"s": "曝光計畫（筆記，遊戲內重建）", "t": "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· [b]第三接觸前務必關上快門。[/b]"},
+		{"s": "曝光計畫（筆記，遊戲內重建）", "t": "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"},
 	]
 
 	var tree := Engine.get_main_loop() as SceneTree
@@ -80,8 +80,53 @@ static func night_intro(n_plates: int) -> Array:
 	]
 
 
-static func rules_prompt(planned: bool) -> Array:
+## The 1917 "conditions" card: each plate's note also records the drive.
+## Without the prologue everyone gets it; after it, only if the card was planned.
+static func drive_note(plan: Array, played: bool, rate_checked: bool) -> String:
+	if played and not plan.has("conditions"):
+		return ""
+	if rate_checked:
+		return "走速：早上已對著天文鐘校過。"
+	return "走速：沒有校過——曝光越久，星像拖得越長。"
+
+
+## The 1917 plan board remembered in the darkroom; empty without the prologue.
+## A core card the player left off was added by Eddington at the bottom.
+static func comparison_recall(plan: Array, played: bool) -> String:
+	if not played:
+		return ""
+	if plan.has("comparison"):
+		return "（1917 年的計畫板上，這張比對片是你放上去的。）"
+	return "（1917 年的計畫板上漏了它，是 Eddington 補在最下面的。）"
+
+
+static func comparison_errand() -> Array:
+	return [
+		{"s": E, "t": "等一下——比對片還在箱子裡。1917 年的板上漏了它，是我補上的；今晚由你去拿。"},
+		{"s": E, "t": "沒有它，這些星就沒有「原來的位置」可以比。"},
+	]
+
+
+static func comparison_fetched() -> Array:
+	return [{"s": "", "t": "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）"}]
+
+
+static func calibration_recall(plan: Array, played: bool) -> String:
+	if not played:
+		return ""
+	if plan.has("far_stars"):
+		return "比例和方向，先用遠處的星校正過——1917 年你寫進了計畫。"
+	return "比例和方向，先用遠處的星校正過——那一條是 Eddington 補上的。"
+
+
+## exam_q1: the 1917 answer to "what would you have handed in without the 14" (-1: none).
+static func rules_prompt(planned: bool, exam_q1 := -1) -> Array:
 	var out: Array = []
+	match exam_q1:
+		0:
+			out.append({"s": "", "t": "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：交上差異，寫「原因未明」。）"})
+		1:
+			out.append({"s": "", "t": "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：照最像的那樣對齊，交上去。他說，猜沒有錯，只是要寫明是猜。）"})
 	if planned:
 		out.append({"s": "", "t": "（你想起 1917 年計畫板上那張卡：量之前，先寫下什麼樣的底片不能用。）"})
 	out.append({"s": E, "t": "量之前，先在記錄本上寫一句：哪些底片不納入？", "key": "rule", "choices": [
@@ -92,11 +137,15 @@ static func rules_prompt(planned: bool) -> Array:
 	return out
 
 
-static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
-	return [
+static func judgment_prompt(telegrams: Array, reasons: Array, interval := "") -> Array:
+	var out: Array = []
+	if interval != "":
+		out.append({"s": E, "t": "先看你的數字：%s。兩倍誤差的範圍裡，容得下哪一個預測？" % interval, "key": "interval", "choices": ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"]})
+	out.append_array([
 		{"s": E, "t": "我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？", "key": "telegram", "choices": telegrams},
 		{"s": E, "t": "根據什麼？", "key": "reason", "choices": reasons},
-	]
+	])
+	return out
 
 
 static func cottingham_coda(sim) -> String:

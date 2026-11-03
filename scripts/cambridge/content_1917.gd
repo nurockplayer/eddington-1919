@@ -153,7 +153,7 @@ static func viewer_feedback(id: String) -> String:
 static func viewer_hint(state: Dictionary) -> String:
 	if not state.get("aligned", false):
 		if state.get("label_mirrored", false):
-			return "字是反的。如果整張描圖紙也是反的呢？試試［翻面］，再用［⟲］［⟳］或 Q／E 慢慢轉。"
+			return "字是反的。如果整張描圖紙也是反的呢？試試［翻面］，再用 Q／E 慢慢轉。"
 		return "看看抄錄圖角落的編號，再看看底片上用鉛筆寫的那個。"
 	if not state.get("arrow_tilted", false):
 		return "為什麼要轉？底片上鉛筆畫的北向箭頭，和玻璃邊緣平行嗎？"

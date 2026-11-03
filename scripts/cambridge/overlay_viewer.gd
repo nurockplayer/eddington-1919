@@ -1,4 +1,6 @@
 extends Control
+
+const Settings := preload("res://scripts/settings.gd")
 ## Full-screen, self-contained Cambridge plate comparison modal.
 
 signal clue_found(id: String)
@@ -8,6 +10,7 @@ signal hint_requested
 signal sound(kind: String)  # flip / nudge / settle / mark, for the director's foley
 
 const MathModel = preload("res://scripts/cambridge/overlay_math.gd")
+const Fonts := preload("res://scripts/fonts.gd")
 const PAPER := Color(0.79, 0.785, 0.75)
 const PAPER_LIGHT := Color(0.88, 0.875, 0.84)
 const GLASS := Color(0.66, 0.74, 0.76)
@@ -22,6 +25,7 @@ var angle_deg := 0.0
 var offset := Vector2.ZERO
 var buttons: Dictionary = {}
 
+var ui
 var _font: Font
 var _dragging := false
 var _pointer_pressed := false
@@ -39,21 +43,21 @@ var _root_panel: PanelContainer
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	_font = SystemFont.new()
-	(_font as SystemFont).font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "Source Han Sans TC", "sans-serif"])
+	_font = Fonts.cjk()
 	_build_ui()
 	visible = false
 
 
 func open() -> void:
 	visible = true
+	buttons.flip.grab_focus()
 	_update_alignment()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	queue_redraw()
 
 
 func close() -> void:
-	if not visible:
+	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	visible = false
 	_dragging = false
@@ -85,7 +89,7 @@ func _build_ui() -> void:
 	title.size = Vector2(720, 42)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
-	var subtitle := _label("固定底片　　·　　可移動描圖　　·　　拖曳平移　 Q／E 旋轉", 16, MUTED)
+	var subtitle := _label("固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 Q／E／右搖桿旋轉", 16, MUTED)
 	subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	subtitle.position = Vector2(-440, 66)
 	subtitle.size = Vector2(880, 30)
@@ -106,8 +110,8 @@ func _build_ui() -> void:
 	add_child(row)
 	buttons = {
 		"flip": _button("翻面"),
-		"left": _button("⟲　−0.5°"),
-		"right": _button("+0.5°　⟳"),
+		"left": _button("Q　−0.5°"),
+		"right": _button("+0.5°　E"),
 		"reset": _button("重設"),
 		"close": _button("關閉"),
 	}
@@ -119,12 +123,22 @@ func _build_ui() -> void:
 	for key in ["flip", "left", "right", "reset", "close"]:
 		row.add_child(buttons[key])
 
+	var details := HBoxContainer.new()
+	details.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	details.position = Vector2(-230, 100)
+	details.add_theme_constant_override("separation", 12)
+	add_child(details)
+	for id in ["label_mirrored", "arrow_tilted", "residual"]:
+		var inspect := _button({"label_mirrored": "看標籤", "arrow_tilted": "看箭頭", "residual": "放大未重合點"}[id])
+		inspect.pressed.connect(func(): _try_detail_click(_detail_local_position(id)))
+		details.add_child(inspect)
+
 
 func _label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_override("font", _font)
-	label.add_theme_font_size_override("font_size", size)
+	Settings.track_font(label, size)
 	label.add_theme_color_override("font_color", color)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
@@ -134,8 +148,8 @@ func _button(text: String) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.add_theme_font_override("font", _font)
-	button.add_theme_font_size_override("font_size", 18)
-	button.focus_mode = Control.FOCUS_NONE
+	Settings.track_font(button, 18)
+	button.focus_mode = Control.FOCUS_ALL
 	button.custom_minimum_size = Vector2(142, 48)
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = Color(0.13, 0.125, 0.11, 0.97)
@@ -149,6 +163,7 @@ func _button(text: String) -> Button:
 	hover.set_corner_radius_all(3)
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("focus", hover)
 	button.add_theme_stylebox_override("pressed", hover)
 	button.add_theme_color_override("font_color", PAPER_LIGHT)
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.94, 0.80))
@@ -156,31 +171,38 @@ func _button(text: String) -> Button:
 
 
 func _process(delta: float) -> void:
-	if not visible or _hint_sent:
+	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
-	_hint_elapsed += delta
-	if _hint_elapsed >= 90.0:
-		_hint_sent = true
-		hint_requested.emit()
+	var movement := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	var turn := Input.get_axis("gamepad_look_left", "gamepad_look_right")
+	if not movement.is_zero_approx() or not is_zero_approx(turn):
+		offset += movement * delta * 0.15
+		angle_deg += turn * delta * 8.0
+		_update_alignment()
+		queue_redraw()
+	if not _hint_sent:
+		_hint_elapsed += delta
+		if _hint_elapsed >= 90.0:
+			_hint_sent = true
+			hint_requested.emit()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible:
+	if not visible or event is InputEventJoypadMotion or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_Q:
-			_rotate(-0.5)
-			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_E:
-			_rotate(0.5)
-			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_ESCAPE:
-			close()
-			get_viewport().set_input_as_handled()
+	if event.is_action_pressed("overlay_rotate_left"):
+		_rotate(-0.5)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("overlay_rotate_right"):
+		_rotate(0.5)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel"):
+		close()
+		get_viewport().set_input_as_handled()
 
 
 func _gui_input(event: InputEvent) -> void:
-	if not visible:
+	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -213,6 +235,8 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _toggle_flip() -> void:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return
 	flipped = not flipped
 	sound.emit("flip")
 	_update_alignment()
@@ -220,6 +244,8 @@ func _toggle_flip() -> void:
 
 
 func _rotate(amount: float) -> void:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return
 	angle_deg += amount
 	sound.emit("nudge")
 	_update_alignment()
@@ -227,6 +253,8 @@ func _rotate(amount: float) -> void:
 
 
 func _reset() -> void:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return
 	flipped = false
 	angle_deg = 0.0
 	offset = Vector2.ZERO
@@ -265,6 +293,8 @@ func _update_alignment() -> void:
 
 
 func _try_detail_click(mouse: Vector2) -> bool:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return false
 	var screen_mouse := get_global_transform_with_canvas() * mouse
 	if _copy_label_hit_rect().has_point(screen_mouse) or _plate_label_hit_rect().has_point(screen_mouse):
 		_found_clue("label_mirrored")

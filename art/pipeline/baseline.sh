@@ -2,6 +2,8 @@
 # Capture the in-game benchmark (G4) for any git ref, e.g. the last release, so a
 # change can be compared against it with art/pipeline/compare.py.
 #   art/pipeline/baseline.sh <git-ref> art/validation/<name> [seed]
+# Set BENCH_ARGS to pass extra benchmark arguments, e.g. --bench-quality=low.
+# The ref must include #126; only benchmark.gd is copied, not settings.gd.
 # Uses a detached temporary worktree, copies the CURRENT tests/benchmark.gd into
 # it (so both runs use identical bookmarks), and injects the --benchmark hook if
 # that ref predates it. Captures into a fresh temp dir and only replaces <out>
@@ -36,7 +38,7 @@ p.write_text(s.replace('\tif args.has("autoplay"):', hook + '\tif args.has("auto
 PY
 fi
 godot --headless --path "$WT" --import >"$TMP/import.log" 2>&1 || { cat "$TMP/import.log" >&2; exit 1; }
-godot --path "$WT" --always-on-top -- --benchmark="$TMP/out" --seed="$SEED" >"$TMP/bench.log" 2>&1 || true
+godot --path "$WT" --always-on-top -- --benchmark="$TMP/out" --seed="$SEED" ${BENCH_ARGS:-} >"$TMP/bench.log" 2>&1 || true
 if [ ! -s "$TMP/out/benchmark.json" ]; then
   echo "benchmark produced no benchmark.json; log:" >&2; tail -20 "$TMP/bench.log" >&2; exit 1
 fi

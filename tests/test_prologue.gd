@@ -267,10 +267,15 @@ func _test_dialogue_history() -> void:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
 			added_actions.append(action)
+	load("res://scripts/main.gd")._ensure_inputs()
 	var ui = UI.new()
 	ui.history.clear()
 	root.add_child(ui)
 	await process_frame
+	var version_label := ui.title_panel.get_node("Version") as Label
+	check(version_label.text == "v" + str(ProjectSettings.get_setting("application/config/version")), "title displays project version")
+	var title_rect: Rect2 = ui.title_panel.get_global_rect()
+	check(title_rect.encloses(version_label.get_global_rect()) and version_label.get_global_rect().get_center().x > title_rect.get_center().x and version_label.get_global_rect().get_center().y > title_rect.get_center().y, "title version fits in bottom-right corner")
 	var sequence: Array = []
 	for i in 61:
 		sequence.append({"s": "Speaker", "t": "line_%d" % i})
@@ -415,7 +420,7 @@ func _test_cambridge_pause_restore() -> void:
 	await _pause_round_trip(chapter, "Cambridge plan board: Esc twice")
 	check(chapter.plan_board.visible, "plan board stays visible after Esc twice")
 	chapter.plan_board.hide()
-	chapter.overlay.open()
+	chapter._interact("lightbox")
 	chapter._sync_player()
 	chapter.overlay._rotate(0.5)
 	chapter.overlay._rotate(-0.5)
@@ -423,6 +428,12 @@ func _test_cambridge_pause_restore() -> void:
 	# The overlay owns Esc to close; pause/resume via the UI exercises its lock.
 	await _pause_round_trip(chapter, "Cambridge overlay", false)
 	check(chapter.overlay.visible, "pause/resume retains overlay")
+	check(chapter._should_offer_kit_guess(), "closing this first light-box visit would start Kit's guess dialogue")
+	await _send_key(KEY_TAB)
+	await _pause_round_trip(chapter, "Cambridge log over light-box: Esc twice")
+	check(chapter.overlay.visible and chapter.ui.log_open() and not chapter.ui.dialog_active() and not chapter.guess_offered,
+		"log Escape preserves light-box and log without starting Kit close dialogue")
+	await _send_key(KEY_TAB)
 	chapter.overlay.hide()
 	chapter._say([{"s": "Kit", "t": "Input-state regression."}], "")
 	await _pause_round_trip(chapter, "Cambridge dialogue: Esc twice")
@@ -437,6 +448,75 @@ func _test_cambridge_pause_restore() -> void:
 	await _drain_chapter_audio(chapter)
 	chapter.free()
 	await process_frame
+
+
+func _test_cambridge_rain() -> void:
+	var chapter = load("res://scripts/cambridge/director.gd").new()
+	root.add_child(chapter)
+	# Every wait is bounded: on a timeout the case fails and stops here.
+	# _ready() fades in and shows the caption (~3.5 s) before the opening dialogue.
+	if not await _rain_wait(chapter, func(): return chapter._pending == "opening", "Cambridge reaches the opening dialogue"):
+		return
+	check(chapter.rain.playing, "Cambridge rain plays before the daylight interlude")
+	_finish_test_dialogue(chapter)
+	chapter._say(C17.mentor_dyson({}, chapter.state()), "dyson")
+	_finish_test_dialogue(chapter)
+	if not await _rain_wait(chapter, func(): return chapter.beat != chapter.Beat.INTERLUDE, "the daylight interlude ends"):
+		return
+	check(is_equal_approx(chapter.rain.volume_db, -30.0), "Cambridge daylight rain settles at -30 dB")
+	_finish_test_dialogue(chapter)
+	chapter._finish_plan(["comparison", "far_stars", "rules_first"])
+	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.
+	var guard := 100
+	while chapter._pending in ["plan_finish", "trial"] and guard > 0:
+		guard -= 1
+		if not chapter.ui._choice_buttons.is_empty():
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+	check(guard > 0, "the plan and trial dialogue finish")
+	await create_timer(0.5).timeout
+	check(chapter.rain.playing and chapter.rain.volume_db < -22.0, "Cambridge rain fades after the trial result")
+	# A quick reader leaves mentor_after before the 3 s fade has finished.
+	_finish_test_dialogue(chapter)
+	if not await _rain_wait(chapter, func(): return chapter.beat == chapter.Beat.CODA and not chapter._busy, "Kit's night coda opens"):
+		return
+	check(not chapter.rain.playing and chapter.rain_stopped, "Kit's night coda starts with the rain stopped")
+	await create_timer(3.0).timeout
+	check(not chapter.rain.playing, "the killed fade does not bring the rain back")
+	await _drain_chapter_audio(chapter)
+	chapter.free()
+	await process_frame
+
+	# A reader who stays in mentor_after: the fade's own callback stops the rain.
+	var slow = load("res://scripts/cambridge/director.gd").new()
+	root.add_child(slow)
+	if not await _rain_wait(slow, func(): return slow._pending == "opening", "Cambridge reaches the opening dialogue (slow reader)"):
+		return
+	_finish_test_dialogue(slow)
+	slow._pending = "trial"
+	slow._dialogue_done({})
+	check(slow._pending == "mentor_after", "the trial result opens mentor_after")
+	await create_timer(3.3).timeout
+	check(slow._pending == "mentor_after" and slow.beat != slow.Beat.CODA, "the slow reader is still in mentor_after")
+	check(not slow.rain.playing and slow.rain_stopped, "the 3 s fade stops the rain by itself")
+	await _drain_chapter_audio(slow)
+	slow.free()
+	await process_frame
+
+
+## Waits up to 12 s for cond. On a timeout it records the failure, frees the
+## chapter and returns false so the caller stops instead of hanging.
+func _rain_wait(chapter, cond: Callable, what: String) -> bool:
+	var deadline := Time.get_ticks_msec() + 12000
+	while not cond.call() and Time.get_ticks_msec() < deadline:
+		await process_frame
+	var ok: bool = cond.call()
+	check(ok, "%s within 12 s" % what)
+	if not ok:
+		chapter.free()
+		await process_frame
+	return ok
 
 
 func _finish_test_dialogue(chapter) -> void:
@@ -617,6 +697,9 @@ func _run() -> void:
 	await _test_dialogue_history()
 	await _test_viewer_hint_progress()
 	await _test_cambridge_pause_restore()
+	await _test_cambridge_rain()
 	await _test_totality_log_suspension()
+	# Drain releases queued by the final chapter's teardown before AudioServer exits.
+	await create_timer(0.1).timeout
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)

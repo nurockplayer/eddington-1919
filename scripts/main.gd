@@ -1,4 +1,8 @@
 extends Node3D
+
+const Settings := preload("res://scripts/settings.gd")
+
+const Prompts := preload("res://scripts/prompts.gd")
 ## Game director for the slice: phases, interactions, and the loop
 ## prepare → expose through cloud → inspect plates → judge → reaction.
 
@@ -7,6 +11,7 @@ const World := preload("res://scripts/world_builder.gd")
 const Player := preload("res://scripts/player.gd")
 const UI := preload("res://scripts/ui.gd")
 const Content := preload("res://scripts/content.gd")
+const Chart := preload("res://scripts/chart.gd")
 const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
@@ -48,9 +53,11 @@ var hold_id := ""
 var met_cottingham := false
 var plate_textures: Array = []
 var comparison_tex: Texture2D
+var _comparison_fetched := false
 var _tick_acc := 0.0
 var _warned_end := false
 var _glanced := false
+const GLANCE_THICK := 0.6  # cloud_over_sun at or above this reads as 「雲還是很厚」
 # M5 callouts: one-shot per run unless noted (long exposure resets per plate).
 var _ever_exposed := false
 var _long_called := false
@@ -121,6 +128,7 @@ func _ready() -> void:
 		_add_departure_loupe(wb)
 	world.eddington.rotation.y = PI
 	player = Player.new()
+	player.step_surface = "earth"
 	player.position = Vector3(2.6, 0.05, 4.2)
 	add_child(player)
 	player.yaw = deg_to_rad(20)
@@ -140,6 +148,7 @@ func _ready() -> void:
 	ui.reselect_pressed.connect(_on_reselect)
 	ui.report_pressed.connect(_on_report)
 	ui.viewer_closed.connect(_on_viewer_closed)
+	Settings.apply_quality(get_tree())
 	_build_audio()
 	player.can_move = false
 	player.can_look = false
@@ -159,6 +168,19 @@ func _ready() -> void:
 			runner.shots_dir = args.get("shots", "")
 			get_tree().root.add_child.call_deferred(runner)
 	if args.has("benchmark"):
+		# DirAccess.make_dir_recursive_absolute() needs an absolute path: resolve
+		# res:// and repo-relative arguments (e.g. art/validation/x) against the project.
+		var out: String = args.benchmark
+		if out.begins_with("res://"):
+			out = ProjectSettings.globalize_path(out)
+		elif not out.is_absolute_path():
+			out = ProjectSettings.globalize_path("res://" + out)
+		if args.has("bench-cambridge"):
+			# Load dynamically: the Cambridge director already preloads this script.
+			var director: Script = load("res://scripts/cambridge/director.gd")
+			director.bench_cambridge_out = out
+			get_tree().change_scene_to_file.call_deferred("res://scenes/cambridge.tscn")
+			return
 		# tests/ is excluded from exports, so in a build this flag is ignored and the game runs normally.
 		var bench_script: Script = load("res://tests/benchmark.gd")
 		if bench_script == null:
@@ -166,13 +188,6 @@ func _ready() -> void:
 		else:
 			var bench: Node = bench_script.new()
 			bench.main = self
-			# DirAccess.make_dir_recursive_absolute() needs an absolute path: resolve
-			# res:// and repo-relative arguments (e.g. art/validation/x) against the project.
-			var out: String = args.benchmark
-			if out.begins_with("res://"):
-				out = ProjectSettings.globalize_path(out)
-			elif not out.is_absolute_path():
-				out = ProjectSettings.globalize_path("res://" + out)
 			bench.out_dir = out
 			add_child(bench)
 			return
@@ -202,14 +217,55 @@ static func _ensure_inputs() -> void:
 		"move_forward": [KEY_W], "move_back": [KEY_S], "move_left": [KEY_A], "move_right": [KEY_D],
 		"look_left": [KEY_LEFT], "look_right": [KEY_RIGHT], "look_up": [KEY_UP], "look_down": [KEY_DOWN],
 		"run": [KEY_SHIFT], "interact": [KEY_E], "shutter": [KEY_SPACE], "pause": [KEY_ESCAPE],
+		"toggle_fullscreen": [KEY_F11], "toggle_log": [KEY_TAB],
+		"overlay_rotate_left": [KEY_Q], "overlay_rotate_right": [KEY_E],
 	}
 	for action in map:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
-			for k in map[action]:
-				var ev := InputEventKey.new()
-				ev.physical_keycode = k
+		for k in map[action]:
+			var ev := InputEventKey.new()
+			ev.physical_keycode = k
+			if not InputMap.action_has_event(action, ev):
 				InputMap.action_add_event(action, ev)
+	var axes := {
+		"gamepad_look_left": [JOY_AXIS_RIGHT_X, -1.0], "gamepad_look_right": [JOY_AXIS_RIGHT_X, 1.0],
+		"gamepad_look_up": [JOY_AXIS_RIGHT_Y, -1.0], "gamepad_look_down": [JOY_AXIS_RIGHT_Y, 1.0],
+		"move_left": [JOY_AXIS_LEFT_X, -1.0], "move_right": [JOY_AXIS_LEFT_X, 1.0],
+		"move_forward": [JOY_AXIS_LEFT_Y, -1.0], "move_back": [JOY_AXIS_LEFT_Y, 1.0],
+		"look_left": [JOY_AXIS_RIGHT_X, -1.0], "look_right": [JOY_AXIS_RIGHT_X, 1.0],
+		"overlay_rotate_left": [JOY_AXIS_RIGHT_X, -1.0], "overlay_rotate_right": [JOY_AXIS_RIGHT_X, 1.0],
+		"look_up": [JOY_AXIS_RIGHT_Y, -1.0], "look_down": [JOY_AXIS_RIGHT_Y, 1.0],
+	}
+	for action in axes:
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
+		InputMap.action_set_deadzone(action, 0.25)
+		var motion := InputEventJoypadMotion.new()
+		motion.axis = axes[action][0]
+		motion.axis_value = axes[action][1]
+		if not InputMap.action_has_event(action, motion):
+			InputMap.action_add_event(action, motion)
+	# Sticks move the player/paper; only arrows and D-pad navigate UI focus.
+	for action in ["ui_left", "ui_right", "ui_up", "ui_down"]:
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadMotion:
+				InputMap.action_erase_event(action, event)
+	var buttons := {
+		"ui_accept": [JOY_BUTTON_A], "ui_cancel": [JOY_BUTTON_B],
+		"ui_up": [JOY_BUTTON_DPAD_UP], "ui_down": [JOY_BUTTON_DPAD_DOWN],
+		"ui_left": [JOY_BUTTON_DPAD_LEFT], "ui_right": [JOY_BUTTON_DPAD_RIGHT],
+		"run": [JOY_BUTTON_LEFT_STICK], "interact": [JOY_BUTTON_A],
+		"shutter": [JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_X], "pause": [JOY_BUTTON_START],
+		"toggle_log": [JOY_BUTTON_BACK], "overlay_rotate_left": [JOY_BUTTON_LEFT_SHOULDER],
+		"overlay_rotate_right": [JOY_BUTTON_RIGHT_SHOULDER],
+	}
+	for action in buttons:
+		for index in buttons[action]:
+			var button := InputEventJoypadButton.new()
+			button.button_index = index
+			if not InputMap.action_has_event(action, button):
+				InputMap.action_add_event(action, button)
 	var mb := InputEventMouseButton.new()
 	mb.button_index = MOUSE_BUTTON_LEFT
 	if not InputMap.action_has_event("shutter", mb):
@@ -268,6 +324,8 @@ func _build_environment() -> void:
 		Look.apply_cinematic(env, sun, sky_mat)
 		_look_sun = Look.SUN_GAIN
 		_look_ambient = Look.AMBIENT_GAIN
+	we.set_meta("standard_ssao", env.ssao_enabled)
+	we.add_to_group("quality_env")
 
 
 ## r06: characters turn their heads toward the player at conversation distance
@@ -364,6 +422,7 @@ func _build_audio() -> void:
 		var t := i / 22050.0
 		tick.append(sin(t * TAU * 1900.0) * exp(-t * 180.0) * 0.6 + (randf() - 0.5) * exp(-t * 400.0) * 0.4)
 	audio_tick = AudioStreamPlayer.new()
+	audio_tick.bus = "SFX"
 	audio_tick.stream = _wav(tick)
 	audio_tick.volume_db = -8.0
 	add_child(audio_tick)
@@ -372,6 +431,7 @@ func _build_audio() -> void:
 		var t := i / 22050.0
 		click.append((randf() - 0.5) * exp(-t * 60.0) + sin(t * TAU * 220.0) * exp(-t * 40.0) * 0.5)
 	audio_click = AudioStreamPlayer.new()
+	audio_click.bus = "SFX"
 	audio_click.stream = _wav(click)
 	audio_click.volume_db = -4.0
 	add_child(audio_click)
@@ -390,6 +450,7 @@ func _build_audio() -> void:
 			+ (low - slow) * sin(PI * t / 0.18) * 0.50) * tail)
 	_sfx_samples["open"] = opening
 	audio_open = AudioStreamPlayer.new()
+	audio_open.bus = "SFX"
 	audio_open.stream = _wav(opening)
 	audio_open.volume_db = -8.0
 	add_child(audio_open)
@@ -414,6 +475,7 @@ func _build_audio() -> void:
 		changing.append(sample)
 	_sfx_samples["change"] = changing
 	audio_change = AudioStreamPlayer.new()
+	audio_change.bus = "SFX"
 	audio_change.stream = _wav(changing)
 	audio_change.volume_db = -10.0
 	add_child(audio_change)
@@ -424,6 +486,7 @@ func _build_audio() -> void:
 		third.append((sin(TAU * 1320.0 * t) * 0.22 + sin(TAU * 1980.0 * t) * 0.12) * envelope)
 	_sfx_samples["third"] = third
 	audio_third = AudioStreamPlayer.new()
+	audio_third.bus = "SFX"
 	audio_third.stream = _wav(third)
 	audio_third.volume_db = -18.0
 	add_child(audio_third)
@@ -449,6 +512,7 @@ func _build_audio() -> void:
 		insects.append(sample)
 	_sfx_samples["insects"] = insects
 	audio_insects = AudioStreamPlayer.new()
+	audio_insects.bus = "SFX"
 	audio_insects.stream = _wav(insects, 22050, true)
 	audio_insects.volume_db = -26.0
 	add_child(audio_insects)
@@ -471,6 +535,7 @@ func _build_audio() -> void:
 		surf[i] *= 0.6 / surf_peak
 	_sfx_samples["surf"] = surf
 	audio_surf = AudioStreamPlayer.new()
+	audio_surf.bus = "SFX"
 	audio_surf.stream = _wav(surf, 22050, true)
 	audio_surf.volume_db = -32.0
 	add_child(audio_surf)
@@ -494,6 +559,7 @@ func _build_audio() -> void:
 				birds[offset + i] = sin(angle) * envelope * 0.6
 	_sfx_samples["birds"] = birds
 	audio_birds = AudioStreamPlayer.new()
+	audio_birds.bus = "SFX"
 	audio_birds.stream = _wav(birds, 22050, true)
 	audio_birds.volume_db = -28.0
 	add_child(audio_birds)
@@ -508,6 +574,7 @@ func _build_audio() -> void:
 			drip = 0.5
 		amb.append(b * 0.5 + drip)
 	audio_amb = AudioStreamPlayer.new()
+	audio_amb.bus = "SFX"
 	audio_amb.stream = _wav(amb, 22050, true)
 	audio_amb.volume_db = -20.0
 	add_child(audio_amb)
@@ -682,43 +749,45 @@ func _prompt_for(id: String, n: Node) -> String:
 	var name_: String = n.get_meta("prompt")
 	if phase == Phase.CODA:
 		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
-			return "［E］再讀工作簿最後一頁。" if _departure_workbook_seen else "［E］在工作簿記下你看到的天空。"
+			return "［" + Prompts.key("interact") + "］再讀工作簿最後一頁。" if _departure_workbook_seen else "［" + Prompts.key("interact") + "］在工作簿記下你看到的天空。"
 		if coda_step == CodaStep.LOUPE and id == "mentor_loupe":
-			return "［E］拿起 Ashby 先生給的放大鏡。"
+			return "［" + Prompts.key("interact") + "］拿起 Ashby 先生給的放大鏡。"
 		return ""
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
-		return "［E］Ashby 先生給的放大鏡。"
+		return "［" + Prompts.key("interact") + "］Ashby 先生給的放大鏡。"
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
-				return "［E］檢視底片"
+				return "［" + Prompts.key("interact") + "］檢視底片"
+			"oxford_case":
+				return "［" + Prompts.key("interact") + "］看牛津比對底片"
 			"eddington":
-				return "［E］和 Eddington 說話"
+				return "［" + Prompts.key("interact") + "］和 Eddington 說話"
 			"departure_workbook":
-				return "［E］在工作簿記下你看到的天空。" if not _departure_workbook_seen else ""
+				return "［" + Prompts.key("interact") + "］在工作簿記下你看到的天空。" if not _departure_workbook_seen else ""
 		return ""
 	match id:
 		"eddington", "cottingham":
-			return "［E］和 %s 說話" % name_
+			return "［" + Prompts.key("interact") + "］和 %s 說話" % name_
 		"drive":
-			return "［按住 E］上發條" if not sim.drive_wound else "時鐘驅動：發條已上滿"
+			return "［按住 " + Prompts.key("interact") + "］上發條" if not sim.drive_wound else "時鐘驅動：發條已上滿"
 		"chronometer":
 			if sim.drive_wound and not sim.drive_rate_checked:
-				return "［按住 E］替 Cottingham 報秒、校走速"
-			return "［E］看天文鐘"
+				return "［按住 " + Prompts.key("interact") + "］替 Cottingham 報秒、校走速"
+			return "［" + Prompts.key("interact") + "］看天文鐘"
 		"plate_box":
 			var left: int = sim.MAX_EXTRA_PLATES - sim.plates_carried - sim.plates_delivered
 			if left <= 0:
 				return "底片匣都拿完了"
-			return "［按住 E］拿底片匣（手上 %d，箱裡還有 %d）" % [sim.plates_carried, left]
+			return "［按住 " + Prompts.key("interact") + "］拿底片匣（手上 %d，箱裡還有 %d）" % [sim.plates_carried, left]
 		"station":
 			if sim.plates_carried > 0:
-				return "［E］把 %d 個底片匣放上架子" % sim.plates_carried
+				return "［" + Prompts.key("interact") + "］把 %d 個底片匣放上架子" % sim.plates_carried
 			return "底片架：可用底片 %d 張" % sim.plates_available()
 		"plan":
-			return "［E］讀曝光計畫"
+			return "［" + Prompts.key("interact") + "］讀曝光計畫"
 		"oxford_case":
-			return "［E］看牛津比對底片"
+			return "［" + Prompts.key("interact") + "］看牛津比對底片"
 		"measure":
 			return "測量桌——今晚才會用到"
 	return name_
@@ -752,8 +821,9 @@ func _interact(id: String) -> void:
 			coda_step = CodaStep.KIT
 			_focus_coda(get_node("AshbyLoupeHotspot").global_position)
 			var measured_any: bool = sim.combined().n > 0
+			var any_usable: bool = sim.plates.any(func(p): return p.usable)
 			var residual_found: bool = Story.clues.get("residual", false)  # found, whatever the report says
-			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
+			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any, any_usable) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
 		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		ui.show_toast("Ashby 先生給的放大鏡。", 4.0)
@@ -761,10 +831,21 @@ func _interact(id: String) -> void:
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
+				if _needs_comparison_fetch():
+					_say(Content.comparison_errand(), "")
+					return
 				if sim.rule_id == "":
-					_say(Content.rules_prompt(Story.plan.has("rules_first")), "rules")
+					_say(Content.rules_prompt(Story.plan.has("rules_first"),
+						int(Story.exam.get("q1", -1)) if Story.prologue_done else -1), "rules")
 				else:
 					_open_viewer()
+			"oxford_case":
+				if _needs_comparison_fetch():
+					_comparison_fetched = true
+					_say(Content.comparison_fetched(), "")
+					_refresh_objectives()
+				else:
+					_say(Content.oxford_text(), "")
 			"eddington":
 				if sim.measured:
 					_start_judgment()
@@ -853,7 +934,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			if _came_from_departure:
 				_begin_coda()
 			else:
-				_show_ending()
+				_lamp_out_then_ending()
 		"coda_opening":
 			coda_step = CodaStep.WORKBOOK
 			if _departure_workbook_seen:
@@ -867,16 +948,22 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			coda_step = CodaStep.LOUPE
 			_highlight_coda(get_node("AshbyLoupeHotspot").global_position)
 		"coda_loupe":
-			_say(CodaContent.kit_close(Story.bond_tone), "coda_kit")
+			var overclaimed: bool = Judgment.TELEGRAMS[_telegram].id == "confirmed"
+			_say(CodaContent.kit_close(Story.bond_tone, Story.kit_choice,
+				overclaimed, _grade.fit == 0 and not overclaimed), "coda_kit")
 		"coda_kit":
 			_end_coda()
 	_refresh_objectives()
 	_sync_player_input()
 
 
+func _needs_comparison_fetch() -> bool:
+	return Story.prologue_done and not Story.plan.has("comparison") and not _comparison_fetched
+
+
 func _refresh_objectives() -> void:
 	if phase == Phase.PREP:
-		var ok := func(b: bool) -> String: return "[color=#9c9]✓[/color]" if b else "☐"
+		var ok := func(b: bool) -> String: return "[color=#9c9]✓[/color]" if b else "□"
 		var lines := ["[b]準備（全食之前）[/b]"]
 		lines.append("%s 向 Eddington 報到" % ok.call(sim.briefed))
 		lines.append("%s 從暗房搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）" % [ok.call(sim.plates_delivered >= sim.MAX_EXTRA_PLATES), sim.plates_delivered, sim.MAX_EXTRA_PLATES, sim.plates_carried])
@@ -892,12 +979,14 @@ func _refresh_objectives() -> void:
 			objective = "再讀工作簿最後一頁" if _departure_workbook_seen else "在工作簿記下你看到的天空"
 		elif coda_step == CodaStep.LOUPE:
 			objective = "拿起 Ashby 先生給的放大鏡"
-		ui.set_objectives("[b]夜晚・暗房[/b]\n☐ " + objective if objective != "" else "")
+		ui.set_objectives("[b]夜晚・暗房[/b]\n□ " + objective if objective != "" else "")
 	elif phase == Phase.NIGHT:
-		if sim.measured:
-			ui.set_objectives("[b]夜晚・暗房[/b]\n☐ 向 Eddington 報告你的判斷")
+		if _needs_comparison_fetch():
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n□ 到測量桌檢視並量測底片")
+		elif sim.measured:
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷")
 		else:
-			ui.set_objectives("[b]夜晚・暗房[/b]\n☐ 到測量桌檢視並量測底片")
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 到測量桌檢視並量測底片")
 	else:
 		ui.set_objectives("")
 
@@ -945,7 +1034,7 @@ func _begin_totality() -> void:
 		note = "\nCottingham 只能自己趕著上發條，來不及對時。"
 	elif not sim.drive_rate_checked:
 		note = "\n發條上滿了，但走速沒有校過。"
-	ui.show_toast("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［空白鍵］喊「開始」，雲厚或快結束時再按一次喊「停」。" + note, 7.0)
+	ui.show_toast("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［" + Prompts.key("shutter") + "］喊「開始」，雲厚或快結束時再按一次喊「停」。" + note, 7.0)
 	if bot:
 		bot.on_phase("totality")
 
@@ -997,7 +1086,9 @@ func _process_totality(delta: float) -> void:
 		_tick_acc -= 1.0
 		audio_tick.play()
 	_totality_callouts()
-	if t_game > 150.0 and not _glanced:
+	# The glance states what the sky is doing, so it waits out a thin patch
+	# and is dropped once the third-contact warning has fired.
+	if t_game > 150.0 and not _glanced and not _warned_end and dens >= GLANCE_THICK:
 		_glanced = true
 		ui.set_callout("Eddington 抬頭看了一眼：「雲還是很厚……繼續。」", 3.5)
 	if t_game > sim.TOTALITY_S - 18.0 and not _warned_end:
@@ -1016,7 +1107,7 @@ func _process_totality(delta: float) -> void:
 		status = "[color=#e88]底片用完了[/color]"
 	var header := ""
 	if left > 0.0 and left <= 10.0:
-		header = "[b]全食[/b]　[font_size=42][color=#e88]%d[/color][/font_size] 秒" % int(ceil(left))
+		header = "[b]全食[/b]　[font_size=%d][color=#e88]%d[/color][/font_size] 秒" % [Settings.fs(42), int(ceil(left))]
 	else:
 		header = "[b]全食[/b]　剩餘 %d 秒（共 302）" % int(left)
 	header += "\n" + status
@@ -1182,7 +1273,7 @@ func _focus_coda(target: Vector3) -> void:
 
 
 func _sync_coda_log(open: bool) -> void:
-	if phase != Phase.CODA:
+	if phase != Phase.CODA and not (_coda_transition and _coda_transition.is_valid()):
 		return
 	for tw in [_camera_turn, _coda_transition]:
 		if tw and tw.is_valid():
@@ -1195,9 +1286,13 @@ func _sync_coda_log(open: bool) -> void:
 func _end_coda() -> void:
 	_stop_night_bed()
 	coda_step = CodaStep.FADING
+	_coda_highlight.light_energy = 0.0
+	await _lamp_out_then_ending()
+
+
+func _lamp_out_then_ending() -> void:
 	_play_resolution()
 	_busy = true
-	_coda_highlight.light_energy = 0.0
 	# Lamp out, a breath of darkness, then the ending. Esc and Tab hold this beat.
 	_coda_transition = create_tween().set_parallel(true).set_pause_mode(Tween.TWEEN_PAUSE_STOP)
 	_coda_transition.tween_property(world.lamp, "light_energy", 0.0, 0.7)
@@ -1210,6 +1305,8 @@ func _end_coda() -> void:
 
 
 func _open_viewer() -> void:
+	ui.comparison_recall = Content.comparison_recall(Story.plan, Story.prologue_done)
+	ui.drive_note = Content.drive_note(Story.plan, Story.prologue_done, sim.drive_rate_checked)
 	ui.open_viewer(sim.plates, comparison_tex, plate_textures, sim.measured)
 	_sync_player_input()
 	_refresh_viewer()
@@ -1229,7 +1326,12 @@ func _refresh_viewer() -> void:
 		note = "共 %d 張：星像清楚 %d、可量但有瑕疵 %d、星不足五顆 %d。\n已勾選 %d 張。" % [sim.plates.size(), good, poor, bad, sel]
 		var c: Dictionary = sim.combined()
 		if c.n > 0:
-			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″[/color]" % [c.value, c.sigma]
+			var b: Dictionary = Judgment.interval_bounds(sim)
+			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]" % [c.value, c.sigma, b.lo, b.hi]
+			note += "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
+		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
+		if recall != "":
+			note += "\n" + recall
 	ui.set_viewer_note(note)
 	ui.refresh_thumbs()
 
@@ -1279,7 +1381,12 @@ func _start_judgment() -> void:
 	var tele := Judgment.TELEGRAMS.map(func(t): return t.text)
 	_reasons = Judgment.reasons_for(sim)
 	var rea := _reasons.map(func(r): return r.text)
-	_say(Content.judgment_prompt(tele, rea), "judgment")
+	var c: Dictionary = sim.combined()
+	var interval := ""
+	if c.n > 0:
+		var bounds := Judgment.interval_bounds(sim)
+		interval = "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, bounds.lo, bounds.hi]
+	_say(Content.judgment_prompt(tele, rea, interval), "judgment")
 
 
 func _after_judgment(results: Dictionary) -> void:
@@ -1287,6 +1394,13 @@ func _after_judgment(results: Dictionary) -> void:
 	_reason = results.get("reason", 1)
 	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
 	var seq := []
+	if results.has("interval"):
+		var truth := Judgment.interval_truth(sim)
+		var feedback := "對，範圍就是這樣讀的。"
+		if results.interval != truth:
+			var contains := ["範圍同時容得下 0.87″ 和 1.75″", "範圍只容得下 1.75″", "範圍只容得下 0.87″", "0.87″ 和 1.75″ 都不在範圍裡"]
+			feedback = "再看一次：%s。" % contains[truth]
+		seq.append({"s": Content.E, "t": feedback})
 	for l in _grade.lines:
 		seq.append({"s": Content.E, "t": l})
 	seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
@@ -1311,7 +1425,7 @@ func _show_ending() -> void:
 	var c: Dictionary = sim.combined()
 	var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
 	var lines := []
-	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=26][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text])
+	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=%d][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Settings.fs(26), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text])
 	lines.append("[b]Eddington 的回應[/b]")
 	for l in _grade.lines:
 		lines.append("· " + l)
@@ -1327,7 +1441,7 @@ func _show_ending() -> void:
 	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
 	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
 	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
-	history.append("\n[color=#8f8676][font_size=15]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]")
+	history.append("\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]" % Settings.fs(15))
 	ui.show_ending(_grade.title, "\n".join(lines), "\n".join(history))
 	if bot:
 		bot.on_phase("ending")

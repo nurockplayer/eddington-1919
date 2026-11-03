@@ -1,5 +1,6 @@
 extends Node
 const Look := preload("res://scripts/look.gd")
+const Settings := preload("res://scripts/settings.gd")
 ## In-game visual benchmark (gate G4 in art/PIPELINE.md). It runs inside the
 ## real game scene with the game's own lighting code: the camera visits fixed
 ## bookmarks under fixed lighting states, then saves a screenshot and render
@@ -40,9 +41,26 @@ var main
 var out_dir := ""
 
 
+static func quality_arg(args: PackedStringArray) -> String:
+	for arg in args:
+		if arg.begins_with("--bench-quality="):
+			var quality := arg.trim_prefix("--bench-quality=")
+			if quality in ["low", "standard"]:
+				return quality
+	return ""
+
+
+func apply_quality_arg(args: PackedStringArray) -> void:
+	var quality := quality_arg(args)
+	if quality != "":
+		Settings.quality = quality
+		Settings.apply_quality(get_tree())
+
+
 func _ready() -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
+	apply_quality_arg(OS.get_cmdline_user_args())
 	# --bench-stress=N renders the 3D scene at N× resolution scale (N² pixels) so the
 	# GPU, not the display refresh, limits the frame: frame time then reflects scene cost.
 	for a in OS.get_cmdline_user_args():
@@ -119,55 +137,67 @@ func _run() -> void:
 			target = main.player.camera.global_position + main.sim.sun_dir * 10.0
 		await _frames(2)
 		main.player.look_at_point(target)
-		await _frames(SETTLE_FRAMES)
-		var ms := PackedFloat32Array()
-		var cpu := PackedFloat32Array()
-		var gpu := PackedFloat32Array()
-		var vp := get_viewport().get_viewport_rid()
-		var t := Time.get_ticks_usec()
-		for i in SAMPLE_FRAMES:
-			await get_tree().process_frame
-			var now := Time.get_ticks_usec()
-			ms.append((now - t) / 1000.0)
-			t = now
-			cpu.append(RenderingServer.viewport_get_measured_render_time_cpu(vp))
-			gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(vp))
-		# Uncapped render cost: draw without presenting (swap_buffers=false), so the
-		# display refresh does not pace it. Frames in flight make single samples
-		# noisy; the average over FORCED_FRAMES is the throughput figure.
-		var forced := PackedFloat32Array()
-		for i in FORCED_FRAMES:
-			var f0 := Time.get_ticks_usec()
-			RenderingServer.force_draw(false)
-			forced.append((Time.get_ticks_usec() - f0) / 1000.0)
-		var png := "%s.png" % b[0]
-		await _shot(out_dir.path_join(png))
-		var r := {
-			"bookmark": b[0], "lighting": b[3], "screenshot": png,
-			"frame_ms_avg": _avg(ms),
-			"frame_ms_p95": _p95(ms),
-			"forced_draw_ms_avg": _avg(forced),
-			"forced_draw_ms_p95": _p95(forced),
-			"render_cpu_ms_avg": _avg(cpu),
-			"render_cpu_ms_p95": _p95(cpu),
-			"render_gpu_ms_avg": _avg(gpu),
-			"render_gpu_ms_p95": _p95(gpu),
-			"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
-			"primitives": Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
-			"objects": Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
-			"video_mem_mb": snappedf(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0, 0.1),
-		}
+		var r := await _sample_bookmark(b[0], b[3])
 		results.append(r)
 		print("[BENCH] ", JSON.stringify(r))
+	_write_summary(results, main.sim.run_seed, hidden)
+
+
+func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
+	await _frames(SETTLE_FRAMES)
+	var ms := PackedFloat32Array()
+	var cpu := PackedFloat32Array()
+	var gpu := PackedFloat32Array()
+	var vp := get_viewport().get_viewport_rid()
+	var t := Time.get_ticks_usec()
+	for i in SAMPLE_FRAMES:
+		await get_tree().process_frame
+		var now := Time.get_ticks_usec()
+		ms.append((now - t) / 1000.0)
+		t = now
+		cpu.append(RenderingServer.viewport_get_measured_render_time_cpu(vp))
+		gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(vp))
+	# Uncapped render cost: draw without presenting (swap_buffers=false), so the
+	# display refresh does not pace it. Frames in flight make single samples
+	# noisy; the average over FORCED_FRAMES is the throughput figure.
+	var forced := PackedFloat32Array()
+	for i in FORCED_FRAMES:
+		var f0 := Time.get_ticks_usec()
+		RenderingServer.force_draw(false)
+		forced.append((Time.get_ticks_usec() - f0) / 1000.0)
+	var png := "%s.png" % bookmark
+	await _shot(out_dir.path_join(png))
+	var r := {
+		"bookmark": bookmark, "lighting": lighting, "screenshot": png,
+		"frame_ms_avg": _avg(ms),
+		"frame_ms_p95": _p95(ms),
+		"forced_draw_ms_avg": _avg(forced),
+		"forced_draw_ms_p95": _p95(forced),
+		"render_cpu_ms_avg": _avg(cpu),
+		"render_cpu_ms_p95": _p95(cpu),
+		"render_gpu_ms_avg": _avg(gpu),
+		"render_gpu_ms_p95": _p95(gpu),
+		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+		"primitives": Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
+		"objects": Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
+		"video_mem_mb": snappedf(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0, 0.1),
+	}
+	return r
+
+
+func _write_summary(results: Array, seed_: int, hidden: Array, chapter := "") -> void:
 	var summary := {
 		"godot": Engine.get_version_info().string,
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"viewport": [get_viewport().size.x, get_viewport().size.y],
-		"seed": main.sim.run_seed,
+		"seed": seed_,
+		"quality": Settings.quality,
 		"hidden_groups": hidden,
 		"scaling_3d_scale": get_viewport().scaling_3d_scale,
 		"bookmarks": results,
 	}
+	if chapter != "":
+		summary["chapter"] = chapter
 	var f := FileAccess.open(out_dir.path_join("benchmark.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary, "  "))
 	f.close()

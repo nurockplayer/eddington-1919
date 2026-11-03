@@ -16,6 +16,7 @@ const REASONS := [
 	{"id": "uncertain", "text": "底片少、誤差大；需要 Sobral 的結果與回國後的完整量測。"},
 	{"id": "corona", "text": "日冕那麼清楚——我們一定成功了。"},
 	{"id": "nostars", "text": "雲太厚，底片上沒有足夠的星點可以量。"},
+	{"id": "trailed", "text": "星像拖長了——走速沒校過。數值偏低，可能是儀器，不是星。"},
 ]
 
 ## How well each telegram fits each evidence class: 2 best, 1 defensible, 0 wrong.
@@ -26,6 +27,9 @@ const FIT := {
 	"favors_half": {"confirmed": 0, "hopeful": 1, "undecided": 2, "none": 0},
 }
 
+## A single plate at least this long could have been two usable plates.
+const SPLIT_MIN_S := 14.0
+
 const REASON_FIT := {
 	"none": ["nostars", "uncertain"],
 	"favors_e": ["measured", "uncertain"],
@@ -34,13 +38,75 @@ const REASON_FIT := {
 }
 
 
+static func interval_bounds(sim) -> Dictionary:
+	var c: Dictionary = sim.combined()
+	var lo := ("%.2f" % (c.value - 2*c.sigma)).to_float()
+	var hi := ("%.2f" % (c.value + 2*c.sigma)).to_float()
+	for prediction in [sim.HALF, sim.EINSTEIN]:
+		var contained: bool = absf(c.value - prediction) / c.sigma <= 2.0
+		if contained:
+			if lo > prediction:
+				lo -= 0.01
+			if hi < prediction:
+				hi += 0.01
+		elif lo <= prediction and prediction <= hi:
+			# Keep an excluded prediction outside the displayed interval too.
+			if prediction < c.value:
+				lo = prediction + 0.01
+			else:
+				hi = prediction - 0.01
+	return {"lo": lo, "hi": hi}
+
+
+static func interval_truth(sim) -> int:
+	var c: Dictionary = sim.combined()
+	if c.n == 0:
+		return -1
+	var contains_e: bool = absf(c.value - sim.EINSTEIN) / c.sigma <= 2.0
+	var contains_half: bool = absf(c.value - sim.HALF) / c.sigma <= 2.0
+	if contains_e and contains_half:
+		return 0
+	if contains_e:
+		return 1
+	if contains_half:
+		return 2
+	return 3
+
+
+static func interval_holds_neither(sim) -> bool:
+	return interval_truth(sim) == 3
+
+
 static func reasons_for(sim) -> Array:
 	var reasons := REASONS.duplicate(true)
 	var c: Dictionary = sim.combined()
 	if c.n > 0:
 		reasons[0].text = "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。" % [c.value, c.sigma, c.n]
 		reasons[1].text = "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。" % [c.value, c.sigma]
+		var trail_sum := 0.0
+		for p in sim.included_usable():
+			trail_sum += p.trail
+		reasons[4].text = "星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。" % (trail_sum / c.n)
 	return reasons
+
+
+static func trailed_case(sim) -> bool:
+	if sim.drive_rate_checked or sim.evidence_class() not in ["favors_half", "ambiguous"]:
+		return false
+	# Trailing biases the fit low; a value at or above 1.75″ is not that bias.
+	if sim.combined().value >= sim.EINSTEIN:
+		return false
+	return _mean_trail(sim) >= 0.35
+
+
+static func _mean_trail(sim) -> float:
+	var plates: Array = sim.included_usable()
+	if plates.is_empty():
+		return 0.0
+	var trail_sum := 0.0
+	for p in plates:
+		trail_sum += p.get("trail", 0.0)
+	return trail_sum / plates.size()
 
 
 static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
@@ -49,6 +115,8 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var any_usable: bool = sim.plates.any(func(p): return p.usable)
 	var any_good: bool = sim.plates.any(func(p): return p.usable and p.quality == "good")
 	var reason_ok: bool = reason_id in REASON_FIT[ev]
+	if reason_id == "trailed":
+		reason_ok = trailed_case(sim)
 	if reason_id == "nostars" and any_usable:
 		reason_ok = false  # the stars are there, just not measured
 	if ev == "none" and telegram_id == "none" and any_usable:
@@ -57,7 +125,7 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var clean: bool = sel.omitted_good.is_empty() and sel.included_poor.is_empty() and sel.included_unusable.is_empty() and not sel.reselected
 	var lines: Array[String] = []
 	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, any_good, sim))
-	lines.append(_reason_line(ev, reason_id, reason_ok))
+	lines.append(_reason_line(ev, reason_id, reason_ok, sim))
 	lines.append_array(_selection_lines(sel, clean, sim))
 	var title := _title(ev, telegram_id, fit, reason_ok, clean, any_usable)
 	return {
@@ -86,7 +154,10 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 				"favors_half":
 					out.append("「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。")
 				_:
-					out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。")
+					if interval_holds_neither(sim):
+						out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。")
+					else:
+						out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。")
 		"undecided":
 			match ev:
 				"favors_e":
@@ -96,7 +167,10 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 				"favors_half":
 					out.append("對。這幾張偏向較小的偏折，可是片子少、誤差大，還不能說什麼。我們照實說。")
 				_:
-					out.append("對。誤差範圍同時容得下兩種答案。我們照實說。")
+					if interval_holds_neither(sim):
+						out.append("對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。")
+					else:
+						out.append("對。誤差範圍同時容得下兩種答案。我們照實說。")
 		"none":
 			if any_usable:
 				if any_good:
@@ -110,7 +184,7 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 	return out
 
 
-static func _reason_line(ev: String, reason_id: String, ok: bool) -> String:
+static func _reason_line(ev: String, reason_id: String, ok: bool, sim) -> String:
 	if reason_id == "corona":
 		return "日冕很美，我也看了一眼。但美不是量測——量測在底片上。"
 	if ok:
@@ -121,11 +195,26 @@ static func _reason_line(ev: String, reason_id: String, ok: bool) -> String:
 				return "你記得我們只是其中一站。Dyson 會比較兩地的結果。"
 			"nostars":
 				return "你按星點數判斷，而不是按心情。"
+			"trailed":
+				return "你分得出哪些偏差是我們自己帶進去的。Cottingham 會記得這句。"
 	match reason_id:
 		"measured":
 			return "你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。"
 		"nostars":
 			return "可是你的底片上明明有五顆以上的星。"
+		"trailed":
+			if sim.drive_rate_checked:
+				if _mean_trail(sim) >= 0.35:
+					return "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
+				return "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
+			# Unchecked drive: say what the measured plates actually show.
+			if ev == "none":
+				return "還沒有量出任何數字，談不上偏低，也就輪不到儀器來解釋。"
+			if _mean_trail(sim) >= 0.35:
+				return "星像確實拖長了——可是拖長只會把數字拉低，這個結果並沒有偏低。"
+			if ev in ["favors_half", "ambiguous"]:
+				return "你量的這幾張星像沒有拖長——偏差不是走速帶進來的。別替不合期望的結果先找好理由。"
+			return "數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。"
 		_:
 			return "你的理由和你寫下的電報不太對得上。"
 
@@ -156,6 +245,27 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		out.append("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。" % _nums(sel.included_unusable))
 	if sel.reselected:
 		out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
+	var good: Array = sim.plates.filter(func(p): return p.included and p.quality == "good")
+	if good.size() >= 2:
+		# The good plates' own weighted mean: poor plates must not decide whether
+		# good ones agree. Each plate is held to its own 2σ, so more agreeing
+		# plates (a smaller combined σ) cannot turn agreement into disagreement.
+		var wsum := 0.0
+		var vsum := 0.0
+		for p in good:
+			var w: float = 1.0 / (p.sigma * p.sigma)
+			wsum += w
+			vsum += w * p.value
+		var mean := vsum / wsum
+		if good.all(func(p): return absf(p.value - mean) <= 2.0 * p.sigma):
+			var count := "兩張" if good.size() == 2 else "這 %d 張" % good.size()
+			out.append("第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。" % [_nums(good.map(func(p): return p.number)), count])
+	elif good.size() == 1:
+		out.append("只有一張好片——一張底片只能提出問題，還不能回答。")
+		# Two usable plates need ~4.5 s of clear sky each plus the 4 s change, so
+		# only a long single plate (≥ 14 s) could have been split.
+		if not sim.read_plan and good[0].get("duration", 0.0) >= SPLIT_MIN_S:
+			out.append("那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。")
 	if rule != "strict" and clean and sim.included_usable().size() > 0:
 		out.append("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。")
 	return out

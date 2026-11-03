@@ -5,8 +5,11 @@ extends SceneTree
 const Coda := preload("res://scripts/content_coda.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const MAIN_PATH := "res://scripts/main.gd"
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 
 class GradeFixture extends RefCounted:
+	const EINSTEIN := 1.75
+	const HALF := 0.87
 	var evidence := "none"
 	var clean := true
 	var measured := false
@@ -74,6 +77,9 @@ func _test_grade_branches() -> void:
 	check(text_of(Coda.ashby_answer(2, false, true)).contains("把它補上"), "fit 2 dirty wording asks for a correction")
 	check(text_of(Coda.ashby_answer(1, true, true)).contains("問號不丟人"), "fit 1 wording retains the question mark")
 	check(text_of(Coda.ashby_answer(0, true, true)).contains("差一點就成了那個好故事"), "fit 0 wording recalls Ashby's clean-plate challenge")
+	var skipped_text := text_of(Coda.ashby_answer(0, true, false, true))
+	check(skipped_text.contains("沒有拿去量") and not skipped_text.contains("一片灰"), "unmeasured usable plates are acknowledged instead of blamed on clouds")
+	check(text_of(Coda.ashby_answer(0, true, false, false)).contains("一片灰"), "no usable plates retains the cloud wording")
 	# Issue #37 loop 5: the old small doubts return; nothing is called proof.
 	check(text_of(Coda.small_numbers(true, true)).contains("14 號") and not text_of(Coda.small_numbers(false, true)).contains("14 號"), "plate 14's residual returns only if it was found")
 	check(text_of(Coda.small_numbers(false, true)).contains("也不等於證明") and text_of(Coda.small_numbers(false, false)).contains("沒有數字"), "tonight's numbers are small, not proof; no numbers is still a record")
@@ -88,6 +94,10 @@ func _test_kit_tones() -> void:
 	check(close_text.contains("也許。") and close_text.contains("你吹熄了燈"), "close bond ends with hesitation and lamp out")
 	check(warm_text.contains("Kit 一定會先問天空，再問底片"), "warm bond anticipates Kit's question")
 	check(warm_text.contains("你吹熄了燈"), "warm bond ends with lamp out")
+	var misread_text := text_of(Coda.kit_close("", 0, false, true))
+	check(misread_text.contains("和底片上的不一樣") and not misread_text.contains("只寫了底片上有的"), "a misread telegram does not receive truthful praise")
+	check(text_of(Coda.kit_close("", 0, true, true)).contains("寫得比底片上的多"), "overclaiming keeps precedence over misreading")
+	check(text_of(Coda.kit_close("", 0)).contains("只寫了底片上有的"), "a truthful telegram retains its existing line")
 
 
 func _new_main(prologue := false):
@@ -109,10 +119,30 @@ func _test_direct_and_prologue_paths() -> void:
 	var direct = await _new_main()
 	check(not direct._came_from_departure, "direct entry caches a false prologue origin")
 	check(not story.prologue_done and not story.departure_done and not story.from_prologue, "direct entry clears stale prologue continuity")
+	direct.phase = direct.Phase.NIGHT
+	direct.world.lamp.light_energy = 1.1
+	direct.world.safelight.light_energy = 0.25
+	var starts_before := ScorePlayer.cue_log.filter(func(event): return event.get("event", "") == "start" and event.get("cue", "") == "coda_resolution").size()
 	direct._grade = {"title": "direct", "fit": 1, "clean": true, "lines": ["direct response"]}
 	direct._pending = "reaction"
 	direct._on_dialogue_done({})
-	check(direct.phase == direct.Phase.ENDING, "direct 1919 reaction proceeds straight to ending")
+	check(direct.phase != direct.Phase.ENDING and direct._busy, "direct reaction starts the lamp-out beat before ending")
+	await create_timer(0.2).timeout
+	check(direct.world.lamp.light_energy > 0.0 and direct.world.lamp.light_energy < 1.1, "direct reaction fades the darkroom lamp")
+	var direct_lamp_at_pause: float = direct.world.lamp.light_energy
+	direct.ui.log_toggled.emit(true)
+	await create_timer(0.2, true, false, true).timeout
+	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Tab log holds the direct lamp-out beat")
+	direct.ui.log_toggled.emit(false)
+	direct_lamp_at_pause = direct.world.lamp.light_energy
+	direct.ui.toggle_pause()
+	await create_timer(0.2, true, false, true).timeout
+	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Esc pause holds the direct lamp-out beat")
+	direct.ui.toggle_pause()
+	await create_timer(2.8).timeout
+	check(direct.phase == direct.Phase.ENDING, "direct lamp-out beat reaches ending")
+	var starts_after := ScorePlayer.cue_log.filter(func(event): return event.get("event", "") == "start" and event.get("cue", "") == "coda_resolution").size()
+	check(starts_after == starts_before + 1, "direct lamp-out and ending start coda_resolution exactly once")
 	check(direct.coda_step == direct.CodaStep.OPENING, "direct 1919 path never advances the coda")
 	check(direct.ui.ending_panel.visible and not direct.ui.ending_history.visible, "direct ending screen opens with history collapsed")
 	direct.queue_free()
@@ -212,6 +242,28 @@ func _test_rules_before_viewer() -> void:
 	await process_frame
 
 
+func _test_unmeasured_usable_coda() -> void:
+	var chapter = await _new_main(true)
+	root.get_node("Story").kit_choice = 0
+	chapter.sim.open_shutter(199.0)
+	chapter.sim.accumulate(10.0, 0.0)
+	var plate: Dictionary = chapter.sim.close_shutter()
+	check(plate.usable and chapter.sim.combined().n == 0, "real exposure produces a usable plate left unmeasured")
+	chapter._telegram = 3  # CLOUD. NO RESULTS.
+	chapter._grade = Judgment.grade(chapter.sim, "none", "nostars")
+	check(chapter._grade.fit == 0, "no-results telegram is wrong when a usable plate was ignored")
+	chapter.phase = chapter.Phase.CODA
+	chapter.coda_step = chapter.CodaStep.LOUPE
+	chapter._interact("mentor_loupe")
+	var loupe_text := text_of(chapter.ui._seq)
+	check(loupe_text.contains("沒有拿去量") and not loupe_text.contains("一片灰"), "main passes usable plates into Ashby's answer")
+	chapter._on_dialogue_done({})
+	var kit_text := text_of(chapter.ui._seq)
+	check(kit_text.contains("和底片上的不一樣") and not kit_text.contains("只寫了底片上有的"), "main passes the wrong non-confirmed telegram into Kit's close")
+	chapter.queue_free()
+	await process_frame
+
+
 func _test_replay_keeps_prologue_origin() -> void:
 	# Codex review (PR #12): a 1919 replay after the prologue must keep the coda and continuity.
 	var story = root.get_node("Story")
@@ -245,6 +297,7 @@ func _run() -> void:
 	_test_kit_tones()
 	await _test_rules_before_viewer()
 	await _test_direct_and_prologue_paths()
+	await _test_unmeasured_usable_coda()
 	await _test_replay_keeps_prologue_origin()
 	# Headless teardown: AudioServer releases the freed chapter's ambient playback
 	# asynchronously; drain it so exit does not report leaked AudioStreamWAV objects.

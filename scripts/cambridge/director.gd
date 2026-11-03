@@ -1,4 +1,7 @@
 extends Node3D
+
+const Settings := preload("res://scripts/settings.gd")
+const Prompts := preload("res://scripts/prompts.gd")
 ## M1 sequence orchestration. Text and replaceable cast stay in C17/Cast.
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Score := preload("res://scripts/audio/score.gd")
@@ -12,6 +15,8 @@ const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Board := preload("res://scripts/cambridge/plan_board.gd")
+
+static var bench_cambridge_out := ""
 
 enum Beat { OPENING, INVESTIGATE, MENTOR, INTERLUDE, EXAM, PLAN, TRIAL, CODA, MONTAGE, DONE }
 var beat := Beat.OPENING
@@ -44,6 +49,9 @@ var _last_speaker := ""
 var score: Node
 var tick: AudioStreamPlayer
 var click: AudioStreamPlayer
+var rain: AudioStreamPlayer
+var rain_stopped := false
+var _rain_fade: Tween
 var _foley := {}  # light-box foley players by overlay sound kind
 var sfx_log: Array[String] = []
 
@@ -82,6 +90,8 @@ func _ready() -> void:
 	_speaker_fill.spot_attenuation = 1.3
 	_speaker_fill.light_specular = 0.0
 	_speaker_fill.shadow_enabled = true
+	_speaker_fill.set_meta("standard_shadow", _speaker_fill.shadow_enabled)
+	_speaker_fill.add_to_group("quality_shadow")
 	_speaker_fill.light_size = 0.1
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
@@ -91,6 +101,7 @@ func _ready() -> void:
 	layer.layer = 9
 	add_child(layer)
 	overlay = Overlay.new()
+	overlay.ui = ui
 	report_sheet = Report.new()
 	plan_board = Board.new()
 	for modal in [overlay, report_sheet, plan_board]:
@@ -109,11 +120,23 @@ func _ready() -> void:
 	plan_board.reaction.connect(func(seq): plan_board.hide(); _say(seq, "board_reaction"))
 	plan_board.blocked.connect(func(card): plan_board.hide(); _say(C17.plan_blocked(card), "board_reaction"))
 	plan_board.finished.connect(_finish_plan)
+	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
 	_sync_player()
 	await ui.fade_to(0.0, 1.1).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	await ui.show_caption(C17.intro_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+	if bench_cambridge_out != "":
+		# tests/ is excluded from release exports; those keep the normal opening.
+		var bench_script: Script = load("res://tests/benchmark_cambridge.gd")
+		var out := bench_cambridge_out
+		bench_cambridge_out = ""
+		if bench_script:
+			var bench: Node = bench_script.new()
+			bench.director = self
+			bench.out_dir = out
+			add_child(bench)
+			return
 	_busy = false
 	_say(C17.opening(), "opening")
 
@@ -156,7 +179,7 @@ func _process(delta: float) -> void:
 		tick.play()
 	if _free() and beat == Beat.INVESTIGATE:
 		var target: Node = player.aimed_interactable()
-		ui.set_prompt("［E］" + str(target.get_meta("prompt")) if target else "")
+		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if target else "")
 	else:
 		ui.set_prompt("")
 
@@ -236,10 +259,10 @@ func _say(seq: Array, purpose: String) -> void:
 func _gramophone_start() -> void:
 	if not is_instance_valid(_gramophone):
 		_gramophone = AudioStreamPlayer3D.new()
+		_gramophone.bus = "Music"
 		_gramophone.name = "GramophoneRecord"
 		_gramophone.position = Vector3(0, 1.17, 0)  # 0.25 m above the cabinet lid
 		_gramophone.stream = load("res://assets/audio/gramophone_home_fires_1915.ogg")
-		_gramophone.bus = "Master"
 		_gramophone.volume_db = -16.0
 		_gramophone.unit_size = 3.0
 		_gramophone.max_distance = 12.0
@@ -353,6 +376,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			_interlude()
 			return
 		"exam":
+			Story.exam = results.duplicate()
 			beat = Beat.PLAN
 			_say(C17.plan_intro(), "plan_intro")
 			return
@@ -360,12 +384,16 @@ func _dialogue_done(results: Dictionary) -> void:
 			plan_board.open()
 		"board_reaction":
 			plan_board.show()
+			plan_board.card_buttons.values()[0].grab_focus()
 		"plan_finish":
 			beat = Beat.TRIAL
 			_say(C17.trial_task(), "trial")
 			return
 		"trial":
 			world.eddington.hide()
+			_rain_fade = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_STOP)
+			_rain_fade.tween_property(rain, "volume_db", -80.0, 3.0)
+			_rain_fade.tween_callback(_stop_rain)
 			_say(C17.mentor_after(Story.report), "mentor_after")
 			return
 		"mentor_after":
@@ -404,6 +432,7 @@ func _interlude() -> void:
 	_sync_player()
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_daylight = true
+	create_tween().set_pause_mode(Tween.TWEEN_PAUSE_STOP).tween_property(rain, "volume_db", -30.0, 2.0)
 	world.lamp.light_energy = 0.0
 	world.floor_bounce.light_energy = 1.0
 	world.floor_bounce.light_color = Color(0.73, 0.79, 0.85)
@@ -428,11 +457,20 @@ func _finish_plan(ids: Array) -> void:
 	_say(C17.plan_finish(Story.plan), "plan_finish")
 
 
+func _stop_rain() -> void:
+	if _rain_fade and _rain_fade.is_valid():
+		_rain_fade.kill()
+	rain.stop()
+	rain_stopped = true
+
+
 func _coda() -> void:
 	_busy = true
 	beat = Beat.CODA
 	_sync_player()
 	await ui.fade_to(1.0, 0.6).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+	# A quick reader can reach the night before the 3 s rain fade ends.
+	_stop_rain()
 	world.mentor.hide()
 	_daylight = false
 	world.lamp.light_energy = 1.5
@@ -472,6 +510,7 @@ func _montage() -> void:
 
 func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
+	p.bus = "SFX"
 	p.stream = ExistingDirector._wav(samples, 22050, loop)
 	p.volume_db = db
 	add_child(p)
@@ -501,7 +540,8 @@ func _build_audio() -> void:
 	for i in 22050 * 3:
 		brown = clampf(brown + (randf() - 0.5) * 0.07, -1.0, 1.0) * 0.99
 		samples.append(brown * 0.4 + (randf() - 0.5) * 0.05)
-	_audio(samples, -21.0, true).play()
+	rain = _audio(samples, -21.0, true)
+	rain.play()
 	_build_foley()
 
 

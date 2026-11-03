@@ -1,4 +1,6 @@
 extends Control
+
+const Settings := preload("res://scripts/settings.gd")
 ## Last shared page. A row cannot be marked until Kit has finished reading it.
 signal row_requested(index: int)
 signal completed(result: Dictionary)
@@ -68,7 +70,7 @@ func open() -> void:
 func _label(text_: String, size_: int = 20) -> Label:
 	var label := Label.new()
 	label.text = text_
-	label.add_theme_font_size_override("font_size", size_)
+	Settings.track_font(label, size_)
 	label.add_theme_color_override("font_color", Report.INK)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
@@ -78,7 +80,7 @@ func _button(text_: String) -> Button:
 	var button := Button.new()
 	button.text = text_
 	button.custom_minimum_size = Vector2(72, 44)
-	button.add_theme_font_size_override("font_size", 22)
+	Settings.track_font(button, 22)
 	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
 		var style := StyleBoxFlat.new()
 		style.bg_color = Color(0.91, 0.85, 0.73) if state != "disabled" else Color(0.79, 0.74, 0.65)
@@ -152,35 +154,33 @@ func _build() -> void:
 		hand.font_names = PackedStringArray(["Snell Roundhand", "Baskerville", "serif"] if entry.hand == "kit" else ["Baskerville", "Georgia", "serif"])
 		hand.font_italic = true
 		value.add_theme_font_override("normal_font", hand)
-		value.add_theme_font_size_override("normal_font_size", 25)
+		Settings.track_font(value, 25)
 		value.add_theme_color_override("default_color", Color(0.10, 0.23, 0.31) if entry.hand == "kit" else Color(0.30, 0.16, 0.09))
 		value.text = entry.list
 		column.add_child(value)
 		values.append(value)
 		if entry.get("slip", false):
 			_smudge = InkSmudge.new()
-			var prefix_width := hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, 25).x
-			var number_width := hand.get_string_size("16.83", HORIZONTAL_ALIGNMENT_LEFT, -1, 25).x
-			_smudge.position = Vector2(prefix_width - 4, 1)
-			_smudge.size = Vector2(number_width + 8, 30)
 			_smudge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_smudge.show_behind_parent = true
 			var ghost := Label.new()
 			ghost.text = "18.63"
 			ghost.position = Vector2(4, -1)
 			ghost.add_theme_font_override("font", hand)
-			ghost.add_theme_font_size_override("font_size", 25)
+			Settings.track_font(ghost, 25)
 			ghost.add_theme_color_override("font_color", Color(0.30, 0.16, 0.09, 0.25))
 			ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_smudge.add_child(ghost)
 			_smudge.hide()
 			value.add_child(_smudge)
+			_layout_smudge(hand)
+			value.theme_changed.connect(_layout_smudge.bind(hand))
 		var plate_line := _label("Kit 念出：……", 18)
 		column.add_child(plate_line)
 		plate_lines.append(plate_line)
 		var buttons: Array = []
 		for mark in [true, false]:
-			var button := _button("✓" if mark else "✗")
+			var button := _button("✓" if mark else "×")
 			button.disabled = true
 			button.pressed.connect(_mark.bind(i, mark))
 			row.add_child(button)
@@ -200,6 +200,14 @@ func _build() -> void:
 	add_child(continue_btn)
 
 
+func _layout_smudge(hand: Font) -> void:
+	var px := Settings.fs(25)
+	var prefix_width := hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	var number_width := hand.get_string_size("16.83", HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	_smudge.position = Vector2(prefix_width - 4, 1)
+	_smudge.size = Vector2(number_width + 8, roundi(px * 1.2))
+
+
 func begin_read() -> void:
 	ready_to_mark = false
 	plate_lines[active_index].text = "Kit 念出：" + str(entries[active_index].plate)
@@ -212,6 +220,7 @@ func allow_mark() -> void:
 		button.disabled = false
 		button.add_theme_color_override("font_color", Report.INK)
 	_scroll.ensure_control_visible(_rows[active_index])
+	row_buttons[active_index][0].grab_focus()
 
 
 func _mark(index: int, correct: bool) -> void:

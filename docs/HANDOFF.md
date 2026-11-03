@@ -55,6 +55,16 @@
 
 **M4 score — 2026-10-20:** `audio/score` implements the [Director’s original procedural score](design/M4_SCORE.md): Cambridge rain, departure motif, restrained totality layers and the coda resolution, plus a saved pause-menu music toggle. All sound is synthesized in GDScript; no external audio assets. Verification and cue/performance measurements: [M4_VERIFICATION](M4_VERIFICATION.md). 84 score checks and all existing suites pass; direct native bots retain 4/0/3. The honest native ENDING/coda gate passed in a Director foreground run (all score cue checks clean, `coda_resolution` once). Astra review: no regressions. Not verified: human listening in context.
 
+## Resume here (edd-director, written 2026-11-03 14:2x JST)
+- **Standing Owner request:** 2026-11-02 16:5x JST, 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」. Heartbeat (Owner 2026-11-03 07:5x JST): asks 「遊戲目前是否已達 production release、可以在 Steam 上架？」 against `docs/RELEASE_READINESS.md`; one-shot cron re-armed 45 min after every turn.
+- **Steam release, merged 2026-11-03:** #112–#119, #120 gamepad (6 review rounds), #121 UTF-8 release-zip check, #122–#124 text size (UI, chapter panels, ink smudge), #125 e2e caps ×2 (`E2E_CAP_SCALE`), #126 畫質 低/標準, #127–#128 benchmark `--bench-quality` / `--bench-cambridge` (results `art/validation/perf-a12/SUMMARY.md`: low ≈ half the render cost, VRAM 330→195 MB). main = 8e80d77+. Bots careful 4 / rushed 0 / cherry 3 / prologue honest 4.
+- **Section A state:** A1–A7, A9, A10 DONE. Left, all Owner-gated: A8 → B11 names; A11 → a human plays the exported build (B10); A12 min spec/FPS target → target hardware (B2/B10); A13 Windows preset → B2.
+- **Waiting on the Owner:** ego-lite ChatGPT is logged out (oracle exit 5 since 2026-11-03 11:3x JST; reviews go to codex, said in each PR); section B decisions (B1–B11); draft #93 `departure_promise` (`~/Desktop/eddington-music/departure_promise.wav`, D014); SFX WAVs `~/Desktop/eddington-sfx/`.
+- **Next if idle:** improvement-program candidates — a missing `comparison` plan card → short recovery step at the Oxford plate; test_coda fade flake at load > 20; a fresh Codex astra design critique (`cx-exec -m gpt-6-astra`, ≤600-word ranked list).
+- **Worker habits to brief against:** Codex adds `--heavy` to e2e and writes to host `/tmp`; every brief forbids both. A merge that adds scripts needs `godot --headless --import` in the main checkout before suites (else they hang). Tests must not leave `user://settings.cfg` changed.
+- **Review flow:** from the main checkout: `review-bundle <pr>` → `review-run --provider oracle` (loop on 75; exit 5 → `--provider codex`, say so in the PR) → `review-gate <pr>` (rerun once on "Auto merge is not allowed").
+- **Cleanup:** remove a worktree or branch only after `gh pr view <n> --json state` says MERGED.
+
 ## Improvement program (Owner 2026-11-02 16:5x JST: 「從遊戲、音效、配樂、劇情、遊戲性、解謎各種角度持續完善遊戲」)
 
 This lifts the "no new features before the playtest" hold. A fresh Fable design critique (2026-11-02 17:00 JST) ranked the weak spots: prologue choices return only as text, the night viewer gave away the answer key, the judgment is a 2×2 dressed as 4×4, the workbook page ignored the run, plan board/checklist are flavour, Príncipe is nearly silent, music sits off the emotional beats.
@@ -64,7 +74,32 @@ Wave 1 (2026-11-02 17:04 JST):
 - cx-exec Sol, briefs in the session scratchpad: C `feat/viewer-reading` (ds-1: note hides quality counts until 量測, per-plate star count, quality after 量測); E `feat/totality-sfx` (ds-2: shutter open/close, plate-change foley, third-contact glint, night insects, `_sfx_log`); B `feat/rules-first` (cx-3: a rule is written before the viewer opens, `sim.rule_id`, Eddington holds the player to it in `_selection_lines`, scores unchanged, bot picks the rule).
 
 Wave 1 merged 2026-11-02 (all through review-gate): #86 light-box foley, #87 Príncipe shutter/plate-change/third-contact/night insects, #85 rule written before measuring, #84 viewer hides quality until 量測, #83 workbook records the run's sky (3 review rounds: it may claim only what the exposures' bands saw, and a plate change only if one was made). ChatGPT stalled 17:46–18:10 JST; #83–#87 got codex fallback reviews, #83/#84's last heads got oracle approves. SFX WAVs for the Owner: `~/Desktop/eddington-sfx/` (raw level; in game −4…−26 dB). Still owed: a windowed look (Mon–Fri 09–15 JST) that plate images show trail/fog well enough now that the counts are hidden (#84).
-In flight: D `feat/reasons-own-number` (cx-4, the reasons quote the player's value ± σ), G `feat/principe-day-bed` (ds-2: distant surf + birds that fall quiet over 6 s at totality).
+Waves 2–3 merged 2026-11-02 18:4x–19:3x JST: #88 telegram reasons quote the player's value ± σ (grading unchanged), #89 Príncipe day surf + birds that fall quiet over 6 s at totality, #92 phase-wiring test for it, #90 darkroom viewer foley (glass plate, pencil, micrometer screw), #91 footsteps (wood in Cambridge/departure, earth at Príncipe; 7 steps per 3 s walking). Bots unchanged: careful 4 / rushed 0 / cherry 3, prologue honest 4.
+Wave 4: draft #93 `departure_promise`, a 24 s one-shot under the departure sky promise (harmonium D–A fifth, viola A3 then D4 only, three high piano notes; no F#, no full motif). It stops at the montage. **Needs the Owner's ear (D014)**: `~/Desktop/eddington-music/departure_promise.wav`. Keep it draft until the Owner OKs.
+Reviews: oracle-ego false stalls were fixed in oracle-ego #5 (2026-11-02 19:4x JST). New fallback rule (tachiko-harness #44): fix or restart ego-lite first, then codex (gpt-6.1-sol), sonnet last.
+Wave 5 (Fable-ranked, merged 2026-11-02 20:1x–22:1x JST):
+- #94: the darkroom remembers the 1917 plan board (comparison plate and far-star calibration lines).
+- #95: the 150 s glance waits for thick cloud.
+- #96: Kit's star-chart answer returns in the 1919 close, weighed against the telegram.
+- #97: the direct ending gets the lamp-out beat.
+- #98: the chart draws 2σ whiskers, and the note shows the 2σ range and Eddington's criterion. **Look at it windowed** (Mon–Fri 09–15 JST).
+- #99/#100/#101: the 1917 rain eases to −30 dB in daylight and stops after the trial, even when the reader is fast; tests follow-up.
+Bots unchanged: careful 4, rushed 0, cherry 3, prologue honest 4.
+Lesson: delete a worker branch only after its PR shows MERGED. A remote delete closed #99; it was restored at the same sha and reopened.
+Next from Fable's list: all five are done. Open: an ObjectDB leak cleanup, a composed darkroom-night cue (needs the Owner's ear), and a new design pass.
+Wave 6 (depth, Fable-ranked; merged 2026-11-02 22:2x – 2026-11-03 00:4x JST):
+- #102: the 1919 rule prompt recalls the player's 1917 exam answer (q1; `Story.exam`).
+- #104: the `conditions` plan card adds the drive's state to each darkroom plate note.
+- #103: the plan advises splitting a clear window of 14 s or more into two short plates (`Judgment.SPLIT_MIN_S`). Judgment says when good plates corroborate, each within its own 2σ of the good-only mean, and cautions on a single good plate.
+- #105: a fifth telegram reason, 「數值偏低，可能是儀器，不是星」. It is right only when the drive is unchecked, the evidence is favors_half or ambiguous, the mean trail is ≥ 0.35 and the value is < 1.75″. Every wrong case has its own true line. No bot route picks it; test_totality drives it through the real judgment path.
+- #106 follow-up: when nothing is measured.
+Oracle rounds caught 4 real logic bugs in #103/#105. Scores unchanged: careful 4, rushed 0, cherry 3, honest 4.
+test_coda's fade-timing checks can fail at load average > 20 (seen once at 26; reruns 80/0).
+Known noise: headless runs print 1–2 "ObjectDB instances leaked at exit" warnings (seen on main too); a cleanup candidate.
+Full e2e on main fd0a02a, 2026-11-03 00:47 JST (Owner one-off heavy authorization; run light, ticket #140 cancelled): all 6 routes pass, 4/0/3/honest 4.
+Wave 7 (Codex gpt-6-astra critique, 2026-11-03 00:50 JST; cx-exec Sol dispatched 00:5x JST, briefs in the session scratchpad): A `feat/coda-honest` (coda no longer says "only cloud grey" or praises a fit-0 telegram when usable plates went unmeasured), B `feat/interval-read` (one ungraded question: what does your 2σ range contain? before the telegram; bot answers it), C `feat/split-advice` (the 14 s split advice becomes "shoot short, change, shoot again if still clear"). Merged 2026-11-03 01:0x–01:26 JST: #107 (C), #108 (A), #109 (B; 3 oracle rounds: rounding vs exact classification, and "neither contained" contradicting the ambiguous reaction → `Judgment.interval_bounds`/`interval_holds_neither`). Follow-up D `fix/viewer-interval` (cx-exec Terra, 01:3x JST): darkroom note uses `Judgment.interval_bounds` so both ranges match at edges. Workers keep defaulting to `--heavy` and host `/tmp`; briefs now forbid both.
+Rejected from the critique: fading the 1917 rain at daylight (#99/#100 chose −30 dB on purpose); a recovery task for a missing comparison card (larger, later).
+Next candidates: the daylight interlude cue in 1917, a 1919 consequence for a missing core plan card, the ObjectDB leak cleanup, and the windowed look for #84 (Mon–Fri 09–15 JST).
 
 Wave 2 candidates (after wave 1 merges): data-driven judgment reasons citing the player's own value ± σ (judgment.gd REASONS/_reason_line); Príncipe day ambience (surf, birds that fall quiet before totality and return after); 1917 light-box and footstep foley; daylight interlude ducks the rain cue (director.gd `_interlude`/`_coda`, mind `_gramophone_end`); new composed cues for the departure promise and the darkroom night (needs Owner listening, WAVs on Desktop); a plan-board consequence in 1919 for a missing core card. Rejected: re-scarcing plates (history: 16 plates in 302 s).
 
