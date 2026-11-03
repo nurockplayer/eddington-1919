@@ -168,6 +168,19 @@ func _ready() -> void:
 			runner.shots_dir = args.get("shots", "")
 			get_tree().root.add_child.call_deferred(runner)
 	if args.has("benchmark"):
+		# DirAccess.make_dir_recursive_absolute() needs an absolute path: resolve
+		# res:// and repo-relative arguments (e.g. art/validation/x) against the project.
+		var out: String = args.benchmark
+		if out.begins_with("res://"):
+			out = ProjectSettings.globalize_path(out)
+		elif not out.is_absolute_path():
+			out = ProjectSettings.globalize_path("res://" + out)
+		if args.has("bench-cambridge"):
+			# Load dynamically: the Cambridge director already preloads this script.
+			var director: Script = load("res://scripts/cambridge/director.gd")
+			director.bench_cambridge_out = out
+			get_tree().change_scene_to_file.call_deferred("res://scenes/cambridge.tscn")
+			return
 		# tests/ is excluded from exports, so in a build this flag is ignored and the game runs normally.
 		var bench_script: Script = load("res://tests/benchmark.gd")
 		if bench_script == null:
@@ -175,13 +188,6 @@ func _ready() -> void:
 		else:
 			var bench: Node = bench_script.new()
 			bench.main = self
-			# DirAccess.make_dir_recursive_absolute() needs an absolute path: resolve
-			# res:// and repo-relative arguments (e.g. art/validation/x) against the project.
-			var out: String = args.benchmark
-			if out.begins_with("res://"):
-				out = ProjectSettings.globalize_path(out)
-			elif not out.is_absolute_path():
-				out = ProjectSettings.globalize_path("res://" + out)
 			bench.out_dir = out
 			add_child(bench)
 			return

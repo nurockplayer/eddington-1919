@@ -16,6 +16,8 @@ const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Board := preload("res://scripts/cambridge/plan_board.gd")
 
+static var bench_cambridge_out := ""
+
 enum Beat { OPENING, INVESTIGATE, MENTOR, INTERLUDE, EXAM, PLAN, TRIAL, CODA, MONTAGE, DONE }
 var beat := Beat.OPENING
 var world: Dictionary
@@ -124,6 +126,17 @@ func _ready() -> void:
 	_sync_player()
 	await ui.fade_to(0.0, 1.1).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	await ui.show_caption(C17.intro_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+	if bench_cambridge_out != "":
+		# tests/ is excluded from release exports; those keep the normal opening.
+		var bench_script: Script = load("res://tests/benchmark_cambridge.gd")
+		var out := bench_cambridge_out
+		bench_cambridge_out = ""
+		if bench_script:
+			var bench: Node = bench_script.new()
+			bench.director = self
+			bench.out_dir = out
+			add_child(bench)
+			return
 	_busy = false
 	_say(C17.opening(), "opening")
 
