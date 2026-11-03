@@ -137,15 +137,22 @@ static func rules_prompt(planned: bool, exam_q1 := -1) -> Array:
 	return out
 
 
-static func judgment_prompt(telegrams: Array, reasons: Array, interval := "") -> Array:
-	var out: Array = []
-	if interval != "":
-		out.append({"s": E, "t": "先看你的數字：%s。兩倍誤差的範圍裡，容得下哪一個預測？" % interval, "key": "interval", "choices": ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"]})
-	out.append_array([
+static func interval_prompt(interval: String) -> Array:
+	return [{"s": E, "t": "先看你的數字：%s。兩倍誤差的範圍裡，容得下哪一個預測？" % interval, "key": "interval", "choices": ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"]}]
+
+
+static func interval_feedback(answer: int, truth: int) -> String:
+	if answer == truth:
+		return "對，範圍就是這樣讀的。"
+	var contains := ["範圍同時容得下 0.87″ 和 1.75″", "範圍只容得下 1.75″", "範圍只容得下 0.87″", "0.87″ 和 1.75″ 都不在範圍裡"]
+	return "再看一次：%s。\n看圖上的細線：兩條預測線，哪一條落在細線裡面？" % contains[truth]
+
+
+static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
+	return [
 		{"s": E, "t": "我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？", "key": "telegram", "choices": telegrams},
 		{"s": E, "t": "根據什麼？", "key": "reason", "choices": reasons},
-	])
-	return out
+	]
 
 
 static func cottingham_coda(sim) -> String:

@@ -260,13 +260,12 @@ func _test_judgment_prompt() -> void:
 	var tele := ["telegram"]
 	var reasons := ["reason"]
 	var plain := Content.judgment_prompt(tele, reasons)
-	check(plain.map(func(line): return line.key) == ["telegram", "reason"], "no interval skips the question")
+	check(plain.map(func(line): return line.key) == ["telegram", "reason"], "judgment contains only telegram and reason")
 	var interval := "1.75″ ± 0.10″，兩倍誤差是 1.55″ 到 1.95″"
-	var prompt := Content.judgment_prompt(tele, reasons, interval)
-	check(prompt.map(func(line): return line.key) == ["interval", "telegram", "reason"], "interval question precedes telegram and reason")
+	var prompt := Content.interval_prompt(interval)
+	check(prompt.map(func(line): return line.key) == ["interval"], "interval question is its own dialogue")
 	check(prompt[0].s == Content.E and prompt[0].t == "先看你的數字：%s。兩倍誤差的範圍裡，容得下哪一個預測？" % interval, "Eddington asks about the formatted interval")
 	check(prompt[0].choices == ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"], "interval choices use truth index order")
-	check(prompt.slice(1) == plain, "telegram and reason prompts stay unchanged")
 
 
 func _test_judgment_reasons() -> void:
@@ -285,17 +284,37 @@ func _test_judgment_reasons() -> void:
 	var c: Dictionary = game.sim.combined()
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
 	check(game.ui._seq[0].key == "interval" and game.ui._seq[0].t.contains("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, c.value - 2*c.sigma, c.value + 2*c.sigma]), "real judgment opens with the combined 2σ interval")
-	game._after_judgment({"telegram": 1, "reason": 0})
-	check(game._grade.reason_ok == Judgment.grade(game.sim, "hopeful", "measured").reason_ok, "judgment grades the stored measured reason")
-	var original_grade: Dictionary = game._grade.duplicate(true)
-	var original_reaction: Array = game.ui._seq.duplicate(true)
-	game._after_judgment({"interval": 0, "telegram": 1, "reason": 0})
-	check(game.ui._seq[0] == {"s": Content.E, "t": "再看一次：範圍只容得下 1.75″。"}, "wrong interval answer gets factual correction first")
-	check(game._grade.score == original_grade.score and game._grade == original_grade, "wrong interval answer leaves score and grading unchanged")
-	check(game.ui._seq.slice(1) == original_reaction, "correction precedes the unchanged grade lines and coda")
-	game._after_judgment({"interval": 1, "telegram": 1, "reason": 0})
-	check(game.ui._seq[0] == {"s": Content.E, "t": "對，範圍就是這樣讀的。"}, "correct interval answer is acknowledged first")
-	check(game._grade == original_grade, "correct interval answer leaves grading unchanged")
+	check(game.ui._seq.size() == 1 and game.ui._choice_buttons.size() == 4, "only interval choices exist before the answer")
+	var evidence_before: Dictionary = game.sim.combined().duplicate(true)
+	game.ui._choose(0) # Wrong: this interval contains only 1.75″.
+	check(game._interval_answer == 0, "real interval dialogue stores the answer")
+	var correction_shown: bool = game.ui.text_label.text.contains("再看一次")
+	check(correction_shown and game.ui._choice_buttons.is_empty(), "wrong interval feedback is shown before telegram choices exist")
+	# Stop this flow on a regression so later choices do not target the wrong entry.
+	if not correction_shown or not game.ui._choice_buttons.is_empty():
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
+		return
+	check(game._pending == "judgment" and game.ui._seq_i == 0 and not game.ui._seq[0].has("choices"), "feedback leads the telegram sequence")
+	check(game.ui.text_label.text == "再看一次：範圍只容得下 1.75″。\n看圖上的細線：兩條預測線，哪一條落在細線裡面？", "wrong answer corrects containment and points at the chart")
+	check(game._grade.is_empty() and game.sim.combined() == evidence_before, "interval feedback leaves evidence and grading untouched")
+	game.ui._advance()
+	check(game.ui._seq[game.ui._seq_i].key == "telegram" and game.ui._choice_buttons.size() == Judgment.TELEGRAMS.size(), "telegram choices appear after feedback is advanced")
+	game.ui._choose(1)
+	check(game.ui._seq[game.ui._seq_i].key == "reason", "telegram still leads to the reason")
+	game.ui._choose(0)
+	check(game._grade == Judgment.grade(game.sim, "hopeful", "measured"), "real dialogue grades the stored measured reason")
+	var wrong_grade: Dictionary = game._grade.duplicate(true)
+	var wrong_reaction: Array = game.ui._seq.duplicate(true)
+	game._start_judgment()
+	game.ui._choose(Judgment.interval_truth(game.sim))
+	check(game.ui.text_label.text == "對，範圍就是這樣讀的。" and game.ui._choice_buttons.is_empty(), "correct interval answer is acknowledged before telegram choices")
+	game.ui._advance()
+	game.ui._choose(1)
+	game.ui._choose(0)
+	check(game._grade == wrong_grade and game._grade.score == wrong_grade.score, "right and wrong interval answers yield identical grading and score")
+	check(game.ui._seq == wrong_reaction, "interval feedback is absent from the unchanged grading reaction")
 	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.5496, "sigma": 0.1}]
 	game._start_judgment()
 	check(game.ui._seq[0].t.contains("兩倍誤差是 1.35″ 到 1.74″") and Judgment.interval_truth(game.sim) == 3 and game.sim.evidence_class() == "ambiguous",
@@ -313,7 +332,10 @@ func _test_judgment_reasons() -> void:
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
 	]
 	game._start_judgment()
-	game._after_judgment({"telegram": 2, "reason": 4})
+	game.ui._choose(Judgment.interval_truth(game.sim))
+	game.ui._advance()
+	game.ui._choose(2)
+	game.ui._choose(4)
 	check(game._grade.reason_ok and game._grade.lines.any(func(l): return l.contains("Cottingham 會記得")),
 		"choosing the instrument reason in the real dialogue is graded and answered")
 	game.stop_all_audio()
