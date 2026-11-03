@@ -29,7 +29,7 @@ From Cambridge's light box to a clouded eclipse on Príncipe: call each exposure
 
 夜裡回到暗房，先寫下選片規則，再查看量測結果。用放大鏡與參考底片分辨星點、拖線和霧，決定哪些底片值得採用。讀懂合併數值和誤差區間後，你才選擇電報與理由。若看過結果後重新選片，第一次的結果仍會留下。
 
-這段故事把一個克制的主張，放在不完美的證據旁邊。1919 年的結果曾引發爭論；普林西比的雲沒有在全食時散去，當年的報告最倚重的是 Sobral 的 4 吋望遠鏡。遊戲讓你走過判斷的過程，歷史背景與戲劇創作則分開標示。
+這段故事把一個克制的主張，放在不完美的證據旁邊。1919 年的結果曾引發爭論；普林西比的雲直到全食最後三分之一才明顯變薄，只有兩張底片能用於量測。當年的報告最倚重的是 Sobral 的 4 吋望遠鏡。遊戲讓你走過判斷的過程，歷史背景與戲劇創作則分開標示。
 
 虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。
 
@@ -43,7 +43,7 @@ On Príncipe in 1919, prepare photographic plates and help with the clock drive.
 
 In the darkroom, commit to a selection rule before seeing the measured values. Inspect star images, trailing, and fog with a loupe and reference plates. Choose what to include, read the combined measurement and its uncertainty interval, then select a short telegram and a reason. If you change your selection after seeing the numbers, your first result remains on record.
 
-The 1919 results were debated. Clouds persisted through totality on Príncipe, and the historical report relied most heavily on Sobral's four-inch telescope. The game keeps historical context separate from its dramatic inventions.
+The 1919 results were debated. On Príncipe, the clouds thinned only in the last third of totality, and just two plates could be measured. The historical report relied most heavily on Sobral's four-inch telescope. The game keeps historical context separate from its dramatic inventions.
 
 Fiction and illustration: the player character, all dialogue, the episode in which the clock drive needs help, cloud details, plate images, and all numbers. Settings are conjectural reconstructions; no on-site photographs of the Príncipe station are known, and the original plates have been lost.
 
