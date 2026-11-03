@@ -68,6 +68,11 @@ func _run() -> void:
 	var checklist := Checklist.new()
 	root.add_child(checklist)
 	checklist.open()
+	var slip_value: RichTextLabel = checklist._smudge.get_parent()
+	var hand := slip_value.get_theme_font("normal_font")
+	var standard_smudge_position := checklist._smudge.position
+	var standard_smudge_size := checklist._smudge.size
+	check(absf(standard_smudge_position.x - (hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, 25).x - 4)) <= 0.5, "standard smudge aligns with 25 px prefix")
 	ui.hide_title()
 	ui.set_objectives("測量底片")
 	ui.play([C17.trial_task()[3]])
@@ -88,6 +93,8 @@ func _run() -> void:
 	check(Settings.text_scale == 1.2 and ui.text_size_button.text == "文字大小：大", "gamepad A cycles standard to large once")
 	check(overlay.buttons.flip.get_theme_font_size("font_size") == 22, "large overlay button scales from 18 to 22 px")
 	check(checklist.plate_lines[0].get_theme_font_size("font_size") == 22 and checklist.values[0].get_theme_font_size("bold_font_size") == 30, "large checklist label and rich text scale")
+	check(absf(checklist._smudge.position.x - (hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x - 4)) <= 0.5, "large smudge aligns with 30 px prefix")
+	check(absf(checklist._smudge.size.x - (hand.get_string_size("16.83", HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x + 8)) <= 0.5 and checklist._smudge.size.x > standard_smudge_size.x and checklist._smudge.size.y == 36, "large smudge scales with number")
 	check(ui.theme_res.default_font_size == 25, "large theme is 25 px")
 	check(ui.text_label.get_theme_font_size("normal_font_size") == 25, "visible dialogue updates to 25 px")
 	check(ui.objectives.get_theme_font_size("normal_font_size") == 22, "visible objectives scale from 18 to 22 px")
@@ -128,6 +135,7 @@ func _run() -> void:
 	check(ui.clock_label.get_theme_font_size("font_size") == 24
 		and ui.objectives.get_theme_font_size("normal_font_size") == 18, "revert-check restores HUD sizes without compounding")
 	check(overlay.buttons.flip.get_theme_font_size("font_size") == 18 and checklist.plate_lines[0].get_theme_font_size("font_size") == 18 and checklist.values[0].get_theme_font_size("normal_font_size") == 25, "revert-check restores chapter panel sizes")
+	check(checklist._smudge.position.is_equal_approx(standard_smudge_position) and checklist._smudge.size.is_equal_approx(standard_smudge_size), "revert-check restores smudge position and size")
 	Settings.text_scale = 0.0
 	Settings.load_settings()
 	check(Settings.text_scale == 1.0, "pause cycle saves immediately")

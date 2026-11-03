@@ -161,10 +161,6 @@ func _build() -> void:
 		values.append(value)
 		if entry.get("slip", false):
 			_smudge = InkSmudge.new()
-			var prefix_width := hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, 25).x
-			var number_width := hand.get_string_size("16.83", HORIZONTAL_ALIGNMENT_LEFT, -1, 25).x
-			_smudge.position = Vector2(prefix_width - 4, 1)
-			_smudge.size = Vector2(number_width + 8, 30)
 			_smudge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_smudge.show_behind_parent = true
 			var ghost := Label.new()
@@ -177,6 +173,8 @@ func _build() -> void:
 			_smudge.add_child(ghost)
 			_smudge.hide()
 			value.add_child(_smudge)
+			_layout_smudge(hand)
+			value.theme_changed.connect(_layout_smudge.bind(hand))
 		var plate_line := _label("Kit 念出：……", 18)
 		column.add_child(plate_line)
 		plate_lines.append(plate_line)
@@ -200,6 +198,14 @@ func _build() -> void:
 			closed.emit())
 	continue_btn.hide()
 	add_child(continue_btn)
+
+
+func _layout_smudge(hand: Font) -> void:
+	var px := Settings.fs(25)
+	var prefix_width := hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	var number_width := hand.get_string_size("16.83", HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	_smudge.position = Vector2(prefix_width - 4, 1)
+	_smudge.size = Vector2(number_width + 8, roundi(px * 1.2))
 
 
 func begin_read() -> void:
