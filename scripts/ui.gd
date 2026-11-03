@@ -67,7 +67,6 @@ var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_replay: Button
 var ending_scroll: ScrollContainer
 var credits_scroll: ScrollContainer
-var _menu_scroll_axis := 0.0
 var _menu_scroll_remainder := 0.0
 var ending_panel: Control
 var credits_panel: Control
@@ -303,7 +302,7 @@ func show_toast(text: String, seconds := 4.0) -> void:
 func _process(delta: float) -> void:
 	var scroll := _active_menu_scroll()
 	if scroll:
-		_menu_scroll_remainder += _menu_scroll_axis * 900.0 * delta
+		_menu_scroll_remainder += Input.get_axis("gamepad_look_up", "gamepad_look_down") * 900.0 * delta
 		var pixels := int(_menu_scroll_remainder)
 		_menu_scroll_remainder -= pixels
 		scroll.scroll_vertical += pixels
@@ -959,7 +958,6 @@ func _open_credits() -> void:
 	_credits_focus = get_viewport().gui_get_focus_owner()
 	credits_panel.show()
 	credits_scroll.scroll_vertical = 0
-	_menu_scroll_axis = 0.0
 	_menu_scroll_remainder = 0.0
 	(credits_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
 
@@ -974,7 +972,6 @@ func show_ending(title: String, bb: String, history_bb := "") -> void:
 	ending_panel.visible = true
 	ending_replay.grab_focus()
 	ending_scroll.scroll_vertical = 0
-	_menu_scroll_axis = 0.0
 	_menu_scroll_remainder = 0.0
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
@@ -1138,8 +1135,6 @@ func _active_menu_scroll() -> ScrollContainer:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventJoypadMotion and event.axis == JOY_AXIS_RIGHT_Y:
-		_menu_scroll_axis = event.get_action_strength("look_down") - event.get_action_strength("look_up")
 	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.25):
 		Prompts.joypad = true
 	elif event is InputEventKey or event is InputEventMouse:

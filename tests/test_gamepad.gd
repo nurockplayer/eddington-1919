@@ -56,6 +56,15 @@ func scroll_stick(value: float, frames := 6) -> void:
 	await process_frame
 
 
+func motion(axis: JoyAxis, value: float) -> void:
+	var event := InputEventJoypadMotion.new()
+	event.axis = axis
+	event.axis_value = value
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+	await process_frame
+
+
 func _run() -> void:
 	var main := load("res://scripts/main.gd")
 	# Exercise desktop ui_right defaults even when the headless server omits them.
@@ -80,7 +89,7 @@ func _run() -> void:
 		for event in InputMap.action_get_events(action):
 			has_pad = has_pad or event is InputEventJoypadButton or event is InputEventJoypadMotion
 		check(has_pad, action + " has a gamepad binding")
-		if action.begins_with("move_") or action.begins_with("look_"):
+		if action.begins_with("move_") or action.begins_with("look_") or action.begins_with("gamepad_look_"):
 			check(is_equal_approx(InputMap.action_get_deadzone(action), 0.25), action + " has 0.25 deadzone")
 	var count := InputMap.action_get_events("shutter").size()
 	main._ensure_inputs()
@@ -162,6 +171,15 @@ func _run() -> void:
 	await scroll_stick(0.5)
 	check(ending_scroll.scroll_vertical == before_pause, "pause on top blocks ending D-pad and stick scrolling")
 	ui.toggle_pause()
+	await motion(JOY_AXIS_RIGHT_Y, 0.5)
+	ui.toggle_pause()
+	await motion(JOY_AXIS_RIGHT_Y, 0.0)
+	ui.toggle_pause()
+	var scroll_after_resume := ending_scroll.scroll_vertical
+	for frame in 6:
+		await process_frame
+		await physics_frame
+	check(ending_scroll.scroll_vertical == scroll_after_resume, "stick release while paused stops menu scrolling on resume")
 	ui._open_credits()
 	for frame in 4:
 		await process_frame
@@ -227,6 +245,16 @@ func _run() -> void:
 	Input.parse_input_event(stick.duplicate())
 	await process_frame
 	check(overlay.angle_deg > before_angle, "right stick still rotates the overlay smoothly")
+	await motion(JOY_AXIS_RIGHT_X, 0.5)
+	ui.toggle_pause()
+	await motion(JOY_AXIS_RIGHT_X, 0.0)
+	check(is_zero_approx(Input.get_axis("look_left", "look_right")), "stick release updates engine input while overlay is paused")
+	ui.toggle_pause()
+	var angle_after_resume := overlay.angle_deg
+	for frame in 6:
+		await process_frame
+		await physics_frame
+	check(is_equal_approx(overlay.angle_deg, angle_after_resume), "stick release while paused stops overlay rotation on resume")
 	overlay._reset()
 	overlay.buttons.flip.grab_focus()
 	await button(JOY_BUTTON_A)

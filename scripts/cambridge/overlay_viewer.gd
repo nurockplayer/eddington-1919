@@ -24,7 +24,6 @@ var offset := Vector2.ZERO
 var buttons: Dictionary = {}
 
 var _font: Font
-var _stick_turn := 0.0
 var _dragging := false
 var _pointer_pressed := false
 var _pointer_moved := false
@@ -47,7 +46,6 @@ func _ready() -> void:
 
 
 func open() -> void:
-	_stick_turn = 0.0
 	visible = true
 	buttons.flip.grab_focus()
 	_update_alignment()
@@ -173,7 +171,7 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	var movement := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	var turn := _stick_turn
+	var turn := Input.get_axis("gamepad_look_left", "gamepad_look_right")
 	if not movement.is_zero_approx() or not is_zero_approx(turn):
 		offset += movement * delta * 0.15
 		angle_deg += turn * delta * 8.0
@@ -187,11 +185,9 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible:
+	if not visible or event is InputEventJoypadMotion:
 		return
-	if event is InputEventJoypadMotion and event.axis == JOY_AXIS_RIGHT_X:
-		_stick_turn = event.get_action_strength("overlay_rotate_right") - event.get_action_strength("overlay_rotate_left")
-	elif event.is_action_pressed("overlay_rotate_left"):
+	if event.is_action_pressed("overlay_rotate_left"):
 		_rotate(-0.5)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("overlay_rotate_right"):
