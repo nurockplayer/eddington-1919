@@ -5,7 +5,7 @@ extends Node
 ## NOT a human playtest.
 ##
 ## Run: godot --path . -- --autoplay=careful --shots=/tmp/shots [--seed=N] [--speed=2]
-## Scenarios: careful | rushed | cherry
+## Scenarios: careful | rushed | cherry | monkey
 
 const Judgment := preload("res://scripts/judgment.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
@@ -21,9 +21,23 @@ var stuck := 0
 var _phase_event := ""
 var real_input_only := false
 var continuation_helper := false
+var monkey_rng := RandomNumberGenerator.new()
+var disruptions: Array[String] = []
+var _disrupting := false
+var _settings_existed := false
+var _settings_bytes := PackedByteArray()
+
 
 
 func _ready() -> void:
+	if scenario == "monkey":
+		process_mode = Node.PROCESS_MODE_ALWAYS
+		real_input_only = true
+		monkey_rng.seed = int(main._user_args().get("seed", "1"))
+		_settings_existed = FileAccess.file_exists("user://settings.cfg")
+		if _settings_existed:
+			_settings_bytes = FileAccess.get_file_as_bytes("user://settings.cfg")
+		tree_exiting.connect(_restore_monkey_settings)
 	if continuation_helper:
 		return
 	var args: Dictionary = main._user_args()
@@ -35,6 +49,8 @@ func _ready() -> void:
 
 func on_phase(p: String) -> void:
 	_phase_event = p
+	if scenario == "monkey":
+		_log("PHASE " + p.to_upper())
 
 
 func _log(s: String) -> void:
@@ -100,6 +116,7 @@ func _click(pos: Vector2) -> void:
 
 
 func shot(name: String) -> void:
+	await monkey_step(name)
 	if shots_dir == "":
 		return
 	# Wait for a drawn frame, but never hang if the OS stops drawing a hidden window.
@@ -119,6 +136,7 @@ func shot(name: String) -> void:
 
 ## Walk through waypoints using the real movement action.
 func walk(points: Array) -> void:
+	await monkey_step("walk", true)
 	var p = main.player
 	for target in points:
 		var t2 := Vector2(target.x, target.z)
@@ -178,7 +196,7 @@ func interact(target: Vector3) -> String:
 
 
 ## Advance dialogue; `choices` are the option indices to pick, in order.
-func talk(choices: Array = []) -> void:
+func talk(choices: Array = [], random_choices := true) -> void:
 	var guard := 60
 	var ci := 0
 	var interval_only: bool = main._pending == "interval"
@@ -186,10 +204,15 @@ func talk(choices: Array = []) -> void:
 	while main.ui.dialog_active() and guard > 0:
 		if continuation_helper and main.phase == main.Phase.CODA:
 			break
+		await monkey_step("dialogue")
+		if not main.ui.dialog_active():
+			break
 		guard -= 1
 		var e: Dictionary = main.ui._seq[main.ui._seq_i]
 		if e.has("choices"):
 			var pick: int = choices[ci] if ci < choices.size() else 0
+			if random_choices:
+				pick = monkey_choice(e, pick)
 			ci += 1
 			_log("choose %d: %s" % [pick, e.choices[pick]])
 			await _tap(KEY_1 + pick)
@@ -241,7 +264,7 @@ func _run() -> void:
 	await _wait(1.0)
 	await shot("00_title")
 	await _click(main.ui.start_btn.get_global_rect().get_center())
-	if main.phase == main.Phase.TITLE:
+	if main.phase == main.Phase.TITLE and scenario != "monkey":
 		main._start_game()  # fallback if the click missed
 		_log("title click fallback used")
 	await _wait(1.0)
@@ -261,6 +284,8 @@ func _run() -> void:
 	await _tap(KEY_ESCAPE)
 	_log("pause check: paused=%s dialogue_held=%s resumed=%s" % [paused_ok, held, not get_tree().paused])
 	await talk([1])
+	if scenario == "monkey":
+		await _monkey_rehearse()
 	if scenario == "rushed":
 		# Straight to totality: no plates fetched, drive left to Cottingham alone.
 		await interact(EDD_HEAD)
@@ -320,6 +345,13 @@ func _prep_full() -> void:
 	await walk([FRONT_LEFT, EDD_FRONT])
 	await interact(EDD_HEAD)
 	await talk([0])
+	if scenario == "monkey" and main.phase == main.Phase.PREP:
+		await _monkey_finish_rehearsal()
+		await interact(EDD_HEAD)
+		# Resume the scripted route after the random PREP answer.
+		_disrupting = true
+		await talk([0], false)
+		_disrupting = false
 
 
 func _wait_phase(p: String, timeout: float) -> void:
@@ -327,6 +359,7 @@ func _wait_phase(p: String, timeout: float) -> void:
 		await _wait(0.25)
 		timeout -= 0.25
 	if _phase_event != p:
+		stuck += 1
 		_log("TIMEOUT waiting for phase %s" % p)
 
 
@@ -334,8 +367,12 @@ func _totality() -> void:
 	var sim = main.sim
 	var shot_mid := false
 	var shot_open := false
+	var next_disruption := 0.0
 	while not main.tot_done:
 		var t: float = main.t_game
+		if scenario == "monkey" and t >= next_disruption:
+			next_disruption = t + 30.0
+			await monkey_step("totality")
 		var dens: float = sim.cloud_over_sun(t)
 		var exposing: bool = sim.is_exposing()
 		var want := false
@@ -460,6 +497,7 @@ func _finish() -> void:
 		"score_cue_log": ScorePlayer.cue_log.duplicate(true),
 		"score_failures": score_failures,
 		"stuck_events": stuck,
+		"disruptions": disruptions,
 		"log": log_lines,
 	}
 	if shots_dir != "":
@@ -485,4 +523,128 @@ func _finish() -> void:
 				return
 	main.stop_all_audio()
 	await get_tree().create_timer(0.1).timeout
-	get_tree().quit()
+	get_tree().quit(1 if scenario == "monkey" and (stuck > 0 or main.phase != main.Phase.ENDING) else 0)
+
+
+# Shared by the Cambridge runner; all mutations below go through player input.
+func _disruption(description: String) -> void:
+	var phase: String = str(main.get("phase") if main.get("phase") != null else main.get("beat"))
+	var entry := "%d phase=%s %s" % [disruptions.size(), phase, description]
+	disruptions.append(entry)
+	_log("DISRUPT " + entry)
+
+
+func monkey_choice(entry: Dictionary, scripted: int) -> int:
+	if scenario != "monkey" or _disrupting or monkey_rng.randi_range(0, 1) == 0:
+		return scripted
+	var pick := monkey_rng.randi_range(0, entry.choices.size() - 1)
+	_disruption("choice %s=%d/%d" % [entry.get("key", ""), pick, entry.choices.size()])
+	return pick
+
+
+func _start_button() -> void:
+	for pressed in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = JOY_BUTTON_START
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		await _frames(2)
+
+
+func monkey_step(context: String, walking := false) -> void:
+	if scenario != "monkey" or _disrupting or not is_instance_valid(main) or not main.ui.pause_enabled:
+		return
+	_disrupting = true
+	for i in monkey_rng.randi_range(0, 3):
+		if not is_instance_valid(main):
+			break
+		var options := ["pause", "start", "log", "settings"]
+		if main.ui.dialog_active() or (main.get("phase") != null and main.phase == main.Phase.TOTALITY):
+			options.append("mash")
+		if walking and main.player.can_move:
+			options.append("walk")
+		if main.ui.viewer.visible and not main.ui.dialog_active():
+			options.append_array(["reopen", "reference", "loupe"])
+			if main.sim.measured:
+				options.append("reselect")
+		var action: String = options[monkey_rng.randi_range(0, options.size() - 1)]
+		_disruption(context + ": " + action)
+		match action:
+			"pause", "start", "settings":
+				if action == "start": await _start_button()
+				else: await _tap(KEY_ESCAPE)
+				if get_tree().paused:
+					if action == "settings":
+						await _click(main.ui.text_size_button.get_global_rect().get_center())
+						await _click(main.ui.quality_button.get_global_rect().get_center())
+					await _tap(KEY_E)
+					if action == "start": await _start_button()
+					else: await _tap(KEY_ESCAPE)
+			"log":
+				await _tap(KEY_TAB)
+				await _tap(KEY_E)
+				await _tap(KEY_TAB)
+			"mash":
+				var code := KEY_E if monkey_rng.randi_range(0, 1) == 0 else KEY_SPACE
+				if main.ui.dialog_active() and main.ui._seq[main.ui._seq_i].has("choices"):
+					code = KEY_E
+				_disruption("mash key=%d" % code)
+				await _tap(code)
+			"walk":
+				var direction: Key = [KEY_W, KEY_A, KEY_S, KEY_D][monkey_rng.randi_range(0, 3)]
+				var seconds := monkey_rng.randi_range(1, 3)
+				_disruption("walk key=%d seconds=%d" % [direction, seconds])
+				await _hold(direction, seconds)
+				# Retrace before resuming authored waypoints (no teleport).
+				await _hold({KEY_W: KEY_S, KEY_S: KEY_W, KEY_A: KEY_D, KEY_D: KEY_A}[direction], seconds)
+			"reopen":
+				for button in main.ui.viewer.find_children("*", "Button", true, false):
+					if button.text == "離開桌子":
+						await _click(button.get_global_rect().get_center())
+						break
+				await interact(main.world.measure_pos)
+			"reference":
+				await _click(main.ui.reference_btn.get_global_rect().get_center())
+				if main.ui.reference_panel.visible:
+					await _click(main.ui.reference_close_btn.get_global_rect().get_center())
+			"loupe":
+				await _click(main.ui.loupe_btn.get_global_rect().get_center())
+				await _tap(KEY_RIGHT)
+				await _tap(KEY_DOWN)
+				await _click(main.ui.loupe_btn.get_global_rect().get_center())
+			"reselect":
+				await _click(main.ui.viewer_button_center("reselect"))
+				if not main.sim.plates.is_empty():
+					await _click(main.ui.thumb_center(monkey_rng.randi_range(0, main.sim.plates.size() - 1)))
+					await _click(main.ui.viewer_button_center("include"))
+				await _click(main.ui.viewer_button_center("measure"))
+				var reason := monkey_rng.randi_range(0, 2)
+				_disruption("reselect reason=%d" % reason)
+				await talk([reason], false)
+	_disrupting = false
+
+
+func _monkey_finish_rehearsal() -> void:
+	if main.rehearsing:
+		for i in 3:
+			await _tap(KEY_SPACE)
+		await _wait(main.sim.PLATE_CHANGE_S + 0.2)
+
+
+func _monkey_rehearse() -> void:
+	_disrupting = true
+	var repeats := monkey_rng.randi_range(0, 3)
+	_disruption("PREP rehearsal repeats=%d" % repeats)
+	for i in repeats:
+		await interact(EDD_HEAD)
+		await talk([2], false)
+		await _monkey_finish_rehearsal()
+	_disrupting = false
+
+
+func _restore_monkey_settings() -> void:
+	if _settings_existed:
+		var file := FileAccess.open("user://settings.cfg", FileAccess.WRITE)
+		file.store_buffer(_settings_bytes)
+	else:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path("user://settings.cfg"))

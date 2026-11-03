@@ -5,6 +5,7 @@ const Cast = preload("res://scripts/cambridge/cast.gd")
 const ScorePlayer = preload("res://scripts/audio/score_player.gd")
 
 var main
+var monkey: Node
 var scenario := "honest"
 var shots_dir := ""
 var failures: Array[String] = []
@@ -32,6 +33,13 @@ var _coda_checks := {"workbook": false, "loupe": false, "kit_close": false, "lam
 
 
 func _ready() -> void:
+	if scenario == "monkey":
+		process_mode = Node.PROCESS_MODE_ALWAYS
+		monkey = load("res://tests/autoplay_bot.gd").new()
+		monkey.main = main
+		monkey.scenario = "monkey"
+		monkey.continuation_helper = true
+		add_child(monkey)
 	if shots_dir != "":
 		DirAccess.make_dir_recursive_absolute(shots_dir)
 		DirAccess.remove_absolute(shots_dir.path_join("result_" + scenario + ".json"))
@@ -60,6 +68,7 @@ func _process(delta: float) -> void:
 		if not _shot_beats.has("M2_" + name_):
 			_shot_beats["M2_" + name_] = true
 			beats.append("M2_" + name_)
+			if monkey: print("[PROLOGUE monkey] PHASE M2_" + name_)
 			_beat_shot(name_)
 		if main._free():
 			_departure_draw_calls = maxi(_departure_draw_calls, int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
@@ -75,6 +84,7 @@ func _process(delta: float) -> void:
 		if not _shot_beats.has(name_):
 			_shot_beats[name_] = true
 			beats.append(name_)
+			if monkey: print("[PROLOGUE monkey] PHASE " + name_)
 			_beat_shot(name_)
 
 
@@ -260,6 +270,7 @@ func look(target: Vector3) -> void:
 
 
 func walk(target: Vector3) -> void:
+	await _monkey_step("walk", true)
 	var budget := 9.0
 	while budget > 0.0:
 		var p = main.player
@@ -277,6 +288,7 @@ func walk(target: Vector3) -> void:
 
 
 func interact(id: String) -> void:
+	await _monkey_step("interact " + id)
 	await look(main.world.targets[id])
 	var target: Node = main.player.aimed_interactable()
 	var actual := str(target.get_meta("interact_id")) if target else "none"
@@ -294,6 +306,9 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 	while is_instance_valid(main) and main.ui.dialog_active() and guard > 0:
 		while _capturing > 0:
 			await frames()
+		await _monkey_step("dialogue")
+		if not is_instance_valid(main) or not main.ui.dialog_active():
+			break
 		guard -= 1
 		var entry: Dictionary = main.ui._seq[main.ui._seq_i]
 		if entry.has("choices"):
@@ -307,6 +322,8 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 				await shot("choice_" + choice_label)
 			var choice: int = int(choices[index]) if index < choices.size() else default_choice
 			index += 1
+			if monkey:
+				choice = monkey.monkey_choice(entry, choice)
 			await tap(KEY_1 + choice)
 		else:
 			await tap(KEY_E)
@@ -320,6 +337,9 @@ func talk_keys(choices_by_key: Dictionary, default_choice := 0) -> void:
 	while is_instance_valid(main) and main.ui.dialog_active() and guard > 0:
 		while _capturing > 0:
 			await frames()
+		await _monkey_step("dialogue")
+		if not is_instance_valid(main) or not main.ui.dialog_active():
+			break
 		guard -= 1
 		var entry: Dictionary = main.ui._seq[main.ui._seq_i]
 		if entry.has("choices"):
@@ -330,6 +350,8 @@ func talk_keys(choices_by_key: Dictionary, default_choice := 0) -> void:
 				_choice_shots[choice_label] = true
 				await _wait_for_camera_settle()
 				await shot("choice_" + choice_label)
+			if monkey:
+				choice = monkey.monkey_choice(entry, choice)
 			await tap(KEY_1 + choice)
 		else:
 			await tap(KEY_E)
@@ -365,7 +387,7 @@ func shot(label: String) -> void:
 
 func _run() -> void:
 	await frames(30)
-	if scenario not in ["honest", "tidy", "accuse"]:
+	if scenario not in ["honest", "tidy", "accuse", "monkey"]:
 		failures.append("unknown scenario")
 		_finish()
 		return
@@ -420,6 +442,14 @@ func _run() -> void:
 	await shot("06_loupe")
 	await click_button(viewer.buttons.close)
 	await talk()
+	if monkey:
+		for i in monkey.monkey_rng.randi_range(0, 3):
+			monkey._disruption("Cambridge reopen viewer")
+			await interact("lightbox")
+			await drag(center, center + Vector2(27, 12))
+			await drag(center + Vector2(27, 12), center)
+			await click_button(viewer.buttons.close)
+			await talk()
 	await walk(Vector3(2.45, 0, 1.4))
 	await walk(Vector3(2.5, 0, -0.15))
 	await interact("logbook")
@@ -453,7 +483,7 @@ func _run() -> void:
 						has_revision_prompt = true
 				if scenario == "honest" and has_revision_prompt:
 					failures.append("honest report unexpectedly offered revise_report")
-				if scenario != "honest" and not has_revision_prompt:
+				if scenario in ["tidy", "accuse"] and not has_revision_prompt:
 					failures.append("hasty report omitted revise_report")
 				if scenario == "accuse" and not _revised:
 					# First review: defend once, then accept the request to look again.
@@ -513,8 +543,8 @@ func _run() -> void:
 		failures.append("bridge did not enter PREP directly")
 	var expected_bond := "close" if scenario == "honest" else "warm"
 	var expected_fix := 1 if scenario == "tidy" else 0
-	if Story.bond_tone != expected_bond: failures.append("unexpected M2 bond tone: " + Story.bond_tone)
-	if Story.slip_fix != expected_fix: failures.append("unexpected M2 correction choice: %d" % Story.slip_fix)
+	if scenario != "monkey" and Story.bond_tone != expected_bond: failures.append("unexpected M2 bond tone: " + Story.bond_tone)
+	if scenario != "monkey" and Story.slip_fix != expected_fix: failures.append("unexpected M2 correction choice: %d" % Story.slip_fix)
 	if not Story.departure_done: failures.append("M2 completion flag missing at PREP")
 	if Story.report.get("kit_credited", false) != true: failures.append("independent check credit missing")
 	if not Story.clues.get("log", false): failures.append("observing log clue missing")
@@ -735,7 +765,7 @@ func _departure_run() -> void:
 	await interact("kit")
 	await talk_keys({"bond": 0 if scenario == "honest" else (1 if scenario == "tidy" else 2)})
 	var expected_bond := "close" if scenario == "honest" else "warm"
-	if main.beat != main.Beat.FAREWELL or Story.bond_tone != expected_bond:
+	if main.beat != main.Beat.FAREWELL or (scenario != "monkey" and Story.bond_tone != expected_bond):
 		failures.append("Kit conversation did not reach expected M2 state: beat=%s tone=%s" % [main.Beat.keys()[main.beat], Story.bond_tone])
 		_finish()
 		return
@@ -784,7 +814,8 @@ func _finish() -> void:
 		"score_cue_log": ScorePlayer.cue_log.duplicate(true), "score_failures": score_failures,
 		"engine": Engine.get_version_info().string, "elapsed_seconds": snappedf(_elapsed, 0.01),
 		"room_draw_calls_max_observed": _room_draw_calls, "departure_draw_calls_max_observed": _departure_draw_calls,
-		"input_retries": _input_retries}
+		"input_retries": _input_retries,
+		"stuck_events": failures.size(), "disruptions": monkey.disruptions if monkey else []}
 	var run_seed := -1
 	var evidence := "-"
 	if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd":
@@ -795,4 +826,12 @@ func _finish() -> void:
 		var file := FileAccess.open(shots_dir.path_join("result_" + scenario + ".json"), FileAccess.WRITE)
 		file.store_string(JSON.stringify(receipt, "  "))
 	print("[PROLOGUE %s] %s seed=%d evidence=%s score=%d matched=%d bias_blocked=%s screenshots=%d failures=%s" % [scenario, receipt.phase_reached, run_seed, evidence, receipt.score, _matched, _bias_blocked, screenshots.size(), str(failures)])
+	if monkey:
+		print("[MONKEY] DONE phase=%s stuck=%d disruptions=%d" % [phase_reached, failures.size(), monkey.disruptions.size()])
 	get_tree().quit(0 if failures.is_empty() else 1)
+
+
+func _monkey_step(context: String, walking := false) -> void:
+	if monkey and is_instance_valid(main):
+		monkey.main = main
+		await monkey.monkey_step(context, walking)
