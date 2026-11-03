@@ -25,6 +25,8 @@ class GradeFixture extends RefCounted:
 		return {"omitted_good": [], "included_poor": [], "included_unusable": [], "reselected": not clean,
 			"reselect_reason": "", "reselect_added": [], "reselect_removed": [], "reselect_justified": false}
 
+signal _wait_completed(finished: bool)
+
 var failures := 0
 var checks := 0
 
@@ -38,6 +40,20 @@ func check(condition: bool, message: String) -> void:
 	if not condition:
 		failures += 1
 		print("FAIL: ", message)
+
+
+func _await_or_timeout(sig: Signal, seconds: float) -> bool:
+	var timer := create_timer(seconds, true, false, true)
+	var on_finished := func(): _wait_completed.emit(true)
+	var on_timeout := func(): _wait_completed.emit(false)
+	sig.connect(on_finished, CONNECT_ONE_SHOT)
+	timer.timeout.connect(on_timeout, CONNECT_ONE_SHOT)
+	var finished: bool = await _wait_completed
+	if sig.is_connected(on_finished):
+		sig.disconnect(on_finished)
+	if timer.timeout.is_connected(on_timeout):
+		timer.timeout.disconnect(on_timeout)
+	return finished
 
 
 func text_of(seq: Array) -> String:
@@ -146,7 +162,8 @@ func _test_direct_and_prologue_paths() -> void:
 	await process_frame
 	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Esc pause holds the direct lamp-out beat")
 	direct.ui.toggle_pause()
-	await direct._coda_transition.finished
+	var direct_finished := await _await_or_timeout(direct._coda_transition.finished, 5.0)
+	check(direct_finished, "direct lamp-out beat finishes within 5 s")
 	check(direct.phase == direct.Phase.ENDING, "direct lamp-out beat reaches ending")
 	var starts_after := ScorePlayer.cue_log.filter(func(event): return event.get("event", "") == "start" and event.get("cue", "") == "coda_resolution").size()
 	check(starts_after == starts_before + 1, "direct lamp-out and ending start coda_resolution exactly once")
@@ -220,7 +237,8 @@ func _test_direct_and_prologue_paths() -> void:
 		check(is_equal_approx(prologue.ui.fade.color.a, fade_at_tree_pause), "Esc pause holds the coda screen fade")
 		check(prologue.phase == prologue.Phase.CODA and prologue.coda_step == prologue.CodaStep.FADING and prologue._busy, "Esc pause keeps coda before ending")
 		prologue.ui.toggle_pause()
-		await prologue._coda_transition.finished
+		var prologue_finished := await _await_or_timeout(prologue._coda_transition.finished, 5.0)
+		check(prologue_finished, "prologue coda fade finishes within 5 s")
 	check(prologue.phase == prologue.Phase.ENDING and prologue.ui.ending_panel.visible, "prologue coda fade reaches ending")
 	check(is_equal_approx(prologue.world.lamp.light_energy, 0.0) and is_equal_approx(prologue.world.safelight.light_energy, 0.0), "resumed coda fade extinguishes both lamps")
 	check(is_equal_approx(prologue.ui.fade.color.a, 0.0), "ending clears the completed coda screen fade")
