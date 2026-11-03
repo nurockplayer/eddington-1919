@@ -198,7 +198,7 @@ func _process(delta: float) -> void:
 		tick.play()
 	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK]:
 		var target: Node = player.aimed_interactable()
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if target else "")
+		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if target and (beat != Beat.TRIAL_TASK or target.get_meta("interact_id") == "cabinet") else "")
 	else:
 		ui.set_prompt("")
 
@@ -221,9 +221,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _interact(id: String) -> void:
-	if beat == Beat.TRIAL_TASK and id == "cabinet":
-		click.play()
-		_say(C17.trial_check(), "trial_check")
+	if beat == Beat.TRIAL_TASK:
+		if id == "cabinet":
+			click.play()
+			_say(C17.trial_check(), "trial_check")
 		return
 	click.play()
 	match id:

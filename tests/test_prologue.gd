@@ -478,6 +478,8 @@ func _test_cambridge_rain() -> void:
 	check(guard > 0, "the plan and trial dialogue finish")
 	check(chapter.beat == chapter.Beat.TRIAL_TASK and chapter.player.can_move and chapter._free(), "trial dialogue releases movement for the cabinet task")
 	check(chapter._trial_marker.visible and chapter.ui.objectives.text.contains("到櫃子取出畢宿星團"), "trial highlights the cabinet and shows its objective")
+	chapter._interact("notebook")
+	check(chapter.beat == chapter.Beat.TRIAL_TASK and not chapter.report_sheet.visible and chapter._free(), "trial cannot reopen report submission or rewind the story")
 	var story := root.get_node("Story")
 	var acknowledgments := ["我看到你寫了『對不上』。", "跳過也是一種選擇——但要寫下你跳過了。", "星表也是人量的。"]
 	for choice in [1, 2, 0]:
@@ -559,12 +561,17 @@ func _test_cambridge_captions() -> void:
 	if not await _rain_wait(chapter, func(): return chapter.ui.caption.text != first, "gamepad A advances montage caption after minimum"):
 		return
 	var second: String = chapter.ui.caption.text
-	var last_elapsed: float = chapter._caption_elapsed
-	var deadline := Time.get_ticks_msec() + 12000
-	while chapter._caption_elapsed >= 0.0 and Time.get_ticks_msec() < deadline:
-		last_elapsed = chapter._caption_elapsed
-		await process_frame
-	check(chapter._caption_elapsed < 0.0 and last_elapsed >= 8.0 and last_elapsed <= 8.0 + chapter.get_process_delta_time(), "caption auto-advances on the frame crossing eight seconds without input")
+	# Drive the real director clock at its boundary; host scheduling varies under load.
+	chapter.set_process(false)
+	await create_timer(0.7).timeout
+	chapter._process(7.99 - chapter._caption_elapsed)
+	await process_frame
+	check(chapter._caption_elapsed >= 0.0 and chapter.ui.caption.text == second, "caption stays until eight seconds without input")
+	chapter._process(8.0 - chapter._caption_elapsed)
+	await process_frame
+	await process_frame
+	check(chapter._caption_elapsed < 0.0, "caption auto-advances at eight seconds without input")
+	chapter.set_process(true)
 	if not await _rain_wait(chapter, func(): return chapter.ui.caption.text != second, "automatic advance displays next caption"):
 		return
 	await _drain_chapter_audio(chapter)

@@ -493,9 +493,9 @@ func _run() -> void:
 			await shot("dialogue_" + str(main._pending))
 			await talk_keys({"trial_note": 0}, 1)
 		elif is_instance_valid(main) and main.beat == main.Beat.TRIAL_TASK:
-			await walk(Vector3(0.8, 0, 2.35))
-			await walk(Vector3(-1.4, 0, 2.35))
-			await walk(Vector3(-1.4, 0, -0.5))
+			await walk(Vector3(2.1, 0, 2.35))
+			await walk(Vector3(2.1, 0, -1.5))
+			await walk(Vector3(-1.9, 0, -1.5))
 			await interact("cabinet")
 		elif is_instance_valid(main) and main.beat == main.Beat.MONTAGE:
 			await tap(KEY_E)
