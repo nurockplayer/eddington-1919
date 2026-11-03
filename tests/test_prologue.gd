@@ -141,6 +141,7 @@ func _test_story_scene_persistence() -> void:
 	story.report = {"cause": "mirror", "original": "keep", "residual": "unresolved", "kit_credited": false}
 	story.plan = ["comparison", "far_stars", "rules_first"]
 	story.kit_choice = 1
+	story.trial_note = 2
 	var first := _packed_dummy("PrologueDummyOne")
 	var second := _packed_dummy("PrologueDummyTwo")
 	check(change_scene_to_packed(first) == OK, "replace current scene with first dummy scene")
@@ -150,7 +151,7 @@ func _test_story_scene_persistence() -> void:
 	check(story.from_prologue and story.prologue_done, "Story flags survive scene replacement")
 	check(story.clues.label_mirrored and story.clues.residual, "Story clues survive scene replacement")
 	check(story.report.cause == "mirror" and story.report.residual == "unresolved", "Story report survives scene replacement")
-	check(story.plan == ["comparison", "far_stars", "rules_first"] and story.kit_choice == 1, "Story plan and choice survive scene replacement")
+	check(story.plan == ["comparison", "far_stars", "rules_first"] and story.kit_choice == 1 and story.trial_note == 2, "Story plan and choice survive scene replacement")
 
 
 func _test_report_ui() -> void:
@@ -475,6 +476,22 @@ func _test_cambridge_rain() -> void:
 		else:
 			chapter.ui._advance()
 	check(guard > 0, "the plan and trial dialogue finish")
+	check(chapter.beat == chapter.Beat.TRIAL_TASK and chapter.player.can_move and chapter._free(), "trial dialogue releases movement for the cabinet task")
+	check(chapter._trial_marker.visible and chapter.ui.objectives.text.contains("到櫃子取出畢宿星團"), "trial highlights the cabinet and shows its objective")
+	chapter._interact("notebook")
+	check(chapter.beat == chapter.Beat.TRIAL_TASK and not chapter.report_sheet.visible and chapter._free(), "trial cannot reopen report submission or rewind the story")
+	var story := root.get_node("Story")
+	var acknowledgments := ["我看到你寫了『對不上』。", "跳過也是一種選擇——但要寫下你跳過了。", "星表也是人量的。"]
+	for choice in [1, 2, 0]:
+		chapter.beat = chapter.Beat.TRIAL_TASK
+		chapter._interact("cabinet")
+		check(chapter._pending == "trial_check" and chapter.ui.dialog_active() and not chapter.player.can_move, "cabinet interaction opens trial_check")
+		chapter.ui._advance()
+		chapter.ui._choose(choice)
+		check(story.trial_note == choice and chapter._pending == "mentor_after", "trial choice %d is stored before mentor_after" % choice)
+		check(str(chapter.ui._seq[2].t).begins_with(acknowledgments[choice]) and str(chapter.ui._seq[2].t).contains("哪顆星對不上，就寫它對不上。"), "Ashby acknowledges trial choice %d and keeps his advice" % choice)
+		if choice != 0:
+			chapter._rain_fade.kill()
 	await create_timer(0.5).timeout
 	check(chapter.rain.playing and chapter.rain.volume_db < -22.0, "Cambridge rain fades after the trial result")
 	# A quick reader leaves mentor_after before the 3 s fade has finished.
@@ -494,14 +511,71 @@ func _test_cambridge_rain() -> void:
 	if not await _rain_wait(slow, func(): return slow._pending == "opening", "Cambridge reaches the opening dialogue (slow reader)"):
 		return
 	_finish_test_dialogue(slow)
-	slow._pending = "trial"
-	slow._dialogue_done({})
+	slow._say(C17.trial_task(), "trial")
+	_finish_test_dialogue(slow)
+	slow._interact("cabinet")
+	slow.ui._advance()
+	slow.ui._choose(0)
 	check(slow._pending == "mentor_after", "the trial result opens mentor_after")
 	await create_timer(3.3).timeout
 	check(slow._pending == "mentor_after" and slow.beat != slow.Beat.CODA, "the slow reader is still in mentor_after")
 	check(not slow.rain.playing and slow.rain_stopped, "the 3 s fade stops the rain by itself")
 	await _drain_chapter_audio(slow)
 	slow.free()
+	await process_frame
+
+
+func _caption_a() -> void:
+	for pressed in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = JOY_BUTTON_A
+		event.pressed = pressed
+		root.push_input(event)
+		await process_frame
+
+
+func _test_cambridge_captions() -> void:
+	var chapter = load("res://scripts/cambridge/director.gd").new()
+	root.add_child(chapter)
+	if not await _rain_wait(chapter, func(): return chapter._pending == "opening", "caption test reaches opening"):
+		return
+	check(root.get_node("Story").trial_note == -1, "new Cambridge run resets trial note")
+	_finish_test_dialogue(chapter)
+	chapter._montage()
+	if not await _rain_wait(chapter, func(): return chapter._caption_elapsed >= 0.0, "montage displays its first caption"):
+		return
+	var first: String = chapter.ui.caption.text
+	await _caption_a()
+	await create_timer(1.0).timeout
+	check(chapter.ui.caption.text == first and chapter._caption_elapsed >= 0.0 and not chapter._caption_advance, "caption ignores gamepad A before 1.2 seconds")
+	await create_timer(0.25).timeout
+	check(chapter.ui.caption.text == first and chapter._caption_elapsed >= 1.2, "caption remains after its minimum until input")
+	check(chapter._caption_prompt.text == "［A 鍵］繼續" and chapter._caption_prompt.modulate.a == 0.5, "caption uses a dim device-aware prompt")
+	await _send_key(KEY_ESCAPE)
+	var frozen: float = chapter._caption_elapsed
+	var alpha: float = chapter.ui.caption.modulate.a
+	await create_timer(0.3).timeout
+	check(paused and chapter._caption_elapsed == frozen and chapter.ui.caption.modulate.a == alpha and not chapter._caption_advance, "pause freezes caption timing and fade")
+	await _send_key(KEY_ESCAPE)
+	await _caption_a()
+	if not await _rain_wait(chapter, func(): return chapter.ui.caption.text != first, "gamepad A advances montage caption after minimum"):
+		return
+	var second: String = chapter.ui.caption.text
+	# Drive the real director clock at its boundary; host scheduling varies under load.
+	chapter.set_process(false)
+	await create_timer(0.7).timeout
+	chapter._process(7.99 - chapter._caption_elapsed)
+	await process_frame
+	check(chapter._caption_elapsed >= 0.0 and chapter.ui.caption.text == second, "caption stays until eight seconds without input")
+	chapter._process(8.0 - chapter._caption_elapsed)
+	await process_frame
+	await process_frame
+	check(chapter._caption_elapsed < 0.0, "caption auto-advances at eight seconds without input")
+	chapter.set_process(true)
+	if not await _rain_wait(chapter, func(): return chapter.ui.caption.text != second, "automatic advance displays next caption"):
+		return
+	await _drain_chapter_audio(chapter)
+	chapter.free()
 	await process_frame
 
 
@@ -698,6 +772,7 @@ func _run() -> void:
 	await _test_viewer_hint_progress()
 	await _test_cambridge_pause_restore()
 	await _test_cambridge_rain()
+	await _test_cambridge_captions()
 	await _test_totality_log_suspension()
 	# Drain releases queued by the final chapter's teardown before AudioServer exits.
 	await create_timer(0.1).timeout

@@ -18,7 +18,7 @@ const Board := preload("res://scripts/cambridge/plan_board.gd")
 
 static var bench_cambridge_out := ""
 
-enum Beat { OPENING, INVESTIGATE, MENTOR, INTERLUDE, EXAM, PLAN, TRIAL, CODA, MONTAGE, DONE }
+enum Beat { OPENING, INVESTIGATE, MENTOR, INTERLUDE, EXAM, PLAN, TRIAL, TRIAL_TASK, CODA, MONTAGE, DONE }
 var beat := Beat.OPENING
 var world: Dictionary
 var player
@@ -36,6 +36,10 @@ var guess_offered := false
 var gramophone_playing := false
 var gramophone_plays := 0
 var _gramophone: AudioStreamPlayer3D
+var _trial_marker: Label3D
+var _caption_prompt: Label
+var _caption_elapsed := -1.0
+var _caption_advance := false
 var _pending := ""
 var _busy := true
 var _clock_t := 0.0
@@ -60,6 +64,15 @@ func _ready() -> void:
 	ExistingDirector._ensure_inputs()
 	Story.reset()
 	world = Room.build(self)
+	_trial_marker = Label3D.new()
+	_trial_marker.text = "▼ 底片櫃"
+	_trial_marker.font = preload("res://scripts/fonts.gd").cjk()
+	_trial_marker.font_size = 30
+	_trial_marker.pixel_size = 0.003
+	_trial_marker.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_trial_marker.position = world.targets.cabinet + Vector3(0, 1.0, 0)
+	_trial_marker.hide()
+	add_child(_trial_marker)
 	player = Player.new()
 	player.position = world.spawn
 	add_child(player)
@@ -154,17 +167,23 @@ func _free() -> bool:
 
 func _sync_player() -> void:
 	var free := _free()
-	player.can_move = free and beat == Beat.INVESTIGATE
+	player.can_move = free and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK]
 	player.can_look = free
 	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	if beat == Beat.INVESTIGATE:
 		ui.set_objectives("[b]劍橋・1917[/b]\n核對 14 號星場的抄錄圖，交給 %s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\nTab 對話紀錄[/color]" % [Cast.MENTOR, Cast.KIT])
+	elif beat == Beat.TRIAL_TASK:
+		ui.set_objectives("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。")
 	else:
 		ui.set_objectives("")
+	_trial_marker.visible = beat == Beat.TRIAL_TASK and free
 
 
 func _process(delta: float) -> void:
+	if _caption_elapsed >= 0.0 and not ui.log_open():
+		_caption_elapsed += delta
+		_caption_prompt.text = "［%s］繼續" % Prompts.key("interact")
 	_light_t += delta
 	# Slow overlapping waves: a quiet coal fire, without particles or shadow redraw.
 	var flicker := 1.0 + 0.055 * sin(_light_t * 2.3) + 0.025 * sin(_light_t * 5.7)
@@ -177,15 +196,24 @@ func _process(delta: float) -> void:
 	if _clock_t >= 1.0:
 		_clock_t -= 1.0
 		tick.play()
-	if _free() and beat == Beat.INVESTIGATE:
+	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK]:
 		var target: Node = player.aimed_interactable()
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if target else "")
+		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if target and (beat != Beat.TRIAL_TASK or target.get_meta("interact_id") == "cabinet") else "")
 	else:
 		ui.set_prompt("")
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _free() and beat == Beat.INVESTIGATE and event.is_action_pressed("interact"):
+	if _caption_elapsed >= 0.0 and not get_tree().paused and not ui.log_open():
+		var advance := event.is_action_pressed("interact") or event.is_action_pressed("ui_accept")
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			advance = true
+		if advance:
+			get_viewport().set_input_as_handled()
+			if _caption_elapsed >= 1.2:
+				_caption_advance = true
+			return
+	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK] and event.is_action_pressed("interact"):
 		var target: Node = player.aimed_interactable()
 		if target:
 			get_viewport().set_input_as_handled()
@@ -193,6 +221,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _interact(id: String) -> void:
+	if beat == Beat.TRIAL_TASK:
+		if id == "cabinet":
+			click.play()
+			_say(C17.trial_check(), "trial_check")
+		return
 	click.play()
 	match id:
 		"lightbox":
@@ -390,11 +423,14 @@ func _dialogue_done(results: Dictionary) -> void:
 			_say(C17.trial_task(), "trial")
 			return
 		"trial":
+			beat = Beat.TRIAL_TASK
+		"trial_check":
+			Story.trial_note = int(results.get("trial_note", 0))
 			world.eddington.hide()
 			_rain_fade = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_STOP)
 			_rain_fade.tween_property(rain, "volume_db", -80.0, 3.0)
 			_rain_fade.tween_callback(_stop_rain)
-			_say(C17.mentor_after(Story.report), "mentor_after")
+			_say(C17.mentor_after(Story.report, Story.trial_note), "mentor_after")
 			return
 		"mentor_after":
 			_coda()
@@ -502,10 +538,33 @@ func _montage() -> void:
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	for entry in C17.montage():
 		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
-		await ui.show_caption(str(entry.t) + "\n\n（" + tag + "）", 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+		await _montage_caption(str(entry.t) + "\n\n（" + tag + "）")
 	Story.prologue_done = true
 	beat = Beat.DONE
 	get_tree().change_scene_to_file("res://scenes/departure.tscn")
+
+
+func _montage_caption(text: String) -> void:
+	if not is_instance_valid(_caption_prompt):
+		_caption_prompt = Label.new()
+		_caption_prompt.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		_caption_prompt.offset_top = -100
+		_caption_prompt.offset_bottom = -60
+		_caption_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_caption_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_caption_prompt.modulate = Color(1, 1, 1, 0.5)
+		Settings.track_font(_caption_prompt, 20)
+		ui.caption.add_child(_caption_prompt)
+	_caption_prompt.show()
+	ui.caption.text = text
+	_caption_advance = false
+	_caption_elapsed = 0.0
+	await create_tween().set_pause_mode(Tween.TWEEN_PAUSE_STOP).tween_property(ui.caption, "modulate:a", 1.0, 0.6).finished
+	while _caption_elapsed < 8.0 and not _caption_advance:
+		await get_tree().process_frame
+	_caption_elapsed = -1.0
+	await create_tween().set_pause_mode(Tween.TWEEN_PAUSE_STOP).tween_property(ui.caption, "modulate:a", 0.0, 0.6).finished
+	_caption_prompt.hide()
 
 
 func _audio(samples: PackedFloat32Array, db: float, loop := false) -> AudioStreamPlayer:

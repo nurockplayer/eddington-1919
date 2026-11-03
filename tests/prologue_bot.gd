@@ -491,7 +491,14 @@ func _run() -> void:
 	while not Story.prologue_done:
 		if is_instance_valid(main) and main.get_script() and main.get_script().resource_path.ends_with("cambridge/director.gd") and main.ui.dialog_active():
 			await shot("dialogue_" + str(main._pending))
-			await talk([1])
+			await talk_keys({"trial_note": 0}, 1)
+		elif is_instance_valid(main) and main.beat == main.Beat.TRIAL_TASK:
+			await walk(Vector3(2.1, 0, 2.35))
+			await walk(Vector3(2.1, 0, -1.5))
+			await walk(Vector3(-1.9, 0, -1.5))
+			await interact("cabinet")
+		elif is_instance_valid(main) and main.beat == main.Beat.MONTAGE:
+			await tap(KEY_E)
 		await frames(5)
 	# M1 now transitions into the authored M2 scene. Its dedicated routine runs the
 	# checklist and choices while this persistent runner waits for the M2 completion flag.
