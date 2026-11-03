@@ -22,9 +22,12 @@ static func briefing() -> Array:
 	]
 
 
-static func eddington_prep() -> Array:
+static func eddington_prep(plates: int, drive_wound: bool, drive_rate_checked: bool, carried: int) -> Array:
+	var handoff := "（你手上的 %d 張會交給 Cottingham）" % carried if carried > 0 else ""
+	var drive := "上了發條並校過走速" if drive_rate_checked else ("上了發條但沒校走速" if drive_wound else "還沒上發條")
 	return [
-		{"s": E, "t": "還有什麼事嗎？", "key": "prep", "choices": ["我準備好了——就位等待全食。", "曝光的要領再說一次？", "先空拍一次，練練喊開始和停？", "沒事。"],
+		{"s": E, "t": "可用底片 %d 張%s。時鐘驅動：%s。" % [plates, handoff, drive]},
+		{"s": E, "t": "還有什麼事嗎？", "key": "prep", "choices": ["開始——就位等待全食。", "曝光的要領再說一次？", "先空拍一次，練練喊開始和停？", "沒事。"],
 			"then": [[], [
 				{"s": E, "t": "雲薄的時候，幾秒就能留下星像；厚雲下開再久也只是一片霧。換片要四秒左右。"},
 				{"s": E, "t": "最要緊的是：[b]第三接觸之前一定要喊停[/b]。陽光一回來，那張底片就毀了。"},

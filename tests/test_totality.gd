@@ -9,6 +9,7 @@ const UI := preload("res://scripts/ui.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const Chart := preload("res://scripts/chart.gd")
 const Prompts := preload("res://scripts/prompts.gd")
+const Settings := preload("res://scripts/settings.gd")
 
 const STEP := 0.1                      # real seconds per scripted frame
 const GAME_STEP := STEP * Sim.TIME_SCALE   # 0.25 game-seconds per frame
@@ -33,6 +34,8 @@ func _run() -> void:
 	_test_strip_model()
 	await _test_sim_invariance()
 	await _test_rehearsal()
+	await _test_ready_status()
+	await _test_empty_rack_wait()
 	await _test_shutter_read()
 	await _test_sfx_buffers()
 	await _test_viewer_note()
@@ -40,6 +43,7 @@ func _run() -> void:
 	_test_judgment_neither()
 	_test_judgment_prompt()
 	await _test_judgment_reasons()
+	await _test_report_rule_layout()
 	await _test_birds_quiet()
 	await _test_callouts()
 	await _test_night_viewer()
@@ -197,8 +201,9 @@ func _test_rehearsal() -> void:
 		root.push_input(device)
 		await process_frame
 		game._interact("eddington")
+		game.ui._advance()
 		check(game.ui._choice_buttons.size() == 4, "PREP offers rehearsal and keeps dismiss last")
-		check(game.ui._seq[0].choices[3] == "沒事。", "dismiss stays at PREP index 3")
+		check(game.ui._seq[1].choices[3] == "沒事。", "dismiss stays at PREP index 3")
 		game.ui._choose(2)
 		check(game.rehearsing and not game.ui.dialog_active(), "choice 2 starts a repeatable dry run")
 		check(not game.player.can_move and game.player.can_look, "rehearsal freezes movement while retaining look and input")
@@ -235,14 +240,17 @@ func _test_rehearsal() -> void:
 	game._process_prep(0.5)
 	check(game.prep_left == prep_before - 0.5, "PREP countdown resumes after rehearsal")
 	game._interact("eddington")
+	game.ui._advance()
 	game.ui._choose(3)
 	check(not game.rehearsing and game.phase == game.Phase.PREP, "dismiss remains a no-op")
 	game._interact("eddington")
+	game.ui._advance()
 	game.ui._choose(1)
 	check(game.ui.text_label.text.contains("雲薄的時候"), "choice 1 still explains exposure")
 	while game.ui.dialog_active():
 		game.ui._advance()
 	game._interact("eddington")
+	game.ui._advance()
 	game.ui._choose(0)
 	await create_timer(2.2).timeout
 	check(game.phase == game.Phase.TOTALITY and not game._busy, "choice 0 still begins real totality")
@@ -257,6 +265,86 @@ func _test_rehearsal() -> void:
 	game.queue_free()
 	await process_frame
 	Prompts.joypad = false
+
+
+func _test_ready_status() -> void:
+	var states := [
+		[true, true, 0, "可用底片 6 張。時鐘驅動：上了發條並校過走速。", 6],
+		[true, false, 0, "可用底片 6 張。時鐘驅動：上了發條但沒校走速。", 6],
+		[false, false, 0, "可用底片 6 張。時鐘驅動：還沒上發條。", 6],
+		[true, true, 2, "可用底片 8 張（你手上的 2 張會交給 Cottingham）。時鐘驅動：上了發條並校過走速。", 8],
+	]
+	for state in states:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game._start_game()
+		game.sim.briefed = true
+		game.sim.plates_delivered = 2
+		game.sim.drive_wound = state[0]
+		game.sim.drive_rate_checked = state[1]
+		game.sim.plates_carried = state[2]
+		game._interact("eddington")
+		check(game.ui.text_label.text == state[3], "real PREP dialogue reports plates, handoff and drive: " + state[3])
+		check(game.ui._choice_buttons.is_empty(), "status appears before the PREP question")
+		game.ui._advance()
+		check(game.ui._seq[1].choices[0] == "開始——就位等待全食。", "choice 0 explicitly starts totality")
+		game.ui._choose(0)
+		await create_timer(2.2).timeout
+		check(game.phase == game.Phase.TOTALITY and not game._busy, "every drive state can start totality without gating")
+		check(game.plates_left == state[4] and game.sim.plates_available() == state[4], "totality has exactly the advertised plate count")
+		check(game.sim.plates_carried == 0 and game.sim.plates_delivered == state[4] - Sim.BASE_PLATES, "starting totality hands over the carried plates")
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
+
+
+func _test_empty_rack_wait() -> void:
+	for action in ["shutter", "interact"]:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game._start_game()
+		await game._begin_totality()
+		while game.plates_left > 0:
+			game._toggle_shutter()
+			game._process_totality(1.0 / Sim.TIME_SCALE)
+			check(game.ui.prompt_label.text == "［%s］開始／停" % Prompts.key("shutter"), "an exposing plate keeps the normal stop prompt")
+			var before_stop: float = game.t_game
+			game._toggle_shutter()
+			check(game.t_game == before_stop and not game.sim.is_exposing(), "stop closes the exposure without skipping time, including the last plate")
+			game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
+		check(game.t_game < 30.0, "rack was exhausted early through actual exposures and plate changes")
+		check(game.ui.prompt_label.text == "底片用完了。［%s］等待第三接觸" % Prompts.key("shutter"), "empty rack offers waiting for third contact")
+		var evidence: Array = game.sim.plates.duplicate(true)
+		var press := InputEventAction.new()
+		press.action = action
+		await _rehearsal_press(press)
+		check(game.t_game == Sim.TOTALITY_S - 3.0, action + " jumps to three game-seconds before contact")
+		game._process_totality(1.0 / Sim.TIME_SCALE)
+		await _rehearsal_press(press)
+		check(game.t_game == Sim.TOTALITY_S - 2.0, "repeated wait cannot move time backwards")
+		game._process_totality(1.0 / Sim.TIME_SCALE)
+		check(not game.tot_done, "third contact does not arrive before three game-seconds")
+		game._process_totality(1.0 / Sim.TIME_SCALE)
+		check(game.tot_done and game._sfx_log.count("third") == 1, "third contact arrives after three game-seconds exactly once")
+		check(game.ui.toast.text.begins_with("第三接觸。陽光像鑽石一樣"), "waiting preserves the diamond-ring announcement")
+		await create_timer(0.2).timeout
+		check(game.sky_mat.get_shader_parameter("third_contact") != Vector2.ZERO, "the actual diamond-ring tween still runs")
+		var night_entries: Array = []
+		game.ui.dialogue_entry.connect(func(_speaker):
+			if game.phase == game.Phase.NIGHT:
+				night_entries.append(game.ui.text_label.text))
+		# Run beyond contact repeatedly while its authored transition completes.
+		for i in 100:
+			game._process_totality(STEP)
+			await create_timer(STEP).timeout
+		check(game.phase == game.Phase.NIGHT and not game._busy, "empty rack reaches the real NIGHT scene")
+		check(night_entries.size() == 1 and game._sfx_log.count("third") == 1, "NIGHT introduction and third contact each run once")
+		check(game.sim.plates == evidence, "waiting and NIGHT preserve every exposure field")
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
 
 
 func _test_shutter_read() -> void:
@@ -369,19 +457,45 @@ func _test_judgment_prompt() -> void:
 
 
 func _test_judgment_reasons() -> void:
+	root.size = Vector2i(1600, 900)
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
 	game.sim = Sim.new(1919)
 	game.phase = game.Phase.TOTALITY
 	game.sim.plates = [
-		{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.8, "sigma": 0.2},
-		{"number": 2, "usable": true, "quality": "good", "included": true, "trail": 0.3, "value": 2.0, "sigma": 0.2},
+		{"number": 1, "start": 10.0, "duration": 6.0, "sunlit": false, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.8, "sigma": 0.2},
+		{"number": 2, "start": 20.0, "duration": 6.0, "sunlit": false, "usable": true, "quality": "good", "included": true, "trail": 0.3, "value": 2.0, "sigma": 0.2},
 	]
-	game._start_judgment()
+	game.sim.rule_id = "strict"
+	game.plate_textures = [null, null]
+	game.ui.hide_title()
+	game._open_viewer()
+	game._on_measure()
+	await process_frame
+	await process_frame
+	await _click_control(game.ui.report_btn)
+	check(game.ui.viewer.visible and game.ui._viewer_locked, "report button keeps the measured evidence visible and locked")
+	for action in game.ui.report_btn.get_parent().get_children() + [game.ui.include_box]:
+		check(not action.is_visible_in_tree() and action.disabled, "report hides and disables %s" % action.text)
+	check(game.ui.dialog_panel.get_index() > game.ui.viewer.get_index(), "dialogue draws and receives clicks above the viewer")
+	check(not game.ui.dialog_panel.get_global_rect().intersects(game.ui.chart.get_global_rect()), "interval choices leave the chart visible")
+	check(root.gui_get_focus_owner() == game.ui._choice_buttons[0], "report puts focus on the interval choices")
+	var selected: int = game.ui._viewer_sel
+	await _click_control(game.ui.thumbs.get_child(2))
+	game.ui.include_box.toggled.emit(false)
+	game._on_plate_toggled(0, false)
+	check(game.ui._viewer_sel == selected and game.sim.plates.all(func(p): return p.included), "report prevents browsing and changing the selected evidence")
+	check(root.gui_get_focus_owner() == game.ui._choice_buttons[0], "clicking evidence cannot steal dialogue focus")
 	check(game._reasons.size() == 5, "judgment offers five reasons")
 	check(game._reasons[4].text.contains("星像平均拖長 0.20"), "instrument reason quotes the mean included trail")
 	var c: Dictionary = game.sim.combined()
+	var bounds: Dictionary = Judgment.interval_bounds(game.sim)
+	check(game.ui.chart.revealed and game.ui.chart.combined == c, "report chart retains the measured combined value")
+	var chart_span := Chart.two_sigma_span(c.value, c.sigma)
+	check(("%.2f" % chart_span.x).to_float() == bounds.lo and ("%.2f" % chart_span.y).to_float() == bounds.hi, "report chart interval agrees with judgment bounds")
+	check(game.ui.viewer_note.text.contains("%.2f–%.2f″" % [bounds.lo, bounds.hi]), "report note agrees with the prompt interval")
+	check(game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "report repeats the rule in the player's own words")
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
 	check(game.ui._seq[0].key == "interval" and game.ui._seq[0].t.contains("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, c.value - 2*c.sigma, c.value + 2*c.sigma]), "real judgment opens with the combined 2σ interval")
 	check(game.ui._seq.size() == 1 and game.ui._choice_buttons.size() == 4, "only interval choices exist before the answer")
@@ -390,6 +504,7 @@ func _test_judgment_reasons() -> void:
 	check(game._interval_answer == 0, "real interval dialogue stores the answer")
 	var correction_shown: bool = game.ui.text_label.text.contains("再看一次")
 	check(correction_shown and game.ui._choice_buttons.is_empty(), "wrong interval feedback is shown before telegram choices exist")
+	check(game.ui.viewer.visible and game.ui._viewer_locked, "evidence stays visible during wrong-answer feedback")
 	# Stop this flow on a regression so later choices do not target the wrong entry.
 	if not correction_shown or not game.ui._choice_buttons.is_empty():
 		game.stop_all_audio()
@@ -401,9 +516,12 @@ func _test_judgment_reasons() -> void:
 	check(game._grade.is_empty() and game.sim.combined() == evidence_before, "interval feedback leaves evidence and grading untouched")
 	game.ui._advance()
 	check(game.ui._seq[game.ui._seq_i].key == "telegram" and game.ui._choice_buttons.size() == Judgment.TELEGRAMS.size(), "telegram choices appear after feedback is advanced")
+	check(game.ui.viewer.visible and root.gui_get_focus_owner() == game.ui._choice_buttons[0], "telegram choices keep evidence visible and hold focus")
 	game.ui._choose(1)
 	check(game.ui._seq[game.ui._seq_i].key == "reason", "telegram still leads to the reason")
+	check(game.ui.viewer.visible and root.gui_get_focus_owner() == game.ui._choice_buttons[0], "reason choices keep evidence visible and hold focus")
 	game.ui._choose(0)
+	check(game._pending == "reaction" and not game.ui.viewer.visible, "viewer closes as the reaction starts")
 	check(game._grade == Judgment.grade(game.sim, "hopeful", "measured"), "real dialogue grades the stored measured reason")
 	var wrong_grade: Dictionary = game._grade.duplicate(true)
 	var wrong_reaction: Array = game.ui._seq.duplicate(true)
@@ -441,6 +559,81 @@ func _test_judgment_reasons() -> void:
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
+
+
+func _click_control(control: Control) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.position = control.get_global_rect().get_center()
+	event.pressed = true
+	root.push_input(event)
+	await process_frame
+	event.pressed = false
+	root.push_input(event)
+	await process_frame
+
+
+func _test_report_rule_layout() -> void:
+	var old_size := root.size
+	var old_scale := Settings.text_scale
+	root.size = Vector2i(1600, 900)
+	for scale in [1.0, 1.2]:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		Settings.text_scale = scale
+		Settings.refresh_fonts(self)
+		game.ui.theme_res.default_font_size = Settings.fs(21)
+		game.sim = Sim.new(1919)
+		game.phase = game.Phase.NIGHT
+		game.sim.rule_id = "strict"
+		game.sim.measured = true
+		for i in 12:
+			game.sim.plates.append({"number": i + 1, "start": float(i * 10), "duration": 6.0, "sunlit": false,
+				"usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.75, "sigma": 0.2})
+			game.plate_textures.append(null)
+		game.ui.hide_title()
+		game._open_viewer()
+		for frame in 4:
+			await process_frame
+		var note_before: String = game.ui.viewer_note.text
+		await _click_control(game.ui.report_btn)
+		for stage in ["interval", "feedback", "telegram", "reason"]:
+			for frame in 4:
+				await process_frame
+			var chart_rect: Rect2 = game.ui.chart.get_global_rect()
+			var dialog_rect: Rect2 = game.ui.dialog_panel.get_global_rect()
+			print("report layout scale=%s stage=%s chart=%s dialogue=%s" % [scale, stage, chart_rect, dialog_rect])
+			check(root.get_visible_rect().encloses(chart_rect) and not dialog_rect.intersects(chart_rect),
+				"scale %s %s leaves the whole chart visible" % [scale, stage])
+			check(root.get_visible_rect().encloses(dialog_rect), "scale %s %s dialogue fits viewport" % [scale, stage])
+			var rule_rect: Rect2 = game.ui.viewer_rule.get_global_rect()
+			check(root.get_visible_rect().encloses(rule_rect) and not dialog_rect.intersects(rule_rect),
+				"scale %s %s rule fits viewport and stays above dialogue" % [scale, stage])
+			match stage:
+				"interval":
+					check(game.ui._seq[game.ui._seq_i].key == "interval", "real report starts at interval")
+					await _click_control(game.ui._choice_buttons[Judgment.interval_truth(game.sim)])
+				"feedback":
+					game.ui._advance()
+				"telegram":
+					check(game.ui._seq[game.ui._seq_i].key == "telegram", "real report reaches telegram")
+					await _click_control(game.ui._choice_buttons[1])
+				"reason":
+					check(game.ui._seq[game.ui._seq_i].key == "reason" and game.ui._choice_buttons.size() == 5,
+						"real report reaches five reason choices")
+		check(game.ui.thumbs.get_child_count() == 13, "report rule layout has twelve plates and a comparison thumbnail")
+		check(game.ui.viewer_rule.is_visible_in_tree() and game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "report shows the complete authored rule")
+		check(game.ui.viewer_note.text == note_before and not note_before.contains("你寫下的規則"), "report rule leaves the measurement note unchanged")
+		game.ui.close_viewer()
+		game._open_viewer()
+		check(game.ui.chart.custom_minimum_size.y == 420.0, "reopening the viewer restores the measurement chart height")
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
+	Settings.text_scale = old_scale
+	Settings.refresh_fonts(self)
+	root.size = old_size
 
 
 func _test_birds_quiet() -> void:
@@ -695,6 +888,10 @@ func _test_viewer_note() -> void:
 	game._refresh_viewer()
 	check(game.ui.viewer_note.text.contains("星像清楚"), "viewer note shows quality counts after measuring")
 	check(game.ui.viewer_note.text.contains("兩倍誤差"), "viewer note explains the two-sigma criterion after measuring")
+	for i in 3:
+		game.sim.rule_id = ["strict", "after", "none"][i]
+		game._refresh_viewer()
+		check(game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[i], "viewer recalls rule %s verbatim" % game.sim.rule_id)
 	game.stop_all_audio()
 	game.queue_free()
 

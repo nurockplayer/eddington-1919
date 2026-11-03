@@ -19,8 +19,11 @@ static func opening() -> Array:
 
 
 ## When the workbook page was already written during the night phase.
-static func workbook_again() -> Array:
-	return [{"s": "", "t": "（你又讀了一遍工作簿最後一頁。字比你記得的還要歪。）"}]
+static func workbook_again(kit_line := "") -> Array:
+	var seq: Array = [{"s": "", "t": "（你又讀了一遍工作簿最後一頁。字比你記得的還要歪。）"}]
+	if not kit_line.is_empty():
+		seq.append({"s": "工作簿", "t": kit_line})
+	return seq
 
 
 ## fit: Judgment fit of the telegram (2 best, 1 defensible, 0 wrong). clean: plate selection
@@ -66,7 +69,7 @@ static func small_numbers(residual_found: bool, measured_any: bool) -> Array:
 ## bond_tone: "close" | "warm" (Story). Restrained; no confession, no letter.
 ## kit_choice is the 1917 answer about the childhood star chart (-1: no prologue).
 ## overclaimed: the telegram said more than the plates (CONFIRMED).
-static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false, misread := false) -> Array:
+static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false, misread := false, clean := true) -> Array:
 	var seq: Array = [{"s": YOU, "t": "（工作簿後面還有很多空白頁。回去的路還很長。）"}]
 	match kit_choice:
 		0:
@@ -82,6 +85,25 @@ static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false,
 		seq.append({"s": YOU, "t": "（有些話，也許可以等到見了面再說。）"})
 		seq.append({"s": YOU, "t": "（也許。）"})
 	else:
-		seq.append({"s": YOU, "t": "（Kit 一定會先問天空，再問底片。你已經想好要怎麼回答了。）"})
+		seq.append({"s": YOU, "t": "（Kit 一定會先問天空，再問底片。）"})
+	var no_mistake := not overclaimed and not misread and clean
+	var replies: Array = []
+	for i in 3:
+		replies.append([{"s": YOU, "t": kit_first_reply(i, no_mistake)}])
+	seq.append({"s": YOU, "t": "（見到 Kit，第一句話要說什麼？）", "key": "kit_first",
+		"choices": ["先說天空：雲在最後才薄下去。", "先說不確定：數字很小，範圍很寬。",
+			"先說那張星圖。" if no_mistake else "先說錯誤：我今天也犯了一個錯。"],
+		"then": replies})
 	seq.append({"s": "", "t": "（你吹熄了燈。）"})
 	return seq
+
+
+static func kit_first_reply(choice: int, no_mistake: bool) -> String:
+	match choice:
+		0:
+			return "雲在最後才薄下去，我一直看著。"
+		1:
+			return "數字很小，範圍很寬，我還不能說得更確定。"
+		2:
+			return "我還記得小時候那張星圖。" if no_mistake else "我今天也犯了一個錯，回去再慢慢告訴你。"
+	return ""

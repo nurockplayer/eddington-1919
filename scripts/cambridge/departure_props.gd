@@ -3,11 +3,12 @@ class_name CambridgeDepartureWorkbook
 
 const Fonts := preload("res://scripts/fonts.gd")
 ## Small procedural workbook prop used in the Cambridge departure room and the
-## Príncipe darkroom. The open action is purely narrative and has no game state.
+## Príncipe darkroom. Keeps the final Kit sentence on the night page.
 
 var _leaf: MeshInstance3D
 var _cover_pivot: Node3D
 var _opened := false
+var kit_line := ""
 
 
 func _ready() -> void:
@@ -62,3 +63,19 @@ func open_workbook() -> void:
 	date.visible = true
 	var tween := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_cover_pivot, "rotation:x", deg_to_rad(-112), 0.55)
+
+
+func write_kit_line(line: String) -> void:
+	kit_line = line
+	var note := Label3D.new()
+	note.name = "WorkbookKitLine"
+	note.text = kit_line
+	note.font = Fonts.cjk()
+	note.font_size = 18
+	note.pixel_size = 0.001
+	note.width = 380
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.modulate = Color(0.24, 0.18, 0.12)
+	note.position = Vector3(0, 0.058, 0.03)
+	note.rotation.x = deg_to_rad(-90)
+	add_child(note)
