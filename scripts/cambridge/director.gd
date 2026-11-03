@@ -96,6 +96,7 @@ func _ready() -> void:
 	layer.layer = 9
 	add_child(layer)
 	overlay = Overlay.new()
+	overlay.ui = ui
 	report_sheet = Report.new()
 	plan_board = Board.new()
 	for modal in [overlay, report_sheet, plan_board]:

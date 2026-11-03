@@ -420,7 +420,7 @@ func _test_cambridge_pause_restore() -> void:
 	await _pause_round_trip(chapter, "Cambridge plan board: Esc twice")
 	check(chapter.plan_board.visible, "plan board stays visible after Esc twice")
 	chapter.plan_board.hide()
-	chapter.overlay.open()
+	chapter._interact("lightbox")
 	chapter._sync_player()
 	chapter.overlay._rotate(0.5)
 	chapter.overlay._rotate(-0.5)
@@ -428,6 +428,12 @@ func _test_cambridge_pause_restore() -> void:
 	# The overlay owns Esc to close; pause/resume via the UI exercises its lock.
 	await _pause_round_trip(chapter, "Cambridge overlay", false)
 	check(chapter.overlay.visible, "pause/resume retains overlay")
+	check(chapter._should_offer_kit_guess(), "closing this first light-box visit would start Kit's guess dialogue")
+	await _send_key(KEY_TAB)
+	await _pause_round_trip(chapter, "Cambridge log over light-box: Esc twice")
+	check(chapter.overlay.visible and chapter.ui.log_open() and not chapter.ui.dialog_active() and not chapter.guess_offered,
+		"log Escape preserves light-box and log without starting Kit close dialogue")
+	await _send_key(KEY_TAB)
 	chapter.overlay.hide()
 	chapter._say([{"s": "Kit", "t": "Input-state regression."}], "")
 	await _pause_round_trip(chapter, "Cambridge dialogue: Esc twice")

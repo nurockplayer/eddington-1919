@@ -10,6 +10,14 @@ var checks := 0
 var failures := 0
 
 
+class WorldInputProbe extends Node:
+	var pause_events := 0
+
+	func _unhandled_input(event: InputEvent) -> void:
+		if event.is_action_pressed("pause"):
+			pause_events += 1
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -205,6 +213,7 @@ func _run() -> void:
 	await button(JOY_BUTTON_B)
 	check(not ui.log_open(), "B closes dialogue log")
 	var overlay := Overlay.new()
+	overlay.ui = ui
 	root.add_child(overlay)
 	overlay.open()
 	check(root.gui_get_focus_owner() == overlay.buttons.flip, "overlay focuses Flip")
@@ -214,6 +223,36 @@ func _run() -> void:
 	if paused:
 		ui.toggle_pause()
 	overlay.open()
+	var closed_events: Array = []
+	overlay.closed.connect(func(): closed_events.append(true))
+	var world_input := WorldInputProbe.new()
+	world_input.process_mode = Node.PROCESS_MODE_ALWAYS
+	root.add_child(world_input)
+	ui.toggle_log()
+	var offset_under_log := overlay.offset
+	var angle_under_log := overlay.angle_deg
+	await motion(JOY_AXIS_LEFT_X, 1.0)
+	await motion(JOY_AXIS_RIGHT_X, 0.5)
+	for frame in 6:
+		await process_frame
+		await physics_frame
+	await motion(JOY_AXIS_LEFT_X, 0.0)
+	await motion(JOY_AXIS_RIGHT_X, 0.0)
+	check(overlay.offset.is_equal_approx(offset_under_log) and is_equal_approx(overlay.angle_deg, angle_under_log), "dialogue log blocks light-box stick movement and rotation")
+	await button(JOY_BUTTON_RIGHT_SHOULDER)
+	check(is_equal_approx(overlay.angle_deg, angle_under_log), "dialogue log blocks light-box shoulder rotation")
+	await key(KEY_ESCAPE, true)
+	await key(KEY_ESCAPE, false)
+	check(paused and ui.log_open() and overlay.visible and closed_events.is_empty() and not ui.dialog_active(), "log Escape opens pause without closing light-box or starting dialogue")
+	check(world_input.pause_events == 0, "log Escape is consumed before unhandled world input")
+	await button(JOY_BUTTON_B)
+	await button(JOY_BUTTON_START)
+	check(paused and ui.log_open() and overlay.visible and closed_events.is_empty(), "log Start opens pause while preserving light-box")
+	check(world_input.pause_events == 0, "log Start is consumed before unhandled world input")
+	await button(JOY_BUTTON_B)
+	if ui.log_open():
+		ui.toggle_log()
+	world_input.free()
 	var paper_before := overlay.offset
 	var focus_before := root.gui_get_focus_owner()
 	var move_stick := InputEventJoypadMotion.new()

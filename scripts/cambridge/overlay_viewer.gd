@@ -23,6 +23,7 @@ var angle_deg := 0.0
 var offset := Vector2.ZERO
 var buttons: Dictionary = {}
 
+var ui
 var _font: Font
 var _dragging := false
 var _pointer_pressed := false
@@ -54,7 +55,7 @@ func open() -> void:
 
 
 func close() -> void:
-	if not visible:
+	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	visible = false
 	_dragging = false
@@ -168,7 +169,7 @@ func _button(text: String) -> Button:
 
 
 func _process(delta: float) -> void:
-	if not visible:
+	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	var movement := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var turn := Input.get_axis("gamepad_look_left", "gamepad_look_right")
@@ -185,7 +186,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible or event is InputEventJoypadMotion:
+	if not visible or event is InputEventJoypadMotion or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	if event.is_action_pressed("overlay_rotate_left"):
 		_rotate(-0.5)
@@ -199,7 +200,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
-	if not visible:
+	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -232,6 +233,8 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _toggle_flip() -> void:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return
 	flipped = not flipped
 	sound.emit("flip")
 	_update_alignment()
@@ -239,6 +242,8 @@ func _toggle_flip() -> void:
 
 
 func _rotate(amount: float) -> void:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return
 	angle_deg += amount
 	sound.emit("nudge")
 	_update_alignment()
@@ -246,6 +251,8 @@ func _rotate(amount: float) -> void:
 
 
 func _reset() -> void:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return
 	flipped = false
 	angle_deg = 0.0
 	offset = Vector2.ZERO
@@ -284,6 +291,8 @@ func _update_alignment() -> void:
 
 
 func _try_detail_click(mouse: Vector2) -> bool:
+	if is_instance_valid(ui) and ui.blocks_world_input():
+		return false
 	var screen_mouse := get_global_transform_with_canvas() * mouse
 	if _copy_label_hit_rect().has_point(screen_mouse) or _plate_label_hit_rect().has_point(screen_mouse):
 		_found_clue("label_mirrored")

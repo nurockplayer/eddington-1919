@@ -1126,6 +1126,10 @@ func _refresh_hints() -> void:
 		hint_label.text = "［%s］繼續" % Prompts.key("interact") if Prompts.joypad else "［E／空白鍵／點擊］繼續"
 
 
+func blocks_world_input() -> bool:
+	return log_panel.visible or pause_panel.visible or credits_panel.visible or dialog_active()
+
+
 func _active_menu_scroll() -> ScrollContainer:
 	if pause_panel.visible or log_panel.visible or dialog_panel.visible or viewer.visible:
 		return null
@@ -1160,6 +1164,10 @@ func _input(event: InputEvent) -> void:
 	if pause_panel.visible and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
 		toggle_pause()
 		get_viewport().set_input_as_handled()
+		return
+	if log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
+		get_viewport().set_input_as_handled()
+		toggle_pause()
 		return
 	if log_panel.visible and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause"):
 		toggle_log()
