@@ -148,13 +148,16 @@ func _run() -> void:
 	check(ending_scroll.get_v_scroll_bar().max_value > ending_scroll.size.y, "ending regression text overflows the scroll container")
 	check(ending_scroll.scroll_vertical == 0, "opening ending keeps narrative scrolled to the top")
 	check(not ending_scroll.is_ancestor_of(root.gui_get_focus_owner()), "ending focuses a button outside the narrative scroll")
+	check(not ui.ending_review_toggle.visible, "three-argument ending has no empty review toggle")
 	ending_scroll.scroll_vertical = int(ending_scroll.get_v_scroll_bar().max_value)
-	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史")
+	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史", "Eddington 的回應\n你留下的證據")
 	for frame in 4:
 		await process_frame
 	check(ending_scroll.scroll_vertical == 0, "reopening ending resets narrative scroll to the top")
 	var ending_focus := root.gui_get_focus_owner()
-	check(ending_focus is Button and ui.ending_panel.is_ancestor_of(ending_focus), "ending focuses a button")
+	check(ending_focus == ui.ending_replay, "ending initially focuses Replay with review available")
+	for ending_button in ui.ending_replay.get_parent().get_children():
+		check(root.get_visible_rect().encloses(ending_button.get_global_rect()), "ending button fits viewport: " + ending_button.text)
 	await button(JOY_BUTTON_DPAD_DOWN)
 	check(ending_scroll.scroll_vertical == 80 and root.gui_get_focus_owner() == ending_focus, "D-pad down scrolls ending 80 pixels with Replay still focused")
 	var before_stick := ending_scroll.scroll_vertical
@@ -165,6 +168,14 @@ func _run() -> void:
 	await key(KEY_UP, false)
 	check(ending_scroll.scroll_vertical == maxi(before_arrow - 80, 0) and root.gui_get_focus_owner() == ending_focus, "up arrow scrolls ending without moving button focus")
 	var before_history := ending_scroll.scroll_vertical
+	await button(JOY_BUTTON_DPAD_RIGHT)
+	check(root.gui_get_focus_owner() == ui.ending_review_toggle, "D-pad right reaches the external review button")
+	await button(JOY_BUTTON_A)
+	for frame in 4:
+		await process_frame
+	check(ui.ending_review.visible and root.gui_get_focus_owner() == ui.ending_review_toggle
+		and not ending_scroll.is_ancestor_of(ui.ending_review_toggle)
+		and ending_scroll.scroll_vertical == before_history, "gamepad opens review without moving focus or jumping the scroll")
 	await button(JOY_BUTTON_DPAD_RIGHT)
 	check(root.gui_get_focus_owner() == ui.ending_history_toggle, "D-pad right reaches the external history button")
 	await button(JOY_BUTTON_A)

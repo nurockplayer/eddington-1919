@@ -114,7 +114,7 @@ func _run() -> void:
 	entries.append_array(Content.judgment_prompt([
 		"ECLIPSE SPLENDID. EINSTEIN CONFIRMED.", "THROUGH CLOUD. HOPEFUL.",
 		"THROUGH CLOUD. STARS FEW. RESULT UNDECIDED.", "CLOUD. NO RESULTS."
-	], [], "1.75 ± 0.30").slice(0, 2))
+	], []).slice(0, 2))
 	for entry in entries:
 		ui.play([entry])
 		for frame in 4:

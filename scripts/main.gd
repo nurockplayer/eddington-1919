@@ -1491,8 +1491,12 @@ func _show_ending() -> void:
 	ui.fade.color.a = 0.0
 	var c: Dictionary = sim.combined()
 	var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
+	var workbook := "本子上：%.2f″ ± %.2f″（示意模擬）" % [c.value, c.sigma] if c.n > 0 else "本子上：沒有量出任何數值。"
+	if sim.first_result != null and sim.reselected_after_seeing:
+		var first_result := "第一次量：%.2f″ ± %.2f″" % [sim.first_result.value, sim.first_result.sigma] if sim.first_result.n > 0 else "第一次量：沒有量出任何數值。"
+		workbook += "（%s）" % first_result
+	var tableau := "[center][font_size=%d][color=#8f8676]電報　普林西比 → 倫敦　Dyson 收[/color][/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s\n\n[color=#8f8676]%s[/color][/center]" % [Settings.fs(17), Settings.fs(30), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text, workbook]
 	var lines := []
-	lines.append("[center][color=#c9b48a]你的電報[/color]\n[font_size=%d][b]%s[/b][/font_size]\n[color=#b8ad98]理由：%s[/color][/center]\n" % [Settings.fs(26), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text])
 	lines.append("[b]Eddington 的回應[/b]")
 	for l in _grade.lines:
 		lines.append("· " + l)
@@ -1514,6 +1518,6 @@ func _show_ending() -> void:
 	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
 	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
 	history.append("\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]" % Settings.fs(15))
-	ui.show_ending(_grade.title, "\n".join(lines), "\n".join(history))
+	ui.show_ending(_grade.title, tableau, "\n".join(history), "\n".join(lines))
 	if bot:
 		bot.on_phase("ending")

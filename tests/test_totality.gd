@@ -799,9 +799,33 @@ func _test_reselect_reason() -> void:
 	game.ui.reselect_btn.pressed.emit()
 	game.ui.measure_btn.pressed.emit()
 	check(not game.ui.dialog_active() and game.sim.first_result == first, "unchanged reselection does not ask again or replace the first result")
+	game._telegram = 1
+	game._reason = 0
+	game._reasons = Judgment.reasons_for(game.sim)
 	game._grade = Judgment.grade(game.sim, "hopeful", "measured")
 	game._show_ending()
 	check(game.ui.ending_text.text.contains(first_line), "ending retains the first result")
+	check(game.ui.ending_text.text.contains(Judgment.TELEGRAMS[1].text)
+		and game.ui.ending_text.text.contains("理由：" + game._reasons[0].text), "real ending displays the player's telegram and chosen reason")
+	check(game.ui.ending_text.text.contains("電報　普林西比 → 倫敦　Dyson 收")
+		and game.ui.ending_text.text.contains("本子上：%.2f″ ± %.2f″（示意模擬）（%s）" % [game.sim.combined().value, game.sim.combined().sigma, first_line]), "telegram form keeps current and first measurements on one workbook line")
+	check(not game.ui.ending_text.text.contains("Eddington 的回應")
+		and not game.ui.ending_text.text.contains("你留下的證據"), "ending tableau leaves assessment and evidence behind the review toggle")
+	check(game.ui.ending_review.text.contains("Eddington 的回應")
+		and game._grade.lines.all(func(line): return game.ui.ending_review.text.contains("· " + line)), "review retains every Eddington response")
+	check(game.ui.ending_review.text.contains("你留下的證據")
+		and game.ui.ending_review.text.contains("· 拍了 2 張底片")
+		and game.ui.ending_review.text.contains("· 你量了 1 張，合併 1.75″ ± 0.20″（示意模擬）。")
+		and game.ui.ending_review.text.contains(first_line)
+		and game.ui.ending_review.text.contains("· 時鐘驅動："), "review retains the evidence inventory")
+	check(not game.ui.ending_review.visible and game.ui.ending_review_toggle.text == "回顧證據與評語", "review starts hidden")
+	game.ui.ending_review_toggle.pressed.emit()
+	check(game.ui.ending_review.visible and game.ui.ending_review_toggle.text == "收起回顧", "review toggle reveals the assessment and evidence")
+	game.ui.ending_review_toggle.pressed.emit()
+	check(not game.ui.ending_review.visible and game.ui.ending_review_toggle.text == "回顧證據與評語", "review toggle closes again")
+	game.ui.ending_review_toggle.pressed.emit()
+	game._show_ending()
+	check(not game.ui.ending_review.visible, "reopening the ending resets an open review")
 	# A later quality correction cannot erase an earlier result-driven change.
 	game.ui.ending_panel.hide()
 	game.phase = game.Phase.NIGHT
@@ -830,6 +854,13 @@ func _test_reselect_reason() -> void:
 	check(Judgment.grade(game.sim, "hopeful", "measured").lines.has("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"), "earlier result admission wins over a later quality reason in judgment text")
 	check(game.sim.reselect_history == [{"reason": "result", "added": [3], "removed": []}, {"reason": "quality", "added": [], "removed": [2]}], "both reselection reasons and plate changes survive")
 	check(game.sim.first_result == original, "multiple reselections still retain the first result")
+	game.sim = Sim.new(1919)
+	game._show_ending()
+	check(game.ui.ending_text.text.contains("本子上：沒有量出任何數值。"), "unmeasured ending keeps the empty workbook on the tableau")
+	game.sim.first_result = {"n": 0}
+	game.sim.reselected_after_seeing = true
+	game._show_ending()
+	check(game.ui.ending_text.text.contains("本子上：沒有量出任何數值。（第一次量：沒有量出任何數值。）"), "unmeasured first result stays on the same workbook line")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame

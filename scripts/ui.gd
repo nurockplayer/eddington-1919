@@ -72,6 +72,8 @@ var ending_panel: Control
 var credits_panel: Control
 var ending_text: RichTextLabel
 var ending_title: Label
+var ending_review: RichTextLabel
+var ending_review_toggle: Button
 var ending_history: RichTextLabel
 var ending_history_toggle: Button
 var pause_panel: Control
@@ -901,6 +903,13 @@ func _build_ending(root: Control) -> void:
 	ending_text = _rich(19)
 	ending_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_child(ending_text)
+	ending_review_toggle = _button("回顧證據與評語")
+	ending_review_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	ending_review_toggle.pressed.connect(_toggle_ending_review)
+	ending_review = _rich(19)
+	ending_review.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ending_review.visible = false
+	v.add_child(ending_review)
 	ending_history_toggle = _button("歷史上發生了什麼")
 	ending_history_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	ending_history_toggle.pressed.connect(_toggle_ending_history)
@@ -909,9 +918,11 @@ func _build_ending(root: Control) -> void:
 	ending_history.visible = false
 	v.add_child(ending_history)
 	var hb := HBoxContainer.new()
-	hb.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	hb.position = Vector2(-430, -90)
-	hb.custom_minimum_size = Vector2(860, 0)
+	hb.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	hb.offset_left = 20
+	hb.offset_right = -20
+	hb.offset_top = -90
+	hb.offset_bottom = -40
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER
 	hb.add_theme_constant_override("separation", 16)
 	ending_panel.add_child(hb)
@@ -919,6 +930,7 @@ func _build_ending(root: Control) -> void:
 	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
 	hb.add_child(same)
+	hb.add_child(ending_review_toggle)
 	hb.add_child(ending_history_toggle)
 	var fresh := _button("新的天空")
 	fresh.pressed.connect(func(): restart_pressed.emit(false))
@@ -986,9 +998,13 @@ func _open_credits() -> void:
 	(credits_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
 
 
-func show_ending(title: String, bb: String, history_bb := "") -> void:
+func show_ending(title: String, bb: String, history_bb := "", review_bb := "") -> void:
 	ending_title.text = title
 	ending_text.text = bb
+	ending_review.text = review_bb
+	ending_review.visible = false
+	ending_review_toggle.visible = not review_bb.is_empty()
+	ending_review_toggle.text = "回顧證據與評語"
 	ending_history.text = history_bb
 	ending_history.visible = false
 	ending_history_toggle.visible = not history_bb.is_empty()
@@ -998,6 +1014,11 @@ func show_ending(title: String, bb: String, history_bb := "") -> void:
 	ending_scroll.scroll_vertical = 0
 	_menu_scroll_remainder = 0.0
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _toggle_ending_review() -> void:
+	ending_review.visible = not ending_review.visible
+	ending_review_toggle.text = "收起回顧" if ending_review.visible else "回顧證據與評語"
 
 
 func _toggle_ending_history() -> void:
