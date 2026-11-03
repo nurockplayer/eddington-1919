@@ -8,6 +8,7 @@ const Content := preload("res://scripts/content.gd")
 const UI := preload("res://scripts/ui.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const Chart := preload("res://scripts/chart.gd")
+const Prompts := preload("res://scripts/prompts.gd")
 
 const STEP := 0.1                      # real seconds per scripted frame
 const GAME_STEP := STEP * Sim.TIME_SCALE   # 0.25 game-seconds per frame
@@ -31,6 +32,7 @@ func _run() -> void:
 	_test_bands()
 	_test_strip_model()
 	await _test_sim_invariance()
+	await _test_rehearsal()
 	await _test_shutter_read()
 	await _test_sfx_buffers()
 	await _test_viewer_note()
@@ -158,6 +160,103 @@ func _test_sim_invariance() -> void:
 
 
 # ------------------------------------------- A integration: read on the toast
+
+func _rehearsal_press(event) -> void:
+	event.pressed = true
+	root.push_input(event)
+	await process_frame
+	event.pressed = false
+	root.push_input(event)
+	await process_frame
+
+
+func _test_rehearsal() -> void:
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	game._start_game()
+	game._interact("eddington")
+	while game.ui.dialog_active():
+		if game.ui._choice_buttons.is_empty():
+			game.ui._advance()
+		else:
+			game.ui._choose(0)
+	check(game.sim.briefed, "real briefing unlocks Eddington's PREP dialogue")
+	var plates_before: Array = game.sim.plates.duplicate(true)
+	var available_before: int = game.sim.plates_available()
+	var prep_before: float = game.prep_left
+	var clocks_before: Array = [game.t_game, game.change_left, game._tick_acc, game.tot_done]
+	for use_pad in [false, true]:
+		var shutter := InputEventAction.new()
+		shutter.action = "shutter"
+		var pad := InputEventJoypadButton.new()
+		pad.button_index = JOY_BUTTON_RIGHT_SHOULDER
+		# Select the active device before opening the real dialogue.
+		var device: InputEvent = pad if use_pad else InputEventKey.new()
+		root.push_input(device)
+		await process_frame
+		game._interact("eddington")
+		check(game.ui._choice_buttons.size() == 4, "PREP offers rehearsal and keeps dismiss last")
+		check(game.ui._seq[0].choices[3] == "沒事。", "dismiss stays at PREP index 3")
+		game.ui._choose(2)
+		check(game.rehearsing and not game.ui.dialog_active(), "choice 2 starts a repeatable dry run")
+		check(not game.player.can_move and game.player.can_look, "rehearsal freezes movement while retaining look and input")
+		check(game.ui.toast.text == "Eddington：沒有底片，只練口令。雲薄了——按［%s］喊『開始』。" % Prompts.key("shutter"), "first toast teaches the active device's shutter button")
+		check(Prompts.joypad == use_pad, "rehearsal prompt uses the selected device")
+		game._process_prep(2.0)
+		check(game.prep_left == prep_before, "PREP countdown freezes before the first call")
+		var sound_start: int = game._sfx_log.size()
+		await _rehearsal_press(pad if use_pad else shutter)
+		check(game._rehearsal_step == 1 and game.rehearsing, "shutter reaches rehearsal through real unhandled input")
+		check(game.ui.toast.text == "你：『開始！』　Cottingham 移開遮光板（空的）。數三秒，再按一次喊『停』。", "second toast teaches counting before stop")
+		game._process_prep(3.0)
+		check(game.prep_left == prep_before and not game.sim.is_exposing(), "counting uses neither preparation time nor an exposure")
+		var stop: InputEvent = shutter
+		if use_pad:
+			var interact := InputEventAction.new()
+			interact.action = "interact"
+			stop = interact
+		await _rehearsal_press(stop)
+		check(game.ui.toast.text == "你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。", "third toast explains plate-change lockout and third contact")
+		check(game._sfx_log.slice(sound_start) == ["open", "close", "change"], "dry run plays open, close and change in order")
+		await _rehearsal_press(shutter)
+		check(game.ui.toast.text == "Eddington 還在換片……", "pressing during the change reports the wait")
+		check(game._sfx_log.slice(sound_start) == ["open", "close", "change"], "busy presses do not restart sounds or the change")
+		await create_timer(1.0).timeout
+		game._process_prep(1.0)
+		check(game.rehearsing and not game.player.can_move and game.prep_left == prep_before, "change wait keeps movement and PREP time frozen")
+		await create_timer(Sim.PLATE_CHANGE_S).timeout
+		check(not game.rehearsing and game.player.can_move and game.player.can_look, "four-second change ends rehearsal and restores input")
+		check(game.phase == game.Phase.PREP and game.prep_left == prep_before, "repeatable rehearsal remains in PREP without spending its countdown")
+		check(game.sim.plates == plates_before and game.sim.plates_available() == available_before, "dry run leaves plates and available holders unchanged")
+		check(not game.sim.is_exposing() and not game._ever_exposed and not game.plate_changed, "dry run leaves exposure history untouched")
+		check([game.t_game, game.change_left, game._tick_acc, game.tot_done] == clocks_before, "dry run leaves all totality clocks untouched")
+	game._process_prep(0.5)
+	check(game.prep_left == prep_before - 0.5, "PREP countdown resumes after rehearsal")
+	game._interact("eddington")
+	game.ui._choose(3)
+	check(not game.rehearsing and game.phase == game.Phase.PREP, "dismiss remains a no-op")
+	game._interact("eddington")
+	game.ui._choose(1)
+	check(game.ui.text_label.text.contains("雲薄的時候"), "choice 1 still explains exposure")
+	while game.ui.dialog_active():
+		game.ui._advance()
+	game._interact("eddington")
+	game.ui._choose(0)
+	await create_timer(2.2).timeout
+	check(game.phase == game.Phase.TOTALITY and not game._busy, "choice 0 still begins real totality")
+	check(game.ui.prompt_label.text == "［%s］開始／停" % Prompts.key("shutter"), "totality retains a compact shutter reminder")
+	game.ui._process(7.1)
+	game._process_totality(0.1)
+	check(game.ui.prompt_label.text == "［%s］開始／停" % Prompts.key("shutter"), "shutter reminder survives the seven-second toast")
+	game._end_totality()
+	game._process_totality(0.1)
+	check(game.tot_done and game.ui.prompt_label.text == "", "third contact clears the reminder without restoring it")
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+	Prompts.joypad = false
+
 
 func _test_shutter_read() -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()

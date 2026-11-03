@@ -43,6 +43,8 @@ var player
 var world: Dictionary
 var phase := Phase.TITLE
 var prep_left := PREP_S
+var rehearsing := false
+var _rehearsal_step := 0
 var t_game := 0.0                # totality clock, game-seconds
 var change_left := 0.0           # plate change in progress
 var plate_changed := false       # a plate change was made this run (the workbook remembers it)
@@ -673,12 +675,17 @@ func _ui_free() -> bool:
 
 func _sync_player_input() -> void:
 	var free := _ui_free() and phase != Phase.TITLE
-	player.can_move = free and phase in [Phase.PREP, Phase.NIGHT, Phase.CODA]
+	player.can_move = free and not rehearsing and phase in [Phase.PREP, Phase.NIGHT, Phase.CODA]
 	player.can_look = free
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if rehearsing and _ui_free():
+		if event.is_action_pressed("shutter") or event.is_action_pressed("interact"):
+			_rehearse_shutter()
+			get_viewport().set_input_as_handled()
+		return
 	if phase == Phase.TOTALITY and _ui_free() and not tot_done:
 		if event.is_action_pressed("shutter") or event.is_action_pressed("interact"):
 			_toggle_shutter()
@@ -695,6 +702,8 @@ func _unhandled_input(event: InputEvent) -> void:
 # ----------------------------------------------------------------- Preparation
 
 func _process_prep(delta: float) -> void:
+	if rehearsing:
+		return
 	if _ui_free():
 		prep_left -= delta
 		_update_sky_prep()
@@ -925,6 +934,8 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"eddington_prep":
 			if results.get("prep", -1) == 0:
 				_begin_totality()
+			elif results.get("prep", -1) == 2:
+				_begin_rehearsal()
 		"rules":
 			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
 			_open_viewer()
@@ -996,6 +1007,33 @@ func _refresh_objectives() -> void:
 		ui.set_objectives("")
 
 
+func _begin_rehearsal() -> void:
+	rehearsing = true
+	_rehearsal_step = 0
+	_sync_player_input()
+	ui.set_prompt("")
+	ui.set_hold(0.0)
+	ui.show_toast("Eddington：沒有底片，只練口令。雲薄了——按［%s］喊『開始』。" % Prompts.key("shutter"), 7.0)
+
+
+func _rehearse_shutter() -> void:
+	match _rehearsal_step:
+		0:
+			_sfx("open")
+			ui.show_toast("你：『開始！』　Cottingham 移開遮光板（空的）。數三秒，再按一次喊『停』。", 7.0)
+			_rehearsal_step = 1
+		1:
+			_sfx("close")
+			_sfx("change")
+			_rehearsal_step = 2
+			ui.show_toast("你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。", 7.0)
+			await get_tree().create_timer(sim.PLATE_CHANGE_S, false).timeout
+			rehearsing = false
+			_sync_player_input()
+		2:
+			ui.show_toast("Eddington 還在換片……", 1.5)
+
+
 # -------------------------------------------------------------------- Totality
 
 func _begin_totality() -> void:
@@ -1040,6 +1078,7 @@ func _begin_totality() -> void:
 	elif not sim.drive_rate_checked:
 		note = "\n發條上滿了，但走速沒有校過。"
 	ui.show_toast("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［" + Prompts.key("shutter") + "］喊「開始」，雲厚或快結束時再按一次喊「停」。" + note, 7.0)
+	ui.set_prompt("［%s］開始／停" % Prompts.key("shutter"))
 	if bot:
 		bot.on_phase("totality")
 
@@ -1074,6 +1113,7 @@ func _process_totality(delta: float) -> void:
 	score.advance(delta)
 	if _busy or tot_done:
 		return
+	ui.set_prompt("［%s］開始／停" % Prompts.key("shutter"))
 	var exposing: bool = sim.is_exposing()
 	if exposing != _score_exposing:
 		_score_exposing = exposing
@@ -1152,6 +1192,7 @@ func _since_last_plate() -> float:
 
 func _end_totality() -> void:
 	tot_done = true
+	ui.set_prompt("")
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
 		score.stop(cue, 1.5)
 	var ruined: bool = sim.is_exposing()
