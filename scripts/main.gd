@@ -939,6 +939,14 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"rules":
 			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
 			_open_viewer()
+		"reselect_reason":
+			sim.reselect_reason = ["quality", "result", "none"][int(results.get("reselect_reason", 2))]
+			sim.reselect_justified_so_far = sim.selection_report().reselect_justified
+			sim.reselect_history.append({"reason": sim.reselect_reason,
+				"added": sim.reselect_added.duplicate(), "removed": sim.reselect_removed.duplicate()})
+			_finish_measurement()
+			_open_viewer()
+			ui.reselect_btn.grab_focus()
 		"interval":
 			_interval_answer = results.interval
 			var tele := Judgment.TELEGRAMS.map(func(t): return t.text)
@@ -1375,6 +1383,12 @@ func _refresh_viewer() -> void:
 			var b: Dictionary = Judgment.interval_bounds(sim)
 			note += "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]" % [c.value, c.sigma, b.lo, b.hi]
 			note += "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
+	if sim.first_result != null and sim.reselected_after_seeing:
+		if sim.first_result.n > 0:
+			note += "\n第一次量：%.2f″ ± %.2f″" % [sim.first_result.value, sim.first_result.sigma]
+		else:
+			note += "\n第一次量：沒有量出任何數值。"
+	if sim.measured:
 		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
 		if recall != "":
 			note += "\n" + recall
@@ -1391,9 +1405,21 @@ func _on_plate_toggled(i: int, on: bool) -> void:
 
 func _on_measure() -> void:
 	var sel: Array = sim.plates.filter(func(p): return p.included).map(func(p): return p.number)
+	if sim.first_result == null:
+		sim.first_result = sim.combined()
 	if sim.measured_selection != null and sel != sim.measured_selection:
 		sim.reselected_after_seeing = true
-	sim.measured_selection = sel
+		sim.reselect_added = sel.filter(func(n): return n not in sim.measured_selection)
+		sim.reselect_removed = sim.measured_selection.filter(func(n): return n not in sel)
+		ui.close_viewer()
+		_say([{"s": Content.E, "t": "你改了選片。寫下來：為什麼？", "key": "reselect_reason",
+			"choices": ["星像品質：它拖長、起霧或星不夠", "第一次的數字不合我的預期", "說不上來"]}], "reselect_reason")
+		return
+	_finish_measurement()
+
+
+func _finish_measurement() -> void:
+	sim.measured_selection = sim.plates.filter(func(p): return p.included).map(func(p): return p.number)
 	sim.measured = true
 	ui.set_viewer_locked(true)
 	_refresh_viewer()
@@ -1477,6 +1503,11 @@ func _show_ending() -> void:
 		lines.append("· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。" % [c.n, c.value, c.sigma])
 	else:
 		lines.append("· 沒有量出任何數值。")
+	if sim.first_result != null and sim.reselected_after_seeing:
+		if sim.first_result.n > 0:
+			lines.append("· 第一次量：%.2f″ ± %.2f″" % [sim.first_result.value, sim.first_result.sigma])
+		else:
+			lines.append("· 第一次量：沒有量出任何數值。")
 	lines.append("· 時鐘驅動：%s。" % ("上了發條並校過走速" if sim.drive_rate_checked else ("上了發條但沒校走速" if sim.drive_wound else "由 Cottingham 匆忙處理")))
 	var history := []
 	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
