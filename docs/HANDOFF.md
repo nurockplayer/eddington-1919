@@ -62,9 +62,8 @@
   - draft #93 `departure_promise` (listen: `~/Desktop/eddington-music/departure_promise.wav`; D014: no merge without the OK);
   - SFX WAVs in `~/Desktop/eddington-sfx/`.
 - **e2e:** green on main and on every wave-7 branch (run light under the Owner's one-off heavy authorization of 2026-11-03 00:4x JST; that authorization is used up).
-- **Windowed look due (Mon–Fri 09–15 JST):**
-  - #84 plate readability (trail and fog visible now that counts are hidden);
-  - #98 2σ whiskers on the darkroom chart.
+- **Windowed look done 2026-11-03 09:3x–09:5x JST** (careful/rushed/cherry stills, deleted after judging): #84 fog and trailed stars read clearly on plates and thumbnails; #98 whiskers (thin 2σ, thick 1σ on the combined bar) read well; #109 interval prompt readable; F11 numerically correct; credits showed raw Markdown + an internal A11 note → #119.
+- **Steam release:** the heartbeat now asks whether the game is Steam-ready, judged against `docs/RELEASE_READINESS.md`; it is a one-shot cron re-armed 45 min after every turn. Merged 2026-11-03: #112 fetch comparison, #113 exclude licensed, #114 font, #115 settings, #116 notices, #117 icon/version/export script, #118 credits.
 - **Next wave candidates:**
   - a missing `comparison` plan card → a short recovery step at the Oxford plate before measuring (from the wave-7 critique; unscored, no data loss);
   - test_coda fade checks that flake at load average > 20;
