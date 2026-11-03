@@ -321,7 +321,7 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 			await frames(3)
 			if main.ui.dialog_panel.get_global_rect().end.y > get_viewport().get_visible_rect().end.y + 1.0:
 				failures.append("dialogue choices extend below the viewport")
-			var choice_label: String = main.Beat.keys()[main.beat].to_lower() + "_" + str(main._pending)
+			var choice_label: String = "coda_kit_first" if entry.get("key", "") == "kit_first" else main.Beat.keys()[main.beat].to_lower() + "_" + str(main._pending)
 			if not _choice_shots.has(choice_label):
 				_choice_shots[choice_label] = true
 				await _wait_for_camera_settle()
@@ -554,22 +554,25 @@ func _run() -> void:
 	if not Story.departure_done: failures.append("M2 completion flag missing at PREP")
 	if Story.report.get("kit_credited", false) != true: failures.append("independent check credit missing")
 	if not Story.clues.get("log", false): failures.append("observing log clue missing")
-	# Honest is the full cross-era route: reuse the ordinary 1919 careful bot's
+	# Honest and monkey run the full cross-era route, including Kit's coda choice.
+	# Reuse the ordinary 1919 bot's
 	# real-input routine, then drive the prologue-only coda through its hotspots.
 	# Tidy and accuse retain the established PREP receipt contract.
-	if scenario == "honest":
+	if scenario in ["honest", "monkey"]:
 		await _continue_honest_to_ending()
 	_finish()
 
 
 func _continue_honest_to_ending() -> void:
-	var route: Node = load("res://tests/autoplay_bot.gd").new()
+	var route: Node = monkey if monkey else load("res://tests/autoplay_bot.gd").new()
 	route.main = main
-	route.scenario = "careful"
+	if not monkey:
+		route.scenario = "careful"
 	route.shots_dir = shots_dir
 	route.real_input_only = true
 	route.continuation_helper = true
-	add_child(route)
+	if not monkey:
+		add_child(route)
 	# These routines use the same walk, look, E, Space, and UI click inputs as the
 	# standalone 1919 careful route. This attached helper stays passive until its
 	# routines are called, and never edits Story or gameplay state.
@@ -604,6 +607,8 @@ func _continue_honest_to_ending() -> void:
 	if not main.ui.dialogue_entry.is_connected(_on_coda_dialogue_entry):
 		main.ui.dialogue_entry.connect(_on_coda_dialogue_entry)
 	await route._night()
+	if route.stuck > 0:
+		failures.append("1919 continuation recorded %d stuck event(s)" % route.stuck)
 	phase_guard = 30.0
 	while main.phase != main.Phase.CODA and phase_guard > 0.0:
 		await frames(2)

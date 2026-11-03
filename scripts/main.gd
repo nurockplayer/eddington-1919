@@ -94,7 +94,7 @@ var _look_sun := 1.0             # art-look gains (scripts/look.gd); 1.0 with --
 var _look_ambient := 1.0
 var _departure_workbook_seen := false
 var _came_from_departure := false
-var _night_departure_workbook: Node3D
+var _night_departure_workbook: DepartureWorkbook
 var coda_step := CodaStep.OPENING
 var _camera_turn: Tween
 var _coda_highlight: OmniLight3D
@@ -110,6 +110,7 @@ func _ready() -> void:
 	replay_from_prologue = false
 	if not _came_from_departure:
 		Story.reset()
+	Story.kit_first = -1
 	var args := _user_args()
 	# A restart's chosen sky wins over the command line, which only seeds the first run.
 	var seed_ := next_seed if next_seed >= 0 else int(args.get("seed", "-1"))
@@ -831,7 +832,7 @@ func _interact(id: String) -> void:
 		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
 			_night_departure_workbook.call("open_workbook")
 			_focus_coda(_night_departure_workbook.global_position)
-			var seq: Array = CodaContent.workbook_again() if _departure_workbook_seen else DepartureContent.principe_workbook(Story.bond_tone, sim.plates, plate_changed)
+			var seq: Array = CodaContent.workbook_again(_night_departure_workbook.kit_line) if _departure_workbook_seen else DepartureContent.principe_workbook(Story.bond_tone, sim.plates, plate_changed)
 			_departure_workbook_seen = true
 			_say(seq, "coda_workbook")
 		elif coda_step == CodaStep.LOUPE and id == "mentor_loupe":
@@ -884,7 +885,8 @@ func _interact(id: String) -> void:
 					seq.append({"s": Content.E, "t": preload("res://scripts/cambridge/content_1917.gd").principe_callback(Story)})
 				_say(seq, "briefing")
 			else:
-				_say(Content.eddington_prep(), "eddington_prep")
+				var plates: int = sim.BASE_PLATES + mini(sim.plates_delivered + sim.plates_carried, sim.MAX_EXTRA_PLATES)
+				_say(Content.eddington_prep(plates, sim.drive_wound, sim.drive_rate_checked, sim.plates_carried), "eddington_prep")
 		"cottingham":
 			if not met_cottingham:
 				met_cottingham = true
@@ -973,7 +975,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 				# Already written at night: reread it without another required interaction.
 				_night_departure_workbook.call("open_workbook")
 				_focus_coda(_night_departure_workbook.global_position)
-				_say(CodaContent.workbook_again(), "coda_workbook")
+				_say(CodaContent.workbook_again(_night_departure_workbook.kit_line), "coda_workbook")
 			else:
 				_highlight_coda(_night_departure_workbook.global_position)
 		"coda_workbook":
@@ -982,8 +984,11 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"coda_loupe":
 			var overclaimed: bool = Judgment.TELEGRAMS[_telegram].id == "confirmed"
 			_say(CodaContent.kit_close(Story.bond_tone, Story.kit_choice,
-				overclaimed, _grade.fit == 0 and not overclaimed), "coda_kit")
+				overclaimed, _grade.fit == 0 and not overclaimed, _grade.clean), "coda_kit")
 		"coda_kit":
+			Story.kit_first = int(results.get("kit_first", -1))
+			var no_mistake: bool = Judgment.TELEGRAMS[_telegram].id != "confirmed" and _grade.fit != 0 and _grade.clean
+			_night_departure_workbook.write_kit_line("給 Kit：" + CodaContent.kit_first_reply(Story.kit_first, no_mistake))
 			_end_coda()
 	_refresh_objectives()
 	_sync_player_input()
@@ -1113,7 +1118,7 @@ func _toggle_shutter() -> void:
 	elif change_left > 0.0:
 		ui.show_toast("Eddington 還在換片……", 1.5)
 	elif plates_left <= 0:
-		ui.show_toast("底片用完了。", 2.0)
+		t_game = maxf(t_game, sim.TOTALITY_S - 3.0)
 	else:
 		sim.open_shutter(t_game)
 		_ever_exposed = true
@@ -1129,8 +1134,8 @@ func _process_totality(delta: float) -> void:
 	score.advance(delta)
 	if _busy or tot_done:
 		return
-	ui.set_prompt("［%s］開始／停" % Prompts.key("shutter"))
 	var exposing: bool = sim.is_exposing()
+	ui.set_prompt(("底片用完了。［%s］等待第三接觸" if plates_left <= 0 and not exposing else "［%s］開始／停") % Prompts.key("shutter"))
 	if exposing != _score_exposing:
 		_score_exposing = exposing
 		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else -34.0, 0.4 if exposing else 1.2)
@@ -1284,7 +1289,7 @@ func _add_departure_loupe(wb) -> void:
 func _add_night_workbook() -> void:
 	# Keep it on the measuring table and east of the normal sheet aim point.
 	var position: Vector3 = world.measure_pos + Vector3(0.43, 0.03, 0.23)
-	_night_departure_workbook = DepartureWorkbook.new() as Node3D
+	_night_departure_workbook = DepartureWorkbook.new()
 	_night_departure_workbook.name = "PríncipeDepartureWorkbook"
 	_night_departure_workbook.position = position
 	add_child(_night_departure_workbook)
@@ -1400,6 +1405,8 @@ func _refresh_viewer() -> void:
 		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
 		if recall != "":
 			note += "\n" + recall
+	var rule_index := ["strict", "after", "none"].find(sim.rule_id)
+	ui.viewer_rule.text = "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[rule_index] if rule_index >= 0 else ""
 	ui.set_viewer_note(note)
 	ui.refresh_thumbs()
 
@@ -1447,7 +1454,8 @@ func _on_viewer_closed() -> void:
 
 
 func _on_report() -> void:
-	ui.close_viewer()
+	ui.set_viewer_report(true)
+	_refresh_viewer()
 	_start_judgment()
 
 
@@ -1472,6 +1480,7 @@ func _start_judgment() -> void:
 
 
 func _after_judgment(results: Dictionary) -> void:
+	ui.close_viewer()
 	_telegram = results.get("telegram", 1)
 	_reason = results.get("reason", 1)
 	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
@@ -1503,6 +1512,8 @@ func _show_ending() -> void:
 	if sim.first_result != null and sim.reselected_after_seeing:
 		var first_result := "第一次量：%.2f″ ± %.2f″" % [sim.first_result.value, sim.first_result.sigma] if sim.first_result.n > 0 else "第一次量：沒有量出任何數值。"
 		workbook += "（%s）" % first_result
+	if _came_from_departure and Story.kit_first >= 0:
+		workbook += "\n" + _night_departure_workbook.kit_line
 	var tableau := "[center][font_size=%d][color=#8f8676]電報　普林西比 → 倫敦　Dyson 收[/color][/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s\n\n[color=#8f8676]%s[/color][/center]" % [Settings.fs(17), Settings.fs(30), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text, workbook]
 	var lines := []
 	lines.append("[b]Eddington 的回應[/b]")

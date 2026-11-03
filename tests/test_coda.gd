@@ -25,6 +25,8 @@ class GradeFixture extends RefCounted:
 		return {"omitted_good": [], "included_poor": [], "included_unusable": [], "reselected": not clean,
 			"reselect_reason": "", "reselect_added": [], "reselect_removed": [], "reselect_justified": false}
 
+signal _wait_completed(finished: bool)
+
 var failures := 0
 var checks := 0
 
@@ -38,6 +40,20 @@ func check(condition: bool, message: String) -> void:
 	if not condition:
 		failures += 1
 		print("FAIL: ", message)
+
+
+func _await_or_timeout(sig: Signal, seconds: float) -> bool:
+	var timer := create_timer(seconds, true, false, true)
+	var on_finished := func(): _wait_completed.emit(true)
+	var on_timeout := func(): _wait_completed.emit(false)
+	sig.connect(on_finished, CONNECT_ONE_SHOT)
+	timer.timeout.connect(on_timeout, CONNECT_ONE_SHOT)
+	var finished: bool = await _wait_completed
+	if sig.is_connected(on_finished):
+		sig.disconnect(on_finished)
+	if timer.timeout.is_connected(on_timeout):
+		timer.timeout.disconnect(on_timeout)
+	return finished
 
 
 func text_of(seq: Array) -> String:
@@ -93,7 +109,7 @@ func _test_kit_tones() -> void:
 	var warm_text := text_of(Coda.kit_close("warm"))
 	check(close_text.contains("有些話，也許可以等到見了面再說"), "close bond keeps the restrained reunion line")
 	check(close_text.contains("也許。") and close_text.contains("你吹熄了燈"), "close bond ends with hesitation and lamp out")
-	check(warm_text.contains("Kit 一定會先問天空，再問底片"), "warm bond anticipates Kit's question")
+	check(warm_text.contains("Kit 一定會先問天空，再問底片") and not warm_text.contains("你已經想好要怎麼回答了"), "warm bond leaves the answer to the player")
 	check(warm_text.contains("你吹熄了燈"), "warm bond ends with lamp out")
 	var misread_text := text_of(Coda.kit_close("", 0, false, true))
 	check(misread_text.contains("和底片上的不一樣") and not misread_text.contains("只寫了底片上有的"), "a misread telegram does not receive truthful praise")
@@ -146,7 +162,8 @@ func _test_direct_and_prologue_paths() -> void:
 	await process_frame
 	check(is_equal_approx(direct.world.lamp.light_energy, direct_lamp_at_pause), "Esc pause holds the direct lamp-out beat")
 	direct.ui.toggle_pause()
-	await direct._coda_transition.finished
+	var direct_finished := await _await_or_timeout(direct._coda_transition.finished, 5.0)
+	check(direct_finished, "direct lamp-out beat finishes within 5 s")
 	check(direct.phase == direct.Phase.ENDING, "direct lamp-out beat reaches ending")
 	var starts_after := ScorePlayer.cue_log.filter(func(event): return event.get("event", "") == "start" and event.get("cue", "") == "coda_resolution").size()
 	check(starts_after == starts_before + 1, "direct lamp-out and ending start coda_resolution exactly once")
@@ -187,7 +204,7 @@ func _test_direct_and_prologue_paths() -> void:
 	story.report.erase("residual")
 	prologue._on_dialogue_done({})
 	check(prologue._pending == "coda_kit", "Ashby response advances to Kit close")
-	prologue._on_dialogue_done({})
+	prologue._on_dialogue_done({"kit_first": 0})
 	check(prologue.coda_step == prologue.CodaStep.FADING and prologue._busy, "Kit close starts the lamp-out fade")
 	check(prologue._coda_transition != null and prologue._coda_transition.is_running(), "coda fade has an active tween")
 	if prologue._coda_transition and prologue._coda_transition.is_valid():
@@ -220,7 +237,8 @@ func _test_direct_and_prologue_paths() -> void:
 		check(is_equal_approx(prologue.ui.fade.color.a, fade_at_tree_pause), "Esc pause holds the coda screen fade")
 		check(prologue.phase == prologue.Phase.CODA and prologue.coda_step == prologue.CodaStep.FADING and prologue._busy, "Esc pause keeps coda before ending")
 		prologue.ui.toggle_pause()
-		await prologue._coda_transition.finished
+		var prologue_finished := await _await_or_timeout(prologue._coda_transition.finished, 5.0)
+		check(prologue_finished, "prologue coda fade finishes within 5 s")
 	check(prologue.phase == prologue.Phase.ENDING and prologue.ui.ending_panel.visible, "prologue coda fade reaches ending")
 	check(is_equal_approx(prologue.world.lamp.light_energy, 0.0) and is_equal_approx(prologue.world.safelight.light_energy, 0.0), "resumed coda fade extinguishes both lamps")
 	check(is_equal_approx(prologue.ui.fade.color.a, 0.0), "ending clears the completed coda screen fade")
@@ -247,6 +265,85 @@ func _test_direct_and_prologue_paths() -> void:
 	check(auto._pending == "coda_workbook" and auto.ui.text_label.text.contains("又讀了一遍工作簿最後一頁"), "already-written workbook rereads automatically after the coda opening")
 	auto.queue_free()
 	await process_frame
+
+
+func _test_kit_first_choices() -> void:
+	var story = root.get_node("Story")
+	var replies := ["雲在最後才薄下去，我一直看著。", "數字很小，範圍很寬，我還不能說得更確定。", "我今天也犯了一個錯，回去再慢慢告訴你。"]
+	for choice in 3:
+		# Drive the actual coda dialogue, including its then reply and done signal.
+		var chapter = await _new_main(true)
+		chapter.ui.history.clear()  # History is static across chapter instances.
+		chapter._telegram = 0  # An overclaim: the mistake answer is available.
+		chapter._grade = Judgment.grade(chapter.sim, "confirmed", "uncertain")
+		var grade_before: Dictionary = chapter._grade.duplicate(true)
+		chapter._pending = "reaction"
+		chapter._on_dialogue_done({})
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+		chapter._interact("departure_workbook")
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+		chapter._interact("mentor_loupe")
+		while chapter.ui._seq[chapter.ui._seq_i].get("key", "") != "kit_first":
+			chapter.ui._advance()
+		check(chapter._pending == "coda_kit" and chapter.ui.text_label.text == "（見到 Kit，第一句話要說什麼？）", "coda reaches the Kit choice")
+		check(chapter.ui._seq[chapter.ui._seq_i].choices == ["先說天空：雲在最後才薄下去。", "先說不確定：數字很小，範圍很寬。", "先說錯誤：我今天也犯了一個錯。"], "three authored answers appear")
+		check(story.kit_first == -1 and chapter._coda_transition == null, "choice waits before storing or fading")
+		chapter.ui._choose(choice)
+		check(chapter.ui.speaker_label.text == Coda.YOU and chapter.ui.text_label.text == replies[choice], "choice %d shows its player reply" % choice)
+		chapter.ui._advance()
+		check(chapter.ui.text_label.text == "（你吹熄了燈。）", "reply is followed by the lamp-out line")
+		chapter.ui._advance()
+		check(story.kit_first == choice, "dialogue completion stores Kit choice %d" % choice)
+		var line: String = "給 Kit：" + replies[choice]
+		check(chapter._night_departure_workbook.kit_line == line and chapter._night_departure_workbook.get_node("WorkbookKitLine").text == line, "night workbook page shows the exact reply")
+		check(text_of(Coda.workbook_again(chapter._night_departure_workbook.kit_line)).count(line) == 1, "workbook reread includes the reply once")
+		var transition: Tween = chapter._coda_transition
+		chapter._on_dialogue_done({})
+		check(chapter._coda_transition == transition, "a repeated done signal cannot restart lamp-out")
+		transition.pause()
+		transition.custom_step(0.7)
+		transition.custom_step(0.6)
+		transition.custom_step(1.3)
+		check(chapter.phase == chapter.Phase.ENDING, "Kit choice reaches ending through lamp-out")
+		check(chapter.ui.ending_text.text.count(line) == 1 and chapter.ui.ending_text.text.contains("[color=#8f8676]本子上："), "ending tableau includes the dim workbook line once")
+		check(chapter.ui.history.filter(func(entry): return entry.contains("（你吹熄了燈。）")).size() == 1, "lamp-out dialogue happens once")
+		check(chapter._grade == grade_before, "Kit choice leaves grading unchanged")
+		chapter.queue_free()
+		await process_frame
+	# Only a clean, correctly read, non-overclaimed run gets the star chart.
+	for args in [[false, false, true], [true, false, true], [false, true, true], [false, false, false]]:
+		var seq: Array = Coda.kit_close("warm", 2, args[0], args[1], args[2])
+		var decision: Dictionary = seq[-2]
+		var no_mistake: bool = not args[0] and not args[1] and args[2]
+		check(decision.choices[2] == ("先說那張星圖。" if no_mistake else "先說錯誤：我今天也犯了一個錯。"), "third option follows all three mistake conditions")
+	# Exercise the clean third answer through the real UI and ending as well.
+	var clean = await _new_main(true)
+	check(story.kit_first == -1, "new run clears the previous Kit answer")
+	clean._telegram = 3
+	clean._grade = Judgment.grade(clean.sim, "none", "nostars")
+	clean._begin_coda()
+	clean._pending = "coda_loupe"
+	clean._on_dialogue_done({})
+	while clean.ui._seq[clean.ui._seq_i].get("key", "") != "kit_first":
+		clean.ui._advance()
+	check(clean.ui._seq[clean.ui._seq_i].choices[2] == "先說那張星圖。", "clean real run offers the star chart")
+	clean.ui._choose(2)
+	check(clean.ui.text_label.text == "我還記得小時候那張星圖。", "clean third answer has its own reply")
+	clean.ui._advance()
+	clean.ui._advance()
+	var clean_line := "給 Kit：我還記得小時候那張星圖。"
+	check(story.kit_first == 2 and clean._night_departure_workbook.kit_line == clean_line, "clean answer is stored in Story and workbook")
+	clean._coda_transition.pause()
+	clean._coda_transition.custom_step(0.7)
+	clean._coda_transition.custom_step(0.6)
+	clean._coda_transition.custom_step(1.3)
+	check(clean.ui.ending_text.text.contains(clean_line), "clean third answer reaches the tableau")
+	clean.queue_free()
+	await process_frame
+	story.reset()
+	check(story.kit_first == -1, "Story reset clears Kit first words")
 
 
 func _test_rules_before_viewer() -> void:
@@ -289,6 +386,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 	var main_script: Script = load(MAIN_PATH)
 	var first = await _new_main(true)
 	story.bond_tone = "close"
+	story.kit_first = 2
 	story.departure_done = true
 	check(first._came_from_departure, "prologue run caches its origin")
 	main_script.replay_from_prologue = first._came_from_departure  # what _restart() stores before reloading
@@ -296,6 +394,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 	await process_frame
 	var replay = await _new_main(false)
 	check(replay._came_from_departure, "1919 replay keeps the prologue origin")
+	check(story.kit_first == -1, "1919 replay clears only the previous run Kit answer")
 	check(story.bond_tone == "close" and story.departure_done, "1919 replay keeps Story continuity (bond tone, departure)")
 	check(not main_script.replay_from_prologue, "replay origin is consumed once")
 	check(replay.has_node("AshbyLoupeHotspot"), "1919 replay still places Ashby's loupe")
@@ -314,6 +413,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 func _run() -> void:
 	_test_grade_branches()
 	_test_kit_tones()
+	await _test_kit_first_choices()
 	await _test_rules_before_viewer()
 	await _test_direct_and_prologue_paths()
 	await _test_unmeasured_usable_coda()

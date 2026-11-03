@@ -7,6 +7,7 @@ var clues: Dictionary = {}
 var report: Dictionary = {}
 var plan: Array = []
 var kit_choice := -1
+var kit_first := -1
 var trial_note := -1
 var exam: Dictionary = {}
 var bond_tone := ""
@@ -21,6 +22,7 @@ func reset() -> void:
 	report.clear()
 	plan.clear()
 	kit_choice = -1
+	kit_first = -1
 	trial_note = -1
 	exam.clear()
 	bond_tone = ""

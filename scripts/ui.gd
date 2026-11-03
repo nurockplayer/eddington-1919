@@ -95,6 +95,7 @@ var measure_btn: Button
 var reselect_btn: Button
 var report_btn: Button
 var chart: Control
+var viewer_rule: RichTextLabel
 var viewer_note: RichTextLabel
 var viewer_sfx_log: Array[String] = []
 var _viewer_sfx := {}
@@ -110,6 +111,7 @@ var comparison_recall := ""
 ## Set by main before open_viewer: the drive line under each eclipse plate.
 var drive_note := ""
 var _viewer_locked := false
+var _viewer_reporting := false
 var pause_enabled := false
 var _pause_focus: Control
 var _credits_focus: Control
@@ -133,8 +135,8 @@ func _ready() -> void:
 	root.theme = theme_res
 	add_child(root)
 	_build_hud(root)
-	_build_dialog(root)
 	_build_viewer(root)
+	_build_dialog(root)
 	_build_title(root)
 	_build_ending(root)
 	_build_pause(root)
@@ -628,7 +630,7 @@ func _build_viewer(root: Control) -> void:
 	include_box.add_theme_color_override("font_color", PAPER)
 	include_box.focus_mode = Control.FOCUS_ALL
 	include_box.toggled.connect(func(on):
-		if _viewer_sel >= 0:
+		if _viewer_sel >= 0 and not _viewer_locked:
 			_viewer_sound("mark")
 			plate_toggled.emit(_viewer_sel, on)
 	)
@@ -646,6 +648,9 @@ func _build_viewer(root: Control) -> void:
 	right.add_theme_constant_override("separation", 10)
 	h.add_child(right)
 	right.add_child(_label("星光偏折（太陽邊緣，角秒）", 22, ACCENT))
+	viewer_rule = _rich(15)
+	viewer_rule.visible = false
+	right.add_child(viewer_rule)
 	chart = preload("res://scripts/chart.gd").new()
 	chart.custom_minimum_size = Vector2(560, 420)
 	right.add_child(chart)
@@ -722,7 +727,7 @@ func _show_loupe(center: Vector2) -> void:
 
 
 func _plate_gui_input(event: InputEvent) -> void:
-	if not event is InputEventMouseButton or not event.pressed or event.button_index != MOUSE_BUTTON_LEFT or _plate_texture == null:
+	if _viewer_reporting or not event is InputEventMouseButton or not event.pressed or event.button_index != MOUSE_BUTTON_LEFT or _plate_texture == null:
 		return
 	var shown := big_plate.texture.get_size()
 	var drawn := shown * minf(big_plate.size.x / shown.x, big_plate.size.y / shown.y)
@@ -738,6 +743,7 @@ func _plate_gui_input(event: InputEvent) -> void:
 
 
 func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, locked: bool) -> void:
+	set_viewer_report(false)
 	if _viewer_sfx.is_empty():
 		_build_viewer_sfx()
 	viewer.visible = true
@@ -837,6 +843,8 @@ func refresh_thumbs() -> void:
 
 
 func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
+	if _viewer_reporting and sound:
+		return
 	if sound and (i >= 0 or i == -2):
 		_viewer_sound("plate")
 	_viewer_sel = i
@@ -848,7 +856,7 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 			plate_info.text += "\n[i]%s[/i]" % comparison_recall
 		include_box.visible = false
 		return
-	include_box.visible = true
+	include_box.visible = not _viewer_reporting
 	var p: Dictionary = _viewer_plates[i]
 	include_box.set_pressed_no_signal(p.included)
 	include_box.disabled = _viewer_locked
@@ -883,13 +891,29 @@ func set_viewer_locked(locked: bool) -> void:
 	var action_focused := focused in [measure_btn, reselect_btn, report_btn, include_box]
 	_viewer_locked = locked
 	measure_btn.disabled = locked
-	reselect_btn.disabled = not locked
-	report_btn.disabled = not locked
+	reselect_btn.disabled = not locked or _viewer_reporting
+	report_btn.disabled = not locked or _viewer_reporting
 	include_box.disabled = locked
-	if action_focused and focused.disabled:
+	if action_focused and focused.disabled and not _viewer_reporting:
 		(reselect_btn if locked else measure_btn).grab_focus()
 	if _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size():
 		_select_plate(_viewer_sel, _plate_texture, false)
+
+
+func set_viewer_report(reporting: bool) -> void:
+	_viewer_reporting = reporting
+	viewer_rule.visible = reporting and viewer_rule.text != ""
+	# Keep every viewer control out of dialogue focus navigation.
+	for button in viewer.find_children("*", "BaseButton", true, false):
+		button.disabled = reporting
+		button.focus_mode = Control.FOCUS_NONE if reporting else Control.FOCUS_ALL
+	report_btn.get_parent().visible = not reporting
+	reference_btn.visible = not reporting
+	loupe_btn.visible = not reporting
+	reference_btn.set_pressed_no_signal(false)
+	reference_panel.hide()
+	set_viewer_locked(true if reporting else _viewer_locked)
+	include_box.visible = not reporting and _viewer_sel >= 0
 
 
 func set_viewer_note(bb: String) -> void:
@@ -1341,7 +1365,7 @@ func _input(event: InputEvent) -> void:
 	elif log_panel.visible:
 		if event is InputEventKey and not event.is_action("pause") and not event.is_action("ui_accept") and not event.is_action("ui_up") and not event.is_action("ui_down"):
 			get_viewport().set_input_as_handled()
-	elif viewer.visible and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause") and not get_tree().paused:
+	elif viewer.visible and not _viewer_reporting and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause") and not get_tree().paused:
 		viewer_closed.emit()
 		get_viewport().set_input_as_handled()
 	else:

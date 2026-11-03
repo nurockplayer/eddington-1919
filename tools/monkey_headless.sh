@@ -47,7 +47,8 @@ for ((i=0; i<count; i++)); do
   fi
   cap=360
   flag=--autoplay=monkey
-  if [[ $current == prologue ]]; then cap=540; flag=--prologue-autoplay=monkey; fi
+  # Seed 12 hit 540s under host contention, then passed its exact replay in 311.25s.
+  if [[ $current == prologue ]]; then cap=810; flag=--prologue-autoplay=monkey; fi
   log=".monkey-logs/$current-$seed.log"
   restore || exit 1
   /usr/bin/time -p perl -e "alarm $cap; exec @ARGV" \

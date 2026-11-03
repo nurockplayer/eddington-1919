@@ -211,6 +211,8 @@ func talk(choices: Array = [], random_choices := true) -> void:
 		var e: Dictionary = main.ui._seq[main.ui._seq_i]
 		if e.has("choices"):
 			var pick: int = choices[ci] if ci < choices.size() else 0
+			if e.get("key", "") == "kit_first":
+				pick = 0
 			if random_choices:
 				pick = monkey_choice(e, pick)
 			ci += 1
@@ -375,6 +377,11 @@ func _totality() -> void:
 			await monkey_step("totality")
 		var dens: float = sim.cloud_over_sun(t)
 		var exposing: bool = sim.is_exposing()
+		if scenario == "monkey" and main.plates_left <= 0 and not exposing and main.change_left <= 0.0 and main.t_game < sim.TOTALITY_S - 3.0:
+			var wait_key: Key = KEY_E if monkey_rng.randi_range(0, 1) == 0 else KEY_SPACE
+			_disruption("empty rack wait key=%d" % wait_key)
+			await _tap(wait_key)
+			continue
 		var want := false
 		if scenario == "rushed":
 			# Ignore the sky: fixed long exposures back to back.
@@ -535,7 +542,9 @@ func _disruption(description: String) -> void:
 
 
 func monkey_choice(entry: Dictionary, scripted: int) -> int:
-	if scenario != "monkey" or _disrupting or monkey_rng.randi_range(0, 1) == 0:
+	if scenario != "monkey" or _disrupting:
+		return scripted
+	if entry.get("key", "") != "kit_first" and monkey_rng.randi_range(0, 1) == 0:
 		return scripted
 	var pick := monkey_rng.randi_range(0, entry.choices.size() - 1)
 	_disruption("choice %s=%d/%d" % [entry.get("key", ""), pick, entry.choices.size()])
@@ -563,13 +572,23 @@ func monkey_step(context: String, walking := false) -> void:
 			options.append("mash")
 		if walking and main.player.can_move:
 			options.append("walk")
-		if main.ui.viewer.visible and not main.ui.dialog_active():
+		if main.ui.viewer.visible and main.ui._viewer_reporting and main.ui.dialog_active() and main.ui._seq[main.ui._seq_i].has("choices"):
+			options.append("read-only evidence")
+		elif main.ui.viewer.visible and not main.ui.dialog_active():
 			options.append_array(["reopen", "reference", "loupe"])
 			if main.sim.measured:
 				options.append("reselect")
 		var action: String = options[monkey_rng.randi_range(0, options.size() - 1)]
 		_disruption(context + ": " + action)
 		match action:
+			"read-only evidence":
+				var selection: Array = main.sim.plates.map(func(p): return p.included)
+				var entry: int = main.ui._seq_i
+				if not main.sim.plates.is_empty():
+					await _click(main.ui.thumb_center(0))
+				if not main.ui.viewer.visible or not main.ui._viewer_reporting or main.ui._seq_i != entry or selection != main.sim.plates.map(func(p): return p.included):
+					stuck += 1
+					_log("FAIL: judgment evidence changed or dialogue advanced on a disabled viewer control")
 			"pause", "start", "settings":
 				if action == "start": await _start_button()
 				else: await _tap(KEY_ESCAPE)
