@@ -1,7 +1,12 @@
 extends SceneTree
 
 const Settings := preload("res://scripts/settings.gd")
+const Benchmark := preload("res://tests/benchmark.gd")
 const TEST_PATH := "user://test_graphics_quality.cfg"
+class TestBenchmark extends Benchmark:
+	func _ready() -> void:
+		pass
+
 var checks := 0
 var failures := 0
 
@@ -43,6 +48,17 @@ func _check_quality(low: bool) -> void:
 func _run() -> void:
 	var had_settings := FileAccess.file_exists(Settings.SETTINGS_PATH)
 	var original := FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) if had_settings else PackedByteArray()
+	check(Benchmark.quality_arg(PackedStringArray(["--bench-quality=low"])) == "low", "benchmark parses low")
+	check(Benchmark.quality_arg(PackedStringArray(["--bench-quality=standard"])) == "standard", "benchmark parses standard")
+	check(Benchmark.quality_arg(PackedStringArray(["--bench-quality=invalid"])) == "", "benchmark ignores invalid quality")
+	var bench := TestBenchmark.new()
+	root.add_child(bench)
+	Settings.quality = "standard"
+	bench.apply_quality_arg(PackedStringArray(["--bench-quality=low"]))
+	check(Settings.quality == "low" and is_equal_approx(root.scaling_3d_scale, 0.75), "benchmark applies low quality")
+	check(FileAccess.get_file_as_bytes(Settings.SETTINGS_PATH) == original if had_settings
+		else not FileAccess.file_exists(Settings.SETTINGS_PATH), "benchmark leaves settings file unchanged")
+	bench.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_PATH))
 	Settings.load_settings(TEST_PATH)
 	check(Settings.quality == "standard", "missing quality defaults to standard")
