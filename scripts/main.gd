@@ -928,6 +928,11 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"rules":
 			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
 			_open_viewer()
+		"interval":
+			_interval_answer = results.interval
+			var tele := Judgment.TELEGRAMS.map(func(t): return t.text)
+			var rea := _reasons.map(func(r): return r.text)
+			_say([{"s": Content.E, "t": Content.interval_feedback(_interval_answer, Judgment.interval_truth(sim))}] + Content.judgment_prompt(tele, rea), "judgment")
 		"judgment":
 			_after_judgment(results)
 		"reaction":
@@ -1372,6 +1377,7 @@ func _on_report() -> void:
 
 
 var _grade: Dictionary
+var _interval_answer := -1
 var _telegram := 0
 var _reason := 0
 var _reasons: Array = []
@@ -1382,11 +1388,12 @@ func _start_judgment() -> void:
 	_reasons = Judgment.reasons_for(sim)
 	var rea := _reasons.map(func(r): return r.text)
 	var c: Dictionary = sim.combined()
-	var interval := ""
 	if c.n > 0:
 		var bounds := Judgment.interval_bounds(sim)
-		interval = "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, bounds.lo, bounds.hi]
-	_say(Content.judgment_prompt(tele, rea, interval), "judgment")
+		var interval := "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, bounds.lo, bounds.hi]
+		_say(Content.interval_prompt(interval), "interval")
+	else:
+		_say(Content.judgment_prompt(tele, rea), "judgment")
 
 
 func _after_judgment(results: Dictionary) -> void:
@@ -1394,13 +1401,6 @@ func _after_judgment(results: Dictionary) -> void:
 	_reason = results.get("reason", 1)
 	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
 	var seq := []
-	if results.has("interval"):
-		var truth := Judgment.interval_truth(sim)
-		var feedback := "對，範圍就是這樣讀的。"
-		if results.interval != truth:
-			var contains := ["範圍同時容得下 0.87″ 和 1.75″", "範圍只容得下 1.75″", "範圍只容得下 0.87″", "0.87″ 和 1.75″ 都不在範圍裡"]
-			feedback = "再看一次：%s。" % contains[truth]
-		seq.append({"s": Content.E, "t": feedback})
 	for l in _grade.lines:
 		seq.append({"s": Content.E, "t": l})
 	seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
