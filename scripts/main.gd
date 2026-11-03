@@ -1400,6 +1400,9 @@ func _refresh_viewer() -> void:
 		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
 		if recall != "":
 			note += "\n" + recall
+	var rule_index := ["strict", "after", "none"].find(sim.rule_id)
+	if rule_index >= 0:
+		note += "\n你寫下的規則：" + Content.rules_prompt(false)[-1].choices[rule_index]
 	ui.set_viewer_note(note)
 	ui.refresh_thumbs()
 
@@ -1447,7 +1450,8 @@ func _on_viewer_closed() -> void:
 
 
 func _on_report() -> void:
-	ui.close_viewer()
+	ui.set_viewer_report(true)
+	_refresh_viewer()
 	_start_judgment()
 
 
@@ -1472,6 +1476,7 @@ func _start_judgment() -> void:
 
 
 func _after_judgment(results: Dictionary) -> void:
+	ui.close_viewer()
 	_telegram = results.get("telegram", 1)
 	_reason = results.get("reason", 1)
 	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
