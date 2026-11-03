@@ -150,6 +150,40 @@ func _init() -> void:
 	check(rep.reselected, "reselection reported")
 	check(not Judgment.grade(sim4, "hopeful", "measured").clean, "reselection breaks a clean selection")
 
+	# Documented quality corrections must match the actual plate qualities.
+	var corrected = Sim.new(11)
+	corrected.plates = [
+		{"number": 1, "usable": true, "quality": "good", "included": false, "trail": 0.1, "value": 1.75, "sigma": 0.2},
+		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 0.9, "sigma": 0.4},
+		{"number": 3, "usable": false, "quality": "unusable", "included": true},
+	]
+	corrected.first_result = corrected.combined()
+	var first: Dictionary = corrected.first_result.duplicate()
+	corrected.plates[0].included = true
+	corrected.plates[1].included = false
+	corrected.plates[2].included = false
+	corrected.reselected_after_seeing = true
+	corrected.reselect_reason = "quality"
+	corrected.reselect_added = [1]
+	corrected.reselect_removed = [2, 3]
+	var report: Dictionary = corrected.selection_report()
+	check(report.reselect_added == [1] and report.reselect_removed == [2, 3] and report.reselect_reason == "quality", "report retains documented changes")
+	check(report.reselect_justified and Judgment.grade(corrected, "hopeful", "measured").clean, "quality correction removing poor and unusable plates is clean")
+	check(Judgment.grade(corrected, "hopeful", "measured").lines.any(func(line): return line.contains("第 2、3、1 號是因為星像品質")), "justified correction names the changed plates")
+	check(corrected.first_result == first and corrected.first_result != corrected.combined(), "first result survives a changed combination")
+	corrected.reselect_removed = [1]
+	check(not corrected.selection_report().reselect_justified and not Judgment.grade(corrected, "hopeful", "measured").clean, "claiming quality after removing a good plate is not clean")
+	corrected.reselect_removed = [2, 3]
+	corrected.reselect_added = [2]
+	check(not corrected.selection_report().reselect_justified, "adding a poor plate is not justified")
+	corrected.reselect_added = [1]
+	corrected.reselect_reason = "result"
+	var result_grade: Dictionary = Judgment.grade(corrected, "hopeful", "measured")
+	check(not result_grade.clean, "a result-driven correction is not clean")
+	check(result_grade.lines.has("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"), "result-driven correction gets its recorded-reason line")
+	corrected.reselect_reason = "none"
+	check(not Judgment.grade(corrected, "hopeful", "measured").clean, "an unexplained correction is not clean")
+
 	# Careful play (checked drive, exposures inside the late gap) should not point
 	# to the half value by noise alone.
 	var misled := 0

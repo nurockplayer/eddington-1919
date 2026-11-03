@@ -41,6 +41,7 @@ func _run() -> void:
 	await _test_birds_quiet()
 	await _test_callouts()
 	await _test_night_viewer()
+	await _test_reselect_reason()
 	# AudioServer releases stopped WAV playbacks asynchronously, after node teardown.
 	await create_timer(0.1).timeout
 	print("%d checks, %d failures" % [checks, failures])
@@ -641,4 +642,72 @@ func _test_night_viewer() -> void:
 	check(not ui.callout.visible, "expired callout stays hidden")
 
 	ui.queue_free()
+	await process_frame
+
+
+func _test_reselect_reason() -> void:
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	game.phase = game.Phase.NIGHT
+	game.sim = Sim.new(1919)
+	game.sim.plates = [
+		{"number": 1, "start": 10.0, "duration": 8.0, "sunlit": false, "included": true, "usable": true, "stars": 7, "quality": "good", "trail": 0.1, "value": 1.75, "sigma": 0.2},
+		{"number": 2, "start": 20.0, "duration": 20.0, "sunlit": false, "included": true, "usable": true, "stars": 5, "quality": "poor", "trail": 0.5, "value": 0.9, "sigma": 0.4},
+	]
+	game.plate_textures = [null, null]
+	game._open_viewer()
+	game.ui.measure_btn.pressed.emit()
+	var first: Dictionary = game.sim.combined().duplicate()
+	check(game.sim.first_result == first, "first measurement stores the combined result")
+	game.ui.reselect_btn.pressed.emit()
+	game.ui._select_plate(1, null)
+	game.ui.include_box.button_pressed = false
+	game.ui.measure_btn.pressed.emit()
+	check(game.ui.dialog_active() and game._pending == "reselect_reason", "changed selection asks for a reason before locking")
+	check(not game.sim.measured and not game.ui.viewer.visible, "measurement waits with the viewer hidden for the reason")
+	check(game.ui._seq[0].t == "你改了選片。寫下來：為什麼？" and game.ui._seq[0].choices == ["星像品質：它拖長、起霧或星不夠", "第一次的數字不合我的預期", "說不上來"], "reason dialogue has the three authored choices")
+	check(root.gui_get_focus_owner() == game.ui._choice_buttons[0], "reason dialogue focuses the first choice")
+	game.ui._choice_buttons[0].pressed.emit()
+	check(game.sim.measured and game.sim.reselect_reason == "quality" and game.sim.reselected_after_seeing, "answer records the reason and finishes measurement")
+	check(game.sim.reselect_removed == [2] and game.sim.reselect_added.is_empty() and game.sim.selection_report().reselect_justified, "real selection change records the removed poor plate")
+	check(game.sim.first_result == first and game.sim.first_result != game.sim.combined(), "reselection preserves the actual first value and uncertainty")
+	var first_line := "第一次量：%.2f″ ± %.2f″" % [first.value, first.sigma]
+	check(game.ui.viewer_note.text.contains(first_line), "viewer note retains 第一次量 with the original values")
+	check(game.ui.viewer.visible and game.ui.measure_btn.disabled and root.gui_get_focus_owner() == game.ui.reselect_btn, "measurement returns to the locked viewer with reselect focus")
+	game.ui.reselect_btn.pressed.emit()
+	game.ui.measure_btn.pressed.emit()
+	check(not game.ui.dialog_active() and game.sim.first_result == first, "unchanged reselection does not ask again or replace the first result")
+	game._grade = Judgment.grade(game.sim, "hopeful", "measured")
+	game._show_ending()
+	check(game.ui.ending_text.text.contains(first_line), "ending retains the first result")
+	# A later quality correction cannot erase an earlier result-driven change.
+	game.ui.ending_panel.hide()
+	game.phase = game.Phase.NIGHT
+	game.sim = Sim.new(1919)
+	game.sim.plates = [
+		{"number": 1, "start": 10.0, "duration": 8.0, "sunlit": false, "included": true, "usable": true, "stars": 7, "quality": "good", "trail": 0.1, "value": 1.75, "sigma": 0.2},
+		{"number": 2, "start": 20.0, "duration": 20.0, "sunlit": false, "included": true, "usable": true, "stars": 5, "quality": "poor", "trail": 0.5, "value": 0.9, "sigma": 0.4},
+		{"number": 3, "start": 45.0, "duration": 8.0, "sunlit": false, "included": false, "usable": true, "stars": 7, "quality": "good", "trail": 0.1, "value": 1.8, "sigma": 0.2},
+	]
+	game.plate_textures = [null, null, null]
+	game._open_viewer()
+	game.ui.measure_btn.pressed.emit()
+	var original: Dictionary = game.sim.first_result.duplicate()
+	game.ui.reselect_btn.pressed.emit()
+	game.ui._select_plate(2, null)
+	game.ui.include_box.button_pressed = true
+	game.ui.measure_btn.pressed.emit()
+	game.ui._choice_buttons[1].pressed.emit()
+	check(game.sim.reselect_reason == "result" and not game.sim.selection_report().reselect_justified, "result answer records an unjustified change")
+	game.ui.reselect_btn.pressed.emit()
+	game.ui._select_plate(1, null)
+	game.ui.include_box.button_pressed = false
+	game.ui.measure_btn.pressed.emit()
+	game.ui._choice_buttons[0].pressed.emit()
+	check(not Judgment.grade(game.sim, "hopeful", "measured").clean, "later quality correction cannot clear an earlier result-driven change")
+	check(game.sim.reselect_history == [{"reason": "result", "added": [3], "removed": []}, {"reason": "quality", "added": [], "removed": [2]}], "both reselection reasons and plate changes survive")
+	check(game.sim.first_result == original, "multiple reselections still retain the first result")
+	game.stop_all_audio()
+	game.queue_free()
 	await process_frame

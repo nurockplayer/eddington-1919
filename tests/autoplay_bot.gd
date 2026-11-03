@@ -407,6 +407,8 @@ func _night() -> void:
 			await _click(main.ui.viewer_button_center("include"))
 		await _click(main.ui.viewer_button_center("measure"))
 		await _wait(0.3)
+		if main.ui.dialog_active():
+			await talk([1])
 	await shot("09_viewer_measured")
 	_log("evidence %s, combined %s" % [main.sim.evidence_class(), str(main.sim.combined())])
 	await _click(main.ui.viewer_button_center("report"))
