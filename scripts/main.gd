@@ -910,7 +910,7 @@ func _needs_comparison_fetch() -> bool:
 
 func _refresh_objectives() -> void:
 	if phase == Phase.PREP:
-		var ok := func(b: bool) -> String: return "[color=#9c9]✓[/color]" if b else "☐"
+		var ok := func(b: bool) -> String: return "[color=#9c9]✓[/color]" if b else "□"
 		var lines := ["[b]準備（全食之前）[/b]"]
 		lines.append("%s 向 Eddington 報到" % ok.call(sim.briefed))
 		lines.append("%s 從暗房搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）" % [ok.call(sim.plates_delivered >= sim.MAX_EXTRA_PLATES), sim.plates_delivered, sim.MAX_EXTRA_PLATES, sim.plates_carried])
@@ -926,14 +926,14 @@ func _refresh_objectives() -> void:
 			objective = "再讀工作簿最後一頁" if _departure_workbook_seen else "在工作簿記下你看到的天空"
 		elif coda_step == CodaStep.LOUPE:
 			objective = "拿起 Ashby 先生給的放大鏡"
-		ui.set_objectives("[b]夜晚・暗房[/b]\n☐ " + objective if objective != "" else "")
+		ui.set_objectives("[b]夜晚・暗房[/b]\n□ " + objective if objective != "" else "")
 	elif phase == Phase.NIGHT:
 		if _needs_comparison_fetch():
-			ui.set_objectives("[b]夜晚・暗房[/b]\n☐ 去拿牛津比對底片\n☐ 到測量桌檢視並量測底片")
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n□ 到測量桌檢視並量測底片")
 		elif sim.measured:
-			ui.set_objectives("[b]夜晚・暗房[/b]\n☐ 向 Eddington 報告你的判斷")
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷")
 		else:
-			ui.set_objectives("[b]夜晚・暗房[/b]\n☐ 到測量桌檢視並量測底片")
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 到測量桌檢視並量測底片")
 	else:
 		ui.set_objectives("")
 

@@ -1,5 +1,6 @@
 extends CanvasLayer
 
+const Fonts := preload("res://scripts/fonts.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Settings := preload("res://scripts/settings.gd")
 const Content := preload("res://scripts/content.gd")
@@ -28,7 +29,7 @@ const INK := Color(0.10, 0.09, 0.08)
 const DIM := Color(0.70, 0.66, 0.58)
 const ACCENT := Color(0.95, 0.72, 0.38)
 
-var font: SystemFont
+var font: Font
 var theme_res: Theme
 var hud: Control
 var clock_label: Label
@@ -101,8 +102,7 @@ func _ready() -> void:
 	Settings.load_settings()
 	Settings.apply_startup()
 	music_ready_usec = Time.get_ticks_usec() - music_ready
-	font = SystemFont.new()
-	font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "Source Han Sans TC", "sans-serif"])
+	font = Fonts.cjk()
 	theme_res = Theme.new()
 	theme_res.default_font = font
 	theme_res.default_font_size = 21
@@ -791,6 +791,13 @@ func _build_title(root: Control) -> void:
 	var q := _button("　離開　")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	var version := _label("v" + str(ProjectSettings.get_setting("application/config/version")), 15, Color("8f8676"))
+	version.name = "Version"
+	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	title_panel.add_child(version)
+	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	version.position -= version.get_minimum_size() + Vector2(24, 18)
+	version.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func hide_title() -> void:

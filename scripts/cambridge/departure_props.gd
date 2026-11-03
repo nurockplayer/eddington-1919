@@ -1,5 +1,7 @@
 extends Node3D
 class_name CambridgeDepartureWorkbook
+
+const Fonts := preload("res://scripts/fonts.gd")
 ## Small procedural workbook prop used in the Cambridge departure room and the
 ## Príncipe darkroom. The open action is purely narrative and has no game state.
 
@@ -39,9 +41,7 @@ func _ready() -> void:
 	var date := Label3D.new()
 	date.name = "WorkbookDate"
 	date.text = "1919 年 5 月 29 日"
-	var cjk_font := SystemFont.new()
-	cjk_font.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC"])
-	date.font = cjk_font
+	date.font = Fonts.cjk()
 	date.font_size = 38
 	date.pixel_size = 0.0013
 	date.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

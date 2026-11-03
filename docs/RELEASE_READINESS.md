@@ -9,15 +9,15 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | # | Item | Status | Evidence | Next action |
 |---|---|---|---|---|
 | A1 | Human Generator assets cannot ship | PARTIAL | #113: export presets exclude `assets/licensed/*`; regression test checks each preset (oracle major: config only, not the package) | in A11, list the exported pck and assert no `assets/licensed/` or `tests/` file |
-| A2 | Bundled CJK font | PARTIAL | `scripts/ui.gd:98`, `overlay_viewer.gd:43`, `departure_props.gd:43` use `SystemFont` names only; Linux/Deck have none → tofu | bundle Noto Sans TC (OFL) as the fallback after the system names; licence file in repo |
+| A2 | Bundled CJK font | DONE | [PR #114](https://github.com/nurockplayer/eddington-1919/pull/114): `scripts/fonts.gd` adds bundled Noto Sans TC Regular after system names; OFL and hashes recorded; `tests/test_fonts.gd` checks every non-ASCII script character | — |
 | A3 | Credits screen | MISSING | `scripts/ui.gd:792` ending menu has no credits | credits from `docs/PROVENANCE.md`, `docs/audio/SOURCES.md`, `art/people/LICENSES.md`, Godot notice |
-| A4 | Licence notices complete and consistent | PARTIAL | `docs/PROVENANCE.md:91` says no external audio; `docs/audio/SOURCES.md:31–64` lists sampled cues | reconcile; one `THIRD_PARTY_NOTICES` shipped with the build, Godot licence included |
-| A5 | Settings: per-bus volume, fullscreen/window | DONE | [PR #115](https://github.com/nurockplayer/eddington-1919/pull/115): pause-menu master/music/SFX sliders + fullscreen button and F11; non-music players use SFX | saved in `user://settings.cfg`; music on/off preserved; headless window calls skipped; `tests/test_settings.gd` |
+| A4 | Licence notices complete and consistent | PARTIAL | `THIRD_PARTY_NOTICES.md` and the font licence are listed in the export include_filter (package contents unverified until A11); `scripts/notices.gd` supplies the notice and Godot licence text for A3 | [PR #116](https://github.com/nurockplayer/eddington-1919/pull/116); A3 must expose the notice and Godot’s bundled third-party copyright and licence information |
+| A5 | Settings: per-bus volume, fullscreen/window | DONE (window mode: lead windowed check) | [PR #115](https://github.com/nurockplayer/eddington-1919/pull/115): pause-menu master/music/SFX sliders + fullscreen button and F11; non-music players use SFX | saved in `user://settings.cfg`; music on/off preserved; headless window calls skipped; `tests/test_settings.gd` |
 | A6 | Gamepad + Steam Deck navigation | MISSING | `scripts/main.gd:205` keyboard/mouse actions only | joypad bindings for move/interact/dialogue/menus; UI focus navigation |
 | A7 | Text size option | PARTIAL | fixed font sizes (`theme_res.default_font_size = 21`) | small/normal/large scale on the theme |
-| A8 | Placeholder text on the player path | PARTIAL | `scripts/ui.gd:771` 「姓名暫定」 | resolve each placeholder; grep gate in a test |
-| A9 | App icon, version from one place, release export script | PARTIAL | no icon; `short_version="0.1.0"` | icon (from existing art), `tools/export_release.sh` |
-| A10 | Every ending reached in tests | PARTIAL | e2e `tidy`/`accuse` stop at PREP | extend routes to their endings |
+| A8 | Placeholder text on the player path | PARTIAL | the only hit is `scripts/ui.gd:771` 「姓名暫定」 (fictional names provisional) → Owner decision B11 | when B11 is decided, drop 「（姓名暫定）」 and add a grep gate test |
+| A9 | App icon, version from one place, release export script | DONE | [PR #117](https://github.com/nurockplayer/eddington-1919/pull/117): original `icon.svg`, Godot-rendered macOS PNG, `config/version="0.3.0"` with preset/title checks, `tools/export_release.sh` checks ZIP and PCK contents | A11: run the release export and qualify the packaged app; export intentionally not run for A9 |
+| A10 | Every ending reached in tests | PARTIAL | the 1919 endings are reached by autoplay careful/rushed/cherry + prologue honest; `tidy`/`accuse` stop at PREP by contract (their prologue differences are checked at PREP); coda variants covered in test_coda | low priority: extend tidy/accuse to ENDING only if their bond/slip choices change a later line |
 | A11 | Exported-build qualification | PARTIAL | last export is v0.2 (`d3bb69d`) | export current main, play start → credits per platform, keep runtime/exit logs clean |
 | A12 | Low-end performance budget | PARTIAL | `art/validation/perf-r04` M2 Pro only | set minimum spec + FPS target, measure (heavy job) |
 | A13 | Windows x86_64 preset | MISSING | only a macOS preset | add preset + test (if the Owner picks Windows, B2) |
@@ -36,6 +36,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | B8 | Names in credits; territory rights for recorded music | |
 | B9 | Steam features: achievements, cloud saves (optional) | GodotSteam not present |
 | B10 | Human playtest of the current build | PLAYTEST.md: human playtest still absent |
+| B11 | Final names for the fictional characters (you, Kit, Ashby) | title screen says 「姓名暫定」 |
 
 ## C. Not blockers
 Pause/quit/main menu (DONE, `scripts/ui.gd:741,857`); debug UI (export excludes tests/lookdev; verify in A11).
