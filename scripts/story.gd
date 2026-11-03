@@ -1,5 +1,7 @@
 extends Node
-## Chapter continuity only. No scene references, world nodes, scoring or behavior.
+## Session continuity and completed experiment snapshots. No scene references.
+
+var runs: Array[Dictionary] = []
 
 var from_prologue := false
 var prologue_done := false
@@ -15,7 +17,9 @@ var slip_fix := -1
 var departure_done := false
 
 
-func reset() -> void:
+func reset(keep_runs := false) -> void:
+	if not keep_runs:
+		runs.clear()
 	from_prologue = false
 	prologue_done = false
 	clues.clear()
