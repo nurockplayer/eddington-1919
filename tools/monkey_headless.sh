@@ -23,7 +23,16 @@ if [[ -f $settings ]]; then cp "$settings" "$scratch/settings.cfg" || exit 1; ha
 restore() {
   if (( had_settings )); then cp "$scratch/settings.cfg" "$settings"; else rm -f "$settings"; fi
 }
-cleanup() { restore; rm -rf "$scratch"; }
+cleanup() {
+  local code=$?
+  if restore; then
+    rm -rf "$scratch"
+  else
+    echo "settings restoration failed; backup retained at $scratch" >&2
+    code=1
+  fi
+  exit "$code"
+}
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
@@ -40,7 +49,7 @@ for ((i=0; i<count; i++)); do
   flag=--autoplay=monkey
   if [[ $current == prologue ]]; then cap=540; flag=--prologue-autoplay=monkey; fi
   log=".monkey-logs/$current-$seed.log"
-  restore
+  restore || exit 1
   /usr/bin/time -p perl -e "alarm $cap; exec @ARGV" \
     "$GODOT" --headless --path . --fixed-fps 60 -- "$flag" "--seed=$seed" >"$log" 2>&1
   code=$?
