@@ -23,13 +23,25 @@ func _initialize() -> void:
 	var error := config.load("res://export_presets.cfg")
 	check(error == OK, "export presets load")
 	var presets := 0
+	var windows := false
 	for section in config.get_sections():
 		if not section.begins_with("preset.") or not section.trim_prefix("preset.").is_valid_int():
 			continue
 		presets += 1
-		if config.get_value(section, "platform", "") == "macOS":
+		var platform := str(config.get_value(section, "platform", ""))
+		var version_keys := []
+		if platform == "macOS":
 			check(config.get_value(section + ".options", "application/icon", "") == "res://assets/icon/icon_1024.png", "macOS preset uses committed PNG")
-		for key in ["application/short_version", "application/version"]:
+			version_keys = ["application/short_version", "application/version"]
+		elif platform == "Windows Desktop":
+			windows = true
+			version_keys = ["application/file_version", "application/product_version"]
+			check(config.get_value(section + ".options", "binary_format/architecture", "") == "x86_64", "Windows preset uses x86_64")
+			check(config.get_value(section + ".options", "binary_format/embed_pck", true) == false, "Windows preset keeps PCK separate")
+			var icon := str(config.get_value(section + ".options", "application/icon", ""))
+			check(icon == "res://assets/icon/icon.ico", "Windows preset uses committed ICO")
+			_test_windows_icon(icon)
+		for key in version_keys:
 			check(config.get_value(section + ".options", key, "") == version, section + " " + key + " matches project version")
 		var filters := str(config.get_value(section, "exclude_filter", "")).split(",")
 		var entries := PackedStringArray()
@@ -38,8 +50,40 @@ func _initialize() -> void:
 		check(entries.has("assets/licensed/*"), section + " excludes licensed assets")
 		check(entries.has("tests/*"), section + " excludes tests")
 	check(presets > 0, "at least one export preset exists")
+	check(windows, "Windows Desktop preset exists")
 	print("%d release export checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
+
+
+func _test_windows_icon(path: String) -> void:
+	check(FileAccess.file_exists(path), "Windows icon exists")
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return
+	check(file.get_length() >= 6, "ICO header is present")
+	if file.get_length() < 6:
+		return
+	check(file.get_16() == 0, "ICO reserved field is zero")
+	check(file.get_16() == 1, "ICO type is icon")
+	var count := file.get_16()
+	var directory_end := 6 + count * 16
+	check(count > 0 and file.get_length() >= directory_end, "ICO directory is complete")
+	if count == 0 or file.get_length() < directory_end:
+		return
+	var has_256 := false
+	for entry in count:
+		var width := file.get_8()
+		var height := file.get_8()
+		file.get_8() # Palette size.
+		check(file.get_8() == 0, "ICO entry reserved field is zero")
+		file.get_16() # Color planes.
+		file.get_16() # Bits per pixel.
+		var size := file.get_32()
+		var offset := file.get_32()
+		check(size > 0 and offset >= directory_end and offset + size <= file.get_length(), "ICO entry data fits file")
+		# ICO encodes a 256-pixel dimension as zero.
+		has_256 = has_256 or (width == 0 and height == 0)
+	check(has_256, "ICO contains a 256 × 256 entry")
 
 
 func _test_icon() -> void:

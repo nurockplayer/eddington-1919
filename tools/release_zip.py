@@ -29,10 +29,10 @@ def main():
                     sys.exit("Forbidden licensed assets or tests in release ZIP")
         elif action == "extract-pck" and len(args) == 1:
             packs = [entry for entry in entries if re.search(
-                r"(^|/)[^/]+\.app/Contents/Resources/[^/]+\.pck$", name(entry)
+                r"(^|/)[^/]+\.app/Contents/Resources/[^/]+\.pck$|^[^/]+\.pck$", name(entry)
             )]
             if len(packs) != 1:
-                sys.exit("Expected one PCK inside .app/Contents/Resources in release ZIP")
+                sys.exit("Expected one PCK at ZIP root or inside .app/Contents/Resources")
             with zf.open(packs[0]) as source, open(args[0], "wb") as dest:
                 shutil.copyfileobj(source, dest)
         else:
