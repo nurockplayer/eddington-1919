@@ -128,7 +128,7 @@ func _build() -> void:
 	var title := _label("畢宿星團比較星清單 · 最後一頁", 26)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page.add_child(title)
-	var legend := _label("藍墨水：Kit　　褐墨水：你　　聽完底片數值，再逐行核對。", 18)
+	var legend := _label("藍墨水：Kit 抄的清單　　褐墨水：你的字　　聽 Kit 念出底片上的數值，和清單比對：相符按 ✓，不符按 ×。", 18)
 	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page.add_child(legend)
 	for i in entries.size():

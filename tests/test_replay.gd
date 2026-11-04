@@ -95,7 +95,11 @@ func _run() -> void:
 			check(not story.prologue_done and not story.departure_done and story.clues.is_empty() and story.bond_tone == "", "direct entry clears stale continuity")
 			main.ui.start_btn.pressed.emit()
 		assert_origin(main, prologue, expected, "initial")
-		for label in ["同一片雲，再試一次", "新的天空", "從頭開始"]:
+		if not prologue:
+			check(main.ui.ending_replay.text == "同一片雲：換個做法，再量一次", "same-sky replay button names what changes")
+			check(main.ui.ending_replay.get_parent().get_children().any(func(c): return c is Button and c.text == "新的天空：換一種雲況"), "fresh-sky replay button names what changes")
+			check(main.ui.ending_replay_hint.text.contains("並排比較"), "replay hint explains the kept record and the comparison")
+		for label in ["同一片雲：換個做法，再量一次", "新的天空：換一種雲況", "從頭開始"]:
 			var old_id: int = main.get_instance_id()
 			var old_seed: int = main.sim.run_seed
 			main._grade = {"title": "probe", "fit": 2, "clean": true, "lines": ["probe response"]}
@@ -113,7 +117,7 @@ func _run() -> void:
 			check(main.get_instance_id() != old_id, "actual scene reload: " + label)
 			check(not paused, "restart unpauses: " + label)
 			check(main.phase == main.Phase.TITLE and main.ui.title_panel.visible, "restart returns title: " + label)
-			check(main.sim.run_seed == old_seed if label != "新的天空" else main.sim.run_seed >= 0, "restart seed: " + label)
+			check(main.sim.run_seed == old_seed if not label.begins_with("新的天空") else main.sim.run_seed >= 0, "restart seed: " + label)
 			assert_origin(main, prologue, expected, label + " title")
 			print("RESTART prologue=%s button=%s seed=%d->%d title=%s" % [prologue, label, old_seed, main.sim.run_seed, main.ui.title_panel.visible])
 			main.ui.start_btn.pressed.emit()

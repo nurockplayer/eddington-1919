@@ -158,6 +158,13 @@ func _run() -> void:
 			bounds(ui.ending_panel)
 			bounds(ui.ending_slip)
 			bounds(ui.ending_plate_card)
+			var hint_rect: Rect2 = ui.ending_replay_hint.get_global_rect()
+			check(hint_rect.size.x > 0 and hint_rect.size.y > 0 and root.get_visible_rect().encloses(hint_rect),
+				"ending replay hint fits on screen")
+			check(not hint_rect.intersects(ui.ending_scroll.get_global_rect()), "ending replay hint clears the scroll")
+			for b in ui.ending_replay.get_parent().get_children().filter(func(c): return c is Button and c.is_visible_in_tree()):
+				check(root.get_visible_rect().encloses(b.get_global_rect()), "ending button fits: " + b.text)
+				check(not b.get_global_rect().intersects(hint_rect), "ending button clears the replay hint: " + b.text)
 			ui._open_credits()
 			await settle()
 			bounds(ui.credits_panel)

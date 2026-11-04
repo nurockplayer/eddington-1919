@@ -63,7 +63,7 @@ func replay(game, same_sky := true):
 		game.ui.ending_replay.pressed.emit()
 	else:
 		for button in game.ui.ending_replay.get_parent().get_children():
-			if button.text == "新的天空":
+			if button.text.begins_with("新的天空"):
 				button.pressed.emit()
 	await wait_for(func(): return current_scene != null and current_scene.get_instance_id() != old_id, "replay button reloads the real scene")
 	var next = current_scene

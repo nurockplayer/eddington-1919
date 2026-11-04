@@ -1112,6 +1112,9 @@ func _test_reselect_reason() -> void:
 		and game.ui.ending_review.text.contains("· 你量了 1 張，合併 1.75″ ± 0.20″（示意模擬）。")
 		and game.ui.ending_review.text.contains(first_line)
 		and game.ui.ending_review.text.contains("· 時鐘驅動："), "review retains the evidence inventory")
+	check(game.ui.ending_review.text.contains("拍了 2 張底片（底片匣一共") and not game.ui.ending_review.text.contains("可用底片"),
+		"evidence count names the cassette total, not usable plates")
+	check(game.ui.ending_history.text.contains("三分之二"), "history explains what the probable error meant")
 	check(not game.ui.ending_review.visible and game.ui.ending_review_toggle.text == "回顧證據與評語", "review starts hidden")
 	game.ui.ending_review_toggle.pressed.emit()
 	check(game.ui.ending_review.visible and game.ui.ending_review_toggle.text == "收起回顧", "review toggle reveals the assessment and evidence")

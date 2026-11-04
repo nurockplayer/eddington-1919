@@ -82,6 +82,7 @@ func _ending_layout(ui: UI) -> void:
 	var original_scale := Settings.text_scale
 	var buttons := ui.ending_replay.get_parent().get_children()
 	var hint := ui.ending_panel.get_child(ui.ending_panel.get_child_count() - 1) as Label
+	var replay_hint := ui.ending_panel.find_child("EndingReplayHint", true, false) as Label
 	var original_scroll_bottom := ui.ending_scroll.offset_bottom
 	for window_size in [Vector2i(1600, 900), Vector2i(1280, 960), Vector2i(800, 900)]:
 		# The third case forces wrapping even with the expand aspect's base width.
@@ -99,11 +100,13 @@ func _ending_layout(ui: UI) -> void:
 			if window_size.x == 800:
 				check(buttons[-1].position.y > buttons[0].position.y, "narrow canvas wraps buttons: " + context)
 			check(root.gui_get_focus_owner() == buttons[0], "Replay starts focused: " + context)
+			check(replay_hint != null and root.get_visible_rect().encloses(replay_hint.get_global_rect()), "replay hint fits: " + context)
 			for i in buttons.size():
 				var rect: Rect2 = buttons[i].get_global_rect()
 				check(root.get_visible_rect().encloses(rect), "ending button fits: %s %s" % [buttons[i].text, context])
 				check(not rect.intersects(ui.ending_scroll.get_global_rect()), "button clears ending scroll: " + context)
 				check(not rect.intersects(hint.get_global_rect()), "button clears scroll hint: " + context)
+				check(not rect.intersects(replay_hint.get_global_rect()), "button clears replay hint: " + context)
 				for j in range(i):
 					check(not rect.intersects(buttons[j].get_global_rect()), "ending buttons do not overlap: " + context)
 				if i > 0:

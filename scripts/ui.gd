@@ -65,6 +65,7 @@ var log_text: RichTextLabel
 static var history: Array[String] = []
 var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_replay: Button
+var ending_replay_hint: Label
 var ending_scroll: ScrollContainer
 var ending_center: CenterContainer
 var credits_scroll: ScrollContainer
@@ -1203,15 +1204,33 @@ func _build_ending(root: Control) -> void:
 	hb.add_theme_constant_override("h_separation", 16)
 	hb.add_theme_constant_override("v_separation", 12)
 	ending_panel.add_child(hb)
-	hb.minimum_size_changed.connect(func(): hb.offset_top = -48 - hb.get_combined_minimum_size().y)
-	hb.resized.connect(func(): scroll.offset_bottom = -48 - hb.size.y - 20)
-	var same := _button("同一片雲，再試一次")
+	var replay_hint := _label("重玩從 1919 年 5 月 29 日的準備開始；上一回的紀錄會留著，結尾會和這一回並排比較。", 16, DIM)
+	replay_hint.name = "EndingReplayHint"
+	replay_hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	replay_hint.offset_left = 20
+	replay_hint.offset_right = -20
+	replay_hint.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	replay_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	replay_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ending_panel.add_child(replay_hint)
+	ending_replay_hint = replay_hint
+	var place_row := func():
+		hb.offset_top = -48 - hb.get_combined_minimum_size().y
+		var hint_height := replay_hint.get_combined_minimum_size().y
+		replay_hint.offset_bottom = hb.offset_top - 6
+		replay_hint.offset_top = replay_hint.offset_bottom - hint_height
+	hb.minimum_size_changed.connect(place_row)
+	replay_hint.minimum_size_changed.connect(place_row)
+	hb.resized.connect(func():
+		place_row.call()
+		scroll.offset_bottom = -48 - hb.size.y - 20 - replay_hint.get_combined_minimum_size().y - 6)
+	var same := _button("同一片雲：換個做法，再量一次")
 	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
 	hb.add_child(same)
 	hb.add_child(ending_review_toggle)
 	hb.add_child(ending_history_toggle)
-	var fresh := _button("新的天空")
+	var fresh := _button("新的天空：換一種雲況")
 	fresh.pressed.connect(func(): restart_pressed.emit(false))
 	hb.add_child(fresh)
 	var credits := _button("製作名單")
