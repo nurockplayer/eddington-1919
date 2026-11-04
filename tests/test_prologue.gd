@@ -300,10 +300,14 @@ func _test_teaching_paths() -> void:
 			var reverted := _teaching_route(ui, current, 0, answers)
 			check(baseline.done and short.done and detail.done, name_ + " paths complete the dialogue")
 			check(detail.lines == baseline.lines, name_ + " details preserve every original line in order")
+			if name_ == "exam":
+				var opening := [C17.E, "%s大概跟你說過 Dyson 的那篇短文了。" % C17.A]
+				var start: int = short.lines.find(opening)
+				check(start >= 0 and short.lines.slice(start, start + 3) == [opening, [C17.A, "說了。也說了我不信。"], [C17.E, "我也不信。可是不信以前，得先弄懂他在說什麼。陪我想一件事。"]], "exam short path keeps the stated disbelief in order")
 			check(short.results == baseline.results and detail.results == baseline.results, name_ + " choices preserve results")
 			check(short.advances < baseline.advances and reverted == short, name_ + " short path saves advances and revert restores it")
 			if answer == 0:
-				var expected := [17, 15, 18] if name_ == "dyson" else [18, 14, 19]
+				var expected := [17, 15, 18] if name_ == "dyson" else [18, 16, 19]
 				check([baseline.advances, short.advances, detail.advances] == expected, name_ + " exact baseline, short, detail advances: %s" % [[baseline.advances, short.advances, detail.advances]])
 	ui.queue_free()
 	await process_frame
