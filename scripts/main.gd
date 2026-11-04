@@ -159,6 +159,7 @@ func _ready() -> void:
 	ui.log_toggled.connect(_sync_coda_log)
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(_restart)
+	ui.title_pressed.connect(_return_to_title)
 	ui.dialogue_done.connect(_on_dialogue_done)
 	ui.plate_toggled.connect(_on_plate_toggled)
 	ui.measure_pressed.connect(_on_measure)
@@ -682,6 +683,14 @@ func _start_game() -> void:
 	else:
 		ui.show_toast("上午的雷雨在十一點半左右停了。日偏食已經開始，太陽在雲後時隱時現。\n找 Eddington 報到——他在望遠鏡旁。", 7.0)
 	_refresh_objectives()
+
+
+func _return_to_title() -> void:
+	Story.reset()
+	# A replay's origin flag must not survive into the title run.
+	replay_from_prologue = false
+	replay_pending = false
+	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
 func _restart(same_sky: bool) -> void:

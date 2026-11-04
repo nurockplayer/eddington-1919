@@ -52,6 +52,7 @@ func _ready() -> void:
 	ui.hide_title()
 	ui.pause_enabled = true
 	ui.quit_pressed.connect(func(): get_tree().quit())
+	ui.title_pressed.connect(func(): Story.reset(); get_tree().change_scene_to_file("res://scenes/main.tscn"))
 	ui.restart_pressed.connect(func(_same):
 		get_tree().paused = false
 		Story.sky_promise = -1

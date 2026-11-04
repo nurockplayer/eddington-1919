@@ -88,6 +88,7 @@ func _ready() -> void:
 	ui.pause_enabled = true
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(func(_same): get_tree().paused = false; get_tree().reload_current_scene())
+	ui.title_pressed.connect(func(): Story.reset(); get_tree().change_scene_to_file("res://scenes/main.tscn"))
 	ui.dialogue_done.connect(_dialogue_done)
 	ui.dialogue_entry.connect(_frame_speaker)
 	ui.cambridge_portraits = true
