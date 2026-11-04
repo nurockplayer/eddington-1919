@@ -997,7 +997,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"coda_loupe":
 			var overclaimed: bool = Judgment.TELEGRAMS[_telegram].id == "confirmed"
 			_say(CodaContent.kit_close(Story.bond_tone, Story.kit_choice,
-				overclaimed, _grade.fit == 0 and not overclaimed, _grade.clean), "coda_kit")
+				overclaimed, _grade.fit == 0 and not overclaimed, _grade.clean, Story.sky_promise), "coda_kit")
 		"coda_kit":
 			Story.kit_first = int(results.get("kit_first", -1))
 			var no_mistake: bool = Judgment.TELEGRAMS[_telegram].id != "confirmed" and _grade.fit != 0 and _grade.clean
