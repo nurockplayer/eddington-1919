@@ -43,6 +43,7 @@ func _run() -> void:
 	_test_judgment_neither()
 	_test_judgment_prompt()
 	await _test_judgment_reasons()
+	await _test_strict_poor_only()
 	await _test_report_rule_layout()
 	await _test_birds_quiet()
 	await _test_callouts()
@@ -559,6 +560,77 @@ func _test_judgment_reasons() -> void:
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
+
+
+func _test_strict_poor_only() -> void:
+	var honest_line := "只有拖長或起霧的底片可用。你照規則量了它們，也該把這份不確定寫進電報。"
+	for scenario in [[false, 0], [true, 0], [false, 1], [false, 2]]:
+		var with_good: bool = scenario[0]
+		var rule_index: int = scenario[1]
+		var game := _make_game()
+		_reset_game(game, 77, 0.0)
+		game.sim.drive_rate_checked = true
+		# A long exposure records enough stars but trails; the optional short
+		# exposure in the late gap supplies a clear plate in the same seeded sky.
+		# A quarter-second exposure also leaves a real unusable plate to exclude.
+		var events := {0: "open", 1: "close", 40: "open", 720: "close"} # 10–180 game-seconds
+		if with_good:
+			var start := int(ceil((game.sim.gaps[2].t + 2.0) / GAME_STEP))
+			events[start] = "open"
+			events[start + 32] = "close" # eight game-seconds
+		_run_main(game, events)
+		check(game.sim.plates.size() == (3 if with_good else 2), "real shutter produces the expected plates")
+		check(not game.sim.plates[0].usable, "quarter-second exposure is unusable")
+		check(game.sim.plates[1].usable and game.sim.plates[1].quality == "poor", "long exposure is poor but usable")
+		check(game.sim.count_quality("good") == (1 if with_good else 0), "short exposure controls whether any good plate exists")
+		game.phase = game.Phase.NIGHT
+		game.ui.hide_title()
+		for plate in game.sim.plates:
+			game.plate_textures.append(null)
+		game._interact("measure")
+		for step in 12:
+			if not game.ui.dialog_active():
+				break
+			var entry: Dictionary = game.ui._seq[game.ui._seq_i]
+			if entry.has("choices"):
+				check(entry.get("key", "") == "rule", "measurement opens the real rule prompt")
+				game.ui._choose(rule_index)
+			else:
+				game.ui._advance()
+			await process_frame
+		check(game.sim.rule_id == ["strict", "after", "none"][rule_index] and game.ui.viewer.visible,
+			"rule prompt records the choice and opens the viewer")
+		for i in game.sim.plates.size():
+			game.ui.plate_toggled.emit(i, game.sim.plates[i].usable)
+		game.ui.measure_btn.pressed.emit()
+		check(game.sim.measured and game.sim.included_usable().size() == (2 if with_good else 1), "real viewer measures all usable plates")
+		var grade := Judgment.grade(game.sim, "undecided", "uncertain")
+		var expected_clean := rule_index == 0 and not with_good
+		check(grade.clean == expected_clean, "only strict poor-only selection keeps the clean point")
+		check(grade.score == grade.fit + int(grade.reason_ok) + int(expected_clean), "score counts exactly the expected clean point")
+		check(grade.lines.has(honest_line) == expected_clean, "only strict poor-only selection receives the honest uncertainty line")
+		check(grade.lines.any(func(line): return line.contains("違反了你自己寫下的規則")) == with_good,
+			"strict mixed selection still flags its poor plate as a rule violation")
+		if expected_clean:
+			check(grade.lines.any(func(line): return line.begins_with("你照著量之前寫下的規則選片")), "poor-only strict selection acknowledges following the written rule")
+			game.ui.reselect_btn.pressed.emit()
+			game.ui.plate_toggled.emit(0, true)
+			game.ui.measure_btn.pressed.emit()
+			game.ui._choose(0) # Quality cannot justify adding an unusable plate.
+			var unusable := Judgment.grade(game.sim, "undecided", "uncertain")
+			check(not unusable.clean and not unusable.lines.has(honest_line)
+				and unusable.lines.any(func(line): return line.contains("違反了你自己寫下的規則")),
+				"including an unusable plate still loses clean and receives no compliance acknowledgment")
+			game.ui.reselect_btn.pressed.emit()
+			game.ui.plate_toggled.emit(0, false)
+			game.ui.measure_btn.pressed.emit()
+			game.ui._choose(1) # Explicitly result-driven, now only poor plates included.
+			var reselected := Judgment.grade(game.sim, "undecided", "uncertain")
+			check(game.sim.selection_report().included_unusable.is_empty() and not reselected.clean
+				and not reselected.lines.has(honest_line), "unjustified poor-only reselection still loses clean and receives no compliance acknowledgment")
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
 
 
 func _click_control(control: Control) -> void:

@@ -122,7 +122,8 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	if ev == "none" and telegram_id == "none" and any_usable:
 		fit = 0  # usable plates exist, they just weren't measured
 	var sel: Dictionary = sim.selection_report()
-	var clean: bool = sel.omitted_good.is_empty() and sel.included_poor.is_empty() and sel.included_unusable.is_empty() and (not sel.reselected or sel.reselect_justified)
+	var poor_allowed: bool = sim.rule_id == "strict" and not any_good
+	var clean: bool = sel.omitted_good.is_empty() and (sel.included_poor.is_empty() or poor_allowed) and sel.included_unusable.is_empty() and (not sel.reselected or sel.reselect_justified)
 	var lines: Array[String] = []
 	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, any_good, sim))
 	lines.append(_reason_line(ev, reason_id, reason_ok, sim))
@@ -231,6 +232,8 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 				out.append("你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號違反了你自己寫下的規則。" % _nums(violations))
 			elif clean and sim.included_usable().size() > 0:
 				out.append("你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。")
+			if clean and not sel.included_poor.is_empty():
+				out.append("只有拖長或起霧的底片可用。你照規則量了它們，也該把這份不確定寫進電報。")
 		"after":
 			out.append("『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。")
 		"none":
