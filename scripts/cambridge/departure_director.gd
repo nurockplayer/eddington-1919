@@ -54,6 +54,7 @@ func _ready() -> void:
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(func(_same):
 		get_tree().paused = false
+		Story.sky_promise = -1
 		Story.bond_tone = ""
 		Story.slip_fix = -1
 		Story.departure_done = false
@@ -194,7 +195,9 @@ func _dialogue_done(results: Dictionary) -> void:
 			score.play("departure_promise", 2.0)
 			_say(Content.sky_promise(Story.bond_tone), "promise")
 			return
-		"promise": beat = Beat.FAREWELL
+		"promise":
+			Story.sky_promise = int(results.get("promise", -1))
+			beat = Beat.FAREWELL
 		"gift":
 			keepsake.show()
 			_busy = true

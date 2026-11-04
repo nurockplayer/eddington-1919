@@ -209,10 +209,11 @@ func _test_director_input_and_story() -> void:
 	ScorePlayer.cue_log.clear()
 	var story = root.get_node("Story")
 	story.bond_tone = "warm"
+	story.sky_promise = 1
 	story.slip_fix = 0
 	story.departure_done = true
 	story.reset()
-	check(story.bond_tone == "" and story.slip_fix == -1 and not story.departure_done,
+	check(story.bond_tone == "" and story.sky_promise == -1 and story.slip_fix == -1 and not story.departure_done,
 		"new-game reset clears M2 continuity fields")
 	var chapter_script: Script = load("res://scripts/cambridge/departure_director.gd")
 	var chapter = chapter_script.new()
@@ -268,7 +269,7 @@ func _test_director_input_and_story() -> void:
 		"conversation stand ray reaches Kit instead of an overlapping room hotspot (got %s)" % (str(kit_target.get_meta("interact_id", "")) if kit_target else "none"))
 	chapter._interact("kit")
 	await _drain_dialogue(chapter, {"bond": 0, "promise": 0})
-	check(story.bond_tone == "close" and chapter.beat == chapter.Beat.FAREWELL,
+	check(story.bond_tone == "close" and story.sky_promise == 0 and chapter.beat == chapter.Beat.FAREWELL,
 		"bond choice sets close tone and advances through promise")
 	var promise_request := -1
 	for i in ScorePlayer.cue_log.size():

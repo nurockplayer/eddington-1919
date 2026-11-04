@@ -267,6 +267,53 @@ func _test_direct_and_prologue_paths() -> void:
 	await process_frame
 
 
+func _test_sky_promise_payoff() -> void:
+	var story = root.get_node("Story")
+	var lines := ["（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。她大概已經記了一整頁。）", "（我跟 Kit 說過，全食那五分鐘我會在換底片。她會想知道，那五分鐘裡底片上留下了什麼。）"]
+	for choice in 2:
+		story.reset()
+		var departure = load("res://scripts/cambridge/departure_director.gd").new()
+		root.add_child(departure)
+		while not departure.ui.dialog_active():
+			await process_frame
+		departure._say(preload("res://scripts/cambridge/content_departure.gd").sky_promise("warm"), "promise")
+		while departure.ui.dialog_active():
+			var entry: Dictionary = departure.ui._seq[departure.ui._seq_i]
+			if entry.get("key", "") == "promise":
+				departure.ui._choose(choice)
+			else:
+				departure.ui._advance()
+		check(story.sky_promise == choice, "departure dialogue stores promise %d" % choice)
+		departure.queue_free()
+		await process_frame
+		var chapter = await _new_main(true)
+		chapter._grade = Judgment.grade(chapter.sim, "confirmed", "uncertain")
+		chapter._pending = "reaction"
+		chapter._on_dialogue_done({})
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+		chapter._interact("departure_workbook")
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+		chapter._interact("mentor_loupe")
+		while chapter.ui._seq[chapter.ui._seq_i].get("key", "") != "kit_first":
+			chapter.ui._advance()
+		var seq: Array = chapter.ui._seq
+		var payoff := seq.find_custom(func(entry): return entry.get("t", "") == lines[choice] and entry.get("s", "") == Coda.YOU)
+		check(payoff >= 0 and payoff == chapter.ui._seq_i - 1 and not text_of(seq).contains(lines[1 - choice]), "matching player recollection immediately precedes the choice for promise %d" % choice)
+		chapter.queue_free()
+		await process_frame
+	var direct = await _new_main(false)
+	check(story.sky_promise == -1, "direct entry clears the promise")
+	var direct_text := text_of(Coda.kit_close(story.bond_tone, story.kit_choice, false, false, true, story.sky_promise))
+	check(not direct_text.contains(lines[0]) and not direct_text.contains(lines[1]), "direct entry has neither payoff")
+	direct.queue_free()
+	await process_frame
+	story.sky_promise = 1
+	story.reset()
+	check(story.sky_promise == -1, "Story reset clears the promise")
+
+
 func _test_kit_first_choices() -> void:
 	var story = root.get_node("Story")
 	var replies := ["雲在最後才薄下去，我一直看著。", "數字很小，範圍很寬，我還不能說得更確定。", "我今天也犯了一個錯，回去再慢慢告訴你。"]
@@ -386,6 +433,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 	var main_script: Script = load(MAIN_PATH)
 	var first = await _new_main(true)
 	story.bond_tone = "close"
+	story.sky_promise = 1
 	story.kit_first = 2
 	story.departure_done = true
 	check(first._came_from_departure, "prologue run caches its origin")
@@ -395,7 +443,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 	var replay = await _new_main(false)
 	check(replay._came_from_departure, "1919 replay keeps the prologue origin")
 	check(story.kit_first == -1, "1919 replay clears only the previous run Kit answer")
-	check(story.bond_tone == "close" and story.departure_done, "1919 replay keeps Story continuity (bond tone, departure)")
+	check(story.bond_tone == "close" and story.sky_promise == 1 and story.departure_done, "1919 replay keeps Story continuity (bond tone, departure)")
 	check(not main_script.replay_from_prologue, "replay origin is consumed once")
 	check(replay.has_node("AshbyLoupeHotspot"), "1919 replay still places Ashby's loupe")
 	replay._grade = {"title": "replay", "fit": 2, "clean": true, "lines": ["replay response"]}
@@ -413,6 +461,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 func _run() -> void:
 	_test_grade_branches()
 	_test_kit_tones()
+	await _test_sky_promise_payoff()
 	await _test_kit_first_choices()
 	await _test_rules_before_viewer()
 	await _test_direct_and_prologue_paths()
