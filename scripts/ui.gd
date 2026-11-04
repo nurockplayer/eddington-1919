@@ -621,7 +621,7 @@ func _build_viewer(root: Control) -> void:
 		(reference_close_btn if on else reference_btn).grab_focus()
 	)
 	thumbs = GridContainer.new()
-	thumbs.columns = 3
+	thumbs.columns = 4
 	thumbs.add_theme_constant_override("h_separation", 6)
 	thumbs.add_theme_constant_override("v_separation", 6)
 	left.add_child(thumbs)
