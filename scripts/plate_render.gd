@@ -6,6 +6,9 @@ extends RefCounted
 
 const SIZE := 360
 const SUN_PX := 34.0
+# Illustrative pixels per arcsecond: 2.57 * (1.75 / 1.5) * 2 = ~6 px
+# in the 2× loupe. No physical plate scale is modelled, so this is not a true magnification factor.
+const EXAGGERATION := 2.57
 const TRAIL_DIR := Vector2(0.83, 0.56)
 
 
@@ -16,7 +19,7 @@ static func render_example(kind: String) -> ImageTexture:
 		var angle: float = TAU * i / sim.STAR_COUNT
 		sim.star_offsets.append(Vector2(cos(angle), sin(angle)) * (3.2 + 0.4 * (i % 3)))
 	var plate := {"index": 0, "fog": 0.05, "trail": 0.0, "stars": sim.STAR_COUNT,
-		"duration": 6.0, "sunlit": false}
+		"duration": 6.0, "sunlit": false, "value": 0.0}
 	if kind == "trailed":
 		plate.trail = 0.6
 	elif kind == "fogged":
@@ -63,6 +66,9 @@ static func render(sim, plate) -> ImageTexture:
 		# Stars: brightest first, only those above the plate's limit.
 		for s in stars:
 			var p: Vector2 = c + sim.star_offsets[s] * SUN_PX
+			if not comparison:
+				var offset: Vector2 = sim.star_offsets[s]
+				p += offset.normalized() * EXAGGERATION * plate.value / maxf(offset.length(), 1.0)
 			var bright := 1.2 - s * 0.06
 			var length := trail * 26.0
 			var steps := maxi(1, int(length * 1.5))

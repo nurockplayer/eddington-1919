@@ -96,6 +96,13 @@ var reference_btn: Button
 var reference_close_btn: Button
 var reference_panel: PanelContainer
 var loupe_btn: Button
+var blink_btn: Button
+var blink_label: Label
+var _comparison_texture: Texture2D
+var _blink_elapsed := 0.0
+var _blink_oxford := false
+var _blink_had_loupe := false
+var _blink_hint_shown := false
 var _plate_texture: Texture2D
 var _loupe_center := Vector2.ZERO
 var loupe_start := Vector2(-1, -1)
@@ -341,7 +348,13 @@ func show_toast(text: String, seconds := 4.0) -> void:
 
 
 func _process(delta: float) -> void:
-	if viewer.visible and loupe_btn.button_pressed and loupe_btn.has_focus() and not get_tree().paused and not log_panel.visible:
+	if viewer.visible and blink_btn.button_pressed and not get_tree().paused and not log_panel.visible:
+		_blink_elapsed += delta
+		while _blink_elapsed >= 0.5:
+			_blink_elapsed -= 0.5
+			_blink_oxford = not _blink_oxford
+			_update_blink()
+	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible:
 		var pan := Input.get_vector("gamepad_look_left", "gamepad_look_right", "gamepad_look_up", "gamepad_look_down")
 		if pan != Vector2.ZERO:
 			_show_loupe(_loupe_center + pan * 120.0 * delta)
@@ -631,6 +644,10 @@ func _build_viewer(root: Control) -> void:
 	plate_stage.add_child(reference_panel)
 	reference_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	reference_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.05, 0.045, 0.04, 1.0), ACCENT))
+	blink_label = _label("", 15, DIM)
+	blink_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	blink_label.hide()
+	mid.add_child(blink_label)
 	plate_info = _rich(18)
 	mid.add_child(plate_info)
 	include_box = CheckBox.new()
@@ -648,9 +665,14 @@ func _build_viewer(root: Control) -> void:
 	plate_controls.add_child(include_box)
 	loupe_btn = _button("放大鏡 ×2")
 	loupe_btn.toggle_mode = true
-	loupe_btn.tooltip_text = "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。"
+	loupe_btn.tooltip_text = "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
 	loupe_btn.toggled.connect(_set_loupe)
 	plate_controls.add_child(loupe_btn)
+	blink_btn = _button("閃爍比對")
+	blink_btn.toggle_mode = true
+	blink_btn.tooltip_text = "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
+	blink_btn.toggled.connect(_set_blink)
+	plate_controls.add_child(blink_btn)
 	# Right: chart + actions.
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -719,6 +741,8 @@ func _build_reference_plates() -> void:
 
 
 func _set_loupe(on: bool) -> void:
+	if not on and blink_btn.button_pressed:
+		_set_blink(false)
 	if on and _plate_texture != null:
 		var center := _plate_texture.get_size() * 0.5
 		var start_at_star := loupe_start.x >= 0.0 and loupe_start.y >= 0.0
@@ -751,6 +775,31 @@ func _show_loupe(center: Vector2) -> void:
 	zoom.atlas = _plate_texture
 	zoom.region = Rect2(_loupe_center - half * 0.5, half)
 	big_plate.texture = zoom
+	if blink_btn.button_pressed:
+		_update_blink()
+
+
+func _set_blink(on: bool) -> void:
+	blink_btn.set_pressed_no_signal(on)
+	_blink_elapsed = 0.0
+	_blink_oxford = false
+	blink_label.visible = on
+	if on:
+		_blink_had_loupe = loupe_btn.button_pressed
+		if not _blink_had_loupe:
+			loupe_btn.set_pressed_no_signal(true)
+			_set_loupe(true)
+		_update_blink()
+	elif loupe_btn.button_pressed:
+		if _blink_had_loupe:
+			big_plate.texture.atlas = _plate_texture
+		else:
+			_set_loupe(false)
+
+
+func _update_blink() -> void:
+	big_plate.texture.atlas = _comparison_texture if _blink_oxford else _plate_texture
+	blink_label.text = "牛津（無日）" if _blink_oxford else "第 %d 號（全食）・位移已放大（示意）" % _viewer_plates[_viewer_sel].number
 
 
 func _plate_gui_input(event: InputEvent) -> void:
@@ -770,6 +819,8 @@ func _plate_gui_input(event: InputEvent) -> void:
 
 
 func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, locked: bool) -> void:
+	_set_loupe(false)
+	_comparison_texture = comparison_tex
 	set_viewer_report(false)
 	if _viewer_sfx.is_empty():
 		_build_viewer_sfx()
@@ -874,9 +925,14 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 		return
 	if sound and (i >= 0 or i == -2):
 		_viewer_sound("plate")
+	_set_loupe(false)
 	_viewer_sel = i
 	_plate_texture = tex
 	_set_loupe(false)
+	blink_btn.disabled = _viewer_reporting or i < 0 or tex == null or _comparison_texture == null
+	if i >= 0:
+		var plate: Dictionary = _viewer_plates[i]
+		blink_btn.disabled = blink_btn.disabled or plate.sunlit or plate.duration < 0.5 or plate.get("stars", 0) == 0
 	if i == -2:
 		plate_info.text = "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
 		if comparison_recall != "":
@@ -911,6 +967,9 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	elif _viewer_locked and p.included and not p.usable:
 		lines.append("[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]")
 	plate_info.text = "\n".join(lines)
+	if not blink_btn.disabled and not _blink_hint_shown:
+		plate_info.text += "\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。"
+		_blink_hint_shown = true
 
 
 func set_viewer_locked(locked: bool) -> void:
@@ -941,6 +1000,7 @@ func set_viewer_report(reporting: bool) -> void:
 	report_btn.get_parent().visible = not reporting
 	reference_btn.visible = not reporting
 	loupe_btn.visible = not reporting
+	blink_btn.visible = not reporting
 	reference_btn.set_pressed_no_signal(false)
 	reference_panel.hide()
 	set_viewer_locked(true if reporting else _viewer_locked)
@@ -952,6 +1012,7 @@ func set_viewer_note(bb: String) -> void:
 
 
 func close_viewer() -> void:
+	_set_loupe(false)
 	viewer.visible = false
 
 
@@ -1439,10 +1500,18 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventKey or event is InputEventMouse:
 		Prompts.joypad = false
 	_refresh_hints()
-	if viewer.visible and loupe_btn.button_pressed and loupe_btn.has_focus() and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
+	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
+		if event.is_action_pressed("overlay_rotate_right") and not blink_btn.disabled:
+			blink_btn.grab_focus()
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("overlay_rotate_left"):
+			loupe_btn.grab_focus()
+			get_viewport().set_input_as_handled()
+			return
 		var directions := {"ui_left": Vector2.LEFT, "ui_right": Vector2.RIGHT, "ui_up": Vector2.UP, "ui_down": Vector2.DOWN}
 		for action in directions:
-			if event.is_action(action):
+			if event.is_action(action) and (loupe_btn.has_focus() or blink_btn.button_pressed):
 				if event.is_pressed():
 					_show_loupe(_loupe_center + directions[action] * 18.0)
 				get_viewport().set_input_as_handled()
