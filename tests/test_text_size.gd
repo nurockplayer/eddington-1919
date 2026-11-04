@@ -102,7 +102,9 @@ func _run() -> void:
 	check(ui.log_text.get_theme_font_size("normal_font_size") == 25, "history inherits scaled theme")
 	check(ui.viewer_note.get_theme_font_size("normal_font_size") == 18, "viewer note scales")
 	check(ui.ending_title.get_theme_font_size("font_size") == 53
-		and ui.ending_text.get_theme_font_size("normal_font_size") == 23, "ending scales")
+		and ui.ending_text.get_theme_font_size("normal_font_size") == 23
+		and ui.ending_telegram.get_theme_font_size("normal_font_size") == 23
+		and ui.ending_plate_caption.get_theme_font_size("font_size") == 20, "ending scales")
 	var credits := ui.credits_scroll.find_children("*", "RichTextLabel", true, false)[0] as RichTextLabel
 	check(credits.get_theme_font_size("normal_font_size") == 22, "credits scale")
 	for frame in 4:

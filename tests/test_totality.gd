@@ -970,7 +970,7 @@ func _test_reselect_reason() -> void:
 	game.phase = game.Phase.NIGHT
 	game.sim = Sim.new(1919)
 	game.sim.plates = [
-		{"number": 1, "start": 10.0, "duration": 8.0, "sunlit": false, "included": true, "usable": true, "stars": 7, "quality": "good", "trail": 0.1, "value": 1.75, "sigma": 0.2},
+		{"index": 0, "fog": 0.05, "number": 1, "start": 10.0, "duration": 8.0, "sunlit": false, "included": true, "usable": true, "stars": 7, "quality": "good", "trail": 0.1, "value": 1.75, "sigma": 0.2},
 		{"number": 2, "start": 20.0, "duration": 20.0, "sunlit": false, "included": true, "usable": true, "stars": 5, "quality": "poor", "trail": 0.5, "value": 0.9, "sigma": 0.4},
 	]
 	game.plate_textures = [null, null]
@@ -1002,9 +1002,9 @@ func _test_reselect_reason() -> void:
 	game._grade = Judgment.grade(game.sim, "hopeful", "measured")
 	game._show_ending()
 	check(game.ui.ending_text.text.contains(first_line), "ending retains the first result")
-	check(game.ui.ending_text.text.contains(Judgment.TELEGRAMS[1].text)
-		and game.ui.ending_text.text.contains("理由：" + game._reasons[0].text), "real ending displays the player's telegram and chosen reason")
-	check(game.ui.ending_text.text.contains("電報　普林西比 → 倫敦　Dyson 收")
+	check(game.ui.ending_telegram.text.contains(Judgment.TELEGRAMS[1].text)
+		and game.ui.ending_telegram.text.contains("理由：" + game._reasons[0].text), "real ending displays the player's telegram and chosen reason")
+	check(game.ui.ending_telegram.text.contains("電報　普林西比 → 倫敦　Dyson 收")
 		and game.ui.ending_text.text.contains("本子上：%.2f″ ± %.2f″（示意模擬）（%s）" % [game.sim.combined().value, game.sim.combined().sigma, first_line]), "telegram form keeps current and first measurements on one workbook line")
 	check(not game.ui.ending_text.text.contains("Eddington 的回應")
 		and not game.ui.ending_text.text.contains("你留下的證據"), "ending tableau leaves assessment and evidence behind the review toggle")

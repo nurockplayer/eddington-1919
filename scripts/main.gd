@@ -1538,7 +1538,26 @@ func _show_ending() -> void:
 		workbook += "（%s）" % first_result
 	if _came_from_departure and Story.kit_first >= 0:
 		workbook += "\n" + _night_departure_workbook.kit_line
-	var tableau := "[center][font_size=%d][color=#8f8676]電報　普林西比 → 倫敦　Dyson 收[/color][/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s\n\n[color=#8f8676]%s[/color][/center]" % [Settings.fs(17), Settings.fs(30), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text, workbook]
+	var telegram := "[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s" % [Settings.fs(17), Settings.fs(30), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text]
+	var tableau := "[color=#8f8676]%s[/color]" % workbook
+	var best := -1
+	if sim.measured:
+		for i in sim.plates.size():
+			var p: Dictionary = sim.plates[i]
+			if p.included and p.usable and (best < 0 or p.stars > sim.plates[best].stars or (p.stars == sim.plates[best].stars and p.number < sim.plates[best].number)):
+				best = i
+	var ending_texture: Texture2D
+	var plate_caption := "牛津比對底片"
+	if best >= 0:
+		if best >= plate_textures.size() or plate_textures[best] == null:
+			plate_textures.resize(sim.plates.size())
+			plate_textures[best] = PlateRender.render(sim, sim.plates[best])
+		ending_texture = plate_textures[best]
+		plate_caption = "第 %d 號底片" % sim.plates[best].number
+	else:
+		if comparison_tex == null:
+			comparison_tex = PlateRender.render(sim, null)
+		ending_texture = comparison_tex
 	var lines := []
 	lines.append("[b]Eddington 的回應[/b]")
 	for l in _grade.lines:
@@ -1563,6 +1582,6 @@ func _show_ending() -> void:
 	history.append("\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]" % Settings.fs(15))
 	if _run_record_index > 0:
 		tableau += "\n\n" + Content.run_comparison(Story.runs[_run_record_index - 1], Story.runs[_run_record_index])
-	ui.show_ending(_grade.title, tableau, "\n".join(history), "\n".join(lines))
+	ui.show_ending(_grade.title, tableau, "\n".join(history), "\n".join(lines), telegram, ending_texture, plate_caption)
 	if bot:
 		bot.on_phase("ending")
