@@ -172,6 +172,28 @@ func ending_objects(game) -> void:
 				and ui.ending_scroll.get_global_rect().encloses(ui.ending_plate_card.get_global_rect()), "slip and card clear scroll clipping: " + context)
 			check(ui.ending_telegram.get_content_height() <= ui.ending_telegram.size.y + 1, "telegram text fits paper: " + context)
 			check(ui.ending_objects.vertical == (canvas.x == 1280), "plate is left on wide canvas and above on narrow canvas: " + context)
+			if canvas == Vector2i(1600, 900) and is_equal_approx(scale, 1.0) and not ui.ending_text.text.contains(HEADING):
+				var content_rect := (ui.ending_center.get_child(0) as Control).get_global_rect()
+				var button_top: float = ui.ending_replay.get_parent().get_global_rect().position.y
+				var expected_center: float = (ui.ending_panel.get_global_rect().position.y + button_top) / 2.0
+				var actual_center: float = content_rect.position.y + content_rect.size.y / 2.0
+				check(ui.ending_scroll.get_v_scroll_bar().max_value <= ui.ending_scroll.size.y,
+					"first ending content fits without scrolling: " + context)
+				check(absf(actual_center - expected_center) <= 40.0, "short ending content is vertically centred: " + context)
+				check(content_rect.end.y <= button_top, "centred ending content clears buttons: " + context)
+			if canvas == Vector2i(1280, 720) and is_equal_approx(scale, 1.2) and ui.ending_text.text.contains(HEADING):
+				var content_top: float = (ui.ending_center.get_child(0) as Control).get_global_rect().position.y
+				check(absf(content_top - ui.ending_scroll.get_global_rect().position.y) <= 2.0,
+					"tall comparison content starts at the scroll top: " + context)
+				check(ui.ending_scroll.get_v_scroll_bar().max_value > ui.ending_scroll.size.y,
+					"tall comparison ending has an effective scroll range: " + context)
+				ui.ending_scroll.scroll_vertical = int(ui.ending_scroll.get_v_scroll_bar().max_value)
+				await process_frame
+				check(ui.ending_text.get_global_rect().end.y <= ui.ending_scroll.get_global_rect().end.y + 2.0,
+					"scroll reaches the end of the tall comparison: " + context)
+				for button in ui.ending_replay.get_parent().get_children():
+					check(root.get_visible_rect().encloses(button.get_global_rect()), "tall comparison button is reachable: " + button.text)
+					check(not button.get_global_rect().intersects(ui.ending_scroll.get_global_rect()), "tall comparison buttons clear scroll: " + button.text)
 	root.size = old_size
 	root.content_scale_size = old_canvas
 	Settings.text_scale = old_scale
