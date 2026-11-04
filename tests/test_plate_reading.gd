@@ -96,14 +96,73 @@ func _run() -> void:
 	var real_plate_data := {"index": 0, "fog": 0.0, "trail": 0.0, "stars": sim.STAR_COUNT, "duration": 6.0, "sunlit": false,
 		"number": 1, "start": 10.0, "included": true, "usable": true, "quality": "good", "value": 1.75, "sigma": 0.2}
 	var real_plate := Render.render(sim, real_plate_data)
+	var oxford := Render.render(sim, null)
+	var before_render := real_plate_data.duplicate(true)
+	var star_position: Vector2 = Vector2(Render.SIZE, Render.SIZE) * 0.5 + sim.star_offsets[0] * Render.SUN_PX
+	var radial: Vector2 = sim.star_offsets[0].normalized()
+	var low := real_plate_data.duplicate(true)
+	low.value = 0.0
+	low.stars = 1
+	var high := low.duplicate(true)
+	high.value = 6.0
+	var base_peak := star_centroid(oxford.get_image(), star_position)
+	var low_peak := star_centroid(Render.render(sim, low).get_image(), star_position)
+	var high_peak := star_centroid(Render.render(sim, high).get_image(), star_position)
+	check(base_peak.distance_to(star_position) < 1.5, "Oxford star 0 stays at its unshifted field position")
+	check((high_peak - base_peak).dot(radial) > (low_peak - base_peak).dot(radial) + 2.0, "larger plate value produces a larger outward star 0 shift")
+	check(absf((high_peak - low_peak).cross(radial)) < 1.0, "illustrative shift is radial")
+	check(oxford.get_image().get_data() == Render.render(sim, null).get_image().get_data(), "Oxford pixels are independent of plate values")
+	check(real_plate_data == before_render, "rendering leaves measurements, quality and star count unchanged")
 	ui.loupe_start = Vector2(Render.SIZE, Render.SIZE) * 0.5 + sim.star_offsets[0] * Render.SUN_PX
-	ui.open_viewer([real_plate_data], Render.render(sim, null), [real_plate], false)
+	sim.plates = [real_plate_data]
+	var before_combined := sim.combined()
+	ui.open_viewer(sim.plates, oxford, [real_plate], false)
+	check(ui.plate_info.text.contains("按「閃爍比對」") and ui.plate_info.text.contains("真正的量測用顯微測微器"), "first eligible plate explains the illustrated blink")
+	await process_frame
+	await click_at(ui.thumbs.get_child(1).get_global_rect().get_center())
 	ui.loupe_btn.grab_focus()
 	await pad(JOY_BUTTON_A)
 	var real_zoom := ui.big_plate.texture as AtlasTexture
-	var star_position: Vector2 = Vector2(Render.SIZE, Render.SIZE) * 0.5 + sim.star_offsets[0] * Render.SUN_PX
 	check(real_zoom != null and real_zoom.region.has_point(star_position), "viewer loupe region includes the brightest star")
 	check(real_zoom != null and not real_zoom.region.has_point(Vector2(Render.SIZE, Render.SIZE) * 0.5), "viewer loupe region excludes plate centre: star=%s region=%s" % [star_position, real_zoom.region if real_zoom != null else Rect2()])
+	await click_at(ui.blink_btn.get_global_rect().get_center())
+	check(ui.blink_btn.button_pressed and ui.big_plate.texture.region == real_zoom.region, "blink retains the existing loupe region")
+	check(ui.blink_label.text == "第 1 號（全食）・位移已放大（示意）", "eclipse phase labels the exaggeration")
+	await next_blink(ui)
+	check(ui.big_plate.texture.atlas == oxford and ui.big_plate.texture.region == real_zoom.region, "first half-second shows Oxford with identical crop")
+	check(ui.blink_label.text == "牛津（無日）", "Oxford phase label matches atlas")
+	await next_blink(ui)
+	check(ui.big_plate.texture.atlas == real_plate and ui.big_plate.texture.region == real_zoom.region, "second half-second restores eclipse with identical crop")
+	check(ui.blink_label.text == "第 1 號（全食）・位移已放大（示意）", "eclipse phase label returns")
+	await click_plate(ui, Vector2(0.2, 0.2))
+	var panned_region: Rect2 = ui.big_plate.texture.region
+	check(panned_region != real_zoom.region, "click pans while blinking")
+	await next_blink(ui)
+	check(ui.big_plate.texture.region == panned_region and ui.big_plate.texture.atlas == oxford, "panned crop persists across phase change")
+	await click_at(ui.blink_btn.get_global_rect().get_center())
+	check(ui.loupe_btn.button_pressed and ui.big_plate.texture.atlas == real_plate and ui.big_plate.texture.region == panned_region and not ui.blink_label.visible, "blink off restores prior loupe with current centre")
+	await click_at(ui.blink_btn.get_global_rect().get_center())
+	await click_at(ui.thumbs.get_child(0).get_global_rect().get_center())
+	check(ui.blink_btn.disabled and not ui.blink_btn.button_pressed and ui.big_plate.texture == oxford, "Oxford selection stops blink and restores full plate")
+	await create_timer(0.55).timeout
+	check(ui.big_plate.texture == oxford and not ui.blink_label.visible, "stopped blink stays stopped across another interval")
+	await click_at(ui.thumbs.get_child(1).get_global_rect().get_center())
+	await click_at(ui.blink_btn.get_global_rect().get_center())
+	await click_at(ui.blink_btn.get_global_rect().get_center())
+	check(not ui.loupe_btn.button_pressed and ui.big_plate.texture == real_plate, "blink off restores previously unzoomed plate")
+	ui.set_viewer_locked(true)
+	await click_at(ui.blink_btn.get_global_rect().get_center())
+	ui.report_pressed.connect(func(): ui.set_viewer_report(true))
+	await click_at(ui.report_btn.get_global_rect().get_center())
+	check(not ui.blink_btn.button_pressed and not ui.blink_label.visible and ui.big_plate.texture == real_plate, "report button stops blink and restores full eclipse plate")
+	check(sim.combined() == before_combined and sim.plates == [before_render], "blinking and report preserve measurements and inclusions")
+	ui.close_viewer()
+	ui.open_viewer(sim.plates, oxford, [real_plate], false)
+	await process_frame
+	await click_at(ui.blink_btn.get_global_rect().get_center())
+	ui.close_viewer()
+	check(not ui.blink_btn.button_pressed and ui.big_plate.texture == real_plate, "closing viewer stops blink")
+	ui.open_viewer(sim.plates, oxford, [real_plate], false)
 	ui.loupe_btn.grab_focus()
 	await pad(JOY_BUTTON_A)
 	ui.loupe_start = Vector2(-1, -1)
@@ -214,7 +273,7 @@ func _run() -> void:
 	check(root.get_visible_rect().size == Vector2(1600, 900) and Settings.text_scale == 1.2, "layout runs at base size with large text")
 	check(root.get_visible_rect().encloses(ui.measure_btn.get_parent().get_global_rect()), "viewer action rows fit viewport at large text")
 	check(root.get_visible_rect().encloses(ui.reference_panel.get_global_rect()), "open reference card fits viewport")
-	for control in [ui.reference_btn, ui.loupe_btn]:
+	for control in [ui.reference_btn, ui.loupe_btn, ui.blink_btn]:
 		check(root.get_visible_rect().encloses(control.get_global_rect()), control.text + " fits viewport")
 		for other in ui.viewer.find_children("*", "BaseButton", true, false) + [ui.big_plate, ui.reference_panel]:
 			if other != control and other.is_visible_in_tree():
@@ -225,3 +284,22 @@ func _run() -> void:
 	await create_timer(0.1).timeout
 	print("test_plate_reading: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func next_blink(ui) -> void:
+	var current: Texture2D = ui.big_plate.texture.atlas
+	var deadline := Time.get_ticks_msec() + 2000
+	while ui.big_plate.texture is AtlasTexture and ui.big_plate.texture.atlas == current and Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(ui.big_plate.texture is AtlasTexture and ui.big_plate.texture.atlas != current, "blink advances through real frame time")
+
+
+func star_centroid(image: Image, around: Vector2) -> Vector2:
+	var total := 0.0
+	var weighted := Vector2.ZERO
+	for y in range(int(around.y) - 13, int(around.y) + 14):
+		for x in range(int(around.x) - 13, int(around.x) + 14):
+			var weight := maxf(image.get_pixel(x, y).r - 0.65, 0.0)
+			total += weight
+			weighted += Vector2(x, y) * weight
+	return weighted / maxf(total, 0.001)

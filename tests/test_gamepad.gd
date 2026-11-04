@@ -7,6 +7,8 @@ const Plan := preload("res://scripts/cambridge/plan_board.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
+const Render := preload("res://scripts/plate_render.gd")
+const Sim := preload("res://scripts/eclipse_sim.gd")
 var checks := 0
 var failures := 0
 
@@ -411,7 +413,70 @@ func _run() -> void:
 	checklist.allow_mark()
 	check(root.gui_get_focus_owner() == checklist.row_buttons[1][0], "next checklist row regains focus")
 	checklist.free()
+	var sim := Sim.new(1919)
+	var plate := {"index": 0, "number": 1, "start": 10.0, "duration": 6.0, "sunlit": false,
+		"fog": 0.0, "trail": 0.0, "stars": 12, "included": true, "usable": true, "value": 1.1, "sigma": 0.2}
+	var eclipse := Render.render(sim, plate)
+	var oxford := Render.render(sim, null)
+	ui.open_viewer([plate], oxford, [eclipse], false)
+	await process_frame
+	ui.thumbs.get_child(1).grab_focus()
+	await button(JOY_BUTTON_A)
+	ui.loupe_btn.grab_focus()
+	await button(JOY_BUTTON_DPAD_RIGHT)
+	check(ui.blink_btn.has_focus(), "D-pad reaches blink next to loupe")
+	await button(JOY_BUTTON_A)
+	check(ui.blink_btn.button_pressed and ui.loupe_btn.button_pressed, "gamepad A starts blink and loupe")
+	var crop: Rect2 = ui.big_plate.texture.region
+	await button(JOY_BUTTON_DPAD_RIGHT)
+	check(ui.blink_btn.has_focus() and ui.big_plate.texture.region.position.x > crop.position.x, "D-pad pans while blink retains focus")
+	crop = ui.big_plate.texture.region
+	for phase in 2:
+		var current: Texture2D = ui.big_plate.texture.atlas
+		var deadline := Time.get_ticks_msec() + 2000
+		while ui.big_plate.texture.atlas == current and Time.get_ticks_msec() < deadline:
+			await process_frame
+		var expected: Texture2D = oxford if phase == 0 else eclipse
+		check(ui.big_plate.texture.atlas == expected and ui.big_plate.texture.region == crop, "gamepad blink alternates atlas with same crop: %d" % phase)
+		check(ui.blink_label.text == ("牛津（無日）" if phase == 0 else "第 1 號（全食）・位移已放大（示意）"), "gamepad blink label follows atlas: %d" % phase)
+	await button(JOY_BUTTON_A)
+	check(not ui.blink_btn.button_pressed and ui.big_plate.texture == eclipse, "gamepad A stops blink and restores full plate")
+	ui.loupe_btn.grab_focus()
+	await key(KEY_RIGHT, true)
+	await key(KEY_RIGHT, false)
+	check(ui.blink_btn.has_focus(), "keyboard right arrow reaches blink from loupe")
+	await key(KEY_ENTER, true)
+	await key(KEY_ENTER, false)
+	check(ui.blink_btn.button_pressed, "keyboard Enter activates blink")
+	await button(JOY_BUTTON_A)
+	ui.loupe_btn.grab_focus()
+	await button(JOY_BUTTON_A)
+	crop = ui.big_plate.texture.region
+	await button(JOY_BUTTON_RIGHT_SHOULDER)
+	check(ui.blink_btn.has_focus() and ui.big_plate.texture.region == crop, "R1 reaches blink from an active loupe without recentering")
+	await button(JOY_BUTTON_A)
+	await button(JOY_BUTTON_A)
+	check(ui.loupe_btn.button_pressed and not ui.blink_btn.button_pressed, "blink off preserves a pre-existing loupe")
+	await button(JOY_BUTTON_DPAD_LEFT)
+	check(ui.loupe_btn.has_focus() and ui.big_plate.texture.region == crop, "blink off allows D-pad focus recovery without panning")
+	await key(KEY_E, true)
+	await key(KEY_E, false)
+	check(ui.blink_btn.has_focus(), "keyboard E reaches blink from active loupe")
+	await key(KEY_Q, true)
+	await key(KEY_Q, false)
+	check(ui.loupe_btn.has_focus() and ui.big_plate.texture.region == crop, "keyboard Q returns to loupe without recentering")
+	await button(JOY_BUTTON_RIGHT_SHOULDER)
+	await button(JOY_BUTTON_A)
+	ui.thumbs.get_child(0).grab_focus()
+	await button(JOY_BUTTON_A)
+	check(not ui.blink_btn.button_pressed and ui.blink_btn.disabled and ui.big_plate.texture == oxford, "gamepad Oxford selection stops blink")
+	var blank := plate.duplicate(true)
+	blank.duration = 0.1
+	ui.open_viewer([blank], oxford, [Render.render(sim, blank)], false)
+	check(ui.blink_btn.disabled, "blank plate disables blink")
+	ui.close_viewer()
 	ui.open_viewer([], null, [], false)
+	await process_frame
 	check(root.gui_get_focus_owner() == ui.thumbs.get_child(0), "darkroom focuses comparison thumbnail")
 	check(ui.include_box.focus_mode == Control.FOCUS_ALL, "darkroom checkbox accepts focus")
 	ui.measure_pressed.connect(func(): ui.set_viewer_locked(true))
@@ -424,13 +489,17 @@ func _run() -> void:
 	ui.viewer_closed.connect(ui.close_viewer)
 	await button(JOY_BUTTON_B)
 	check(not ui.viewer.visible, "B leaves darkroom viewer")
-	ui.open_viewer([], null, [], true)
+	ui.open_viewer([plate], oxford, [eclipse], true)
+	await process_frame
+	ui.blink_btn.grab_focus()
+	await button(JOY_BUTTON_A)
 	ui.report_pressed.connect(func():
 		ui.set_viewer_report(true)
 		ui.play([{"s": "Eddington", "t": "看著證據選擇。", "key": "answer", "choices": ["甲", "乙"]}])
 	)
 	ui.report_btn.grab_focus()
 	await button(JOY_BUTTON_A)
+	check(not ui.blink_btn.button_pressed and not ui.blink_label.visible and ui.big_plate.texture == eclipse, "gamepad report stops blink")
 	check(ui.viewer.visible and root.gui_get_focus_owner() == ui._choice_buttons[0], "report A keeps evidence visible and focuses dialogue")
 	await button(JOY_BUTTON_B)
 	check(ui.viewer.visible and ui.dialog_active(), "B cannot dismiss evidence during judgment")
