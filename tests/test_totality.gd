@@ -478,7 +478,7 @@ func _test_judgment_prompt() -> void:
 	var interval := "1.75″ ± 0.10″，兩倍誤差是 1.55″ 到 1.95″"
 	var prompt := Content.interval_prompt(interval)
 	check(prompt.map(func(line): return line.key) == ["interval"], "interval question is its own dialogue")
-	check(prompt[0].s == Content.E and prompt[0].t == "先看你的數字：%s。兩倍誤差的範圍裡，容得下哪一個預測？" % interval, "Eddington asks about the formatted interval")
+	check(prompt[0].s == Content.E and prompt[0].t == "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？" % interval, "Eddington asks about the formatted interval")
 	check(prompt[0].choices == ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"], "interval choices use truth index order")
 
 

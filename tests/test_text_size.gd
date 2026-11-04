@@ -7,6 +7,7 @@ const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const C17 := preload("res://scripts/cambridge/content_1917.gd")
+const Judgment := preload("res://scripts/judgment.gd")
 var test_path := Settings.settings_path() + ".test_text_size"
 var checks := 0
 var failures := 0
@@ -112,11 +113,14 @@ func _run() -> void:
 	for button in ui.pause_panel.find_children("*", "Button", true, false):
 		check(root.get_visible_rect().encloses(button.get_global_rect()), "large pause button fits: " + button.text)
 	ui.toggle_pause()
+	check(Judgment.telegram_choices() == [
+		"ECLIPSE SPLENDID. EINSTEIN CONFIRMED.（日食極佳，愛因斯坦得證）",
+		"THROUGH CLOUD. HOPEFUL.（隔著雲，有希望）",
+		"THROUGH CLOUD. STARS FEW. RESULT UNDECIDED.（隔著雲，星少，未定）",
+		"CLOUD. NO RESULTS.（全是雲，無結果）",
+	], "telegram choices pair each English cable with a same-line gloss")
 	var entries := [C17.trial_task()[3], Content.rules_prompt(true)[-1]]
-	entries.append_array(Content.judgment_prompt([
-		"ECLIPSE SPLENDID. EINSTEIN CONFIRMED.", "THROUGH CLOUD. HOPEFUL.",
-		"THROUGH CLOUD. STARS FEW. RESULT UNDECIDED.", "CLOUD. NO RESULTS."
-	], []).slice(0, 2))
+	entries.append_array(Content.judgment_prompt(Judgment.telegram_choices(), []).slice(0, 2))
 	for entry in entries:
 		ui.play([entry])
 		for frame in 4:

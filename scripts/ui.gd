@@ -493,6 +493,7 @@ func _show_entry() -> void:
 	for i in choices.size():
 		var b := _button("%d.  %s" % [i + 1, choices[i]])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.pressed.connect(_choose.bind(i))
 		choice_box.add_child(b)
 		_choice_buttons.append(b)
@@ -1055,7 +1056,7 @@ func _build_title(root: Control) -> void:
 	var body := _rich(19)
 	body.text = ("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
 		+ "有人會說，對不上的東西就是假的。\n"
-		+ "兩年後，在赤道的雲層底下，你只有 302 秒。[/center]\n")
+		+ "兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n")
 	v.add_child(body)
 	var disclaimer := _rich(15)
 	disclaimer.text = "[color=#8f8676]" + Credits.DISCLAIMER + "[/color]"

@@ -977,6 +977,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 				_begin_rehearsal()
 		"rules":
 			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
+			_refresh_objectives()
 			_open_viewer()
 		"reselect_reason":
 			sim.reselect_reason = ["quality", "result", "none"][int(results.get("reselect_reason", 2))]
@@ -988,7 +989,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			ui.reselect_btn.grab_focus()
 		"interval":
 			_interval_answer = results.interval
-			var tele := Judgment.TELEGRAMS.map(func(t): return t.text)
+			var tele := Judgment.telegram_choices()
 			var rea := _reasons.map(func(r): return r.text)
 			_say([{"s": Content.E, "t": Content.interval_feedback(_interval_answer, Judgment.interval_truth(sim))}] + Content.judgment_prompt(tele, rea), "judgment")
 		"judgment":
@@ -1030,9 +1031,9 @@ func _needs_comparison_fetch() -> bool:
 func _refresh_objectives() -> void:
 	if phase == Phase.PREP:
 		var ok := func(b: bool) -> String: return "[color=#9c9]✓[/color]" if b else "□"
-		var lines := ["[b]準備（全食之前）[/b]"]
+		var lines := ["[b]準備（全食之前）[/b]", "[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]"]
 		lines.append("%s 向 Eddington 報到" % ok.call(sim.briefed))
-		lines.append("%s 從暗房搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）" % [ok.call(sim.plates_delivered >= sim.MAX_EXTRA_PLATES), sim.plates_delivered, sim.MAX_EXTRA_PLATES, sim.plates_carried])
+		lines.append("%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）" % [ok.call(sim.plates_delivered >= sim.MAX_EXTRA_PLATES), sim.plates_delivered, sim.MAX_EXTRA_PLATES, sim.plates_carried])
 		lines.append("%s 協助 Cottingham 上發條" % ok.call(sim.drive_wound))
 		lines.append("%s 用天文鐘替他校走速" % ok.call(sim.drive_rate_checked))
 		lines.append("[color=#a99]可選：讀曝光計畫、看牛津比對底片[/color]")
@@ -1047,12 +1048,13 @@ func _refresh_objectives() -> void:
 			objective = "拿起 Ashby 先生給的放大鏡"
 		ui.set_objectives("[b]夜晚・暗房[/b]\n□ " + objective if objective != "" else "")
 	elif phase == Phase.NIGHT:
+		var measure := "□ 到測量桌：先寫下選片規則，再量底片" if sim.rule_id == "" else "□ 在測量桌上檢視並量測底片"
 		if _needs_comparison_fetch():
-			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n□ 到測量桌檢視並量測底片")
+			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n" + measure)
 		elif sim.measured:
 			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷")
 		else:
-			ui.set_objectives("[b]夜晚・暗房[/b]\n□ 到測量桌檢視並量測底片")
+			ui.set_objectives("[b]夜晚・暗房[/b]\n" + measure)
 	else:
 		ui.set_objectives("")
 
@@ -1524,7 +1526,7 @@ var _reasons: Array = []
 
 
 func _start_judgment() -> void:
-	var tele := Judgment.TELEGRAMS.map(func(t): return t.text)
+	var tele := Judgment.telegram_choices()
 	_reasons = Judgment.reasons_for(sim)
 	var rea := _reasons.map(func(r): return r.text)
 	var c: Dictionary = sim.combined()

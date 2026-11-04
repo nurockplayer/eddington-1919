@@ -89,6 +89,15 @@ func _run() -> void:
 			Settings.text_scale = scale
 			Settings.refresh_fonts(self)
 			await settle()
+			ui.hud.visible = true
+			game.phase = game.Phase.PREP
+			game._refresh_objectives()
+			await settle()
+			bounds(ui.objectives.get_parent())
+			check(ui.objectives.text.contains("今天要量的") and ui.objectives.text.contains("鐵皮屋頂"),
+				"PREP objectives name the measurement and the darkroom")
+			check(ui.objectives.get_content_height() <= ui.objectives.size.y + 1.0,
+				"PREP objectives text fits its panel (content %s, label %s)" % [ui.objectives.get_content_height(), ui.objectives.size.y])
 			var expected := Vector2(1600, 1000) if window == Vector2i(1280, 800) else Vector2(1600, 900)
 			check(root.get_visible_rect().size.is_equal_approx(expected), "visible rect %s expected %s" % [root.get_visible_rect(), expected])
 			ui.hide_title()
