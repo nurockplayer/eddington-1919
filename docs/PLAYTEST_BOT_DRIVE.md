@@ -7,6 +7,8 @@ A single route is `orb-test --host -- godot --headless --path . --fixed-fps 60 -
 `--always-on-top --shots=DIR` runs recorded below are the historical screenshot runs and are
 no longer the default; use them only when someone must look at the screen or capture frames
 (Owner's windowed-run rule in [HANDOFF](HANDOFF.md)).
+`E2E_CAP_SCALE` scales route caps and the `test_score` totality-to-NIGHT handoff budget
+(default `1`); `test_score` warns and uses `1` for an invalid or non-positive value.
 
 Each e2e run defaults `EDD_SETTINGS_PATH` to a settings file in its temporary
 worktree-local directory and removes that directory on exit. An existing non-empty

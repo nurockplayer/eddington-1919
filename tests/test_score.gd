@@ -1,11 +1,13 @@
 extends SceneTree
 ## Headless signal and score-player checks for the M4 procedural score.
+## E2E_CAP_SCALE scales the totality-to-NIGHT handoff budget (default 1); an
+## invalid or non-positive value warns and uses 1, matching e2e_headless.sh.
 ## Run: godot --headless --path . --script res://tests/test_score.gd
 
 const Score := preload("res://scripts/audio/score.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 ## Wall-clock budget for _end_totality to reach NIGHT with the Tab log held open.
-const HANDOFF_BUDGET_MS := 7500  # authored ≈5.6 s; measured 5.7 s at load avg 8
+const HANDOFF_BUDGET_MS := 7500  # Base budget; E2E_CAP_SCALE applies at runtime.
 
 const EXPECTED_CUES := [
 	"cambridge_rain",
@@ -22,6 +24,21 @@ const TICK_RATIO_LIMIT := 0.01
 
 var checks := 0
 var failures := 0
+
+
+func _scaled_handoff_budget_ms() -> int:
+	var raw_scale := OS.get_environment("E2E_CAP_SCALE")
+	if raw_scale.is_empty():
+		return HANDOFF_BUDGET_MS
+	if not raw_scale.is_valid_float():
+		push_warning("Invalid E2E_CAP_SCALE '%s'; using 1" % raw_scale)
+		return HANDOFF_BUDGET_MS
+	var scale := raw_scale.to_float()
+	var scaled_budget := float(HANDOFF_BUDGET_MS) * scale
+	if scale <= 0.0 or not is_finite(scale) or not is_finite(scaled_budget):
+		push_warning("Invalid E2E_CAP_SCALE '%s'; using 1" % raw_scale)
+		return HANDOFF_BUDGET_MS
+	return ceili(scaled_budget)
 
 
 func _initialize() -> void:
@@ -394,6 +411,7 @@ func _check_totality_black_handoff() -> void:
 		"totality drone entrance ramp reaches audible level before handoff")
 	# Time the handoff itself: loading main.gd above is host load, not the cue.
 	var handoff_started := Time.get_ticks_msec()
+	var handoff_budget_ms := _scaled_handoff_budget_ms()
 	main._end_totality()
 	await create_timer(0.25).timeout
 	main.ui.toggle_log() # Tab opens the real dialogue-history panel during the 1.5s audio fade.
@@ -402,13 +420,20 @@ func _check_totality_black_handoff() -> void:
 	await create_timer(0.3).timeout
 	check(is_equal_approx(float(score.layers["totality_drone"].db), held_db),
 		"Tab log freezes the real outgoing totality fade mid-ramp")
-	var transition_deadline := Time.get_ticks_msec() + 7600
+	var transition_deadline := handoff_started + handoff_budget_ms
+	var reached_night_elapsed_ms := -1
 	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < transition_deadline:
 		await process_frame
-	check(main.phase == main.Phase.NIGHT, "real _end_totality reaches NIGHT while Tab log stays open")
+		if main.phase == main.Phase.NIGHT:
+			reached_night_elapsed_ms = Time.get_ticks_msec() - handoff_started
+	var hard_deadline := handoff_started + 3 * handoff_budget_ms
+	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < hard_deadline:
+		await process_frame
 	var handoff_ms := Time.get_ticks_msec() - handoff_started
-	check(handoff_ms <= HANDOFF_BUDGET_MS,
-		"real Tab-held totality handoff completes within %d ms (%d ms)" % [HANDOFF_BUDGET_MS, handoff_ms])
+	var budget_measure_ms := reached_night_elapsed_ms if reached_night_elapsed_ms >= 0 else handoff_ms
+	check(reached_night_elapsed_ms >= 0 and reached_night_elapsed_ms <= handoff_budget_ms,
+		"real Tab-held totality handoff completes within %d ms (%d ms)" % [handoff_budget_ms, budget_measure_ms])
+	check(main.phase == main.Phase.NIGHT, "real _end_totality reaches NIGHT while Tab log stays open")
 	print("score black handoff: handoff_ms=%d setup_ms=%d phase=%s" % [handoff_ms, handoff_started - started_at, main.Phase.keys()[main.phase]])
 	for cue in cues:
 		var layer: Dictionary = score.layers.get(cue, {})
