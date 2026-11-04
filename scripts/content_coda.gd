@@ -9,7 +9,6 @@ class_name ContentCoda
 const CAST = preload("res://scripts/cambridge/cast.gd")
 
 const YOU := CAST.YOU
-const KIT := CAST.KIT
 
 
 static func opening() -> Array:
@@ -89,9 +88,9 @@ static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false,
 		seq.append({"s": YOU, "t": "（Kit 一定會先問天空，再問底片。）"})
 	match sky_promise:
 		0:
-			seq.append({"s": KIT, "t": "你要我告訴你這裡變了什麼——鐘樓那面鐘慢了兩分鐘，沒人去修。我每天對著它等你的電報。"})
+			seq.append({"s": YOU, "t": "（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。她大概已經記了一整頁。）"})
 		1:
-			seq.append({"s": KIT, "t": "你說全食只有五分鐘，你會在換底片。我那五分鐘一直在想，你換到第幾張了。"})
+			seq.append({"s": YOU, "t": "（我跟 Kit 說過，全食那五分鐘我會在換底片。我換了。她會想知道換到第幾張。）"})
 	var no_mistake := not overclaimed and not misread and clean
 	var replies: Array = []
 	for i in 3:

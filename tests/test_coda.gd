@@ -269,7 +269,7 @@ func _test_direct_and_prologue_paths() -> void:
 
 func _test_sky_promise_payoff() -> void:
 	var story = root.get_node("Story")
-	var lines := ["你要我告訴你這裡變了什麼——鐘樓那面鐘慢了兩分鐘，沒人去修。我每天對著它等你的電報。", "你說全食只有五分鐘，你會在換底片。我那五分鐘一直在想，你換到第幾張了。"]
+	var lines := ["（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。她大概已經記了一整頁。）", "（我跟 Kit 說過，全食那五分鐘我會在換底片。我換了。她會想知道換到第幾張。）"]
 	for choice in 2:
 		story.reset()
 		var departure = load("res://scripts/cambridge/departure_director.gd").new()
@@ -299,8 +299,8 @@ func _test_sky_promise_payoff() -> void:
 		while chapter.ui._seq[chapter.ui._seq_i].get("key", "") != "kit_first":
 			chapter.ui._advance()
 		var seq: Array = chapter.ui._seq
-		var payoff := seq.find_custom(func(entry): return entry.get("t", "") == lines[choice] and entry.get("s", "") == Coda.KIT)
-		check(payoff >= 0 and payoff < chapter.ui._seq_i and not text_of(seq).contains(lines[1 - choice]), "matching Kit payoff precedes the choice for promise %d" % choice)
+		var payoff := seq.find_custom(func(entry): return entry.get("t", "") == lines[choice] and entry.get("s", "") == Coda.YOU)
+		check(payoff >= 0 and payoff == chapter.ui._seq_i - 1 and not text_of(seq).contains(lines[1 - choice]), "matching player recollection immediately precedes the choice for promise %d" % choice)
 		chapter.queue_free()
 		await process_frame
 	var direct = await _new_main(false)
