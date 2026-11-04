@@ -1195,13 +1195,13 @@ func _build_ending(root: Control) -> void:
 	v.add_child(ending_history)
 	var hb := HFlowContainer.new()
 	hb.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	hb.offset_left = 20
-	hb.offset_right = -20
+	hb.offset_left = 8
+	hb.offset_right = -8
 	hb.offset_top = -48
 	hb.offset_bottom = -48
 	hb.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	hb.alignment = FlowContainer.ALIGNMENT_CENTER
-	hb.add_theme_constant_override("h_separation", 16)
+	hb.add_theme_constant_override("h_separation", 8)
 	hb.add_theme_constant_override("v_separation", 12)
 	ending_panel.add_child(hb)
 	var replay_hint := _label("重玩從 1919 年 5 月 29 日的準備開始；上一回的紀錄會留著，結尾會和這一回並排比較。", 16, DIM)
