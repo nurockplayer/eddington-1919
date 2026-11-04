@@ -18,6 +18,7 @@ var _shot_beats: Dictionary = {}
 var _matched := 0
 var _bias_blocked := false
 var _stuck_events := 0
+var _continuation_route: Node
 var _revised := false
 var _capturing := 0
 var _room_draw_calls := 0
@@ -280,6 +281,24 @@ func walk(target: Vector3) -> void:
 	await _monkey_step("walk", true)
 	if monkey:
 		print("[PROLOGUE monkey] WALK target=%s from=%s elapsed_s=%.2f" % [target, main.player.global_position, _elapsed])
+	var reached := await _walk_to(target)
+	if not reached and monkey:
+		# A random walk/retrace can leave us in the corridor. The straight line
+		# to an authored room waypoint then hits the south wall's doorway jamb.
+		print("[PROLOGUE monkey] RETRY target=%s at=%s" % [target, main.player.global_position])
+		if main.player.global_position.z > 2.93 and target.z < 2.93:
+			await _walk_to(Vector3(0, 0, 2.35))
+		reached = await _walk_to(target)
+	if not reached:
+		_stuck_events += 1
+		failures.append("movement blocked on way to " + str(target))
+		if monkey:
+			print("[PROLOGUE monkey] STUCK target=%s at=%s can_move=%s busy=%s dialog=%s log=%s paused=%s" % [target, main.player.global_position, main.player.can_move, main.get("_busy"), main.ui.dialog_active(), main.ui.log_open(), get_tree().paused])
+	if monkey:
+		print("[PROLOGUE monkey] WALK done target=%s at=%s reached=%s elapsed_s=%.2f" % [target, main.player.global_position, reached, _elapsed])
+
+
+func _walk_to(target: Vector3) -> bool:
 	var budget := 9.0
 	while budget > 0.0:
 		var p = main.player
@@ -292,13 +311,7 @@ func walk(target: Vector3) -> void:
 		budget -= get_process_delta_time() * 7.0
 	key(KEY_W, false)
 	await frames(3)
-	if budget <= 0.0:
-		_stuck_events += 1
-		failures.append("movement blocked on way to " + str(target))
-		if monkey:
-			print("[PROLOGUE monkey] STUCK target=%s at=%s can_move=%s busy=%s dialog=%s log=%s paused=%s" % [target, main.player.global_position, main.player.can_move, main.get("_busy"), main.ui.dialog_active(), main.ui.log_open(), get_tree().paused])
-	if monkey:
-		print("[PROLOGUE monkey] WALK done target=%s at=%s budget=%.2f elapsed_s=%.2f" % [target, main.player.global_position, budget, _elapsed])
+	return budget > 0.0
 
 
 func interact(id: String) -> void:
@@ -573,6 +586,7 @@ func _run() -> void:
 
 func _continue_honest_to_ending() -> void:
 	var route: Node = monkey if monkey else load("res://tests/autoplay_bot.gd").new()
+	_continuation_route = route
 	route.main = main
 	if not monkey:
 		route.scenario = "careful"
@@ -814,6 +828,8 @@ func _departure_run() -> void:
 func _finish() -> void:
 	if _done: return
 	_done = true
+	if is_instance_valid(_continuation_route):
+		_stuck_events += int(_continuation_route.stuck)
 	var score_failures: Array[String] = []
 	if scenario == "honest":
 		score_failures = ScorePlayer.run_failures(true)
