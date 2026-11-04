@@ -347,8 +347,10 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 				_choice_shots[choice_label] = true
 				await _wait_for_camera_settle()
 				await shot("choice_" + choice_label)
-			var choice: int = int(choices[index]) if index < choices.size() else default_choice
-			index += 1
+			var optional_details: bool = entry.choices == ["（點頭，記下重點）", "（聽他說完細節）"]
+			var choice: int = 0 if optional_details else (int(choices[index]) if index < choices.size() else default_choice)
+			if not optional_details:
+				index += 1
 			if monkey:
 				choice = monkey.monkey_choice(entry, choice)
 			await tap(KEY_1 + choice)
