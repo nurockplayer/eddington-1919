@@ -90,6 +90,7 @@ var reference_panel: PanelContainer
 var loupe_btn: Button
 var _plate_texture: Texture2D
 var _loupe_center := Vector2.ZERO
+var loupe_start := Vector2(-1, -1)
 var include_box: CheckBox
 var measure_btn: Button
 var reselect_btn: Button
@@ -711,7 +712,25 @@ func _build_reference_plates() -> void:
 
 func _set_loupe(on: bool) -> void:
 	if on and _plate_texture != null:
-		_show_loupe(_plate_texture.get_size() * 0.5)
+		var center := _plate_texture.get_size() * 0.5
+		var start_at_star := loupe_start.x >= 0.0 and loupe_start.y >= 0.0
+		_show_loupe(loupe_start if start_at_star else center)
+		if start_at_star:
+			var zoom := big_plate.texture as AtlasTexture
+			var region := zoom.region
+			var plate_center := _plate_texture.get_size() * 0.5
+			# Rect2 includes its top and left edges; trim that edge if clamping puts the Sun there.
+			if region.position.x == plate_center.x and loupe_start.x > plate_center.x:
+				region.position.x += 1.0
+				region.size.x -= 1.0
+			elif region.end.x == plate_center.x and loupe_start.x < plate_center.x:
+				region.size.x -= 1.0
+			elif region.position.y == plate_center.y and loupe_start.y > plate_center.y:
+				region.position.y += 1.0
+				region.size.y -= 1.0
+			elif region.end.y == plate_center.y and loupe_start.y < plate_center.y:
+				region.size.y -= 1.0
+			zoom.region = region
 	else:
 		loupe_btn.set_pressed_no_signal(false)
 		big_plate.texture = _plate_texture

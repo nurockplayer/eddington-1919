@@ -1387,6 +1387,7 @@ func _lamp_out_then_ending() -> void:
 func _open_viewer() -> void:
 	ui.comparison_recall = Content.comparison_recall(Story.plan, Story.prologue_done)
 	ui.drive_note = Content.drive_note(Story.plan, Story.prologue_done, sim.drive_rate_checked)
+	ui.loupe_start = Vector2(PlateRender.SIZE, PlateRender.SIZE) * 0.5 + sim.star_offsets[0] * PlateRender.SUN_PX
 	ui.open_viewer(sim.plates, comparison_tex, plate_textures, sim.measured)
 	_sync_player_input()
 	_refresh_viewer()
