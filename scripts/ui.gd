@@ -71,6 +71,12 @@ var _menu_scroll_remainder := 0.0
 var ending_panel: Control
 var credits_panel: Control
 var ending_text: RichTextLabel
+var ending_objects: BoxContainer
+var ending_slip: PanelContainer
+var ending_telegram: RichTextLabel
+var ending_plate_card: PanelContainer
+var ending_plate: TextureRect
+var ending_plate_caption: Label
 var ending_title: Label
 var ending_review: RichTextLabel
 var ending_review_toggle: Button
@@ -1009,7 +1015,18 @@ func hide_title() -> void:
 
 func _build_ending(root: Control) -> void:
 	ending_panel = ColorRect.new()
-	(ending_panel as ColorRect).color = Color(0.03, 0.03, 0.04, 0.93)
+	(ending_panel as ColorRect).color = Color("0d0b09")
+	var gradient := Gradient.new()
+	gradient.colors = PackedColorArray([Color("0d0b09"), Color("17120d")])
+	var background := TextureRect.new()
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill_from = Vector2(0, 0)
+	texture.fill_to = Vector2(0, 1)
+	background.texture = texture
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ending_panel.add_child(background)
 	ending_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	ending_panel.visible = false
 	root.add_child(ending_panel)
@@ -1017,9 +1034,10 @@ func _build_ending(root: Control) -> void:
 	scroll.follow_focus = false
 	ending_scroll = scroll
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
-	scroll.offset_left = 200
-	scroll.offset_right = -200
-	scroll.offset_top = 50
+	scroll.offset_left = 100
+	scroll.offset_right = -100
+	scroll.offset_top = 24
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.offset_bottom = -110
 	ending_panel.add_child(scroll)
 	var v := VBoxContainer.new()
@@ -1029,6 +1047,44 @@ func _build_ending(root: Control) -> void:
 	ending_title = _label("", 44, PAPER)
 	ending_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(ending_title)
+	ending_objects = BoxContainer.new()
+	ending_objects.add_theme_constant_override("separation", 24)
+	ending_objects.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.add_child(ending_objects)
+	ending_plate_card = PanelContainer.new()
+	ending_plate_card.name = "EndingPlateCard"
+	ending_plate_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	ending_plate_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ending_plate_card.add_theme_stylebox_override("panel", _panel_style(Color("211b15"), Color("493c2c")))
+	ending_objects.add_child(ending_plate_card)
+	var plate_column := VBoxContainer.new()
+	plate_column.add_theme_constant_override("separation", 8)
+	ending_plate_card.add_child(plate_column)
+	ending_plate = TextureRect.new()
+	ending_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ending_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	plate_column.add_child(ending_plate)
+	ending_plate_caption = _label("", 17)
+	ending_plate_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	plate_column.add_child(ending_plate_caption)
+	ending_slip = PanelContainer.new()
+	ending_slip.name = "EndingTelegramSlip"
+	ending_slip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	ending_slip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var paper := _panel_style(Color("e9e1cf"), Color("b9ad93"))
+	paper.set_border_width_all(1)
+	paper.set_corner_radius_all(2)
+	paper.content_margin_left = 28
+	paper.content_margin_right = 28
+	paper.content_margin_top = 22
+	paper.content_margin_bottom = 22
+	ending_slip.add_theme_stylebox_override("panel", paper)
+	ending_objects.add_child(ending_slip)
+	ending_telegram = _rich(19)
+	ending_telegram.add_theme_color_override("default_color", Color("2b2620"))
+	ending_slip.add_child(ending_telegram)
+	scroll.resized.connect(_layout_ending_objects)
+	ending_telegram.theme_changed.connect(_layout_ending_objects)
 	ending_text = _rich(19)
 	ending_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_child(ending_text)
@@ -1142,9 +1198,22 @@ func _open_credits() -> void:
 	(credits_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
 
 
-func show_ending(title: String, bb: String, history_bb := "", review_bb := "") -> void:
+func _layout_ending_objects() -> void:
+	var narrow := ending_scroll.size.x < 1100
+	ending_objects.vertical = narrow
+	ending_slip.custom_minimum_size.x = minf(620 * Settings.text_scale, ending_scroll.size.x)
+	var side := 112.0 if narrow else 260.0
+	ending_plate.custom_minimum_size = Vector2(side, side)
+
+
+func show_ending(title: String, bb: String, history_bb := "", review_bb := "", telegram_bb := "", plate: Texture2D = null, plate_caption := "") -> void:
 	ending_title.text = title
 	ending_text.text = bb
+	ending_telegram.text = telegram_bb
+	ending_objects.visible = not telegram_bb.is_empty()
+	ending_plate.texture = plate
+	ending_plate_caption.text = plate_caption
+	_layout_ending_objects()
 	ending_review.text = review_bb
 	ending_review.visible = false
 	ending_review_toggle.visible = not review_bb.is_empty()

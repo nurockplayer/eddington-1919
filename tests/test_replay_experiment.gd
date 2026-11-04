@@ -126,6 +126,58 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 	await wait_for(func(): return game.phase == game.Phase.ENDING, "reaction and coda finish at ending")
 
 
+func ending_objects(game) -> void:
+	var ui = game.ui
+	check(ui.ending_slip is PanelContainer and ui.ending_telegram.get_parent() == ui.ending_slip, "telegram lives on the paper slip")
+	check(ui.ending_telegram.text.contains(Judgment.TELEGRAMS[game._telegram].text)
+		and ui.ending_telegram.text.contains("理由：" + game._reasons[game._reason].text), "slip keeps telegram words and chosen reason")
+	check(ui.ending_telegram.text.contains("[font_size=%d][b]" % Settings.fs(30)), "telegram retains caps size and BBCode")
+	check(not ui.ending_text.text.contains("[center]"), "workbook and comparison are left aligned")
+	var candidates: Array = game.sim.included_usable() if game.sim.measured else []
+	candidates.sort_custom(func(a, b): return a.stars > b.stars or (a.stars == b.stars and a.number < b.number))
+	if candidates.is_empty():
+		check(ui.ending_plate.texture != null and ui.ending_plate.texture == game.comparison_tex
+			and ui.ending_plate_caption.text == "牛津比對底片", "unmeasured ending shows cached Oxford plate and caption")
+	else:
+		var index: int = game.sim.plates.find(candidates[0])
+		check(ui.ending_plate.texture != null and ui.ending_plate.texture == game.plate_textures[index]
+			and ui.ending_plate_caption.text == "第 %d 號底片" % candidates[0].number, "best measured plate uses viewer texture, most stars then lowest number")
+	var old_size := root.size
+	var old_canvas := root.content_scale_size
+	var old_scale := Settings.text_scale
+	for canvas in [Vector2i(1600, 900), Vector2i(1280, 720)]:
+		root.content_scale_size = canvas
+		root.size = canvas
+		for scale in Settings.TEXT_SCALES:
+			Settings.text_scale = scale
+			Settings.refresh_fonts(self)
+			game._show_ending()
+			for frame in 8:
+				await process_frame
+			var context := "%s scale %s" % [canvas, scale]
+			var objects: Array = [ui.ending_slip, ui.ending_plate_card]
+			objects.append_array(ui.ending_replay.get_parent().get_children())
+			for i in objects.size():
+				var rect: Rect2 = objects[i].get_global_rect()
+				check(root.get_visible_rect().encloses(rect), "ending object inside viewport: %d %s" % [i, context])
+				for j in range(i):
+					check(not rect.intersects(objects[j].get_global_rect()), "ending objects do not overlap: %d %d %s" % [i, j, context])
+				if objects[i] is Button:
+					objects[i].grab_focus()
+					check(root.gui_get_focus_owner() == objects[i], "ending button accepts focus: %d %s" % [i, context])
+			check(ui.ending_scroll.get_global_rect().encloses(ui.ending_slip.get_global_rect())
+				and ui.ending_scroll.get_global_rect().encloses(ui.ending_plate_card.get_global_rect()), "slip and card clear scroll clipping: " + context)
+			check(ui.ending_telegram.get_content_height() <= ui.ending_telegram.size.y + 1, "telegram text fits paper: " + context)
+			check(ui.ending_objects.vertical == (canvas.x == 1280), "plate is left on wide canvas and above on narrow canvas: " + context)
+	root.size = old_size
+	root.content_scale_size = old_canvas
+	Settings.text_scale = old_scale
+	Settings.refresh_fonts(self)
+	game._show_ending()
+	for frame in 8:
+		await process_frame
+
+
 func layout(game) -> void:
 	for frame in 5:
 		await process_frame
@@ -189,6 +241,7 @@ func _run() -> void:
 	Settings.refresh_fonts(self)
 	check(story.runs.is_empty(), "ordinary direct entry starts without history")
 	await finish_run(game)
+	await ending_objects(game)
 	check(story.runs.size() == 1, "first completion records once")
 	check(not game.ui.ending_text.text.contains(HEADING), "first ending has no comparison")
 	var first: Dictionary = story.runs[0].duplicate(true)
@@ -228,6 +281,7 @@ func _run() -> void:
 	check(game.ui._seq[1].t.contains("天空換了；差異也可能來自雲況。"), "new-sky framing acknowledges weather")
 	await finish_run(game, 0, 3, false)
 	check(story.runs.size() == 3 and story.runs[2].combined == {"n": 0}, "zero-result completion preserves n=0 without invented numbers")
+	await ending_objects(game)
 	check(game.ui.ending_text.text.contains("這回：沒有量出數值。") and game.ui.ending_text.text.contains("電報的理由改了"), "missing measurement and changed reason ID are explicit")
 	check(content.run_comparison(story.runs[2], first).contains("上回：沒有量出數值。"), "missing previous measurement is explicit")
 	game.queue_free()
