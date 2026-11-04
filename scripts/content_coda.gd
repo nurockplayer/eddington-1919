@@ -40,8 +40,8 @@ static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable :
 		seq.append({"s": YOU, "t": "（底片、數字、電報——每一步都寫在紙上了，連那幾張不能用的也是。）"})
 		seq.append({"s": YOU, "t": "（他不會因為這樣就相信。可是他會一頁一頁讀下去。這就夠了。）"})
 	elif fit == 2:
-		seq.append({"s": YOU, "t": "（電報沒有說錯。可是選片那一頁，有一行你寫得不夠乾淨。）"})
-		seq.append({"s": YOU, "t": "（回去以後把它補上——在他問之前。）"})
+		seq.append({"s": YOU, "t": "（選片那一頁還有一行說不清楚：為什麼留這張、丟那張。）"})
+		seq.append({"s": YOU, "t": "（回去以後把它寫清楚——在他問之前。）"})
 	elif fit == 1:
 		seq.append({"s": YOU, "t": "（電報寫得太小心，或是太寬鬆——你自己也說不準。）"})
 		seq.append({"s": YOU, "t": "（他會在旁邊畫一個問號。問號不丟人。）"})

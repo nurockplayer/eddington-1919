@@ -107,13 +107,13 @@ func _test_grade_branches() -> void:
 				elif grade.fit == 2 and clean:
 					check(text.contains(branch.needle), "fit 2 clean branch selected")
 				elif grade.fit == 2:
-					check(text.contains("選片那一頁，有一行你寫得不夠乾淨"), "fit 2 dirty branch selected")
+					check(text.contains("選片那一頁還有一行說不清楚：為什麼留這張、丟那張"), "fit 2 dirty branch selected")
 				elif grade.fit == 1:
 					check(text.contains("電報寫得太小心"), "fit 1 branch selected")
 				else:
 					check(text.contains("電報已經發出去了"), "fit 0 branch selected")
 	check(text_of(Coda.ashby_answer(2, true, true)).contains("每一步都寫在紙上了"), "fit 2 clean wording identifies complete record")
-	check(text_of(Coda.ashby_answer(2, false, true)).contains("把它補上"), "fit 2 dirty wording asks for a correction")
+	check(text_of(Coda.ashby_answer(2, false, true)).contains("把它寫清楚——在他問之前"), "fit 2 dirty wording asks for a correction")
 	check(text_of(Coda.ashby_answer(1, true, true)).contains("問號不丟人"), "fit 1 wording retains the question mark")
 	check(text_of(Coda.ashby_answer(0, true, true)).contains("差一點就成了那個好故事"), "fit 0 wording recalls Ashby's clean-plate challenge")
 	var skipped_text := text_of(Coda.ashby_answer(0, true, false, true))

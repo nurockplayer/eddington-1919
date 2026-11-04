@@ -230,7 +230,7 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 			var with_good: bool = sim.plates.any(func(p): return p.included and p.quality == "good")
 			var violations: Array = (sel.included_poor if with_good else []) + sel.included_unusable
 			if not violations.is_empty():
-				out.append("你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號違反了你自己寫下的規則。" % _nums(violations))
+				out.append("你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號也在平均裡——再拿起來看看，它的星像合不合那一行。" % _nums(violations))
 			elif clean and sim.included_usable().size() > 0:
 				out.append("你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。")
 			if clean and not sel.included_poor.is_empty():

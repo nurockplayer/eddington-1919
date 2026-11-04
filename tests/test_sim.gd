@@ -269,7 +269,7 @@ func _init() -> void:
 
 	# Use real exposures from seed 7 for clean and contaminated selections.
 	var strict_clean := "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
-	var strict_dirty := "你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號違反了你自己寫下的規則。" % cloudy.number
+	var strict_dirty := "你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號也在平均裡——再拿起來看看，它的星像合不合那一行。" % cloudy.number
 	var after_line := "『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。"
 	var none_line := "沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。"
 	var generic := "你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。"
@@ -303,7 +303,7 @@ func _init() -> void:
 		{"number": 1, "usable": true, "quality": "good", "included": false, "trail": 0.0, "value": 1.8, "sigma": 0.3},
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 1.2, "sigma": 0.6},
 	]
-	var broke := func(r: Dictionary) -> bool: return r.lines.any(func(l): return l.contains("違反了你自己寫下的規則"))
+	var broke := func(r: Dictionary) -> bool: return r.lines.any(func(l): return l.contains("也在平均裡——再拿起來看看，它的星像合不合那一行"))
 	check(not broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate measured without a clear one is no violation")
 	foggy.plates[0].included = true
 	check(broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate averaged with a clear one is a violation")
