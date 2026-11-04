@@ -18,6 +18,7 @@ var selected: Array = []
 var card_buttons: Dictionary = {}
 var finish_btn: Button
 var _cards: Array = []
+var _slots: Array[Label] = []
 
 
 func _ready() -> void:
@@ -105,6 +106,7 @@ func _build() -> void:
 		slot.add_theme_color_override("font_color", INK)
 		slot_row.add_child(slot)
 		slots.append(slot)
+	_slots = slots
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -200,10 +202,24 @@ func _style_card_button(button: Button, is_selected: bool) -> void:
 func _finish() -> void:
 	if selected.size() < 3:
 		return
-	for id in selected:
+	# A biased card is taken back off the plan, as the dialogue says; the board
+	# reopens with it unticked so the player only has to pick a replacement.
+	var first_bias: Dictionary = {}
+	for id in selected.duplicate():
 		var card := _find_card(id, _cards)
-		if card.get("kind", "") == "bias":
-			blocked.emit(card)
-			return
+		if card.get("kind", "") != "bias":
+			continue
+		if first_bias.is_empty():
+			first_bias = card
+		selected.erase(id)
+		var button: Button = card_buttons.get(id)
+		if button:
+			button.button_pressed = false
+			_style_card_button(button, false)
+	if not first_bias.is_empty():
+		_update_slots(_slots)
+		finish_btn.disabled = selected.size() < 3
+		blocked.emit(first_bias)
+		return
 	if can_finish(selected, _cards):
 		finished.emit(selected.duplicate())

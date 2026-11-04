@@ -124,7 +124,8 @@ func _ready() -> void:
 	overlay.clue_found.connect(_clue_found)
 	overlay.aligned_changed.connect(func(on):
 		aligned = aligned or on
-		if on: Story.clues["aligned"] = true)
+		if on: Story.clues["aligned"] = true
+		_sync_player())
 	overlay.hint_requested.connect(func(): ui.show_toast(C17.viewer_hint(state()), 7.0))
 	overlay.closed.connect(_viewer_closed)
 	overlay.sound.connect(_overlay_sound)
@@ -172,7 +173,10 @@ func _sync_player() -> void:
 	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	if beat == Beat.INVESTIGATE:
-		ui.set_objectives("[b]劍橋・1917[/b]\n核對 14 號星場的抄錄圖，交給 %s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\nTab 對話紀錄[/color]" % [Cast.MENTOR, Cast.KIT])
+		var task := "核對 14 號星場的抄錄圖，交給 %s" % Cast.MENTOR
+		if aligned and not kit_checked:
+			task = "對上了。請 %s 自己再對一次，再寫進筆記本。" % Cast.KIT
+		ui.set_objectives("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\nTab 對話紀錄[/color]" % [task, Cast.KIT])
 	elif beat == Beat.TRIAL_TASK:
 		ui.set_objectives("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。")
 	else:

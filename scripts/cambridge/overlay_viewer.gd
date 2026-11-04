@@ -285,7 +285,7 @@ func _update_alignment() -> void:
 			sound.emit("settle")
 	if is_instance_valid(_status_label):
 		if aligned:
-			_status_label.text = "17 個點重合了，還有 1 個沒有對上。"
+			_status_label.text = "17 個點重合了，還有 1 個沒有對上。也看看角落的編號，和鉛筆畫的箭頭。"
 		elif flipped:
 			_status_label.text = "翻面後，整片星場仍沿同一方向錯開。"
 		else:
