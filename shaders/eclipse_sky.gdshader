@@ -6,6 +6,7 @@ shader_type sky;
 
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
+uniform float practice_cloud = -1.0; // rehearsal-only density near the Sun
 uniform vec2 wind = vec2(0.0042, 0.0026);
 uniform float cloud_scale = 0.35;
 uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
@@ -65,6 +66,10 @@ void sky() {
 		dens = mix(dens, 0.97, smoothstep(0.35, 0.05, h));   // haze toward horizon
 	} else {
 		dens = 1.0;
+	}
+	if (practice_cloud >= 0.0 && h > 0.0) {
+		float near_practice_sun = smoothstep(0.96, 0.995, dot(d, sun_dir));
+		dens = mix(dens, practice_cloud, near_practice_sun);
 	}
 	dens = mix(dens, dens * 0.55, night);
 	float cloud_visibility = 1.0 - smoothstep(0.35, 0.80, dens);
