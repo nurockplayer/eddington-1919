@@ -1,0 +1,21 @@
+# Character design sheets (c01, 2026-10-27): step 1 of the target-first
+# character pipeline. A sheet fixes silhouette, costume, value and palette
+# before any 3D work; it is not a final render.
+
+version = "c1"
+
+framing = """
+One wide character turnaround sheet on a plain flat mid-grey background: the same man \
+standing full length four times side by side at the same scale, front view, three-quarter \
+view, side profile and back view, neutral relaxed standing pose with arms down, even flat \
+studio light from the front with no cast shadows, so that silhouette and clothing read clearly."""
+
+identity = """
+A historically grounded character design for a narrative adventure game set in 1917 Cambridge. \
+Realistic adult proportions, sober and dignified, a real person rather than a costume."""
+
+avoid = """
+Avoid: text, letters, labels, captions, watermarks, logos, UI, borders or frames; \
+anime, cartoon, chibi or caricature proportions; fantasy or steampunk costume; \
+anachronistic clothing, modern eyewear or modern hairstyles; dramatic lighting, heavy shadows \
+or vignettes; extra or warped hands and fingers; different people in different views."""

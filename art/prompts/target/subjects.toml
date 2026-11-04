@@ -1,0 +1,26 @@
+# Cast looks follow art/runs/c01-design (Eddington v2 brown-grey tweed,
+# Ashby slate grey, Kit v2 oatmeal shirt + blue-grey waistcoat).
+
+[study_mid]
+version = "v1"
+kind = "keyframe"
+text = """
+First-person view at standing eye height in a 1917 Cambridge Observatory study at dusk: dark wood \
+panelling, a long worktable with glass photographic plates on a lightbox, a green-shaded desk lamp, \
+a tall window with cold blue evening light, bookshelves. Two metres away across the table stands \
+Arthur Eddington, 34, slender, clean-shaven, narrow long face, dark hair brushed back and receding at \
+the temples, rimless pince-nez, in a mid warm brown-grey herringbone three-piece suit with a white \
+collar and dark tie, looking at the viewer, reserved and attentive. Beside him, an older grey-haired \
+man with a grey moustache in a slate-grey suit leans over the plates. He is seen almost full length, \
+his face about one tenth of the frame height, and reads clearly against the dark room."""
+
+[study_close]
+version = "v1"
+kind = "keyframe"
+text = """
+A cinematic over-the-shoulder close-up in a 1917 Cambridge Observatory study at dusk: \
+Arthur Eddington, 34, slender, clean-shaven, narrow long face, high forehead, strong brows, dark hair \
+brushed back and receding at the temples, rimless pince-nez, white collar and dark tie, mid brown-grey \
+herringbone tweed, framed from mid-chest up, his face about a quarter of the frame height, lit by a \
+green-shaded desk lamp from below one side and cold window light from behind, a lightbox glow on his \
+face, the blurred shoulder of the listener in the foreground. Thoughtful, reserved expression."""
