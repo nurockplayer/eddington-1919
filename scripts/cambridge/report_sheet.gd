@@ -135,6 +135,12 @@ func _add_row(page: VBoxContainer, row: Dictionary) -> void:
 		page.add_child(missing)
 		selected["residual"] = "not_found"
 		return
+	if row.id == "kit_credited" and available.is_empty():
+		var unchecked := Label.new()
+		unchecked.text = "（還沒有人獨立複核）"
+		unchecked.add_theme_color_override("font_color", Color(0.35, 0.30, 0.24))
+		page.add_child(unchecked)
+		return
 	var choices := GridContainer.new()
 	choices.columns = 2
 	choices.add_theme_constant_override("h_separation", 10)

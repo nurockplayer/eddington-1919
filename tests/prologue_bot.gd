@@ -577,7 +577,7 @@ func _run() -> void:
 	_bias_blocked = main.ui.dialog_active() and main.beat == main.Beat.PLAN and Story.plan.is_empty()
 	if not _bias_blocked: failures.append("bias plan was not blocked")
 	await talk()
-	await click_button(board.card_buttons.keep_agreeing)
+	# The blocked bias card is already taken back off the plan; pick a core card.
 	await click_button(board.card_buttons.rules_first)
 	await talk()
 	await shot("10_fair_plan")

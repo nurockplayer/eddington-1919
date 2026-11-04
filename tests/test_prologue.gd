@@ -41,6 +41,14 @@ func contains_all(values: Array, expected: Array) -> bool:
 	return true
 
 
+func _labels_with(node: Node, text: String) -> int:
+	var found := 0
+	for label in node.find_children("*", "Label", true, false):
+		if str(label.text).contains(text):
+			found += 1
+	return found
+
+
 func _test_overlay_math() -> void:
 	var unflipped := MathModel.transformed_copy(false, 0.0, Vector2.ZERO)
 	var flipped_partial := MathModel.transformed_copy(true, 0.0, Vector2.ZERO)
@@ -167,6 +175,7 @@ func _test_report_ui() -> void:
 	await process_frame
 	check(sheet.selected.get("residual", "") == "not_found", "report defaults absent residual to not_found")
 	check(not sheet.option_buttons.has("kit_credited/credited"), "Kit credit checkbox is unavailable before independent check")
+	check(_labels_with(sheet, "還沒有人獨立複核") == 1, "unchecked Kit review says nobody has checked yet")
 	var viewport_rect := Rect2(Vector2.ZERO, sheet.get_viewport_rect().size)
 	for key in sheet.option_buttons:
 		var option_button: Button = sheet.option_buttons[key]
@@ -198,6 +207,7 @@ func _test_report_ui() -> void:
 	check(sheet.option_buttons.has("kit_credited/credited"), "Kit checkbox appears after independent check")
 	check(sheet.option_buttons["kit_credited/credited"] is CheckBox, "independent credit uses a real checkbox control")
 	check((sheet.option_buttons["kit_credited/credited"] as Button).button_pressed, "Kit checkbox reflects completed independent check")
+	check(_labels_with(sheet, "還沒有人獨立複核") == 0, "an independent check replaces the empty-review note")
 	sheet.queue_free()
 	modal_layer.queue_free()
 	await process_frame
@@ -231,18 +241,34 @@ func _test_plan_ui() -> void:
 	check(slot_one != null and slot_one.text.contains("比對片") and slot_three != null and slot_three.text.contains("只留下"), "plan slots show selected card text in order")
 	board.finish_btn.pressed.emit()
 	check(blocked_events.size() == 1 and finished_events.is_empty(), "biased plan emits blocked and does not finish")
-	discard.button_pressed = false
-	discard.pressed.emit()
-	check(not discard.text.begins_with("✓"), "deselected plan card loses its selection mark")
+	check(board.selected.size() == 2 and not board.selected.has("keep_agreeing"), "blocked bias card leaves the plan")
+	check(not discard.text.begins_with("✓") and not discard.button_pressed, "blocked bias card loses its selection mark and stays unticked when the board reopens")
+	check(slot_three.text == "3. ——", "the slot freed by the bias card is cleared")
 	var helpful: Button = board.card_buttons["conditions"]
 	helpful.button_pressed = true
 	helpful.pressed.emit()
 	check(helpful.text.begins_with("✓") and slot_three.text.contains("狀況"), "replacement plan card gains its mark and replaces the numbered slot text")
 	board.finish_btn.pressed.emit()
-	check(finished_events.size() == 1 and finished_events[0].size() == 3, "removing bias allows a valid three-card plan to finish")
+	check(finished_events.size() == 1 and finished_events[0].size() == 3 and not finished_events[0].has("keep_agreeing"), "the same finish press after the block accepts the three remaining cards")
 	board.queue_free()
 	await process_frame
 	check(not is_instance_valid(board), "plan board queue_free releases the control tree")
+	# Both bias cards can be ticked at once; finishing takes both back and reports the first.
+	var both = PlanBoard.new()
+	root.add_child(both)
+	await process_frame
+	both.open()
+	var both_blocked: Array = []
+	both.blocked.connect(func(card: Dictionary): both_blocked.append(card))
+	for id in ["comparison", "far_stars", "keep_agreeing", "nearest_only"]:
+		var button: Button = both.card_buttons[id]
+		button.button_pressed = true
+		button.pressed.emit()
+	both.finish_btn.pressed.emit()
+	check(both_blocked.size() == 1 and both_blocked[0].get("id", "") == "keep_agreeing", "two ticked bias cards report the first one as blocked")
+	check(both.selected == ["comparison", "far_stars"], "both ticked bias cards leave the plan (selected=%s)" % str(both.selected))
+	both.queue_free()
+	await process_frame
 
 
 func _send_tab(ui: CanvasLayer) -> void:
@@ -308,7 +334,7 @@ func _test_teaching_paths() -> void:
 			check(short.results == baseline.results and detail.results == baseline.results, name_ + " choices preserve results")
 			check(short.advances < baseline.advances and reverted == short, name_ + " short path saves advances and revert restores it")
 			if answer == 0:
-				var expected := [17, 15, 18] if name_ == "dyson" else [18, 16, 19]
+				var expected := [17, 15, 18] if name_ == "dyson" else [19, 17, 20]
 				check([baseline.advances, short.advances, detail.advances] == expected, name_ + " exact baseline, short, detail advances: %s" % [[baseline.advances, short.advances, detail.advances]])
 	ui.queue_free()
 	await process_frame
@@ -675,10 +701,21 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	chapter.aligned = true
 	chapter.kit_checked = false
 	chapter.guess_offered = false
+	# The objective follows the overlay's alignment signal, and changes again when
+	# Kit's independent check completes.
+	var objective_beat: int = chapter.beat
+	chapter.beat = chapter.Beat.INVESTIGATE
+	chapter.aligned = false
+	chapter.kit_checked = false
+	chapter.overlay.aligned_changed.emit(true)
+	check(chapter.aligned and chapter.ui.objectives.text.contains("自己再對一次"), "alignment asks the player to have Kit re-check before writing")
 	chapter._interact("kit")
 	check(chapter._pending == "double_check" and not chapter.guess_offered, "aligned copy still offers Kit independent check")
 	_finish_test_dialogue(chapter)
 	check(chapter.kit_checked, "Kit independent check completes after suppressing old guess")
+	check(not chapter.ui.objectives.text.contains("自己再對一次"), "the completed independent check clears that instruction")
+	chapter.beat = objective_beat
+	chapter._sync_player()
 	# Issue #37: examining the orrery lets the mentor answer for Mercury later.
 	check(not chapter.state().orrery_seen, "orrery unseen at first")
 	chapter._interact("orrery")
