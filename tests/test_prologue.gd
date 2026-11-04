@@ -7,6 +7,7 @@ const MathModel = preload("res://scripts/cambridge/overlay_math.gd")
 const ReportSheet = preload("res://scripts/cambridge/report_sheet.gd")
 const PlanBoard = preload("res://scripts/cambridge/plan_board.gd")
 const C17 = preload("res://scripts/cambridge/content_1917.gd")
+const OriginalTeaching = preload("res://tests/fixtures/cambridge_teaching_original.gd")
 const UI = preload("res://scripts/ui.gd")
 const Room = preload("res://scripts/cambridge/room_builder.gd")
 
@@ -259,6 +260,52 @@ func _send_key(code: Key) -> void:
 	released.physical_keycode = code
 	released.pressed = false
 	Input.parse_input_event(released)
+	await process_frame
+
+
+
+func _teaching_route(ui, seq: Array, details: int, answers: Dictionary) -> Dictionary:
+	var result := {"lines": [], "results": {}, "advances": 0, "done": false}
+	var done := func(values):
+		result.results = values.duplicate(true)
+		result.done = true
+	ui.dialogue_done.connect(done)
+	ui.play(seq)
+	while ui.dialog_active() and result.advances < 100:
+		var entry: Dictionary = ui._seq[ui._seq_i]
+		var optional: bool = entry.get("choices", []) == ["（點頭，記下重點）", "（聽他說完細節）"]
+		if not optional:
+			result.lines.append([entry.get("s", ""), entry.get("t", "")])
+		result.advances += 1
+		if entry.has("choices"):
+			ui._choose(details if optional else int(answers.get(entry.get("key", ""), 0)))
+		else:
+			ui._advance()
+	ui.dialogue_done.disconnect(done)
+	return result
+
+
+func _test_teaching_paths() -> void:
+	var ui = UI.new()
+	root.add_child(ui)
+	await process_frame
+	for name_ in ["dyson", "exam"]:
+		var old: Array = OriginalTeaching.mentor_dyson({}, {}) if name_ == "dyson" else OriginalTeaching.eddington_exam({}, {})
+		var current: Array = C17.mentor_dyson({}, {}) if name_ == "dyson" else C17.eddington_exam({}, {})
+		for answer in [0, 1, 2]:
+			var answers := {"size": mini(answer, 1), "bridge": answer, "q1": answer, "q2": answer, "box": answer}
+			var baseline := _teaching_route(ui, old, 0, answers)
+			var short := _teaching_route(ui, current, 0, answers)
+			var detail := _teaching_route(ui, current, 1, answers)
+			var reverted := _teaching_route(ui, current, 0, answers)
+			check(baseline.done and short.done and detail.done, name_ + " paths complete the dialogue")
+			check(detail.lines == baseline.lines, name_ + " details preserve every original line in order")
+			check(short.results == baseline.results and detail.results == baseline.results, name_ + " choices preserve results")
+			check(short.advances < baseline.advances and reverted == short, name_ + " short path saves advances and revert restores it")
+			if answer == 0:
+				var expected := [17, 15, 18] if name_ == "dyson" else [18, 14, 19]
+				check([baseline.advances, short.advances, detail.advances] == expected, name_ + " exact baseline, short, detail advances: %s" % [[baseline.advances, short.advances, detail.advances]])
+	ui.queue_free()
 	await process_frame
 
 
@@ -638,9 +685,25 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	check(seen[seen.size() - 3].get("key", "") == "bridge" and plain[plain.size() - 3].get("key", "") == "bridge", "the bridge question still follows")
 	# Issue #37 loop 2: the closed box sits in Eddington's exam, before the clean-plate list.
 	var exam: Array = C17.eddington_exam({}, {})
-	var box_i := exam.find(exam.filter(func(l): return l.get("key", "") == "box").front())
+	var box_i := exam.find(exam.filter(func(l): return l.get("key", "") == "box" and l.get("choices", []).size() == 3).front())
 	check(box_i > 0 and exam[box_i].choices.size() == 3 and str(exam[box_i].then[2][0].t).contains("分不出來"), "the closed box asks where you are and accepts 'cannot tell'")
 	check(str(exam[exam.size() - 1].t).contains("清單"), "the exam still ends on the clean-plate list")
+	# Both exam paths use the real director and hand identical answers to the plan beat.
+	var exam_results: Array = []
+	for details in [0, 1]:
+		chapter._say(C17.eddington_exam({}, {}), "exam")
+		var exam_guard := 100
+		while chapter._pending == "exam" and exam_guard > 0:
+			exam_guard -= 1
+			var line: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+			if line.has("choices"):
+				var optional: bool = line.choices == ["（點頭，記下重點）", "（聽他說完細節）"]
+				chapter.ui._choose(details if optional else 0)
+			else:
+				chapter.ui._advance()
+		check(exam_guard > 0 and chapter._pending == "plan_intro" and chapter.beat == chapter.Beat.PLAN, "exam path reaches the plan through the director")
+		exam_results.append(story.exam.duplicate(true))
+	check(exam_results[0] == exam_results[1] and exam_results[0] == {"q1": 0, "q2": 0, "box": 0}, "exam paths record identical Story.exam")
 	# The director itself hands the state on: finishing the mentor review plays Mercury's lines.
 	var saved_beat = chapter.beat
 	chapter._pending = "mentor_review"
@@ -768,6 +831,7 @@ func _run() -> void:
 	await _test_story_scene_persistence()
 	await _test_report_ui()
 	await _test_plan_ui()
+	await _test_teaching_paths()
 	await _test_dialogue_history()
 	await _test_viewer_hint_progress()
 	await _test_cambridge_pause_restore()
