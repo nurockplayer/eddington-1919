@@ -6,7 +6,7 @@ config_version=5
 [application]
 
 config/name="雲層之後 · Eddington 1919"
-config/version="0.4.0"
+config/version="0.4.1"
 config/icon="res://icon.svg"
 config/description="Playable slice: Príncipe, 29 May 1919 — time exposures through cloud, then judge the evidence."
 run/main_scene="res://scenes/main.tscn"
