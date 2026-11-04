@@ -244,6 +244,7 @@ func _test_plan_ui() -> void:
 	check(board.selected.size() == 2 and not board.selected.has("keep_agreeing"), "blocked bias card leaves the plan")
 	check(not discard.text.begins_with("✓") and not discard.button_pressed, "blocked bias card loses its selection mark and stays unticked when the board reopens")
 	check(slot_three.text == "3. ——", "the slot freed by the bias card is cleared")
+	check(board.finish_btn.disabled, "finish disables when the taken-back bias card leaves fewer than three cards")
 	var helpful: Button = board.card_buttons["conditions"]
 	helpful.button_pressed = true
 	helpful.pressed.emit()
@@ -267,6 +268,7 @@ func _test_plan_ui() -> void:
 	both.finish_btn.pressed.emit()
 	check(both_blocked.size() == 1 and both_blocked[0].get("id", "") == "keep_agreeing", "two ticked bias cards report the first one as blocked")
 	check(both.selected == ["comparison", "far_stars"], "both ticked bias cards leave the plan (selected=%s)" % str(both.selected))
+	check(both.finish_btn.disabled, "finish disables when two taken-back bias cards leave fewer than three cards")
 	both.queue_free()
 	await process_frame
 

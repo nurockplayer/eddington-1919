@@ -218,6 +218,7 @@ func _finish() -> void:
 			_style_card_button(button, false)
 	if not first_bias.is_empty():
 		_update_slots(_slots)
+		finish_btn.disabled = selected.size() < 3
 		blocked.emit(first_bias)
 		return
 	if can_finish(selected, _cards):
