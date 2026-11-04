@@ -9,6 +9,7 @@ const PlanBoard = preload("res://scripts/cambridge/plan_board.gd")
 const C17 = preload("res://scripts/cambridge/content_1917.gd")
 const OriginalTeaching = preload("res://tests/fixtures/cambridge_teaching_original.gd")
 const UI = preload("res://scripts/ui.gd")
+const Judgment = preload("res://scripts/judgment.gd")
 const Room = preload("res://scripts/cambridge/room_builder.gd")
 
 var failures := 0
@@ -372,7 +373,7 @@ func _test_dialogue_history() -> void:
 	ui._advance()
 	# The 1919 telegram prompt is the longest choice list (four cables) in the default placement.
 	ui.play([{"s": "Eddington", "t": "我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？", "key": "telegram",
-		"choices": ["ECLIPSE SPLENDID. EINSTEIN CONFIRMED.", "THROUGH CLOUD. HOPEFUL.", "THROUGH CLOUD. STARS FEW. RESULT UNDECIDED.", "CLOUD. NO RESULTS."]}])
+		"choices": Judgment.telegram_choices()}])
 	for _i in 4:
 		await process_frame
 	var tele_rect: Rect2 = ui.dialog_panel.get_global_rect()

@@ -11,6 +11,13 @@ const TELEGRAMS := [
 	{"id": "none", "text": "CLOUD. NO RESULTS."},
 ]
 
+const TELEGRAM_GLOSS := {"confirmed": "日食極佳，愛因斯坦得證", "hopeful": "隔著雲，有希望",
+	"undecided": "隔著雲，星少，未定", "none": "全是雲，無結果"}
+
+## Choice labels: the English cable with a short zh-TW gloss on the same line.
+static func telegram_choices() -> Array:
+	return TELEGRAMS.map(func(t): return "%s（%s）" % [t.text, TELEGRAM_GLOSS[t.id]])
+
 const REASONS := [
 	{"id": "measured", "text": "量得的偏折較接近 1.75″，而且有足夠星點的底片支持。"},
 	{"id": "uncertain", "text": "底片少、誤差大；需要 Sobral 的結果與回國後的完整量測。"},

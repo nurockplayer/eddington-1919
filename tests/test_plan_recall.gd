@@ -138,7 +138,7 @@ func _check_comparison_fetch(story: Node, plan: Array, played: bool, needs_fetch
 		game._interact("oxford_case")
 		check(game.ui._seq == Content.comparison_fetched(), "fetching shows the authored narration")
 		check(not game.ui.objectives.text.contains("去拿牛津比對底片"), "fetching clears the errand objective")
-		check(game.ui.objectives.text.contains("到測量桌檢視並量測底片"), "fetching restores the measuring objective")
+		check(game.ui.objectives.text.contains("先寫下選片規則"), "fetching restores the measuring objective")
 		check(story.plan == plan and game.sim.plates.is_empty(), "fetching preserves the plan and plate data")
 		_drain_dialogue(game)
 		game._interact("oxford_case")
@@ -147,6 +147,13 @@ func _check_comparison_fetch(story: Node, plan: Array, played: bool, needs_fetch
 		game._interact("measure")
 	check(game._pending == "rules" and game.ui._seq == Content.rules_prompt(false), "%s: table reaches the rules prompt" % label)
 	check(not game.ui.viewer.visible, "%s: viewer waits for a rule choice" % label)
+	check(game.ui.objectives.text.contains("先寫下選片規則"), "%s: objectives put the rule before measuring" % label)
+	if game.ui.dialog_active() and game.ui._seq[game.ui._seq_i].has("choices"):
+		game.ui._choose(0)
+		_drain_dialogue(game)
+	check(game.sim.rule_id == "strict", "%s: the chosen rule is recorded" % label)
+	check(game.ui.objectives.text.contains("檢視並量測") and not game.ui.objectives.text.contains("先寫下"),
+		"%s: a written rule switches the objective to measuring" % label)
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
