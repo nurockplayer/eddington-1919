@@ -1217,13 +1217,12 @@ func _build_ending(root: Control) -> void:
 	var place_row := func():
 		hb.offset_top = -48 - hb.get_combined_minimum_size().y
 		var hint_height := replay_hint.get_combined_minimum_size().y
-		replay_hint.offset_bottom = hb.offset_top - 6
+		replay_hint.offset_bottom = hb.offset_top - 4
 		replay_hint.offset_top = replay_hint.offset_bottom - hint_height
+		scroll.offset_bottom = replay_hint.offset_top - 4
 	hb.minimum_size_changed.connect(place_row)
 	replay_hint.minimum_size_changed.connect(place_row)
-	hb.resized.connect(func():
-		place_row.call()
-		scroll.offset_bottom = -48 - hb.size.y - 20 - replay_hint.get_combined_minimum_size().y - 6)
+	hb.resized.connect(place_row)
 	var same := _button("同一片雲：換個做法，再量一次")
 	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
