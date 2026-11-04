@@ -152,7 +152,7 @@ func _ready() -> void:
 	ui = UI.new()
 	add_child(ui)
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
-	ui.start_pressed.connect(_start_game)
+	ui.start_pressed.connect(_start_from_title)
 	ui.prologue_pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/cambridge.tscn"))
 	ui.log_toggled.connect(func(_open): _sync_player_input())
 	ui.pause_toggled.connect(func(_paused): _sync_player_input())
@@ -174,7 +174,10 @@ func _ready() -> void:
 	_update_sky_prep()
 	if Story.from_prologue:
 		Story.from_prologue = false
+		# The departure montage ends black; start here black and fade the new day in.
+		ui.fade.color.a = 1.0
 		_start_game()
+		ui.fade_to(0.0, 1.0)
 		ui.show_caption("1919 年 5 月 29 日・普林西比", 2.4)
 	if args.has("prologue-autoplay") and not Story.prologue_done:
 		var prologue_bot: Script = load("res://tests/prologue_bot.gd")
@@ -654,6 +657,17 @@ func stop_all_audio() -> void:
 
 
 # ------------------------------------------------------------------------ Flow
+
+# The title hands over through black, so 1919 fades in instead of cutting.
+func _start_from_title() -> void:
+	if phase != Phase.TITLE:
+		return
+	await ui.fade_to(1.0, 0.4).finished
+	if phase != Phase.TITLE:
+		return
+	_start_game()
+	await ui.fade_to(0.0, 0.8).finished
+
 
 func _start_game() -> void:
 	ui.hide_title()

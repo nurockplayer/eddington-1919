@@ -73,6 +73,8 @@ func _run() -> void:
 	check(Settings.video_apply_count == video_calls + 1, "fullscreen toggle applies video once")
 	Settings.load_settings(test_path)
 	check(not Settings.fullscreen, "fullscreen toggle persists and applies safely headless")
+	# The Music row is only editable while music is on; the arrow check needs it live.
+	check(ScorePlayer.set_music_enabled(true, test_path) == OK, "pause menu test enables music")
 	await _check_pause_menu()
 	await _check_chapter_routes()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
