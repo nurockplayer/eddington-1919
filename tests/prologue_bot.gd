@@ -17,6 +17,7 @@ var _done := false
 var _shot_beats: Dictionary = {}
 var _matched := 0
 var _bias_blocked := false
+var _stuck_events := 0
 var _revised := false
 var _capturing := 0
 var _room_draw_calls := 0
@@ -292,6 +293,7 @@ func walk(target: Vector3) -> void:
 	key(KEY_W, false)
 	await frames(3)
 	if budget <= 0.0:
+		_stuck_events += 1
 		failures.append("movement blocked on way to " + str(target))
 		if monkey:
 			print("[PROLOGUE monkey] STUCK target=%s at=%s can_move=%s busy=%s dialog=%s log=%s paused=%s" % [target, main.player.global_position, main.player.can_move, main.get("_busy"), main.ui.dialog_active(), main.ui.log_open(), get_tree().paused])
@@ -832,7 +834,7 @@ func _finish() -> void:
 		"engine": Engine.get_version_info().string, "elapsed_seconds": snappedf(_elapsed, 0.01),
 		"room_draw_calls_max_observed": _room_draw_calls, "departure_draw_calls_max_observed": _departure_draw_calls,
 		"input_retries": _input_retries,
-		"stuck_events": failures.size(), "disruptions": monkey.disruptions if monkey else []}
+		"stuck_events": _stuck_events, "disruptions": monkey.disruptions if monkey else []}
 	var run_seed := -1
 	var evidence := "-"
 	if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd":
@@ -844,7 +846,7 @@ func _finish() -> void:
 		file.store_string(JSON.stringify(receipt, "  "))
 	print("[PROLOGUE %s] %s seed=%d evidence=%s score=%d matched=%d bias_blocked=%s screenshots=%d failures=%s" % [scenario, receipt.phase_reached, run_seed, evidence, receipt.score, _matched, _bias_blocked, screenshots.size(), str(failures)])
 	if monkey:
-		print("[MONKEY] DONE phase=%s stuck=%d disruptions=%d" % [phase_reached, failures.size(), monkey.disruptions.size()])
+		print("[MONKEY] DONE phase=%s stuck=%d disruptions=%d" % [phase_reached, _stuck_events, monkey.disruptions.size()])
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 
