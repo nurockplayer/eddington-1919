@@ -5,7 +5,8 @@ cd "$(dirname "$0")/.."
 case "${1:-macos}" in
     macos) preset="macOS"; platform="macOS" ;;
     windows) preset="Windows Desktop"; platform="Windows" ;;
-    *) echo 'Usage: export_release.sh [macos|windows]' >&2; exit 1 ;;
+    linux) preset="Linux"; platform="Linux" ;;
+    *) echo 'Usage: export_release.sh [macos|windows|linux]' >&2; exit 1 ;;
 esac
 
 version=$(sed -n 's/^config\/version="\([^"]*\)"$/\1/p' project.godot)
