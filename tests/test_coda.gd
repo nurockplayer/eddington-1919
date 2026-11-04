@@ -10,6 +10,7 @@ const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 class GradeFixture extends RefCounted:
 	const EINSTEIN := 1.75
 	const HALF := 0.87
+	var rule_id := ""
 	var evidence := "none"
 	var clean := true
 	var measured := false
@@ -23,6 +24,22 @@ class GradeFixture extends RefCounted:
 
 	func selection_report() -> Dictionary:
 		return {"omitted_good": [], "included_poor": [], "included_unusable": [], "reselected": not clean,
+			"reselect_reason": "", "reselect_added": [], "reselect_removed": [], "reselect_justified": false}
+
+class LegacyGradeFixture extends RefCounted:
+	const EINSTEIN := 1.75
+	const HALF := 0.87
+	var evidence := "favors_e"
+	var plates: Array = []
+
+	func evidence_class() -> String:
+		return evidence
+
+	func combined() -> Dictionary:
+		return {"n": 0, "value": 1.75, "sigma": 0.1}
+
+	func selection_report() -> Dictionary:
+		return {"omitted_good": [], "included_poor": [], "included_unusable": [], "reselected": false,
 			"reselect_reason": "", "reselect_added": [], "reselect_removed": [], "reselect_justified": false}
 
 signal _wait_completed(finished: bool)
@@ -64,6 +81,8 @@ func text_of(seq: Array) -> String:
 
 
 func _test_grade_branches() -> void:
+	var legacy_grade: Dictionary = Judgment.grade(LegacyGradeFixture.new(), "hopeful", "uncertain")
+	check(legacy_grade.has("fit"), "Judgment.grade returns fit when rule_id is absent")
 	# Use actual Judgment.grade outcomes with evidence fixtures that produce each fit.
 	var cases := [
 		{"fit": 0, "evidence": "favors_e", "telegram": "confirmed", "needle": "電報已經發出去了"},
@@ -78,6 +97,9 @@ func _test_grade_branches() -> void:
 				fixture.clean = clean
 				fixture.measured = measured
 				var grade: Dictionary = Judgment.grade(fixture, branch.telegram, "uncertain")
+				check(grade.has("fit"), "Judgment.grade returns fit for GradeFixture")
+				if not grade.has("fit"):
+					continue
 				check(grade.fit == branch.fit, "fixture yields requested judgment fit %d" % branch.fit)
 				var text := text_of(Coda.ashby_answer(grade.fit, grade.clean, fixture.combined().n > 0))
 				if not measured:

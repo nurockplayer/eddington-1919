@@ -110,6 +110,7 @@ static func _mean_trail(sim) -> float:
 
 
 static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
+	var rule: String = sim.get("rule_id") if sim.get("rule_id") != null else ""
 	var ev: String = sim.evidence_class()
 	var fit: int = FIT[ev][telegram_id]
 	var any_usable: bool = sim.plates.any(func(p): return p.usable)
@@ -122,7 +123,7 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	if ev == "none" and telegram_id == "none" and any_usable:
 		fit = 0  # usable plates exist, they just weren't measured
 	var sel: Dictionary = sim.selection_report()
-	var poor_allowed: bool = sim.rule_id == "strict" and not any_good
+	var poor_allowed: bool = rule == "strict" and not any_good
 	var clean: bool = sel.omitted_good.is_empty() and (sel.included_poor.is_empty() or poor_allowed) and sel.included_unusable.is_empty() and (not sel.reselected or sel.reselect_justified)
 	var lines: Array[String] = []
 	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, any_good, sim))
