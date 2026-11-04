@@ -145,7 +145,7 @@ static func rules_prompt(planned: bool, exam_q1 := -1, previous_rule := "") -> A
 
 
 static func interval_prompt(interval: String) -> Array:
-	return [{"s": E, "t": "先看你的數字：%s。圖上的粗線是你的數字，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？" % interval, "key": "interval", "choices": ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"]}]
+	return [{"s": E, "t": "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？" % interval, "key": "interval", "choices": ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"]}]
 
 
 static func interval_feedback(answer: int, truth: int) -> String:
