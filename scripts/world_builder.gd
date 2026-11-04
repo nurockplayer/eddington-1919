@@ -594,6 +594,43 @@ func _plantation_house() -> void:
 	root.add_child(sign)
 
 
+static var _frond_mesh: ArrayMesh
+
+
+## One arched rachis and twelve separated leaflet pairs, shared by every palm.
+static func _palm_frond_mesh() -> ArrayMesh:
+	if _frond_mesh != null:
+		return _frond_mesh
+	var spine := PackedVector3Array([Vector3.ZERO])
+	for i in 26:
+		var angle := deg_to_rad(lerpf(10.0, -65.0, (i + 0.5) / 26.0))
+		spine.append(spine[-1] + Vector3(0, sin(angle), cos(angle)) * 0.1)
+	var vertices := PackedVector3Array()
+	for i in 26:
+		var a := spine[i]
+		var b := spine[i + 1]
+		var width := Vector3(lerpf(0.025, 0.004, i / 26.0), 0, 0)
+		vertices.append_array(PackedVector3Array([a - width, a + width, b + width, a - width, b + width, b - width]))
+	for i in 12:
+		var t := (i + 1.0) / 13.0
+		var at := spine[(i + 1) * 2]
+		var length := 0.12 + 0.62 * sin(PI * t)
+		for side in [-1.0, 1.0]:
+			# Narrow attachments leave sky between the swept, hanging leaflets.
+			vertices.append_array(PackedVector3Array([
+				at + Vector3(0, 0, -0.045),
+				at + Vector3(side * length, -length * 0.32, 0.18),
+				at + Vector3(0, 0, 0.045),
+			]))
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for vertex in vertices:
+		surface.add_vertex(vertex)
+	surface.generate_normals()
+	_frond_mesh = surface.commit()
+	return _frond_mesh
+
+
 func palm(pos: Vector3, h: float) -> void:
 	var lean := Vector3(randf_range(-0.18, 0.18), randf() * TAU, randf_range(-0.18, 0.18))
 	var p := Node3D.new()
@@ -607,13 +644,43 @@ func palm(pos: Vector3, h: float) -> void:
 		palm_sway.name = "PalmSway"
 		root.add_child(palm_sway)
 	cyl(0.16, h, Vector3(0, h * 0.5, 0), Color(0.42, 0.34, 0.24), p, false, Vector3.ZERO, 0.11)
-	for i in 8:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(pos)
+	if not _mats.has("palm_frond"):
+		var shader := Shader.new()
+		shader.code = """shader_type spatial;
+render_mode cull_disabled;
+instance uniform vec4 frond_tint : source_color = vec4(1.0);
+void fragment() { ALBEDO = frond_tint.rgb; ROUGHNESS = 0.85; }
+"""
+		var material := ShaderMaterial.new()
+		material.shader = shader
+		_mats["palm_frond"] = material
+	var dead_count := rng.randi_range(2, 3) if rng.randf() < 0.4 else 0
+	for i in 12 + dead_count:
 		var leaf := Node3D.new()
 		leaf.position = Vector3(0, h, 0)
-		leaf.rotation = Vector3(deg_to_rad(randf_range(-35, -15)), i * TAU / 8.0, 0)
+		# Keep the original eight pitch/tint pairs in the global RNG stream.
+		var pitch := randf_range(-35, -15) if i < 8 else rng.randf_range(-35, -15)
+		var upper := i < 6
+		var yaw := (i % 6) * TAU / 6.0 + (0.3 if not upper else 0.0)
+		pitch = pitch * 0.55 if upper else pitch + 45.0
+		if i >= 12:
+			pitch = rng.randf_range(55.0, 70.0)
+			yaw = rng.randf() * TAU
+			leaf.scale = Vector3.ONE * rng.randf_range(0.45, 0.65)
+		leaf.rotation = Vector3(deg_to_rad(pitch), yaw + rng.randf_range(-0.12, 0.12), 0)
 		p.add_child(leaf)
 		palm_sway.add(leaf, palm_crowns.size(), i)
-		box(Vector3(0.45, 0.03, 2.4), Vector3(0, -0.25, 1.15), P("foliage_deep").lightened(randf() * 0.12), leaf, false, Vector3(deg_to_rad(18), 0, 0))
+		var tint := randf() * 0.12 if i < 8 else rng.randf() * 0.12
+		var color := P("foliage_deep").lightened(tint)
+		if i >= 12:
+			color = Color(0.30, 0.22, 0.12).lightened(tint)
+		var mesh := MeshInstance3D.new()
+		mesh.mesh = _palm_frond_mesh()
+		mesh.material_override = _mats["palm_frond"]
+		mesh.set_instance_shader_parameter("frond_tint", color)
+		leaf.add_child(mesh)
 	var body := StaticBody3D.new()
 	var cs := CollisionShape3D.new()
 	var sh := CylinderShape3D.new()

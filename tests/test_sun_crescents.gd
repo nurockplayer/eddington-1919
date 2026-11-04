@@ -39,7 +39,24 @@ func _run() -> void:
 	check(matched == wb.palm_crowns.size(), "crowns follow each trunk's lean: %d/%d" % [matched, wb.palm_crowns.size()])
 	# The breeze nods every frond a few degrees but never moves the crowns.
 	var sway = wb.palm_sway
-	check(sway != null and sway.fronds.size() == 15 * 8, "every frond sways")
+	var frond_count := 0
+	var shared_mesh: Mesh
+	var shared_material: Material
+	var dead_palms := 0
+	for palm in get_nodes_in_group("veg_palm"):
+		var count := palm.get_child_count() - 1  # trunk, then frond pivots
+		check(count in [12, 14, 15], "twelve living fronds and optional dead fronds")
+		dead_palms += int(count > 12)
+		frond_count += count
+		for i in count:
+			var mesh := palm.get_child(i + 1).get_child(0) as MeshInstance3D
+			if shared_mesh == null:
+				shared_mesh = mesh.mesh
+				shared_material = mesh.material_override
+			check(mesh.mesh == shared_mesh and mesh.material_override == shared_material, "all fronds share mesh and material")
+	check(dead_palms > 0 and dead_palms < 15, "dead fronds hang under some crowns")
+	check(sway != null and sway.fronds.size() == frond_count, "every living and dead frond sways")
+	_check_vegetation_layout()
 	if sway != null and not sway.fronds.is_empty():
 		var frond: Node3D = sway.fronds[5]
 		var rest := frond.rotation
@@ -103,3 +120,22 @@ func _run() -> void:
 	root3d.free()
 	print("%d sun crescent checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
+
+
+func _check_vegetation_layout() -> void:
+	# Captured from origin/main 8c36f1cb1c6120bace96f7ba408b6ecfa9b33289 after _vegetation().
+	# Include every basis and origin, not just positions: scale/yaw must stay put too.
+	var expected := {
+		"shrub_cocoa_multi": [45, "78ca2f98ca2140ad51f80d6215e8839c1201b9b21b8db597d13a16938f86f491"],
+		"banana_clump_multi": [21, "ecb50a45da965e510a20d513955f8186ca18aef2ef806f02cdf95c92928011c1"],
+	}
+	var found := {}
+	for node in get_nodes_in_group("veg_shrub"):
+		if node is MultiMeshInstance3D:
+			var transforms := []
+			for i in node.multimesh.instance_count:
+				transforms.append(node.multimesh.get_instance_transform(i))
+			var signature := [transforms.size(), var_to_bytes(transforms).hex_encode().sha256_text()]
+			check(expected.has(String(node.name)) and signature == expected.get(String(node.name)), "main shrub/banana transforms preserved: %s" % node.name)
+			found[String(node.name)] = true
+	check(found.size() == expected.size(), "both production vegetation models checked")
