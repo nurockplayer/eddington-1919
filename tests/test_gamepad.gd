@@ -204,7 +204,7 @@ func _run() -> void:
 	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史")
 	for frame in 4:
 		await process_frame
-	var ending_scroll := ui.ending_text.get_parent().get_parent() as ScrollContainer
+	var ending_scroll := ui.ending_scroll
 	check(ending_scroll.get_v_scroll_bar().max_value > ending_scroll.size.y, "ending regression text overflows the scroll container")
 	check(ending_scroll.scroll_vertical == 0, "opening ending keeps narrative scrolled to the top")
 	check(not ending_scroll.is_ancestor_of(root.gui_get_focus_owner()), "ending focuses a button outside the narrative scroll")

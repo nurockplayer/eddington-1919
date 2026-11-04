@@ -66,6 +66,7 @@ static var history: Array[String] = []
 var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_replay: Button
 var ending_scroll: ScrollContainer
+var ending_center: CenterContainer
 var credits_scroll: ScrollContainer
 var _menu_scroll_remainder := 0.0
 var ending_panel: Control
@@ -1060,10 +1061,15 @@ func _build_ending(root: Control) -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.offset_bottom = -110
 	ending_panel.add_child(scroll)
+	ending_center = CenterContainer.new()
+	ending_center.name = "EndingContentCenter"
+	ending_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ending_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.add_child(ending_center)
 	var v := VBoxContainer.new()
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_theme_constant_override("separation", 12)
-	scroll.add_child(v)
+	ending_center.add_child(v)
 	ending_title = _label("", 44, PAPER)
 	ending_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(ending_title)
