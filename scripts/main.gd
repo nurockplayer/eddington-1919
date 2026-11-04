@@ -1609,7 +1609,7 @@ func _show_ending() -> void:
 		lines.append("· " + l)
 	lines.append("")
 	lines.append("[b]你留下的證據[/b]")
-	lines.append("· 拍了 %d 張底片（可用底片 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。" % [sim.plates.size(), sim.plates_available(), sim.count_quality("good"), sim.count_quality("poor"), sim.count_quality("unusable")])
+	lines.append("· 拍了 %d 張底片（底片匣一共 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。" % [sim.plates.size(), sim.plates_available(), sim.count_quality("good"), sim.count_quality("poor"), sim.count_quality("unusable")])
 	if c.n > 0:
 		lines.append("· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。" % [c.n, c.value, c.sigma])
 	else:
@@ -1623,8 +1623,9 @@ func _show_ending() -> void:
 	var history := []
 	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
 	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
-	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（機率誤差）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
+	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
 	history.append("\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]" % Settings.fs(15))
+	tableau += "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
 	if _run_record_index > 0:
 		tableau += "\n\n" + Content.run_comparison(Story.runs[_run_record_index - 1], Story.runs[_run_record_index])
 	ui.show_ending(_grade.title, tableau, "\n".join(history), "\n".join(lines), telegram, ending_texture, plate_caption)

@@ -152,6 +152,8 @@ func _test_checklist_controls() -> void:
 	await process_frame
 	sheet.open()
 	check(sheet.visible and sheet.entries.size() == 5, "checklist opens with five paper rows")
+	check(sheet.find_children("*", "Label", true, false).any(func(l): return l.text.contains("相符按 ✓") and l.text.contains("褐墨水")),
+		"checklist legend explains the inks and what ✓ and × mean")
 	check(not sheet.ready_to_mark and sheet.row_buttons[0][0].disabled and sheet.row_buttons[0][1].disabled,
 		"checklist marks stay locked before Kit reads a row")
 	sheet.begin_read()

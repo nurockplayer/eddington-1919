@@ -191,6 +191,8 @@ func _test_direct_and_prologue_paths() -> void:
 	check(starts_after == starts_before + 1, "direct lamp-out and ending start coda_resolution exactly once")
 	check(direct.coda_step == direct.CodaStep.OPENING, "direct 1919 path never advances the coda")
 	check(direct.ui.ending_panel.visible and not direct.ui.ending_history.visible, "direct ending screen opens with history collapsed")
+	check(direct.ui.ending_text.text.contains("1919 年 11 月 6 日公布"), "ending screen states the 1919 published result")
+	check(not direct.ui.ending_text.text.contains("普林西比在 302 秒"), "history body stays behind the collapsed toggle")
 	direct.queue_free()
 	await process_frame
 

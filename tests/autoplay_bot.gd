@@ -536,7 +536,7 @@ func _finish() -> void:
 		# Press 「新的天空」 on the ending screen; the restarted scene continues in _run().
 		var btns: Array = main.ui.ending_panel.find_children("*", "Button", true, false)
 		for b in btns:
-			if b.text == "新的天空":
+			if b.text.begins_with("新的天空"):
 				# Press and release without awaiting: the scene (and this bot) is freed on reload.
 				var pos: Vector2 = get_viewport().get_final_transform() * b.get_global_rect().get_center()
 				for pressed in [true, false]:
