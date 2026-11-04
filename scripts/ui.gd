@@ -20,6 +20,8 @@ signal pause_toggled(paused: bool)
 signal start_pressed
 signal restart_pressed(same_sky: bool)
 signal quit_pressed
+## The pause menu is closed; the chapter resets Story and returns to the title.
+signal title_pressed
 signal plate_toggled(index: int, on: bool)
 signal measure_pressed
 signal reselect_pressed
@@ -87,6 +89,10 @@ var ending_review_toggle: Button
 var ending_history: RichTextLabel
 var ending_history_toggle: Button
 var pause_panel: Control
+var help_panel: Control
+var help_content: RichTextLabel
+var _help_focus: Control
+var _pause_title_btn: Button
 var fullscreen_button: Button
 var text_size_button: Button
 var quality_button: Button
@@ -97,6 +103,7 @@ var music_row: HBoxContainer
 var music_slider: HSlider
 var _restart_armed := false
 var _quit_armed := false
+var _title_armed := false
 var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
@@ -165,6 +172,7 @@ func _ready() -> void:
 	_build_title(root)
 	_build_ending(root)
 	_build_pause(root)
+	_build_help(root)
 	_build_log(root)
 	fade = ColorRect.new()
 	fade.color = Color(0, 0, 0, 0)
@@ -1376,7 +1384,8 @@ func _build_pause(root: Control) -> void:
 	v.grow_vertical = Control.GROW_DIRECTION_BOTH
 	v.position = Vector2(-150, 0)
 	v.custom_minimum_size = Vector2(300, 0)
-	v.add_theme_constant_override("separation", 12)
+	# 4 px keeps every row inside 720 px at large text now that help and title exist.
+	v.add_theme_constant_override("separation", 4)
 	pause_panel.add_child(v)
 	var t := _label("暫停", 36)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1417,6 +1426,18 @@ func _build_pause(root: Control) -> void:
 	quality_button = _button(_quality_caption())
 	quality_button.pressed.connect(_cycle_quality)
 	v.add_child(quality_button)
+	var help := _button("操作說明")
+	help.pressed.connect(_open_help)
+	v.add_child(help)
+	_pause_title_btn = _button("回到標題")
+	var pause_title := _pause_title_btn
+	pause_title.pressed.connect(func():
+		if not _title_armed:
+			_title_armed = true
+			pause_title.text = "再按一次：回到標題"
+			return
+		_return_to_title())
+	v.add_child(pause_title)
 	# Restart and quit throw away the run, and there is no save: ask twice.
 	restart_button = _button("從頭開始")
 	restart_button.pressed.connect(func():
@@ -1468,8 +1489,10 @@ func toggle_pause() -> void:
 	else:
 		_restart_armed = false
 		_quit_armed = false
+		_title_armed = false
 		restart_button.text = "從頭開始"
 		quit_button.text = "離開遊戲"
+		_pause_title_btn.text = "回到標題"
 		_restore_focus(_pause_focus)
 	# Only the chapter knows every form and scripted input lock it owns.
 	pause_toggled.emit(p)
@@ -1534,9 +1557,66 @@ func _close_credits() -> void:
 	_restore_focus(_credits_focus)
 
 
+func _build_help(root: Control) -> void:
+	help_panel = ColorRect.new()
+	help_panel.name = "Help"
+	(help_panel as ColorRect).color = Color(0.03, 0.03, 0.04, 0.97)
+	help_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	help_panel.visible = false
+	help_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	help_panel.z_index = 2
+	root.add_child(help_panel)
+	var v := VBoxContainer.new()
+	v.set_anchors_preset(Control.PRESET_FULL_RECT)
+	v.offset_left = 80
+	v.offset_right = -80
+	v.offset_top = 40
+	v.offset_bottom = -40
+	v.add_theme_constant_override("separation", 16)
+	help_panel.add_child(v)
+	v.add_child(_label("操作說明", 28, ACCENT))
+	help_content = _rich(18)
+	help_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	help_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	v.add_child(help_content)
+	var back := _button("返回")
+	back.focus_mode = Control.FOCUS_ALL
+	back.add_theme_stylebox_override("focus", back.get_theme_stylebox("hover"))
+	back.pressed.connect(_close_help)
+	v.add_child(back)
+
+
+func _help_text() -> String:
+	var text: String = title_controls.text
+	# The opener line is already part of the live control text unless a future layout drops it.
+	if not text.contains(Prompts.key("shutter")):
+		text += "\n全食時：空白鍵（或 RB／X）喊開始與停。"
+	return text
+
+
+func _open_help() -> void:
+	_help_focus = get_viewport().gui_get_focus_owner()
+	help_content.text = _help_text()
+	help_panel.show()
+	(help_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
+
+
+func _close_help() -> void:
+	help_panel.hide()
+	_restore_focus(_help_focus)
+
+
+func _return_to_title() -> void:
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	title_pressed.emit()
+
+
 func _refresh_hints() -> void:
 	if title_controls:
 		title_controls.text = "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停" % [Prompts.key("interact"), Prompts.key("toggle_log"), Prompts.key("shutter"), Prompts.key("pause")]
+	if help_panel and help_panel.visible:
+		help_content.text = _help_text()
 	tot_hint.text = "［%s／%s］開始・停" % [Prompts.key("shutter"), Prompts.key("interact")]
 	if not _choice_buttons.is_empty():
 		hint_label.text = "［方向鍵／A 鍵］選擇" if Prompts.joypad else "［1–%d 或點擊］選擇" % _choice_buttons.size()
@@ -1545,7 +1625,7 @@ func _refresh_hints() -> void:
 
 
 func blocks_world_input() -> bool:
-	return log_panel.visible or pause_panel.visible or credits_panel.visible or dialog_active()
+	return log_panel.visible or pause_panel.visible or help_panel.visible or credits_panel.visible or dialog_active()
 
 
 func _active_menu_scroll() -> ScrollContainer:
@@ -1591,6 +1671,13 @@ func _input(event: InputEvent) -> void:
 	if credits_panel.visible:
 		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 			_close_credits()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("toggle_log"):
+			get_viewport().set_input_as_handled()
+		return
+	if help_panel.visible:
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
+			_close_help()
 			get_viewport().set_input_as_handled()
 		elif event.is_action_pressed("toggle_log"):
 			get_viewport().set_input_as_handled()
