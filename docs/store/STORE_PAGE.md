@@ -27,7 +27,7 @@ From Cambridge's light box to a clouded eclipse on Príncipe: call each exposure
 
 到了 1919 年的普林西比，你要準備底片、協助時鐘驅動，在全食中看雲、喊開始與停止，讓 Cottingham 操作遮光板。雲縫不會配合你的期待；一次曝光結束後，還得判斷是否換片再等。錯過的光，不能靠事後的措辭補回。
 
-夜裡回到暗房，先寫下選片規則，再查看量測結果。用放大鏡與參考底片分辨星點、拖線和霧，決定哪些底片值得採用。讀懂合併數值和誤差區間後，你才選擇電報與理由。若看過結果後重新選片，第一次的結果仍會留下。
+夜裡回到暗房，先寫下選片規則，再查看量測結果。用放大鏡與參考底片分辨星點、拖線和霧，讓底片與牛津的對照片閃爍比對，看星點是否移動（位移經放大示意），再決定哪些底片值得採用。讀懂合併數值和誤差區間後，你才選擇電報與理由。若看過結果後重新選片，第一次的結果仍會留下。
 
 這段故事把一個克制的主張，放在不完美的證據旁邊。1919 年的結果曾引發爭論；普林西比的雲直到全食最後三分之一才明顯變薄，只有兩張底片能用於量測。當年的報告最倚重的是 Sobral 的 4 吋望遠鏡。遊戲讓你走過判斷的過程，歷史背景與戲劇創作則分開標示。
 
@@ -41,7 +41,7 @@ Begin in Cambridge in 1917. With Kit and Mr Ashby, compare a tracing with a plat
 
 On Príncipe in 1919, prepare photographic plates and help with the clock drive. During totality, watch the clouds and call when each exposure should start and stop; Cottingham handles the shutter. A gap in the cloud may be brief. Decide when to finish, change plates, and wait again.
 
-In the darkroom, commit to a selection rule before seeing the measured values. Inspect star images, trailing, and fog with a loupe and reference plates. Choose what to include, read the combined measurement and its uncertainty interval, then select a short telegram and a reason. If you change your selection after seeing the numbers, your first result remains on record.
+In the darkroom, commit to a selection rule before seeing the measured values. Inspect star images, trailing, and fog with a loupe and reference plates; blink the plate against the Oxford comparison plate to see whether the stars shift (the shift is exaggerated for illustration). Choose what to include, read the combined measurement and its uncertainty interval, then select a short telegram and a reason. If you change your selection after seeing the numbers, your first result remains on record.
 
 The 1919 results were debated. On Príncipe, the clouds thinned only in the last third of totality, and just two plates could be measured. The historical report relied most heavily on Sobral's four-inch telescope. The game keeps historical context separate from its dramatic inventions.
 
@@ -58,7 +58,8 @@ Fiction and illustration: the player character, all dialogue, the episode in whi
 | 繁體中文（zh-TW） | English — draft, only if B3 adds English | 已合併依據（不上架） |
 |---|---|---|
 | 在劍橋與 Kit、Ashby 先生核對星圖，為公平的觀測寫下計畫。 | Compare plates with Kit and Mr Ashby in Cambridge, and plan a fair observation. | HANDOFF：M1／M2、#94、#102 |
-| 全食時親自看雲、喊出曝光開始與停止；先練習快門，再等待雲縫。 | Rehearse the shutter calls, then watch the clouds and call exposures during totality. | HANDOFF：Wave 1、#107；#132 |
+| 全食前先對著雲練習快門口令，再在全食時看雲縫、喊出曝光開始與停止。 | Practise reading the cloud and calling the shutter, then call exposures through the gaps during totality. | HANDOFF：Wave 1、#107、#132、#158 |
+| 閃爍比對：讓日食底片與對照片交替，看星點偏移（位移放大示意）。 | Blink the eclipse plate against the comparison plate and watch the stars shift (shift exaggerated for illustration). | HANDOFF：#156 |
 | 用放大鏡和參考底片，辨認星點、拖線與霧。 | Read star images, trailing, and fog with a loupe and reference plates. | HANDOFF：#84；#133 |
 | 量測前先寫下選片規則；若事後改選，記錄理由並保留第一次結果。 | Write your selection rule before measuring; later changes keep a reason and the first result. | HANDOFF：#85；#131 |
 | 判讀誤差區間，選擇電報與理由，最後看見自己寄出的那封電報。 | Read the uncertainty interval, choose your words and reason, and end on your telegram. | HANDOFF：#88、#98、#109；#130、#134 |
@@ -127,7 +128,8 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 | 4 | 雲中的全食（capsule 構圖候選） | 普林西比 benchmark 的 `totality_sky` bookmark，seed 7；需要快門提示則手動進入全食拍攝。 | 日食與雲構成主視覺；capsule 另排暫定標題，保留雲，避免暗示晴空實錄。 |
 | 5 | 暗房前寫下選片規則 | careful 路線加 `--store-shots`；固定截圖 `careful_store_a_rule.png`，在量測前的規則選項停留時拍攝。 | 清楚說明玩法的核心：在數字出現前承諾規則。 |
 | 6 | 暗房底片、參考片與放大鏡 | careful 路線加 `--store-shots`；參考片面板 `careful_store_b_reference_plates.png`，×2 放大鏡 `careful_store_c_loupe_2x.png`。 | 展示玩家實際讀取的星像與工具，不只拍景。 |
-| 7 | 量測後的數值與誤差區間 | 同一路線選片並按「量測」；`--store-shots` 拍攝 `careful_store_d_measured_2sigma.png`（另保留 `careful_09_viewer_measured.png`）。 | 讓玩家知道要判讀有不確定性的結果；畫面數字屬示意模擬。 |
-| 8 | 玩家寄出的短電報 | 同一路線完成區間判讀，選電報與理由到結尾；`--store-shots` 拍攝 `careful_store_f_ending_telegram.png`（另保留 `careful_10_ending.png`）。 | 用玩家自己的措辭收尾，呈現這段體驗最後留下的東西。 |
+| 7 | 閃爍比對 | 待視窗拍攝（週一至週五 09:00–15:00 JST；目前尚未拍攝）。 | 這是讀片的「啊哈」時刻：星點真的動了。 |
+| 8 | 量測後的數值與誤差區間 | 同一路線選片並按「量測」；`--store-shots` 拍攝 `careful_store_d_measured_2sigma.png`（另保留 `careful_09_viewer_measured.png`）。 | 讓玩家知道要判讀有不確定性的結果；畫面數字屬示意模擬。 |
+| 9 | 玩家寄出的短電報 | 同一路線完成區間判讀，選電報與理由到結尾；`--store-shots` 拍攝 `careful_store_f_ending_telegram.png`（另保留 `careful_10_ending.png`）。 | 用玩家自己的措辭收尾，呈現這段體驗最後留下的東西。 |
 
 實際圖片、capsule 尺寸／裁切、商標可讀性、肖像與數字的呈現，均待 Owner／lead 挑選；本文件不代表已完成圖像驗收。
