@@ -299,6 +299,19 @@ func walk(target: Vector3) -> void:
 			await _walk_to(Vector3(2.1, 0, lane_z))
 			if (north and target.z < -0.725) or (not north and target.z > 0.725):
 				await _walk_to(Vector3(2.1, 0, -1.5 if north else 2.35))
+		# A disruption can leave us east of Kit: his 1.8 m capsule at (2.7, 0.85) plus
+		# the player's 0.3 m radius closes a 0.55 m disc (x 2.15..3.25, z 0.30..1.40)
+		# across the straight line back to the x=2.1 lane. Step clear of it along our
+		# own x first, then west into the lane: south of him the logbook waypoint
+		# z=-0.15 is open, north of him z=2.35.
+		if _in_cambridge_room() and _kit_blocks(main.player.global_position, target):
+			var here: Vector3 = main.player.global_position
+			# The gramophone side table (inflated x 3.40..4.50, z -0.80..0.30) closes
+			# the southern crossing east of x 3.40, so come round the north there.
+			var north: bool = here.z > 0.85 or here.x > 3.40
+			var lane_z := 2.35 if north else -0.15
+			await _walk_to(Vector3(here.x, 0, lane_z))
+			await _walk_to(Vector3(2.1, 0, lane_z))
 		reached = await _walk_to(target)
 	if not reached:
 		_stuck_events += 1
@@ -332,6 +345,16 @@ func _table_blocks(from: Vector3, to: Vector3) -> bool:
 		if lo > hi:
 			return false
 	return true
+
+
+func _kit_blocks(from: Vector3, to: Vector3) -> bool:
+	# Kit waits at (2.7, 0.85); his 0.25 m capsule plus the player's 0.3 m radius
+	# closes a 0.55 m disc (x 2.15..3.25, z 0.30..1.40).
+	var centre := Vector2(2.7, 0.85)
+	var a := Vector2(from.x, from.z)
+	var d := Vector2(to.x, to.z) - a
+	var t := clampf((centre - a).dot(d) / maxf(d.length_squared(), 0.0001), 0.0, 1.0)
+	return (a + d * t).distance_to(centre) < 0.55
 
 
 func _walk_to(target: Vector3) -> bool:
