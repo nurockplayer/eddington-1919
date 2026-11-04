@@ -4,8 +4,10 @@ extends Node
 ## takes screenshots and writes a JSON result. It is an automated smoke play,
 ## NOT a human playtest.
 ##
-## Run: godot --path . -- --autoplay=careful --shots=/tmp/shots [--seed=N] [--speed=2]
+## Run: godot --path . -- --autoplay=careful --shots=<output-dir> [--seed=N] [--speed=2]
 ## Scenarios: careful | rushed | cherry | monkey
+## --store-shots: opt-in careful-route captures of the rule, references, ×2 loupe,
+## measured 2σ whiskers, five reasons, and ending telegram; default off.
 
 const Judgment := preload("res://scripts/judgment.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
@@ -16,6 +18,7 @@ static var first_seed := -1
 var main
 var scenario := "careful"
 var shots_dir := ""
+var store_shots := false
 var log_lines: Array[String] = []
 var stuck := 0
 var _phase_event := ""
@@ -41,6 +44,7 @@ func _ready() -> void:
 	if continuation_helper:
 		return
 	var args: Dictionary = main._user_args()
+	store_shots = scenario == "careful" and args.has("store-shots")
 	Engine.time_scale = float(args.get("speed", "1"))
 	if shots_dir != "":
 		DirAccess.make_dir_recursive_absolute(shots_dir)
@@ -210,6 +214,10 @@ func talk(choices: Array = [], random_choices := true) -> void:
 		guard -= 1
 		var e: Dictionary = main.ui._seq[main.ui._seq_i]
 		if e.has("choices"):
+			if store_shots and e.get("key", "") == "rule":
+				await shot("store_a_rule")
+			elif store_shots and e.get("key", "") == "reason" and e.choices.size() == 5:
+				await shot("store_e_five_reasons")
 			var pick: int = choices[ci] if ci < choices.size() else 0
 			if e.get("key", "") == "kit_first":
 				pick = 0
@@ -306,6 +314,8 @@ func _run() -> void:
 	await _wait_phase("ending", 30.0)
 	await _wait(0.8)
 	await shot("10_ending")
+	if store_shots:
+		await shot("store_f_ending_telegram")
 	for b in main.ui.ending_panel.find_children("*", "Button", true, false):
 		if b.text == "歷史上發生了什麼":
 			await _click(b.get_global_rect().get_center())
@@ -445,6 +455,13 @@ func _night() -> void:
 			await _click(main.ui.thumb_center(i))
 			await _click(main.ui.viewer_button_center("include"))
 	_log("included %s" % str(plates.filter(func(p): return p.included).map(func(p): return p.number)))
+	if store_shots:
+		await _click(main.ui.reference_btn.get_global_rect().get_center())
+		await shot("store_b_reference_plates")
+		await _click(main.ui.reference_close_btn.get_global_rect().get_center())
+		await _click(main.ui.loupe_btn.get_global_rect().get_center())
+		await shot("store_c_loupe_2x")
+		await _click(main.ui.loupe_btn.get_global_rect().get_center())
 	await _click(main.ui.viewer_button_center("measure"))
 	await _wait(0.4)
 	if scenario == "cherry":
@@ -458,6 +475,8 @@ func _night() -> void:
 		if main.ui.dialog_active():
 			await talk([1])
 	await shot("09_viewer_measured")
+	if store_shots:
+		await shot("store_d_measured_2sigma")
 	_log("evidence %s, combined %s" % [main.sim.evidence_class(), str(main.sim.combined())])
 	await _click(main.ui.viewer_button_center("report"))
 	await _frames(4)
