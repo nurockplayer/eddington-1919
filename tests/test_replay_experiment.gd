@@ -145,6 +145,9 @@ func ending_objects(game) -> void:
 	var old_size := root.size
 	var old_canvas := root.content_scale_size
 	var old_scale := Settings.text_scale
+	var old_telegram: int = game._telegram
+	# The two-line telegram must fit too, not only the shorter HOPEFUL text.
+	game._telegram = 2
 	for canvas in [Vector2i(1600, 900), Vector2i(1280, 720)]:
 		root.content_scale_size = canvas
 		root.size = canvas
@@ -172,6 +175,7 @@ func ending_objects(game) -> void:
 	root.size = old_size
 	root.content_scale_size = old_canvas
 	Settings.text_scale = old_scale
+	game._telegram = old_telegram
 	Settings.refresh_fonts(self)
 	game._show_ending()
 	for frame in 8:

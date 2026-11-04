@@ -74,6 +74,7 @@ var ending_text: RichTextLabel
 var ending_objects: BoxContainer
 var ending_slip: PanelContainer
 var ending_telegram: RichTextLabel
+var ending_plate_content: BoxContainer
 var ending_plate_card: PanelContainer
 var ending_plate: TextureRect
 var ending_plate_caption: Label
@@ -1057,16 +1058,18 @@ func _build_ending(root: Control) -> void:
 	ending_plate_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	ending_plate_card.add_theme_stylebox_override("panel", _panel_style(Color("211b15"), Color("493c2c")))
 	ending_objects.add_child(ending_plate_card)
-	var plate_column := VBoxContainer.new()
-	plate_column.add_theme_constant_override("separation", 8)
-	ending_plate_card.add_child(plate_column)
+	ending_plate_content = BoxContainer.new()
+	ending_plate_content.vertical = true
+	ending_plate_content.add_theme_constant_override("separation", 8)
+	ending_plate_card.add_child(ending_plate_content)
 	ending_plate = TextureRect.new()
 	ending_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	ending_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	plate_column.add_child(ending_plate)
+	ending_plate_content.add_child(ending_plate)
 	ending_plate_caption = _label("", 17)
 	ending_plate_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	plate_column.add_child(ending_plate_caption)
+	ending_plate_caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	ending_plate_content.add_child(ending_plate_caption)
 	ending_slip = PanelContainer.new()
 	ending_slip.name = "EndingTelegramSlip"
 	ending_slip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -1202,7 +1205,8 @@ func _layout_ending_objects() -> void:
 	var narrow := ending_scroll.size.x < 1100
 	ending_objects.vertical = narrow
 	ending_slip.custom_minimum_size.x = minf(620 * Settings.text_scale, ending_scroll.size.x)
-	var side := 112.0 if narrow else 260.0
+	ending_plate_content.vertical = not narrow
+	var side := 96.0 if narrow else 260.0
 	ending_plate.custom_minimum_size = Vector2(side, side)
 
 
