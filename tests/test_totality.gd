@@ -634,7 +634,7 @@ func _test_strict_poor_only() -> void:
 		check(grade.clean == expected_clean, "only strict poor-only selection keeps the clean point")
 		check(grade.score == grade.fit + int(grade.reason_ok) + int(expected_clean), "score counts exactly the expected clean point")
 		check(grade.lines.has(honest_line) == expected_clean, "only strict poor-only selection receives the honest uncertainty line")
-		check(grade.lines.any(func(line): return line.contains("也在平均裡——再拿起來看看，它的星像合不合那一行")) == with_good,
+		check(grade.lines.any(func(line): return line.contains("也被你選進來了——再拿起來看看，它的星像合不合那一行")) == with_good,
 			"strict mixed selection still flags its poor plate as a rule violation")
 		if expected_clean:
 			check(grade.lines.any(func(line): return line.begins_with("你照著量之前寫下的規則選片")), "poor-only strict selection acknowledges following the written rule")
@@ -644,7 +644,7 @@ func _test_strict_poor_only() -> void:
 			game.ui._choose(0) # Quality cannot justify adding an unusable plate.
 			var unusable := Judgment.grade(game.sim, "undecided", "uncertain")
 			check(not unusable.clean and not unusable.lines.has(honest_line)
-				and unusable.lines.any(func(line): return line.contains("也在平均裡——再拿起來看看，它的星像合不合那一行")),
+				and unusable.lines.any(func(line): return line.contains("也被你選進來了——再拿起來看看，它的星像合不合那一行")),
 				"including an unusable plate still loses clean and receives no compliance acknowledgment")
 			game.ui.reselect_btn.pressed.emit()
 			game.ui.plate_toggled.emit(0, false)
