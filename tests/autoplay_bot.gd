@@ -7,7 +7,8 @@ extends Node
 ## Run: godot --path . -- --autoplay=careful --shots=<output-dir> [--seed=N] [--speed=2]
 ## Scenarios: careful | rushed | cherry | monkey
 ## --store-shots: opt-in careful-route captures of the rule, references, ×2 loupe,
-## measured 2σ whiskers, five reasons, and ending telegram; default off.
+## blink comparator (eclipse/Oxford pair), measured 2σ whiskers, five reasons,
+## and ending telegram; default off.
 
 const Judgment := preload("res://scripts/judgment.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
@@ -462,6 +463,22 @@ func _night() -> void:
 		await _click(main.ui.loupe_btn.get_global_rect().get_center())
 		await shot("store_c_loupe_2x")
 		await _click(main.ui.loupe_btn.get_global_rect().get_center())
+		# Blink comparator: it alternates eclipse/Oxford every 0.5 s while unpaused.
+		await _click(main.ui.blink_btn.get_global_rect().get_center())
+		_log("blink on pressed=%s disabled=%s" % [str(main.ui.blink_btn.button_pressed), str(main.ui.blink_btn.disabled)])
+		var blink_wait := 0.0
+		while main.ui._blink_oxford and blink_wait < 2.0:
+			await _wait(0.1)
+			blink_wait += 0.1
+		await shot("store_g_blink_eclipse")
+		blink_wait = 0.0
+		while not main.ui._blink_oxford and blink_wait < 2.0:
+			await _wait(0.1)
+			blink_wait += 0.1
+		_log("blink oxford=%s waited=%.1fs" % [str(main.ui._blink_oxford), blink_wait])
+		await shot("store_g_blink_oxford")
+		await _click(main.ui.blink_btn.get_global_rect().get_center())
+		_log("blink off pressed=%s" % str(main.ui.blink_btn.button_pressed))
 	await _click(main.ui.viewer_button_center("measure"))
 	await _wait(0.4)
 	if scenario == "cherry":
