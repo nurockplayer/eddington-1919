@@ -194,8 +194,8 @@ func _test_rehearsal() -> void:
 	var available_before: int = game.sim.plates_available()
 	var prep_before: float = game.prep_left
 	var clocks_before: Array = [game.t_game, game.change_left, game._tick_acc, game.tot_done]
-	var cases := ["early", "inside", "late", "never"]
-	var expected := ["你在雲變薄前就開了：那張會起霧。", "你在薄的那段裡開、在變厚前停：那張會是清楚的。", "你停得晚，雲回來了：星像會被霧蓋掉一半。", "窗口過去了，你沒有開：那一段就沒有底片。"]
+	var cases := ["early", "inside", "late", "never", "never stop"]
+	var expected := ["你在雲變薄前就開了：那張會起霧。", "你在薄的那段裡開、在變厚前停：那張會是清楚的。", "你停得晚，雲回來了：星像會被霧蓋掉一半。", "窗口過去了，你沒有開：那一段就沒有底片。", "你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"]
 	var shutter := InputEventAction.new()
 	shutter.action = "shutter"
 	for i in cases.size():
@@ -211,14 +211,23 @@ func _test_rehearsal() -> void:
 		game._process_prep(4.0)
 		var thin: float = game.sky_mat.get_shader_parameter("practice_cloud")
 		check(thin < thick, "practice sky shader shows thinner cloud over the Sun")
-		if i == 1 or i == 2:
+		if i == 1 or i == 2 or i == 4:
 			await _rehearsal_press(shutter)
 		if i == 2 or i == 3:
 			game._process_prep(6.0)
-		if i != 3:
+		if i == 4:
+			game._process_prep(8.4)
+			check(game._rehearsal_step == 1, "open shutter waits three seconds after the window closes")
+			var sounds_before: int = game._sfx_log.size()
+			game._process_prep(0.1)
+			check(game._sfx_log.slice(sounds_before) == ["close", "change"], "timeout closes the shutter and changes plates")
+		if i != 3 and i != 4:
 			await _rehearsal_press(shutter)
 		check(game.ui.toast.text.contains(expected[i]), "%s timing gives its feedback" % cases[i])
 		check(game._rehearsal_step == 2 and game.prep_left == prep_before, "change wait freezes preparation")
+		if i == 4:
+			await _rehearsal_press(shutter)
+			check(game.ui.toast.text == "Eddington 還在換片……", "press during automatic change reports the wait")
 		await create_timer(Sim.PLATE_CHANGE_S + 0.1).timeout
 		check(not game.rehearsing and game.player.can_move, "four-second change restores input")
 		check(game.sky_mat.get_shader_parameter("practice_cloud") == -1.0, "rehearsal restores the sky shader")

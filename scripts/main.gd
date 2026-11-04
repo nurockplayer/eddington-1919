@@ -732,6 +732,9 @@ func _process_prep(delta: float) -> void:
 			sky_mat.set_shader_parameter("practice_cloud", lerpf(0.93, 0.12, thin))
 			if _rehearsal_step == 0 and _rehearsal_time >= 9.5:
 				_finish_rehearsal("窗口過去了，你沒有開：那一段就沒有底片。")
+			elif _rehearsal_step == 1 and _rehearsal_time >= 12.5:
+				_sfx("close")
+				_finish_rehearsal("你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。")
 		return
 	if _ui_free():
 		prep_left -= delta
