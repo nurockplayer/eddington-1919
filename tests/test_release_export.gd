@@ -15,7 +15,7 @@ func _initialize() -> void:
 	var project := ConfigFile.new()
 	check(project.load("res://project.godot") == OK, "project settings load")
 	var version := str(project.get_value("application", "config/version", ""))
-	check(version == "0.3.0", "project defines release version")
+	check(version == "0.4.0", "project defines release version")
 	check(project.get_value("application", "config/icon", "") == "res://icon.svg", "project defines SVG icon")
 	_test_icon()
 	_test_committed_icon()
