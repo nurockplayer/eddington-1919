@@ -288,6 +288,17 @@ func walk(target: Vector3) -> void:
 		print("[PROLOGUE monkey] RETRY target=%s at=%s" % [target, main.player.global_position])
 		if main.player.global_position.z > 2.93 and target.z < 2.93:
 			await _walk_to(Vector3(0, 0, 2.35))
+		# A disruption can leave the straight line crossing the central table; the east
+		# lane x=2.1 is the only way round, the west side is closed by the desk.
+		if _in_cambridge_room() and _table_blocks(main.player.global_position, target):
+			var north: bool = main.player.global_position.z > 0.0
+			var lane_z := 2.35 if north else -1.5
+			# From the west side, pull back to the open half before crossing.
+			if _table_blocks(main.player.global_position, Vector3(2.1, 0, lane_z)):
+				await _walk_to(Vector3(0, 0, lane_z))
+			await _walk_to(Vector3(2.1, 0, lane_z))
+			if (north and target.z < -0.725) or (not north and target.z > 0.725):
+				await _walk_to(Vector3(2.1, 0, -1.5 if north else 2.35))
 		reached = await _walk_to(target)
 	if not reached:
 		_stuck_events += 1
@@ -296,6 +307,31 @@ func walk(target: Vector3) -> void:
 			print("[PROLOGUE monkey] STUCK target=%s at=%s can_move=%s busy=%s dialog=%s log=%s paused=%s" % [target, main.player.global_position, main.player.can_move, main.get("_busy"), main.ui.dialog_active(), main.ui.log_open(), get_tree().paused])
 	if monkey:
 		print("[PROLOGUE monkey] WALK done target=%s at=%s reached=%s elapsed_s=%.2f" % [target, main.player.global_position, reached, _elapsed])
+
+
+func _in_cambridge_room() -> bool:
+	return is_instance_valid(main) and main.get_script() != null and main.get_script().resource_path.ends_with("cambridge/director.gd")
+
+
+func _table_blocks(from: Vector3, to: Vector3) -> bool:
+	# Central table x -1.75..1.75, z -0.725..0.725, inflated by the player's radius.
+	var box := Rect2(-2.0, -1.05, 4.0, 2.1)
+	var a := Vector2(from.x, from.z)
+	var d := Vector2(to.x, to.z) - a
+	var lo := 0.0
+	var hi := 1.0
+	for axis in 2:
+		if absf(d[axis]) < 0.0001:
+			if a[axis] < box.position[axis] or a[axis] > box.end[axis]:
+				return false
+			continue
+		var t1 := (box.position[axis] - a[axis]) / d[axis]
+		var t2 := (box.end[axis] - a[axis]) / d[axis]
+		lo = maxf(lo, minf(t1, t2))
+		hi = minf(hi, maxf(t1, t2))
+		if lo > hi:
+			return false
+	return true
 
 
 func _walk_to(target: Vector3) -> bool:
@@ -548,7 +584,7 @@ func _run() -> void:
 	await click_button(board.finish_btn)
 	# Drain the last M1 report-plan/coda dialogue until its 1918 bridge hands off.
 	while not Story.prologue_done:
-		if is_instance_valid(main) and main.get_script() and main.get_script().resource_path.ends_with("cambridge/director.gd") and main.ui.dialog_active():
+		if _in_cambridge_room() and main.ui.dialog_active():
 			await shot("dialogue_" + str(main._pending))
 			await talk_keys({"trial_note": 0}, 1)
 		elif is_instance_valid(main) and main.beat == main.Beat.TRIAL_TASK:
