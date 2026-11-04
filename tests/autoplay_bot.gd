@@ -275,6 +275,8 @@ func _run() -> void:
 	await _wait(1.0)
 	await shot("00_title")
 	await _click(main.ui.start_btn.get_global_rect().get_center())
+	# A real click fades out for 0.4 s first; give it that time before calling it a miss.
+	await _wait(0.6)
 	if main.phase == main.Phase.TITLE and scenario != "monkey":
 		main._start_game()  # fallback if the click missed
 		_log("title click fallback used")

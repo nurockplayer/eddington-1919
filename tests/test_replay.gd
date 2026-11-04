@@ -41,6 +41,14 @@ func settle() -> void:
 	if is_instance_valid(current_scene):
 		current_scene.set_process(false)
 
+func start_1919(main) -> void:
+	main.ui.start_btn.pressed.emit()
+	# The title fades out before 1919 starts; wait for the phase it hands over to.
+	var deadline := Time.get_ticks_msec() + 3000
+	while main.phase == main.Phase.TITLE and Time.get_ticks_msec() < deadline:
+		await process_frame
+
+
 func settle_audio() -> void:
 	# Stop real-scene audio and drain it: AudioServer frees its playback
 	# asynchronously, so quitting straight away leaks an AudioStreamWAV pair.
@@ -93,7 +101,7 @@ func _run() -> void:
 		check(main.ui.title_panel.visible == (not prologue), "initial title only for direct")
 		if not prologue:
 			check(not story.prologue_done and not story.departure_done and story.clues.is_empty() and story.bond_tone == "", "direct entry clears stale continuity")
-			main.ui.start_btn.pressed.emit()
+			await start_1919(main)
 		assert_origin(main, prologue, expected, "initial")
 		if not prologue:
 			check(main.ui.ending_replay.text == "同一片雲：換個做法，再量一次", "same-sky replay button names what changes")
@@ -112,6 +120,9 @@ func _run() -> void:
 			var target := button(main.ui, label)
 			check(target != null and target.is_visible_in_tree(), "restart button visible: " + label)
 			target.pressed.emit()
+			if label == "從頭開始":
+				check(main.get_instance_id() == old_id and target.text == "再按一次：從頭開始", "pause restart asks before restarting: " + label)
+				target.pressed.emit()
 			await settle()
 			main = current_scene
 			check(main.get_instance_id() != old_id, "actual scene reload: " + label)
@@ -120,7 +131,7 @@ func _run() -> void:
 			check(main.sim.run_seed == old_seed if not label.begins_with("新的天空") else main.sim.run_seed >= 0, "restart seed: " + label)
 			assert_origin(main, prologue, expected, label + " title")
 			print("RESTART prologue=%s button=%s seed=%d->%d title=%s" % [prologue, label, old_seed, main.sim.run_seed, main.ui.title_panel.visible])
-			main.ui.start_btn.pressed.emit()
+			await start_1919(main)
 			check(main.phase == main.Phase.PREP and not main.ui.title_panel.visible, "1919 title button starts PREP")
 			assert_origin(main, prologue, expected, label + " start")
 			main._grade = {"title": "probe", "fit": 2, "clean": true, "lines": ["probe response"]}
@@ -137,7 +148,9 @@ func _run() -> void:
 			main.ui.pause_enabled = true
 		# Return via the actual restart path, then select the actual prologue button.
 		main.ui.toggle_pause()
-		button(main.ui, "從頭開始").pressed.emit()
+		var restart := button(main.ui, "從頭開始")
+		restart.pressed.emit()
+		restart.pressed.emit()
 		await settle()
 		main = current_scene
 		check(main.ui.title_panel.visible, "title before selecting prologue")

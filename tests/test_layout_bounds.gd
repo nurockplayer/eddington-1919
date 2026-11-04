@@ -89,6 +89,13 @@ func _run() -> void:
 			Settings.text_scale = scale
 			Settings.refresh_fonts(self)
 			await settle()
+			check(ui.title_panel.visible, "title is up before the chapter buttons are read")
+			check(ui.prologue_btn.text == "開始遊戲：序章・劍橋，1917" and ui.start_btn.text == "只玩尾章：普林西比，1919",
+				"title buttons say which game each one starts")
+			check(ui.title_note != null and ui.title_note.is_visible_in_tree()
+				and ui.title_note.text.begins_with("第一次玩請從序章開始"),
+				"title warns that the tail chapter skips Cambridge")
+			bounds(ui.title_panel)
 			ui.hud.visible = true
 			game.phase = game.Phase.PREP
 			game._refresh_objectives()

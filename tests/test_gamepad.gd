@@ -7,6 +7,7 @@ const Plan := preload("res://scripts/cambridge/plan_board.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
+const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Render := preload("res://scripts/plate_render.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 var checks := 0
@@ -203,8 +204,23 @@ func _run() -> void:
 	ui.pause_enabled = true
 	await button(JOY_BUTTON_START)
 	check(paused and root.gui_get_focus_owner() is Button and ui.pause_panel.is_ancestor_of(root.gui_get_focus_owner()), "Start opens pause with button focus")
+	ScorePlayer.set_music_enabled(true)
+	ui.music_button.pressed.emit()
+	check(not ScorePlayer.music_enabled() and not ui.music_slider.editable and is_equal_approx(ui.music_row.modulate.a, 0.4),
+		"music off dims and locks the music slider")
+	ui.music_button.pressed.emit()
+	check(ScorePlayer.music_enabled() and ui.music_slider.editable and is_equal_approx(ui.music_row.modulate.a, 1.0),
+		"music on restores the music slider")
+	ui.restart_button.grab_focus()
+	await button(JOY_BUTTON_A)
+	check(ui.restart_button.text == "再按一次：從頭開始" and root.gui_get_focus_owner() == ui.restart_button,
+		"pause restart asks twice and keeps focus")
+	ui.quit_button.pressed.emit()
+	check(ui.quit_button.text == "再按一次：離開（進度不會保留）", "pause quit asks twice")
 	await button(JOY_BUTTON_B)
 	check(not paused and not ui.pause_panel.visible, "B closes pause")
+	check(ui.restart_button.text == "從頭開始" and ui.quit_button.text == "離開遊戲",
+		"closing pause disarms the destructive rows")
 	# Long real ending text must stay at its beginning even with history available.
 	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史")
 	for frame in 4:

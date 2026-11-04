@@ -54,6 +54,8 @@ func new_game(prologue := false):
 	await process_frame
 	if game.phase == game.Phase.TITLE:
 		game.ui.start_pressed.emit()
+		# The title fades out for 0.4 s before 1919 starts.
+		await wait_for(func(): return game.phase != game.Phase.TITLE, "title start reaches 1919")
 	return game
 
 
@@ -72,6 +74,7 @@ func replay(game, same_sky := true):
 	Settings.text_scale = 1.2
 	Settings.refresh_fonts(self)
 	next.ui.start_pressed.emit()
+	await wait_for(func(): return next.phase != next.Phase.TITLE, "replayed title start reaches 1919")
 	return next
 
 

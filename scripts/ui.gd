@@ -60,6 +60,7 @@ var title_panel: Control
 var title_controls: Label
 var prologue_btn: Button
 var start_btn: Button
+var title_note: Label
 var log_panel: PanelContainer
 var log_text: RichTextLabel
 static var history: Array[String] = []
@@ -89,6 +90,13 @@ var pause_panel: Control
 var fullscreen_button: Button
 var text_size_button: Button
 var quality_button: Button
+var restart_button: Button
+var quit_button: Button
+var music_button: Button
+var music_row: HBoxContainer
+var music_slider: HSlider
+var _restart_armed := false
+var _quit_armed := false
 var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
@@ -1065,15 +1073,22 @@ func _build_title(root: Control) -> void:
 	title_controls = _label("", 18, DIM)
 	title_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(title_controls)
+	# Steam Deck starts on the pad, so the first hints must already name its buttons.
+	Prompts.joypad = not Input.get_connected_joypads().is_empty()
 	_refresh_hints()
+	title_note = _label("第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。", 15, Color("8f8676"))
+	title_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title_note.custom_minimum_size.x = 920
+	v.add_child(title_note)
 	var hb := HBoxContainer.new()
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER
 	hb.add_theme_constant_override("separation", 20)
 	v.add_child(hb)
-	prologue_btn = _button("序章　劍橋，1917")
+	prologue_btn = _button("開始遊戲：序章・劍橋，1917")
 	prologue_btn.pressed.connect(func(): prologue_pressed.emit())
 	hb.add_child(prologue_btn)
-	start_btn = _button("普林西比，1919")
+	start_btn = _button("只玩尾章：普林西比，1919")
 	start_btn.pressed.connect(func(): start_pressed.emit())
 	hb.add_child(start_btn)
 	var credits := _button("製作名單")
@@ -1369,11 +1384,12 @@ func _build_pause(root: Control) -> void:
 	var r := _button("繼續")
 	r.pressed.connect(func(): toggle_pause())
 	v.add_child(r)
-	var music := _button("音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
-	music.pressed.connect(func():
+	music_button = _button("音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
+	music_button.pressed.connect(func():
 		ScorePlayer.set_music_enabled(not ScorePlayer.music_enabled())
-		music.text = "音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
-	v.add_child(music)
+		music_button.text = "音樂：開" if ScorePlayer.music_enabled() else "音樂：關"
+		_sync_music_row())
+	v.add_child(music_button)
 	for bus in ["Master", "Music", "SFX"]:
 		var row := HBoxContainer.new()
 		var label := _label({"Master": "主音量", "Music": "音樂", "SFX": "音效"}[bus], 20)
@@ -1388,6 +1404,10 @@ func _build_pause(root: Control) -> void:
 		slider.value_changed.connect(func(value: float): Settings.set_volume(bus, value))
 		row.add_child(slider)
 		v.add_child(row)
+		if bus == "Music":
+			music_row = row
+			music_slider = slider
+	_sync_music_row()
 	fullscreen_button = _button("全螢幕：開" if Settings.fullscreen else "全螢幕：關")
 	fullscreen_button.pressed.connect(_toggle_fullscreen)
 	v.add_child(fullscreen_button)
@@ -1397,21 +1417,40 @@ func _build_pause(root: Control) -> void:
 	quality_button = _button(_quality_caption())
 	quality_button.pressed.connect(_cycle_quality)
 	v.add_child(quality_button)
-	var rs := _button("從頭開始")
-	rs.pressed.connect(func():
+	# Restart and quit throw away the run, and there is no save: ask twice.
+	restart_button = _button("從頭開始")
+	restart_button.pressed.connect(func():
+		if not _restart_armed:
+			_restart_armed = true
+			restart_button.text = "再按一次：從頭開始"
+			return
 		get_tree().paused = false
 		restart_pressed.emit(true))
-	v.add_child(rs)
-	var q := _button("離開遊戲")
-	q.pressed.connect(func(): quit_pressed.emit())
-	v.add_child(q)
-	for button in [r, music, fullscreen_button, rs, q]:
+	v.add_child(restart_button)
+	quit_button = _button("離開遊戲")
+	quit_button.pressed.connect(func():
+		if not _quit_armed:
+			_quit_armed = true
+			quit_button.text = "再按一次：離開（進度不會保留）"
+			return
+		quit_pressed.emit())
+	v.add_child(quit_button)
+	for button in [r, music_button, fullscreen_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 
 
 func _toggle_fullscreen() -> void:
 	Settings.toggle_fullscreen()
 	fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
+
+
+# A muted bus makes its slider dead weight; dim it instead of leaving it live.
+func _sync_music_row() -> void:
+	if music_slider == null:
+		return
+	var on := ScorePlayer.music_enabled()
+	music_slider.editable = on
+	music_row.modulate.a = 1.0 if on else 0.4
 
 
 func toggle_pause() -> void:
@@ -1427,6 +1466,10 @@ func toggle_pause() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	else:
+		_restart_armed = false
+		_quit_armed = false
+		restart_button.text = "從頭開始"
+		quit_button.text = "離開遊戲"
 		_restore_focus(_pause_focus)
 	# Only the chapter knows every form and scripted input lock it owns.
 	pause_toggled.emit(p)
