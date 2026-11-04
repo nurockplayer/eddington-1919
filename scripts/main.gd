@@ -50,6 +50,8 @@ var phase := Phase.TITLE
 var prep_left := PREP_S
 var rehearsing := false
 var _rehearsal_step := 0
+var _rehearsal_time := 0.0
+var _rehearsal_opened := 0.0
 var t_game := 0.0                # totality clock, game-seconds
 var change_left := 0.0           # plate change in progress
 var plate_changed := false       # a plate change was made this run (the workbook remembers it)
@@ -724,6 +726,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process_prep(delta: float) -> void:
 	if rehearsing:
+		if _rehearsal_step < 2 and _ui_free():
+			_rehearsal_time += delta
+			var thin := smoothstep(2.5, 3.0, _rehearsal_time) * (1.0 - smoothstep(9.0, 9.5, _rehearsal_time))
+			sky_mat.set_shader_parameter("practice_cloud", lerpf(0.93, 0.12, thin))
+			if _rehearsal_step == 0 and _rehearsal_time >= 9.5:
+				_finish_rehearsal("窗口過去了，你沒有開：那一段就沒有底片。")
 		return
 	if _ui_free():
 		prep_left -= delta
@@ -1044,28 +1052,41 @@ func _refresh_objectives() -> void:
 func _begin_rehearsal() -> void:
 	rehearsing = true
 	_rehearsal_step = 0
+	_rehearsal_time = 0.0
+	sky_mat.set_shader_parameter("practice_cloud", 0.93)
 	_sync_player_input()
 	ui.set_prompt("")
 	ui.set_hold(0.0)
-	ui.show_toast("Eddington：沒有底片，只練口令。雲薄了——按［%s］喊『開始』。" % Prompts.key("shutter"), 7.0)
+	ui.show_toast("Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。" % Prompts.key("shutter"), 12.0)
 
 
 func _rehearse_shutter() -> void:
 	match _rehearsal_step:
 		0:
 			_sfx("open")
-			ui.show_toast("你：『開始！』　Cottingham 移開遮光板（空的）。數三秒，再按一次喊『停』。", 7.0)
+			_rehearsal_opened = _rehearsal_time
+			ui.show_toast("你：『開始！』　Cottingham 移開遮光板（空的）。再按一次喊『停』。", 7.0)
 			_rehearsal_step = 1
 		1:
 			_sfx("close")
-			_sfx("change")
-			_rehearsal_step = 2
-			ui.show_toast("你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。", 7.0)
-			await get_tree().create_timer(sim.PLATE_CHANGE_S, false).timeout
-			rehearsing = false
-			_sync_player_input()
+			var feedback := "你在薄的那段裡開、在變厚前停：那張會是清楚的。"
+			if _rehearsal_opened < 3.0:
+				feedback = "你在雲變薄前就開了：那張會起霧。"
+			elif _rehearsal_time >= 9.0:
+				feedback = "你停得晚，雲回來了：星像會被霧蓋掉一半。"
+			_finish_rehearsal(feedback)
 		2:
 			ui.show_toast("Eddington 還在換片……", 1.5)
+
+
+func _finish_rehearsal(feedback: String) -> void:
+	_sfx("change")
+	_rehearsal_step = 2
+	ui.show_toast("Eddington：" + feedback + "\n你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。", 7.0)
+	await get_tree().create_timer(sim.PLATE_CHANGE_S, false).timeout
+	sky_mat.set_shader_parameter("practice_cloud", -1.0)
+	rehearsing = false
+	_sync_player_input()
 
 
 # -------------------------------------------------------------------- Totality

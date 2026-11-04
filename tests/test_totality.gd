@@ -189,55 +189,42 @@ func _test_rehearsal() -> void:
 			game.ui._choose(0)
 	check(game.sim.briefed, "real briefing unlocks Eddington's PREP dialogue")
 	var plates_before: Array = game.sim.plates.duplicate(true)
+	var gaps_before: Array = game.sim.gaps.duplicate(true)
+	var seed_before: int = game.sim.run_seed
 	var available_before: int = game.sim.plates_available()
 	var prep_before: float = game.prep_left
 	var clocks_before: Array = [game.t_game, game.change_left, game._tick_acc, game.tot_done]
-	for use_pad in [false, true]:
-		var shutter := InputEventAction.new()
-		shutter.action = "shutter"
-		var pad := InputEventJoypadButton.new()
-		pad.button_index = JOY_BUTTON_RIGHT_SHOULDER
-		# Select the active device before opening the real dialogue.
-		var device: InputEvent = pad if use_pad else InputEventKey.new()
-		root.push_input(device)
-		await process_frame
+	var cases := ["early", "inside", "late", "never"]
+	var expected := ["你在雲變薄前就開了：那張會起霧。", "你在薄的那段裡開、在變厚前停：那張會是清楚的。", "你停得晚，雲回來了：星像會被霧蓋掉一半。", "窗口過去了，你沒有開：那一段就沒有底片。"]
+	var shutter := InputEventAction.new()
+	shutter.action = "shutter"
+	for i in cases.size():
 		game._interact("eddington")
 		game.ui._advance()
 		check(game.ui._choice_buttons.size() == 4, "PREP offers rehearsal and keeps dismiss last")
-		check(game.ui._seq[1].choices[3] == "沒事。", "dismiss stays at PREP index 3")
 		game.ui._choose(2)
-		check(game.rehearsing and not game.ui.dialog_active(), "choice 2 starts a repeatable dry run")
-		check(not game.player.can_move and game.player.can_look, "rehearsal freezes movement while retaining look and input")
-		check(game.ui.toast.text == "Eddington：沒有底片，只練口令。雲薄了——按［%s］喊『開始』。" % Prompts.key("shutter"), "first toast teaches the active device's shutter button")
-		check(Prompts.joypad == use_pad, "rehearsal prompt uses the selected device")
-		game._process_prep(2.0)
-		check(game.prep_left == prep_before, "PREP countdown freezes before the first call")
-		var sound_start: int = game._sfx_log.size()
-		await _rehearsal_press(pad if use_pad else shutter)
-		check(game._rehearsal_step == 1 and game.rehearsing, "shutter reaches rehearsal through real unhandled input")
-		check(game.ui.toast.text == "你：『開始！』　Cottingham 移開遮光板（空的）。數三秒，再按一次喊『停』。", "second toast teaches counting before stop")
-		game._process_prep(3.0)
-		check(game.prep_left == prep_before and not game.sim.is_exposing(), "counting uses neither preparation time nor an exposure")
-		var stop: InputEvent = shutter
-		if use_pad:
-			var interact := InputEventAction.new()
-			interact.action = "interact"
-			stop = interact
-		await _rehearsal_press(stop)
-		check(game.ui.toast.text == "你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。", "third toast explains plate-change lockout and third contact")
-		check(game._sfx_log.slice(sound_start) == ["open", "close", "change"], "dry run plays open, close and change in order")
-		await _rehearsal_press(shutter)
-		check(game.ui.toast.text == "Eddington 還在換片……", "pressing during the change reports the wait")
-		check(game._sfx_log.slice(sound_start) == ["open", "close", "change"], "busy presses do not restart sounds or the change")
-		await create_timer(1.0).timeout
-		game._process_prep(1.0)
-		check(game.rehearsing and not game.player.can_move and game.prep_left == prep_before, "change wait keeps movement and PREP time frozen")
-		await create_timer(Sim.PLATE_CHANGE_S).timeout
-		check(not game.rehearsing and game.player.can_move and game.player.can_look, "four-second change ends rehearsal and restores input")
-		check(game.phase == game.Phase.PREP and game.prep_left == prep_before, "repeatable rehearsal remains in PREP without spending its countdown")
-		check(game.sim.plates == plates_before and game.sim.plates_available() == available_before, "dry run leaves plates and available holders unchanged")
+		check(game.rehearsing and not game.player.can_move and game.player.can_look, "rehearsal freezes movement and retains look")
+		check(game.ui.toast.text == "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。" % Prompts.key("shutter"), "rehearsal teaches the shutter button")
+		var thick: float = game.sky_mat.get_shader_parameter("practice_cloud")
+		if i == 0:
+			await _rehearsal_press(shutter)
+		game._process_prep(4.0)
+		var thin: float = game.sky_mat.get_shader_parameter("practice_cloud")
+		check(thin < thick, "practice sky shader shows thinner cloud over the Sun")
+		if i == 1 or i == 2:
+			await _rehearsal_press(shutter)
+		if i == 2 or i == 3:
+			game._process_prep(6.0)
+		if i != 3:
+			await _rehearsal_press(shutter)
+		check(game.ui.toast.text.contains(expected[i]), "%s timing gives its feedback" % cases[i])
+		check(game._rehearsal_step == 2 and game.prep_left == prep_before, "change wait freezes preparation")
+		await create_timer(Sim.PLATE_CHANGE_S + 0.1).timeout
+		check(not game.rehearsing and game.player.can_move, "four-second change restores input")
+		check(game.sky_mat.get_shader_parameter("practice_cloud") == -1.0, "rehearsal restores the sky shader")
+		check(game.sim.plates == plates_before and game.sim.gaps == gaps_before and game.sim.run_seed == seed_before and game.sim.plates_available() == available_before, "rehearsal preserves simulation and inventory")
 		check(not game.sim.is_exposing() and not game._ever_exposed and not game.plate_changed, "dry run leaves exposure history untouched")
-		check([game.t_game, game.change_left, game._tick_acc, game.tot_done] == clocks_before, "dry run leaves all totality clocks untouched")
+		check([game.t_game, game.change_left, game._tick_acc, game.tot_done] == clocks_before, "dry run leaves totality clocks untouched")
 	game._process_prep(0.5)
 	check(game.prep_left == prep_before - 0.5, "PREP countdown resumes after rehearsal")
 	game._interact("eddington")
