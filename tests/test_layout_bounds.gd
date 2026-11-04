@@ -10,6 +10,7 @@ const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 var checks := 0
 var failures := 0
 var context := ""
+var test_path := Settings.settings_path() + ".test_layout_bounds"
 
 
 func _initialize() -> void:
@@ -45,8 +46,12 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
+	Settings.load_settings(test_path)
+	var real_path := ProjectSettings.globalize_path(Settings.settings_path())
 	var had_settings := FileAccess.file_exists(Settings.settings_path())
 	var original := FileAccess.get_file_as_bytes(Settings.settings_path()) if had_settings else PackedByteArray()
+	var original_mtime := FileAccess.get_modified_time(real_path) if had_settings else 0
 	var story := root.get_node("Story")
 	var original_runs: Array = story.runs.duplicate(true)
 	var sim := Sim.new(77)
@@ -73,7 +78,7 @@ func _run() -> void:
 		for scale in [1.0, 1.2]:
 			context = "%s scale %.1f" % [window, scale]
 			Settings.text_scale = scale
-			Settings.save_settings()
+			Settings.save_settings(test_path)
 			var game: Node = load("res://scenes/main.tscn").instantiate()
 			root.add_child(game)
 			game.set_process(false)
@@ -81,6 +86,8 @@ func _run() -> void:
 			game.plate_textures = textures
 			game.comparison_tex = comparison
 			var ui = game.ui
+			Settings.text_scale = scale
+			Settings.refresh_fonts(self)
 			await settle()
 			var expected := Vector2(1600, 1000) if window == Vector2i(1280, 800) else Vector2(1600, 900)
 			check(root.get_visible_rect().size.is_equal_approx(expected), "visible rect %s expected %s" % [root.get_visible_rect(), expected])
@@ -148,12 +155,11 @@ func _run() -> void:
 			game.stop_all_audio()
 			game.free()
 	story.runs = original_runs
+	check(FileAccess.file_exists(Settings.settings_path()) == had_settings, "real settings existence is unchanged")
 	if had_settings:
-		var file := FileAccess.open(Settings.settings_path(), FileAccess.WRITE)
-		file.store_buffer(original)
-		file.close()
-	else:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.settings_path()))
+		check(FileAccess.get_file_as_bytes(Settings.settings_path()) == original, "real settings bytes are unchanged")
+		check(FileAccess.get_modified_time(real_path) == original_mtime, "real settings mtime is unchanged")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	Settings.load_settings()
 	print("test_layout_bounds: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
