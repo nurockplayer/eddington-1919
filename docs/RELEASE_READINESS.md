@@ -22,6 +22,8 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | A12 | Low-end performance budget | DONE (targets; on-hardware check in A11) | Owner 2026-11-04 00:3x JST: baseline = most common Steam hardware. `docs/SYSTEM_REQUIREMENTS.md` (Steam survey Oct 2026): recommended RTX 4060 / 16 GB / 1080p 標準 60 fps; minimum GTX 1050 Ti–1650 class / 8 GB / 720p 低 30 fps. Dev-Mac benchmark (#127/#128) estimates ≥ 2.5× margin; VRAM ≤ 368 MB | confirm on a Windows machine during the A11 playtest; use the table for the Steam page (B5) |
 | A13 | Windows x86_64 preset | DONE | [PR #129](https://github.com/nurockplayer/eddington-1919/pull/129): Windows Desktop x86_64, separate PCK, six-size ICO, platform-specific version checks (45 checks, 0 failures); real 0.3.0 Windows ZIP export + pack check passed 2026-11-04 00:38 JST | A11/B10: human Windows packaged-build playtest; unsigned export, rcedit unset |
 
+| A14 | Linux x86_64 preset (Steam Deck readiness) | DONE | Linux x86_64 preset and 0.4.0 ZIP export + separate PCK check passed with this PR | B2 decides whether Linux/Deck ships; Deck playtest in B10 |
+
 ## B. Owner-reserved (decide once; nothing here blocks A)
 
 | # | Decision | Notes |

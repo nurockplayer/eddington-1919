@@ -24,6 +24,7 @@ func _initialize() -> void:
 	check(error == OK, "export presets load")
 	var presets := 0
 	var windows := false
+	var linux := false
 	for section in config.get_sections():
 		if not section.begins_with("preset.") or not section.trim_prefix("preset.").is_valid_int():
 			continue
@@ -41,6 +42,11 @@ func _initialize() -> void:
 			var icon := str(config.get_value(section + ".options", "application/icon", ""))
 			check(icon == "res://assets/icon/icon.ico", "Windows preset uses committed ICO")
 			_test_windows_icon(icon)
+		elif platform == "Linux":
+			linux = true
+			check(config.get_value(section + ".options", "binary_format/architecture", "") == "x86_64", "Linux preset uses x86_64")
+			check(config.get_value(section + ".options", "binary_format/embed_pck", true) == false, "Linux preset keeps PCK separate")
+			check(config.get_value(section, "exclude_filter", "") == "tests/*, scenes/lookdev.tscn, scripts/lookdev.gd, assets/licensed/*", "Linux preset uses the release exclude filter")
 		for key in version_keys:
 			check(config.get_value(section + ".options", key, "") == version, section + " " + key + " matches project version")
 		var filters := str(config.get_value(section, "exclude_filter", "")).split(",")
@@ -51,6 +57,7 @@ func _initialize() -> void:
 		check(entries.has("tests/*"), section + " excludes tests")
 	check(presets > 0, "at least one export preset exists")
 	check(windows, "Windows Desktop preset exists")
+	check(linux, "Linux preset exists")
 	print("%d release export checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
 
