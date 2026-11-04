@@ -60,8 +60,7 @@ for ((i=0; i<count; i++)); do
   stuck=$(sed -nE 's/^.*DONE .*stuck=([0-9]+).*$/\1/p' "$log" | tail -1)
   ok=1
   [[ $code == 0 && $stuck == 0 ]] || ok=0
-  if [[ $current == 1919 ]]; then [[ $phase == ENDING ]] || ok=0
-  else [[ $phase == PREP || $phase == ENDING ]] || ok=0; fi
+  [[ $phase == ENDING ]] || ok=0
   if grep -qE 'SCRIPT ERROR|^ERROR:|TIMEOUT|STUCK|FAIL:' "$log"; then ok=0; fi
   printf '%-6s %-9s %-14s %-6s %-9s %s\n' "$seed" "$current" "${phase:--}" "${stuck:--}" "${wall:-?}s" "$code"
   if (( ! ok )); then
