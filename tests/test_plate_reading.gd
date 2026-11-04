@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Render := preload("res://scripts/plate_render.gd")
+const Sim := preload("res://scripts/eclipse_sim.gd")
 const UI := preload("res://scripts/ui.gd")
 const Settings := preload("res://scripts/settings.gd")
 var checks := 0
@@ -91,6 +92,21 @@ func _run() -> void:
 	Settings.text_scale = 1.2
 	Settings.refresh_fonts(self)
 	ui.theme_res.default_font_size = Settings.fs(21)
+	var sim := Sim.new(1919)
+	var real_plate_data := {"index": 0, "fog": 0.0, "trail": 0.0, "stars": sim.STAR_COUNT, "duration": 6.0, "sunlit": false,
+		"number": 1, "start": 10.0, "included": true, "usable": true, "quality": "good", "value": 1.75, "sigma": 0.2}
+	var real_plate := Render.render(sim, real_plate_data)
+	ui.loupe_start = Vector2(Render.SIZE, Render.SIZE) * 0.5 + sim.star_offsets[0] * Render.SUN_PX
+	ui.open_viewer([real_plate_data], Render.render(sim, null), [real_plate], false)
+	ui.loupe_btn.grab_focus()
+	await pad(JOY_BUTTON_A)
+	var real_zoom := ui.big_plate.texture as AtlasTexture
+	var star_position: Vector2 = Vector2(Render.SIZE, Render.SIZE) * 0.5 + sim.star_offsets[0] * Render.SUN_PX
+	check(real_zoom != null and real_zoom.region.has_point(star_position), "viewer loupe region includes the brightest star")
+	check(real_zoom != null and not real_zoom.region.has_point(Vector2(Render.SIZE, Render.SIZE) * 0.5), "viewer loupe region excludes plate centre: star=%s region=%s" % [star_position, real_zoom.region if real_zoom != null else Rect2()])
+	ui.loupe_btn.grab_focus()
+	await pad(JOY_BUTTON_A)
+	ui.loupe_start = Vector2(-1, -1)
 	var plates := [
 		{"number": 1, "start": 10.0, "duration": 6.0, "sunlit": false, "included": true, "usable": true, "stars": 12, "quality": "good", "value": 1.75, "sigma": 0.2},
 		{"number": 2, "start": 20.0, "duration": 6.0, "sunlit": false, "included": true, "usable": true, "stars": 8, "quality": "poor", "value": 0.87, "sigma": 0.3},
