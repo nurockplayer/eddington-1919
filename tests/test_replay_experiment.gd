@@ -223,7 +223,7 @@ func layout(game) -> void:
 	check(not ui.ending_review.visible and ui.ending_text.text.contains(HEADING), "comparison is outside collapsed review")
 	var comparison: String = ui.ending_text.text.get_slice(HEADING + "[/b]\n", 1)
 	var rows := comparison.substr(comparison.find("]") + 1).trim_suffix("[/font_size]").split("\n")
-	check(rows.size() == 5, "comparison has all five rows")
+	check(rows.size() == 4, "comparison has all four rows")
 	var probe: RichTextLabel = ui._rich(15)
 	ui.ending_panel.add_child(probe)
 	probe.size.x = ui.ending_text.size.x
@@ -295,7 +295,7 @@ func _run() -> void:
 	check(game.ui.ending_text.text.contains("選片規則改了"), "changed rule wording is compared")
 	check(not game.ui.ending_text.text.contains("電報的理由改了") and story.runs[1].reason_text != first.reason_text, "same reason ID with new numerical text is not called a reason change")
 	check(game.ui.ending_text.text.contains(content.run_value(first)) and game.ui.ending_text.text.contains(content.run_value(story.runs[1])), "both measured values are displayed")
-	check(game.ui.ending_text.text.contains("Eddington 的評分：%d／4 → %d／4" % [first.score, story.runs[1].score]), "both grades are displayed")
+	check(not game.ui.ending_text.text.get_slice(HEADING, 1).contains("評分") and not game.ui.ending_text.text.get_slice(HEADING, 1).contains("／4"), "comparison does not display grades")
 	check(not game.ui.ending_text.text.get_slice(HEADING, 1).contains("證明"), "comparison never calls the results proof")
 	await layout(game)
 	var second: Dictionary = story.runs[1].duplicate(true)

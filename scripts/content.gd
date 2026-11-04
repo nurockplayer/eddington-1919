@@ -275,6 +275,5 @@ static func run_comparison(previous: Dictionary, current: Dictionary) -> String:
 		"上回：%s → 這回：%s %s" % [run_value(previous), run_value(current), precision],
 		rule,
 		reason,
-		"Eddington 的評分：%d／4 → %d／4" % [previous.score, current.score],
 	]
 	return "[b]本子上的兩次試驗｜上回 → 這回[/b]\n[font_size=%d]%s[/font_size]" % [preload("res://scripts/settings.gd").fs(15), "\n".join(rows)]
