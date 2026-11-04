@@ -107,26 +107,27 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 | 雲、底片與數值 | `docs/PROVENANCE.md`：虛構／示意模型，底片不是原件複製品。 | 「程序生成／示意」不等同「AI 生成」；是否另有預先生成或執行期間 AI 內容：**Owner to confirm**。 |
 | 字型與引擎 | `THIRD_PARTY_NOTICES.md`：Godot（MIT）、`assets/fonts/OFL.txt`：Noto Sans TC（SIL OFL 1.1）。 | 第三方元件與授權，分開記錄。 |
 
-## 8. 截圖與 capsule 拍攝清單（只列計畫，本輪不渲染）
+## 8. 截圖與 capsule 拍攝清單
 
-以下供 lead 在 **週一至週五 09:00–15:00 JST** 安排 windowed Godot；必須加 `--fixed-fps 60`，經 `orb-test` 執行。輸出放 worktree 的 `art/validation/store-b5/` 下，不使用 host `/tmp`。
+以下供 lead 在 **週一至週五 09:00–15:00 JST** 安排 windowed Godot；每次先以 `date "+%F %H:%M %Z"` 確認時段，只能同時執行一個 Godot。指令前綴為 `orb-test --heavy --host -- godot --path . --always-on-top --fixed-fps 60 --`（GPU／windowed 的 heavy 例外），每次設定 `EDD_SETTINGS_PATH` 指向 worktree 內的隔離設定檔。輸出固定放 `/Volumes/KIOXIA/eddington/store-b5/<set>/`，保留在 KIOXIA，不放 repo 或 host `/tmp`。
 
-現有來源工具參數（不是要求本輪執行）：
+來源工具參數：
 
-- 普林西比 benchmark：`--benchmark=art/validation/store-b5/principe --seed=7 --bench-quality=standard`；`tests/benchmark.gd` 的 `BOOKMARKS` 會依序拍攝，沒有單張 bookmark 選擇參數。
-- 劍橋 benchmark：`--benchmark=art/validation/store-b5/cambridge --bench-cambridge --bench-quality=standard`；`tests/benchmark_cambridge.gd` 的 `bookmarks` 使用固定 1917 seed。
-- 實際遊玩參照：`--autoplay=careful --seed=7 --shots=art/validation/store-b5/careful`；`tests/autoplay_bot.gd` 有 `careful_08_viewer_before.png`、`careful_09_viewer_measured.png`、`careful_10_ending.png` 等。這些路線會前進，需停留的畫面由 lead 手動遊玩拍攝，沒有暫停旗標。
+- 普林西比 benchmark：`--benchmark=/Volumes/KIOXIA/eddington/store-b5/principe --seed=7 --bench-quality=standard`；`tests/benchmark.gd` 的 `BOOKMARKS` 會依序拍攝，沒有單張 bookmark 選擇參數。
+- 劍橋 benchmark：`--benchmark=/Volumes/KIOXIA/eddington/store-b5/cambridge --bench-cambridge --bench-quality=standard`；`tests/benchmark_cambridge.gd` 的 `bookmarks` 使用固定 1917 seed。
+- 實際遊玩參照：`--autoplay=careful --seed=7 --store-shots --shots=/Volumes/KIOXIA/eddington/store-b5/careful`；`tests/autoplay_bot.gd` 有 `careful_08_viewer_before.png`、`careful_09_viewer_measured.png`、`careful_10_ending.png` 等。`--store-shots` 預設關閉，只在 careful 路線額外呼叫既有截圖函式：`careful_store_a_rule.png`（選片規則）、`careful_store_b_reference_plates.png`（參考片面板）、`careful_store_c_loupe_2x.png`（×2 放大鏡）、`careful_store_d_measured_2sigma.png`（量測後 2σ）、`careful_store_e_five_reasons.png`（五個理由）、`careful_store_f_ending_telegram.png`（結尾電報）。參考片與放大鏡拍完即收起，對話依原有選擇繼續，不改其他路線。
+- 序章人物對話：`--prologue-autoplay=honest --shots=/Volumes/KIOXIA/eddington/store-b5/prologue`，既有 `honest_close_kit.png` 與 `honest_speaker_investigate_kit.png` 可供挑選。
 - Benchmark 隱藏 UI、固定光照與視角；它提供場景構圖，不能代替互動畫面。以上工具在原始碼 checkout 使用，`tests/` 不隨封裝版發行。
 
 | # | 時刻／畫面 | 如何到達 | 為何值得放 |
 |---|---|---|---|
 | 1 | 劍橋雨夜的看片台 | 劍橋 benchmark 的 `lightbox` bookmark。 | 建立安靜、手作觀察的氣質，讓玩家看見序章的工作空間。 |
-| 2 | Kit 的複核與人物對話 | 主選單「序章　劍橋，1917」→ 看片台的鏡像／轉角工作 → 請 Kit 複核，手動停在對話。完整路線可參考 `--prologue-autoplay=honest`；無專用 bookmark。 | 呈現人物關係與對話選擇，讓科學工作有人情溫度。 |
+| 2 | Kit 的複核與人物對話 | 序章 honest 路線與 Kit 對話，並在看片台的鏡像／轉角工作後請 Kit 複核；`--prologue-autoplay=honest --shots=<output-dir>` 自動拍攝人物與選項對話，檔名見上。 | 呈現人物關係與對話選擇，讓科學工作有人情溫度。 |
 | 3 | 普林西比定天鏡與觀測設備 | 普林西比 benchmark 的 `coelostat` bookmark，seed 7。 | 展示觀測的具體器械與戶外場景。 |
 | 4 | 雲中的全食（capsule 構圖候選） | 普林西比 benchmark 的 `totality_sky` bookmark，seed 7；需要快門提示則手動進入全食拍攝。 | 日食與雲構成主視覺；capsule 另排暫定標題，保留雲，避免暗示晴空實錄。 |
-| 5 | 暗房前寫下選片規則 | 「普林西比，1919」→ 準備／全食 → 夜晚與量測台互動，在規則對話手動停留；`--autoplay=careful --seed=7` 可示範路線，沒有此對話的固定截圖。 | 清楚說明玩法的核心：在數字出現前承諾規則。 |
-| 6 | 暗房底片、參考片與放大鏡 | 同一路線進入 viewer；`careful_08_viewer_before.png` 可作入口參照。手動開參考片／放大鏡後另拍，bot 的固定截圖不保證展示這些面板。 | 展示玩家實際讀取的星像與工具，不只拍景。 |
-| 7 | 量測後的數值與誤差區間 | 同一路線選片並按「量測」；現有 `careful_09_viewer_measured.png`。 | 讓玩家知道要判讀有不確定性的結果；畫面數字屬示意模擬。 |
-| 8 | 玩家寄出的短電報 | 同一路線完成區間判讀，選電報與理由到結尾；現有 `careful_10_ending.png`。 | 用玩家自己的措辭收尾，呈現這段體驗最後留下的東西。 |
+| 5 | 暗房前寫下選片規則 | careful 路線加 `--store-shots`；固定截圖 `careful_store_a_rule.png`，在量測前的規則選項停留時拍攝。 | 清楚說明玩法的核心：在數字出現前承諾規則。 |
+| 6 | 暗房底片、參考片與放大鏡 | careful 路線加 `--store-shots`；參考片面板 `careful_store_b_reference_plates.png`，×2 放大鏡 `careful_store_c_loupe_2x.png`。 | 展示玩家實際讀取的星像與工具，不只拍景。 |
+| 7 | 量測後的數值與誤差區間 | 同一路線選片並按「量測」；`--store-shots` 拍攝 `careful_store_d_measured_2sigma.png`（另保留 `careful_09_viewer_measured.png`）。 | 讓玩家知道要判讀有不確定性的結果；畫面數字屬示意模擬。 |
+| 8 | 玩家寄出的短電報 | 同一路線完成區間判讀，選電報與理由到結尾；`--store-shots` 拍攝 `careful_store_f_ending_telegram.png`（另保留 `careful_10_ending.png`）。 | 用玩家自己的措辭收尾，呈現這段體驗最後留下的東西。 |
 
 實際圖片、capsule 尺寸／裁切、商標可讀性、肖像與數字的呈現，均待 Owner／lead 挑選；本文件不代表已完成圖像驗收。
