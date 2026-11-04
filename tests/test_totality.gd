@@ -176,6 +176,23 @@ func _rehearsal_press(event) -> void:
 	await process_frame
 
 
+func _visible_sun_obstruction(game: Node) -> String:
+	var from: Vector3 = game.player.camera.global_position
+	for instance in game.find_children("*", "MeshInstance3D", true, false):
+		if not instance.is_visible_in_tree() or instance.mesh == null:
+			continue
+		var inverse: Transform3D = instance.global_transform.affine_inverse()
+		var origin: Vector3 = inverse * from
+		var direction: Vector3 = inverse.basis * game.sim.sun_dir
+		if instance.mesh.get_aabb().intersects_ray(origin, direction) == null:
+			continue
+		var faces: PackedVector3Array = instance.mesh.get_faces()
+		for j in range(0, faces.size(), 3):
+			if Geometry3D.ray_intersects_triangle(origin, direction, faces[j], faces[j + 1], faces[j + 2]) != null:
+				return str(instance.get_path())
+	return ""
+
+
 func _test_rehearsal() -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -198,6 +215,11 @@ func _test_rehearsal() -> void:
 	var expected := ["你在雲變薄前就開了：那張會起霧。", "你在薄的那段裡開、在變厚前停：那張會是清楚的。", "你停得晚，雲回來了：星像會被霧蓋掉一半。", "窗口過去了，你沒有開：那一段就沒有底片。", "你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"]
 	var shutter := InputEventAction.new()
 	shutter.action = "shutter"
+	game.player.global_position = Vector3(0, 0.05, 0)
+	game.player.yaw = 0.4
+	game.player.pitch = -0.2
+	await physics_frame
+	check(_visible_sun_obstruction(game) != "", "visible shelter blocks the Sun before rehearsal")
 	for i in cases.size():
 		game._interact("eddington")
 		game.ui._advance()
@@ -209,6 +231,11 @@ func _test_rehearsal() -> void:
 		if i == 0:
 			await _rehearsal_press(shutter)
 		game._process_prep(4.0)
+		if i == 0:
+			var obstruction := _visible_sun_obstruction(game)
+			check(obstruction == "", "Sun is unobstructed during practice: " + obstruction)
+			check(not game.world.roof.visible, "practice opens the shelter roof")
+			check(game.player.pitch > 0.0, "practice turns the camera toward the Sun")
 		var thin: float = game.sky_mat.get_shader_parameter("practice_cloud")
 		check(thin < thick, "practice sky shader shows thinner cloud over the Sun")
 		if i == 1 or i == 2 or i == 4:
@@ -230,6 +257,8 @@ func _test_rehearsal() -> void:
 			check(game.ui.toast.text == "Eddington 還在換片……", "press during automatic change reports the wait")
 		await create_timer(Sim.PLATE_CHANGE_S + 0.1).timeout
 		check(not game.rehearsing and game.player.can_move, "four-second change restores input")
+		check(game.world.roof.visible and is_equal_approx(game.player.yaw, 0.4) and is_equal_approx(game.player.pitch, -0.2), "rehearsal restores roof and camera")
+		check(is_equal_approx(game.player.global_position.z, 0.0), "rehearsal returns the player to the original position")
 		check(game.sky_mat.get_shader_parameter("practice_cloud") == -1.0, "rehearsal restores the sky shader")
 		check(game.sim.plates == plates_before and game.sim.gaps == gaps_before and game.sim.run_seed == seed_before and game.sim.plates_available() == available_before, "rehearsal preserves simulation and inventory")
 		check(not game.sim.is_exposing() and not game._ever_exposed and not game.plate_changed, "dry run leaves exposure history untouched")

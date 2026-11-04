@@ -52,6 +52,11 @@ var rehearsing := false
 var _rehearsal_step := 0
 var _rehearsal_time := 0.0
 var _rehearsal_opened := 0.0
+var _rehearsal_roof_visible := true
+var _rehearsal_yaw := 0.0
+var _rehearsal_pitch := 0.0
+var _rehearsal_position := Vector3.ZERO
+var _rehearsal_velocity := Vector3.ZERO
 var t_game := 0.0                # totality clock, game-seconds
 var change_left := 0.0           # plate change in progress
 var plate_changed := false       # a plate change was made this run (the workbook remembers it)
@@ -1056,6 +1061,15 @@ func _begin_rehearsal() -> void:
 	rehearsing = true
 	_rehearsal_step = 0
 	_rehearsal_time = 0.0
+	_rehearsal_roof_visible = world.roof.visible
+	_rehearsal_yaw = player.yaw
+	_rehearsal_pitch = player.pitch
+	_rehearsal_position = player.global_position
+	_rehearsal_velocity = player.velocity
+	player.global_position = world.station_pos + Vector3(0, 0.05, 0)
+	player.velocity = Vector3.ZERO
+	world.roof.visible = false
+	player.look_at_point(player.camera.global_position + sim.sun_dir * 10.0)
 	sky_mat.set_shader_parameter("practice_cloud", 0.93)
 	_sync_player_input()
 	ui.set_prompt("")
@@ -1088,6 +1102,11 @@ func _finish_rehearsal(feedback: String) -> void:
 	ui.show_toast("Eddington：" + feedback + "\n你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。", 7.0)
 	await get_tree().create_timer(sim.PLATE_CHANGE_S, false).timeout
 	sky_mat.set_shader_parameter("practice_cloud", -1.0)
+	world.roof.visible = _rehearsal_roof_visible
+	player.global_position = _rehearsal_position
+	player.velocity = _rehearsal_velocity
+	player.yaw = _rehearsal_yaw
+	player.pitch = _rehearsal_pitch
 	rehearsing = false
 	_sync_player_input()
 
