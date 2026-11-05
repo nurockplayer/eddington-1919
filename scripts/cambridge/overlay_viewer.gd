@@ -41,6 +41,7 @@ var _root_panel: PanelContainer
 var _toast_top := 0.0
 var _toast_bottom := 0.0
 var _toast_moved := false
+var _toast_backing: StyleBoxFlat
 
 
 func _ready() -> void:
@@ -61,6 +62,14 @@ func open() -> void:
 		_toast_moved = ui.toast.get_parent() == ui.hud
 		if _toast_moved:
 			ui.toast.reparent(ui.hud.get_parent())
+		_toast_backing = StyleBoxFlat.new()
+		_toast_backing.bg_color = Color(0.04, 0.035, 0.03, 0.88)
+		_toast_backing.set_corner_radius_all(6)
+		_toast_backing.content_margin_left = 18
+		_toast_backing.content_margin_right = 18
+		_toast_backing.content_margin_top = 6
+		_toast_backing.content_margin_bottom = 6
+		ui.toast.add_theme_stylebox_override("normal", _toast_backing)
 	buttons.flip.grab_focus()
 	_update_alignment()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -76,6 +85,8 @@ func close() -> void:
 			ui.toast.reparent(ui.hud)
 		ui.toast.offset_top = _toast_top
 		ui.toast.offset_bottom = _toast_bottom
+		ui.toast.remove_theme_stylebox_override("normal")
+		_toast_backing = null
 	_dragging = false
 	closed.emit()
 
@@ -191,6 +202,8 @@ func _process(delta: float) -> void:
 		var toast: Label = ui.toast
 		toast.size.y = maxf(90.0, toast.get_combined_minimum_size().y)
 		toast.global_position.y = _status_label.get_global_rect().position.y - 10.0 - toast.size.y
+		if _toast_backing:
+			_toast_backing.bg_color.a = 0.88 if toast.text != "" else 0.0
 	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	var movement := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
