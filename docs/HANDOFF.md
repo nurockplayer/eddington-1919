@@ -345,3 +345,13 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **After B and D1 merge:** brief D2 from the beat sheet in `docs/design/CONVERSION_ARC.md`. Then update `docs/PLAYTEST_NEWCOMER.md` with the arc questions plus the transfer question. Then move E (the hands-on box) only if the blind test shows the gap.
 - **Windowed look today 09–15 JST:** the earlier list, plus the C crosshair and ring at 1080 and at 720/1.2, the bet prompts, and the B check (if merged).
 - **Heartbeat:** one-shot cron 9e15212e at 05:53 JST is session-only; re-arm it after /clear.
+
+### Arc status (edd-lead) | 2026-11-06 07:05 JST
+
+- Merged today: A #208 (d7370aa), B #210 (1ba1599), C #207 (2c11caa), D1 #209 (1221157). The merged-tree run on #209 covered A + B + C + D1: 9 suites 0 failures, honest ENDING favors_e score 4. Follow-up issues: #211 (micrometer: loupe re-centre, judgment regression test, windowed check), #212 (orrery: Ashby corrects a mislabel before he enters the room).
+- `docs/PLAYTEST_NEWCOMER.md` now has the arc questions, transfer cards and how to read the result (9718249 and the next commit).
+- **Running:** `lw-arc-d2-20261106-070411`, move D2 epilogue, ds-edd-1, brief `arc-d2-epilogue.md` on KIOXIA `eddington-1919-cache/director/` (all lines final, wrap by 09:50 JST peak). On the event: read `~/.local/state/ds-exec/ds-edd-1-*.final.md`; a run with `PENDING job … wait limit` is not finished. Tests run + PR ready → `lead-wait pr <n>`.
+- **Worker lessons:** Godot always needs `orb-test --host`; routes need `--fixed-fps 60` and `EDD_SETTINGS_PATH`; a headless script error can hang, so cap each run; `review-bundle` needs `.claude/ds-workers.tsv` in the worktree; give long test sets as one job.
+- **Harness issue seen, not fixed:** dot-ci queue not draining since about 2026-11-06 05:00 JST (reported by ds-edd-4; not checked by the lead).
+- **Windowed look today 09–15 JST:** the earlier list, plus the C crosshair and ring at 1080 and at 720/1.2, the bet prompts, the B check, and D2's room + chart overlay if merged. After D2 merges: full e2e, a new build, and the blind newcomer session; move E only if that session shows the gap. Then the 0.4.5 decision.
+- **Heartbeat:** session-only one-shot cron; re-arm after /clear.
