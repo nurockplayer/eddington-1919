@@ -11,6 +11,7 @@ signal sound(kind: String)  # flip / nudge / settle / mark, for the director's f
 
 const MathModel = preload("res://scripts/cambridge/overlay_math.gd")
 const Fonts := preload("res://scripts/fonts.gd")
+const Prompts := preload("res://scripts/prompts.gd")
 const PAPER := Color(0.79, 0.785, 0.75)
 const PAPER_LIGHT := Color(0.88, 0.875, 0.84)
 const GLASS := Color(0.66, 0.74, 0.76)
@@ -116,7 +117,7 @@ func _build_ui() -> void:
 	title.size = Vector2(720, 42)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
-	var subtitle := _label("固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 Q／E／右搖桿旋轉", 16, MUTED)
+	var subtitle := _label("固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉" % Prompts.key("rotate"), 16, MUTED)
 	subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	subtitle.position = Vector2(-440, 66)
 	subtitle.size = Vector2(880, 30)

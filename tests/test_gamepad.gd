@@ -205,11 +205,13 @@ func _run() -> void:
 	await button(JOY_BUTTON_DPAD_LEFT)
 	check(root.gui_get_focus_owner() == credits, "D-pad left returns to credits")
 	check(Prompts.key("interact") == "A 鍵", "joypad switches prompts")
+	check(Prompts.key("rotate") == "LB／RB" and Prompts.key("toggle_log") == "Back", "joypad names the rotate and log inputs")
 	var keyboard := InputEventKey.new()
 	keyboard.keycode = KEY_W
 	keyboard.pressed = true
 	root.push_input(keyboard)
 	check(Prompts.key("interact") == "E", "keyboard restores prompts")
+	check(Prompts.key("rotate") == "Q／E" and Prompts.key("toggle_log") == "Tab", "keyboard names the rotate and log inputs")
 	keyboard.pressed = false
 	root.push_input(keyboard)
 	var motion := InputEventJoypadMotion.new()

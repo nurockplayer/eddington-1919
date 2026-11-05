@@ -951,7 +951,7 @@ func _interact(id: String) -> void:
 			elif sim.drive_wound:
 				_say(Content.cottingham_after_wind(), "")
 			else:
-				_say([{"s": Content.C, "t": "驅動箱就在我旁邊——按住 E 上發條。"}], "")
+				_say([{"s": Content.C, "t": "驅動箱就在我旁邊——按住 %s 上發條。" % Prompts.key("interact")}], "")
 		"station":
 			if sim.plates_carried > 0:
 				sim.plates_delivered += sim.plates_carried

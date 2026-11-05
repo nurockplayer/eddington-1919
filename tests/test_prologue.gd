@@ -420,6 +420,22 @@ func _test_dialogue_history() -> void:
 		InputMap.erase_action(action)
 
 
+func _test_device_prompts() -> void:
+	var Prompts = preload("res://scripts/prompts.gd")
+	var Content = preload("res://scripts/content.gd")
+	Prompts.joypad = true
+	var pad_line: String = Content.cottingham_first()[2]["t"]
+	check(pad_line.contains("按住 A 鍵 上發條"), "pad dialogue names the pad button")
+	check(not pad_line.contains("按住 E"), "pad dialogue drops the keyboard key")
+	check(C17.viewer_hint({"aligned": false, "label_mirrored": true}).contains("LB／RB"), "pad viewer hint names the shoulder buttons")
+	Prompts.joypad = false
+	var key_line: String = Content.cottingham_first()[2]["t"]
+	check(key_line.contains("按住 E 上發條"), "keyboard dialogue keeps its key")
+	check(not key_line.contains("A 鍵"), "keyboard dialogue has no pad button")
+	check(C17.viewer_hint({"aligned": false, "label_mirrored": true}).contains("Q／E"), "keyboard viewer hint keeps its keys")
+	Prompts.joypad = false
+
+
 func _test_viewer_hint_progress() -> void:
 	var viewer = Overlay.new()
 	root.add_child(viewer)
@@ -883,6 +899,7 @@ func _run() -> void:
 	await _test_plan_ui()
 	await _test_teaching_paths()
 	await _test_dialogue_history()
+	_test_device_prompts()
 	await _test_viewer_hint_progress()
 	await _test_cambridge_pause_restore()
 	await _test_cambridge_rain()
