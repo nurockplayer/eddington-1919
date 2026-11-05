@@ -146,6 +146,62 @@ static func rules_prompt(planned: bool, exam_q1 := -1, previous_rule := "") -> A
 	return out
 
 
+## Conversion arc move A: the prediction ledger. FICTION prompt. The three values are the
+## historical predictions: 0, 0.87″ (Newtonian-style corpuscle result) and 1.75″ (Einstein).
+static func bet_prompt(prev: Dictionary) -> Array:
+	if not prev.is_empty():
+		return [
+			{"s": E, "t": "量之前，翻回 1917 年那一頁。你寫的是 %s（%s）。" % [bet_pick_text(prev.pick), bet_sure_text(prev.sure)]},
+			{"s": E, "t": "還是不改？", "key": "bet_keep",
+				"choices": ["不改。", "改：零", "改：0.87", "改：1.75", "改：說不準"]},
+		]
+	return [
+		{"s": E, "t": "量之前，先在記錄本上寫下：你猜會看到哪一個？", "key": "bet",
+			"choices": ["零：光不會被拉彎", "0.87：牛頓式的一半", "1.75：愛因斯坦的全部", "說不準，寫不出來"]},
+		{"s": E, "t": "有多確定？", "key": "bet_sure",
+			"choices": ["很確定", "有點把握", "只是猜"], "then": [[], [], []]},
+	]
+
+
+static func bet_pick_text(pick: int) -> String:
+	return ["零", "0.87", "1.75", "說不準"][pick] if pick >= 0 and pick <= 3 else "沒有寫"
+
+
+static func bet_sure_text(sure: int) -> String:
+	return ["很確定", "有點把握", "只是猜"][sure] if sure >= 0 and sure <= 2 else "沒有寫"
+
+
+## Conversion arc move A: the player's bet set against the 2σ range. bounds comes from
+## Judgment.interval_bounds(sim). States containment only — no winner language.
+static func bet_vs_plates(pick: int, bounds: Dictionary) -> String:
+	if pick < 0 or pick > 3:
+		return ""
+	var names := ["零", "0.87", "1.75"]
+	var held: Array[String] = []
+	var lost: Array[String] = []
+	for i in 3:
+		var value: float = [0.0, 0.87, 1.75][i]
+		if bounds.lo <= value and value <= bounds.hi:
+			held.append(names[i])
+		else:
+			lost.append(names[i])
+	var clause := "三個都容不下——先懷疑儀器。"
+	if not held.is_empty():
+		clause = "容得下 %s，容不下 %s。" % [_bet_join(held), _bet_join(lost)] if not lost.is_empty() else "三個都在裡面。"
+	if pick == 3:
+		return "你寫的是「說不準」。現在，你的底片能說準一點了嗎？" + clause
+	var own := "容得下它" if names[pick] in held else "容不下它"
+	return "你押的是 %s。你的底片——兩倍誤差之內——%s。%s" % [names[pick], own, clause]
+
+
+static func _bet_join(names: Array) -> String:
+	if names.size() <= 1:
+		return str(names[0]) if not names.is_empty() else ""
+	if names.size() == 2:
+		return "%s 和 %s" % [names[0], names[1]]
+	return "%s、%s 和 %s" % [names[0], names[1], names[2]]
+
+
 static func interval_prompt(interval: String) -> Array:
 	return [{"s": E, "t": "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？" % interval, "key": "interval", "choices": ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"]}]
 

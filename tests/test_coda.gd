@@ -424,7 +424,19 @@ func _test_rules_before_viewer() -> void:
 	check(chapter.ui.dialog_active() and not chapter.ui.viewer.visible, "night measurement asks for a rule before opening the viewer")
 	chapter._pending = "rules"
 	chapter._on_dialogue_done({"rule": 0})
-	check(chapter.sim.rule_id == "strict" and chapter.ui.viewer.visible, "finishing the rule dialogue records strict and opens the viewer")
+	check(chapter.sim.rule_id == "strict" and chapter._pending == "bet" and not chapter.ui.viewer.visible,
+		"the rule still leads to the prediction, not the plates")
+	var guard := 20
+	while chapter.ui.dialog_active() and guard > 0:
+		guard -= 1
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		if entry.has("choices"):
+			chapter.ui._choose(0)
+		else:
+			chapter.ui._advance()
+	check(guard > 0 and chapter.ui.viewer.visible, "finishing the prediction ledger opens the viewer")
+	check(chapter.sim.bet_pick == 0 and root.get_node("Story").bet.get("year", 0) == 1919,
+		"the fresh 1919 prediction is stored for the run")
 	chapter.queue_free()
 	await process_frame
 

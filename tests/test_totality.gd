@@ -618,8 +618,9 @@ func _test_strict_poor_only() -> void:
 				break
 			var entry: Dictionary = game.ui._seq[game.ui._seq_i]
 			if entry.has("choices"):
-				check(entry.get("key", "") == "rule", "measurement opens the real rule prompt")
-				game.ui._choose(rule_index)
+				var key: String = entry.get("key", "")
+				check(key in ["rule", "bet", "bet_sure"], "measurement opens the real rule and prediction prompts")
+				game.ui._choose(rule_index if key == "rule" else 0)
 			else:
 				game.ui._advance()
 			await process_frame
