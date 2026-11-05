@@ -11,6 +11,7 @@ const World := preload("res://scripts/world_builder.gd")
 const Player := preload("res://scripts/player.gd")
 const UI := preload("res://scripts/ui.gd")
 const Content := preload("res://scripts/content.gd")
+const Ending := preload("res://scripts/ending.gd")
 const Chart := preload("res://scripts/chart.gd")
 const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
@@ -1651,26 +1652,30 @@ func _show_ending() -> void:
 	player.can_look = false
 	ui.fade.color.a = 0.0
 	var c: Dictionary = sim.combined()
-	var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
 	if _run_record_index < 0:
+		var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
 		var exposures: Array = []
 		for p in sim.plates:
 			exposures.append({"number": p.number, "start": p.start, "duration": p.duration,
 				"included": p.included, "usable": p.usable, "quality": p.quality})
+		var departure_kit: bool = _came_from_departure and Story.kit_first >= 0
 		_run_record_index = Story.runs.size()
 		Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
 			"rule_id": sim.rule_id, "bet": Story.bet.duplicate(true), "bet_pick": sim.bet_pick,
 			"telegram_id": Judgment.TELEGRAMS[_telegram].id,
 			"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
-			"score": _grade.get("score", 0), "clean": _grade.clean}.duplicate(true))
-	var workbook := "本子上：%.2f″ ± %.2f″（示意模擬）" % [c.value, c.sigma] if c.n > 0 else "本子上：沒有量出任何數值。"
-	if sim.first_result != null and sim.reselected_after_seeing:
-		var first_result := "第一次量：%.2f″ ± %.2f″" % [sim.first_result.value, sim.first_result.sigma] if sim.first_result.n > 0 else "第一次量：沒有量出任何數值。"
-		workbook += "（%s）" % first_result
-	if _came_from_departure and Story.kit_first >= 0:
-		workbook += "\n" + _night_departure_workbook.kit_line
-	var telegram := "[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s" % [Settings.fs(17), Settings.fs(30), Judgment.TELEGRAMS[_telegram].text, reasons[_reason].text]
-	var tableau := "[color=#8f8676]%s[/color]" % workbook
+			"score": _grade.get("score", 0), "clean": _grade.clean,
+			"grade": _grade.duplicate(true),
+			"first_result": sim.first_result.duplicate(true) if sim.first_result != null else null,
+			"reselected_after_seeing": sim.reselected_after_seeing,
+			"drive_rate_checked": sim.drive_rate_checked, "drive_wound": sim.drive_wound,
+			"plate_total": sim.plates.size(), "plates_available": sim.plates_available(),
+			"plate_counts": {"good": sim.count_quality("good"), "poor": sim.count_quality("poor"),
+				"unusable": sim.count_quality("unusable")},
+			"bounds": Judgment.interval_bounds(sim),
+			"departure_kit": departure_kit,
+			"kit_line": _night_departure_workbook.kit_line if departure_kit else ""}.duplicate(true))
+	var ending: Dictionary = Ending.build(Story.runs[_run_record_index], Ending.story_view(Story))
 	var best := -1
 	if sim.measured:
 		for i in sim.plates.size():
@@ -1689,36 +1694,6 @@ func _show_ending() -> void:
 		if comparison_tex == null:
 			comparison_tex = PlateRender.render(sim, null)
 		ending_texture = comparison_tex
-	var lines := []
-	lines.append("[b]Eddington 的回應[/b]")
-	for l in _grade.lines:
-		lines.append("· " + l)
-	lines.append("")
-	lines.append("[b]你留下的證據[/b]")
-	lines.append("· 拍了 %d 張底片（底片匣一共 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。" % [sim.plates.size(), sim.plates_available(), sim.count_quality("good"), sim.count_quality("poor"), sim.count_quality("unusable")])
-	if c.n > 0:
-		lines.append("· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。" % [c.n, c.value, c.sigma])
-	else:
-		lines.append("· 沒有量出任何數值。")
-	if sim.first_result != null and sim.reselected_after_seeing:
-		if sim.first_result.n > 0:
-			lines.append("· 第一次量：%.2f″ ± %.2f″" % [sim.first_result.value, sim.first_result.sigma])
-		else:
-			lines.append("· 第一次量：沒有量出任何數值。")
-	lines.append("· 時鐘驅動：%s。" % ("上了發條並校過走速" if sim.drive_rate_checked else ("上了發條但沒校走速" if sim.drive_wound else "由 Cottingham 匆忙處理")))
-	# Conversion arc A: the prediction comes back beside the evidence.
-	if not Story.bet.is_empty():
-		lines.append("· 量之前你寫的：%s（%s）。" % [Content.bet_pick_text(int(Story.bet.pick)), Content.bet_sure_text(int(Story.bet.sure))])
-	if int(Story.bet.get("ashby", 0)) == 1:
-		lines.append("· Ashby 先生寫的：0.87。")
-	var history := []
-	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
-	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
-	history.append("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。")
-	history.append("\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]" % Settings.fs(15))
-	tableau += "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
-	if _run_record_index > 0:
-		tableau += "\n\n" + Content.run_comparison(Story.runs[_run_record_index - 1], Story.runs[_run_record_index])
-	ui.show_ending(_grade.title, tableau, "\n".join(history), "\n".join(lines), telegram, ending_texture, plate_caption)
+	ui.show_ending(ending.title, ending.body, ending.history, ending.review, ending.telegram, ending_texture, plate_caption)
 	if bot:
 		bot.on_phase("ending")
