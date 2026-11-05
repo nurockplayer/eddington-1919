@@ -121,6 +121,15 @@ func _run() -> void:
 			ui.toggle_pause()
 			await settle()
 			bounds(ui.pause_panel)
+			var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
+			var buttons: Array = scroll.find_children("*", "Button", true, false)
+			for button in buttons:
+				scroll.ensure_control_visible(button)
+				await settle()
+				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "pause button reachable: " + button.text)
+			for i in buttons.size():
+				for j in range(i + 1, buttons.size()):
+					check(not buttons[i].get_global_rect().intersects(buttons[j].get_global_rect()), "pause buttons overlap")
 			ui.toggle_pause()
 			sim.measured = false
 			sim.first_result = null

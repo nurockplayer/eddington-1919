@@ -110,8 +110,11 @@ func _run() -> void:
 	check(credits.get_theme_font_size("normal_font_size") == 22, "credits scale")
 	for frame in 4:
 		await process_frame
+	var pause_scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
 	for button in ui.pause_panel.find_children("*", "Button", true, false):
-		check(root.get_visible_rect().encloses(button.get_global_rect()), "large pause button fits: " + button.text)
+		pause_scroll.ensure_control_visible(button)
+		await process_frame
+		check(pause_scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "large pause button fits: " + button.text)
 	ui.toggle_pause()
 	check(Judgment.telegram_choices() == [
 		"ECLIPSE SPLENDID. EINSTEIN CONFIRMED.（日食極佳，愛因斯坦得證）",

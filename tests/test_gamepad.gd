@@ -140,6 +140,27 @@ func _ending_layout(ui: UI) -> void:
 
 
 func _run() -> void:
+	var player = load("res://scripts/player.gd").new()
+	var look_event := InputEventMouseMotion.new()
+	look_event.relative = Vector2(0, 10)
+	Settings.look_speed = 1.0
+	Settings.invert_y = false
+	player._unhandled_input(look_event)
+	var normal_pitch: float = player.pitch
+	player.pitch = 0.0
+	Settings.invert_y = true
+	player._unhandled_input(look_event)
+	check(is_equal_approx(player.pitch, -normal_pitch) and normal_pitch < 0.0, "invert Y reverses mouse pitch")
+	look_event.relative = Vector2(10, 0)
+	player._unhandled_input(look_event)
+	var normal_yaw: float = player.yaw
+	player.yaw = 0.0
+	Settings.look_speed = 1.5
+	player._unhandled_input(look_event)
+	check(is_equal_approx(player.yaw, normal_yaw * 1.5) and normal_yaw != 0.0, "look speed scales mouse yaw")
+	Settings.look_speed = 1.0
+	Settings.invert_y = false
+	player.free()
 	var main := load("res://scripts/main.gd")
 	# Exercise desktop ui_right defaults even when the headless server omits them.
 	var ui_stick := InputEventJoypadMotion.new()
@@ -206,7 +227,7 @@ func _run() -> void:
 	check(paused and root.gui_get_focus_owner() is Button and ui.pause_panel.is_ancestor_of(root.gui_get_focus_owner()), "Start opens pause with button focus")
 	ScorePlayer.set_music_enabled(true)
 	ui.music_button.pressed.emit()
-	check(not ScorePlayer.music_enabled() and not ui.music_slider.editable and is_equal_approx(ui.music_row.modulate.a, 0.4),
+	check(not ScorePlayer.music_enabled() and not ui.music_slider.editable and ui.music_slider.focus_mode == Control.FOCUS_NONE and is_equal_approx(ui.music_row.modulate.a, 0.4),
 		"music off dims and locks the music slider")
 	ui.music_button.pressed.emit()
 	check(ScorePlayer.music_enabled() and ui.music_slider.editable and is_equal_approx(ui.music_row.modulate.a, 1.0),

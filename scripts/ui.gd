@@ -1396,14 +1396,21 @@ func _build_pause(root: Control) -> void:
 	pause_panel.process_mode = Node.PROCESS_MODE_ALWAYS
 	pause_panel.z_index = 1
 	root.add_child(pause_panel)
+	var scroll := ScrollContainer.new()
+	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
+	scroll.anchor_left = 0.5
+	scroll.anchor_right = 0.5
+	scroll.offset_left = -150
+	scroll.offset_right = 150
+	scroll.offset_top = 20
+	scroll.offset_bottom = -20
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	pause_panel.add_child(scroll)
 	var v := VBoxContainer.new()
-	v.set_anchors_preset(Control.PRESET_CENTER)
-	v.grow_vertical = Control.GROW_DIRECTION_BOTH
-	v.position = Vector2(-150, 0)
-	v.custom_minimum_size = Vector2(300, 0)
-	# 4 px keeps every row inside 720 px at large text now that help and title exist.
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_theme_constant_override("separation", 4)
-	pause_panel.add_child(v)
+	scroll.add_child(v)
 	var t := _label("暫停", 36)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(t)
@@ -1443,6 +1450,16 @@ func _build_pause(root: Control) -> void:
 	quality_button = _button(_quality_caption())
 	quality_button.pressed.connect(_cycle_quality)
 	v.add_child(quality_button)
+	var look := _button("視角靈敏度：" + ["低", "標準", "高"][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
+	look.pressed.connect(func():
+		Settings.cycle_look_speed()
+		look.text = "視角靈敏度：" + ["低", "標準", "高"][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
+	v.add_child(look)
+	var invert := _button("上下反轉：開" if Settings.invert_y else "上下反轉：關")
+	invert.pressed.connect(func():
+		Settings.toggle_invert_y()
+		invert.text = "上下反轉：開" if Settings.invert_y else "上下反轉：關")
+	v.add_child(invert)
 	var help := _button("操作說明")
 	help.pressed.connect(_open_help)
 	v.add_child(help)
@@ -1473,7 +1490,7 @@ func _build_pause(root: Control) -> void:
 			return
 		quit_pressed.emit())
 	v.add_child(quit_button)
-	for button in [r, music_button, fullscreen_button, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, look, invert, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 
 
@@ -1488,6 +1505,7 @@ func _sync_music_row() -> void:
 		return
 	var on := ScorePlayer.music_enabled()
 	music_slider.editable = on
+	music_slider.focus_mode = Control.FOCUS_ALL if on else Control.FOCUS_NONE
 	music_row.modulate.a = 1.0 if on else 0.4
 
 
