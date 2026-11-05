@@ -123,6 +123,15 @@ func _run() -> void:
 			for i in ui._choice_buttons.size():
 				for j in range(i + 1, ui._choice_buttons.size()):
 					check(not ui._choice_buttons[i].get_global_rect().intersects(ui._choice_buttons[j].get_global_rect()), "choice buttons overlap")
+			# Conversion arc move B: the orrery suspect is the longest choice list.
+			ui.play([C17.orrery_suspect_entry()])
+			await settle()
+			bounds(ui.dialog_panel)
+			check(ui._choice_buttons.size() == 5, "five orrery suspects are visible")
+			check(not ui.text_label.get_global_rect().intersects(ui.choice_box.get_global_rect()), "orrery text overlaps choices")
+			for i in ui._choice_buttons.size():
+				for j in range(i + 1, ui._choice_buttons.size()):
+					check(not ui._choice_buttons[i].get_global_rect().intersects(ui._choice_buttons[j].get_global_rect()), "orrery choice buttons overlap")
 			ui.toggle_pause()
 			await settle()
 			bounds(ui.pause_panel)

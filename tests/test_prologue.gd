@@ -794,15 +794,19 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	check(not chapter.ui.objectives.text.contains("自己再對一次"), "the completed independent check clears that instruction")
 	chapter.beat = objective_beat
 	chapter._sync_player()
-	# Issue #37: examining the orrery lets the mentor answer for Mercury later.
-	check(not chapter.state().orrery_seen, "orrery unseen at first")
+	# Conversion arc move B: the first orrery visit is the check; the mentor's
+	# Mercury lines are unconditional and answer the player's suspect.
+	check(not chapter.state().orrery_seen and story.orrery.is_empty(), "orrery unseen and unchecked at first")
 	chapter._interact("orrery")
-	check(chapter.state().orrery_seen and chapter.ui.dialog_active(), "examining the orrery is remembered")
+	check(chapter.state().orrery_seen and chapter.ui.dialog_active(), "examining the orrery opens the check")
+	check(chapter._pending == "orrery_check", "the first visit is the check, not the old pages")
 	_finish_test_dialogue(chapter)
+	check(story.orrery.size() == 3 and story.mercury_suspect >= 0, "the check stores the three marks and the suspect")
 	var plain: Array = C17.mentor_dyson({}, {})
-	var seen: Array = C17.mentor_dyson({}, chapter.state())
-	check(seen.size() == plain.size() + 2 and str(seen[seen.size() - 5].t).contains("43"), "the mentor weighs Mercury fairly once the orrery is seen")
-	check(seen[seen.size() - 3].get("key", "") == "bridge" and plain[plain.size() - 3].get("key", "") == "bridge", "the bridge question still follows")
+	var answered: Array = C17.mentor_dyson({}, {"mercury_suspect": 4})
+	check(answered.size() > plain.size() and answered.any(func(line): return str(line.get("t", "")).contains("拆掉整棟房子")), "the mentor answers the suspected theory")
+	check(answered.any(func(line): return str(line.get("t", "")).contains("1911")), "the mentor adds Einstein's 1911 half value")
+	check(answered.any(func(line): return line.get("key", "") == "bridge"), "the bridge question still follows")
 	# Issue #37 loop 2: the closed box sits in Eddington's exam, before the clean-plate list.
 	var exam: Array = C17.eddington_exam({}, {})
 	var box_i := exam.find(exam.filter(func(l): return l.get("key", "") == "box" and l.get("choices", []).size() == 3).front())

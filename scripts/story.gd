@@ -14,6 +14,10 @@ var trial_note := -1
 var exam: Dictionary = {}
 var bet: Dictionary = {}
 var bet_1917: Dictionary = {}
+## Conversion arc move B: the player's marks on the orrery check
+## ({"neptune": 0|1, "halley": 0|1, "mercury": 0|1}) and what they suspect.
+var orrery: Dictionary = {}
+var mercury_suspect := -1
 var sky_promise := -1
 var bond_tone := ""
 var slip_fix := -1
@@ -34,6 +38,8 @@ func reset(keep_runs := false) -> void:
 	exam.clear()
 	bet.clear()
 	bet_1917.clear()
+	orrery.clear()
+	mercury_suspect = -1
 	sky_promise = -1
 	bond_tone = ""
 	slip_fix = -1
