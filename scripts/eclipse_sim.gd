@@ -49,6 +49,7 @@ var _open: Dictionary = {}    # exposure in progress
 
 # --- analysis/judgment state ------------------------------------------------
 var rule_id := ""
+var bet_pick := -1               # Conversion arc A: prediction ledger pick (0..3) for this run
 var measured := false
 var reselected_after_seeing := false
 var measured_selection = null    # plate numbers included at the last measurement

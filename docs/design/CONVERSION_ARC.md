@@ -58,3 +58,33 @@ Order: A, then B and D (D needs A's ledger for Ashby's reaction), then C, then E
 
 1. A blind newcomer session (`docs/PLAYTEST_NEWCOMER.md`, updated with the questions above, plus one transfer question: "here is a new plate with these error bars; does it tell the models apart?").
 2. Automated: each move's suite, the honest/careful/rushed autoplay routes, and the full e2e before a build.
+
+## Move D beat sheet (lead, 2026-11-06 05:1x JST)
+
+Prologue path only (the player knows Ashby). Built as `scenes/epilogue.tscn` + `scripts/cambridge/epilogue_director.gd` + `content_epilogue.gd`, reusing the 1917 room the way the departure chapter does. Step D1 (refactor: the ending built from the run snapshot) comes first, so the epilogue can show the same ending screen. Flow: Príncipe coda → lamp out → epilogue → ending.
+
+1. Caption 「劍橋，1919 年 10 月」 (RECONSTRUCTION). The room as in 1917; the orrery on the shelf; Ashby at the desk.
+2. **Dyson's letter** (prop, RECONSTRUCTION; no verbatim quotation). From Greenwich, measured there:
+   - Sobral 4-inch: 1.98″ ± 0.12″ (probable error);
+   - Sobral astrographic: about 0.93″, with blurred images and a focus/scale that may have changed on the day.
+3. **The chart.** The player's own Príncipe result is labelled 示意模擬, as in the darkroom. The player copies the two Sobral rows onto it, one press each. The 4-inch point is drawn with σ ≈ 0.18″ and the label 「±0.12″ 機率誤差，約 0.18″ 標準差」. The astrographic point is a hollow marker with no bar: 「沒有可靠的誤差」.
+4. **Weighting decision**, key `astro_weight`:
+   - 照樣算，一樣重
+   - 先放一邊，但寫明原因（星像糊、比例尺可能變了）
+   - 整組丟掉，不用提
+   - 還不能決定，先重量一次
+
+   Ashby answers each one. Hiding the set gets an objection. Setting it aside *with the reason written down* is what the Greenwich team did. Re-measuring is honoured.
+5. **The ledger.** Ashby opens the 1917 page: his 0.87 and the player's pick. His reaction scales with the evidence (snapshot fit/clean and whether the player's 2σ range excludes 0.87):
+   - Clean and excluding: 「我寫的是 0.87。你的底片和 Sobral 的小鏡頭，都容不下它。……在這件事上，我錯了。」
+   - Inconclusive: 「你的底片還分不出來。Sobral 的可以。兩個地方、兩套儀器——這比我希望的更難反駁。」
+
+   He never converts out of politeness.
+6. **The orrery.** Mercury returns, and it recalls the player's 1917 suspect (move B):
+   - 「1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。我那時想：先知道答案再去算，誰都算得對。」
+   - 「可是光彎多少，是在任何人量之前就寫下的。」
+   - 「一個是事後的解釋，一個是事先的下注——現在指著同一邊。」
+
+   Choice key `click`: 「水星也不再是例外了」 / 「同一個想法，說中兩件不相干的事」 / 「還要更多證據」. Each gets a short Ashby reply; none of them lectures.
+7. **Self-explanation**, key `final_reason`: 「在筆記本最後寫一句：哪一個證據最讓你改變想法？」 Choices: 我自己的底片 / Sobral 的 4 吋鏡頭 / 兩地一起 / 水星和光指向同一邊 / 我還沒有改變想法. Stored on the run; shown on the ending; asked again in the blind playtest.
+8. Ashby: 「11 月 6 日，倫敦開會。」 Fade → ending. The history block adds the 1979 remeasurement (1.90″ ± 0.11″ 4-inch; 1.55″ ± 0.34″ astrographic; HISTORICAL_RECORD) as the answer to "they threw data away".

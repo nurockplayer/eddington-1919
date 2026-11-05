@@ -58,6 +58,9 @@ func _test_rule_recall(story: Node, played: bool, q1: int, has: Array, lacks: Ar
 	# main._ready resets Story outside a prologue run, so set it afterwards.
 	story.prologue_done = played
 	story.exam = {"q1": q1}
+	# A prologue run that planned the comparison plates reaches the rule directly;
+	# without the card the Oxford errand comes first (test_plan_recall covers it).
+	story.plan = ["comparison"] if played else []
 	game.phase = game.Phase.NIGHT
 	game._interact("measure")
 	var text := ""
