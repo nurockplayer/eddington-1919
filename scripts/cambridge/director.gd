@@ -122,6 +122,7 @@ func _ready() -> void:
 		modal.theme = ui.theme_res
 		layer.add_child(modal)
 		modal.hide()
+	ui.prompts_changed.connect(_on_prompts_changed)
 	overlay.clue_found.connect(_clue_found)
 	overlay.aligned_changed.connect(func(on):
 		aligned = aligned or on
@@ -183,6 +184,12 @@ func _sync_player() -> void:
 	else:
 		ui.set_objectives("")
 	_trial_marker.visible = beat == Beat.TRIAL_TASK and free
+
+
+func _on_prompts_changed() -> void:
+	if overlay:
+		overlay.refresh_prompts()
+	_sync_player()
 
 
 func _process(delta: float) -> void:

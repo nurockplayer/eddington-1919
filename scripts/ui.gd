@@ -27,6 +27,8 @@ signal measure_pressed
 signal reselect_pressed
 signal report_pressed
 signal viewer_closed
+## The keyboard/pad prompt names changed (see Prompts.joypad).
+signal prompts_changed
 
 const PAPER := Color(0.93, 0.89, 0.80)
 const INK := Color(0.10, 0.09, 0.08)
@@ -1777,11 +1779,14 @@ func _active_menu_scroll() -> ScrollContainer:
 
 
 func _input(event: InputEvent) -> void:
+	var was_joypad := Prompts.joypad
 	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.25):
 		Prompts.joypad = true
 	elif event is InputEventKey or event is InputEventMouse:
 		Prompts.joypad = false
 	_refresh_hints()
+	if Prompts.joypad != was_joypad:
+		prompts_changed.emit()
 	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
 		if event.is_action_pressed("overlay_rotate_right") and not blink_btn.disabled:
 			blink_btn.grab_focus()
