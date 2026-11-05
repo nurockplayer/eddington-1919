@@ -135,6 +135,26 @@ func _run() -> void:
 			for i in buttons.size():
 				for j in range(i + 1, buttons.size()):
 					check(not buttons[i].get_global_rect().intersects(buttons[j].get_global_rect()), "pause buttons overlap")
+			var armed_buttons: Array = [ui._pause_title_btn, ui.restart_button, ui.quit_button]
+			for button: Button in armed_buttons:
+				button.pressed.emit()
+			await settle()
+			for button: Button in armed_buttons:
+				scroll.ensure_control_visible(button)
+				await settle()
+				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "armed pause button reachable: " + button.text)
+				check(scroll.size.x <= 301.0, "armed pause column stays 300 px: " + button.text)
+				var content_width: float = button.size.x - button.get_theme_stylebox("normal").get_minimum_size().x
+				var font := button.get_theme_font("font")
+				var font_size := button.get_theme_font_size("font_size")
+				var text_size := font.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+				if button.autowrap_mode != TextServer.AUTOWRAP_OFF:
+					var flags := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+					text_size = font.get_multiline_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, content_width, font_size, -1, flags)
+				check(text_size.x <= content_width + 1.0, "armed pause text fits: " + button.text)
+				check(text_size.y <= button.size.y - button.get_theme_stylebox("normal").get_minimum_size().y + 1.0, "armed pause text height fits: " + button.text)
+			ui.toggle_pause()
+			ui.toggle_pause()
 			ui.toggle_pause()
 			sim.measured = false
 			sim.first_result = null
