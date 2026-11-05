@@ -969,7 +969,7 @@ func _test_viewer_note() -> void:
 	], {}, true)
 	for frame in 2:
 		await process_frame
-	check(chart.drawn().hollow == 1 and chart.drawn().filled == 1,
+	check(chart.drawn().markers == ["hollow", "filled"],
 		"weak plate marker is drawn as a hollow ring while a good plate is a filled dot")
 	chart.free()
 	var game: Node = load("res://scenes/main.tscn").instantiate()
