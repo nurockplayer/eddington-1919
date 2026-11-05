@@ -105,6 +105,8 @@ func _setup(game: Node, story: Node, spec: Dictionary) -> void:
 	story.kit_first = int(spec.get("kit_first", -1))
 	game._came_from_departure = bool(spec.get("departure", false))
 	if game._came_from_departure:
+		if not is_instance_valid(game._night_departure_workbook):
+			game._add_night_workbook()
 		game._night_departure_workbook.write_kit_line("給 Kit：雲在最後才薄下去，我一直看著。")
 
 
