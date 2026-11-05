@@ -84,6 +84,8 @@ func _run() -> void:
 	story.clues = {"residual": true}
 	story.runs.append({"grade": "probe"})
 	load("res://scripts/main.gd").replay_from_prologue = true
+	load("res://scripts/main.gd").next_seed = 4242
+	load("res://scripts/ui.gd").history.append("old dialogue")
 	to_title.pressed.emit()
 	check(to_title.text == "再按一次：回到標題" and current_scene.get_instance_id() == main_id, "reopened 回到標題 needs arming again")
 	to_title.pressed.emit()
@@ -97,5 +99,7 @@ func _run() -> void:
 	check(not story.from_prologue and not story.prologue_done and story.clues.is_empty() and story.runs.is_empty(),
 		"回到標題 resets Story")
 	check(not load("res://scripts/main.gd").replay_from_prologue, "回到標題 clears the replay origin flag")
+	check(load("res://scripts/main.gd").next_seed == -1, "回到標題 clears the replay seed")
+	check(load("res://scripts/ui.gd").history.is_empty(), "回到標題 clears the dialogue log")
 	print("test_pause_help: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

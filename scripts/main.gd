@@ -687,6 +687,9 @@ func _start_game() -> void:
 
 func _return_to_title() -> void:
 	Story.reset()
+	# A new game starts with no log and a fresh sky.
+	next_seed = -1
+	UI.history.clear()
 	# A replay's origin flag must not survive into the title run.
 	replay_from_prologue = false
 	replay_pending = false
