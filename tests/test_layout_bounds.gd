@@ -5,6 +5,7 @@ const Content := preload("res://scripts/content.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Render := preload("res://scripts/plate_render.gd")
 const Judgment := preload("res://scripts/judgment.gd")
+const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 var checks := 0
@@ -131,7 +132,7 @@ func _run() -> void:
 			check(ui.thumbs.get_child_count() == 13 and ui.viewer_note.text.contains("兩倍誤差"), "twelve plates and measured note are visible")
 			await settle()
 			bounds(ui.viewer)
-			var viewer_buttons := ui.viewer.find_children("*", "BaseButton", true, false).filter(func(b): return b.is_visible_in_tree())
+			var viewer_buttons: Array = ui.viewer.find_children("*", "BaseButton", true, false).filter(func(b): return b.is_visible_in_tree())
 			for i in viewer_buttons.size():
 				for j in range(i + 1, viewer_buttons.size()):
 					check(not viewer_buttons[i].get_global_rect().intersects(viewer_buttons[j].get_global_rect()), "viewer buttons overlap")
@@ -156,11 +157,24 @@ func _run() -> void:
 			await settle()
 			bounds(ui.viewer)
 			ui.close_viewer()
+			ui.dialog_panel.hide()
 			var overlay := Overlay.new()
+			overlay.ui = ui
 			root.add_child(overlay)
+			overlay.flipped = true
+			overlay.angle_deg = 3.2
 			overlay.open()
+			ui.hud.visible = false
+			ui.show_toast(C17.viewer_feedback("label_mirrored"), 6.0)
 			await settle()
 			bounds(overlay)
+			check(ui.toast.is_visible_in_tree(), "overlay toast visible while HUD hidden")
+			var toast_rect: Rect2 = ui.toast.get_global_rect()
+			check(not toast_rect.intersects(overlay._status_label.get_global_rect()), "overlay toast clears aligned status")
+			check(not toast_rect.intersects(overlay.buttons.flip.get_parent().get_global_rect()), "overlay toast clears button row")
+			check(root.get_visible_rect().encloses(toast_rect), "overlay toast stays on screen")
+			overlay.close()
+			check(ui.toast.get_parent() == ui.hud, "overlay restores toast to HUD")
 			overlay.free()
 			var checklist := Checklist.new()
 			root.add_child(checklist)
