@@ -505,7 +505,7 @@ func _test_cambridge_pause_restore() -> void:
 	chapter._sync_player()
 	chapter.overlay._try_detail_click(chapter.overlay._detail_local_position("label_mirrored"))
 	await process_frame
-	check(Story.clues.get("label_mirrored", false), "light-box clue found through overlay")
+	check(root.get_node("Story").clues.get("label_mirrored", false), "light-box clue found through overlay")
 	check(chapter.ui.toast.is_visible_in_tree(), "light-box feedback remains visible with HUD hidden")
 	check(not chapter.ui.toast.get_global_rect().intersects(chapter.overlay._status_label.get_global_rect()), "light-box feedback clears status")
 	chapter.sfx_log.clear()

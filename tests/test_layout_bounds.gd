@@ -157,6 +157,7 @@ func _run() -> void:
 			await settle()
 			bounds(ui.viewer)
 			ui.close_viewer()
+			ui.dialog_panel.hide()
 			var overlay := Overlay.new()
 			overlay.ui = ui
 			root.add_child(overlay)
