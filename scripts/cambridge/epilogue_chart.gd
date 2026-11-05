@@ -34,8 +34,15 @@ func open(p_run: Dictionary) -> void:
 		_build()
 		_built = true
 	_refresh()
+	chart.refresh_fonts()
 	show()
 	button.grab_focus()
+
+
+## The UI's text-size button refreshes the main chart; this overlay asks for the same.
+func refresh_fonts() -> void:
+	if is_instance_valid(chart):
+		chart.refresh_fonts()
 
 
 func _build() -> void:

@@ -7,6 +7,7 @@ extends SceneTree
 const SCENE := "res://scenes/epilogue.tscn"
 const CONTENT := preload("res://scripts/cambridge/content_epilogue.gd")
 const ENDING := preload("res://scripts/ending.gd")
+const Settings := preload("res://scripts/settings.gd")
 var checks := 0
 var failures := 0
 
@@ -134,6 +135,15 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.beat == chapter.Beat.LETTER, "the opening releases the letter beat")
 	check(chapter.ui.objectives.text.contains("劍橋・1919 年 10 月") and chapter.ui.objectives.text.contains("Dyson"),
 		"the objective names the letter")
+	# The normal southern approach must reach the letter, not the 1917 copyist's desk volume.
+	chapter.player.global_position = Vector3(-2.47, 0, 1.3)
+	chapter.player.look_at_point(chapter.world.targets.letter)
+	await process_frame
+	var aimed = chapter.player.aimed_interactable()
+	check(aimed != null and str(aimed.get_meta("interact_id", "")) == "letter",
+		"the letter is aimable from the southern approach")
+	chapter.player.global_position = chapter.world.spawn
+	chapter.player.look_at_point(chapter.world.targets.notebook)
 	chapter._interact("letter")
 	check(chapter.ui.dialog_active(), "the letter opens as real dialogue")
 	var letter := _text(chapter)
@@ -250,6 +260,16 @@ func _test_gamepad(story: Node) -> void:
 	chapter.chart.open(story.runs.back())
 	await process_frame
 	check(chapter.chart.button.has_focus(), "the overlay lands focus on its button")
+	var old_scale := Settings.text_scale
+	Settings.text_scale = 1.2
+	Settings.refresh_fonts(self)
+	chapter.chart.refresh_fonts()
+	await process_frame
+	await process_frame
+	check(chapter.chart.chart.drawn().label_px == Settings.fs(14),
+		"the overlay chart follows the UI text scale")
+	Settings.text_scale = old_scale
+	Settings.refresh_fonts(self)
 	var event := InputEventJoypadButton.new()
 	event.button_index = JOY_BUTTON_A
 	event.pressed = true

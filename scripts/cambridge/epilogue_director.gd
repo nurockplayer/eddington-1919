@@ -41,6 +41,9 @@ func _ready() -> void:
 	if kit_shape:
 		kit_shape.disabled = true
 	world.mentor.visible = true
+	# The 1917 copyist's empty-desk volume covers the letter from the south; 1919 has
+	# no use for it, and its collider would take the ray before the letter does.
+	_disable_hotspot("empty_desk")
 	player = Player.new()
 	player.position = world.spawn
 	add_child(player)
@@ -57,6 +60,7 @@ func _ready() -> void:
 	ui.dialogue_entry.connect(_frame_speaker)
 	ui.log_toggled.connect(func(_open): _sync_player())
 	ui.pause_toggled.connect(func(_paused): _sync_player())
+	ui.text_size_button.pressed.connect(func(): chart.refresh_fonts())
 	ui.dialog_panel.offset_top = -214
 	ui.dialog_panel.offset_bottom = -18
 	ui.dialog_panel.custom_minimum_size.y = 196
@@ -85,6 +89,17 @@ func _ready() -> void:
 	await ui.show_caption(Content.intro_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
 	_say(Content.opening(), "opening")
+
+
+## Removes an inactive hotspot's collider so it cannot take the interaction ray.
+func _disable_hotspot(id: String) -> void:
+	for body in find_children("*", "StaticBody3D", true, false):
+		if str(body.get_meta("interact_id", "")) != id:
+			continue
+		body.collision_layer = 0
+		for child in body.get_children():
+			if child is CollisionShape3D:
+				(child as CollisionShape3D).disabled = true
 
 
 func _set_prompt_meta(id: String, prompt: String) -> void:
