@@ -177,7 +177,7 @@ func _sync_player() -> void:
 		var task := "核對 14 號星場的抄錄圖，交給 %s" % Cast.MENTOR
 		if aligned and not kit_checked:
 			task = "對上了。請 %s 自己再對一次，再寫進筆記本。" % Cast.KIT
-		ui.set_objectives("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\nTab 對話紀錄[/color]" % [task, Cast.KIT])
+		ui.set_objectives("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]" % [task, Cast.KIT, Prompts.key("toggle_log")])
 	elif beat == Beat.TRIAL_TASK:
 		ui.set_objectives("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。")
 	else:
