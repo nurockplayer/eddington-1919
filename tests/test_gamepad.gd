@@ -240,6 +240,18 @@ func _run() -> void:
 	ui.music_button.pressed.emit()
 	check(ScorePlayer.music_enabled() and ui.music_slider.editable and is_equal_approx(ui.music_row.modulate.a, 1.0),
 		"music on restores the music slider")
+	var invert_button: Button = null
+	var motion_button: Button = null
+	for candidate in ui.pause_panel.find_children("*", "Button", true, false):
+		if candidate is Button and candidate.text.begins_with("上下反轉"):
+			invert_button = candidate
+		elif candidate is Button and candidate.text.begins_with("減少晃動"):
+			motion_button = candidate
+	check(motion_button != null and motion_button.focus_mode == Control.FOCUS_ALL, "pause settings adds the 減少晃動 row")
+	if invert_button and motion_button:
+		invert_button.grab_focus()
+		await button(JOY_BUTTON_DPAD_DOWN)
+		check(root.gui_get_focus_owner() == motion_button, "D-pad down reaches 減少晃動")
 	ui.restart_button.grab_focus()
 	await button(JOY_BUTTON_A)
 	check(ui.restart_button.text == "再按一次：從頭開始" and root.gui_get_focus_owner() == ui.restart_button,

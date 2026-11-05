@@ -129,7 +129,7 @@ func _physics_process(delta: float) -> void:
 	if input.length() > 0.1 and is_on_floor():
 		var previous_step := floori(_bob / PI)
 		_bob += delta * speed * 2.2
-		camera.position.y = 1.62 + sin(_bob) * 0.035
+		camera.position.y = 1.62 + (0.0 if Settings.reduced_motion else sin(_bob) * 0.035)
 		if floori(_bob / PI) > previous_step:
 			_step_player.stream = _steps[step_surface][_step_rng.randi_range(0, 2)]
 			_step_player.play()
