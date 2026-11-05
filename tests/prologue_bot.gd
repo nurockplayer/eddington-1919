@@ -750,15 +750,23 @@ func _continue_honest_to_ending() -> void:
 	await talk()
 	_coda_checks.loupe = main.coda_step == main.CodaStep.FADING or main.phase == main.Phase.ENDING
 	_coda_checks.kit_close = _coda_capture_seen.has("coda_kit_close")
-	phase_guard = 30.0
-	while main.phase != main.Phase.ENDING and phase_guard > 0.0:
+	# Conversion arc D: a first completed run goes to the October 1919 epilogue;
+	# the ending is shown there, from the snapshot the coda recorded.
+	phase_guard = 40.0
+	while phase_guard > 0.0:
+		var scene: Node = get_tree().current_scene
+		if is_instance_valid(scene) and scene.get_script() != null and scene.get_script().resource_path == "res://scripts/cambridge/epilogue_director.gd":
+			break
 		await frames(2)
 		phase_guard -= get_process_delta_time()
-	if main.phase != main.Phase.ENDING:
-		failures.append("coda did not reach ENDING")
+	if phase_guard <= 0.0:
+		failures.append("coda did not hand off to the epilogue")
 		return
+	main = get_tree().current_scene
 	_coda_checks.complete = true
 	_coda_checks.lamp_out = _coda_capture_seen.has("coda_lamp_out")
+	if not await _epilogue_route():
+		return
 	await frames(30)
 	await shot("ending")
 	# Exercise the expandable historical record through its visible button.
@@ -769,6 +777,102 @@ func _continue_honest_to_ending() -> void:
 			await shot("ending_history")
 			return
 	failures.append("ending history toggle button missing")
+
+
+## The October 1919 epilogue, driven with the same real inputs as the chapters.
+func _epilogue_route() -> bool:
+	var guard := 45.0
+	while guard > 0.0:
+		if main.ui.dialog_active():
+			await talk()
+		if main.beat == main.Beat.LETTER and not main._busy:
+			break
+		await frames(2)
+		guard -= get_process_delta_time()
+	if guard <= 0.0:
+		failures.append("epilogue opening did not reach the letter")
+		return false
+	await shot("epilogue_opening")
+	await walk(Vector3(-2.9, 0, 1.3))
+	await interact("letter")
+	await talk()
+	guard = 15.0
+	while not main.chart.visible and guard > 0.0:
+		await frames(2)
+		guard -= get_process_delta_time()
+	if not main.chart.visible:
+		failures.append("epilogue letter did not open the chart")
+		return false
+	await frames(5)
+	await shot("epilogue_chart_base")
+	await click_button(main.chart.button)
+	await frames(5)
+	if not await _epilogue_chart_has("Sobral 4 吋", false):
+		failures.append("chart did not add the Sobral 4-inch row")
+		return false
+	await click_button(main.chart.button)
+	await frames(5)
+	if not await _epilogue_chart_has("Sobral 天體照相儀", true):
+		failures.append("chart did not add the astrographic row without a bar")
+		return false
+	await shot("epilogue_chart_rows")
+	await click_button(main.chart.button)
+	await talk_keys({"astro_weight": 1})
+	if main.ui.dialog_active():
+		await talk_keys({})
+	guard = 10.0
+	while main.beat != main.Beat.ORRERY and guard > 0.0:
+		await frames(2)
+		guard -= get_process_delta_time()
+	if main.beat != main.Beat.ORRERY:
+		failures.append("epilogue weight did not reach the orrery")
+		return false
+	await shot("epilogue_ledger")
+	await walk(Vector3(2.3, 0, -0.9))
+	await interact("orrery")
+	await talk_keys({"click": 1, "final_reason": 2})
+	if main.ui.dialog_active():
+		await talk_keys({})
+	guard = 20.0
+	while (main.beat != main.Beat.ENDING or not main.ui.ending_panel.visible) and guard > 0.0:
+		await frames(2)
+		guard -= get_process_delta_time()
+	if main.beat != main.Beat.ENDING or not main.ui.ending_panel.visible:
+		failures.append("epilogue did not reach the ending")
+		return false
+	var back: Dictionary = Story.runs.back()
+	if int(back.get("astro_weight", -1)) != 1:
+		failures.append("epilogue astrographic weighting was not stored")
+	if int(back.get("click", -1)) != 1:
+		failures.append("epilogue orrery answer was not stored")
+	if int(back.get("final_reason", -1)) != 2:
+		failures.append("epilogue notebook answer was not stored")
+	if not Story.epilogue_done:
+		failures.append("epilogue completion flag missing")
+	if not main.ui.ending_text.text.contains("筆記本最後一句"):
+		failures.append("ending omitted the notebook answer")
+	if not main.ui.ending_text.text.contains("Sobral 天體照相儀那組"):
+		failures.append("ending omitted the astrographic weighting")
+	if main.ui.ending_plate.texture == null:
+		failures.append("ending lost the stored plate")
+	if main.ui.ending_plate_caption.text != Story.ending_plate_caption or Story.ending_plate_caption == "":
+		failures.append("ending plate caption was not carried across the scene change")
+	return true
+
+
+func _epilogue_chart_has(label: String, no_bar: bool) -> bool:
+	var found := false
+	for row in main.chart.rows:
+		if str(row.get("label", "")) == label:
+			found = true
+	if not found:
+		return false
+	if not no_bar:
+		return true
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var bars: Array = main.chart.drawn().get("bars", [])
+	return bars.size() == main.chart.rows.size() and bars.back() == "none"
 
 
 func _on_coda_dialogue_entry(_speaker: String) -> void:
@@ -902,16 +1006,22 @@ func _finish() -> void:
 		score_failures = ScorePlayer.run_failures(true)
 		failures.append_array(score_failures)
 	var phase_reached := "INCOMPLETE"
-	if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd":
+	var scene_path := ""
+	if is_instance_valid(main) and main.get_script() != null:
+		scene_path = main.get_script().resource_path
+	if scene_path == "res://scripts/main.gd":
 		if main.phase == main.Phase.PREP: phase_reached = "PREP"
 		elif main.phase == main.Phase.ENDING: phase_reached = "ENDING"
+	elif scene_path.ends_with("cambridge/epilogue_director.gd"):
+		# The epilogue shows the ending itself; its ENDING beat is the same receipt.
+		if main.beat == main.Beat.ENDING: phase_reached = "ENDING"
 	var receipt := {"scenario": scenario, "phase_reached": phase_reached,
 		"prologue_done": Story.prologue_done, "from_prologue_consumed": not Story.from_prologue,
 		"bond_tone": Story.bond_tone, "slip_fix": Story.slip_fix, "departure_done": Story.departure_done,
 		"clues": Story.clues, "report": Story.report, "plan": Story.plan, "kit_choice": Story.kit_choice,
 		"matched": _matched, "bias_blocked": _bias_blocked, "report_revised": _revised, "beats": beats, "interactions": interactions,
 		"screenshots": screenshots, "failures": failures, "human_playtest": false,
-		"score": int(main._grade.get("score", -1)) if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd" else -1,
+		"score": int(main._grade.get("score", -1)) if scene_path == "res://scripts/main.gd" else (int(Story.runs.back().get("score", -1)) if scene_path.ends_with("cambridge/epilogue_director.gd") and not Story.runs.is_empty() else -1),
 		"coda_checks": _coda_checks,
 		"score_cue_log": ScorePlayer.cue_log.duplicate(true), "score_failures": score_failures,
 		"engine": Engine.get_version_info().string, "elapsed_seconds": snappedf(_elapsed, 0.01),
@@ -920,9 +1030,12 @@ func _finish() -> void:
 		"stuck_events": _stuck_events, "disruptions": monkey.disruptions if monkey else []}
 	var run_seed := -1
 	var evidence := "-"
-	if is_instance_valid(main) and main.get_script().resource_path == "res://scripts/main.gd":
+	if scene_path == "res://scripts/main.gd":
 		run_seed = main.sim.run_seed
 		evidence = main.sim.evidence_class()
+	elif scene_path.ends_with("cambridge/epilogue_director.gd") and not Story.runs.is_empty():
+		run_seed = int(Story.runs.back().get("seed", -1))
+		evidence = "epilogue"
 	print("[PROLOGUE %s] score cue checks=%s cue_log=%s" % [scenario, str(score_failures), JSON.stringify(ScorePlayer.cue_log)])
 	if shots_dir != "":
 		var file := FileAccess.open(shots_dir.path_join("result_" + scenario + ".json"), FileAccess.WRITE)

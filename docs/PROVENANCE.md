@@ -101,6 +101,16 @@
 | 普林西比夜晚寫在工作簿上的雨與雲 | FICTION，背景依史實 | 1919 年 5 月 29 日普林西比上午大雨、全食時隔著雲：依 Dyson, Eddington & Davidson（Phil. Trans. A 220, 1920）報告，經二手文獻轉引（原文未取得，見上）。文字不影響量測與評分。 |
 
 
+## M3 1919 年 10 月劍橋尾聲（轉化弧 D，2026-11-06 JST）
+
+依 [轉化弧 B／D 事實查核](research/arc_factcheck_2026-11-06.md)（oracle-ego, GPT-6 high，2026-11-06 03:45 JST），第 8、9、10 條。台詞在 `scripts/cambridge/content_epilogue.gd`；上色、錯字與日期以遊戲內文字為準。
+
+| 內容 | 標記 | 依據／說明 |
+|---|---|---|
+| Dyson 的信：Sobral 底片在 Greenwich 量完，4 吋 1.98″ ± 0.12″、天體照相儀約 0.93″，星像模糊、焦距與比例尺可能變了 | **RECONSTRUCTION**（信件本文）／HISTORICAL_RECORD（三個數字與未採用的技術理由） | 一封 Dyson 寄到劍橋、附上 Sobral 量測值的信在史料上是合理的：Eddington 1919 年 10 月 3 日回信（MS.RGO.8/150）就是在答覆 Dyson 的信與量測值，並提到 4 吋鏡頭給出完整偏折。**但這封信的本文不是史料，遊戲台詞不是任何文件的引文**；Dyson 前一封信的確切到達日期也未有紀錄，畫面只寫「1919 年 10 月」。數字見上表 1919-11-06 一列；天體照相儀未採用是報告寫明的技術理由（Dyson, Eddington & Davidson 1920，pp. 327–331；Kennefick 2009）。查核第 10 條。 |
+| 1979 年重新量測 Sobral 底片：4 吋 1.90″ ± 0.11″、天體照相儀 1.55″ ± 0.34″，支持當年團隊對 0.93″ 的疑慮 | HISTORICAL_RECORD | Harvey（1979）的重新量測，經 Kennefick 2009 *Testing relativity from the 1919 eclipse—a question of bias* 轉述；查核第 8 條。遊戲不在畫面裡主張新量測就是定論，只說明它支持當年的技術疑慮。 |
+| Ashby 先生在尾聲的全部對白、「1917 年的帳本」頁、筆記本最後一句與選項 | FICTION | Ashby 先生與這本筆記都是虛構（見 M1 各列）。他對四個可能結果的回應是戲劇化的虛構對話，只表達有紀錄的立場（Sobral 4 吋支持完整偏折、天體照相儀不可靠），不新增真實人物的私人評論。Dyson 的信與太陽系儀台詞中的「1915 年 11 月」「43 角秒」見上表與查核第 3、5 條。 |
+
 ## App icon (A9)
 
 `icon.svg` is original project artwork, drawn as SVG in this repository without

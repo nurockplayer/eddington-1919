@@ -1,0 +1,263 @@
+extends SceneTree
+## Conversion arc move D: the October 1919 epilogue. Every ledger outcome is played
+## through the real dialogue, the chart overlay paints the copied rows through its own
+## draw path, and the ending is the one the epilogue shows from the stored snapshot.
+## Run: godot --headless --path . --script res://tests/test_epilogue.gd
+
+const SCENE := "res://scenes/epilogue.tscn"
+const CONTENT := preload("res://scripts/cambridge/content_epilogue.gd")
+const ENDING := preload("res://scripts/ending.gd")
+var checks := 0
+var failures := 0
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+func check(ok: bool, message: String) -> void:
+	checks += 1
+	if not ok:
+		failures += 1
+		print("FAIL: ", message)
+
+
+func _run() -> void:
+	var story: Node = root.get_node("Story")
+	story.reset()
+	await _test_ledger_cases(story)
+	story.reset()
+	await _test_full_flow(story)
+	story.reset()
+	await _test_gamepad(story)
+	story.reset()
+	check(not story.epilogue_done and story.ending_plate == null and story.ending_plate_caption == "",
+		"Story.reset clears the epilogue state")
+	print("%d checks, %d failures" % [checks, failures])
+	quit(1 if failures else 0)
+
+
+## A run shaped like `main._record_run()`; the fields Ending.build reads are all here.
+func _make_run(combined: Dictionary, bounds: Dictionary, clean := true) -> Dictionary:
+	return {"seed": 4242, "exposures": [], "combined": combined,
+		"rule_id": "brightest", "bet": {}, "bet_pick": 0, "telegram_id": "hopeful",
+		"reason_id": "sharp", "reason_text": "星像清楚，底片可用。",
+		"score": 80, "clean": clean,
+		"grade": {"title": "看得清楚", "fit": 2, "clean": clean, "lines": ["你的底片說得清楚。"]},
+		"first_result": null, "reselected_after_seeing": false,
+		"drive_rate_checked": true, "drive_wound": true,
+		"plate_total": 16, "plates_available": 14,
+		"plate_counts": {"good": 10, "poor": 3, "unusable": 1},
+		"bounds": bounds, "departure_kit": false, "kit_line": ""}
+
+
+func _plate() -> ImageTexture:
+	var image := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.1, 0.1, 0.12))
+	return ImageTexture.create_from_image(image)
+
+
+func _new_epilogue() -> Node:
+	var chapter = load(SCENE).instantiate()
+	root.add_child(chapter)
+	var deadline := Time.get_ticks_msec() + 15000
+	while chapter._pending != "opening" and Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(chapter._pending == "opening", "the epilogue reaches its opening dialogue within 15 s")
+	return chapter
+
+
+## Advances every open page; choices use the caller's pick or the first option.
+func _finish(chapter, picks := {}) -> void:
+	var guard := 100
+	while chapter.ui.dialog_active() and guard > 0:
+		guard -= 1
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		if entry.has("choices"):
+			chapter.ui._choose(int(picks.get(str(entry.get("key", "")), 0)))
+		else:
+			chapter.ui._advance()
+	check(guard > 0, "test dialogue terminates")
+
+
+func _text(chapter) -> String:
+	var out := ""
+	for line in chapter.ui._seq:
+		out += str(line.get("t", "")) + "\n"
+	return out
+
+
+## Cases 8–10 of the fact check are the four shapes the ledger can take; each one is
+## played in the real weight dialogue, together with its astrographic reply.
+func _test_ledger_cases(story: Node) -> void:
+	var chapter = await _new_epilogue()
+	_finish(chapter)
+	check(chapter.beat == chapter.Beat.LETTER, "the opening hands the room to the player")
+	var cases := [
+		{"run": _make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10}), "case": "conceded"},
+		{"run": _make_run({"n": 2, "value": 0.70, "sigma": 0.12}, {"lo": 0.40, "hi": 1.50}), "case": "own_low"},
+		{"run": _make_run({"n": 2, "value": 1.30, "sigma": 0.30}, {"lo": 0.60, "hi": 1.90}), "case": "inconclusive"},
+		{"run": _make_run({"n": 0, "value": 0.0, "sigma": 0.0}, {}), "case": "no_value"},
+	]
+	for i in cases.size():
+		var run: Dictionary = cases[i].run
+		check(CONTENT.ledger_case(run) == cases[i].case, "ledger_case names the %s shape" % cases[i].case)
+		story.runs.clear()
+		story.runs.append(run)
+		story.bet_1917 = {"pick": 0, "sure": 2}
+		story.bet = {"pick": 2, "sure": 1}
+		chapter._pending = "weight"
+		chapter._dialogue_done({"astro_weight": i})
+		check(chapter.ui.dialog_active(), "%s plays Ashby's reply in the real dialogue" % cases[i].case)
+		var text := _text(chapter)
+		check(text.contains(CONTENT.weight_reply(i)[0].t), "astro_weight %d gets its authored reply" % i)
+		check(text.contains(CONTENT._case_line(run)), "%s shows Ashby's ledger line" % cases[i].case)
+		check(text.contains("1917 年的帳本") and text.contains("Ashby 先生寫的：0.87")
+			and text.contains("1919 年你改成"), "the 1917 ledger page carries the changed pick")
+		_finish(chapter)
+	chapter.free()
+	await process_frame
+
+
+func _test_full_flow(story: Node) -> void:
+	var run := _make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10})
+	story.runs.append(run)
+	story.bet_1917 = {"pick": 1, "sure": 0}
+	story.bet = {"pick": 1, "sure": 0}
+	story.mercury_suspect = 3
+	story.ending_plate = _plate()
+	story.ending_plate_caption = "第 7 號底片"
+	var chapter = await _new_epilogue()
+	_finish(chapter)
+	check(chapter.beat == chapter.Beat.LETTER, "the opening releases the letter beat")
+	check(chapter.ui.objectives.text.contains("劍橋・1919 年 10 月") and chapter.ui.objectives.text.contains("Dyson"),
+		"the objective names the letter")
+	chapter._interact("letter")
+	check(chapter.ui.dialog_active(), "the letter opens as real dialogue")
+	var letter := _text(chapter)
+	check(letter.contains("Dyson 的信（推測重建，非原文）") and letter.contains("1.98″") and letter.contains("0.93″"),
+		"the letter states its reconstruction and the recorded numbers")
+	_finish(chapter)
+	check(chapter.chart.visible, "the letter hands to the chart overlay")
+	check(chapter.chart.rows.size() == 1 and str(chapter.chart.rows[0].label) == "你的底片（示意模擬）",
+		"the chart starts with the player's own row")
+	check(not chapter.chart.notes.has("你的底片：沒有數值。"), "a measured run has a value, not the empty note")
+	chapter.chart.button.pressed.emit()
+	check(chapter.chart.step == 1 and chapter.chart.rows.size() == 2, "press 1 copies the 4-inch row")
+	var four: Dictionary = chapter.chart.rows[1]
+	check(str(four.label) == "Sobral 4 吋" and is_equal_approx(float(four.value), 1.98) and is_equal_approx(float(four.sigma), 0.18),
+		"the 4-inch row carries 1.98 with a 0.18 standard deviation")
+	check(chapter.chart.notes.has("Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差"),
+		"the 4-inch note keeps the probable error and the standard deviation apart")
+	check(chapter.chart.button.text == "抄上 Sobral 天體照相儀", "press 1 advances the button")
+	chapter.chart.button.pressed.emit()
+	check(chapter.chart.step == 2 and chapter.chart.rows.size() == 3, "press 2 copies the astrographic row")
+	var astro: Dictionary = chapter.chart.rows[2]
+	check(str(astro.label) == "Sobral 天體照相儀" and bool(astro.get("weak", false)) and bool(astro.get("no_bar", false)),
+		"the astrographic row is weak and has no bar")
+	check(chapter.chart.notes.has("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差"), "the astrographic note says why")
+	check(chapter.chart.button.text == "抄好了", "press 2 advances the button to 抄好了")
+	await process_frame
+	await process_frame
+	var drawn: Dictionary = chapter.chart.drawn()
+	check(drawn.markers.size() == 3 and drawn.markers[2] == "hollow",
+		"the chart paints the astrographic row as a hollow marker")
+	check(drawn.bars == ["bar", "bar", "none"], "the chart paints no error bar for the astrographic row")
+	chapter.chart.button.pressed.emit()
+	check(not chapter.chart.visible and chapter.ui.dialog_active(), "press 3 closes the chart into the weight question")
+	check(chapter._pending == "weight", "the weight question is the authored beat after the chart")
+	_finish(chapter, {"astro_weight": 1})
+	check(chapter.beat == chapter.Beat.ORRERY, "the ledger hands the room to the orrery")
+	check(chapter.ui.objectives.text.contains("太陽系儀還在架上"), "the objective names the orrery")
+	chapter._interact("orrery")
+	var orrery := _text(chapter)
+	check(orrery.contains("你 1917 年最懷疑的是") and orrery.contains("引力的平方反比"),
+		"the orrery repeats the 1917 suspect")
+	check(orrery.contains("1915 年 11 月") and orrery.contains("43 角秒"), "the orrery pays off Mercury")
+	_finish(chapter, {"click": 1, "final_reason": 2})
+	var back: Dictionary = story.runs.back()
+	check(int(back.get("astro_weight", -1)) == 1, "the astrographic weighting is stored on the run")
+	check(int(back.get("click", -1)) == 1, "the orrery answer is stored on the run")
+	check(int(back.get("final_reason", -1)) == 2, "the notebook answer is stored on the run")
+	check(str(back.get("final_reason_text", "")) == "兩地一起", "the notebook answer keeps its text")
+	var deadline := Time.get_ticks_msec() + 8000
+	while not chapter.ui.ending_panel.visible and Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(chapter.beat == chapter.Beat.ENDING and chapter.ui.ending_panel.visible,
+		"the close fades to the ending inside the epilogue")
+	var body: String = chapter.ui.ending_text.text
+	check(body.contains("筆記本最後一句：兩地一起。"), "the ending shows the notebook answer")
+	check(body.contains("Sobral 天體照相儀那組：先放一邊，寫明了原因"), "the ending shows the astrographic weighting")
+	check(chapter.ui.ending_history.text.contains("1979 年，有人重新量了 Sobral 的底片"),
+		"the history carries the 1979 remeasurement in this route too")
+	check(chapter.ui.ending_plate.texture != null and chapter.ui.ending_plate_caption.text == "第 7 號底片",
+		"the ending shows the plate carried across the scene change")
+	check(story.epilogue_done, "the epilogue marks itself done")
+	_check_second_run(story)
+	await _check_replay(chapter, story, 4242)
+	chapter.free()
+	await process_frame
+
+
+## A replay keeps epilogue_done, so the lamp-out in 1919 goes straight to _show_ending,
+## and the ending compares the two runs.
+func _check_second_run(story: Node) -> void:
+	story.departure_done = true
+	story.epilogue_done = false
+	var probe = load("res://scripts/main.gd").new()
+	probe._came_from_departure = true
+	check(probe._epilogue_due(), "a first completed run is epilogue-due")
+	story.epilogue_done = true
+	check(not probe._epilogue_due(), "a replay is not epilogue-due")
+	probe.free()
+	var second := _make_run({"n": 2, "value": 1.70, "sigma": 0.20}, {"lo": 1.10, "hi": 2.30})
+	story.runs.append(second)
+	var ending: Dictionary = ENDING.build(second, ENDING.story_view(story))
+	check(str(ending.body).contains("本子上的兩次試驗"), "the second run's ending compares it with the first")
+
+
+## The same-sky replay button on that ending loads main.tscn with the run's seed.
+func _check_replay(chapter, story: Node, seed_value: int) -> void:
+	chapter.ui.ending_replay.pressed.emit()
+	var existing = load("res://scripts/main.gd")
+	check(existing.replay_pending and existing.next_seed == seed_value and existing.replay_same_sky,
+		"the same-sky replay hands the seed and the sky to main")
+	var deadline := Time.get_ticks_msec() + 8000
+	while Time.get_ticks_msec() < deadline:
+		await process_frame
+		var scene: Node = current_scene
+		if is_instance_valid(scene) and scene.get_script() != null and scene.get_script().resource_path == "res://scripts/main.gd":
+			break
+	if is_instance_valid(current_scene) and current_scene.get_script() != null and current_scene.get_script().resource_path == "res://scripts/main.gd":
+		current_scene.set_process(false)
+		check(current_scene._is_replay and current_scene.sim.run_seed == seed_value,
+			"the replay lands in 1919 with the same seed")
+		check(not load("res://scripts/main.gd").replay_pending, "main consumes the replay hand-off")
+	else:
+		failures += 1
+		print("FAIL: same-sky replay did not load main.tscn")
+	# Leave the replayed scene without running its start.
+	if is_instance_valid(current_scene):
+		current_scene.set_process(false)
+
+
+## The overlay's one button is focusable and answers the gamepad's accept.
+func _test_gamepad(story: Node) -> void:
+	story.runs.append(_make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10}))
+	var chapter = await _new_epilogue()
+	_finish(chapter)
+	chapter.chart.open(story.runs.back())
+	await process_frame
+	check(chapter.chart.button.has_focus(), "the overlay lands focus on its button")
+	var event := InputEventJoypadButton.new()
+	event.button_index = JOY_BUTTON_A
+	event.pressed = true
+	root.push_input(event)
+	await process_frame
+	event.pressed = false
+	root.push_input(event)
+	await process_frame
+	await process_frame
+	check(chapter.chart.step == 1, "the gamepad's accept copies the first Sobral row")
+	chapter.free()
+	await process_frame
