@@ -196,6 +196,14 @@ func _run() -> void:
 	check(root.gui_get_focus_owner() == ui.prologue_btn, "title focuses its first button")
 	await button(JOY_BUTTON_DPAD_RIGHT)
 	check(root.gui_get_focus_owner() == ui.start_btn, "D-pad navigates title buttons")
+	var title_buttons := ui.prologue_btn.get_parent().get_children()
+	var credits: Button = title_buttons[2]
+	var settings: Button = title_buttons[3]
+	credits.grab_focus()
+	await button(JOY_BUTTON_DPAD_RIGHT)
+	check(root.gui_get_focus_owner() == settings, "D-pad right reaches title settings")
+	await button(JOY_BUTTON_DPAD_LEFT)
+	check(root.gui_get_focus_owner() == credits, "D-pad left returns to credits")
 	check(Prompts.key("interact") == "A 鍵", "joypad switches prompts")
 	var keyboard := InputEventKey.new()
 	keyboard.keycode = KEY_W
