@@ -97,6 +97,11 @@ func _run() -> void:
 				and ui.title_note.text.begins_with("第一次玩請從序章開始"),
 				"title warns that the tail chapter skips Cambridge")
 			bounds(ui.title_panel)
+			var title_buttons: Array = ui.prologue_btn.get_parent().get_children()
+			for i in title_buttons.size():
+				check(root.get_visible_rect().encloses(title_buttons[i].get_global_rect()), "title button fits")
+				for j in range(i):
+					check(not title_buttons[i].get_global_rect().intersects(title_buttons[j].get_global_rect()), "title buttons do not overlap")
 			ui.hud.visible = true
 			game.phase = game.Phase.PREP
 			game._refresh_objectives()

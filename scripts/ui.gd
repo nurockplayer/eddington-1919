@@ -93,6 +93,11 @@ var help_panel: Control
 var help_content: RichTextLabel
 var _help_focus: Control
 var _pause_title_btn: Button
+var _settings_button: Button
+var _pause_heading: Label
+var _resume_button: Button
+var _settings_only := false
+var _title_focus_modes: Array[int] = []
 var fullscreen_button: Button
 var text_size_button: Button
 var quality_button: Button
@@ -1120,6 +1125,10 @@ func _build_title(root: Control) -> void:
 	credits.focus_mode = Control.FOCUS_ALL
 	credits.pressed.connect(_open_credits)
 	hb.add_child(credits)
+	_settings_button = _button("設定")
+	_settings_button.focus_mode = Control.FOCUS_ALL
+	_settings_button.pressed.connect(open_settings)
+	hb.add_child(_settings_button)
 	var q := _button("　離開　")
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
@@ -1411,11 +1420,16 @@ func _build_pause(root: Control) -> void:
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_theme_constant_override("separation", 4)
 	scroll.add_child(v)
-	var t := _label("暫停", 36)
-	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(t)
+	_pause_heading = _label("暫停", 36)
+	_pause_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(_pause_heading)
 	var r := _button("繼續")
-	r.pressed.connect(func(): toggle_pause())
+	_resume_button = r
+	r.pressed.connect(func():
+		if _settings_only:
+			close_settings()
+		else:
+			toggle_pause())
 	v.add_child(r)
 	music_button = _button("音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
 	music_button.pressed.connect(func():
@@ -1509,7 +1523,43 @@ func _sync_music_row() -> void:
 	music_row.modulate.a = 1.0 if on else 0.4
 
 
+func open_settings() -> void:
+	_pause_focus = get_viewport().gui_get_focus_owner()
+	_settings_only = true
+	_title_focus_modes.clear()
+	for button in prologue_btn.get_parent().get_children():
+		_title_focus_modes.append(button.focus_mode)
+		button.focus_mode = Control.FOCUS_NONE
+	_pause_heading.text = "設定"
+	_resume_button.text = "返回"
+	_pause_title_btn.hide()
+	restart_button.hide()
+	quit_button.hide()
+	pause_panel.show()
+	quality_button.text = _quality_caption()
+	Settings.sync_fullscreen()
+	fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_resume_button.grab_focus()
+
+
+func close_settings() -> void:
+	pause_panel.hide()
+	_pause_heading.text = "暫停"
+	_resume_button.text = "繼續"
+	_pause_title_btn.show()
+	restart_button.show()
+	quit_button.show()
+	_settings_only = false
+	var buttons := prologue_btn.get_parent().get_children()
+	for i in buttons.size():
+		buttons[i].focus_mode = _title_focus_modes[i]
+	_restore_focus(_settings_button)
+
+
 func toggle_pause() -> void:
+	if _settings_only:
+		return
 	var p := not get_tree().paused
 	if p:
 		_pause_focus = get_viewport().gui_get_focus_owner()
@@ -1718,7 +1768,10 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if pause_panel.visible and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
-		toggle_pause()
+		if _settings_only:
+			close_settings()
+		else:
+			toggle_pause()
 		get_viewport().set_input_as_handled()
 		return
 	if log_panel.visible and pause_enabled and event.is_action_pressed("pause"):
