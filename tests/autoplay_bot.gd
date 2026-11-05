@@ -481,6 +481,24 @@ func _night() -> void:
 		await shot("store_g_blink_oxford")
 		await _click(main.ui.blink_btn.get_global_rect().get_center())
 		_log("blink off pressed=%s" % str(main.ui.blink_btn.button_pressed))
+	# Conversion arc C: an included usable plate counts only after the player's
+	# micrometer reading. Honest/careful/cherry set the crosshair at the true
+	# displacement; rushed is 1.5 px too far out.
+	if not plates.filter(func(p): return p.included and p.usable).is_empty():
+		await _click(main.ui.mic_btn.get_global_rect().get_center())
+		for i in plates.size():
+			var p: Dictionary = plates[i]
+			if not (p.included and p.usable):
+				continue
+			await _click(main.ui.thumb_center(i))
+			var px: float = main.sim.reading_for_value(p.value)
+			if scenario == "rushed":
+				px += 1.5
+			main.ui.set_micrometer_reading(px)
+			await _click(main.ui.mic_record_btn.get_global_rect().get_center())
+			await _frames(1)
+		await _click(main.ui.mic_btn.get_global_rect().get_center())
+	_log("readings %s" % str(plates.filter(func(p): return p.get("read", false)).map(func(p): return p.number)))
 	await _click(main.ui.viewer_button_center("measure"))
 	await _wait(0.4)
 	if scenario == "cherry":
@@ -489,6 +507,11 @@ func _night() -> void:
 		if omitted >= 0:
 			await _click(main.ui.thumb_center(omitted))
 			await _click(main.ui.viewer_button_center("include"))
+			# The plate added after seeing the numbers still needs its reading.
+			await _click(main.ui.mic_btn.get_global_rect().get_center())
+			main.ui.set_micrometer_reading(main.sim.reading_for_value(plates[omitted].value))
+			await _click(main.ui.mic_record_btn.get_global_rect().get_center())
+			await _click(main.ui.mic_btn.get_global_rect().get_center())
 		await _click(main.ui.viewer_button_center("measure"))
 		await _wait(0.3)
 		if main.ui.dialog_active():

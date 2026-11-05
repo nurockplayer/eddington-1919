@@ -9,6 +9,7 @@ const Content := preload("res://scripts/content.gd")
 const Strip := preload("res://scripts/totality_strip.gd")
 const DialoguePortrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
 const FadeStars := preload("res://scripts/fade_stars.gd")
+const PlateRender := preload("res://scripts/plate_render.gd")
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -23,6 +24,8 @@ signal quit_pressed
 ## The pause menu is closed; the chapter resets Story and returns to the title.
 signal title_pressed
 signal plate_toggled(index: int, on: bool)
+## The player recorded a micrometer reading (reference star 0, plate pixels).
+signal reading_set(index: int, px: float)
 signal measure_pressed
 signal reselect_pressed
 signal report_pressed
@@ -127,6 +130,21 @@ var reference_panel: PanelContainer
 var loupe_btn: Button
 var blink_btn: Button
 var blink_label: Label
+var mic_btn: Button
+var mic_row: HBoxContainer
+var mic_record_btn: Button
+var mic_readout: Label
+var mic_note: Label
+var mic_overlay: Control
+var micrometer_on := false
+## Current crosshair setting for the selected plate, in plate pixels, radial.
+var micrometer_px := 0.0
+var _mic_had_loupe := false
+var _mic_dragging := false
+var _mic_hold := 0.0
+var _mic_repeat := 0.0
+## Set by main before open_viewer: returns {value, sigma} for a read plate.
+var measurement_of := Callable()
 var _comparison_texture: Texture2D
 var _blink_elapsed := 0.0
 var _blink_oxford := false
@@ -396,6 +414,22 @@ func _process(delta: float) -> void:
 			_blink_elapsed -= blink_interval
 			_blink_oxford = not _blink_oxford
 			_update_blink()
+	if viewer.visible and micrometer_on and not _viewer_locked and not _viewer_reporting and not get_tree().paused and not log_panel.visible:
+		var held: float = 0.0
+		if Input.is_action_pressed("ui_right"):
+			held = 1.0
+		elif Input.is_action_pressed("ui_left"):
+			held = -1.0
+		if held != 0.0:
+			_mic_hold += delta
+			if _mic_hold >= 0.35:
+				_mic_repeat += delta
+				while _mic_repeat >= 0.08:
+					_mic_repeat -= 0.08
+					_nudge_micrometer(held, _mic_fine())
+		else:
+			_mic_hold = 0.0
+			_mic_repeat = 0.0
 	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible:
 		var pan := Input.get_vector("gamepad_look_left", "gamepad_look_right", "gamepad_look_up", "gamepad_look_down")
 		if pan != Vector2.ZERO:
@@ -687,6 +721,12 @@ func _build_viewer(root: Control) -> void:
 	plate_stage.add_child(big_plate)
 	big_plate.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	big_plate.gui_input.connect(_plate_gui_input)
+	mic_overlay = Control.new()
+	mic_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mic_overlay.visible = false
+	plate_stage.add_child(mic_overlay)
+	mic_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mic_overlay.draw.connect(_draw_micrometer)
 	plate_stage.add_child(reference_panel)
 	reference_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	reference_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.05, 0.045, 0.04, 1.0), ACCENT))
@@ -719,6 +759,29 @@ func _build_viewer(root: Control) -> void:
 	blink_btn.tooltip_text = "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
 	blink_btn.toggled.connect(_set_blink)
 	plate_controls.add_child(blink_btn)
+	# The micrometer sits on its own row under the loupe/blink buttons: a fourth
+	# control in that row widened the middle column by ~39 px at text scale 1.2
+	# and pushed the chart past the viewport's right edge.
+	var mic_bar := HBoxContainer.new()
+	mid.add_child(mic_bar)
+	mic_btn = _button("測微器")
+	mic_btn.toggle_mode = true
+	mic_btn.tooltip_text = "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
+	mic_btn.toggled.connect(_set_micrometer)
+	mic_bar.add_child(mic_btn)
+	mic_row = HBoxContainer.new()
+	mic_row.visible = false
+	mic_bar.add_child(mic_row)
+	mic_record_btn = _button("記下讀數")
+	mic_record_btn.pressed.connect(_record_micrometer)
+	mic_row.add_child(mic_record_btn)
+	mic_readout = _label("讀數：0.00 格", 16, ACCENT)
+	mic_readout.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	mic_row.add_child(mic_readout)
+	mic_note = _label("位移為示意放大；真實的位移比一個星點還小得多。", 14, DIM)
+	mic_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mic_note.visible = false
+	mid.add_child(mic_note)
 	# Right: chart + actions.
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -862,23 +925,180 @@ func _update_blink() -> void:
 	blink_label.text = "牛津（無日）" if _blink_oxford else "第 %d 號（全食）・位移已放大（示意）" % _viewer_plates[_viewer_sel].number
 
 
-func _plate_gui_input(event: InputEvent) -> void:
-	if _viewer_reporting or not event is InputEventMouseButton or not event.pressed or event.button_index != MOUSE_BUTTON_LEFT or _plate_texture == null:
-		return
-	var shown := big_plate.texture.get_size()
+# ------------------------------------------------------- Micrometer (arc C)
+
+## The reference star's undisplaced position, in full-plate texture pixels.
+func _mic_star_point() -> Vector2:
+	var center := Vector2(PlateRender.SIZE, PlateRender.SIZE) * 0.5
+	if loupe_start.x >= 0.0 and loupe_start.y >= 0.0:
+		return loupe_start
+	return center + Vector2(PlateRender.SUN_PX, 0.0)
+
+
+func _mic_dir() -> Vector2:
+	var d := _mic_star_point() - Vector2(PlateRender.SIZE, PlateRender.SIZE) * 0.5
+	return d.normalized() if d.length() > 0.001 else Vector2.RIGHT
+
+
+## [origin, drawn, region] for the plate as shown: the same mapping the click
+## handler uses, valid both zoomed (AtlasTexture) and unzoomed.
+func _plate_geometry() -> Array:
+	var tex := big_plate.texture
+	var shown: Vector2 = tex.get_size() if tex != null else Vector2(PlateRender.SIZE, PlateRender.SIZE)
+	if shown.x <= 0.0 or shown.y <= 0.0:
+		shown = Vector2(PlateRender.SIZE, PlateRender.SIZE)
 	var drawn := shown * minf(big_plate.size.x / shown.x, big_plate.size.y / shown.y)
-	var local: Vector2 = event.position - (big_plate.size - drawn) * 0.5
+	var origin := (big_plate.size - drawn) * 0.5
+	var region := Rect2(Vector2.ZERO, _plate_texture.get_size())
+	if tex is AtlasTexture:
+		region = tex.region
+	return [origin, drawn, region]
+
+
+func _plate_to_local(p: Vector2) -> Vector2:
+	var g := _plate_geometry()
+	return g[0] + (p - g[2].position) / g[2].size * g[1]
+
+
+func _local_to_plate(local: Vector2) -> Vector2:
+	var g := _plate_geometry()
+	return g[2].position + (local - g[0]) / g[1] * g[2].size
+
+
+func _set_micrometer(on: bool) -> void:
+	mic_btn.set_pressed_no_signal(on)
+	var has_plate: bool = _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size() and _plate_texture != null
+	if on and (has_plate == false or _viewer_reporting):
+		on = false
+	micrometer_on = on
+	if on:
+		_mic_had_loupe = loupe_btn.button_pressed
+		if not _mic_had_loupe:
+			loupe_btn.set_pressed_no_signal(true)
+			_set_loupe(true)
+		_sync_micrometer()
+	else:
+		_mic_dragging = false
+		_mic_hold = 0.0
+		_mic_repeat = 0.0
+		if not _mic_had_loupe and loupe_btn.button_pressed:
+			_set_loupe(false)
+	mic_overlay.visible = micrometer_on
+	mic_row.visible = micrometer_on
+	mic_note.visible = micrometer_on
+	_sync_micrometer_controls()
+	mic_overlay.queue_redraw()
+
+
+## Take the crosshair from the selected plate's saved reading (0 if unread).
+func _sync_micrometer() -> void:
+	micrometer_px = 0.0
+	if _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size():
+		var p: Dictionary = _viewer_plates[_viewer_sel]
+		if p.get("read", false) and not is_nan(float(p.get("reading", 0.0))):
+			micrometer_px = maxf(float(p.reading), 0.0)
+	_update_micrometer()
+
+
+func _sync_micrometer_controls() -> void:
+	if mic_btn == null:
+		return
+	var has_plate: bool = _viewer_sel >= 0 and _plate_texture != null
+	mic_btn.disabled = _viewer_reporting or not has_plate
+	mic_record_btn.disabled = _viewer_reporting or _viewer_locked or not has_plate
+
+
+func _update_micrometer() -> void:
+	mic_readout.text = "讀數：%.2f 格" % micrometer_px
+	mic_overlay.queue_redraw()
+
+
+## The player's setting: drag, arrow, or bot, all land here.
+func set_micrometer_reading(px: float) -> void:
+	if not micrometer_on or _viewer_sel < 0:
+		return
+	var limit: float = PlateRender.SIZE
+	micrometer_px = clampf(px, 0.0, limit)
+	_update_micrometer()
+
+
+func _mic_fine() -> bool:
+	return Input.is_key_pressed(KEY_SHIFT) or Input.get_joy_axis(0, JOY_AXIS_TRIGGER_LEFT) > 0.5
+
+
+func _nudge_micrometer(direction: float, fine: bool) -> void:
+	if _viewer_locked or _viewer_reporting:
+		return
+	set_micrometer_reading(micrometer_px + direction * (0.05 if fine else 0.25))
+
+
+func _record_micrometer() -> void:
+	if not micrometer_on or _viewer_sel < 0 or _viewer_locked or _viewer_reporting:
+		return
+	_viewer_sound("mark")
+	reading_set.emit(_viewer_sel, micrometer_px)
+
+
+func _mic_drag_to(local: Vector2) -> void:
+	var plate_point := _local_to_plate(local)
+	set_micrometer_reading((plate_point - _mic_star_point()).dot(_mic_dir()))
+
+
+func _draw_micrometer() -> void:
+	if not micrometer_on or _viewer_sel < 0 or _plate_texture == null:
+		return
+	var star := _mic_star_point()
+	var dir := _mic_dir()
+	var night := _plate_to_local(star)
+	var one_px := _plate_to_local(star + dir) - night
+	if one_px.length() < 0.001:
+		return
+	var along := one_px.normalized()
+	var across := along.orthogonal()
+	mic_overlay.draw_line(_plate_to_local(star - dir * 14.0), _plate_to_local(star + dir * 70.0),
+		Color(ACCENT, 0.22), 1.0)
+	mic_overlay.draw_arc(night, 5.0, 0.0, TAU, 20, Color(0.74, 0.84, 0.96, 0.85), 1.0, true)
+	var cross := _plate_to_local(star + dir * micrometer_px)
+	mic_overlay.draw_line(cross - across * 9.0, cross + across * 9.0, ACCENT, 1.5)
+	mic_overlay.draw_line(cross - along * 9.0, cross + along * 9.0, ACCENT, 1.5)
+	var label_pos := night - along * 34.0 + across * 12.0
+	mic_overlay.draw_string(font, label_pos, "夜裡的位置", HORIZONTAL_ALIGNMENT_LEFT, -1,
+		Settings.fs(13), Color(0.74, 0.84, 0.96, 0.9))
+
+
+func _plate_gui_input(event: InputEvent) -> void:
+	if _viewer_reporting or _plate_texture == null:
+		return
+	# With the micrometer on, the plate is a dial: drag sets the crosshair.
+	if micrometer_on and _viewer_sel >= 0:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_mic_dragging = not _viewer_locked
+				if _mic_dragging:
+					_mic_drag_to(event.position)
+			else:
+				_mic_dragging = false
+			big_plate.accept_event()
+			return
+		if event is InputEventMouseMotion and _mic_dragging:
+			_mic_drag_to(event.position)
+			big_plate.accept_event()
+			return
+	if not event is InputEventMouseButton or not event.pressed or event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	var g := _plate_geometry()
+	var drawn: Vector2 = g[1]
+	var local: Vector2 = event.position - g[0]
 	if not Rect2(Vector2.ZERO, drawn).has_point(local):
 		return
-	var region := Rect2(Vector2.ZERO, _plate_texture.get_size())
-	if big_plate.texture is AtlasTexture:
-		region = big_plate.texture.region
+	var region: Rect2 = g[2]
 	loupe_btn.set_pressed_no_signal(true)
 	_show_loupe(region.position + local / drawn * region.size)
 	big_plate.accept_event()
 
 
 func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, locked: bool) -> void:
+	_set_micrometer(false)
 	_set_loupe(false)
 	_comparison_texture = comparison_tex
 	set_viewer_report(false)
@@ -893,7 +1113,7 @@ func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, lock
 	comp.pressed.connect(_select_plate.bind(-2, comparison_tex))
 	thumbs.add_child(comp)
 	for i in plates.size():
-		var b := _thumb(textures[i], "第 %d 號%s" % [plates[i].number, " ✓" if plates[i].included else ""])
+		var b := _thumb(textures[i], _thumb_text(i))
 		b.pressed.connect(_select_plate.bind(i, textures[i]))
 		thumbs.add_child(b)
 	comp.grab_focus()
@@ -966,6 +1186,7 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 	b.expand_icon = true
 	b.custom_minimum_size = Vector2(100, 122)
 	b.text = text
+	b.clip_text = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	Settings.track_font(b, 14)
@@ -973,11 +1194,16 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 	return b
 
 
+func _thumb_text(i: int) -> String:
+	var p: Dictionary = _viewer_plates[i]
+	return "第 %d 號%s%s" % [p.number, " ✓" if p.included else "", " ✓讀" if p.get("read", false) else ""]
+
+
 func refresh_thumbs() -> void:
 	var kids := thumbs.get_children()
 	for i in _viewer_plates.size():
 		if i + 1 < kids.size():
-			kids[i + 1].text = "第 %d 號%s" % [_viewer_plates[i].number, " ✓" if _viewer_plates[i].included else ""]
+			kids[i + 1].text = _thumb_text(i)
 
 
 func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
@@ -993,6 +1219,14 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	if i >= 0:
 		var plate: Dictionary = _viewer_plates[i]
 		blink_btn.disabled = blink_btn.disabled or plate.sunlit or plate.duration < 0.5 or plate.get("stars", 0) == 0
+	if i < 0 and micrometer_on:
+		_set_micrometer(false)
+	_sync_micrometer_controls()
+	if i >= 0 and micrometer_on:
+		_sync_micrometer()
+		if _plate_texture != null:
+			loupe_btn.set_pressed_no_signal(true)
+			_set_loupe(true)
 	if i == -2:
 		plate_info.text = "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
 		if comparison_recall != "":
@@ -1022,8 +1256,13 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 				lines.append("星像清楚。")
 			"poor":
 				lines.append("[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]")
-	if p.has("value") and _viewer_locked and p.included and p.usable:
-		lines.append("量得偏折：[b]%.2f″ ± %.2f″[/b]" % [p.value, p.sigma])
+	if _viewer_locked and p.included and p.usable and p.get("read", false) and measurement_of.is_valid():
+		var m: Dictionary = measurement_of.call(p)
+		lines.append("讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]" % [p.reading, m.value, m.sigma])
+	elif _viewer_locked and p.included and p.usable and p.get("read", false):
+		lines.append("已記下讀數：%.2f 格。" % p.reading)
+	elif _viewer_locked and p.included and p.usable:
+		lines.append("[color=#fd8]這張還沒讀數——用測微器對好參考星再記下，才會算進結果。[/color]")
 	elif _viewer_locked and p.included and not p.usable:
 		lines.append("[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]")
 	plate_info.text = "\n".join(lines)
@@ -1040,6 +1279,8 @@ func set_viewer_locked(locked: bool) -> void:
 	reselect_btn.disabled = not locked or _viewer_reporting
 	report_btn.disabled = not locked or _viewer_reporting
 	include_box.disabled = locked
+	mic_btn.disabled = _viewer_reporting or _viewer_sel < 0 or _plate_texture == null
+	_sync_micrometer_controls()
 	if action_focused and focused.disabled and not _viewer_reporting:
 		(reselect_btn if locked else measure_btn).grab_focus()
 	if _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size():
@@ -1061,6 +1302,11 @@ func set_viewer_report(reporting: bool) -> void:
 	reference_btn.visible = not reporting
 	loupe_btn.visible = not reporting
 	blink_btn.visible = not reporting
+	mic_btn.visible = not reporting
+	if reporting:
+		_set_micrometer(false)
+	mic_row.visible = micrometer_on
+	mic_note.visible = micrometer_on
 	reference_btn.set_pressed_no_signal(false)
 	reference_panel.hide()
 	set_viewer_locked(true if reporting else _viewer_locked)
@@ -1072,6 +1318,7 @@ func set_viewer_note(bb: String) -> void:
 
 
 func close_viewer() -> void:
+	_set_micrometer(false)
 	_set_loupe(false)
 	viewer.visible = false
 
@@ -1793,6 +2040,22 @@ func _input(event: InputEvent) -> void:
 	_refresh_hints()
 	if Prompts.joypad != was_joypad:
 		prompts_changed.emit()
+	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
+		if event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
+			_nudge_micrometer(-1.0 if event.is_action_pressed("ui_left") else 1.0, _mic_fine())
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_accept") and _viewer_sel >= 0 and not _viewer_locked:
+			_record_micrometer()
+			get_viewport().set_input_as_handled()
+			return
+		# Escape/B first puts the micrometer away; a second press leaves the table.
+		# Escape is also mapped to pause, so without this a keyboard-only player
+		# would be trapped: every confirm press records and every arrow nudges.
+		if event.is_action_pressed("ui_cancel"):
+			_set_micrometer(false)
+			get_viewport().set_input_as_handled()
+			return
 	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
 		if event.is_action_pressed("overlay_rotate_right") and not blink_btn.disabled:
 			blink_btn.grab_focus()

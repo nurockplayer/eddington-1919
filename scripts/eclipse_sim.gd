@@ -8,8 +8,13 @@ extends RefCounted
 ##
 ## ALL numbers here are an illustrative game model, not the 1919 measurements.
 
+const PlateRender := preload("res://scripts/plate_render.gd")
+
 const TOTALITY_S := 302.0        # HISTORICAL_RECORD: ~302 s of totality at Príncipe
 const TIME_SCALE := 2.5          # game compresses totality ×2.5 (~2 real minutes)
+## Illustrative setting error: added in quadrature to every plate the player reads
+## with the micrometer, so a careless setting widens that plate's uncertainty.
+const SET_SIGMA := 0.08
 const TEX_SIZE := 256
 const CLOUD_SCALE := 0.35        # sky-plane → cloud texture scale (shared with sky shader)
 const SUN_R := 0.03              # visual solar radius in radians (exaggerated ~6× for readability)
@@ -265,14 +270,46 @@ func develop(raw: Dictionary, index: int) -> Dictionary:
 	p.sigma = sigma
 	p.value = EINSTEIN - 0.9 * clampf(trail - 0.2, 0.0, 1.0) + sigma * z
 	p.included = false
+	# Conversion arc C: the player's own micrometer setting. `reading` is the
+	# radial displacement they dialled in for reference star 0, in plate pixels;
+	# `read` flips when they record it. The render draws that star at
+	# EXAGGERATION * value / |offset| px, so reading_value() inverts it exactly.
+	# The placeholder is 0.0, not NAN: NAN != NAN, and every plate dictionary is
+	# compared by value in snapshots and replay checks.
+	p.reading = 0.0
+	p.read = false
 	return p
 
 
 # ---------------------------------------------------------------------------
 # Analysis
 
+## Included and usable plates that also carry the player's reading. A plate the
+## player has not read with the micrometer does not count toward the result.
 func included_usable() -> Array:
-	return plates.filter(func(p): return p.included and p.usable)
+	return plates.filter(func(p): return p.included and p.usable and p.get("read", false))
+
+
+## The deflection the player's micrometer setting implies, in arcseconds.
+func reading_value(p: Dictionary) -> float:
+	return float(p.reading) * star_offsets[0].length() / PlateRender.EXAGGERATION
+
+
+## The plate-pixel displacement a given deflection would draw (inverse of
+## reading_value); the honest bot and tests set the crosshair with this.
+func reading_for_value(value: float) -> float:
+	return float(value) * PlateRender.EXAGGERATION / star_offsets[0].length()
+
+
+## Plate error and setting error, in quadrature.
+func measured_sigma(p: Dictionary) -> float:
+	var s := float(p.sigma)
+	return sqrt(s * s + SET_SIGMA * SET_SIGMA)
+
+
+## What one read plate contributes to the chart and the combination.
+func measurement(p: Dictionary) -> Dictionary:
+	return {"value": reading_value(p), "sigma": measured_sigma(p)}
 
 
 func combined() -> Dictionary:
@@ -282,9 +319,10 @@ func combined() -> Dictionary:
 	var wsum := 0.0
 	var vsum := 0.0
 	for p in sel:
-		var w: float = 1.0 / (p.sigma * p.sigma)
+		var sigma := measured_sigma(p)
+		var w: float = 1.0 / (sigma * sigma)
 		wsum += w
-		vsum += w * p.value
+		vsum += w * reading_value(p)
 	return {"n": sel.size(), "value": vsum / wsum, "sigma": 1.0 / sqrt(wsum)}
 
 

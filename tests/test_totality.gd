@@ -25,6 +25,20 @@ func check(cond: bool, msg: String) -> void:
 		print("FAIL: ", msg)
 
 
+## Conversion arc C: a fixture plate counts only once it has a micrometer
+## reading. Put the crosshair at the plate's true displacement; the setting error
+## (SET_SIGMA) then widens the plate's combined uncertainty for real.
+func _read_plate(sim, p: Dictionary) -> void:
+	p.read = true
+	p.reading = sim.reading_for_value(float(p.get("value", 0.0)))
+
+
+func _read_included(sim) -> void:
+	for p in sim.plates:
+		if p.get("included", false) and p.get("usable", false):
+			_read_plate(sim, p)
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -435,11 +449,14 @@ func _test_interval_truth() -> void:
 	check(Judgment.interval_truth(sim) == -1, "no measured plates means no interval answer")
 	check(not Judgment.interval_holds_neither(sim), "no measurements is not a neither-contained interval")
 	# Exact classification wins; adjust rounded bounds only when they would change it.
-	for case in [[1.3, 0.3, 0, "0.70", "1.90"], [1.75, 0.1, 1, "1.55", "1.95"], [0.87, 0.1, 2, "0.67", "1.07"],
-		[3.0, 0.1, 3, "2.80", "3.20"], [2.25, 0.25, 1, "1.75", "2.75"], [1.25, 0.25, 0, "0.75", "1.75"],
-		[1.5496, 0.1, 3, "1.35", "1.74"], [1.9504, 0.1, 3, "1.76", "2.15"], [0.6696, 0.1, 3, "0.47", "0.86"], [1.0704, 0.1, 3, "0.88", "1.27"],
-		[1.5504, 0.1, 1, "1.35", "1.75"], [1.9496, 0.1, 1, "1.75", "2.15"], [0.6704, 0.1, 2, "0.47", "0.87"], [1.0696, 0.1, 2, "0.87", "1.27"]]:
+	# Fixture σ is the plate error; with conversion arc C the displayed interval
+	# adds the reading's setting error (SET_SIGMA) in quadrature.
+	for case in [[1.3, 0.3, 0, "0.68", "1.92"], [1.75, 0.1, 1, "1.49", "2.01"], [0.87, 0.1, 2, "0.61", "1.13"],
+		[3.0, 0.1, 3, "2.74", "3.26"], [2.25, 0.25, 1, "1.73", "2.77"], [1.25, 0.25, 0, "0.73", "1.77"],
+		[1.5496, 0.1, 1, "1.29", "1.81"], [1.9504, 0.1, 1, "1.69", "2.21"], [0.6696, 0.1, 2, "0.41", "0.93"], [1.0704, 0.1, 2, "0.81", "1.33"],
+		[1.5504, 0.1, 1, "1.29", "1.81"], [1.9496, 0.1, 1, "1.69", "2.21"], [0.6704, 0.1, 2, "0.41", "0.93"], [1.0696, 0.1, 2, "0.81", "1.33"]]:
 		sim.plates = [{"usable": true, "included": true, "value": case[0], "sigma": case[1]}]
+		_read_plate(sim, sim.plates[0])
 		var truth := Judgment.interval_truth(sim)
 		check(truth == case[2], "interval %.4f ± %.2f has answer %d" % [case[0], case[1], case[2]])
 		check(sim.evidence_class() == ["ambiguous", "favors_e", "favors_half", "ambiguous"][truth], "interval truth agrees with evidence_class")
@@ -454,14 +471,18 @@ func _test_interval_truth() -> void:
 
 func _test_judgment_neither() -> void:
 	var sim := Sim.new(1919)
-	sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 2.12, "sigma": 0.17}]
+	# 2.30 ± 0.19 (measured) keeps both predictions outside two sigma after the
+	# setting error widens the interval.
+	sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 2.30, "sigma": 0.17}]
+	_read_plate(sim, sim.plates[0])
 	var neither := Judgment.grade(sim, "undecided", "uncertain")
-	check(neither.evidence == "ambiguous" and Judgment.interval_holds_neither(sim), "2.12 ± 0.17 is ambiguous with neither prediction contained")
+	check(neither.evidence == "ambiguous" and Judgment.interval_holds_neither(sim), "2.30 ± 0.19 is ambiguous with neither prediction contained")
 	check(neither.lines.any(func(line): return line.contains("都對不上")) and not neither.lines.any(func(line): return line.contains("同時容得下")), "neither-contained undecided response does not claim both fit")
 	var hopeful_neither := Judgment.grade(sim, "hopeful", "uncertain")
 	check(hopeful_neither.lines.has("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"), "neither-contained hopeful response names the distance from both predictions")
 	sim.plates[0].value = 1.3
 	sim.plates[0].sigma = 0.3
+	_read_plate(sim, sim.plates[0])
 	var both := Judgment.grade(sim, "undecided", "uncertain")
 	check(both.evidence == "ambiguous" and Judgment.interval_truth(sim) == 0, "both-contained interval is also ambiguous")
 	check(both.lines.has("對。誤差範圍同時容得下兩種答案。我們照實說。"), "both-contained undecided response keeps its original line")
@@ -493,6 +514,7 @@ func _test_judgment_reasons() -> void:
 		{"number": 1, "start": 10.0, "duration": 6.0, "sunlit": false, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.8, "sigma": 0.2},
 		{"number": 2, "start": 20.0, "duration": 6.0, "sunlit": false, "usable": true, "quality": "good", "included": true, "trail": 0.3, "value": 2.0, "sigma": 0.2},
 	]
+	_read_included(game.sim)
 	game.sim.rule_id = "strict"
 	game.plate_textures = [null, null]
 	game.ui.hide_title()
@@ -560,12 +582,13 @@ func _test_judgment_reasons() -> void:
 	check(game._grade == wrong_grade and game._grade.score == wrong_grade.score, "right and wrong interval answers yield identical grading and score")
 	check(game.ui._seq == wrong_reaction, "interval feedback is absent from the unchanged grading reaction")
 	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.5496, "sigma": 0.1}]
+	_read_plate(game.sim, game.sim.plates[0])
 	game._start_judgment()
-	check(game.ui._seq[0].t.contains("兩倍誤差是 1.35″ 到 1.74″") and Judgment.interval_truth(game.sim) == 3 and game.sim.evidence_class() == "ambiguous",
-		"exact upper edge 1.7496 excludes 1.75 in the prompt, answer, and evidence class")
+	check(game.ui._seq[0].t.contains("兩倍誤差是 1.29″ 到 1.81″") and Judgment.interval_truth(game.sim) == 1 and game.sim.evidence_class() == "favors_e",
+		"setting error widens the interval so 1.75 is inside it, in the prompt, answer, and evidence class")
 	game.sim.measured = true
 	game._refresh_viewer()
-	check(game.ui.viewer_note.text.contains("1.35–1.74″"), "viewer note matches the judgment interval at the upper edge")
+	check(game.ui.viewer_note.text.contains("1.29–1.81″"), "viewer note matches the judgment interval")
 	game.sim.plates = []
 	game._start_judgment()
 	check(game.ui._seq.map(func(line): return line.key) == ["telegram", "reason"], "real judgment skips the interval when nothing was measured")
@@ -575,6 +598,7 @@ func _test_judgment_reasons() -> void:
 		{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
 	]
+	_read_included(game.sim)
 	game._start_judgment()
 	game.ui._choose(Judgment.interval_truth(game.sim))
 	game.ui._advance()
@@ -628,6 +652,7 @@ func _test_strict_poor_only() -> void:
 			"rule prompt records the choice and opens the viewer")
 		for i in game.sim.plates.size():
 			game.ui.plate_toggled.emit(i, game.sim.plates[i].usable)
+		_read_included(game.sim)
 		game.ui.measure_btn.pressed.emit()
 		check(game.sim.measured and game.sim.included_usable().size() == (2 if with_good else 1), "real viewer measures all usable plates")
 		var grade := Judgment.grade(game.sim, "undecided", "uncertain")
@@ -690,6 +715,7 @@ func _test_report_rule_layout() -> void:
 			game.sim.plates.append({"number": i + 1, "start": float(i * 10), "duration": 6.0, "sunlit": false,
 				"usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.75, "sigma": 0.2})
 			game.plate_textures.append(null)
+		_read_included(game.sim)
 		game.ui.hide_title()
 		game._open_viewer()
 		for frame in 4:
@@ -992,6 +1018,7 @@ func _test_viewer_note() -> void:
 		game._toggle_shutter()
 	# Select one measurable plate so the combined-result note is exercised.
 	game.sim.plates[0].merge({"included": true, "usable": true, "value": 2.10, "sigma": 0.20}, true)
+	_read_plate(game.sim, game.sim.plates[0])
 	game._refresh_viewer()
 	check(not game.ui.viewer_note.text.contains("星像清楚"), "viewer note hides quality counts before measuring")
 	check(not game.ui.viewer_note.text.contains("兩倍誤差"), "viewer note hides the two-sigma criterion before measuring")
@@ -1085,6 +1112,7 @@ func _test_reselect_reason() -> void:
 		{"number": 2, "start": 20.0, "duration": 20.0, "sunlit": false, "included": true, "usable": true, "stars": 5, "quality": "poor", "trail": 0.5, "value": 0.9, "sigma": 0.4},
 	]
 	game.plate_textures = [null, null]
+	_read_included(game.sim)
 	game._open_viewer()
 	game.ui.measure_btn.pressed.emit()
 	var first: Dictionary = game.sim.combined().duplicate()
@@ -1123,7 +1151,7 @@ func _test_reselect_reason() -> void:
 		and game._grade.lines.all(func(line): return game.ui.ending_review.text.contains("· " + line)), "review retains every Eddington response")
 	check(game.ui.ending_review.text.contains("你留下的證據")
 		and game.ui.ending_review.text.contains("· 拍了 2 張底片")
-		and game.ui.ending_review.text.contains("· 你量了 1 張，合併 1.75″ ± 0.20″（示意模擬）。")
+		and game.ui.ending_review.text.contains("· 你量了 1 張，合併 1.75″ ± 0.22″（示意模擬）。")
 		and game.ui.ending_review.text.contains(first_line)
 		and game.ui.ending_review.text.contains("· 時鐘驅動："), "review retains the evidence inventory")
 	check(game.ui.ending_review.text.contains("拍了 2 張底片（底片匣一共") and not game.ui.ending_review.text.contains("可用底片"),
@@ -1147,6 +1175,7 @@ func _test_reselect_reason() -> void:
 		{"number": 3, "start": 45.0, "duration": 8.0, "sunlit": false, "included": false, "usable": true, "stars": 7, "quality": "good", "trail": 0.1, "value": 1.8, "sigma": 0.2},
 	]
 	game.plate_textures = [null, null, null]
+	_read_included(game.sim)
 	game._open_viewer()
 	game.ui.measure_btn.pressed.emit()
 	var original: Dictionary = game.sim.first_result.duplicate()

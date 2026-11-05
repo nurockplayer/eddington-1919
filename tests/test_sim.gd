@@ -25,6 +25,13 @@ func expose(sim, t0: float, dur: float) -> Dictionary:
 	return sim.close_shutter(false)
 
 
+func _read(sim) -> void:
+	for p in sim.plates:
+		if p.get("included", false) and p.get("usable", false):
+			p.read = true
+			p.reading = sim.reading_for_value(float(p.get("value", 0.0)))
+
+
 func best_window(sim) -> float:
 	var best_t := 0.0
 	var best := 9.0
@@ -90,6 +97,7 @@ func _init() -> void:
 	# Evidence classification + judgment.
 	check(sim3.evidence_class() == "none", "nothing included → none")
 	good.included = true
+	_read(sim)
 	check(sim.evidence_class() in ["favors_e", "ambiguous"], "one good plate → favors_e or ambiguous (%s)" % sim.evidence_class())
 	var r_ok: Dictionary = Judgment.grade(sim, "hopeful", "measured")
 	var r_over: Dictionary = Judgment.grade(sim, "confirmed", "corona")
@@ -103,6 +111,7 @@ func _init() -> void:
 		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 1.7, "sigma": 0.2, "duration": 4.0},
 		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2, "duration": 4.0},
 	]
+	_read(pair)
 	var agreement := "第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"
 	var single := "只有一張好片——一張底片只能提出問題，還不能回答。"
 	var reminder := "那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。"
@@ -114,6 +123,7 @@ func _init() -> void:
 		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 2.10, "sigma": 0.3, "duration": 4.0},
 		{"number": 6, "usable": true, "quality": "good", "included": true, "value": 1.75, "sigma": 0.3, "duration": 4.0},
 	]
+	_read(trio)
 	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4、6 號各自量，數字彼此對得上。這 3 張互相印證，比一張長片更難被說成巧合。"),
 		"three good plates within their own 2σ still corroborate")
 	# Oracle on #103: poor plates pulling the overall mean must not decide it.
@@ -121,9 +131,12 @@ func _init() -> void:
 	trio.plates[2].value = 1.00
 	trio.plates[2].sigma = 0.4
 	trio.plates.append({"number": 8, "usable": true, "quality": "poor", "included": true, "value": 1.00, "sigma": 0.4, "duration": 4.0})
+	_read(trio)
 	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"),
 		"poor plates do not break the good plates' agreement")
-	pair.plates[1].value = 2.5
+	# 2.9 is outside two measured sigma of 1.7 (the setting error widens it).
+	pair.plates[1].value = 2.9
+	_read(pair)
 	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "disagreeing good plates do not corroborate")
 	pair.plates[1].included = false
 	check(Judgment.grade(pair, "hopeful", "measured").lines.has(single), "one included good plate echoes the 1917 caution")
@@ -143,6 +156,7 @@ func _init() -> void:
 	var p1: Dictionary = expose(sim4, g4.t + 0.5, 4.0)
 	var p2: Dictionary = expose(sim4, g4.t + 4.5 + sim4.PLATE_CHANGE_S, 4.0)
 	p1.included = true
+	_read(sim4)
 	sim4.reselected_after_seeing = true
 	var rep: Dictionary = sim4.selection_report()
 	if p2.quality == "good":
@@ -157,11 +171,13 @@ func _init() -> void:
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 0.9, "sigma": 0.4},
 		{"number": 3, "usable": false, "quality": "unusable", "included": true},
 	]
+	_read(corrected)
 	corrected.first_result = corrected.combined()
 	var first: Dictionary = corrected.first_result.duplicate()
 	corrected.plates[0].included = true
 	corrected.plates[1].included = false
 	corrected.plates[2].included = false
+	_read(corrected)
 	corrected.reselected_after_seeing = true
 	corrected.reselect_reason = "quality"
 	corrected.reselect_added = [1]
@@ -197,6 +213,7 @@ func _init() -> void:
 		var lg: Dictionary = cs.gaps[2]
 		var a: Dictionary = expose(cs, lg.t + 0.5, minf(lg.d - 1.0, 12.0))
 		a.included = a.usable
+		_read(cs)
 		if cs.evidence_class() == "favors_half":
 			misled += 1
 	check(misled <= 3, "careful single-plate play rarely favors 0.87″ (%d/60)" % misled)
@@ -207,11 +224,12 @@ func _init() -> void:
 		{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.0, "value": 2.0, "sigma": 0.41},
 		{"number": 2, "usable": false, "quality": "unusable", "included": false, "value": 0.0, "sigma": 1.0},
 	]
+	_read(rs)
 	var reasons: Array = Judgment.reasons_for(rs)
 	check(reasons.map(func(r): return r.id) == Judgment.REASONS.map(func(r): return r.id), "reason ids retain their order")
-	check(reasons[0].text.contains("2.00″ ± 0.41″"), "measured reason quotes the combined value and sigma")
+	check(reasons[0].text.contains("2.00″ ± 0.42″"), "measured reason quotes the combined value and sigma")
 	check(reasons[0].text.contains("（1 張）"), "measured reason quotes the included plate count")
-	check(reasons[1].text.contains("2.00″ ± 0.41″"), "uncertain reason quotes the combined value and sigma")
+	check(reasons[1].text.contains("2.00″ ± 0.42″"), "uncertain reason quotes the combined value and sigma")
 	check(Judgment.grade(rs, "hopeful", "measured").reason_ok, "measured reason still fits 2.00±0.41")
 	check(rs.evidence_class() == "favors_e", "2.00±0.41 is favors_e, not ambiguous (%s)" % rs.evidence_class())
 	rs.plates[1].included = true
@@ -241,6 +259,7 @@ func _init() -> void:
 		{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
 	]
+	_read(trail_case_sim)
 	check(Judgment.grade(trail_case_sim, "undecided", "trailed").reason_ok, "unchecked drive and trailed low values support the instrument reason")
 	trail_case_sim.drive_rate_checked = true
 	var checked_trail: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
@@ -251,6 +270,7 @@ func _init() -> void:
 	# Trailing biases low; an ambiguous result above 1.75″ is not that bias.
 	var high = Sim.new(6)
 	high.plates = [{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.5, "value": 1.90, "sigma": 0.6}]
+	_read(high)
 	check(high.evidence_class() == "ambiguous" and not Judgment.trailed_case(high), "a high ambiguous value is not credited to trailing")
 	var empty = Sim.new(6)
 	empty.plates = []
@@ -303,9 +323,11 @@ func _init() -> void:
 		{"number": 1, "usable": true, "quality": "good", "included": false, "trail": 0.0, "value": 1.8, "sigma": 0.3},
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 1.2, "sigma": 0.6},
 	]
+	_read(foggy)
 	var broke := func(r: Dictionary) -> bool: return r.lines.any(func(l): return l.contains("也被你選進來了——再拿起來看看，它的星像合不合那一行"))
 	check(not broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate measured without a clear one is no violation")
 	foggy.plates[0].included = true
+	_read(foggy)
 	check(broke.call(Judgment.grade(foggy, "hopeful", "measured")), "strict rule: a poor plate averaged with a clear one is a violation")
 	# Legacy sims receive neither a rule response nor a missing-rule penalty.
 	sim.rule_id = ""

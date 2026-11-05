@@ -195,7 +195,8 @@ func _test_replay_page(story: Node) -> void:
 func _test_confrontation_flow(story: Node) -> void:
 	var game = await _new_game(story, false, {"pick": 1, "sure": 0, "ashby": 0, "year": 1919})
 	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true,
-		"trail": 0.1, "value": 1.75, "sigma": 0.1}]
+		"trail": 0.1, "value": 1.75, "sigma": 0.1,
+		"read": true, "reading": game.sim.reading_for_value(1.75)}]
 	game.sim.rule_id = "strict"
 	game.sim.measured = true
 	game.sim.bet_pick = 1
@@ -213,7 +214,8 @@ func _test_confrontation_flow(story: Node) -> void:
 func _test_confrontation() -> void:
 	var sim := Sim.new(1919)
 	sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true,
-		"trail": 0.1, "value": 1.75, "sigma": 0.1}]
+		"trail": 0.1, "value": 1.75, "sigma": 0.1,
+		"read": true, "reading": sim.reading_for_value(1.75)}]
 	var bounds := Judgment.interval_bounds(sim)
 	check(Judgment.interval_truth(sim) == 1, "the fixture interval holds 1.75 only")
 	var half := Content.bet_vs_plates(1, bounds)
@@ -227,7 +229,8 @@ func _test_confrontation() -> void:
 		"the confrontation avoids winner language")
 	var neither := Sim.new(1919)
 	neither.plates = [{"number": 1, "usable": true, "quality": "good", "included": true,
-		"trail": 0.1, "value": 2.12, "sigma": 0.17}]
+		"trail": 0.1, "value": 2.30, "sigma": 0.17,
+		"read": true, "reading": neither.reading_for_value(2.30)}]
 	check(Content.bet_vs_plates(0, Judgment.interval_bounds(neither)).contains("三個都容不下——先懷疑儀器"),
 		"a neither-contained range says to doubt the instrument first")
 
