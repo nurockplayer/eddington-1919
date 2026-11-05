@@ -136,9 +136,11 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.ui.objectives.text.contains("劍橋・1919 年 10 月") and chapter.ui.objectives.text.contains("Dyson"),
 		"the objective names the letter")
 	# The normal southern approach must reach the letter, not the 1917 copyist's desk volume.
+	chapter.player.velocity = Vector3.ZERO
 	chapter.player.global_position = Vector3(-2.47, 0, 1.3)
 	chapter.player.look_at_point(chapter.world.targets.letter)
-	await process_frame
+	for i in 5:
+		await process_frame
 	var aimed = chapter.player.aimed_interactable()
 	check(aimed != null and str(aimed.get_meta("interact_id", "")) == "letter",
 		"the letter is aimable from the southern approach")
