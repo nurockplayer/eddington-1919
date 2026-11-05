@@ -106,6 +106,7 @@ var _title_focus_modes: Array[int] = []
 var fullscreen_button: Button
 var text_size_button: Button
 var quality_button: Button
+var hold_button: Button
 var restart_button: Button
 var quit_button: Button
 var music_button: Button
@@ -1498,6 +1499,11 @@ func _build_pause(root: Control) -> void:
 		Settings.toggle_reduced_motion()
 		motion.text = "減少晃動：開" if Settings.reduced_motion else "減少晃動：關")
 	v.add_child(motion)
+	hold_button = _button("長按互動：按一下" if Settings.hold_toggle else "長按互動：按住")
+	hold_button.pressed.connect(func():
+		Settings.toggle_hold_toggle()
+		hold_button.text = "長按互動：按一下" if Settings.hold_toggle else "長按互動：按住")
+	v.add_child(hold_button)
 	var help := _button("操作說明")
 	help.pressed.connect(_open_help)
 	v.add_child(help)
@@ -1528,10 +1534,10 @@ func _build_pause(root: Control) -> void:
 			return
 		quit_pressed.emit())
 	v.add_child(quit_button)
-	for button in [r, music_button, fullscreen_button, look, invert, motion, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, look, invert, motion, hold_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
-	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, look, invert, motion, help, pause_title, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, look, invert, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
