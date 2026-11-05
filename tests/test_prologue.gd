@@ -348,7 +348,9 @@ func _test_teaching_paths() -> void:
 			check(keeps_results, name_ + " choices preserve the original results")
 			check(short.advances < detail.advances and reverted == short, name_ + " short path saves advances and revert restores it")
 			if answer == 0:
-				var expected := [17, 19, 22] if name_ == "dyson" else [19, 17, 20]
+				# Conversion arc move B adds the Mercury answer (2 lines) and the
+				# 1911 humility line to every Dyson path.
+				var expected := [17, 22, 25] if name_ == "dyson" else [19, 17, 20]
 				check([baseline.advances, short.advances, detail.advances] == expected, name_ + " exact baseline, short, detail advances: %s" % [[baseline.advances, short.advances, detail.advances]])
 	ui.queue_free()
 	await process_frame

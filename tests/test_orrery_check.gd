@@ -60,7 +60,8 @@ func _finish(chapter) -> void:
 func _drive_check(chapter, picks: Dictionary) -> Array[String]:
 	var keys: Array[String] = []
 	var guard := 100
-	while chapter.ui.dialog_active() and guard > 0:
+	# Stop when the check ends: on the main path it hands straight to Dyson.
+	while chapter.ui.dialog_active() and chapter._pending == "orrery_check" and guard > 0:
 		guard -= 1
 		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
 		if entry.has("choices"):
