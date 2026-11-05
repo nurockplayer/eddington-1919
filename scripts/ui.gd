@@ -759,14 +759,19 @@ func _build_viewer(root: Control) -> void:
 	blink_btn.tooltip_text = "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
 	blink_btn.toggled.connect(_set_blink)
 	plate_controls.add_child(blink_btn)
+	# The micrometer sits on its own row under the loupe/blink buttons: a fourth
+	# control in that row widened the middle column by ~39 px at text scale 1.2
+	# and pushed the chart past the viewport's right edge.
+	var mic_bar := HBoxContainer.new()
+	mid.add_child(mic_bar)
 	mic_btn = _button("測微器")
 	mic_btn.toggle_mode = true
 	mic_btn.tooltip_text = "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
 	mic_btn.toggled.connect(_set_micrometer)
-	plate_controls.add_child(mic_btn)
+	mic_bar.add_child(mic_btn)
 	mic_row = HBoxContainer.new()
 	mic_row.visible = false
-	mid.add_child(mic_row)
+	mic_bar.add_child(mic_row)
 	mic_record_btn = _button("記下讀數")
 	mic_record_btn.pressed.connect(_record_micrometer)
 	mic_row.add_child(mic_record_btn)
@@ -1181,6 +1186,7 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 	b.expand_icon = true
 	b.custom_minimum_size = Vector2(100, 122)
 	b.text = text
+	b.clip_text = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	Settings.track_font(b, 14)
@@ -1252,7 +1258,7 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 				lines.append("[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]")
 	if _viewer_locked and p.included and p.usable and p.get("read", false) and measurement_of.is_valid():
 		var m: Dictionary = measurement_of.call(p)
-		lines.append("讀數 [b]%.2f 格[/b]：量得偏折 [b]%.2f″ ± %.2f″[/b]" % [p.reading, m.value, m.sigma])
+		lines.append("讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]" % [p.reading, m.value, m.sigma])
 	elif _viewer_locked and p.included and p.usable and p.get("read", false):
 		lines.append("已記下讀數：%.2f 格。" % p.reading)
 	elif _viewer_locked and p.included and p.usable:

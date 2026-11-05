@@ -273,7 +273,9 @@ func develop(raw: Dictionary, index: int) -> Dictionary:
 	# radial displacement they dialled in for reference star 0, in plate pixels;
 	# `read` flips when they record it. The render draws that star at
 	# EXAGGERATION * value / |offset| px, so reading_value() inverts it exactly.
-	p.reading = NAN
+	# The placeholder is 0.0, not NAN: NAN != NAN, and every plate dictionary is
+	# compared by value in snapshots and replay checks.
+	p.reading = 0.0
 	p.read = false
 	return p
 

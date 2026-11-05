@@ -30,10 +30,6 @@ func _read(sim) -> void:
 		if p.get("included", false) and p.get("usable", false):
 			p.read = true
 			p.reading = sim.reading_for_value(float(p.get("value", 0.0)))
-			if not p.has("_set_sigma_comp"):
-				p._set_sigma_comp = true
-				var sg := float(p.get("sigma", 0.0))
-				p.sigma = sqrt(maxf(sg * sg - Sim.SET_SIGMA * Sim.SET_SIGMA, 0.0))
 
 
 func best_window(sim) -> float:
@@ -230,9 +226,9 @@ func _init() -> void:
 	_read(rs)
 	var reasons: Array = Judgment.reasons_for(rs)
 	check(reasons.map(func(r): return r.id) == Judgment.REASONS.map(func(r): return r.id), "reason ids retain their order")
-	check(reasons[0].text.contains("2.00″ ± 0.41″"), "measured reason quotes the combined value and sigma")
+	check(reasons[0].text.contains("2.00″ ± 0.42″"), "measured reason quotes the combined value and sigma")
 	check(reasons[0].text.contains("（1 張）"), "measured reason quotes the included plate count")
-	check(reasons[1].text.contains("2.00″ ± 0.41″"), "uncertain reason quotes the combined value and sigma")
+	check(reasons[1].text.contains("2.00″ ± 0.42″"), "uncertain reason quotes the combined value and sigma")
 	check(Judgment.grade(rs, "hopeful", "measured").reason_ok, "measured reason still fits 2.00±0.41")
 	check(rs.evidence_class() == "favors_e", "2.00±0.41 is favors_e, not ambiguous (%s)" % rs.evidence_class())
 	rs.plates[1].included = true
