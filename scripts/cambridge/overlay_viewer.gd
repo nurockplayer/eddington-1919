@@ -38,6 +38,7 @@ var _hint_elapsed := 0.0
 var _hint_sent := false
 var _alignment_progress_recorded := false
 var _status_label: Label
+var _subtitle: Label
 var _root_panel: PanelContainer
 var _toast_top := 0.0
 var _toast_bottom := 0.0
@@ -117,12 +118,13 @@ func _build_ui() -> void:
 	title.size = Vector2(720, 42)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
-	var subtitle := _label("固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉" % Prompts.key("rotate"), 16, MUTED)
-	subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	subtitle.position = Vector2(-440, 66)
-	subtitle.size = Vector2(880, 30)
-	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	add_child(subtitle)
+	_subtitle = _label("", 16, MUTED)
+	_subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_subtitle.position = Vector2(-440, 66)
+	_subtitle.size = Vector2(880, 30)
+	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	add_child(_subtitle)
+	refresh_prompts()
 	_status_label = _label("找出描圖與底片之間的差異。", 20, PAPER_LIGHT)
 	_status_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_status_label.position = Vector2(-500, -123)
@@ -160,6 +162,11 @@ func _build_ui() -> void:
 		var inspect := _button({"label_mirrored": "看標籤", "arrow_tilted": "看箭頭", "residual": "放大未重合點"}[id])
 		inspect.pressed.connect(func(): _try_detail_click(_detail_local_position(id)))
 		details.add_child(inspect)
+
+
+func refresh_prompts() -> void:
+	if _subtitle:
+		_subtitle.text = "固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉" % Prompts.key("rotate")
 
 
 func _label(text: String, size: int, color: Color) -> Label:

@@ -474,6 +474,19 @@ func _test_room_north_boundary() -> void:
 	room.free()
 
 
+func _send_pad_button(index: JoyButton) -> void:
+	var pressed := InputEventJoypadButton.new()
+	pressed.button_index = index
+	pressed.pressed = true
+	root.push_input(pressed)
+	await process_frame
+	var released := InputEventJoypadButton.new()
+	released.button_index = index
+	released.pressed = false
+	root.push_input(released)
+	await process_frame
+
+
 func _pause_round_trip(chapter, label: String, use_escape := true) -> void:
 	if use_escape:
 		await _send_key(KEY_ESCAPE)
@@ -548,6 +561,35 @@ func _test_cambridge_pause_restore() -> void:
 	await _send_key(KEY_TAB)
 	check(chapter._free() and chapter.player.can_move and chapter.player.can_look, "closing log restores Cambridge investigation input")
 	await _test_cambridge_report_and_kit(chapter)
+	await _drain_chapter_audio(chapter)
+	chapter.free()
+	await process_frame
+
+
+func _test_device_switch_refreshes_1917() -> void:
+	var Prompts = preload("res://scripts/prompts.gd")
+	Prompts.joypad = false
+	var chapter = load("res://scripts/cambridge/director.gd").new()
+	root.add_child(chapter)
+	var deadline := Time.get_ticks_msec() + 12000
+	while not chapter.ui.dialog_active() and Time.get_ticks_msec() < deadline:
+		await process_frame
+	while chapter.ui.dialog_active():
+		chapter.ui._advance()
+	chapter._interact("lightbox")
+	await process_frame
+	check(chapter.overlay.visible, "the 1917 light-box opens for the device-switch check")
+	check(chapter.overlay._subtitle.text.contains("Q／E"), "keyboard subtitle names Q／E")
+	check(chapter.ui.objectives.text.contains("Tab 對話紀錄"), "keyboard objectives name Tab")
+	await _send_pad_button(JOY_BUTTON_MISC1)
+	check(Prompts.joypad, "a pad button switches the prompt set")
+	check(chapter.overlay._subtitle.text.contains("LB／RB"), "pad subtitle names LB／RB after the switch")
+	check(chapter.ui.objectives.text.contains("Back 對話紀錄"), "pad objectives name Back after the switch")
+	await _send_key(KEY_F13)
+	check(not Prompts.joypad, "a key switches the prompt set back")
+	check(chapter.overlay._subtitle.text.contains("Q／E"), "subtitle returns to Q／E")
+	check(chapter.ui.objectives.text.contains("Tab 對話紀錄"), "objectives return to Tab")
+	Prompts.joypad = false
 	await _drain_chapter_audio(chapter)
 	chapter.free()
 	await process_frame
@@ -902,6 +944,7 @@ func _run() -> void:
 	_test_device_prompts()
 	await _test_viewer_hint_progress()
 	await _test_cambridge_pause_restore()
+	await _test_device_switch_refreshes_1917()
 	await _test_cambridge_rain()
 	await _test_cambridge_captions()
 	await _test_totality_log_suspension()
