@@ -582,6 +582,12 @@ func _run() -> void:
 					await talk([], 1)
 			else:
 				await talk([0, 1])
+		elif main.beat == main.Beat.ORRERY:
+			# Conversion arc move B: Ashby sends the player to the orrery before Dyson.
+			await walk(Vector3(2.4, 0, -0.9))
+			await interact("orrery")
+			await shot("mentor_orrery_check")
+			await talk()
 		if main.report_sheet.visible:
 			if scenario == "accuse":
 				selections = ["cause/both", "original/keep", "residual/new_object"]

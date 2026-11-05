@@ -18,7 +18,7 @@ const Board := preload("res://scripts/cambridge/plan_board.gd")
 
 static var bench_cambridge_out := ""
 
-enum Beat { OPENING, INVESTIGATE, MENTOR, INTERLUDE, EXAM, PLAN, TRIAL, TRIAL_TASK, CODA, MONTAGE, DONE }
+enum Beat { OPENING, INVESTIGATE, MENTOR, ORRERY, INTERLUDE, EXAM, PLAN, TRIAL, TRIAL_TASK, CODA, MONTAGE, DONE }
 var beat := Beat.OPENING
 var world: Dictionary
 var player
@@ -160,7 +160,8 @@ func _ready() -> void:
 func state() -> Dictionary:
 	var result := Story.clues.duplicate(true)
 	result.merge({"aligned": aligned, "residual_found": residual_found, "kit_checked": kit_checked,
-		"report_done": report_done, "viewer_opens": viewer_opens, "orrery_seen": orrery_seen}, true)
+		"report_done": report_done, "viewer_opens": viewer_opens, "orrery_seen": orrery_seen,
+		"mercury_suspect": Story.mercury_suspect, "orrery": Story.orrery.duplicate(true)}, true)
 	return result
 
 
@@ -170,7 +171,7 @@ func _free() -> bool:
 
 func _sync_player() -> void:
 	var free := _free()
-	player.can_move = free and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK]
+	player.can_move = free and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK, Beat.ORRERY]
 	player.can_look = free
 	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
@@ -179,6 +180,8 @@ func _sync_player() -> void:
 		if aligned and not kit_checked:
 			task = "對上了。請 %s 自己再對一次，再寫進筆記本。" % Cast.KIT
 		ui.set_objectives("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]" % [task, Cast.KIT, Prompts.key("toggle_log")])
+	elif beat == Beat.ORRERY:
+		ui.set_objectives("[b]劍橋・1917[/b]\n查看太陽系儀")
 	elif beat == Beat.TRIAL_TASK:
 		ui.set_objectives("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。")
 	else:
@@ -208,9 +211,14 @@ func _process(delta: float) -> void:
 	if _clock_t >= 1.0:
 		_clock_t -= 1.0
 		tick.play()
-	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK]:
+	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK, Beat.ORRERY]:
 		var target: Node = player.aimed_interactable()
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if target and (beat != Beat.TRIAL_TASK or target.get_meta("interact_id") == "cabinet") else "")
+		var relevant: bool = target != null
+		if relevant and beat == Beat.TRIAL_TASK:
+			relevant = target.get_meta("interact_id") == "cabinet"
+		elif relevant and beat == Beat.ORRERY:
+			relevant = target.get_meta("interact_id") == "orrery"
+		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if relevant else "")
 	else:
 		ui.set_prompt("")
 
@@ -225,7 +233,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _caption_elapsed >= 1.2:
 				_caption_advance = true
 			return
-	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK] and event.is_action_pressed("interact"):
+	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK, Beat.ORRERY] and event.is_action_pressed("interact"):
 		var target: Node = player.aimed_interactable()
 		if target:
 			get_viewport().set_input_as_handled()
@@ -237,6 +245,11 @@ func _interact(id: String) -> void:
 		if id == "cabinet":
 			click.play()
 			_say(C17.trial_check(), "trial_check")
+		return
+	if beat == Beat.ORRERY:
+		if id == "orrery":
+			click.play()
+			_open_orrery()
 		return
 	click.play()
 	match id:
@@ -255,9 +268,9 @@ func _interact(id: String) -> void:
 				_say(C17.kit_guess(), "")
 			else:
 				_say(C17.kit_talk(state()), "")
+		"orrery":
+			_open_orrery()
 		_:
-			if id == "orrery":
-				orrery_seen = true
 			if id == "gramophone":
 				# Music round 2 (proposal): a record, never forced on the player.
 				if gramophone_playing:
@@ -267,6 +280,15 @@ func _interact(id: String) -> void:
 					_say(C17.examine("gramophone" if gramophone_plays == 0 else "gramophone_again"), "gramophone_play")
 				return
 			_say(C17.examine(id), "logbook" if id == "logbook" else "")
+
+
+## Conversion arc move B: the first visit is the check; later visits summarise it.
+func _open_orrery() -> void:
+	orrery_seen = true
+	if Story.orrery.is_empty():
+		_say(C17.orrery_check(), "orrery_check")
+	else:
+		_say(C17.orrery_summary(Story.orrery, Story.mercury_suspect), "")
 
 
 func _clue_found(id: String) -> void:
@@ -415,8 +437,23 @@ func _dialogue_done(results: Dictionary) -> void:
 				report_sheet.open(state(), Story.report)
 				_sync_player()
 				return
-			_say(C17.mentor_dyson(Story.report, state()), "dyson")
+			# Conversion arc move B: the orrery is on the main path unless the
+			# player already did the check during the investigation.
+			if Story.orrery.is_empty():
+				_say(C17.orrery_errand(), "orrery_errand")
+			else:
+				_say(C17.mentor_dyson(Story.report, state()), "dyson")
 			return
+		"orrery_errand":
+			beat = Beat.ORRERY
+		"orrery_check":
+			Story.orrery = {"neptune": int(results.get("orrery_neptune", 0)),
+				"halley": int(results.get("orrery_halley", 0)),
+				"mercury": int(results.get("orrery_mercury", 0))}
+			Story.mercury_suspect = int(results.get("mercury_suspect", -1))
+			if beat == Beat.ORRERY:
+				_say(C17.mentor_dyson(Story.report, state()), "dyson")
+				return
 		"dyson":
 			# Conversion arc move A (FICTION): the player's 1917 guess and Ashby's own
 			# entry are kept for the 1919 recall, the confrontation, ending and coda.

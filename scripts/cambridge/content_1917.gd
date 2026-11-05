@@ -105,14 +105,7 @@ static func examine(id: String) -> Array:
 		"kit_ledger":
 			return [{"s": "%s的帳簿" % K, "t": "同一顆變星，一行一行的亮度估計，字跡工整得近乎固執。\n最新一頁的角落，畫著一個很小的問號。"}]
 		"orrery":
-			# Issue #37 loop 1 (proposal). HISTORICAL_RECORD: Neptune found 1846 from Le Verrier's
-			# prediction; Mercury's unexplained perihelion advance about 43″/century (Le Verrier 1859,
-			# Newcomb 1882/1895); intra-Mercurial planet searches never confirmed.
-			return [
-				{"s": "太陽系儀", "t": "黃銅做的小太陽系，發條帶著水星、金星、地球和火星各走各的路。\n照牛頓的引力算，行星兩百多年來幾乎都準時到場——海王星甚至是先在紙上算出來，才在望遠鏡裡找到的。"},
-				{"s": "太陽系儀", "t": "只有水星不太聽話。把其他行星的拉扯全都算進去，它的近日點每一百年還多往前挪了大約 43 角秒——差不多是一百多公尺外一枚硬幣的寬度。\n有人照海王星的先例，去找一顆更靠近太陽的行星，始終沒有確認找到。也有人懷疑是別的地方出了錯。"},
-				{"s": "太陽系儀", "t": "這台小機器的軌道是齒輪定死的，演不出那 43 角秒。\n[color=#b8ad98]——最可靠的算法，也留著一個對不上的小數字。[/color]"},
-			]
+			return orrery_check()
 		"gramophone":
 			# Music round 2 (proposal). Fact check (Sonnet, 2026-10-31): table-top hornless
 			# machines existed by 1917, and Victor and Gramophone Co. discs are both lateral-cut;
@@ -130,6 +123,61 @@ static func examine(id: String) -> Array:
 		"notebook_before":
 			return [{"s": "你的工作筆記", "t": "等核對完，就在這裡寫下結果。"}]
 	return []
+
+
+## Conversion arc move B (2026-11-06 JST): the orrery check is on the main path,
+## after the report review and before Ashby's Dyson scene. History: all numbers and
+## claims come from docs/research/arc_factcheck_2026-11-06.md (claims 1–5, 12).
+static func orrery_check() -> Array:
+	return [
+		{"s": "太陽系儀", "t": "黃銅做的小太陽系，發條帶著行星各走各的路；一本舊年鑑就擱在旁邊。\n照牛頓的引力算，記在年鑑上的預測，和後來望遠鏡裡看到的——對一對。"},
+		# HISTORICAL_RECORD (factcheck claim 1): Neptune found 23 September 1846 from
+		# Le Verrier's prediction, about 55 arcminutes (under a degree) away. Adams's
+		# independent work did not directly prompt Galle's search.
+		{"s": "年鑑・1846", "t": "1846 年：Le Verrier 只用紙筆，算出一顆沒人見過的行星該在哪裡。Galle 當晚去找——離算出的位置不到一度。",
+			"key": "orrery_neptune", "choices": ["對得上", "對不上"],
+			"then": [[], [{"s": A, "t": "再看一眼：不到一度，在 1846 年的望遠鏡裡就是『就在那裡』。"}]]},
+		# HISTORICAL_RECORD (factcheck claim 2): Cowell and Crommelin's pre-recovery
+		# 1910 perihelion was about 2.7 days early; they revised it after recovery.
+		{"s": "年鑑・1910", "t": "1910 年：哈雷彗星回來了。七十多年前就照牛頓的算法排好日子——Cowell 和 Crommelin 在彗星被望遠鏡再看見之前算的近日點，只早了不到三天。",
+			"key": "orrery_halley", "choices": ["對得上", "對不上"],
+			"then": [[], [{"s": A, "t": "再看一眼：早了不到三天，在七十多年的等待裡，那幾乎就是準時。"}]]},
+		# HISTORICAL_RECORD (factcheck claim 3): about 43″/century is the residual after
+		# known planetary perturbations, not Mercury's total precession.
+		{"s": "年鑑・水星", "t": "水星：把其他行星的拉扯全算進去，它的近日點每一百年還多走了大約 43 角秒。不是整個進動——是算完之後剩下的那一點。",
+			"key": "orrery_mercury", "choices": ["對得上", "對不上"],
+			"then": [[{"s": A, "t": "再看一眼：43 角秒不是零。對得上，是指算出來的歲差和看到的一模一樣——這裡還差著那一點。"}], []]},
+		orrery_suspect_entry(),
+		{"s": "太陽系儀", "t": "[color=#b8ad98]這台小機器的軌道是齒輪定死的，演不出那 43 角秒。[/color]"},
+	]
+
+
+## The 1917 question that Ashby answers in mentor_dyson. Every option is a proposal
+## a careful astronomer of the time could hold (HISTORICAL_RECORD, factcheck claim 12).
+static func orrery_suspect_entry() -> Dictionary:
+	return {"s": "太陽系儀", "t": "如果你是 1917 年的天文學家，你會先懷疑什麼？",
+		"key": "mercury_suspect",
+		"choices": ["量錯了，或算漏了什麼", "還有一顆沒找到的行星（Vulcan）",
+			"太陽附近有看不見的物質（Seeliger）", "引力的平方反比，差了一丁點（Hall）",
+			"牛頓的理論本身"],
+		"then": [[], [], [], [], []]}
+
+
+## Later visits: one page of what the player marked, instead of the check again.
+static func orrery_summary(marks: Dictionary, suspect: int) -> Array:
+	var suspects: Array = orrery_suspect_entry().choices
+	var suspect_text: String = str(suspects[suspect]) if suspect >= 0 and suspect < suspects.size() else "（沒有留下）"
+	return [{"s": "太陽系儀", "t": "你留在年鑑上的記號：\n・海王星：%s\n・哈雷彗星：%s\n・水星的 43 角秒：%s\n\n你當時最懷疑的是：%s\n[color=#b8ad98]這台小機器的軌道是齒輪定死的，演不出那 43 角秒。[/color]" % [
+		_orrery_mark(marks, "neptune"), _orrery_mark(marks, "halley"), _orrery_mark(marks, "mercury"), suspect_text]}]
+
+
+static func _orrery_mark(marks: Dictionary, key: String) -> String:
+	match int(marks.get(key, -1)):
+		0:
+			return "對得上"
+		1:
+			return "對不上"
+	return "（沒有留下）"
 
 
 static func viewer_feedback(id: String) -> String:
@@ -269,6 +317,12 @@ static func mentor_review(report: Dictionary) -> Array:
 	return seq
 
 
+## Conversion arc move B (FICTION): after the report review, Ashby puts the orrery
+## on the main path before he talks about Dyson's eclipse.
+static func orrery_errand() -> Array:
+	return [{"s": A, "t": "說麻煩事之前——你先去看看書架上那台太陽系儀。"}]
+
+
 static func mentor_dyson(_report: Dictionary, state := {}) -> Array:
 	var seq: Array = [
 		{"s": A, "t": "好了。說點比 14 號更麻煩的事。"},
@@ -289,6 +343,11 @@ static func mentor_dyson(_report: Dictionary, state := {}) -> Array:
 		{"s": A, "t": "一半、全部，或是零。差別有多大？",
 			"key": "size", "choices": ["很大吧？", "……"],
 			"then": [[], []]},
+		# HISTORICAL_RECORD (factcheck claim 5): Einstein's 1911 prediction was about
+		# 0.83″, the half value; his 1915 theory doubled it. Newton himself never
+		# published the 0.87″ solar-limb calculation (claim 6), so the line does not
+		# say Newton computed it. FICTION: Ashby's remark.
+		{"s": A, "t": "說來有趣——愛因斯坦自己 1911 年算出來的，也只有一半。是他後來的新理論，才把它加倍。"},
 		{"s": A, "t": "在太陽的邊上，最多 1.75 角秒。大約是三公里外，一枚硬幣的寬度。"},
 		{"s": A, "t": "平常太陽亮得什麼都看不見。只有日全食，月亮把它遮住，星才會出來。拍下那一刻太陽旁邊的星，再和夜裡拍的同一片星比——就知道它們有沒有被推開。"},
 		# Conversion arc move A (FICTION): the player commits to a number before measuring.
@@ -309,12 +368,24 @@ static func mentor_dyson(_report: Dictionary, state := {}) -> Array:
 		{"s": A, "t": "聽起來耳熟嗎？"},
 		{"s": A, "t": "我教了三十年牛頓。潮汐、行星、彗星回來的日子——它從來沒讓我失望過。要我為了一張日食底片改掉這些，那張底片得比這張桌上任何東西都乾淨。"},
 	]
-	if state.get("orrery_seen", false):
-		# Issue #37: the Newtonian knows Mercury's residual and weighs it fairly.
-		# HISTORICAL_RECORD: about 43″/century unexplained since Le Verrier (1859); no
-		# intra-Mercurial planet confirmed. FICTION: the mentor's view.
-		seq.append({"s": A, "t": "（瞥了一眼書架上的太陽系儀）你看過那台小東西了。好吧——水星例外。那 43 角秒，算了快六十年，還沒人說得清。"})
-		seq.append({"s": A, "t": "也許是一顆還沒找到的行星，也許是我們哪裡量錯了。可是一個小數字，還不夠讓我拆掉整棟房子。要拆，得有第二個、第三個，而且每一個都乾淨。"})
+	# Conversion arc move B: the orrery is on the main path, so Ashby always answers
+	# what the player suspected. HISTORICAL_RECORD: the 43″/century residual is
+	# unexplained since Le Verrier (1859); Vulcan (claim 4), Seeliger's zodiacal
+	# matter and Hall's r^-2.00000016 law (claim 12) were real proposals. FICTION:
+	# the mentor's replies and his judgement of each.
+	seq.append({"s": A, "t": "看完了？水星例外。那 43 角秒，算了快六十年，還沒人說得清。"})
+	match int(state.get("mercury_suspect", -1)):
+		0:
+			seq.append({"s": A, "t": "量錯了，或算漏了什麼。很有可能。六十年來，每一張水星底片都有人重新量過，每一顆行星的質量也重新算過。可是那個數字還在。"})
+		1:
+			seq.append({"s": A, "t": "Le Verrier 也這麼想。日食的時候大家都在找它——1878 年有人說看見了，沒人能再看見一次。"})
+		2:
+			seq.append({"s": A, "t": "Seeliger 想過：太陽附近也許有一層看不見的物質，像黃道光的塵。聽起來很合理——可是沒有人能證明它多到足以拉住水星。"})
+		3:
+			seq.append({"s": A, "t": "Hall 試過：指數不是 2，是 2.00000016。水星對了——可是別的行星也得跟著對，這才是難處。"})
+		4:
+			seq.append({"s": A, "t": "也許。可是一個小數字，還不夠讓我拆掉整棟房子。要拆，得有第二個、第三個，而且每一個都乾淨。"})
+	seq.append({"s": A, "t": "海王星、哈雷——它在別的地方都對。所以水星才讓人睡不好。"})
 	seq.append_array([
 		{"s": A, "t": "現在你告訴我。（拿起你的紙）如果日食那張底片上的星「移動」了——我們怎麼知道，那不是有人把底片放反、放斜了？",
 			"key": "bridge", "choices": ["……不知道。除非先把這些都排除掉。", "用離太陽很遠的星來檢查？", "（沉默）"],
