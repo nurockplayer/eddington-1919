@@ -254,6 +254,17 @@ func _run() -> void:
 		invert_button.grab_focus()
 		await button(JOY_BUTTON_DPAD_DOWN)
 		check(root.gui_get_focus_owner() == motion_button, "D-pad down reaches 減少晃動")
+	ui.hold_button.grab_focus()
+	check(root.gui_get_focus_owner() == ui.hold_button, "pause hold row takes focus")
+	await button(JOY_BUTTON_DPAD_DOWN)
+	check(root.gui_get_focus_owner() is Button and root.gui_get_focus_owner().text == "操作說明",
+		"D-pad down leaves the hold row for help")
+	await button(JOY_BUTTON_DPAD_UP)
+	check(root.gui_get_focus_owner() == ui.hold_button, "D-pad up returns to the hold row")
+	await button(JOY_BUTTON_A)
+	check(Settings.hold_toggle and ui.hold_button.text == "長按互動：按一下", "A switches the hold row to a single press")
+	await button(JOY_BUTTON_A)
+	check(not Settings.hold_toggle and ui.hold_button.text == "長按互動：按住", "A switches the hold row back to holding")
 	ui.restart_button.grab_focus()
 	await button(JOY_BUTTON_A)
 	check(ui.restart_button.text == "再按一次：從頭開始" and root.gui_get_focus_owner() == ui.restart_button,

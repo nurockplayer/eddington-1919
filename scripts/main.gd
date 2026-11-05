@@ -64,6 +64,7 @@ var plates_left := 0
 var tot_done := false
 var hold_t := 0.0
 var hold_id := ""
+var _hold_latched := false
 var met_cottingham := false
 var plate_textures: Array = []
 var comparison_tex: Texture2D
@@ -780,6 +781,10 @@ func _process_prep(delta: float) -> void:
 
 func _process_interaction(delta: float) -> void:
 	if not _ui_free():
+		if Settings.hold_toggle:
+			_hold_latched = false
+			hold_id = ""
+			hold_t = 0.0
 		ui.set_prompt("")
 		ui.set_hold(0.0)
 		return
@@ -787,7 +792,12 @@ func _process_interaction(delta: float) -> void:
 	var id: String = n.get_meta("interact_id") if n else ""
 	ui.set_prompt(_prompt_for(id, n))
 	ui.crosshair.modulate = Color(1, 0.85, 0.5) if id != "" else Color(1, 1, 1, 0.6)
-	if id in HOLD and _hold_allowed(id) and Input.is_action_pressed("interact"):
+	var holding := Input.is_action_pressed("interact")
+	if Settings.hold_toggle:
+		if Input.is_action_just_pressed("interact") and id in HOLD and _hold_allowed(id):
+			_hold_latched = not (_hold_latched and hold_id == id)
+		holding = _hold_latched and hold_id in ["", id]
+	if id in HOLD and _hold_allowed(id) and holding:
 		if hold_id != id:
 			hold_id = id
 			hold_t = 0.0
@@ -797,6 +807,7 @@ func _process_interaction(delta: float) -> void:
 			hold_t = 0.0
 			_hold_complete(id)
 	else:
+		_hold_latched = false
 		hold_id = ""
 		hold_t = 0.0
 		ui.set_hold(0.0)
@@ -813,6 +824,10 @@ func _hold_allowed(id: String) -> bool:
 		"plate_box":
 			return sim.plates_carried + sim.plates_delivered < sim.MAX_EXTRA_PLATES
 	return false
+
+
+func _hold_prefix() -> String:
+	return "［按 " + Prompts.key("interact") + " 開始］" if Settings.hold_toggle else "［按住 " + Prompts.key("interact") + "］"
 
 
 func _prompt_for(id: String, n: Node) -> String:
@@ -842,16 +857,16 @@ func _prompt_for(id: String, n: Node) -> String:
 		"eddington", "cottingham":
 			return "［" + Prompts.key("interact") + "］和 %s 說話" % name_
 		"drive":
-			return "［按住 " + Prompts.key("interact") + "］上發條" if not sim.drive_wound else "時鐘驅動：發條已上滿"
+			return _hold_prefix() + "上發條" if not sim.drive_wound else "時鐘驅動：發條已上滿"
 		"chronometer":
 			if sim.drive_wound and not sim.drive_rate_checked:
-				return "［按住 " + Prompts.key("interact") + "］替 Cottingham 報秒、校走速"
+				return _hold_prefix() + "替 Cottingham 報秒、校走速"
 			return "［" + Prompts.key("interact") + "］看天文鐘"
 		"plate_box":
 			var left: int = sim.MAX_EXTRA_PLATES - sim.plates_carried - sim.plates_delivered
 			if left <= 0:
 				return "底片匣都拿完了"
-			return "［按住 " + Prompts.key("interact") + "］拿底片匣（手上 %d，箱裡還有 %d）" % [sim.plates_carried, left]
+			return _hold_prefix() + "拿底片匣（手上 %d，箱裡還有 %d）" % [sim.plates_carried, left]
 		"station":
 			if sim.plates_carried > 0:
 				return "［" + Prompts.key("interact") + "］把 %d 個底片匣放上架子" % sim.plates_carried

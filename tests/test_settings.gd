@@ -27,6 +27,7 @@ func _run() -> void:
 	Settings.load_settings(test_path)
 	check(Settings.volumes == {"Master": 1.0, "Music": 1.0, "SFX": 1.0} and not Settings.fullscreen,
 		"missing settings default to full volume and windowed")
+	check(not Settings.hold_toggle, "hold interaction defaults to hold")
 	Settings.apply_startup()
 	AudioServer.set_bus_volume_db(0, -12.0)
 	Settings.apply_startup()
@@ -60,6 +61,13 @@ func _run() -> void:
 	check(Settings.reduced_motion, "reduced motion roundtrips")
 	Settings.toggle_reduced_motion(test_path)
 	check(not Settings.reduced_motion, "reduced motion toggles off")
+	Settings.toggle_hold_toggle(test_path)
+	check(Settings.hold_toggle, "hold interaction toggles to a single press")
+	Settings.hold_toggle = false
+	Settings.load_settings(test_path)
+	check(Settings.hold_toggle, "hold interaction toggle roundtrips")
+	Settings.toggle_hold_toggle(test_path)
+	check(not Settings.hold_toggle, "hold interaction toggles back to holding")
 	var cfg := ConfigFile.new()
 	cfg.load(test_path)
 	cfg.set_value("input", "look_speed", 9.0)
