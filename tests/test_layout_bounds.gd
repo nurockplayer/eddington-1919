@@ -131,6 +131,27 @@ func _run() -> void:
 			check(ui.thumbs.get_child_count() == 13 and ui.viewer_note.text.contains("兩倍誤差"), "twelve plates and measured note are visible")
 			await settle()
 			bounds(ui.viewer)
+			var viewer_buttons := ui.viewer.find_children("*", "BaseButton", true, false).filter(func(b): return b.is_visible_in_tree())
+			for i in viewer_buttons.size():
+				for j in range(i + 1, viewer_buttons.size()):
+					check(not viewer_buttons[i].get_global_rect().intersects(viewer_buttons[j].get_global_rect()), "viewer buttons overlap")
+			if window == Vector2i(1280, 720):
+				check(is_equal_approx(ui.big_plate.size.y, 460.0), "720p plate remains 460 logical pixels")
+			if window == Vector2i(1920, 1080) and scale == 1.0:
+				var screen_scale := float(window.y) / root.get_visible_rect().size.y
+				check(ui.big_plate.size.y * screen_scale >= 640.0, "1080p plate is at least 640 screen pixels")
+				var lowest := 0.0
+				for button in ui.viewer.find_children("*", "BaseButton", true, false):
+					if button.is_visible_in_tree():
+						lowest = maxf(lowest, button.get_global_rect().end.y)
+				check(lowest * screen_scale >= window.y * 0.75, "lowest viewer control reaches bottom quarter")
+			if window == Vector2i(1920, 1080):
+				root.size = Vector2i(1280, 720)
+				await settle()
+				check(is_equal_approx(ui.big_plate.size.y, 460.0), "plate returns to 720p size on resize")
+				root.size = window
+				await settle()
+				check(ui.big_plate.size.y > 460.0, "plate grows again on resize")
 			ui.set_viewer_report(true)
 			await settle()
 			bounds(ui.viewer)
