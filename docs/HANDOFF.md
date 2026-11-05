@@ -355,3 +355,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Harness issue seen, not fixed:** dot-ci queue not draining since about 2026-11-06 05:00 JST (reported by ds-edd-4; not checked by the lead).
 - **Windowed look today 09–15 JST:** the earlier list, plus the C crosshair and ring at 1080 and at 720/1.2, the bet prompts, the B check, and D2's room + chart overlay if merged. After D2 merges: full e2e, a new build, and the blind newcomer session; move E only if that session shows the gap. Then the 0.4.5 decision.
 - **Heartbeat:** session-only one-shot cron; re-arm after /clear.
+
+### Arc status (edd-lead) | 2026-11-06 08:30 JST
+
+- D2 epilogue merged: #215 (67b2d41, 2026-11-06 08:27 JST; oracle approve, 0 findings on the final head). The whole arc A + B + C + D is now in main. On the final head test_epilogue 77/0 and test_layout_bounds 4546/0 ran; the other suites and routes ran before the last small fix (empty_desk, overlay fonts), and honest was rerun after it.
+- **Running:** full e2e `job-run` id `edd-e2e-d2` on main 67b2d41, worktree ds-1 (detached). Check `job-run --status edd-e2e-d2` and `~/.local/state/job-run/edd-e2e-d2/log`; no event arrives for it.
+- **Windowed look, from 09:00 JST:** one-shot cron 46cd8c52 at 09:01 JST (session-only). If it is gone: `job-run --id edd-look-1106 -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_20261106.sh`. Prep script `look_20261106_prep.sh` (same folder) rebuilds the temp tree `/private/tmp/edd-look-1106`: origin/main plus still-only bot edits that are never pushed. Stills go to `director/look-20261106/`: judge downscaled, delete afterwards, then remove the temp worktree.
+- **After both:** fix what they show, then a new build and the blind newcomer session (`docs/PLAYTEST_NEWCOMER.md`); move E only if that session shows the gap; then the 0.4.5 decision.
