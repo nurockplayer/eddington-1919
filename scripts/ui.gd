@@ -107,6 +107,8 @@ var _title_armed := false
 var viewer: Control
 var thumbs: GridContainer
 var big_plate: TextureRect
+var plate_stage: Control
+var viewer_mid: VBoxContainer
 var plate_info: RichTextLabel
 var reference_btn: Button
 var reference_close_btn: Button
@@ -647,9 +649,10 @@ func _build_viewer(root: Control) -> void:
 	left.add_child(viewer_note)
 	# Middle: big plate + info.
 	var mid := VBoxContainer.new()
+	viewer_mid = mid
 	mid.custom_minimum_size = Vector2(470, 0)
 	h.add_child(mid)
-	var plate_stage := Control.new()
+	plate_stage = Control.new()
 	plate_stage.custom_minimum_size = Vector2(470, 460)
 	mid.add_child(plate_stage)
 	big_plate = TextureRect.new()
@@ -729,6 +732,20 @@ func _build_viewer(root: Control) -> void:
 	var model_note := _label("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。", 15, DIM)
 	model_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(model_note)
+	viewer.resized.connect(_layout_viewer)
+	get_viewport().size_changed.connect(_layout_viewer)
+	_layout_viewer()
+
+
+func _layout_viewer() -> void:
+	var window_height := float(get_viewport().get_window().size.y)
+	var growth := clampf((window_height - 720.0) / 360.0, 0.0, 1.0)
+	var extra := minf(76.0 * growth, maxf(0.0, get_viewport().get_visible_rect().size.x - 1556.0 + 32.0 * growth))
+	chart.custom_minimum_size.x = 560.0 - 32.0 * growth
+	viewer_mid.custom_minimum_size.x = 470.0 + extra
+	plate_stage.custom_minimum_size = Vector2(470.0 + extra, 460.0 + extra)
+	big_plate.custom_minimum_size = Vector2.ONE * (460.0 + extra)
+	chart.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
 
 
 func _build_reference_plates() -> void:
@@ -1007,7 +1024,7 @@ func set_viewer_locked(locked: bool) -> void:
 func set_viewer_report(reporting: bool) -> void:
 	_viewer_reporting = reporting
 	# Leave room for the five-reason dialogue at 1600×900 with large text.
-	chart.custom_minimum_size.y = 280.0 if reporting else 420.0
+	_layout_viewer()
 	if reporting:
 		_set_loupe(false)
 	viewer_rule.visible = reporting and viewer_rule.text != ""
