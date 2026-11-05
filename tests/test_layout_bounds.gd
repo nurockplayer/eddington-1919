@@ -163,14 +163,17 @@ func _run() -> void:
 			overlay.flipped = true
 			overlay.angle_deg = 3.2
 			overlay.open()
+			ui.hud.visible = false
 			ui.show_toast(C17.viewer_feedback("label_mirrored"), 6.0)
 			await settle()
 			bounds(overlay)
+			check(ui.toast.is_visible_in_tree(), "overlay toast visible while HUD hidden")
 			var toast_rect: Rect2 = ui.toast.get_global_rect()
 			check(not toast_rect.intersects(overlay._status_label.get_global_rect()), "overlay toast clears aligned status")
 			check(not toast_rect.intersects(overlay.buttons.flip.get_parent().get_global_rect()), "overlay toast clears button row")
 			check(root.get_visible_rect().encloses(toast_rect), "overlay toast stays on screen")
 			overlay.close()
+			check(ui.toast.get_parent() == ui.hud, "overlay restores toast to HUD")
 			overlay.free()
 			var checklist := Checklist.new()
 			root.add_child(checklist)
