@@ -1195,10 +1195,15 @@ func _test_reselect_reason() -> void:
 	check(game.sim.reselect_history == [{"reason": "result", "added": [3], "removed": []}, {"reason": "quality", "added": [], "removed": [2]}], "both reselection reasons and plate changes survive")
 	check(game.sim.first_result == original, "multiple reselections still retain the first result")
 	game.sim = Sim.new(1919)
+	# The ending is built from the recorded run (conversion arc D1): record this sim fresh.
+	root.get_node("Story").runs.clear()
+	game._run_record_index = -1
 	game._show_ending()
 	check(game.ui.ending_text.text.contains("本子上：沒有量出任何數值。"), "unmeasured ending keeps the empty workbook on the tableau")
 	game.sim.first_result = {"n": 0}
 	game.sim.reselected_after_seeing = true
+	root.get_node("Story").runs.clear()
+	game._run_record_index = -1
 	game._show_ending()
 	check(game.ui.ending_text.text.contains("本子上：沒有量出任何數值。（第一次量：沒有量出任何數值。）"), "unmeasured first result stays on the same workbook line")
 	game.stop_all_audio()
