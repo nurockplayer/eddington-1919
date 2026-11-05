@@ -64,6 +64,15 @@ func _run() -> void:
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	root.add_child(ui)
 	await process_frame
+	# The viewer starts hidden and a hidden Control never draws, so move the chart
+	# into the tree on its own and give it a row to label; the checks below read
+	# what _draw() actually painted.
+	var chart = ui.chart
+	chart.reparent(root)
+	chart.size = Vector2(560, 420)
+	chart.set_data([{"label": "測試", "value": 1.0, "sigma": 0.1, "weak": false}], {"n": 0}, true)
+	for frame in 2:
+		await process_frame
 	var overlay := Overlay.new()
 	root.add_child(overlay)
 	var checklist := Checklist.new()
@@ -74,7 +83,7 @@ func _run() -> void:
 	var standard_smudge_position := checklist._smudge.position
 	var standard_smudge_size := checklist._smudge.size
 	check(absf(standard_smudge_position.x - (hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, 25).x - 4)) <= 0.5, "standard smudge aligns with 25 px prefix")
-	check(ui.chart.label_px() == 14, "chart labels start at the standard 14 px")
+	check(chart.drawn().label_px == 14, "chart labels start at the standard 14 px")
 	ui.hide_title()
 	ui.set_objectives("測量底片")
 	ui.play([C17.trial_task()[3]])
@@ -93,7 +102,9 @@ func _run() -> void:
 	ui.text_size_button.grab_focus()
 	await _press_a()
 	check(Settings.text_scale == 1.2 and ui.text_size_button.text == "文字大小：大", "gamepad A cycles standard to large once")
-	check(ui.chart.label_px() == Settings.fs(14) and ui.chart.label_px() == 17, "chart labels redraw at the large 17 px size")
+	for frame in 2:
+		await process_frame
+	check(chart.drawn().label_px == 17, "chart labels redraw at the large 17 px size")
 	check(overlay.buttons.flip.get_theme_font_size("font_size") == 22, "large overlay button scales from 18 to 22 px")
 	check(checklist.plate_lines[0].get_theme_font_size("font_size") == 22 and checklist.values[0].get_theme_font_size("bold_font_size") == 30, "large checklist label and rich text scale")
 	check(absf(checklist._smudge.position.x - (hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x - 4)) <= 0.5, "large smudge aligns with 30 px prefix")
@@ -138,7 +149,9 @@ func _run() -> void:
 	ui.text_size_button.grab_focus()
 	await _press_a()
 	check(Settings.text_scale == 0.85 and ui.text_size_button.text == "文字大小：小", "large cycles to small")
-	check(ui.chart.label_px() == 12, "chart labels redraw at the small 12 px size")
+	for frame in 2:
+		await process_frame
+	check(chart.drawn().label_px == 12, "chart labels redraw at the small 12 px size")
 	check(ui.text_label.get_theme_font_size("normal_font_size") == 18, "small dialogue rounds to 18 px")
 	await _press_a()
 	check(Settings.text_scale == 1.0 and ui.text_size_button.text == "文字大小：標準", "small cycles back to standard")
@@ -153,6 +166,7 @@ func _run() -> void:
 	check(Settings.text_scale == 1.0, "pause cycle saves immediately")
 	ui.toggle_pause()
 	ui.free()
+	chart.free()
 	overlay.free()
 	checklist.free()
 	var game: Node = load("res://scenes/main.tscn").instantiate()

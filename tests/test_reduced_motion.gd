@@ -81,11 +81,21 @@ func _check_walk() -> void:
 
 
 func _check_blink() -> void:
-	Settings.reduced_motion = false
+	# UI._ready() reloads the settings file, which would overwrite the test's value
+	# from the developer's real 減少晃動 setting; point it at a throwaway file.
+	var previous_env := OS.get_environment("EDD_SETTINGS_PATH")
+	var had_env := OS.has_environment("EDD_SETTINGS_PATH")
+	var temp_path := ProjectSettings.globalize_path("user://test-reduced-motion.cfg")
+	var n := 0
+	while FileAccess.file_exists(temp_path) or DirAccess.dir_exists_absolute(temp_path):
+		n += 1
+		temp_path = ProjectSettings.globalize_path("user://test-reduced-motion-%d.cfg" % n)
+	OS.set_environment("EDD_SETTINGS_PATH", temp_path)
 	var ui := UI.new()
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	root.add_child(ui)
 	await process_frame
+	Settings.reduced_motion = false
 	# The engine would call _process with a frame-dependent delta; step it by hand instead.
 	ui.set_process(false)
 	var sim := Sim.new(1919)
@@ -116,3 +126,8 @@ func _check_blink() -> void:
 	check(ui._blink_oxford, "減少晃動 does not flip again after 1.5 s")
 	Settings.reduced_motion = false
 	ui.free()
+	if had_env:
+		OS.set_environment("EDD_SETTINGS_PATH", previous_env)
+	else:
+		OS.unset_environment("EDD_SETTINGS_PATH")
+	DirAccess.remove_absolute(temp_path)

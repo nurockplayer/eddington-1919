@@ -961,8 +961,16 @@ func _test_callouts() -> void:
 func _test_viewer_note() -> void:
 	check(Chart.two_sigma_span(2.10, 0.20).is_equal_approx(Vector2(1.70, 2.50)), "chart span shows two sigma around the measured value")
 	var chart := Chart.new()
-	check(not chart.marker_filled({"weak": true}) and chart.marker_filled({"weak": false}),
-		"weak plate marker is a hollow ring while a good plate stays a filled dot")
+	chart.size = Vector2(560, 420)
+	root.add_child(chart)
+	chart.set_data([
+		{"label": "弱", "value": 1.0, "sigma": 0.1, "weak": true},
+		{"label": "良", "value": 1.2, "sigma": 0.1, "weak": false},
+	], {}, true)
+	for frame in 2:
+		await process_frame
+	check(chart.drawn().hollow == 1 and chart.drawn().filled == 1,
+		"weak plate marker is drawn as a hollow ring while a good plate is a filled dot")
 	chart.free()
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
