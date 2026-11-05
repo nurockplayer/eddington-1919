@@ -143,7 +143,7 @@ func _run() -> void:
 				scroll.ensure_control_visible(button)
 				await settle()
 				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "armed pause button reachable: " + button.text)
-				check(button.autowrap_mode != TextServer.AUTOWRAP_OFF, "armed pause button wraps: " + button.text)
+				check(scroll.size.x <= 301.0, "armed pause column stays 300 px: " + button.text)
 				var content_width: float = button.size.x - button.get_theme_stylebox("normal").get_minimum_size().x
 				var font := button.get_theme_font("font")
 				var font_size := button.get_theme_font_size("font_size")

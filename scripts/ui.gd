@@ -1504,6 +1504,9 @@ func _build_pause(root: Control) -> void:
 			return
 		quit_pressed.emit())
 	v.add_child(quit_button)
+	for button in [r, music_button, fullscreen_button, look, invert, restart_button, quit_button]:
+		button.focus_mode = Control.FOCUS_ALL
+	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, look, invert, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
