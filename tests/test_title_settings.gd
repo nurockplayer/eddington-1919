@@ -35,14 +35,14 @@ func cancel() -> void:
 	await settle()
 
 func _run() -> void:
-	# Always write to a new throwaway file: never the player's settings or an existing file.
+	# Always write to a new throwaway file: never the player's settings or an existing file or directory.
 	var previous_env := OS.get_environment("EDD_SETTINGS_PATH")
 	var real_path := previous_env if not previous_env.is_empty() else ProjectSettings.globalize_path("user://settings.cfg")
 	var had_real := FileAccess.file_exists(real_path)
 	var real_bytes := FileAccess.get_file_as_bytes(real_path) if had_real else PackedByteArray()
 	var temp_path := ProjectSettings.globalize_path("user://test-title-settings.cfg")
 	var n := 0
-	while temp_path == real_path or FileAccess.file_exists(temp_path):
+	while temp_path == real_path or FileAccess.file_exists(temp_path) or DirAccess.dir_exists_absolute(temp_path):
 		n += 1
 		temp_path = ProjectSettings.globalize_path("user://test-title-settings-%d.cfg" % n)
 	OS.set_environment("EDD_SETTINGS_PATH", temp_path)
