@@ -959,6 +959,10 @@ func _test_callouts() -> void:
 
 func _test_viewer_note() -> void:
 	check(Chart.two_sigma_span(2.10, 0.20).is_equal_approx(Vector2(1.70, 2.50)), "chart span shows two sigma around the measured value")
+	var chart := Chart.new()
+	check(not chart.marker_filled({"weak": true}) and chart.marker_filled({"weak": false}),
+		"weak plate marker is a hollow ring while a good plate stays a filled dot")
+	chart.free()
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
