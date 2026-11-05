@@ -36,11 +36,12 @@ func _run() -> void:
 	fresh.stop_all_audio()
 	fresh.queue_free()
 	await process_frame
+	await _test_replay_page(story)
 	await _test_confrontation_flow(story)
 	_test_confrontation()
 	await _test_ending_and_coda(story)
 	story.reset()
-	check(story.bet.is_empty(), "Story.reset clears the prediction ledger")
+	check(story.bet.is_empty() and story.bet_1917.is_empty(), "Story.reset clears the prediction ledger and the 1917 page")
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
@@ -63,6 +64,7 @@ func _new_game(story: Node, played: bool, bet: Dictionary, from_prologue := fals
 	# main._ready resets Story outside a prologue run, so set it afterwards.
 	story.prologue_done = played
 	story.bet = bet.duplicate(true)
+	story.bet_1917 = bet.duplicate(true) if played and not bet.is_empty() else {}
 	game.phase = game.Phase.NIGHT
 	return game
 
@@ -92,6 +94,7 @@ func _test_1917_bet(story: Node) -> void:
 	check(story.bet.get("sure", -1) == 1, "the 1917 confidence (有點把握) is kept in Story.bet")
 	check(story.bet.get("ashby", 0) == 1 and story.bet.get("year", 0) == 1917,
 		"Ashby's own 1917 entry is marked for 1919 and the coda")
+	check(story.bet_1917.get("pick", -1) == 2, "the 1917 page is kept separately for replays")
 	chapter.free()
 	await process_frame
 
@@ -132,6 +135,7 @@ func _test_1919_change(story: Node) -> void:
 		"changing the entry writes a 1919 pick")
 	check(story.bet.get("ashby", 0) == 1 and story.bet.get("sure", -1) == 1,
 		"the change keeps Ashby's entry and the 1917 confidence")
+	check(story.bet_1917.get("pick", -1) == 2, "the change leaves the 1917 page untouched")
 	check(game.sim.bet_pick == 1, "the changed pick is recorded on the run")
 	check(game.ui.viewer.visible, "the viewer opens after the changed entry")
 	game.stop_all_audio()
@@ -160,6 +164,31 @@ func _test_measure_reentry(game: Node) -> void:
 	game._interact("measure")
 	check(game._pending == "" and not game.ui.dialog_active() and game.ui.viewer.visible,
 		"re-entering Measure reopens the viewer without asking again")
+
+
+## A replay keeps the 1917 page: the previous run's 1919 revision must not be
+## presented as the original entry.
+func _test_replay_page(story: Node) -> void:
+	story.reset()
+	story.prologue_done = true
+	story.bet_1917 = {"pick": 2, "sure": 1, "ashby": 1, "year": 1917}
+	story.bet = {"pick": 1, "sure": 1, "ashby": 1, "year": 1919}  # last run changed it
+	story.plan = ["comparison"]
+	story.from_prologue = true
+	var game = load(MAIN_PATH).new()
+	root.add_child(game)
+	await process_frame
+	game.set_process(false)
+	game.ui.hide_title()
+	check(story.bet.get("pick", -1) == 2 and story.bet.get("year", 0) == 1917,
+		"a replay starts from the 1917 page, not the last run's revision")
+	game.phase = game.Phase.NIGHT
+	game._interact("measure")
+	game.ui._choose(0)
+	check(_text(game).contains("你寫的是 1.75"), "the replay recall names the original 1917 pick")
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
 
 
 ## The interval answer is followed by the bet against the player's own plates.

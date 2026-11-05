@@ -126,6 +126,9 @@ func _ready() -> void:
 	replay_pending = false
 	if not _came_from_departure:
 		Story.reset(_is_replay)
+	# Conversion arc A: every run starts from the 1917 page, never the last run's revision.
+	if Story.prologue_done and not Story.bet_1917.is_empty():
+		Story.bet = Story.bet_1917.duplicate(true)
 	Story.kit_first = -1
 	var args := _user_args()
 	# A restart's chosen sky wins over the command line, which only seeds the first run.
