@@ -695,21 +695,31 @@ func _start_game() -> void:
 func _return_to_title() -> void:
 	Story.reset()
 	# A new game starts with no log and a fresh sky.
-	next_seed = -1
 	UI.history.clear()
-	# A replay's origin flag must not survive into the title run.
-	replay_from_prologue = false
-	replay_pending = false
+	prepare_title()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
+## The static hand-off a chapter needs before returning to the title.
+static func prepare_title() -> void:
+	next_seed = -1
+	# A replay's origin flag must not survive into the title run.
+	replay_from_prologue = false
+	replay_pending = false
+
+
 func _restart(same_sky: bool) -> void:
-	next_seed = sim.run_seed if same_sky else randi() % 100000
-	replay_from_prologue = _came_from_departure
-	replay_pending = true
-	replay_same_sky = same_sky
+	prepare_replay(sim.run_seed if same_sky else randi() % 100000, same_sky, _came_from_departure)
 	get_tree().paused = false
 	get_tree().reload_current_scene()
+
+
+## The static hand-off a chapter needs before reloading or leaving for a replay.
+static func prepare_replay(seed_value: int, same_sky: bool, from_prologue: bool) -> void:
+	next_seed = seed_value
+	replay_from_prologue = from_prologue
+	replay_pending = true
+	replay_same_sky = same_sky
 
 
 func _process(delta: float) -> void:
@@ -1502,8 +1512,14 @@ func _end_coda() -> void:
 	await _lamp_out_then_ending()
 
 
+func _epilogue_due() -> bool:
+	return _came_from_departure and Story.departure_done and not Story.epilogue_done
+
+
 func _lamp_out_then_ending() -> void:
-	_play_resolution()
+	# The epilogue plays the resolution cue at its own ending; a scene change would cut it here.
+	if not _epilogue_due():
+		_play_resolution()
 	_busy = true
 	# Lamp out, a breath of darkness, then the ending. Esc and Tab hold this beat.
 	_coda_transition = create_tween().set_parallel(true).set_pause_mode(Tween.TWEEN_PAUSE_STOP)
@@ -1513,6 +1529,15 @@ func _lamp_out_then_ending() -> void:
 	_coda_transition.chain().tween_property(ui.fade, "color:a", 1.0, 1.3)
 	await _coda_transition.finished
 	_busy = false
+	if _epilogue_due():
+		_stop_night_bed()
+		_record_run()
+		var plate := _ending_plate()
+		Story.ending_plate = plate[0]
+		Story.ending_plate_caption = plate[1]
+		Story.epilogue_done = true
+		get_tree().change_scene_to_file("res://scenes/epilogue.tscn")
+		return
 	_show_ending()
 
 
@@ -1656,42 +1681,39 @@ func _play_resolution() -> void:
 		score.play("coda_resolution", 0.6)
 
 
-func _show_ending() -> void:
-	_stop_night_bed()
-	_play_resolution()
-	phase = Phase.ENDING
-	ui.pause_enabled = false
-	ui.hud.visible = false
-	player.can_move = false
-	player.can_look = false
-	ui.fade.color.a = 0.0
+## Conversion arc D1: the run snapshot the ending reads, kept out of _show_ending().
+func _record_run() -> void:
+	if _run_record_index >= 0:
+		return
 	var c: Dictionary = sim.combined()
-	if _run_record_index < 0:
-		var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
-		var exposures: Array = []
-		for p in sim.plates:
-			exposures.append({"number": p.number, "start": p.start, "duration": p.duration,
-				"included": p.included, "usable": p.usable, "quality": p.quality,
-				"read": p.get("read", false),
-				"reading": p.reading if p.get("read", false) else null})
-		var departure_kit: bool = _came_from_departure and Story.kit_first >= 0
-		_run_record_index = Story.runs.size()
-		Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
-			"rule_id": sim.rule_id, "bet": Story.bet.duplicate(true), "bet_pick": sim.bet_pick,
-			"telegram_id": Judgment.TELEGRAMS[_telegram].id,
-			"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
-			"score": _grade.get("score", 0), "clean": _grade.clean,
-			"grade": _grade.duplicate(true),
-			"first_result": sim.first_result.duplicate(true) if sim.first_result != null else null,
-			"reselected_after_seeing": sim.reselected_after_seeing,
-			"drive_rate_checked": sim.drive_rate_checked, "drive_wound": sim.drive_wound,
-			"plate_total": sim.plates.size(), "plates_available": sim.plates_available(),
-			"plate_counts": {"good": sim.count_quality("good"), "poor": sim.count_quality("poor"),
-				"unusable": sim.count_quality("unusable")},
-			"bounds": Judgment.interval_bounds(sim) if c.n > 0 else {},
-			"departure_kit": departure_kit,
-			"kit_line": _night_departure_workbook.kit_line if departure_kit else ""}.duplicate(true))
-	var ending: Dictionary = Ending.build(Story.runs[_run_record_index], Ending.story_view(Story))
+	var reasons: Array = Judgment.REASONS if _reasons.is_empty() else _reasons
+	var exposures: Array = []
+	for p in sim.plates:
+		exposures.append({"number": p.number, "start": p.start, "duration": p.duration,
+			"included": p.included, "usable": p.usable, "quality": p.quality,
+			"read": p.get("read", false),
+			"reading": p.reading if p.get("read", false) else null})
+	var departure_kit: bool = _came_from_departure and Story.kit_first >= 0
+	_run_record_index = Story.runs.size()
+	Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
+		"rule_id": sim.rule_id, "bet": Story.bet.duplicate(true), "bet_pick": sim.bet_pick,
+		"telegram_id": Judgment.TELEGRAMS[_telegram].id,
+		"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
+		"score": _grade.get("score", 0), "clean": _grade.clean,
+		"grade": _grade.duplicate(true),
+		"first_result": sim.first_result.duplicate(true) if sim.first_result != null else null,
+		"reselected_after_seeing": sim.reselected_after_seeing,
+		"drive_rate_checked": sim.drive_rate_checked, "drive_wound": sim.drive_wound,
+		"plate_total": sim.plates.size(), "plates_available": sim.plates_available(),
+		"plate_counts": {"good": sim.count_quality("good"), "poor": sim.count_quality("poor"),
+			"unusable": sim.count_quality("unusable")},
+		"bounds": Judgment.interval_bounds(sim) if c.n > 0 else {},
+		"departure_kit": departure_kit,
+		"kit_line": _night_departure_workbook.kit_line if departure_kit else ""}.duplicate(true))
+
+
+## The best plate the ending shows, as [texture, caption].
+func _ending_plate() -> Array:
 	var best := -1
 	if sim.measured:
 		for i in sim.plates.size():
@@ -1710,6 +1732,21 @@ func _show_ending() -> void:
 		if comparison_tex == null:
 			comparison_tex = PlateRender.render(sim, null)
 		ending_texture = comparison_tex
-	ui.show_ending(ending.title, ending.body, ending.history, ending.review, ending.telegram, ending_texture, plate_caption)
+	return [ending_texture, plate_caption]
+
+
+func _show_ending() -> void:
+	_stop_night_bed()
+	_play_resolution()
+	phase = Phase.ENDING
+	ui.pause_enabled = false
+	ui.hud.visible = false
+	player.can_move = false
+	player.can_look = false
+	ui.fade.color.a = 0.0
+	_record_run()
+	var ending: Dictionary = Ending.build(Story.runs[_run_record_index], Ending.story_view(Story))
+	var plate := _ending_plate()
+	ui.show_ending(ending.title, ending.body, ending.history, ending.review, ending.telegram, plate[0], plate[1])
 	if bot:
 		bot.on_phase("ending")
