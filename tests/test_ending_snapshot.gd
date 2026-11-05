@@ -43,8 +43,10 @@ func _run() -> void:
 	for r in runs:
 		check(r.texts.title != "" and r.texts.review.contains("Eddington 的回應"), "%s: real ending labels carry the ending" % r.name)
 	# Oracle review fix: interval bounds need a measured value; n=0 records an empty dictionary.
-	check(runs[0].snapshot.bounds.has("lo") and runs[0].snapshot.bounds.has("hi"), "measured run records the interval bounds")
-	check(runs[2].snapshot.bounds.is_empty(), "no-measurement run records empty interval bounds")
+	var measured_bounds: Dictionary = runs[0].snapshot.get("bounds", {})
+	var empty_bounds: Dictionary = runs[2].snapshot.get("bounds", {})
+	check(measured_bounds.has("lo") and measured_bounds.has("hi"), "measured run records the interval bounds")
+	check(empty_bounds.is_empty(), "no-measurement run records empty interval bounds")
 
 	# The scene and its simulation are gone; only the snapshot and the Story view remain.
 	game.stop_all_audio()
