@@ -65,6 +65,9 @@ var start_btn: Button
 var title_note: Label
 var log_panel: PanelContainer
 var log_text: RichTextLabel
+var log_scroll: ScrollContainer
+var log_title: Label
+var log_back: Button
 static var history: Array[String] = []
 var _log_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var ending_replay: Button
@@ -369,6 +372,16 @@ func show_toast(text: String, seconds := 4.0) -> void:
 	toast.text = text
 	toast.modulate.a = 1.0
 	_toast_t = seconds
+	_append_history("・" + text)
+
+
+## Toasts vanish on a timer; the log is where a slow reader reads them again.
+func _append_history(line: String) -> void:
+	if not history.is_empty() and history.back() == line:
+		return
+	history.append(line)
+	while history.size() > 120:
+		history.pop_front()
 
 
 func _process(delta: float) -> void:
@@ -611,6 +624,8 @@ func set_callout(text: String, seconds := 3.5) -> void:
 	callout.visible = text != ""
 	callout.modulate.a = 1.0 if text != "" else 0.0
 	_callout_t = seconds if text != "" else 0.0
+	if text != "":
+		_append_history("・" + text)
 
 
 func set_clock(text: String) -> void:
@@ -1599,16 +1614,23 @@ func _build_log(root: Control) -> void:
 	root.add_child(log_panel)
 	var v := VBoxContainer.new()
 	log_panel.add_child(v)
-	v.add_child(_label("對話紀錄　［Tab 關閉］", 28, ACCENT))
+	log_title = _label("對話紀錄　［%s 關閉］" % Prompts.key("toggle_log"), 28, ACCENT)
+	v.add_child(log_title)
+	log_scroll = ScrollContainer.new()
+	log_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	v.add_child(log_scroll)
 	log_text = RichTextLabel.new()
 	log_text.bbcode_enabled = true
-	log_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	log_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	log_text.fit_content = true
+	log_text.scroll_following = false
+	log_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_text.add_theme_color_override("default_color", PAPER)
-	log_text.scroll_following = true
-	v.add_child(log_text)
-	var close := _button("返回　Tab")
-	close.pressed.connect(toggle_log)
-	v.add_child(close)
+	log_scroll.add_child(log_text)
+	log_back = _button("返回　%s" % Prompts.key("toggle_log"))
+	log_back.pressed.connect(toggle_log)
+	v.add_child(log_back)
 
 
 func log_open() -> bool:
@@ -1624,11 +1646,28 @@ func toggle_log() -> void:
 		log_panel.find_children("*", "Button", true, false)[0].grab_focus()
 		_log_mouse_mode = Input.mouse_mode
 		log_text.text = "\n\n".join(history)
+		_scroll_log_to_bottom()
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
 		Input.mouse_mode = _log_mouse_mode
 		_restore_focus(_log_focus)
 	log_toggled.emit(log_panel.visible)
+
+
+## Opening the log starts at the newest line, like the log did when it followed.
+## The label's height settles over a few frames, so follow the maximum until it stops growing.
+func _scroll_log_to_bottom() -> void:
+	var last := -1.0
+	for i in 6:
+		await get_tree().process_frame
+		if not is_instance_valid(log_scroll):
+			return
+		var bar := log_scroll.get_v_scroll_bar()
+		var bottom := bar.max_value - bar.page
+		log_scroll.scroll_vertical = int(bottom)
+		if bottom == last:
+			return
+		last = bottom
 
 
 func _restore_focus(previous: Control) -> void:
@@ -1705,6 +1744,10 @@ func _refresh_hints() -> void:
 		title_controls.text = "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停" % [Prompts.key("interact"), Prompts.key("toggle_log"), Prompts.key("shutter"), Prompts.key("pause")]
 	if help_panel and help_panel.visible:
 		help_content.text = _help_text()
+	if log_title:
+		log_title.text = "對話紀錄　［%s 關閉］" % Prompts.key("toggle_log")
+	if log_back:
+		log_back.text = "返回　%s" % Prompts.key("toggle_log")
 	tot_hint.text = "［%s／%s］開始・停" % [Prompts.key("shutter"), Prompts.key("interact")]
 	if not _choice_buttons.is_empty():
 		hint_label.text = "［方向鍵／A 鍵］選擇" if Prompts.joypad else "［1–%d 或點擊］選擇" % _choice_buttons.size()
@@ -1717,7 +1760,9 @@ func blocks_world_input() -> bool:
 
 
 func _active_menu_scroll() -> ScrollContainer:
-	if pause_panel.visible or log_panel.visible or dialog_panel.visible or viewer.visible:
+	if log_panel.visible:
+		return log_scroll
+	if pause_panel.visible or dialog_panel.visible or viewer.visible:
 		return null
 	if credits_panel.visible:
 		return credits_scroll
