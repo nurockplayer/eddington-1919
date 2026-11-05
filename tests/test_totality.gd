@@ -724,7 +724,8 @@ func _test_report_rule_layout() -> void:
 		check(game.ui.viewer_note.text == note_before and not note_before.contains("你寫下的規則"), "report rule leaves the measurement note unchanged")
 		game.ui.close_viewer()
 		game._open_viewer()
-		check(game.ui.chart.custom_minimum_size.y == 420.0, "reopening the viewer restores the measurement chart height")
+		var growth := clampf((float(game.get_viewport().get_window().size.y) - 720.0) / 360.0, 0.0, 1.0)
+		check(is_equal_approx(game.ui.chart.custom_minimum_size.y, 420.0 + 160.0 * growth), "reopening the viewer restores the measurement chart height")
 		game.stop_all_audio()
 		game.queue_free()
 		await process_frame
