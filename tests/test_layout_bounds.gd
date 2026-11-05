@@ -132,7 +132,7 @@ func _run() -> void:
 			check(ui.thumbs.get_child_count() == 13 and ui.viewer_note.text.contains("兩倍誤差"), "twelve plates and measured note are visible")
 			await settle()
 			bounds(ui.viewer)
-			var viewer_buttons := ui.viewer.find_children("*", "BaseButton", true, false).filter(func(b): return b.is_visible_in_tree())
+			var viewer_buttons: Array = ui.viewer.find_children("*", "BaseButton", true, false).filter(func(b): return b.is_visible_in_tree())
 			for i in viewer_buttons.size():
 				for j in range(i + 1, viewer_buttons.size()):
 					check(not viewer_buttons[i].get_global_rect().intersects(viewer_buttons[j].get_global_rect()), "viewer buttons overlap")
