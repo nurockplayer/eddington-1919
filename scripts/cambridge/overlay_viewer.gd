@@ -38,6 +38,8 @@ var _hint_sent := false
 var _alignment_progress_recorded := false
 var _status_label: Label
 var _root_panel: PanelContainer
+var _toast_top := 0.0
+var _toast_bottom := 0.0
 
 
 func _ready() -> void:
@@ -50,6 +52,9 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	if is_instance_valid(ui):
+		_toast_top = ui.toast.offset_top
+		_toast_bottom = ui.toast.offset_bottom
 	buttons.flip.grab_focus()
 	_update_alignment()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -60,6 +65,9 @@ func close() -> void:
 	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	visible = false
+	if is_instance_valid(ui):
+		ui.toast.offset_top = _toast_top
+		ui.toast.offset_bottom = _toast_bottom
 	_dragging = false
 	closed.emit()
 
@@ -171,6 +179,10 @@ func _button(text: String) -> Button:
 
 
 func _process(delta: float) -> void:
+	if visible and is_instance_valid(ui):
+		var toast: Label = ui.toast
+		toast.size.y = maxf(90.0, toast.get_combined_minimum_size().y)
+		toast.global_position.y = _status_label.get_global_rect().position.y - 10.0 - toast.size.y
 	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
 		return
 	var movement := Input.get_vector("move_left", "move_right", "move_forward", "move_back")

@@ -5,6 +5,7 @@ const Content := preload("res://scripts/content.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Render := preload("res://scripts/plate_render.gd")
 const Judgment := preload("res://scripts/judgment.gd")
+const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 var checks := 0
@@ -157,10 +158,19 @@ func _run() -> void:
 			bounds(ui.viewer)
 			ui.close_viewer()
 			var overlay := Overlay.new()
+			overlay.ui = ui
 			root.add_child(overlay)
+			overlay.flipped = true
+			overlay.angle_deg = 3.2
 			overlay.open()
+			ui.show_toast(C17.viewer_feedback("label_mirrored"), 6.0)
 			await settle()
 			bounds(overlay)
+			var toast_rect: Rect2 = ui.toast.get_global_rect()
+			check(not toast_rect.intersects(overlay._status_label.get_global_rect()), "overlay toast clears aligned status")
+			check(not toast_rect.intersects(overlay.buttons.flip.get_parent().get_global_rect()), "overlay toast clears button row")
+			check(root.get_visible_rect().encloses(toast_rect), "overlay toast stays on screen")
+			overlay.close()
 			overlay.free()
 			var checklist := Checklist.new()
 			root.add_child(checklist)
