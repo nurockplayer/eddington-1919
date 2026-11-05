@@ -35,13 +35,13 @@ func cancel() -> void:
 	await settle()
 
 func _run() -> void:
-	var temp_path := ""
-	var real_path := ProjectSettings.globalize_path("user://settings.cfg")
+	# Always write to a throwaway file: never the player's settings, nor a file EDD_SETTINGS_PATH already names.
+	var previous_env := OS.get_environment("EDD_SETTINGS_PATH")
+	var real_path := previous_env if not previous_env.is_empty() else ProjectSettings.globalize_path("user://settings.cfg")
 	var had_real := FileAccess.file_exists(real_path)
 	var real_bytes := FileAccess.get_file_as_bytes(real_path) if had_real else PackedByteArray()
-	if OS.get_environment("EDD_SETTINGS_PATH").is_empty():
-		temp_path = ProjectSettings.globalize_path("user://test-title-settings.cfg")
-		OS.set_environment("EDD_SETTINGS_PATH", temp_path)
+	var temp_path := ProjectSettings.globalize_path("user://test-title-settings.cfg")
+	OS.set_environment("EDD_SETTINGS_PATH", temp_path)
 	var original_look_speed := Settings.look_speed
 	check(change_scene_to_file("res://scenes/main.tscn") == OK, "load main")
 	await settle()
@@ -100,9 +100,9 @@ func _run() -> void:
 		check(find_button(ui.pause_panel, label).is_visible_in_tree(), label + " visible")
 	ui.toggle_pause()
 	Settings.look_speed = original_look_speed
-	if not temp_path.is_empty():
-		DirAccess.remove_absolute(temp_path)
-		check(FileAccess.file_exists(real_path) == had_real and (not had_real or FileAccess.get_file_as_bytes(real_path) == real_bytes), "user settings unchanged")
-		print("user settings: %s, unchanged" % ("present" if had_real else "absent"))
+	DirAccess.remove_absolute(temp_path)
+	OS.set_environment("EDD_SETTINGS_PATH", previous_env)
+	check(FileAccess.file_exists(real_path) == had_real and (not had_real or FileAccess.get_file_as_bytes(real_path) == real_bytes), "configured settings file unchanged")
+	print("settings file %s: %s, unchanged" % [real_path, "present" if had_real else "absent"])
 	print("test_title_settings: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
