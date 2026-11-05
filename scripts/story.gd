@@ -12,6 +12,7 @@ var kit_choice := -1
 var kit_first := -1
 var trial_note := -1
 var exam: Dictionary = {}
+var bet: Dictionary = {}
 var sky_promise := -1
 var bond_tone := ""
 var slip_fix := -1
@@ -30,6 +31,7 @@ func reset(keep_runs := false) -> void:
 	kit_first = -1
 	trial_note = -1
 	exam.clear()
+	bet.clear()
 	sky_promise = -1
 	bond_tone = ""
 	slip_fix = -1

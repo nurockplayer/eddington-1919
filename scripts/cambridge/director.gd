@@ -418,6 +418,10 @@ func _dialogue_done(results: Dictionary) -> void:
 			_say(C17.mentor_dyson(Story.report, state()), "dyson")
 			return
 		"dyson":
+			# Conversion arc move A (FICTION): the player's 1917 guess and Ashby's own
+			# entry are kept for the 1919 recall, the confrontation, ending and coda.
+			Story.bet = {"pick": int(results.get("bet", 0)), "sure": int(results.get("bet_sure", 0)),
+				"ashby": 1, "year": 1917}
 			_interlude()
 			return
 		"exam":

@@ -927,7 +927,8 @@ func _interact(id: String) -> void:
 			var measured_any: bool = sim.combined().n > 0
 			var any_usable: bool = sim.plates.any(func(p): return p.usable)
 			var residual_found: bool = Story.clues.get("residual", false)  # found, whatever the report says
-			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any, any_usable) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
+			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any, any_usable,
+				int(Story.bet.get("ashby", 0)) == 1) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
 		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		ui.show_toast("Ashby 先生給的放大鏡。", 4.0)
@@ -1036,6 +1037,10 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"rules":
 			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
 			_refresh_objectives()
+			# Conversion arc move A: the bet comes before the plates, once per run.
+			_say(Content.bet_prompt(Story.bet if Story.prologue_done else {}), "bet")
+		"bet":
+			_record_bet(results)
 			_open_viewer()
 		"reselect_reason":
 			sim.reselect_reason = ["quality", "result", "none"][int(results.get("reselect_reason", 2))]
@@ -1049,7 +1054,10 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			_interval_answer = results.interval
 			var tele := Judgment.telegram_choices()
 			var rea := _reasons.map(func(r): return r.text)
-			_say([{"s": Content.E, "t": Content.interval_feedback(_interval_answer, Judgment.interval_truth(sim))}] + Content.judgment_prompt(tele, rea), "judgment")
+			var against: Array = []
+			if sim.bet_pick >= 0:
+				against.append({"s": Content.E, "t": Content.bet_vs_plates(sim.bet_pick, Judgment.interval_bounds(sim))})
+			_say([{"s": Content.E, "t": Content.interval_feedback(_interval_answer, Judgment.interval_truth(sim))}] + against + Content.judgment_prompt(tele, rea), "judgment")
 		"judgment":
 			_after_judgment(results)
 		"reaction":
@@ -1080,6 +1088,22 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			_end_coda()
 	_refresh_objectives()
 	_sync_player_input()
+
+
+## Conversion arc A: keep the prediction ledger. Not changing the 1917 entry leaves it
+## as written; a 1919 change keeps Ashby's entry and the 1917 confidence.
+func _record_bet(results: Dictionary) -> void:
+	if results.has("bet_keep"):
+		var keep := int(results.bet_keep)
+		if keep == 0:
+			sim.bet_pick = int(Story.bet.get("pick", -1))
+			return
+		Story.bet = {"pick": keep - 1, "sure": int(Story.bet.get("sure", 0)),
+			"ashby": int(Story.bet.get("ashby", 0)), "year": 1919}
+	else:
+		Story.bet = {"pick": int(results.get("bet", 0)), "sure": int(results.get("bet_sure", 0)),
+			"ashby": 0, "year": 1919}
+	sim.bet_pick = int(Story.bet.pick)
 
 
 func _needs_comparison_fetch() -> bool:
@@ -1632,7 +1656,8 @@ func _show_ending() -> void:
 				"included": p.included, "usable": p.usable, "quality": p.quality})
 		_run_record_index = Story.runs.size()
 		Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
-			"rule_id": sim.rule_id, "telegram_id": Judgment.TELEGRAMS[_telegram].id,
+			"rule_id": sim.rule_id, "bet": Story.bet.duplicate(true), "bet_pick": sim.bet_pick,
+			"telegram_id": Judgment.TELEGRAMS[_telegram].id,
 			"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
 			"score": _grade.get("score", 0), "clean": _grade.clean}.duplicate(true))
 	var workbook := "本子上：%.2f″ ± %.2f″（示意模擬）" % [c.value, c.sigma] if c.n > 0 else "本子上：沒有量出任何數值。"
@@ -1678,6 +1703,11 @@ func _show_ending() -> void:
 		else:
 			lines.append("· 第一次量：沒有量出任何數值。")
 	lines.append("· 時鐘驅動：%s。" % ("上了發條並校過走速" if sim.drive_rate_checked else ("上了發條但沒校走速" if sim.drive_wound else "由 Cottingham 匆忙處理")))
+	# Conversion arc A: the prediction comes back beside the evidence.
+	if not Story.bet.is_empty():
+		lines.append("· 量之前你寫的：%s（%s）。" % [Content.bet_pick_text(int(Story.bet.pick)), Content.bet_sure_text(int(Story.bet.sure))])
+	if int(Story.bet.get("ashby", 0)) == 1:
+		lines.append("· Ashby 先生寫的：0.87。")
 	var history := []
 	history.append("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]")
 	history.append("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。")
