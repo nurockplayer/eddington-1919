@@ -1672,7 +1672,7 @@ func _show_ending() -> void:
 			"plate_total": sim.plates.size(), "plates_available": sim.plates_available(),
 			"plate_counts": {"good": sim.count_quality("good"), "poor": sim.count_quality("poor"),
 				"unusable": sim.count_quality("unusable")},
-			"bounds": Judgment.interval_bounds(sim),
+			"bounds": Judgment.interval_bounds(sim) if c.n > 0 else {},
 			"departure_kit": departure_kit,
 			"kit_line": _night_departure_workbook.kit_line if departure_kit else ""}.duplicate(true))
 	var ending: Dictionary = Ending.build(Story.runs[_run_record_index], Ending.story_view(Story))
