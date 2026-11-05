@@ -83,7 +83,7 @@ func _finish(chapter, picks := {}) -> void:
 func _text(chapter) -> String:
 	var out := ""
 	for line in chapter.ui._seq:
-		out += str(line.get("t", "")) + "\n"
+		out += str(line.get("s", "")) + "：" + str(line.get("t", "")) + "\n"
 	return out
 
 
@@ -127,6 +127,8 @@ func _test_full_flow(story: Node) -> void:
 	story.mercury_suspect = 3
 	story.ending_plate = _plate()
 	story.ending_plate_caption = "第 7 號底片"
+	# main.gd sets this before the scene change; the epilogue is the first run only.
+	story.epilogue_done = true
 	var chapter = await _new_epilogue()
 	_finish(chapter)
 	check(chapter.beat == chapter.Beat.LETTER, "the opening releases the letter beat")
@@ -159,7 +161,7 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.chart.button.text == "抄好了", "press 2 advances the button to 抄好了")
 	await process_frame
 	await process_frame
-	var drawn: Dictionary = chapter.chart.drawn()
+	var drawn: Dictionary = chapter.chart.chart.drawn()
 	check(drawn.markers.size() == 3 and drawn.markers[2] == "hollow",
 		"the chart paints the astrographic row as a hollow marker")
 	check(drawn.bars == ["bar", "bar", "none"], "the chart paints no error bar for the astrographic row")
@@ -171,7 +173,7 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.ui.objectives.text.contains("太陽系儀還在架上"), "the objective names the orrery")
 	chapter._interact("orrery")
 	var orrery := _text(chapter)
-	check(orrery.contains("你 1917 年最懷疑的是") and orrery.contains("引力的平方反比"),
+	check(orrery.contains("你在 1917 年最懷疑的是") and orrery.contains("引力的平方反比"),
 		"the orrery repeats the 1917 suspect")
 	check(orrery.contains("1915 年 11 月") and orrery.contains("43 角秒"), "the orrery pays off Mercury")
 	_finish(chapter, {"click": 1, "final_reason": 2})
@@ -185,14 +187,13 @@ func _test_full_flow(story: Node) -> void:
 		await process_frame
 	check(chapter.beat == chapter.Beat.ENDING and chapter.ui.ending_panel.visible,
 		"the close fades to the ending inside the epilogue")
-	var body: String = chapter.ui.ending_text.text
-	check(body.contains("筆記本最後一句：兩地一起。"), "the ending shows the notebook answer")
-	check(body.contains("Sobral 天體照相儀那組：先放一邊，寫明了原因"), "the ending shows the astrographic weighting")
+	var review_text: String = chapter.ui.ending_review.text
+	check(review_text.contains("筆記本最後一句：兩地一起。"), "the ending shows the notebook answer")
+	check(review_text.contains("Sobral 天體照相儀那組：先放一邊，寫明了原因"), "the ending shows the astrographic weighting")
 	check(chapter.ui.ending_history.text.contains("1979 年，有人重新量了 Sobral 的底片"),
 		"the history carries the 1979 remeasurement in this route too")
 	check(chapter.ui.ending_plate.texture != null and chapter.ui.ending_plate_caption.text == "第 7 號底片",
 		"the ending shows the plate carried across the scene change")
-	check(story.epilogue_done, "the epilogue marks itself done")
 	_check_second_run(story)
 	await _check_replay(chapter, story, 4242)
 	chapter.free()

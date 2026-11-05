@@ -79,7 +79,7 @@ func _draw() -> void:
 	for i in rows.size():
 		var r: Dictionary = rows[i]
 		var y := top + 16.0 + i * step
-		var col := Color(0.85, 0.82, 0.75) if not r.weak else Color(0.85, 0.5, 0.45)
+		var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
 		# A row with no trustworthy error is a marker only; no bar is invented for it.
 		if r.get("no_bar", false):
 			_drawn_bars.append("none")

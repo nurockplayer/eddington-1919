@@ -849,9 +849,9 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue notebook answer was not stored")
 	if not Story.epilogue_done:
 		failures.append("epilogue completion flag missing")
-	if not main.ui.ending_text.text.contains("筆記本最後一句"):
+	if not main.ui.ending_review.text.contains("筆記本最後一句"):
 		failures.append("ending omitted the notebook answer")
-	if not main.ui.ending_text.text.contains("Sobral 天體照相儀那組"):
+	if not main.ui.ending_review.text.contains("Sobral 天體照相儀那組"):
 		failures.append("ending omitted the astrographic weighting")
 	if main.ui.ending_plate.texture == null:
 		failures.append("ending lost the stored plate")
@@ -871,7 +871,7 @@ func _epilogue_chart_has(label: String, no_bar: bool) -> bool:
 		return true
 	await get_tree().process_frame
 	await get_tree().process_frame
-	var bars: Array = main.chart.drawn().get("bars", [])
+	var bars: Array = main.chart.chart.drawn().get("bars", [])
 	return bars.size() == main.chart.rows.size() and bars.back() == "none"
 
 
