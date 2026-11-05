@@ -264,19 +264,28 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 			out.append("你改了選片，也寫下了原因：第 %s 號是因為星像品質。兩次結果都留著，誰都能對照。" % _nums(changed_plates))
 		else:
 			out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
-	var good: Array = sim.plates.filter(func(p): return p.included and p.quality == "good")
-	if good.size() >= 2:
+	# Corroboration must speak about what the player actually measured: only
+	# read plates, and each one's micrometer value and combined error — never
+	# the hidden generated value of a plate the player has not read.
+	var good: Array = sim.plates.filter(func(p): return p.included and p.usable and p.get("read", false) and p.quality == "good")
+	if good.size() >= 2 and sim.has_method("measurement"):
 		# The good plates' own weighted mean: poor plates must not decide whether
 		# good ones agree. Each plate is held to its own 2σ, so more agreeing
 		# plates (a smaller combined σ) cannot turn agreement into disagreement.
+		var measures: Array = []
+		for p in good:
+			measures.append(sim.measurement(p))
 		var wsum := 0.0
 		var vsum := 0.0
-		for p in good:
-			var w: float = 1.0 / (p.sigma * p.sigma)
+		for m in measures:
+			var w: float = 1.0 / (float(m.sigma) * float(m.sigma))
 			wsum += w
-			vsum += w * p.value
+			vsum += w * float(m.value)
 		var mean := vsum / wsum
-		if good.all(func(p): return absf(p.value - mean) <= 2.0 * p.sigma):
+		var agree := true
+		for m in measures:
+			agree = agree and absf(float(m.value) - mean) <= 2.0 * float(m.sigma)
+		if agree:
 			var count := "兩張" if good.size() == 2 else "這 %d 張" % good.size()
 			out.append("第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。" % [_nums(good.map(func(p): return p.number)), count])
 	elif good.size() == 1:

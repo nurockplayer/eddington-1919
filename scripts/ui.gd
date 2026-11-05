@@ -2049,8 +2049,10 @@ func _input(event: InputEvent) -> void:
 			_record_micrometer()
 			get_viewport().set_input_as_handled()
 			return
-		# On a pad, B first puts the micrometer away; a second B leaves the table.
-		if event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause"):
+		# Escape/B first puts the micrometer away; a second press leaves the table.
+		# Escape is also mapped to pause, so without this a keyboard-only player
+		# would be trapped: every confirm press records and every arrow nudges.
+		if event.is_action_pressed("ui_cancel"):
 			_set_micrometer(false)
 			get_viewport().set_input_as_handled()
 			return

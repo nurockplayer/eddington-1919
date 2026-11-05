@@ -134,7 +134,8 @@ func _init() -> void:
 	_read(trio)
 	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"),
 		"poor plates do not break the good plates' agreement")
-	pair.plates[1].value = 2.5
+	# 2.9 is outside two measured sigma of 1.7 (the setting error widens it).
+	pair.plates[1].value = 2.9
 	_read(pair)
 	check(not Judgment.grade(pair, "hopeful", "measured").lines.has(agreement), "disagreeing good plates do not corroborate")
 	pair.plates[1].included = false
