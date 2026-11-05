@@ -97,7 +97,7 @@ func _run() -> void:
 				and ui.title_note.text.begins_with("第一次玩請從序章開始"),
 				"title warns that the tail chapter skips Cambridge")
 			bounds(ui.title_panel)
-			var title_buttons := ui.prologue_btn.get_parent().get_children()
+			var title_buttons: Array = ui.prologue_btn.get_parent().get_children()
 			for i in title_buttons.size():
 				check(root.get_visible_rect().encloses(title_buttons[i].get_global_rect()), "title button fits")
 				for j in range(i):
