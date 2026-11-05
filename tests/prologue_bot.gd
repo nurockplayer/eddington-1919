@@ -793,7 +793,12 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue opening did not reach the letter")
 		return false
 	await shot("epilogue_opening")
-	await walk(Vector3(-2.9, 0, 1.3))
+	# The copyist's empty desk hotspot covers the letter from the south; approach
+	# from the north aisle so the ray reaches the letter itself.
+	await walk(Vector3(2.1, 0, 2.35))
+	await walk(Vector3(2.1, 0, -1.5))
+	await walk(Vector3(-1.9, 0, -1.5))
+	await walk(Vector3(-2.2, 0, -0.8))
 	await interact("letter")
 	await talk()
 	guard = 15.0
@@ -828,7 +833,9 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue weight did not reach the orrery")
 		return false
 	await shot("epilogue_ledger")
-	await walk(Vector3(2.3, 0, -0.9))
+	# Back along the north aisle to the shelf; the central table blocks a direct line.
+	await walk(Vector3(-2.2, 0, -1.5))
+	await walk(Vector3(2.6, 0, -1.5))
 	await interact("orrery")
 	await talk_keys({"click": 1, "final_reason": 2})
 	if main.ui.dialog_active():

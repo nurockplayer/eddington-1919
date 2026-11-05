@@ -125,6 +125,10 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 	game._start_judgment()
 	await dialogue(game, {"telegram": 1 if expose else 3, "reason": reason})
 	if game._came_from_departure:
+		# Conversion arc D2: a first prologue run hands off to the epilogue, which has
+		# its own suite. This probe is about the replay comparison, so it marks the
+		# epilogue done and keeps the coda's lamp-out on the ordinary ending.
+		root.get_node("Story").epilogue_done = true
 		await wait_for(func(): return game.phase == game.Phase.CODA and not game._busy, "prologue run enters coda")
 		await dialogue(game)
 		game._interact("departure_workbook")
