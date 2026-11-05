@@ -32,14 +32,29 @@ func _run() -> void:
 	ScorePlayer.set_music_enabled(false, test_path)
 	Settings.volumes = {"Master": 0.5, "Music": 0.25, "SFX": 0.0}
 	Settings.fullscreen = true
+	Settings.look_speed = 1.5
+	Settings.invert_y = true
 	check(Settings.save_settings(test_path) == OK, "settings save to a separate test path")
 	Settings.volumes = {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 	Settings.fullscreen = false
+	Settings.look_speed = 1.0
+	Settings.invert_y = false
 	Settings.load_settings(test_path)
 	check(Settings.volumes == {"Master": 0.5, "Music": 0.25, "SFX": 0.0} and Settings.fullscreen,
 		"all settings roundtrip")
+	check(Settings.look_speed == 1.5 and Settings.invert_y, "look settings roundtrip")
+	Settings.look_speed = 1.0
+	for expected in [1.5, 0.6, 1.0]:
+		Settings.cycle_look_speed(test_path)
+		check(Settings.look_speed == expected, "look speed cycles to %s" % expected)
+	Settings.toggle_invert_y(test_path)
+	check(not Settings.invert_y, "invert Y toggles")
 	var cfg := ConfigFile.new()
 	cfg.load(test_path)
+	cfg.set_value("input", "look_speed", 9.0)
+	cfg.save(test_path)
+	Settings.load_settings(test_path)
+	check(Settings.look_speed == 1.0, "invalid look speed resets")
 	check(cfg.get_value("audio", "master_db") == 0.5 and cfg.get_value("audio", "music_db") == 0.25
 		and cfg.get_value("audio", "sfx_db") == 0.0, "audio keys store linear values")
 	check(not cfg.get_value("audio", "music_enabled"), "volume save preserves the music toggle")

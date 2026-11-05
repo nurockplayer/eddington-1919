@@ -1,6 +1,7 @@
 extends CharacterBody3D
 ## First-person player: walk, look, and aim at interactables.
 
+const Settings := preload("res://scripts/settings.gd")
 const WALK := 3.4
 const RUN := 5.8
 const MOUSE_SENS := 0.0022
@@ -95,8 +96,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		# real input and must turn the view.
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and DisplayServer.get_name() != "headless":
 			return
-		yaw -= event.relative.x * MOUSE_SENS
-		pitch = clampf(pitch - event.relative.y * MOUSE_SENS, -1.45, 1.45)
+		yaw -= event.relative.x * MOUSE_SENS * Settings.look_speed
+		var dy: float = event.relative.y * (-1.0 if Settings.invert_y else 1.0)
+		pitch = clampf(pitch - dy * MOUSE_SENS * Settings.look_speed, -1.45, 1.45)
 
 
 func look_at_point(target: Vector3) -> void:
@@ -108,8 +110,8 @@ func look_at_point(target: Vector3) -> void:
 func _physics_process(delta: float) -> void:
 	# Keyboard look (arrow keys) as an alternative to the mouse.
 	if can_look:
-		yaw -= Input.get_axis("look_left", "look_right") * 1.9 * delta
-		pitch = clampf(pitch + Input.get_axis("look_down", "look_up") * 1.5 * delta, -1.45, 1.45)
+		yaw -= Input.get_axis("look_left", "look_right") * 1.9 * delta * Settings.look_speed
+		pitch = clampf(pitch + Input.get_axis("look_down", "look_up") * 1.5 * delta * Settings.look_speed * (-1.0 if Settings.invert_y else 1.0), -1.45, 1.45)
 	rotation.y = yaw
 	camera.rotation.x = pitch
 	var input := Vector2.ZERO
