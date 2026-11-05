@@ -8,6 +8,7 @@ const Judgment := preload("res://scripts/judgment.gd")
 const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
+const EpilogueChart := preload("res://scripts/cambridge/epilogue_chart.gd")
 var checks := 0
 var failures := 0
 var context := ""
@@ -248,6 +249,21 @@ func _run() -> void:
 			await settle()
 			bounds(checklist)
 			checklist.free()
+			# Conversion arc D: the epilogue chart overlay carries one button and up
+			# to two notes under the chart at both window sizes and both text scales.
+			var epilogue_chart := EpilogueChart.new()
+			epilogue_chart.theme = ui.theme_res
+			root.add_child(epilogue_chart)
+			epilogue_chart.open({"combined": {"n": 3, "value": 1.90, "sigma": 0.09}})
+			epilogue_chart._press()
+			epilogue_chart._press()
+			await settle()
+			bounds(epilogue_chart)
+			check(epilogue_chart.button.is_visible_in_tree() and root.get_visible_rect().encloses(epilogue_chart.button.get_global_rect()),
+				"%dx%d @%.1f epilogue overlay button fits" % [window.x, window.y, scale])
+			check(root.get_visible_rect().encloses(epilogue_chart.chart.get_global_rect()),
+				"%dx%d @%.1f epilogue chart fits" % [window.x, window.y, scale])
+			epilogue_chart.free()
 			story.runs.clear()
 			game._telegram = 1
 			game._reason = 0

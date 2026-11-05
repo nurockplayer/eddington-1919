@@ -13,6 +13,7 @@ var _drawn_label_px := -1
 var _drawn_hollow := 0
 var _drawn_filled := 0
 var _drawn_markers: Array = []  # per row, in draw order: "filled" or "hollow"
+var _drawn_bars: Array = []     # per row: "bar" or "none"
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
@@ -31,7 +32,8 @@ func refresh_fonts() -> void:
 ## What the last _draw() actually painted; the chart tests read this instead of
 ## the intended values, so a broken draw path cannot pass.
 func drawn() -> Dictionary:
-	return {"label_px": _drawn_label_px, "hollow": _drawn_hollow, "filled": _drawn_filled, "markers": _drawn_markers.duplicate()}
+	return {"label_px": _drawn_label_px, "hollow": _drawn_hollow, "filled": _drawn_filled,
+		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate()}
 
 
 ## Weak plates are marked by shape, not only colour: hollow ring vs filled dot.
@@ -52,6 +54,7 @@ func _draw() -> void:
 	_drawn_hollow = 0
 	_drawn_filled = 0
 	_drawn_markers.clear()
+	_drawn_bars.clear()
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
@@ -76,19 +79,24 @@ func _draw() -> void:
 	for i in rows.size():
 		var r: Dictionary = rows[i]
 		var y := top + 16.0 + i * step
-		var col := Color(0.85, 0.82, 0.75) if not r.weak else Color(0.85, 0.5, 0.45)
-		var span := two_sigma_span(r.value, r.sigma)
-		var thin := Color(col, 0.45)
-		var x2_lo := _x(span.x, w)
-		var x2_hi := _x(span.y, w)
-		draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
-		draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
-		draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
-		var x0 := _x(r.value - r.sigma, w)
-		var x1 := _x(r.value + r.sigma, w)
-		draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
-		draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
-		draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
+		var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
+		# A row with no trustworthy error is a marker only; no bar is invented for it.
+		if r.get("no_bar", false):
+			_drawn_bars.append("none")
+		else:
+			_drawn_bars.append("bar")
+			var span := two_sigma_span(r.value, r.sigma)
+			var thin := Color(col, 0.45)
+			var x2_lo := _x(span.x, w)
+			var x2_hi := _x(span.y, w)
+			draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
+			draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
+			draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
+			var x0 := _x(r.value - r.sigma, w)
+			var x1 := _x(r.value + r.sigma, w)
+			draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
+			draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
+			draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
 		var p := Vector2(_x(r.value, w), y)
 		if marker_filled(r):
 			draw_circle(p, 5.0, col)

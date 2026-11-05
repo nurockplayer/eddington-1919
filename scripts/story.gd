@@ -22,6 +22,11 @@ var sky_promise := -1
 var bond_tone := ""
 var slip_fix := -1
 var departure_done := false
+## Conversion arc move D: the October 1919 Cambridge epilogue and the ending plate
+## it carries across the scene change.
+var epilogue_done := false
+var ending_plate: Texture2D = null
+var ending_plate_caption := ""
 
 
 func reset(keep_runs := false) -> void:
@@ -44,3 +49,6 @@ func reset(keep_runs := false) -> void:
 	bond_tone = ""
 	slip_fix = -1
 	departure_done = false
+	epilogue_done = false
+	ending_plate = null
+	ending_plate_caption = ""
