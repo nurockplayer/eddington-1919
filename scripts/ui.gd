@@ -97,6 +97,7 @@ var _settings_button: Button
 var _pause_heading: Label
 var _resume_button: Button
 var _settings_only := false
+var _title_focus_modes: Array[int] = []
 var fullscreen_button: Button
 var text_size_button: Button
 var quality_button: Button
@@ -1525,6 +1526,10 @@ func _sync_music_row() -> void:
 func open_settings() -> void:
 	_pause_focus = get_viewport().gui_get_focus_owner()
 	_settings_only = true
+	_title_focus_modes.clear()
+	for button in prologue_btn.get_parent().get_children():
+		_title_focus_modes.append(button.focus_mode)
+		button.focus_mode = Control.FOCUS_NONE
 	_pause_heading.text = "設定"
 	_resume_button.text = "返回"
 	_pause_title_btn.hide()
@@ -1546,6 +1551,9 @@ func close_settings() -> void:
 	restart_button.show()
 	quit_button.show()
 	_settings_only = false
+	var buttons := prologue_btn.get_parent().get_children()
+	for i in buttons.size():
+		buttons[i].focus_mode = _title_focus_modes[i]
 	_restore_focus(_settings_button)
 
 
