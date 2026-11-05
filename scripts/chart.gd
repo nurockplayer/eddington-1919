@@ -9,6 +9,9 @@ var rows: Array = []        # [{label, value, sigma, weak}]
 var combined: Dictionary = {}
 var revealed := false
 var _label_px := Settings.fs(14)
+var _drawn_label_px := -1
+var _drawn_hollow := 0
+var _drawn_filled := 0
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
@@ -24,9 +27,10 @@ func refresh_fonts() -> void:
 	queue_redraw()
 
 
-## The row-label size the last refresh asked for; the text-size test reads it.
-func label_px() -> int:
-	return _label_px
+## What the last _draw() actually painted; the chart tests read this instead of
+## the intended values, so a broken draw path cannot pass.
+func drawn() -> Dictionary:
+	return {"label_px": _drawn_label_px, "hollow": _drawn_hollow, "filled": _drawn_filled}
 
 
 ## Weak plates are marked by shape, not only colour: hollow ring vs filled dot.
@@ -43,6 +47,9 @@ static func two_sigma_span(value: float, sigma: float) -> Vector2:
 
 
 func _draw() -> void:
+	_drawn_label_px = -1
+	_drawn_hollow = 0
+	_drawn_filled = 0
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
@@ -82,10 +89,13 @@ func _draw() -> void:
 		draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
 		var p := Vector2(_x(r.value, w), y)
 		if marker_filled(r):
+			_drawn_filled += 1
 			draw_circle(p, 5.0, col)
 		else:
+			_drawn_hollow += 1
 			draw_arc(p, 5.0, 0.0, TAU, 20, col, 2.0)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(14), col)
+		_drawn_label_px = _label_px
+		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	if combined.get("n", 0) > 0:
 		var y := top + 16.0 + rows.size() * step + 10.0
 		var c := Color(1.0, 0.92, 0.6)
