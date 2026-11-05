@@ -20,6 +20,10 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	_check_settings_path()
+	# A settings file that predates 減少晃動 must keep the gentler-motion default off.
+	Settings.reduced_motion = true
+	Settings.load_settings(test_path + ".old")
+	check(not Settings.reduced_motion, "reduced motion defaults off")
 	Settings.load_settings(test_path)
 	check(Settings.volumes == {"Master": 1.0, "Music": 1.0, "SFX": 1.0} and not Settings.fullscreen,
 		"missing settings default to full volume and windowed")
@@ -49,6 +53,13 @@ func _run() -> void:
 		check(Settings.look_speed == expected, "look speed cycles to %s" % expected)
 	Settings.toggle_invert_y(test_path)
 	check(not Settings.invert_y, "invert Y toggles")
+	Settings.toggle_reduced_motion(test_path)
+	check(Settings.reduced_motion, "reduced motion toggles on")
+	Settings.reduced_motion = false
+	Settings.load_settings(test_path)
+	check(Settings.reduced_motion, "reduced motion roundtrips")
+	Settings.toggle_reduced_motion(test_path)
+	check(not Settings.reduced_motion, "reduced motion toggles off")
 	var cfg := ConfigFile.new()
 	cfg.load(test_path)
 	cfg.set_value("input", "look_speed", 9.0)

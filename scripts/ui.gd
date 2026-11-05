@@ -388,8 +388,9 @@ func _append_history(line: String) -> void:
 func _process(delta: float) -> void:
 	if viewer.visible and blink_btn.button_pressed and not get_tree().paused and not log_panel.visible:
 		_blink_elapsed += delta
-		while _blink_elapsed >= 0.5:
-			_blink_elapsed -= 0.5
+		var blink_interval := 1.0 if Settings.reduced_motion else 0.5
+		while _blink_elapsed >= blink_interval:
+			_blink_elapsed -= blink_interval
 			_blink_oxford = not _blink_oxford
 			_update_blink()
 	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible:
@@ -1490,6 +1491,11 @@ func _build_pause(root: Control) -> void:
 		Settings.toggle_invert_y()
 		invert.text = "上下反轉：開" if Settings.invert_y else "上下反轉：關")
 	v.add_child(invert)
+	var motion := _button("減少晃動：開" if Settings.reduced_motion else "減少晃動：關")
+	motion.pressed.connect(func():
+		Settings.toggle_reduced_motion()
+		motion.text = "減少晃動：開" if Settings.reduced_motion else "減少晃動：關")
+	v.add_child(motion)
 	var help := _button("操作說明")
 	help.pressed.connect(_open_help)
 	v.add_child(help)
@@ -1520,10 +1526,10 @@ func _build_pause(root: Control) -> void:
 			return
 		quit_pressed.emit())
 	v.add_child(quit_button)
-	for button in [r, music_button, fullscreen_button, look, invert, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, look, invert, motion, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
-	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, look, invert, help, pause_title, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, look, invert, motion, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
