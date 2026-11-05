@@ -165,6 +165,7 @@ func _ready() -> void:
 	ui.dialogue_done.connect(_on_dialogue_done)
 	ui.plate_toggled.connect(_on_plate_toggled)
 	ui.measure_pressed.connect(_on_measure)
+	ui.reading_set.connect(_on_reading_set)
 	ui.reselect_pressed.connect(_on_reselect)
 	ui.report_pressed.connect(_on_report)
 	ui.viewer_closed.connect(_on_viewer_closed)
@@ -1491,15 +1492,25 @@ func _open_viewer() -> void:
 	ui.comparison_recall = Content.comparison_recall(Story.plan, Story.prologue_done)
 	ui.drive_note = Content.drive_note(Story.plan, Story.prologue_done, sim.drive_rate_checked)
 	ui.loupe_start = Vector2(PlateRender.SIZE, PlateRender.SIZE) * 0.5 + sim.star_offsets[0] * PlateRender.SUN_PX
+	ui.measurement_of = Callable(sim, "measurement")
 	ui.open_viewer(sim.plates, comparison_tex, plate_textures, sim.measured)
 	_sync_player_input()
+	_refresh_viewer()
+
+
+func _on_reading_set(i: int, px: float) -> void:
+	if sim.measured or i < 0 or i >= sim.plates.size():
+		return
+	sim.plates[i].reading = px
+	sim.plates[i].read = true
 	_refresh_viewer()
 
 
 func _refresh_viewer() -> void:
 	var rows := []
 	for p in sim.included_usable():
-		rows.append({"label": "第%d號" % p.number, "value": p.value, "sigma": p.sigma, "weak": p.quality != "good"})
+		var m: Dictionary = sim.measurement(p)
+		rows.append({"label": "第%d號" % p.number, "value": m.value, "sigma": m.sigma, "weak": p.quality != "good"})
 	ui.chart.set_data(rows, sim.combined(), sim.measured)
 	var sel: int = sim.plates.filter(func(p): return p.included).size()
 	var note := "共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。" % [sim.plates.size(), sel]
@@ -1522,6 +1533,9 @@ func _refresh_viewer() -> void:
 		var recall := Content.calibration_recall(Story.plan, Story.prologue_done)
 		if recall != "":
 			note += "\n" + recall
+	for p in sim.plates:
+		if p.included and p.usable and not p.get("read", false):
+			note += "\n第%d號還沒讀數，不會算進去。" % p.number
 	var rule_index := ["strict", "after", "none"].find(sim.rule_id)
 	ui.viewer_rule.text = "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[rule_index] if rule_index >= 0 else ""
 	ui.set_viewer_note(note)
@@ -1629,7 +1643,9 @@ func _show_ending() -> void:
 		var exposures: Array = []
 		for p in sim.plates:
 			exposures.append({"number": p.number, "start": p.start, "duration": p.duration,
-				"included": p.included, "usable": p.usable, "quality": p.quality})
+				"included": p.included, "usable": p.usable, "quality": p.quality,
+				"read": p.get("read", false),
+				"reading": p.reading if p.get("read", false) else null})
 		_run_record_index = Story.runs.size()
 		Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
 			"rule_id": sim.rule_id, "telegram_id": Judgment.TELEGRAMS[_telegram].id,
