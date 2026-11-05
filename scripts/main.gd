@@ -65,6 +65,7 @@ var tot_done := false
 var hold_t := 0.0
 var hold_id := ""
 var _hold_latched := false
+var _interact_needs_release := false
 var met_cottingham := false
 var plate_textures: Array = []
 var comparison_tex: Texture2D
@@ -781,20 +782,24 @@ func _process_prep(delta: float) -> void:
 
 func _process_interaction(delta: float) -> void:
 	if not _ui_free():
-		if Settings.hold_toggle:
-			_hold_latched = false
-			hold_id = ""
-			hold_t = 0.0
+		_cancel_hold()
 		ui.set_prompt("")
-		ui.set_hold(0.0)
 		return
 	var n: Node = player.aimed_interactable()
 	var id: String = n.get_meta("interact_id") if n else ""
 	ui.set_prompt(_prompt_for(id, n))
 	ui.crosshair.modulate = Color(1, 0.85, 0.5) if id != "" else Color(1, 1, 1, 0.6)
 	var holding := Input.is_action_pressed("interact")
+	var pressed := Input.is_action_just_pressed("interact")
+	if _interact_needs_release:
+		if holding:
+			# The press that closed the pause panel is not a new interaction.
+			holding = false
+			pressed = false
+		else:
+			_interact_needs_release = false
 	if Settings.hold_toggle:
-		if Input.is_action_just_pressed("interact") and id in HOLD and _hold_allowed(id):
+		if pressed and id in HOLD and _hold_allowed(id):
 			_hold_latched = not (_hold_latched and hold_id == id)
 		holding = _hold_latched and hold_id in ["", id]
 	if id in HOLD and _hold_allowed(id) and holding:
@@ -807,10 +812,22 @@ func _process_interaction(delta: float) -> void:
 			hold_t = 0.0
 			_hold_complete(id)
 	else:
-		_hold_latched = false
-		hold_id = ""
-		hold_t = 0.0
-		ui.set_hold(0.0)
+		_cancel_hold()
+
+
+func _cancel_hold() -> void:
+	_hold_latched = false
+	hold_id = ""
+	hold_t = 0.0
+	ui.set_hold(0.0)
+
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_PAUSED:
+			_cancel_hold()
+		NOTIFICATION_UNPAUSED:
+			_interact_needs_release = true
 
 
 func _hold_allowed(id: String) -> bool:
@@ -966,7 +983,7 @@ func _interact(id: String) -> void:
 			elif sim.drive_wound:
 				_say(Content.cottingham_after_wind(), "")
 			else:
-				_say([{"s": Content.C, "t": "驅動箱就在我旁邊——按住 %s 上發條。" % Prompts.key("interact")}], "")
+				_say([{"s": Content.C, "t": "驅動箱就在我旁邊——%s上發條。" % Settings.hold_phrase(Prompts.key("interact"))}], "")
 		"station":
 			if sim.plates_carried > 0:
 				sim.plates_delivered += sim.plates_carried

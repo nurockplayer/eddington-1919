@@ -3,6 +3,7 @@ extends RefCounted
 ## rest on the record are noted with HISTORICAL_RECORD in docs/PROVENANCE.md.
 
 const Prompts := preload("res://scripts/prompts.gd")
+const Settings := preload("res://scripts/settings.gd")
 const E := "Eddington"
 const C := "Cottingham"
 const YOU := "你"
@@ -40,7 +41,7 @@ static func cottingham_first() -> Array:
 	return [
 		{"s": C, "t": "啊，你來得正好。這場雨把什麼都弄濕了。"},
 		{"s": C, "t": "定天鏡靠這具重錘時鐘轉動，跟著太陽走。發條得上滿，走速還要對著天文鐘校一次——不然曝光一長，星像就拖成短線。"},
-		{"s": C, "t": "你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。" % Prompts.key("interact")},
+		{"s": C, "t": "你先在驅動箱上[b]%s上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。" % Settings.hold_phrase(Prompts.key("interact"))},
 	]
 
 

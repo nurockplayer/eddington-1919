@@ -189,6 +189,16 @@ func _run() -> void:
 	var count := InputMap.action_get_events("shutter").size()
 	main._ensure_inputs()
 	check(InputMap.action_get_events("shutter").size() == count, "chapter startup does not duplicate bindings")
+	# UI._ready() reloads the settings file; point it at a throwaway file so a
+	# developer's saved 長按互動 value cannot flip the hold checks below.
+	var previous_env := OS.get_environment("EDD_SETTINGS_PATH")
+	var had_env := OS.has_environment("EDD_SETTINGS_PATH")
+	var temp_path := ProjectSettings.globalize_path("user://test-gamepad-settings.cfg")
+	var n := 0
+	while FileAccess.file_exists(temp_path) or DirAccess.dir_exists_absolute(temp_path):
+		n += 1
+		temp_path = ProjectSettings.globalize_path("user://test-gamepad-settings-%d.cfg" % n)
+	OS.set_environment("EDD_SETTINGS_PATH", temp_path)
 	var ui := UI.new()
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	root.add_child(ui)
@@ -254,6 +264,7 @@ func _run() -> void:
 		invert_button.grab_focus()
 		await button(JOY_BUTTON_DPAD_DOWN)
 		check(root.gui_get_focus_owner() == motion_button, "D-pad down reaches 減少晃動")
+	Settings.hold_toggle = false
 	ui.hold_button.grab_focus()
 	check(root.gui_get_focus_owner() == ui.hold_button, "pause hold row takes focus")
 	await button(JOY_BUTTON_DPAD_DOWN)
@@ -592,6 +603,11 @@ func _run() -> void:
 	ui.open_viewer([], null, [], false)
 	check(not ui._viewer_reporting and not ui.measure_btn.disabled and ui.measure_btn.is_visible_in_tree(), "reopening restores editable viewer controls")
 	ui.free()
+	if had_env:
+		OS.set_environment("EDD_SETTINGS_PATH", previous_env)
+	else:
+		OS.unset_environment("EDD_SETTINGS_PATH")
+	DirAccess.remove_absolute(temp_path)
 	# UI stops its viewer SFX on exit; let AudioServer release the playback
 	# before this harness immediately shuts down the engine.
 	await create_timer(0.1).timeout

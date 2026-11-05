@@ -4,6 +4,7 @@ extends SceneTree
 ## Run with --headless --script this file.
 
 const Settings := preload("res://scripts/settings.gd")
+const Content := preload("res://scripts/content.gd")
 
 class HoldBot extends "res://tests/autoplay_bot.gd":
 	func _ready() -> void:
@@ -127,6 +128,92 @@ func _hold_toggle_checks(game) -> int:
 	print("hold toggle off, one press: unwound=%s" % unwound)
 	if not unwound:
 		failures += 1
+
+	# Pause cancels a latched hold, and unpausing does not resume it.
+	Settings.hold_toggle = true
+	game.sim.drive_wound = false
+	game._hold_latched = false
+	game.hold_t = 0.0
+	await process_frame
+	await _press_frame()
+	await process_frame
+	for i in 9:
+		game._process_interaction(0.1)
+	var latched_before_pause: bool = game._hold_latched and game.hold_t > 0.0
+	game.ui.toggle_pause()
+	await process_frame
+	var cancelled_by_pause: bool = not game._hold_latched and is_zero_approx(game.hold_t)
+	game.ui.toggle_pause()
+	await process_frame
+	for i in 40:
+		game._process_interaction(0.1)
+	var unwound_after_pause: bool = not game.sim.drive_wound and is_zero_approx(game.hold_t)
+	print("pause cancels hold: latched=%s cancelled=%s unwound=%s" % [latched_before_pause, cancelled_by_pause, unwound_after_pause])
+	if not latched_before_pause or not cancelled_by_pause or not unwound_after_pause:
+		failures += 1
+
+	# The press that closes the pause must not latch a hold (toggle on).
+	game.sim.drive_wound = false
+	game._hold_latched = false
+	game.hold_t = 0.0
+	Input.action_release("interact")
+	await process_frame
+	game.ui.toggle_pause()
+	await process_frame
+	Input.action_press("interact")
+	game.ui.toggle_pause()
+	game._process_interaction(0.1)
+	var close_press_latched: bool = game._hold_latched or not is_zero_approx(game.hold_t)
+	for i in 5:
+		await process_frame
+	Input.action_release("interact")
+	await process_frame
+	var held_through_close: bool = game._hold_latched or not is_zero_approx(game.hold_t)
+	await _press_frame()
+	await process_frame
+	var latched_after_release: bool = game._hold_latched
+	print("pause-close press (toggle): latched=%s held=%s relatched=%s" % [close_press_latched, held_through_close, latched_after_release])
+	if close_press_latched or held_through_close or not latched_after_release:
+		failures += 1
+	Input.action_release("interact")
+	game._hold_latched = false
+	game.hold_t = 0.0
+
+	# Same in holding mode: a held interact must be released before it counts.
+	Settings.hold_toggle = false
+	game.sim.drive_wound = false
+	game.hold_t = 0.0
+	await process_frame
+	game.ui.toggle_pause()
+	await process_frame
+	Input.action_press("interact")
+	game.ui.toggle_pause()
+	for i in 5:
+		game._process_interaction(0.1)
+	var hold_blocked: bool = is_zero_approx(game.hold_t)
+	Input.action_release("interact")
+	await process_frame
+	await process_frame
+	Input.action_press("interact")
+	for i in 5:
+		game._process_interaction(0.1)
+	var hold_resumed: bool = game.hold_t > 0.0
+	Input.action_release("interact")
+	print("pause-close press (hold): blocked=%s resumed=%s" % [hold_blocked, hold_resumed])
+	if not hold_blocked or not hold_resumed:
+		failures += 1
+
+	# Dialogue wording follows the setting.
+	Settings.hold_toggle = true
+	var toggle_line: String = Content.cottingham_first()[2]["t"]
+	Settings.hold_toggle = false
+	var hold_line: String = Content.cottingham_first()[2]["t"]
+	print("hold phrase: toggle=%s hold=%s" % [toggle_line, hold_line])
+	if not toggle_line.contains("按一下") or toggle_line.contains("按住"):
+		failures += 1
+	if not hold_line.contains("按住") or hold_line.contains("按一下"):
+		failures += 1
+
 	# Hand the drive back unwound to the holding loop below.
 	game.sim.drive_wound = false
 	game.hold_t = 0.0
