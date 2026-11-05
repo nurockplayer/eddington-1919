@@ -63,7 +63,8 @@ func _check_viewer(story: Node, plan: Array, played: bool, comparison: String, c
 	else:
 		check(text.contains(comparison), "%s: the comparison plate recalls the plan" % label)
 	game.sim.plates = [
-		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2, "stars": 7},
+		{"number": 1, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2, "stars": 7,
+			"read": true, "reading": game.sim.reading_for_value(1.8)},
 	]
 	game.sim.measured = true
 	game._refresh_viewer()

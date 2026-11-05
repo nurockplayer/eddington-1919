@@ -68,6 +68,10 @@ func _run() -> void:
 		sim.close_shutter(false)
 	for plate in sim.plates:
 		plate.included = plate.usable
+		if plate.included:
+			# Conversion arc C: only a plate the player has read counts.
+			plate.read = true
+			plate.reading = sim.reading_for_value(plate.value)
 	check(sim.plates.size() == 12 and not sim.included_usable().is_empty(), "maximum real exposures include measurable plates")
 	var textures: Array = []
 	for plate in sim.plates:
@@ -123,6 +127,15 @@ func _run() -> void:
 			for i in ui._choice_buttons.size():
 				for j in range(i + 1, ui._choice_buttons.size()):
 					check(not ui._choice_buttons[i].get_global_rect().intersects(ui._choice_buttons[j].get_global_rect()), "choice buttons overlap")
+			# Conversion arc move B: the orrery suspect is the longest choice list.
+			ui.play([C17.orrery_suspect_entry()])
+			await settle()
+			bounds(ui.dialog_panel)
+			check(ui._choice_buttons.size() == 5, "five orrery suspects are visible")
+			check(not ui.text_label.get_global_rect().intersects(ui.choice_box.get_global_rect()), "orrery text overlaps choices")
+			for i in ui._choice_buttons.size():
+				for j in range(i + 1, ui._choice_buttons.size()):
+					check(not ui._choice_buttons[i].get_global_rect().intersects(ui._choice_buttons[j].get_global_rect()), "orrery choice buttons overlap")
 			ui.toggle_pause()
 			await settle()
 			bounds(ui.pause_panel)
@@ -187,6 +200,16 @@ func _run() -> void:
 				root.size = window
 				await settle()
 				check(ui.big_plate.size.y > 460.0, "plate grows again on resize")
+			if window == Vector2i(1280, 720) and scale == 1.2:
+				check(ui.mic_btn.is_visible_in_tree() and ui.mic_btn.text == "測微器", "micrometer toggle is offered at 720p/1.2")
+				ui.mic_btn.button_pressed = true
+				await settle()
+				bounds(ui.viewer)
+				check(ui.mic_row.is_visible_in_tree() and ui.mic_readout.is_visible_in_tree(), "micrometer readout and record button appear after toggling")
+				check(root.get_visible_rect().encloses(ui.mic_btn.get_global_rect()) and root.get_visible_rect().encloses(ui.mic_row.get_global_rect()),
+					"micrometer controls fit 1280x720 at text scale 1.2")
+				ui.mic_btn.button_pressed = false
+				await settle()
 			ui.set_viewer_report(true)
 			await settle()
 			bounds(ui.viewer)

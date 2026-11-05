@@ -21,7 +21,8 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	var talk := C17.examine("orrery")
-	check(talk.size() == 3 and str(talk[1].t).contains("43"), "the orrery tells of Mercury's 43″")
+	check(talk.any(func(line): return str(line.get("t", "")).contains("43")), "the orrery tells of Mercury's 43″")
+	check(talk.any(func(line): return line.get("key", "") == "orrery_neptune"), "the orrery check marks Neptune first")
 	for departure in [false, true]:
 		var room := Node3D.new()
 		root.add_child(room)

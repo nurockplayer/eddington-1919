@@ -115,6 +115,11 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 	for i in game.sim.plates.size():
 		if game.sim.plates[i].usable or rule == 1:
 			game.ui.plate_toggled.emit(i, true)
+	for p in game.sim.plates:
+		if p.included and p.usable:
+			# Conversion arc C: measured plates need the player's reading.
+			p.read = true
+			p.reading = game.sim.reading_for_value(p.value)
 	game.ui.measure_btn.pressed.emit()
 	check(game.sim.measured, "real measurement button completes measurement")
 	game._start_judgment()

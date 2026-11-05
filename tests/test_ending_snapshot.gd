@@ -98,6 +98,13 @@ func _setup(game: Node, story: Node, spec: Dictionary) -> void:
 	sim.reselected_after_seeing = spec.get("reselected", false)
 	sim.drive_wound = spec.get("drive_wound", false)
 	sim.drive_rate_checked = spec.get("drive_rate_checked", false)
+	# Conversion arc C: a plate counts only once the player has read it with the
+	# micrometer. Push the crosshair to each selected plate's true displacement.
+	if sim.measured:
+		for p in sim.plates:
+			if p.included and p.usable:
+				p.read = true
+				p.reading = sim.reading_for_value(float(p.value))
 	game.sim = sim
 	game._run_record_index = -1
 	game._telegram = int(spec.telegram)

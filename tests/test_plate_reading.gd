@@ -94,7 +94,8 @@ func _run() -> void:
 	ui.theme_res.default_font_size = Settings.fs(21)
 	var sim := Sim.new(1919)
 	var real_plate_data := {"index": 0, "fog": 0.0, "trail": 0.0, "stars": sim.STAR_COUNT, "duration": 6.0, "sunlit": false,
-		"number": 1, "start": 10.0, "included": true, "usable": true, "quality": "good", "value": 1.75, "sigma": 0.2}
+		"number": 1, "start": 10.0, "included": true, "usable": true, "quality": "good", "value": 1.75, "sigma": 0.2,
+		"read": true, "reading": sim.reading_for_value(1.75)}
 	var real_plate := Render.render(sim, real_plate_data)
 	var oxford := Render.render(sim, null)
 	var before_render := real_plate_data.duplicate(true)
@@ -116,6 +117,7 @@ func _run() -> void:
 	ui.loupe_start = Vector2(Render.SIZE, Render.SIZE) * 0.5 + sim.star_offsets[0] * Render.SUN_PX
 	sim.plates = [real_plate_data]
 	var before_combined := sim.combined()
+	ui.measurement_of = Callable(sim, "measurement")
 	ui.open_viewer(sim.plates, oxford, [real_plate], false)
 	check(ui.plate_info.text.contains("按「閃爍比對」") and ui.plate_info.text.contains("真正的量測用顯微測微器"), "first eligible plate explains the illustrated blink")
 	await process_frame
@@ -167,8 +169,10 @@ func _run() -> void:
 	await pad(JOY_BUTTON_A)
 	ui.loupe_start = Vector2(-1, -1)
 	var plates := [
-		{"number": 1, "start": 10.0, "duration": 6.0, "sunlit": false, "included": true, "usable": true, "stars": 12, "quality": "good", "value": 1.75, "sigma": 0.2},
-		{"number": 2, "start": 20.0, "duration": 6.0, "sunlit": false, "included": true, "usable": true, "stars": 8, "quality": "poor", "value": 0.87, "sigma": 0.3},
+		{"number": 1, "start": 10.0, "duration": 6.0, "sunlit": false, "included": true, "usable": true, "stars": 12, "quality": "good", "value": 1.75, "sigma": 0.2,
+			"read": true, "reading": sim.reading_for_value(1.75)},
+		{"number": 2, "start": 20.0, "duration": 6.0, "sunlit": false, "included": true, "usable": true, "stars": 8, "quality": "poor", "value": 0.87, "sigma": 0.3,
+			"read": true, "reading": sim.reading_for_value(0.87)},
 	]
 	var original := plates.duplicate(true)
 	ui.open_viewer(plates, textures[0], textures.slice(0, 2), false)
@@ -233,7 +237,7 @@ func _run() -> void:
 	await click_plate(ui, Vector2(0.999, 0.999))
 	check(ui.big_plate.texture.region == Rect2(180, 180, 180, 180), "bottom-right crop stays inside texture")
 	ui.set_viewer_locked(true)
-	check(ui.plate_info.text.contains("量得偏折：[b]1.75″ ± 0.20″"), "measuring still reveals values")
+	check(ui.plate_info.text.contains("量得偏折：[b]1.75″ ± 0.22″"), "measuring still reveals values")
 	check(ui.big_plate.texture == textures[0], "measurement refresh retains original texture")
 	ui.set_viewer_locked(false)
 	check(not ui.plate_info.text.contains("量得偏折"), "reselect hides measured values again")
