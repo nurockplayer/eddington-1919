@@ -76,7 +76,7 @@ Fiction and illustration: the player character, all dialogue, the episode in whi
 | 用顯微測微器親手對準參考星：結果的數字，來自你自己的讀數。 | Set the micrometer on a reference star by hand: the result comes from your own readings. | #207、#220 |
 | 1919 年 10 月回到劍橋：Sobral 的數字到了，你自己讀出範圍，在帳本新的一頁寫下現在的看法；Ashby 先生也要面對當年的數字。 | October 1919, back in Cambridge: the Sobral numbers arrive, you read the range yourself and write a new ledger line, and Mr Ashby faces the figure he wrote. | #215、#243 |
 | 判讀誤差區間，選擇電報與理由，最後看見自己寄出的那封電報。 | Read the uncertainty interval, choose your words and reason, and end on your telegram. | HANDOFF：#88、#98、#109；#130、#134 |
-| 支援遊戲手把操作，並提供文字大小、畫質與音量設定。 | Gamepad controls, adjustable text size, graphics quality, and volume settings. | RELEASE_READINESS：A5–A7、A12；#115、#120、#122–#126 |
+| 每章開始前自動存檔，可從標題畫面繼續；支援遊戲手把操作，並提供文字大小、畫質與音量設定。 | Saves automatically at the start of each chapter, with Continue on the title screen. Gamepad controls, adjustable text size, graphics quality, and volume settings. | RELEASE_READINESS：A5–A7、A12；#115、#120、#122–#126 |
 
 編輯提醒：雲是可見的程序雲場，細節屬虛構；不用「真實天氣」描述。手把功能已實作；實體手把／Steam Deck 的封裝版人工驗收仍待 B10／A11，不宣稱 Deck 認證。
 
