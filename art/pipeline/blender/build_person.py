@@ -330,11 +330,15 @@ def waistcoat_v_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.ty
     faces, materials = [], []
     for row in range(rows - 1):
         for col in range(columns - 1):
-            if 3 <= col < 13 and grid[row][3][0] == 0 and grid[row + 1][3][0] == 0:
-                continue
+            inner = 3 <= col < 13
             a = row * columns + col
+            if inner and grid[row + 1][3][0] == 0:
+                if grid[row][3][0] != 0:
+                    faces.append((a, a + 1, (row + 1) * columns + 8))
+                    materials.append(1)
+                continue
             faces.append((a, a + 1, a + columns + 1, a + columns))
-            materials.append(1 if 3 <= col < 13 else 0)
+            materials.append(1 if inner else 0)
     apex = len(vertices)
     vertices.append((0, min(p[1] for p in grid[-1]) - 0.005, neck - 0.305))
     for col in list(range(3)) + list(range(13, 16)):
