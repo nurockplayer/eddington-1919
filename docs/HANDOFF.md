@@ -458,3 +458,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Not yet proven:** `test_prologue` and `e2e_headless` exited 124 at the worker's 90 s and 180 s caps. Earlier rounds used far longer caps, and the host load was 16, but the cause is not established. Running: `lw-ashby-r2-tests-20261106-165450`, `director/ashby_r2_tests.sh`, caps 900 s and 1800 s.
 - **On its event:** both pass → correct the PR body's results table and render line. A real failure or a repeat timeout → investigate before Monday.
 - **Monday's look, also judge:** Ashby's moustache (two end caps read as flat discs in a close render) and his dark slit eyes, at the game's real camera distance. `moustache()` is shared with Eddington, so a change there moves his GLB.
+
+### #231 tests pass; Eddington's chest found (edd-lead) | 2026-11-06 17:0x JST
+
+- **PR #231 af1bc93:** rerun passed: prologue 395/0 in 93 s (the worker's cap was 90 s), e2e 6/6 in 125 s (its cap was 180 s at load ~16; that timeout was not reproduced). PR body corrected. No review yet on this head; that comes after Monday's look.
+- **Found:** close Blender renders of the current GLBs show both Eddingtons broken: `eddington_cambridge` has flecks and a bib, `eddington` (Príncipe) has a shredded tie. These stills were not checked in game.
+- **Running:** `lead-wait run edd-chest`, Codex in ds-2, brief `director/eddington-chest.md`, branch `art/eddington-chest` on `art/ashby-departure`, base `art/ashby-departure`. It stops without pushing if the rebuild of the 2026-10-20 `eddington.glb` changes more than the chest. Renders: `director/edd-r1/`.
+- **On its event:** judge `edd-r1/` (chest and full, both models), then delete it. Check the old-versus-new comparison. If it passes, point `director/look_kit.sh` at `origin/art/eddington-chest` for Monday. Merge order: #229 → #231 → this PR, retargeting each to main. Rows 5–9 of the store shots may show the new Príncipe Eddington, so the reshoot covers them.
