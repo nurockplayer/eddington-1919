@@ -63,6 +63,8 @@ func _test_rates() -> void:
 	check(Sketch.drop_y(0.2) < Sketch.drop_y(0.4) and Sketch.drop_y(0.4) < Sketch.drop_y(0.6),
 		"the pencil falls further each equal time")
 	check(is_equal_approx(Sketch.drop_y(10.0), Sketch.FLOOR_Y), "the pencil stops at the floor")
+	check(is_equal_approx(Sketch.PENCIL_Y + Sketch.FLOOR_Y + Sketch.PENCIL_LEN, Sketch.BOX_H),
+		"the pencil's tip rests on the floor line when the fall ends (%.1f vs %.1f)" % [Sketch.PENCIL_Y + Sketch.FLOOR_Y + Sketch.PENCIL_LEN, Sketch.BOX_H])
 	check(Sketch.fall_time() > 0.8 and Sketch.fall_time() < 1.0,
 		"the fall lasts about 0.9 s (%.3f)" % Sketch.fall_time())
 	check(is_equal_approx(Sketch.box_rise(0.3), Sketch.drop_y(0.3)), "the box rises at the rate the pencil falls")

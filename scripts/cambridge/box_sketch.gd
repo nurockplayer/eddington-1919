@@ -19,10 +19,12 @@ const BOX_FILL := Color(0.90, 0.85, 0.74)
 ## coordinates only matches between the two views because the two accelerations are equal.
 const ACCEL := 600.0
 const LIGHT_ACCEL := ACCEL
-const FLOOR_Y := 240.0
-const PENCIL_Y := 140.0
 const BOX_W := 360.0
 const BOX_H := 400.0
+const FLOOR_Y := 240.0
+const PENCIL_LEN := 52.0
+## The tip, not the origin, stops on the floor: the origin starts high enough for it.
+const PENCIL_Y := BOX_H - FLOOR_Y - PENCIL_LEN
 const HOLE_Y := 140.0
 const LIGHT_SPAN := 0.6
 const TICK_STEP := 0.1
@@ -409,7 +411,7 @@ func _draw_drop(c: Control) -> void:
 	c.draw_colored_polygon(PackedVector2Array([
 		Vector2(pencil_x - 4.0 * scale_, pencil_y + 44.0 * scale_),
 		Vector2(pencil_x + 4.0 * scale_, pencil_y + 44.0 * scale_),
-		Vector2(pencil_x, pencil_y + 52.0 * scale_),
+		Vector2(pencil_x, pencil_y + PENCIL_LEN * scale_),
 	]), INK)
 	_draw_inset(c)
 
