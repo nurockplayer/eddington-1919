@@ -14,7 +14,7 @@ export = "assets/models/eddington.glb"
 breath_deg = 1.2
 hat = { kind = "straw_hat", material = "straw", sink = 0.035 }
 glasses = true
-tie = { material = "hair_dark", half_width = 0.028, length = 0.30 }
+formal = { collar = "linen", waistcoat = "linen", tie = "hair_dark", waistcoat_v = true }
 [person.eddington.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short02/short02.mhclo", "Hair"]
@@ -73,7 +73,7 @@ macro = { gender = 1.0, weight = 0.32, muscle = 0.42, proportions = 0.6, race = 
 export = "assets/models/eddington_cambridge.glb"
 breath_deg = 0.0
 glasses = true
-formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", collar_drop = 0.06, tie_half_width = 0.035, shirt_front = true }
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
 pose = { kind = "papers", head_deg = 9.0, stoop_deg = 3.0 }
 [person.eddington_cambridge.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]

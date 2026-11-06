@@ -132,87 +132,6 @@ def moustache(c: Vector, front: float, name: str, material: str) -> list:
     return parts
 
 
-def shirt_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Object, neck: float, formal: dict) -> None:
-    """Repo-authored shirt and tie surfaces, fitted to the rest-pose suit."""
-    evaluated = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
-    inverse = evaluated.matrix_world.inverted()
-    body_evaluated = body.evaluated_get(bpy.context.evaluated_depsgraph_get())
-    body_inverse = body_evaluated.matrix_world.inverted()
-    vertices, faces, materials = [], [], []
-    rows = 12
-    for start, end, top_width, bottom_width, offset, material, side in (
-        (0.02, 0.30, 0.095, 0.03, 0.003, "waistcoat", -1),
-        (0.02, 0.30, 0.095, 0.03, 0.003, "waistcoat", 1),
-        (0.015, 0.24, 0.075, 0.012, 0.005, "collar", 0),
-        (0.03, 0.26, 0.016, 0.016, 0.008, "tie", 0),
-    ):
-        columns = 3 if side else 7
-        grid = []
-        for row in range(rows):
-            t = row / (rows - 1)
-            width = top_width + t * (bottom_width - top_width)
-            down = start + t * (end - start)
-            shirt_half = 0.075 if down < 0.015 else (0.075 + (down - 0.015) / 0.225 * (0.012 - 0.075) if down <= 0.24 else 0.0)
-            inner = max(shirt_half - 0.004, 0.0)
-            points = []
-            for col in range(columns):
-                x = (-(width - (width - inner) * col / (columns - 1)) if side < 0 else
-                     inner + (width - inner) * col / (columns - 1) if side > 0 else
-                     width * (2 * col / (columns - 1) - 1))
-                origin = Vector((x, -1, neck - down))
-                hit, location, _, _ = evaluated.ray_cast(inverse @ origin, inverse.to_3x3() @ Vector((0, 1, 0)))
-                body_hit, body_location, _, _ = body_evaluated.ray_cast(
-                    body_inverse @ origin, body_inverse.to_3x3() @ Vector((0, 1, 0)))
-                body_y = (body_evaluated.matrix_world @ body_location).y if body_hit else None
-                hits = [y for y in ((evaluated.matrix_world @ location).y if hit else None, body_y) if y is not None]
-                points.append([x, min(hits) if hits else None, origin.z, body_y])
-            grid.append(points)
-        for col in range(columns):
-            previous = grid[-1][col][1]
-            if previous is None:
-                raise RuntimeError(f"shirt front ray missed bottom row in column {col}")
-            for row in range(rows - 1, -1, -1):
-                point = grid[row][col]
-                previous = max(previous - 0.03, min(previous + 0.03, point[1])) if point[1] is not None else previous
-                point[1] = min(previous - offset, point[3] - 0.003) if point[3] is not None else previous - offset
-        for row in range(rows):
-            for col in range(columns):
-                point = grid[row][col]
-                if point[3] is not None and point[1] > point[3] - 0.003:
-                    raise RuntimeError(f"shirt front vertex behind body at row {row}, column {col}")
-                if row and abs(point[1] - grid[row - 1][col][1]) > 0.035:
-                    raise RuntimeError(f"shirt front discontinuity at row {row}, column {col}")
-        top = [point[1] for point in grid[0]]
-        print(f"shirt front {material} top y range: {min(top):.6f} to {max(top):.6f}; body front y at x=0: {grid[0][columns // 2][3]}")
-        base = len(vertices)
-        vertices.extend(tuple(point[:3]) for row in grid for point in row)
-        for row in range(rows - 1):
-            for col in range(columns - 1):
-                a = base + row * columns + col
-                faces.append((a, a + 1, a + columns + 1, a + columns))
-                materials.append(material)
-    mesh = bpy.data.meshes.new("shirt_front")
-    mesh.from_pydata(vertices, [], faces)
-    mesh.update()
-    front = bpy.data.objects.new(f"{obj.name.rsplit('_', 1)[0]}_shirt_front", mesh)
-    bpy.context.collection.objects.link(front)
-    surface_materials = ("waistcoat", "collar", "tie")
-    for key in surface_materials:
-        mesh.materials.append(kit.mat(formal[key]))
-    for poly, material in zip(mesh.polygons, materials):
-        poly.material_index = surface_materials.index(material)
-        poly.use_smooth = True
-    bone = "spine_03" if "spine_03" in rig.data.bones else max(
-        (b for b in rig.data.bones if b.name.startswith("spine_")), key=lambda b: b.head_local.z
-    ).name
-    print(f"shirt front weighted to {bone}")
-    front.vertex_groups.new(name=bone).add(list(range(len(vertices))), 1.0, "REPLACE")
-    front.parent = rig
-    front.matrix_world = Matrix.Identity(4)
-    modifier = front.modifiers.new("Armature", "ARMATURE")
-    modifier.object = rig
-
-
 def pullover_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Object, neck: float, formal: dict) -> None:
     """Opaque V fitted over the frontmost suit and body surfaces."""
     deps = bpy.context.evaluated_depsgraph_get()
@@ -491,54 +410,13 @@ def main() -> None:
             if (inv @ poly.center).z < waist:
                 poly.material_index = 1
 
-    # Tie: a narrow front-centre strip of the suit between chest and collar gets a
-    # dark material, so a single-colour linen suit still reads as jacket + shirt + tie.
-    if "tie" in spec:
-        obj = added["suit"]
-        t = spec["tie"]
-        neck = (rig.matrix_world @ rig.data.bones["neck_01"].head_local).z
-        chest = neck - t.get("length", 0.30)
-        obj.data.materials.append(kit.mat(t["material"]))
-        idx = len(obj.data.materials) - 1
-        for poly in obj.data.polygons:
-            c = obj.matrix_world @ poly.center
-            n = (obj.matrix_world.to_3x3() @ poly.normal).normalized()
-            if abs(c.x) < t.get("half_width", 0.03) and chest < c.z < neck - 0.02 and n.y < -0.5:
-                poly.material_index = idx
-
-    # Cambridge's elegant suit includes the shirt and waistcoat in one mesh.
-    # Broad garment regions carry the distinction, never a fabric/photo texture.
     if "formal" in spec:
         obj = added["suit"]
         neck = (rig.matrix_world @ rig.data.bones["neck_01"].head_local).z
-        waist = (rig.matrix_world @ rig.data.bones["spine_01"].head_local).z
-        slots = {}
-        for key in ("collar", "waistcoat", "tie"):
-            slots[key] = len(obj.data.materials)
-            obj.data.materials.append(kit.mat(spec["formal"][key]))
-        # Optional per-person collar depth and tie width (defaults: the original look).
-        collar_drop = spec["formal"].get("collar_drop", 0.15)
-        tie_w = spec["formal"].get("tie_half_width", 0.025)
-        for poly in obj.data.polygons:
-            if spec["formal"].get("shirt_front") or spec["formal"].get("pullover") or spec["formal"].get("waistcoat_v"):
-                continue
-            c = obj.matrix_world @ poly.center
-            n = (obj.matrix_world.to_3x3() @ poly.normal).normalized()
-            if n.y > -0.35:
-                continue
-            down = neck - c.z
-            if 0.015 < down < collar_drop and abs(c.x) < 0.105:
-                poly.material_index = slots["collar"]
-            elif collar_drop <= down < 0.42 and abs(c.x) < tie_w:
-                poly.material_index = slots["tie"]
-            elif waist - 0.04 < c.z < neck - 0.16 and abs(c.x) < 0.11:
-                poly.material_index = slots["waistcoat"]
         if spec["formal"].get("pullover"):
             pullover_front(obj, added["body"], rig, neck, spec["formal"])
         elif spec["formal"].get("waistcoat_v"):
             waistcoat_v_front(obj, added["body"], rig, neck, spec["formal"])
-        elif spec["formal"].get("shirt_front"):
-            shirt_front(obj, added["body"], rig, neck, spec["formal"])
 
     # The hidden full-resolution base mesh is not shipped (the proxy is the body).
     bpy.data.objects.remove(base)
