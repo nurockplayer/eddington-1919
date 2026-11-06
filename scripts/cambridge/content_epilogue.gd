@@ -87,13 +87,20 @@ static func _case_line(run: Dictionary) -> String:
 		"own_low":
 			return "你的底片站在我的 0.87 這邊。我不會假裝沒看見。可是 Sobral 的小鏡頭不站——兩地不一致，總得有一邊要解釋。"
 		"inconclusive":
-			return "你的底片還分不出來。Sobral 的可以。兩個地方、兩套儀器——這比我希望的更難反駁。"
+			return "你的底片還分不出來。Sobral 的可以。一地分得出，一地還不能——所以我還不想只聽一邊，也不能假裝沒聽見。"
 	return "你沒有帶回數值，我也不替你猜。Sobral 的小鏡頭有，而它容不下 0.87。只靠一個地方、一套儀器，我還不想寫下結論。"
 
 
 ## suspect_text: the player's 1917 suspect, or "" if they left none.
-static func orrery_talk(suspect_text: String) -> Array:
+## mercury_mark: the player's 1917 orrery note on Mercury (0 or 1), or -1 for none.
+static func orrery_talk(suspect_text: String, mercury_mark := -1) -> Array:
 	var seq: Array = []
+	# HISTORICAL_RECORD (factcheck claim 3 and Ashby's line below): Einstein's 1915 result; 43″ is the residual. FICTION: the player's note.
+	seq.append({"s": "年鑑・水星（1919 年 10 月補記）", "t": "照愛因斯坦 1915 年的算法，水星的近日點每一百年要多走約 43 角秒——正好是年鑑上算完其他行星之後，剩下的那一點。",
+		"key": "mercury_1919", "choices": ["對得上", "對不上"],
+		"then": [[], [{"s": "太陽系儀", "t": "再看一眼：年鑑上剩下的是 43 角秒，他算出來的也是。"}]]})
+	if mercury_mark == 0 or mercury_mark == 1:
+		seq.append({"s": "太陽系儀", "t": "[color=#b8ad98]兩年前你在這一行旁邊寫的是：%s。[/color]" % ["對得上", "對不上"][mercury_mark]})
 	if suspect_text != "":
 		seq.append({"s": "太陽系儀", "t": "你在 1917 年最懷疑的是：%s。" % suspect_text})
 	seq.append_array([
@@ -118,6 +125,22 @@ static func click_reply(choice: int) -> Array:
 	return []
 
 
+## FICTION: the player's own revision goes in the ledger; Ashby only witnesses it.
+static func october_bet() -> Array:
+	return [{"s": "1917 年的帳本", "t": "帳本翻到新的一行，Ashby 先生把筆推過來。\n1919 年 10 月，你寫：",
+		"key": "bet_oct", "choices": ["零", "0.87", "1.75", "說不準"]}]
+
+
+## FICTION. The pick is never corrected; Ashby only notices whether this page differs
+## from the one the player wrote before measuring.
+static func october_bet_reply(pick: int, bet_now: Dictionary) -> Array:
+	if bet_now.is_empty():
+		return [{"s": A, "t": "寫下來，比記在心裡好。"}]
+	if pick != int(bet_now.get("pick", -1)):
+		return [{"s": A, "t": "改了。寫下來，比記在心裡好。"}]
+	return [{"s": A, "t": "沒改。那也寫下來——連日期一起。"}]
+
+
 static func final_reason() -> Array:
 	return [
 		{"s": "筆記本", "t": "在筆記本最後寫一句：哪一個證據最讓你改變想法？",
@@ -130,6 +153,9 @@ static func final_reason() -> Array:
 ## their own run can and cannot carry. Bet pick 2 is 1.75 in mentor_dyson's ledger.
 static func final_reply(choice: int, run := {}, bet_1917 := {}, bet_now := {}) -> Array:
 	if choice == 4:
+		# FICTION: the ledger and the notebook disagree; both pages stay.
+		if run.has("bet_oct") and int(run.bet_oct) != int(bet_now.get("pick", -1)) and not bet_now.is_empty():
+			return [{"s": A, "t": "帳上你改了，這裡寫沒有。兩句都留著，讓後人來問你。"}]
 		return [{"s": A, "t": "那就寫下來。沒有改變，也是一筆紀錄。"}]
 	if choice < 0:
 		return []
@@ -145,7 +171,7 @@ static func final_reply(choice: int, run := {}, bet_1917 := {}, bet_now := {}) -
 		if int(bet_now.get("pick", -1)) != 2:
 			return [{"s": A, "t": "你在 1917 年寫了 1.75，量之前又改了。所以你改變想法，不只這一次。"}]
 		return [{"s": A, "t": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"}]
-	return []
+	return [{"s": A, "t": "那就這麼寫。"}]
 
 
 static func close() -> Array:

@@ -169,7 +169,7 @@ func _interact(id: String) -> void:
 		"orrery":
 			_orrery_camera = Room.StarDecor.orrery_closeup(self, world.orrery)
 			beat = Beat.ORRERY_TALK
-			_say(Content.orrery_talk(Content.suspect_text(Story.mercury_suspect)), "orrery_talk")
+			_say(Content.orrery_talk(Content.suspect_text(Story.mercury_suspect), int(Story.orrery.get("mercury", -1))), "orrery_talk")
 		"mentor":
 			# The objective already says where to go; Ashby repeats it without new prose.
 			ui.show_toast("太陽系儀還在架上。", 3.0)
@@ -177,6 +177,7 @@ func _interact(id: String) -> void:
 
 
 func _chart_completed() -> void:
+	_store("sobral_read", chart.read_answer)
 	chart.hide()
 	beat = Beat.WEIGHT
 	_say(Content.weight(), "weight")
@@ -222,7 +223,12 @@ func _dialogue_done(results: Dictionary) -> void:
 		"click_reply":
 			Room.StarDecor.end_orrery_closeup(_orrery_camera, player.camera)
 			_orrery_camera = null
-			_say(Content.final_reason(), "final_reason")
+			_say(Content.october_bet(), "october_bet")
+			return
+		"october_bet":
+			var pick := int(results.get("bet_oct", 3))
+			_store("bet_oct", pick)
+			_say(Content.october_bet_reply(pick, Story.bet) + Content.final_reason(), "final_reason")
 			return
 		"final_reason":
 			var choice := int(results.get("final_reason", -1))
@@ -265,7 +271,7 @@ func _restart(same_sky: bool) -> void:
 		return
 	get_tree().paused = false
 	if not Story.runs.is_empty():
-		for key in ["astro_weight", "click", "final_reason"]:
+		for key in ["astro_weight", "click", "final_reason", "bet_oct", "sobral_read"]:
 			Story.runs.back().erase(key)
 	get_tree().reload_current_scene()
 
