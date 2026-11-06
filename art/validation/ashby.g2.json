@@ -4,7 +4,7 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 13800,
+      "value": 14064,
       "max": 16000,
       "ok": true
     },
@@ -123,6 +123,24 @@
           ],
           "ok": true
         },
+        "ashby_shirt_front": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
         "ashby_shoes": {
           "origin": [
             0.0,
@@ -195,6 +213,7 @@
         "ashby_eyebrows",
         "ashby_eyes",
         "ashby_hair",
+        "ashby_shirt_front",
         "ashby_shoes",
         "ashby_suit",
         "ashby_moustache"
