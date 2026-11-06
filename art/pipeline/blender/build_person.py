@@ -288,6 +288,113 @@ def pullover_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types
     modifier.object = rig
 
 
+def waistcoat_v_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Object, neck: float, formal: dict) -> None:
+    """Fit a single shirt and waistcoat surface over the suit and body."""
+    deps = bpy.context.evaluated_depsgraph_get()
+    sources = [o.evaluated_get(deps) for o in (obj, body)]
+    rows, columns = 25, 17
+    grid = []
+    for row in range(rows):
+        t = row / rows
+        width = 0.075 * (1 - t) * (0.7 + 0.3 * min(row / 5, 1))
+        shirt = min(width, max(0, 0.72 * 0.075 * 0.7 * (1 - t / 0.72)))
+        xs = [-width + (width - shirt) * col / 3 for col in range(3)]
+        xs += [-shirt + 2 * shirt * col / 10 for col in range(11)]
+        xs += [shirt + (width - shirt) * col / 3 for col in range(1, 4)]
+        points = []
+        for x in xs:
+            u = x / width
+            origin = Vector((x, -1, neck - 0.015 - 0.29 * t + 0.035 * u * u * (1 - t) ** 4))
+            hits = []
+            for source in sources:
+                inv = source.matrix_world.inverted()
+                hit, location, _, _ = source.ray_cast(inv @ origin, inv.to_3x3() @ Vector((0, 1, 0)))
+                if hit:
+                    hits.append((source.matrix_world @ location).y)
+            if not hits:
+                raise RuntimeError(f"waistcoat ray missed at row {row}, x {x}")
+            points.append([x, min(hits), origin.z])
+        grid.append(points)
+    for _ in range(3):
+        depths = [[p[1] for p in row] for row in grid]
+        for row in range(rows):
+            for col in range(columns):
+                grid[row][col][1] = min(depths[r][c] + 0.002 * (abs(r-row) + abs(c-col))
+                    for r in range(max(0,row-1), min(rows,row+2))
+                    for c in range(max(0,col-1), min(columns,col+2)))
+    for row in (0, 5):
+        for col in range(columns // 2):
+            depth = min(grid[row][col][1], grid[row][-1-col][1])
+            grid[row][col][1] = grid[row][-1-col][1] = depth
+    vertices = [(x, y - 0.005, z) for row in grid for x, y, z in row]
+    faces, materials = [], []
+    for row in range(rows - 1):
+        for col in range(columns - 1):
+            inner = 3 <= col < 13
+            a = row * columns + col
+            if inner and grid[row + 1][3][0] == 0:
+                if grid[row][3][0] != 0:
+                    faces.append((a, a + 1, (row + 1) * columns + 8))
+                    materials.append(1)
+                continue
+            faces.append((a, a + 1, a + columns + 1, a + columns))
+            materials.append(1 if inner else 0)
+    apex = len(vertices)
+    vertices.append((0, min(p[1] for p in grid[-1]) - 0.005, neck - 0.305))
+    for col in list(range(3)) + list(range(13, 16)):
+        faces.append(((rows - 1) * columns + col, (rows - 1) * columns + col + 1, apex))
+        materials.append(0)
+    for indices in ((2, 8, 5 * columns + 5), (8, 14, 5 * columns + 11)):
+        base = len(vertices)
+        vertices.extend((vertices[i][0], vertices[i][1] - 0.003, vertices[i][2]) for i in indices)
+        faces.append((base, base + 1, base + 2))
+        materials.append(1)
+    tie_rows = []
+    for row in range(1, rows):
+        shirt = -grid[row][3][0]
+        if shirt <= 0:
+            break
+        width = min(0.016, 0.9 * shirt)
+        pair = []
+        for x in (-width, width):
+            for col in range(columns - 1):
+                left, right = grid[row][col], grid[row][col + 1]
+                if left[0] <= x <= right[0] and right[0] > left[0]:
+                    t = (x - left[0]) / (right[0] - left[0])
+                    pair.append(len(vertices))
+                    vertices.append((x, left[1] + t * (right[1] - left[1]) - 0.008,
+                                     left[2] + t * (right[2] - left[2])))
+                    break
+        tie_rows.append(pair)
+    for a, b in zip(tie_rows, tie_rows[1:]):
+        faces.append((a[0], a[1], b[1], b[0]))
+        materials.append(2)
+    row = len(tie_rows) + 1
+    point = grid[row][8]
+    apex = len(vertices)
+    vertices.append((point[0], point[1] - 0.008, point[2]))
+    faces.append((tie_rows[-1][0], tie_rows[-1][1], apex))
+    materials.append(2)
+    mesh = bpy.data.meshes.new("waistcoat_v_front")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    front = bpy.data.objects.new(f"{obj.name.rsplit('_', 1)[0]}_waistcoat_v_front", mesh)
+    bpy.context.collection.objects.link(front)
+    for key in ("waistcoat", "collar", "tie"):
+        mesh.materials.append(kit.mat(formal[key]))
+    for poly, material in zip(mesh.polygons, materials):
+        poly.material_index = material
+        poly.use_smooth = True
+    bone = "spine_03" if "spine_03" in rig.data.bones else max(
+        (b for b in rig.data.bones if b.name.startswith("spine_")), key=lambda b: b.head_local.z
+    ).name
+    front.vertex_groups.new(name=bone).add(list(range(len(vertices))), 1.0, "REPLACE")
+    front.parent = rig
+    front.matrix_world = Matrix.Identity(4)
+    modifier = front.modifiers.new("Armature", "ARMATURE")
+    modifier.object = rig
+
+
 # Bundled MPFB inputs that also end up in the exported character. They carry no
 # per-file licence line (JSON, binary targets), so they are pinned to the MPFB
 # release whose bundled assets are documented CC0 (MakeHuman licence page: "All
@@ -413,7 +520,7 @@ def main() -> None:
         collar_drop = spec["formal"].get("collar_drop", 0.15)
         tie_w = spec["formal"].get("tie_half_width", 0.025)
         for poly in obj.data.polygons:
-            if spec["formal"].get("shirt_front") or spec["formal"].get("pullover"):
+            if spec["formal"].get("shirt_front") or spec["formal"].get("pullover") or spec["formal"].get("waistcoat_v"):
                 continue
             c = obj.matrix_world @ poly.center
             n = (obj.matrix_world.to_3x3() @ poly.normal).normalized()
@@ -428,6 +535,8 @@ def main() -> None:
                 poly.material_index = slots["waistcoat"]
         if spec["formal"].get("pullover"):
             pullover_front(obj, added["body"], rig, neck, spec["formal"])
+        elif spec["formal"].get("waistcoat_v"):
+            waistcoat_v_front(obj, added["body"], rig, neck, spec["formal"])
         elif spec["formal"].get("shirt_front"):
             shirt_front(obj, added["body"], rig, neck, spec["formal"])
 

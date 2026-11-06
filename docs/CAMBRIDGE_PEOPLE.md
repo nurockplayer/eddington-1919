@@ -28,6 +28,8 @@ The change addresses silhouette, posture, material separation, motivated light,
 and a separate emotional portrait. It does not claim that more facial polygons
 alone solve the problem.
 
+The departure uses `ashby_standing.glb`, the same fictional Ashby with arms down and a journal at his right hand.
+
 ## Staging and presentation
 
 - Cambridge-only `ashby.glb` and `eddington_cambridge.glb` replace the two
@@ -82,7 +84,7 @@ MPFB 2.0.18 bundled inputs and affirmative-header CC0 MakeHuman system assets.
 No new third-party pack, generated image, paid API or photographic skin is used.
 Ashby is fictional. Eddington's Cambridge costume/pose/height are reconstruction.
 
-Príncipe character exports, Príncipe scenes, departure figure construction,
+Príncipe character exports, Príncipe scenes, other departure staging,
 authored dialogue, eclipse simulation and judgment rules are outside this slice.
 Oracle review is reserved for edd-director, as required by the brief. The Owner
 must judge the actual screenshots before visual acceptance is claimed.

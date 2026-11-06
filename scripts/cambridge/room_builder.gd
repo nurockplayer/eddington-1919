@@ -535,14 +535,17 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position
 
 	# Late arrivals are staged by the chapter controller; no hats indoors.
-	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(0, 0, 6.4) if departure else Vector3(-2.65, 0, 1.05), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor", not departure)
+	out.mentor = _npc_without_hat(w, Cast.MENTOR, Vector3(0, 0, 6.4) if departure else Vector3(-2.65, 0, 1.05), Color(0.24, 0.23, 0.22), Color(0.78, 0.75, 0.67), "mentor", true, "ashby_standing" if departure else "")
 	out.mentor.visible = departure
 	var mentor_shape := out.mentor.get_meta("room_collision_shape") as CollisionShape3D
 	mentor_shape.disabled = not departure
 	out.mentor.visibility_changed.connect(func(): mentor_shape.disabled = not out.mentor.visible)
-	# A plain closed journal under the mentor's arm, kept as a single prop.
+	# A plain closed journal at the mentor's right hand, kept as a single prop.
 	if departure:
-		w.box(Vector3(0.20, 0.035, 0.24), Vector3(0.27, 1.28, -0.12), Color(0.27, 0.22, 0.17), out.mentor, false)
+		var skeleton := out.mentor.get_node("figure").find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+		var hand: Vector3 = out.mentor.to_local(skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("hand_r")).origin))
+		var journal = w.box(Vector3(0.035, 0.24, 0.20), hand + Vector3(0.035, 0, 0), Color(0.27, 0.22, 0.17), out.mentor, false)
+		journal.name = "journal"
 	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-3.35, 0, 2.35) if departure else Vector3(-2.35, 0, -0.95), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington", not departure)
 	if not departure:
 		out.eddington.rotation.y = -PI * 0.5
@@ -664,11 +667,11 @@ static func _shelf(w, pos: Vector3, wood: Color, dark_wood: Color) -> void:
 			w.box(Vector3(0.10, h, 0.29), pos + Vector3(-0.22 + i * 0.15, 0.79 + row * 0.70 + h * 0.5, -0.47 + (i % 2) * 0.43), Color(0.30 + 0.025 * i, 0.22 + 0.02 * row, 0.15))
 
 
-static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String, production := false) -> Node3D:
+static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String, production := false, asset := "") -> Node3D:
 	var body: Node3D
 	if production:
 		var assets := {"mentor": "ashby", "eddington": "eddington_cambridge", "kit": "kit"}
-		body = Figures.build_person(w, display_name, pos, id, assets[id])
+		body = Figures.build_person(w, display_name, pos, id, asset if asset != "" else assets[id])
 	else:
 		body = Figures.build(w, display_name, pos, coat, shirt, id)
 	var cs := body.get_child(0) as CollisionShape3D
