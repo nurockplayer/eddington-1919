@@ -328,7 +328,7 @@ func _test_teaching_paths() -> void:
 	await process_frame
 	for name_ in ["dyson", "exam"]:
 		var old: Array = OriginalTeaching.mentor_dyson({}, {}) if name_ == "dyson" else OriginalTeaching.eddington_exam({}, {})
-		var current: Array = C17.mentor_dyson({}, {}) if name_ == "dyson" else C17.eddington_exam({}, {})
+		var current: Array = C17.mentor_dyson({}, {}) if name_ == "dyson" else C17.eddington_exam({}, {}) + C17.eddington_box()
 		for answer in [0, 1, 2]:
 			var answers := {"size": mini(answer, 1), "bridge": answer, "q1": answer, "q2": answer, "box": answer}
 			var baseline := _teaching_route(ui, old, 0, answers)
@@ -336,7 +336,7 @@ func _test_teaching_paths() -> void:
 			var detail := _teaching_route(ui, current, 1, answers)
 			var reverted := _teaching_route(ui, current, 0, answers)
 			check(baseline.done and short.done and detail.done, name_ + " paths complete the dialogue")
-			var unchanged: Array = baseline.lines.filter(func(line): return not (str(line[1]).contains("可是箱子要是在太空裡被一直往上拉") or str(line[1]).contains("在一個往上加速的箱子裡") or str(line[1]).contains("箱子裡分不出加速和引力")))
+			var unchanged: Array = baseline.lines.filter(func(line): return not (str(line[1]).contains("可是箱子要是在太空裡被一直往上拉") or str(line[1]).contains("在一個往上加速的箱子裡") or str(line[1]).contains("箱子裡分不出加速和引力") or str(line[1]).contains("想像你在一個關緊的箱子裡")))
 			check(_contains_in_order(detail.lines, unchanged), name_ + " details preserve unchanged original lines in order")
 			if name_ == "exam":
 				var opening := [C17.E, "%s大概跟你說過 Dyson 的那篇短文了。" % C17.A]
@@ -624,6 +624,12 @@ func _test_cambridge_rain() -> void:
 	if not await _rain_wait(chapter, func(): return chapter.beat != chapter.Beat.INTERLUDE, "the daylight interlude ends"):
 		return
 	check(is_equal_approx(chapter.rain.volume_db, -30.0), "Cambridge daylight rain settles at -30 dB")
+	_finish_test_dialogue(chapter)
+	# Conversion arc move E: the exam half now leaves the box sketch open, so play it
+	# through its real buttons before the exam's second half is finished.
+	if not await _rain_wait(chapter, func(): return chapter.box_sketch.visible, "the exam opens the box sketch"):
+		return
+	await _drive_box(chapter)
 	_finish_test_dialogue(chapter)
 	chapter._finish_plan(["comparison", "far_stars", "rules_first"])
 	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.
