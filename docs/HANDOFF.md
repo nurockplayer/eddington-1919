@@ -612,3 +612,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Store draft:** `docs/store/STORE_PAGE.md` section 9 has a 70-second trailer shot list (c79fa30). Not shot; B5 is the Owner's. `--write-movie` with a bot route is suggested there but untried: test a short clip in the Monday window.
 - **Cross-scene state read:** statics outside `Story` hold settings, replay flags, input device and audio caches, so a relaunch at their defaults should not affect 繼續. Read from code only; the Monday hand test decides.
 - **Nothing running, no unacked events.** Next item is still Monday 2026-11-09 09:00 JST `look_kit.sh`. Before that, the heartbeat can take polish; no design item is open.
+
+### Steam plan set; four languages (edd-lead) | 2026-11-07 09:0x JST
+
+- **Owner 2026-11-07:** you lead with top authority, goal is a Steam-ready game. Decided: zh-TW, en, ja, ko all at launch; gramophone stays; Windows performance is not a concern if Mac and Linux are fine. The plan and every B row: `docs/RELEASE_READINESS.md` section D.
+- **Owner asked (iMessage 2026-11-07 08:34 JST, key `steam-onboarding`):** pay Steam Direct and start the paperwork; 1–2 newcomers for 0.4.6; the credits name, default `nurockplayer`. Nothing else waits on this except App ID work.
+- **Oracle is back** (rounds at 08:31 and 08:52 JST). Answers: `~/.local/state/oracle-ego/runs/*steam-gap-q{1,2}/answer.md`.

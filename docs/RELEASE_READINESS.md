@@ -40,5 +40,29 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | B10 | Human playtest of the current build | PLAYTEST.md: human playtest still absent |
 | B11 | Final names for the fictional characters (you, Kit, Ashby) | title screen says 「姓名暫定」 |
 
+## D. Release plan (edd-lead, 2026-11-07 09:0x JST)
+
+From two oracle-ego rounds plus a read of the Steamworks pages. The Owner's own calls are marked. Steam facts: US$100 per product, not refundable, recouped after US$1,000 revenue; paperwork 15–30 days; 21 days from fee to release; Coming Soon at least 2 weeks; store and build review 3–5 business days, plan 7; 5 screenshots at 1920x1080 minimum; no trailer requirement found on the pages read.
+
+| B row | Decision | Who |
+|---|---|---|
+| B1 | Steam Direct and paperwork: asked 2026-11-07 08:34 JST | Owner to do |
+| B2 | Windows, macOS, Linux native depots. Check macOS by a real Steam install (`xattr` on the .app, launch on a clean user); pay Apple only if that fails. No Deck claim | lead |
+| B3 | **zh-TW, English, Japanese, Korean, all at launch** | Owner 2026-11-07 |
+| B4 | Rule: Coming Soon up 28 days or more, no launch in the Winter Sale, first Tuesday from 2027-01-12 that qualifies. US$2.99–3.99, picked after a measured playtime. State the length on the store page | proposal; Owner sets at publish |
+| B5 | Capsules: in-game render plus typeset title, no generated art. Trailer 35–50 s from real capture with `--write-movie` | lead |
+| B6 | Declare pre-generated AI content: portraits, story text, dialogue, localization, and music and sound (written as code, rendered from CC0 samples). Nothing live-generated. Text in `docs/store/STORE_PAGE.md` section 7 | Owner attests |
+| B7 | Decided, see row B7 above | lead |
+| B8 | **Gramophone recording stays** (Owner 2026-11-07). Credits: `nurockplayer` unless the Owner says otherwise. Steam's legal name is separate | Owner, lead |
+| B9 | No achievements. Steam Auto-Cloud on `checkpoint.save` only, no SDK | lead |
+| B10 | One blind newcomer session on any platform. Asked of the Owner 2026-11-07 08:34 JST; then Steam Playtest once an App ID exists. Not a gate for engineering work | Owner, then Playtest |
+| B11 | Kit and Ashby keep their names; 「姓名暫定」 removed. The Owner can still change this | lead |
+
+**Windows:** Owner 2026-11-07: if Mac and Linux are fine, Windows performance is not a concern. So CI checks that it launches; no performance proof is sought. Vulkan first, D3D12 fallback, no OpenGL fallback, no console wrapper. Shader baker stays off: Godot #122014 reports wrong baked shaders when a Mac host exports for Windows (reported by oracle, not reproduced here).
+
+**Not adopted from oracle:** blind Windows session as a gate on everything; removing the gramophone; a separate alt-tab or high-DPI task (`canvas_items` stretch and Godot's capture handling already cover them; hand-check in a window).
+
+**Work order:** release config → packaged-launch CI on Windows, macOS, Linux → i18n foundation (`L.t`, locale pick, JP and KR fonts) → wrap strings, extraction and gates → translate after Monday's text look, en then ja and ko → store assets, depot scripts once an App ID exists.
+
 ## C. Not blockers
 Pause/quit/main menu (DONE, `scripts/ui.gd:741,857`); debug UI (export excludes tests/lookdev; verify in A11).
