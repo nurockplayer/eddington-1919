@@ -578,7 +578,7 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **On its event:** read the job log `~/.local/state/job-run/lw-all-suites-20261107-024337/log` (the event text is cut short). A failure: read the cause first. Test assuming the old flow → small fix. Real bug → fix or brief it. Do not widen a budget. A suite that hits the cap or times out on load: rerun that one alone before judging.
 - **After that:** no design item is open. Monday 2026-11-09 09:00 JST `look_kit.sh` plus the additions above, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Heartbeat: one-shot due 2026-11-07 03:19 JST; crons are session-only, recreate after a restart.
 
-### All suites done; CI added (edd-lead) | 2026-11-07 04:3x JST
+### All suites done; CI added (edd-lead) | 2026-11-07 04:2x JST
 
 - **All suites** (f86984a, finished 2026-11-07 03:30 JST): 51 of 52 passed. `test_kit_recall` had failed since #108 (2026-11-03) because it never set `_grade`; the real flow sets it in `_after_judgment`, so the game was not affected. **#246 merged** (0ed0249), 29/0.
 - **#247 merged** (a4dcb9b): `.github/workflows/all-suites.yml` runs `tools/all_suites.sh` on PRs and pushes to `main`; docs-only changes skip it. About 12 minutes on Ubuntu 24.04, Godot 4.7.2 with the SHA-512 checked. Run 42274095515 on 4d2a9cf: 52/52 on Linux. Run 42279284992 on `main` a4dcb9b was still running at this writing; check it.
@@ -587,3 +587,12 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Store draft** (`docs/store/STORE_PAGE.md`): about text and features now cover the box sketch (#242) and the October payoff (#243). Row 14, a box sketch shot, stays a candidate until the windowed look.
 - **Oracle still down** (ChatGPT logged out in ego-lite, 2026-11-07 02:30 JST, Owner notified); reviews go to codex by themselves.
 - **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh` with the additions above, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1.
+
+### Monday look prepared (edd-lead) | 2026-11-07 05:3x JST
+
+- **#248 merged** (f15a17d): a gamepad gets through the box sketch on A and the d-pad alone, no game change needed. `test_layout_bounds` now covers its four stages at every size and text scale; that found the 越拉越快 label's rect 40 px past the viewport, text still inside, fixed in one line. The Sobral answers have no gamepad test, but the code moves focus to them and back; not run.
+- **Look kit changed:** `director/look_kit.sh` used `origin/art/faces`, which lacks the box sketch and the October payoff. It now uses the branch `look/monday` (a964797: `main` f15a17d with `art/faces` merged, no conflicts, no PR) and runs the honest route twice, 1920x1080 at text 1.0 into `look-kit/1080`, then 1280x720 at text 1.2 into `look-kit/720`. Not run yet: its window guard allows Mon–Fri 09:00–14:55 JST.
+- **Art stack on Linux:** run 42287429153 on a964797 passed all suites, so the stack breaks no suite against current `main`. This says nothing about how it looks.
+- **Monday 2026-11-09 09:00 JST:** run `look_kit.sh` through `orb-test --heavy --host` (crons are session-only; the heartbeat has to catch it). Judge: Kit, departure Ashby and her journal drift, chest, faces; #235's long pages and `box_light`; #236's replies; box sketch ticks and light, both sizes; the Sobral question; October ledger line; almanac note. After that delete `look/monday`, then #229 → #231 → #232 → #234 (rebase each; #231 keeps the override reason from the 19:2x section), store reshoot, 0.4.6.
+- **0.4.6 change list for Issue #1 (draft, add the art stack if it merges):** #235 the long box explanation, Mercury's scale and `box_light`; #236 Ashby answers your notebook choice; #242 the box by hand, in 1917 and at departure; #243 and #245 the October payoff: your new ledger line, reading Sobral's range, Mercury in the almanac; #248 a label bounds fix.
+
