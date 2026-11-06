@@ -405,3 +405,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-look-kit-20261106-144457`, ticket #613 behind two gteki jobs. `director/look_kit.sh` shoots the prologue honest route to `director/look-kit/`. It exits 3 without running if it starts after 14:55 JST: then rerun it Monday 2026-11-09 from 09:00 JST with `lead-wait run look-kit -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_kit.sh`.
 - **On its event:** judge close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `honest_m2_speaker_promise_kit`, `honest_beat_orrery`, and whether the head and shirt front hold up beside Ashby. Pass → `review-gate 229`; delete `director/look-kit/`. Fail → resume the worker with one change, new review.
 
+### Kit look round 1 (edd-lead) | 2026-11-06 14:5x JST
+
+- Windowed look on ff3bcec, stills judged and deleted. Pass: head shape, hair, spectacles, facing the player (answers the facing half of oracle's major). Fail: reads as a white suit with black braces, dark torn V strips on the chest, eyes as black slits with an angry brow.
+- **Running:** `lead-wait run kit-mpfb-fu2`, brief `director/kit-mpfb-fu2.md` (coat and pullover colours, dark trousers, softer brows, sclera and iris; Kit only). The worker renders to `director/kit-r2/` for the lead.
+- **On its event:** judge `director/kit-r2/`. Next windowed look: Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`; then final-head tests and `lead-wait pr 229` (a push needs a new review). Delete `kit-r2/` and `look-kit/` afterwards.
+
