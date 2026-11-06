@@ -562,3 +562,12 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-monkey4`, 12 routes, seeds from 4000, on 08b0e6a in ds-2 (detached). On its event: a stall or a missing ENDING gets a replay with that seed; do not widen timeouts.
 - **Running:** a Fable read-only design critique of the finished arc (subagent). On its report: decide item by item, then brief; nothing is adopted automatically.
 - **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, with the box sketch added, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1.
+
+### Epilogue payoff merged; oracle down (edd-lead) | 2026-11-07 02:4x JST
+
+- **Monkey pass 4** (08b0e6a, seeds 4000–4011): 12/12 reached ENDING, stuck 0.
+- **Fable critique** of the finished arc (2026-11-07 01:2x JST): three gaps at the payoff, all adopted with changes. **#243 merged** (ba05ba8; codex approve because oracle failed): the player writes a new ledger line `bet_oct` in October and the ending lists it; the player reads Sobral's 2σ range in the chart (`sobral_read`, any answer progresses); Mercury returns in the almanac with the player's 1917 mark; the "inconclusive" Ashby line no longer overclaims. `test_epilogue` 230/0, `test_layout_bounds` 4780/0, e2e 6/6, monkey 1/1. Fable's ideas not taken: shortening Ashby's Mercury lines. The "two instruments, one Atlantic" line appears only in the `conceded` case.
+- **#245 running** (`lw-pr-245`, branch `fix/final-reply-october`, worktree ds-2): Codex's major on #243, a 1.75 player who changes in October was told the number stayed. Lead's own fix. After MERGED, delete the branch.
+- **Oracle is down:** ChatGPT logged out in ego-lite (2026-11-07 02:30 JST); `owner-notify --key ego-lite-chatgpt-login` sent. `lead-wait pr` falls back to codex by itself. Do not brief workers to rerun an oracle review until it is back: they report exit 5 and stop.
+- **Monday look adds:** the Sobral question inside the chart (default label colour, four buttons, at 1080 and 720/1.2), the October ledger line, the almanac note.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Note that 0.4.6 also needs a change list for Issue #1 covering moves E and the payoff.
