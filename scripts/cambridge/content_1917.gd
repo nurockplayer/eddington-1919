@@ -136,17 +136,17 @@ static func orrery_check() -> Array:
 		# independent work did not directly prompt Galle's search.
 		{"s": "年鑑・1846", "t": "1846 年：Le Verrier 只用紙筆，算出一顆沒人見過的行星該在哪裡。Galle 當晚去找——離算出的位置不到一度。",
 			"key": "orrery_neptune", "choices": ["對得上", "對不上"],
-			"then": [[], [{"s": A, "t": "再看一眼：不到一度，在 1846 年的望遠鏡裡就是『就在那裡』。"}]]},
+			"then": [[], [{"s": "太陽系儀", "t": "再看一眼：不到一度，在 1846 年的望遠鏡裡就是『就在那裡』。"}]]},
 		# HISTORICAL_RECORD (factcheck claim 2): Cowell and Crommelin's pre-recovery
 		# 1910 perihelion was about 2.7 days early; they revised it after recovery.
 		{"s": "年鑑・1910", "t": "1910 年：哈雷彗星回來了。七十多年前就照牛頓的算法排好日子——Cowell 和 Crommelin 在彗星被望遠鏡再看見之前算的近日點，只早了不到三天。",
 			"key": "orrery_halley", "choices": ["對得上", "對不上"],
-			"then": [[], [{"s": A, "t": "再看一眼：早了不到三天，在七十多年的等待裡，那幾乎就是準時。"}]]},
+			"then": [[], [{"s": "太陽系儀", "t": "再看一眼：早了不到三天，在七十多年的等待裡，那幾乎就是準時。"}]]},
 		# HISTORICAL_RECORD (factcheck claim 3): about 43″/century is the residual after
 		# known planetary perturbations, not Mercury's total precession.
 		{"s": "年鑑・水星", "t": "水星：把其他行星的拉扯全算進去，它的近日點每一百年還多走了大約 43 角秒。不是整個進動——是算完之後剩下的那一點。",
 			"key": "orrery_mercury", "choices": ["對得上", "對不上"],
-			"then": [[{"s": A, "t": "再看一眼：43 角秒不是零。對得上，是指算出來的歲差和看到的一模一樣——這裡還差著那一點。"}], []]},
+			"then": [[{"s": "太陽系儀", "t": "再看一眼：43 角秒不是零。對得上，是指算出來的歲差和看到的一模一樣——這裡還差著那一點。"}], []]},
 		orrery_suspect_entry(),
 		{"s": "太陽系儀", "t": "[color=#b8ad98]這台小機器的軌道是齒輪定死的，演不出那 43 角秒。[/color]"},
 	]

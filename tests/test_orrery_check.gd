@@ -25,6 +25,7 @@ func _run() -> void:
 	var story: Node = root.get_node("Story")
 	await _test_review_gate_and_check(story)
 	await _test_prechecked_goes_to_dyson(story)
+	await _test_early_corrections_are_not_ashby(story)
 	_test_suspect_lines()
 	story.reset()
 	check(story.orrery.is_empty() and story.mercury_suspect == -1, "Story.reset clears the orrery check")
@@ -127,6 +128,31 @@ func _test_review_gate_and_check(story: Node) -> void:
 	check(dyson.contains("水星例外"), "Ashby opens on Mercury's exception")
 	check(dyson.contains("2.00000016"), "Ashby answers the Hall suspect")
 	check(dyson.contains("1911") and dyson.contains("只有一半"), "the 1911 humility line follows the half value")
+	chapter.free()
+	await process_frame
+
+
+## Ashby only enters after the report (#212): a mislabel during the investigation
+## is corrected by the orrery's own card, not in his voice.
+func _test_early_corrections_are_not_ashby(story: Node) -> void:
+	story.reset()
+	var chapter = await _new_chapter()
+	check(chapter.beat == chapter.Beat.INVESTIGATE, "the early visit is before Ashby enters")
+	chapter._interact("orrery")
+	var wrong := {"orrery_neptune": 1, "orrery_halley": 1, "orrery_mercury": 0, "mercury_suspect": 1}
+	var corrections := 0
+	var guard := 100
+	while chapter.ui.dialog_active() and chapter._pending == "orrery_check" and guard > 0:
+		guard -= 1
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		check(entry.get("s", "") != C17.A, "Ashby does not speak in the early check: " + str(entry.get("t", "")))
+		if str(entry.get("t", "")).begins_with("再看一眼"):
+			corrections += 1
+		if entry.has("choices"):
+			chapter.ui._choose(int(wrong.get(str(entry.get("key", "")), 0)))
+		else:
+			chapter.ui._advance()
+	check(corrections == 3, "all three mislabels get a correction (%d)" % corrections)
 	chapter.free()
 	await process_frame
 
