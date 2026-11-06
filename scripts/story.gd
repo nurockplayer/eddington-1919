@@ -28,6 +28,42 @@ var epilogue_done := false
 var ending_plate: Texture2D = null
 var ending_plate_caption := ""
 
+## Chapter checkpoints write these fields; the plate travels as PNG bytes instead.
+const SAVED := [
+	"runs", "from_prologue", "prologue_done", "clues", "report", "plan",
+	"kit_choice", "kit_first", "trial_note", "exam", "bet", "bet_1917",
+	"orrery", "mercury_suspect", "sky_promise", "bond_tone", "slip_fix",
+	"departure_done", "epilogue_done", "ending_plate_caption",
+]
+
+
+func to_save() -> Dictionary:
+	var data := {}
+	for key in SAVED:
+		var value = get(key)
+		if value is Array or value is Dictionary:
+			value = value.duplicate(true)
+		data[key] = value
+	var image: Image = ending_plate.get_image() if ending_plate != null else null
+	data["ending_plate_png"] = image.save_png_to_buffer() if image != null else PackedByteArray()
+	return data
+
+
+func from_save(data: Dictionary) -> void:
+	reset()
+	for key in SAVED:
+		if not data.has(key):
+			continue
+		if key == "runs":
+			runs.assign(data[key])
+		else:
+			set(key, data[key])
+	var png = data.get("ending_plate_png", PackedByteArray())
+	if png is PackedByteArray and not png.is_empty():
+		var image := Image.new()
+		if image.load_png_from_buffer(png) == OK:
+			ending_plate = ImageTexture.create_from_image(image)
+
 
 func reset(keep_runs := false) -> void:
 	if not keep_runs:

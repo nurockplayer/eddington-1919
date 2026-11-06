@@ -108,6 +108,35 @@ func _run() -> void:
 				check(root.get_visible_rect().encloses(title_buttons[i].get_global_rect()), "title button fits")
 				for j in range(i):
 					check(not title_buttons[i].get_global_rect().intersects(title_buttons[j].get_global_rect()), "title buttons do not overlap")
+			# A chapter checkpoint adds one 繼續 button; the longer row must still fit.
+			Checkpoint.force_enabled = true
+			Checkpoint.save("principe")
+			var resume_game: Node = load("res://scenes/main.tscn").instantiate()
+			root.add_child(resume_game)
+			resume_game.set_process(false)
+			await settle()
+			var resume_ui = resume_game.ui
+			# The new UI loads the settings file this suite does not use; keep the pass at its scale.
+			Settings.text_scale = scale
+			Settings.refresh_fonts(self)
+			await settle()
+			check(resume_ui.continue_btn != null and resume_ui.continue_btn.text == Checkpoint.label("principe"),
+				"title offers the chapter checkpoint")
+			bounds(resume_ui.title_panel)
+			var resume_buttons: Array = resume_ui.prologue_btn.get_parent().get_children()
+			for i in resume_buttons.size():
+				check(root.get_visible_rect().encloses(resume_buttons[i].get_global_rect()),
+					"checkpoint title button fits: " + resume_buttons[i].text)
+				for j in range(i):
+					check(not resume_buttons[i].get_global_rect().intersects(resume_buttons[j].get_global_rect()),
+						"checkpoint title buttons do not overlap: " + resume_buttons[i].text)
+			resume_game.stop_all_audio()
+			resume_game.free()
+			Checkpoint.clear()
+			Checkpoint.force_enabled = false
+			Settings.text_scale = scale
+			Settings.refresh_fonts(self)
+			await settle()
 			ui.hud.visible = true
 			game.phase = game.Phase.PREP
 			game._refresh_objectives()

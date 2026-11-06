@@ -616,6 +616,7 @@ func _montage() -> void:
 		await _montage_caption(str(entry.t) + "\n\n（" + tag + "）")
 	Story.prologue_done = true
 	beat = Beat.DONE
+	Checkpoint.save("departure")
 	get_tree().change_scene_to_file("res://scenes/departure.tscn")
 
 

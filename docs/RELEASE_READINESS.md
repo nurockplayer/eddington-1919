@@ -34,7 +34,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | B4 | Price or free, release date | |
 | B5 | Store page: capsules, screenshots, trailer, description | director can draft from in-game stills; draft: docs/store/STORE_PAGE.md (PR #135) |
 | B6 | Content survey + AI disclosure | generated portraits (`art/people/LICENSES.md:26`), sampled music |
-| B7 | Save/continue: chapter select enough, or checkpoints? | today: two start chapters, story state in memory |
+| B7 | Save/continue: chapter select enough, or checkpoints? | one automatic checkpoint per chapter and a title 繼續 button (#250; lead decision 2026-11-07 JST under the Owner's 2026-11-06 mandate, since quitting otherwise lost the whole run). No slots or mid-chapter saves; the Owner can still change this |
 | B8 | Names in credits; territory rights for recorded music | |
 | B9 | Steam features: achievements, cloud saves (optional) | GodotSteam not present |
 | B10 | Human playtest of the current build | PLAYTEST.md: human playtest still absent |

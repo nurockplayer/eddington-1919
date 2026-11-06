@@ -16,6 +16,7 @@ var music_ready_usec := 0
 signal dialogue_done(results: Dictionary)
 signal dialogue_entry(speaker: String)
 signal prologue_pressed
+signal continue_pressed
 signal log_toggled(open: bool)
 signal pause_toggled(paused: bool)
 signal start_pressed
@@ -66,6 +67,8 @@ var caption: Label
 var title_panel: Control
 var title_controls: Label
 var prologue_btn: Button
+## Only built when a chapter checkpoint exists, so the row keeps its usual buttons.
+var continue_btn: Button
 var start_btn: Button
 var title_note: Label
 var log_panel: PanelContainer
@@ -1384,6 +1387,11 @@ func _build_title(root: Control) -> void:
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER
 	hb.add_theme_constant_override("separation", 20)
 	v.add_child(hb)
+	var chapter := Checkpoint.peek()
+	if chapter != "":
+		continue_btn = _button(Checkpoint.label(chapter))
+		continue_btn.pressed.connect(func(): continue_pressed.emit())
+		hb.add_child(continue_btn)
 	prologue_btn = _button("開始遊戲：序章・劍橋，1917")
 	prologue_btn.pressed.connect(func(): prologue_pressed.emit())
 	hb.add_child(prologue_btn)
@@ -1408,7 +1416,7 @@ func _build_title(root: Control) -> void:
 	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	version.position -= version.get_minimum_size() + Vector2(24, 18)
 	version.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	prologue_btn.grab_focus()
+	(continue_btn if continue_btn != null else prologue_btn).grab_focus()
 
 
 func hide_title() -> void:
