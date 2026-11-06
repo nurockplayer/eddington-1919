@@ -81,7 +81,7 @@ Prologue path only (the player knows Ashby). Built as `scenes/epilogue.tscn` + `
 
    He never converts out of politeness.
 6. **The orrery.** Mercury returns, and it recalls the player's 1917 suspect (move B):
-   - 「1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。我那時想：先知道答案再去算，誰都算得對。」
+   - 「1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。消息傳到劍橋時，我想：先知道答案再去算，誰都算得對。」
    - 「可是光彎多少，是在任何人量之前就寫下的。」
    - 「一個是事後的解釋，一個是事先的下注——現在指著同一邊。」
 

@@ -104,7 +104,7 @@ static func orrery_talk(suspect_text: String, mercury_mark := -1) -> Array:
 	if suspect_text != "":
 		seq.append({"s": "太陽系儀", "t": "你在 1917 年最懷疑的是：%s。" % suspect_text})
 	seq.append_array([
-		{"s": A, "t": "1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。我那時想：先知道答案再去算，誰都算得對。"},
+		{"s": A, "t": "1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。消息傳到劍橋時，我想：先知道答案再去算，誰都算得對。"},
 		# HISTORICAL_RECORD: Vulcan, Seeliger, Hall (factcheck claim 12). FICTION: Ashby's judgement.
 		{"s": A, "t": "我們找過的那些說法——看不見的行星、太陽旁的物質、改一點引力的規則——都只為了水星，沒有一個能讓星光彎得像愛因斯坦說的那麼多。"},
 		{"s": A, "t": "可是光彎多少，是在任何人量之前就寫下的。"},
