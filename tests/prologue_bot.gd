@@ -829,8 +829,8 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue weight did not reach the orrery")
 		return false
 	await shot("epilogue_ledger")
-	# Back along the north aisle to the shelf; the central table blocks a direct line.
-	await walk(Vector3(-2.2, 0, -1.5))
+	# Around the eastern end of the table to the shelf.
+	await walk(Vector3(2.1, 0, 2.35))
 	await walk(Vector3(2.6, 0, -1.5))
 	await interact("orrery")
 	await talk_keys({"click": 1, "final_reason": 2})
