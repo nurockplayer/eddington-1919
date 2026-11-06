@@ -259,6 +259,14 @@ func _run() -> void:
 			epilogue_chart._press()
 			await settle()
 			bounds(epilogue_chart)
+			# Step 3: the Sobral reading question and its four answers stay inside
+			# the viewport with the chart still above them.
+			epilogue_chart._press()
+			await settle()
+			bounds(epilogue_chart)
+			epilogue_chart.choices[1].pressed.emit()
+			await settle()
+			bounds(epilogue_chart)
 			check(epilogue_chart.button.is_visible_in_tree() and root.get_visible_rect().encloses(epilogue_chart.button.get_global_rect()),
 				"%dx%d @%.1f epilogue overlay button fits" % [window.x, window.y, scale])
 			check(root.get_visible_rect().encloses(epilogue_chart.chart.get_global_rect()),

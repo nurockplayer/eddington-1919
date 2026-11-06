@@ -27,6 +27,8 @@ func check(ok: bool, message: String) -> void:
 func _run() -> void:
 	var story: Node = root.get_node("Story")
 	story.reset()
+	await _test_restart_clears_run(story)
+	story.reset()
 	await _test_ledger_cases(story)
 	story.reset()
 	await _test_full_flow(story)
@@ -47,6 +49,29 @@ func _run() -> void:
 		"Story.reset clears the epilogue state")
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+## A restart inside the epilogue starts the room over: the answer keys it writes go,
+## including the October line and the Sobral reading, so a replay shows neither.
+func _test_restart_clears_run(story: Node) -> void:
+	var chapter = await _new_epilogue()
+	var run := _make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10})
+	run["astro_weight"] = 1
+	run["click"] = 1
+	run["final_reason"] = 2
+	run["bet_oct"] = 2
+	run["sobral_read"] = 1
+	story.runs.clear()
+	story.runs.append(run)
+	# The test scene has no current_scene; the reload at the end is a no-op here.
+	current_scene = null
+	chapter._restart(false)
+	check(not run.has("bet_oct") and not run.has("sobral_read"),
+		"a restart clears the October line and the Sobral reading from the run")
+	check(not run.has("astro_weight") and not run.has("click") and not run.has("final_reason"),
+		"a restart still clears the earlier epilogue answers")
+	chapter.free()
+	await process_frame
 
 
 ## A run shaped like `main._record_run()`; the fields Ending.build reads are all here.
@@ -411,6 +436,9 @@ func _test_sobral_reading(story: Node) -> void:
 		check(not chapter.chart.visible, "answer %d closes the chart through 好" % answer)
 		check(int(story.runs.back().get("sobral_read", -1)) == answer,
 			"answer %d is stored in sobral_read" % answer)
+		# The weight and ledger dialogue that follows blocks the overlay; finish it so
+		# the next answer opens the chart the way the letter does.
+		_finish(chapter)
 	var quiet := _make_run({"n": 2, "value": 0.70, "sigma": 0.12}, {"lo": 0.40, "hi": 1.50})
 	story.runs.back().erase("sobral_read")
 	chapter.chart.open(quiet)

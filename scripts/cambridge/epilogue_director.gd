@@ -271,7 +271,7 @@ func _restart(same_sky: bool) -> void:
 		return
 	get_tree().paused = false
 	if not Story.runs.is_empty():
-		for key in ["astro_weight", "click", "final_reason"]:
+		for key in ["astro_weight", "click", "final_reason", "bet_oct", "sobral_read"]:
 			Story.runs.back().erase(key)
 	get_tree().reload_current_scene()
 
