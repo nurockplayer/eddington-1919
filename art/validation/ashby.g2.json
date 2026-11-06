@@ -4,13 +4,14 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 14152,
+      "value": 14355,
       "max": 16000,
       "ok": true
     },
     "materials": {
       "value": [
         "E1919_eye_dark",
+        "E1919_eye_white",
         "E1919_hair_dark",
         "E1919_hair_grey",
         "E1919_leather",
@@ -123,24 +124,6 @@
           ],
           "ok": true
         },
-        "ashby_shirt_front": {
-          "origin": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "expected": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ],
-          "ok": true
-        },
         "ashby_shoes": {
           "origin": [
             0.0,
@@ -177,11 +160,47 @@
           ],
           "ok": true
         },
-        "ashby_moustache": {
+        "ashby_waistcoat_v_front": {
           "origin": [
             0.0,
-            -0.259,
-            1.531
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_irises": {
+          "origin": [
+            -0.032,
+            -0.272,
+            1.583
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        },
+        "ashby_moustache": {
+          "origin": [
+            -0.0,
+            0.346,
+            0.052
           ],
           "expected": [
             0.0,
@@ -213,9 +232,10 @@
         "ashby_eyebrows",
         "ashby_eyes",
         "ashby_hair",
-        "ashby_shirt_front",
         "ashby_shoes",
         "ashby_suit",
+        "ashby_waistcoat_v_front",
+        "ashby_irises",
         "ashby_moustache"
       ],
       "ok": true

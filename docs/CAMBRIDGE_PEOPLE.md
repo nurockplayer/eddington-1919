@@ -28,6 +28,8 @@ The change addresses silhouette, posture, material separation, motivated light,
 and a separate emotional portrait. It does not claim that more facial polygons
 alone solve the problem.
 
+The departure uses `ashby_standing.glb`, the same fictional Ashby with arms down and a journal at his right hand.
+
 ## Staging and presentation
 
 - Cambridge-only `ashby.glb` and `eddington_cambridge.glb` replace the two
@@ -82,7 +84,7 @@ MPFB 2.0.18 bundled inputs and affirmative-header CC0 MakeHuman system assets.
 No new third-party pack, generated image, paid API or photographic skin is used.
 Ashby is fictional. Eddington's Cambridge costume/pose/height are reconstruction.
 
-Príncipe character exports, Príncipe scenes, departure figure construction,
+Príncipe character exports, Príncipe scenes, other departure staging,
 authored dialogue, eclipse simulation and judgment rules are outside this slice.
 Oracle review is reserved for edd-director, as required by the brief. The Owner
 must judge the actual screenshots before visual acceptance is claimed.
@@ -91,8 +93,8 @@ must judge the actual screenshots before visual acceptance is claimed.
 
 Completed through `orb-test`:
 
-- `ashby.g2.json`: PASS, 13,800 triangles, eight materials, no textures.
-- `eddington_cambridge.g2.json`: PASS, 13,776 triangles, eight materials, no textures.
+- `ashby.g2.json`: PASS, 14,355 triangles, nine materials, no textures.
+- `eddington_cambridge.g2.json`: PASS, 14,575 triangles, nine materials, no textures.
 - `test_portrait.gd`: **65 checks, zero failures**, including explicit logical
   viewport dimensions, mood fallback/selection, disclosure, actual hand poses,
   paused animation, collision visibility, tags and 55°/72° FOV restoration.
@@ -144,3 +146,9 @@ a public repo are publicly downloadable. Never copy those files into this repo.
 Public clones without access keep working: code must fall back to the CC0 MPFB
 figures in `assets/models/` when `assets/licensed/` is empty. Fetch with
 `git submodule update --init assets/licensed` (needs access to the private repo).
+
+## Kit MPFB figure
+
+Kit is fictional and uses the CC0 `kit.glb` in both Cambridge rooms. The
+1.68 m figure has brown `short04` hair, spectacles, a pale coat and grey pullover.
+The lead will judge its appearance in a windowed run.

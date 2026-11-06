@@ -4,13 +4,14 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 14128,
+      "value": 14575,
       "max": 16000,
       "ok": true
     },
     "materials": {
       "value": [
         "E1919_eye_dark",
+        "E1919_eye_white",
         "E1919_hair_dark",
         "E1919_iron",
         "E1919_leather",
@@ -123,24 +124,6 @@
           ],
           "ok": true
         },
-        "eddington_cambridge_shirt_front": {
-          "origin": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "expected": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ],
-          "ok": true
-        },
         "eddington_cambridge_shoes": {
           "origin": [
             0.0,
@@ -177,11 +160,47 @@
           ],
           "ok": true
         },
+        "eddington_cambridge_waistcoat_v_front": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
         "eddington_cambridge_glasses": {
           "origin": [
             -0.032,
             -0.207,
             1.65
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        },
+        "eddington_cambridge_irises": {
+          "origin": [
+            -0.032,
+            -0.2,
+            1.652
           ],
           "expected": [
             0.0,
@@ -213,10 +232,11 @@
         "eddington_cambridge_eyebrows",
         "eddington_cambridge_eyes",
         "eddington_cambridge_hair",
-        "eddington_cambridge_shirt_front",
         "eddington_cambridge_shoes",
         "eddington_cambridge_suit",
-        "eddington_cambridge_glasses"
+        "eddington_cambridge_waistcoat_v_front",
+        "eddington_cambridge_glasses",
+        "eddington_cambridge_irises"
       ],
       "ok": true
     }
