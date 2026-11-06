@@ -25,9 +25,13 @@ From Cambridge's light box to a clouded eclipse on Príncipe: call each exposure
 
 1917 年的劍橋，Kit 和 Ashby 先生陪你辨認鏡像與轉角、核對星圖，面對仍然對不上的殘點。你會接受複核、寫下報告，並為一次公平的觀測安排計畫。人物之間的對話與工作，讓「不知道」也有被認真記錄的位置。
 
+書架上的太陽系儀讓你核對牛頓的預測：海王星與哈雷彗星都對得上，水星卻留下每世紀 43 角秒。你要決定先懷疑什麼，再在帳本上寫下你認為光會偏折多少、有多少把握；Ashby 先生也會寫下他的數字。
+
 到了 1919 年的普林西比，你要準備底片、協助時鐘驅動，在全食中看雲、喊開始與停止，讓 Cottingham 操作遮光板。雲縫不會配合你的期待；一次曝光結束後，還得判斷是否換片再等。錯過的光，不能靠事後的措辭補回。
 
-夜裡回到暗房，先寫下選片規則，再查看量測結果。用放大鏡與參考底片分辨星點、拖線和霧，讓底片與牛津的對照片閃爍比對，看星點是否移動（位移經放大示意），再決定哪些底片值得採用。讀懂合併數值和誤差區間後，你才選擇電報與理由。若看過結果後重新選片，第一次的結果仍會留下。
+夜裡回到暗房，先寫下選片規則，再查看量測結果。用放大鏡與參考底片分辨星點、拖線和霧，讓底片與牛津的對照片閃爍比對，看星點是否移動（位移經放大示意），再決定哪些底片值得採用。每張採用的底片，都要用顯微測微器親手對準參考星，數值來自你自己的讀數。量測前，1917 年的帳本會回到你面前，讓你堅持或改押。讀懂合併數值和誤差區間後，你才選擇電報與理由。若看過結果後重新選片，第一次的結果仍會留下。
+
+1919 年 10 月，故事回到劍橋那間書房（重建情節）。Dyson 的來信帶來 Sobral 的兩組數字：4 吋望遠鏡支持完整的偏折，天體照相儀那組卻不一致。你把它們抄到自己的結果旁，決定那組有問題的底片該算多重；Ashby 先生則翻開 1917 年的帳本，面對他自己寫下的數字。
 
 這段故事把一個克制的主張，放在不完美的證據旁邊。1919 年的結果曾引發爭論；普林西比的雲直到全食最後三分之一才明顯變薄，只有兩張底片能用於量測。當年的報告最倚重的是 Sobral 的 4 吋望遠鏡。遊戲讓你走過判斷的過程，歷史背景與戲劇創作則分開標示。
 
@@ -39,9 +43,13 @@ How much certainty fits inside a telegram? Eddington 1919 is a narrative adventu
 
 Begin in Cambridge in 1917. With Kit and Mr Ashby, compare a tracing with a plate, work through mirrored and rotated images, and face a residual that remains unresolved. Accept an independent check, write your report, and plan a fair observation. These fictional conversations leave room for an honest “I don't know.”
 
+The orrery on the shelf lets you check Newton's predictions: Neptune and Halley's Comet hold up, but Mercury leaves 43 arcseconds per century unexplained. Decide what to suspect first, then write in the ledger how far you expect light to bend and how sure you are; Mr Ashby writes down his own figure.
+
 On Príncipe in 1919, prepare photographic plates and help with the clock drive. During totality, watch the clouds and call when each exposure should start and stop; Cottingham handles the shutter. A gap in the cloud may be brief. Decide when to finish, change plates, and wait again.
 
-In the darkroom, commit to a selection rule before seeing the measured values. Inspect star images, trailing, and fog with a loupe and reference plates; blink the plate against the Oxford comparison plate to see whether the stars shift (the shift is exaggerated for illustration). Choose what to include, read the combined measurement and its uncertainty interval, then select a short telegram and a reason. If you change your selection after seeing the numbers, your first result remains on record.
+In the darkroom, commit to a selection rule before seeing the measured values. Inspect star images, trailing, and fog with a loupe and reference plates; blink the plate against the Oxford comparison plate to see whether the stars shift (the shift is exaggerated for illustration). Choose what to include, read the combined measurement and its uncertainty interval, then select a short telegram and a reason. If you change your selection after seeing the numbers, your first result remains on record. For each plate you use, you set a micrometer on a reference star yourself, so the value comes from your own reading. Before you measure, the 1917 ledger comes back: keep your figure or change it.
+
+In October 1919 the story returns to the Cambridge study (a reconstructed scene). Dyson's letter brings two sets of numbers from Sobral: the four-inch telescope favors the full deflection, and the astrographic plates disagree. Copy them beside your own result and decide how much weight the troubled set deserves, while Mr Ashby opens the 1917 ledger and faces the figure he wrote.
 
 The 1919 results were debated. On Príncipe, the clouds thinned only in the last third of totality, and just two plates could be measured. The historical report relied most heavily on Sobral's four-inch telescope. The game keeps historical context separate from its dramatic inventions.
 
@@ -52,6 +60,7 @@ Fiction and illustration: the player character, all dialogue, the episode in whi
 - 上述繁中最後一段逐字取自 `scripts/main.gd` 的 `_show_ending` 虛構聲明，僅移除 BBCode。
 - [PROVENANCE.md](../PROVENANCE.md) 的原文：「雲場、底片影像、星點數、拖線、霧、量測值與誤差」標為「FICTION／示意模型。原始普林西比底片已佚失，遊戲影像不是複製品。」
 - 史實僅採該文件；Kit、Ashby 與助手是虛構人物。玩家電報是玩家擬稿，不能當作歷史電報引文；發報日期與收件人尚未核實。
+- 太陽系儀、帳本與 1919 年 10 月的書房只在從序章開始的路線出現；後者為重建情節，數字與來信依據見 `docs/research/arc_factcheck_2026-11-06.md`。
 
 ## 4. 遊戲特色 / Features
 
@@ -62,6 +71,9 @@ Fiction and illustration: the player character, all dialogue, the episode in whi
 | 閃爍比對：讓日食底片與對照片交替，看星點偏移（位移放大示意）。 | Blink the eclipse plate against the comparison plate and watch the stars shift (shift exaggerated for illustration). | HANDOFF：#156 |
 | 用放大鏡和參考底片，辨認星點、拖線與霧。 | Read star images, trailing, and fog with a loupe and reference plates. | HANDOFF：#84；#133 |
 | 量測前先寫下選片規則；若事後改選，記錄理由並保留第一次結果。 | Write your selection rule before measuring; later changes keep a reason and the first result. | HANDOFF：#85；#131 |
+| 核對牛頓的預測，找出水星那 43 角秒，再在帳本上押下自己對光線偏折的預測。 | Check Newton's predictions, find Mercury's 43 arcseconds, then stake your own figure for the bending of light in a ledger. | #208；#210、#219 |
+| 用顯微測微器親手對準參考星：結果的數字，來自你自己的讀數。 | Set the micrometer on a reference star by hand: the result comes from your own readings. | #207、#220 |
+| 1919 年 10 月回到劍橋：Sobral 的數字到了，你和 Ashby 先生各自面對當年寫下的預測。 | October 1919, back in Cambridge: the Sobral numbers arrive, and you and Mr Ashby each face the figure you wrote. | #215 |
 | 判讀誤差區間，選擇電報與理由，最後看見自己寄出的那封電報。 | Read the uncertainty interval, choose your words and reason, and end on your telegram. | HANDOFF：#88、#98、#109；#130、#134 |
 | 支援遊戲手把操作，並提供文字大小、畫質與音量設定。 | Gamepad controls, adjustable text size, graphics quality, and volume settings. | RELEASE_READINESS：A5–A7、A12；#115、#120、#122–#126 |
 
@@ -131,5 +143,7 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 | 7 | 閃爍比對 | careful 路線加 `--store-shots`；同一張選定底片按「閃爍比對」，截圖 `careful_store_g_blink_eclipse.png` 與 `careful_store_g_blink_oxford.png` 成對（商店圖取其一或做成兩格 GIF，待 Owner／lead 挑選）。僅視窗化執行會存圖（headless 不存）。 2026-11-05 已視窗拍攝（KIOXIA `store-b5/careful/`）；lead 判讀：兩格確實不同，適合做兩格 GIF，單張不易看出位移。2026-11-05 13:4x JST 在 #179（檢視器隨 1080p 放大）合併後於 main dbd37b4 重拍第 5–8 列，存於同一資料夾；檢視器現用到畫面約九成高度。 | 這是讀片的「啊哈」時刻：星點真的動了。 |
 | 8 | 量測後的數值與誤差區間 | 同一路線選片並按「量測」；`--store-shots` 拍攝 `careful_store_d_measured_2sigma.png`（另保留 `careful_09_viewer_measured.png`）。 | 讓玩家知道要判讀有不確定性的結果；畫面數字屬示意模擬。 |
 | 9 | 玩家寄出的短電報 | 同一路線完成區間判讀，選電報與理由到結尾；`--store-shots` 拍攝 `careful_store_f_ending_telegram.png`（另保留 `careful_10_ending.png`）。 | 用玩家自己的措辭收尾，呈現這段體驗最後留下的東西。 |
+
+轉變弧線（帳本、太陽系儀、測微器、1919 年 10 月書房）尚未列入上表，也還沒有固定的商店截圖；2026-11-06 JST 補文案時留下，重拍判讀後再補列。
 
 實際圖片、capsule 尺寸／裁切、商標可讀性、肖像與數字的呈現，均待 Owner／lead 挑選；本文件不代表已完成圖像驗收。
