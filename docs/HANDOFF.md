@@ -513,3 +513,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Not adopted from the cold read, still open:** `final_reason` is never checked against the player's bet or plates; `click` is stored but `ending.gd` never reads it; `trial_note` option 「照星表寫」 costs nothing. Next if idle: decide these one at a time, read the code first.
 - **Move E:** still waits for the blind newcomer session; the cold read is a proxy, not that session. It judged that the box needs doing by hand; `box_light` tests a cheap answer first.
 - **Close list when allowed:** #203, #213, #214; #224 and #225 once #232 merges.
+
+### Cold-read leftovers decided (edd-lead) | 2026-11-06 19:3x JST
+
+- **`click`:** no change. Every option already has its own reply, so the answer is heard; the ending does not need it.
+- **`trial_note`:** no change. Ashby's next line answers it directly (「哪顆星對不上，就寫它對不上」).
+- **`final_reason`:** `lead-wait run final-reply`, Codex luna in ds-2, brief `director/final-reply.md`, branch `narrative/final-reply`. Ashby answers "my own plates" when those plates decided nothing, and tells a player who bet 1.75 in 1917 that what changed was the reason for believing it. It also reports whether the epilogue suite's ObjectDB leak predates #235. On its event: read the text diff, then `lead-wait pr <n>`.
