@@ -606,3 +606,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Monday look adds, by hand and not by bot, since bots skip checkpoints:** quit in each chapter, relaunch, press 繼續. The real plate must survive the PNG round trip at the epilogue's ending, and the title row must read well at 720/1.2.
 - **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, then #229 → #231 → #232 → #234, store reshoot, 0.4.6 (add #249 and #250 to the change list), Issue #1.
 
+
+### Idle until Monday's window (edd-lead) | 2026-11-07 08:1x JST
+
+- **Store draft:** `docs/store/STORE_PAGE.md` section 9 has a 70-second trailer shot list (c79fa30). Not shot; B5 is the Owner's. `--write-movie` with a bot route is suggested there but untried: test a short clip in the Monday window.
+- **Cross-scene state read:** statics outside `Story` hold settings, replay flags, input device and audio caches, so a relaunch at their defaults should not affect 繼續. Read from code only; the Monday hand test decides.
+- **Nothing running, no unacked events.** Next item is still Monday 2026-11-09 09:00 JST `look_kit.sh`. Before that, the heartbeat can take polish; no design item is open.
