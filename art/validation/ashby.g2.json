@@ -4,7 +4,7 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 14196,
+      "value": 14152,
       "max": 16000,
       "ok": true
     },
