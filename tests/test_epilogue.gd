@@ -6,6 +6,7 @@ extends SceneTree
 
 const SCENE := "res://scenes/epilogue.tscn"
 const CONTENT := preload("res://scripts/cambridge/content_epilogue.gd")
+const MainContent := preload("res://scripts/content.gd")
 const ENDING := preload("res://scripts/ending.gd")
 const Settings := preload("res://scripts/settings.gd")
 var checks := 0
@@ -31,6 +32,14 @@ func _run() -> void:
 	await _test_full_flow(story)
 	story.reset()
 	await _test_final_replies(story)
+	story.reset()
+	_test_final_reply_rules()
+	story.reset()
+	await _test_sobral_reading(story)
+	story.reset()
+	await _test_october_bet(story)
+	story.reset()
+	await _test_mercury(story)
 	story.reset()
 	await _test_gamepad(story)
 	story.reset()
@@ -100,7 +109,8 @@ func _test_final_replies(story: Node) -> void:
 			"reply": "你沒有帶回數值。你要寫底片，就寫明白：改變你的是拍它們的那幾分鐘，不是數字。"},
 		{"choice": 0, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 2,
 			"reply": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"},
-		{"choice": 0, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 1, "reply": ""},
+		{"choice": 0, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 1,
+			"reply": "那就這麼寫。"},
 		{"choice": 1, "case": "no_value", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 2,
 			"reply": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"},
 		{"choice": 1, "case": "changed_prediction", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 2, "current_pick": 1,
@@ -231,8 +241,15 @@ func _test_full_flow(story: Node) -> void:
 		"the chart paints the astrographic row as a hollow marker")
 	check(drawn.bars == ["bar", "bar", "none"], "the chart paints no error bar for the astrographic row")
 	chapter.chart.button.pressed.emit()
-	check(not chapter.chart.visible and chapter.ui.dialog_active(), "press 3 closes the chart into the weight question")
+	check(chapter.chart.visible and chapter.chart.step == 3 and chapter.chart.question.visible,
+		"press 3 asks the Sobral reading with the chart still open")
+	chapter.chart.choices[1].pressed.emit()
+	check(chapter.chart.button.text == "好" and chapter.chart.button.visible,
+		"the reading answer offers the 好 press")
+	chapter.chart.button.pressed.emit()
+	check(not chapter.chart.visible and chapter.ui.dialog_active(), "好 closes the chart into the weight question")
 	check(chapter._pending == "weight", "the weight question is the authored beat after the chart")
+	check(int(story.runs.back().get("sobral_read", -1)) == 1, "the Sobral reading is stored on the run")
 	check(chapter.player.camera.global_position.distance_to(chapter.world.lamp.global_position) > 1.5, "weight dialogue is clear of the lamp")
 	_finish(chapter, {"astro_weight": 1})
 	check(chapter.beat == chapter.Beat.ORRERY, "the ledger hands the room to the orrery")
@@ -260,6 +277,7 @@ func _test_full_flow(story: Node) -> void:
 	check(int(back.get("click", -1)) == 1, "the orrery answer is stored on the run")
 	check(int(back.get("final_reason", -1)) == 2, "the notebook answer is stored on the run")
 	check(str(back.get("final_reason_text", "")) == "兩地一起", "the notebook answer keeps its text")
+	check(int(back.get("bet_oct", -1)) == 0, "the October ledger pick is stored on the run")
 	var deadline := Time.get_ticks_msec() + 8000
 	while not chapter.ui.ending_panel.visible and Time.get_ticks_msec() < deadline:
 		await process_frame
@@ -267,6 +285,7 @@ func _test_full_flow(story: Node) -> void:
 		"the close fades to the ending inside the epilogue")
 	var review_text: String = chapter.ui.ending_review.text
 	check(review_text.contains("筆記本最後一句：兩地一起。"), "the ending shows the notebook answer")
+	check(review_text.contains("1919 年 10 月你寫的：零。"), "the ending shows the October ledger line")
 	check(review_text.contains("Sobral 天體照相儀那組：先放一邊，寫明了原因"), "the ending shows the astrographic weighting")
 	check(chapter.ui.ending_history.text.contains("1979 年，有人重新量了 Sobral 的底片"),
 		"the history carries the 1979 remeasurement in this route too")
@@ -318,6 +337,180 @@ func _check_replay(chapter, story: Node, seed_value: int) -> void:
 	# Leave the replayed scene without running its start.
 	if is_instance_valid(current_scene):
 		current_scene.set_process(false)
+
+
+## The plain reply rules, away from any scene: the empty path and both pages of the
+## notebook against the ledger.
+func _test_final_reply_rules() -> void:
+	var run := _make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10})
+	run["bet_oct"] = 1
+	var changed := CONTENT.final_reply(4, run, {"pick": 2, "sure": 1}, {"pick": 2, "sure": 1})
+	check(changed.size() == 1 and str(changed[0].t) == "帳上你改了，這裡寫沒有。兩句都留著，讓後人來問你。",
+		"a changed ledger against an unchanged notebook keeps both pages")
+	var unchanged := CONTENT.final_reply(4, run, {"pick": 2, "sure": 1}, {"pick": 1, "sure": 1})
+	check(unchanged.size() == 1 and str(unchanged[0].t) == "那就寫下來。沒有改變，也是一筆紀錄。",
+		"an unchanged ledger keeps the old line")
+	check(CONTENT.final_reply(-1, run, {}, {"pick": 2, "sure": 1}).is_empty(),
+		"a cancelled notebook answer has no reply")
+	var empty := CONTENT.final_reply(3, _make_run({}, {}), {"pick": 1, "sure": 1}, {"pick": 1, "sure": 1})
+	check(empty.size() == 1 and str(empty[0].t) == "那就這麼寫。", "the empty path now gives one line")
+
+
+## The Sobral reading: the chart asks it and every answer progresses; the truth is
+## derived here from 1.98 and 0.18, not read from the overlay's constant.
+func _test_sobral_reading(story: Node) -> void:
+	var lo := 1.98 - 2.0 * 0.18
+	var hi := 1.98 + 2.0 * 0.18
+	var holds_087 := 0.87 >= lo and 0.87 <= hi
+	var holds_175 := 1.75 >= lo and 1.75 <= hi
+	var truth := 0 if holds_087 and holds_175 else (1 if holds_175 else (2 if holds_087 else 3))
+	check(truth == 1 and is_equal_approx(lo, 1.62) and is_equal_approx(hi, 2.34),
+		"1.98 ± 2×0.18″ spans 1.62–2.34″ and holds 1.75 only")
+	var concluded := _make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10})
+	check(CONTENT.ledger_case(concluded) == "conceded", "the reading case starts from a conceded ledger")
+	var chapter = await _new_epilogue()
+	_finish(chapter)
+	story.runs.clear()
+	story.runs.append(concluded)
+	chapter.chart.open(concluded)
+	await process_frame
+	chapter.chart.button.pressed.emit()
+	chapter.chart.button.pressed.emit()
+	check(chapter.chart.step == 2, "both Sobral rows are copied before the reading")
+	chapter.chart.button.pressed.emit()
+	check(chapter.chart.step == 3 and chapter.chart.visible, "抄好了 asks the reading instead of completing")
+	check(chapter._pending != "weight", "抄好了 does not start the weight question")
+	check(chapter.chart.question.visible and chapter.chart.choices.size() == 4,
+		"the reading offers four answers on the open chart")
+	chapter.chart.input_blocked = true
+	chapter.chart.button.pressed.emit()
+	chapter.chart.choices[0].pressed.emit()
+	check(chapter.chart.step == 3 and chapter.chart.read_answer == -1,
+		"input_blocked stops both the button and the answers")
+	chapter.chart.input_blocked = false
+	for answer in 4:
+		story.runs.back().erase("sobral_read")
+		chapter.chart.open(concluded)
+		await process_frame
+		chapter.chart.button.pressed.emit()
+		chapter.chart.button.pressed.emit()
+		chapter.chart.button.pressed.emit()
+		check(chapter.chart.read_answer == -1, "a fresh chart has no reading yet")
+		chapter.chart.choices[answer].pressed.emit()
+		check(chapter.chart.read_answer == answer, "answer %d is kept on the chart" % answer)
+		var expected := MainContent.interval_feedback(answer, truth)
+		check(chapter.chart.question.text.begins_with(expected), "answer %d shows its feedback line" % answer)
+		if answer != truth:
+			check(chapter.chart.question.text.begins_with("再看一次"),
+				"a wrong answer %d gets the corrected line" % answer)
+		check(chapter.chart.question.text.contains("兩套儀器、隔一個大西洋"),
+			"a conceded run pairs the reading with the player's plates")
+		check(chapter.chart.button.text == "好" and chapter.chart.button.visible,
+			"answer %d offers the 好 press" % answer)
+		chapter.chart.button.pressed.emit()
+		check(not chapter.chart.visible, "answer %d closes the chart through 好" % answer)
+		check(int(story.runs.back().get("sobral_read", -1)) == answer,
+			"answer %d is stored in sobral_read" % answer)
+	var quiet := _make_run({"n": 2, "value": 0.70, "sigma": 0.12}, {"lo": 0.40, "hi": 1.50})
+	story.runs.back().erase("sobral_read")
+	chapter.chart.open(quiet)
+	await process_frame
+	chapter.chart.button.pressed.emit()
+	chapter.chart.button.pressed.emit()
+	chapter.chart.button.pressed.emit()
+	chapter.chart.choices[truth].pressed.emit()
+	check(not chapter.chart.question.text.contains("兩套儀器"),
+		"the Atlantic line appears only for a conceded ledger")
+	chapter.free()
+	await process_frame
+
+
+## The player's own October line: changed, unchanged and no earlier bet each get
+## their reply, and the run carries the pick into the ending.
+func _test_october_bet(story: Node) -> void:
+	var chapter = await _new_epilogue()
+	_finish(chapter)
+	var run := _make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10})
+	story.runs.clear()
+	story.runs.append(run)
+	story.bet = {"pick": 2, "sure": 1}
+	chapter._pending = "click_reply"
+	chapter._dialogue_done({})
+	check(chapter._pending == "october_bet", "the orrery reply hands the player the ledger")
+	var opening := _text(chapter)
+	check(opening.contains("帳本翻到新的一行") and opening.contains("1919 年 10 月，你寫："),
+		"the ledger opens on a new line for the player")
+	check(str(chapter.ui._seq[0].get("key", "")) == "bet_oct", "the new ledger line carries bet_oct")
+	chapter._dialogue_done({"bet_oct": 2})
+	check(int(story.runs.back().get("bet_oct", -1)) == 2, "the October pick is stored on the run")
+	check(_text(chapter).contains("沒改。那也寫下來——連日期一起。"), "an unchanged ledger gets its line")
+	check(chapter._pending == "final_reason", "the October page hands on to the notebook question")
+	check(str(chapter.ui._seq[chapter.ui._seq.size() - 1].get("key", "")) == "final_reason",
+		"the notebook question still follows the October page")
+	chapter._pending = "october_bet"
+	chapter._dialogue_done({"bet_oct": 1})
+	check(int(story.runs.back().get("bet_oct", -1)) == 1, "a changed October pick replaces the stored one")
+	check(_text(chapter).contains("改了。寫下來，比記在心裡好。"), "a changed ledger gets its line")
+	story.bet = {}
+	chapter._pending = "october_bet"
+	chapter._dialogue_done({"bet_oct": 3})
+	check(int(story.runs.back().get("bet_oct", -1)) == 3, "the October pick is stored without an earlier bet")
+	var empty_text := _text(chapter)
+	check(empty_text.contains("寫下來，比記在心裡好。") and not empty_text.contains("改了。"),
+		"no earlier bet gets the plain line")
+	var ending: Dictionary = ENDING.build(run, ENDING.story_view(story))
+	check(str(ending.review).contains("1919 年 10 月你寫的：說不準。"), "the ending shows the October line")
+	run.erase("bet_oct")
+	ending = ENDING.build(run, ENDING.story_view(story))
+	check(not str(ending.review).contains("1919 年 10 月你寫的"), "a run without bet_oct has no ending line")
+	chapter.free()
+	await process_frame
+
+
+## Mercury comes back in the almanac: the 1917 mark is repeated, both answers reach
+## the orrery's click question, and the follow-up belongs to 對不上.
+func _test_mercury(story: Node) -> void:
+	var marked := _seq_text(CONTENT.orrery_talk("", 0))
+	check(marked.contains("兩年前你在這一行旁邊寫的是：對得上。"), "mercury mark 0 repeats the 1917 note")
+	check(_seq_text(CONTENT.orrery_talk("", 1)).contains("兩年前你在這一行旁邊寫的是：對不上。"),
+		"mercury mark 1 repeats the 1917 note")
+	check(not _seq_text(CONTENT.orrery_talk("", -1)).contains("兩年前你在這一行旁邊寫的是"),
+		"mercury mark -1 adds no line")
+	var talk := CONTENT.orrery_talk("", -1)
+	check(str(talk[0].get("key", "")) == "mercury_1919", "the almanac note opens the orrery talk")
+	check(str(talk[0].get("t", "")).contains("43 角秒") and str(talk[talk.size() - 1].get("key", "")) == "click",
+		"both mercury answers lead to the click question")
+	var chapter = await _new_epilogue()
+	_finish(chapter)
+	var run := _make_run({"n": 3, "value": 1.90, "sigma": 0.09}, {"lo": 1.20, "hi": 2.10})
+	story.runs.clear()
+	story.runs.append(run)
+	story.mercury_suspect = 3
+	story.orrery = {"mercury": 1}
+	chapter._interact("orrery")
+	check(str(chapter.ui._seq[chapter.ui._seq_i].get("key", "")) == "mercury_1919",
+		"the orrery opens on the almanac note")
+	check(_text(chapter).contains("兩年前你在這一行旁邊寫的是：對不上。"), "the orrery repeats the stored mark")
+	chapter.ui._choose(1)
+	check(_text(chapter).contains("再看一眼：年鑑上剩下的是 43 角秒，他算出來的也是。"),
+		"對不上 reaches its follow-up line")
+	var guard := 20
+	while chapter._pending in ["orrery_talk", "click_reply"] and guard > 0:
+		guard -= 1
+		if chapter.ui._seq[chapter.ui._seq_i].has("choices"):
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+	check(int(story.runs.back().get("click", -1)) == 1, "the click answer is stored after the almanac note")
+	chapter.free()
+	await process_frame
+
+
+func _seq_text(seq: Array) -> String:
+	var out := ""
+	for line in seq:
+		out += str(line.get("s", "")) + "：" + str(line.get("t", "")) + "\n"
+	return out
 
 
 ## The overlay's one button is focusable and answers the gamepad's accept.

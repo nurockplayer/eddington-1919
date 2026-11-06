@@ -843,6 +843,19 @@ func _epilogue_route() -> bool:
 		return false
 	await shot("epilogue_chart_rows")
 	await click_button(main.chart.button)
+	await frames(5)
+	if main.chart.step != 3 or not main.chart.question.visible:
+		failures.append("epilogue chart did not ask the Sobral reading")
+		return false
+	await click_button(main.chart.choices[1])
+	await frames(5)
+	if not main.chart.question.text.begins_with("對，範圍就是這樣讀的。"):
+		failures.append("epilogue Sobral reading did not answer the truth")
+	await shot("epilogue_chart_reading")
+	await click_button(main.chart.button)
+	var read := int(Story.runs.back().get("sobral_read", -1))
+	if read < 0 or read > 3:
+		failures.append("epilogue Sobral reading was not stored: %d" % read)
 	await talk_keys({"astro_weight": 1})
 	if main.ui.dialog_active():
 		await talk_keys({})
@@ -858,7 +871,7 @@ func _epilogue_route() -> bool:
 	await walk(Vector3(2.1, 0, 2.35))
 	await walk(Vector3(2.6, 0, -1.5))
 	await interact("orrery")
-	await talk_keys({"click": 1, "final_reason": 2})
+	await talk_keys({"click": 1, "final_reason": 2, "mercury_1919": 0, "bet_oct": 2})
 	if main.ui.dialog_active():
 		await talk_keys({})
 	guard = 20.0

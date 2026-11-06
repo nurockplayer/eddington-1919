@@ -61,6 +61,9 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 		lines.append("· 量之前你寫的：%s（%s）。" % [Content.bet_pick_text(int(bet.pick)), Content.bet_sure_text(int(bet.sure))])
 	if int(bet.get("ashby", 0)) == 1:
 		lines.append("· Ashby 先生寫的：0.87。")
+	# Conversion arc: FICTION — the player's own revision, written in the 1919 ledger.
+	if run.has("bet_oct"):
+		lines.append("· 1919 年 10 月你寫的：%s。" % Content.bet_pick_text(int(run.bet_oct)))
 	# Conversion arc D: the epilogue's notebook answer and the astrographic decision.
 	if str(run.get("final_reason_text", "")) != "":
 		lines.append("· 筆記本最後一句：%s。" % run.final_reason_text)
