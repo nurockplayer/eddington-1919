@@ -546,3 +546,12 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Dispatch rule learned:** read `quota-advisor` before dispatching (19:32 JST slip). It has named deepseek since then.
 - **Heartbeat:** one-shot due 2026-11-07 00:14 JST; crons are session-only, recreate after a restart.
 - **Next after that:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`; the look now also covers #235's long pages and `box_light`, and #236's replies. Then #229 → #231 (override the false-positive blocker, see 19:2x section) → #232 → #234, store reshoot, 0.4.6, Issue #1. Close #203, #213, #214, then #224 and #225 once #232 merges, if allowed.
+
+### Monkey pass 3 green; move E out (edd-lead) | 2026-11-07 00:4x JST
+
+- **#241 merged** (1380124, oracle approve, 0 findings), #240 closed by hand, branch deleted. **Monkey pass 3** (1380124, seeds 3000–3011): 12/12 reached ENDING, stuck 0. Seeds 2005 and 2011 also reach ENDING, so the table failures were the bot, not a geometry trap.
+- **Issue closes denied:** closing #203, #213 and #214 was denied by the permission check at 2026-11-07 00:3x JST. Do not retry; the Owner closes them by hand.
+- **Move E decided:** built now instead of waiting for the blind session. The Owner is away until 2026-12-07, the cold read judged the box needs doing by hand, and the session can still reject it. This reverses "Move E waits" in the 19:2x section.
+- **Running:** `lead-wait run arc-e`, DeepSeek `ds-edd-2` (worktree ds-2), brief `director/arc-e-box.md` on KIOXIA, branch `feat/arc-e-box`. On its event: read the report and diff; a run ending in `PENDING job` or `WAIT:` is not finished; then `lead-wait pr <n>`.
+- **Monday look gets one more item:** the box sketch, both modes, at 1080 and at 720/1.2: do the falling ticks read as "the same", and does the light read as an illustration. Add its store shot only if it looks good.
+- **Next after that:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1.
