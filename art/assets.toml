@@ -167,3 +167,19 @@ max_texture_px = 0
 skip_checks = ["object_origins"] # Skinned geometry and bone-parented moustache.
 history = "FICTION / RECONSTRUCTION: generic older astronomer Ashby; invented features, dark suit, height and desk pose."
 status = "in-game"
+
+[asset.kit]
+category = "character"
+source = "mpfb_procedural"
+build = "art/pipeline/blender/build_person.py kit"
+export = "assets/models/kit.glb"
+concept = "art/people/REFERENCE.md"
+dims_m = [0.55, 0.38, 1.68]
+dims_tolerance = 0.2
+bounds_centre_offset_m = [0.0, -0.05]
+tri_budget = 16000
+max_materials = 10
+max_texture_px = 0
+skip_checks = ["object_origins"] # Skinned geometry and bone-parented spectacles.
+history = "FICTION / RECONSTRUCTION: Kit is fictional; features, clothing and height are invented."
+status = "in-game"

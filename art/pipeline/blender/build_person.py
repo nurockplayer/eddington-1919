@@ -213,6 +213,81 @@ def shirt_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Ob
     modifier.object = rig
 
 
+def pullover_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Object, neck: float, formal: dict) -> None:
+    """Opaque V fitted over the frontmost suit and body surfaces."""
+    deps = bpy.context.evaluated_depsgraph_get()
+    sources = [o.evaluated_get(deps) for o in (obj, body)]
+    rows, columns = 25, 17
+    grid = []
+    for row in range(rows):
+        t = row / rows
+        width = 0.075 * (1 - t) * (0.7 + 0.3 * min(row / 5, 1))
+        points = []
+        for col in range(columns):
+            x = width * (2 * col / (columns - 1) - 1)
+            u = 2 * col / (columns - 1) - 1
+            origin = Vector((x, -1, neck - 0.015 - 0.29 * t + 0.035 * u * u * (1 - t) ** 4))
+            hits = []
+            for source in sources:
+                inv = source.matrix_world.inverted()
+                hit, location, _, _ = source.ray_cast(inv @ origin, inv.to_3x3() @ Vector((0, 1, 0)))
+                if hit:
+                    hits.append((source.matrix_world @ location).y)
+            if not hits:
+                raise RuntimeError(f"pullover ray missed at row {row}, column {col}")
+            points.append([x, min(hits), origin.z])
+        grid.append(points)
+    # Spread the frontmost depth into adjacent samples, keeping the fabric ahead
+    # of the suit while softening abrupt changes in its front-facing profile.
+    for _ in range(3):
+        depths = [[p[1] for p in row] for row in grid]
+        for row in range(rows):
+            for col in range(columns):
+                grid[row][col][1] = min(depths[r][c] + 0.002 * (abs(r-row) + abs(c-col))
+                    for r in range(max(0,row-1), min(rows,row+2))
+                    for c in range(max(0,col-1), min(columns,col+2)))
+    # Mirror the collar samples at the frontmost depth so both points cover the fabric.
+    for row in (0, 5):
+        for col in range(columns // 2):
+            depth = min(grid[row][col][1], grid[row][-1-col][1])
+            grid[row][col][1] = grid[row][-1-col][1] = depth
+    vertices = [(x, y - 0.005, z) for row in grid for x, y, z in row]
+    faces = []
+    for row in range(rows - 1):
+        for col in range(columns - 1):
+            a = row * columns + col
+            faces.append((a, a + 1, a + columns + 1, a + columns))
+    # A single point closes the V without a degenerate final row.
+    apex = len(vertices)
+    vertices.append((0, min(p[1] for p in grid[-1]) - 0.005, neck - 0.305))
+    for col in range(columns - 1):
+        faces.append(((rows - 1) * columns + col, (rows - 1) * columns + col + 1, apex))
+    pullover_faces = len(faces)
+    # Two short collar points, using the fitted fabric's own depth.
+    for indices in ((2, 8, 5 * columns + 5), (8, 14, 5 * columns + 11)):
+        base = len(vertices)
+        vertices.extend((vertices[i][0], vertices[i][1] - 0.003, vertices[i][2]) for i in indices)
+        faces.append((base, base + 1, base + 2))
+    mesh = bpy.data.meshes.new("pullover_front")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    front = bpy.data.objects.new(f"{obj.name.rsplit('_', 1)[0]}_pullover_front", mesh)
+    bpy.context.collection.objects.link(front)
+    mesh.materials.append(kit.mat(formal["waistcoat"]))
+    mesh.materials.append(kit.mat(formal["collar"]))
+    for poly in mesh.polygons:
+        poly.material_index = int(poly.index >= pullover_faces)
+        poly.use_smooth = True
+    bone = "spine_03" if "spine_03" in rig.data.bones else max(
+        (b for b in rig.data.bones if b.name.startswith("spine_")), key=lambda b: b.head_local.z
+    ).name
+    front.vertex_groups.new(name=bone).add(list(range(len(vertices))), 1.0, "REPLACE")
+    front.parent = rig
+    front.matrix_world = Matrix.Identity(4)
+    modifier = front.modifiers.new("Armature", "ARMATURE")
+    modifier.object = rig
+
+
 # Bundled MPFB inputs that also end up in the exported character. They carry no
 # per-file licence line (JSON, binary targets), so they are pinned to the MPFB
 # release whose bundled assets are documented CC0 (MakeHuman licence page: "All
@@ -291,7 +366,7 @@ def main() -> None:
 
     # Palette materials: one flat palette material per slot (BIBLE §3/§4).
     for slot, obj in added.items():
-        key = spec["materials"].get(slot)
+        key = spec["iris"]["sclera"] if slot == "eyes" and "iris" in spec else spec["materials"].get(slot)
         if obj is None or key is None:
             continue
         obj.data.materials.clear()
@@ -302,7 +377,7 @@ def main() -> None:
     # centre is below the spine_01 joint get the second palette material.
     for slot, lower in spec.get("split_below_waist", {}).items():
         obj = added[slot]
-        waist = (rig.matrix_world @ rig.data.bones["spine_01"].head_local).z
+        waist = spec.get("split_below_z_m", (rig.matrix_world @ rig.data.bones["spine_01"].head_local).z)
         obj.data.materials.append(kit.mat(lower))
         inv = obj.matrix_world
         for poly in obj.data.polygons:
@@ -338,7 +413,7 @@ def main() -> None:
         collar_drop = spec["formal"].get("collar_drop", 0.15)
         tie_w = spec["formal"].get("tie_half_width", 0.025)
         for poly in obj.data.polygons:
-            if spec["formal"].get("shirt_front"):
+            if spec["formal"].get("shirt_front") or spec["formal"].get("pullover"):
                 continue
             c = obj.matrix_world @ poly.center
             n = (obj.matrix_world.to_3x3() @ poly.normal).normalized()
@@ -351,7 +426,9 @@ def main() -> None:
                 poly.material_index = slots["tie"]
             elif waist - 0.04 < c.z < neck - 0.16 and abs(c.x) < 0.11:
                 poly.material_index = slots["waistcoat"]
-        if spec["formal"].get("shirt_front"):
+        if spec["formal"].get("pullover"):
+            pullover_front(obj, added["body"], rig, neck, spec["formal"])
+        elif spec["formal"].get("shirt_front"):
             shirt_front(obj, added["body"], rig, neck, spec["formal"])
 
     # The hidden full-resolution base mesh is not shipped (the proxy is the body).
@@ -420,8 +497,13 @@ def main() -> None:
         head = rig.matrix_world @ rig.data.bones["head"].head_local
         top = Vector((head.x, head.y, top_z - spec["hat"].get("sink", 0.03)))
         parts.append(kit.join(f"{pid}_hat", hat(spec["hat"], top, f"{pid}_hat")))
-    if "eyes" in added and (spec.get("glasses") or spec.get("moustache")):
+    if "eyes" in added and (spec.get("glasses") or spec.get("moustache") or spec.get("iris")):
         c, front = face_anchor(added["eyes"])
+        if spec.get("iris"):
+            discs = [kit.cyl(f"{pid}_iris", 0.0045, 0.001, (c.x + sx * 0.032, front - 0.001, c.z),
+                             spec["iris"]["iris"], rot=(90, 0, 0), verts=16, bevel=0)
+                     for sx in (-1, 1)]
+            parts.append(kit.join(f"{pid}_irises", discs))
         if spec.get("glasses"):
             parts.append(kit.join(f"{pid}_glasses", glasses(c, front, f"{pid}_glasses")))
         if spec.get("moustache"):

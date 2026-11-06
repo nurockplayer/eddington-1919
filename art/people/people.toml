@@ -120,3 +120,34 @@ shoes = "leather"
 [person.ashby.decimate]
 suit = 0.4
 hair = 0.6
+
+# Kit is fictional; all appearance features are invented.
+[person.kit]
+age_years = 23
+height_m = 1.68
+macro = { gender = 0.45, weight = 0.3, muscle = 0.4, proportions = 0.55, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+export = "assets/models/kit.glb"
+breath_deg = 1.2
+glasses = true
+iris = { sclera = "eye_white", iris = "eye_dark" }
+formal = { collar = "linen", waistcoat = "wool_pullover", tie = "wool_pullover", pullover = true }
+split_below_z_m = 0.814
+[person.kit.assets]
+body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
+hair = ["hair/short01/short01.mhclo", "Hair"]
+eyebrows = ["eyebrows/eyebrow005/eyebrow005.mhclo", "Eyebrows"]
+eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
+suit = ["clothes/male_elegantsuit01/male_elegantsuit01.mhclo", "Clothes"]
+shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
+[person.kit.materials]
+body = "skin"
+hair = "hair_brown"
+eyebrows = "hair_brown"
+eyes = "eye_dark"
+suit = "linen_coat"
+shoes = "leather"
+[person.kit.split_below_waist]
+suit = "felt"
+[person.kit.decimate]
+suit = 0.4
+hair = 0.6

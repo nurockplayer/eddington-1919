@@ -101,12 +101,21 @@ func _run() -> void:
 		check(not actor.get_meta("room_collision_shape").disabled, "show enables principal collider")
 		actor.hide()
 		check(actor.get_meta("room_collision_shape").disabled, "hide disables principal collider")
-	check(not world.kit.has_node("figure"), "Kit stays procedural")
+	check(world.kit.has_node("figure"), "Kit uses imported body in 1917")
+	var kit_body: Node = world.kit.get_node("figure")
+	var kit_skeleton := kit_body.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	for side in ["l", "r"]:
+		var bone := kit_skeleton.find_bone("hand_" + side)
+		var hand: Vector3 = world.kit.to_local(kit_skeleton.to_global(kit_skeleton.get_bone_global_pose(bone).origin))
+		check(hand.y > 0.55 and hand.y < 1.05, "Kit %s hand uses the arms-down pose rather than rest pose: %s" % [side, hand])
+	var kit_animation := kit_body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+	check(kit_animation.is_playing() and kit_animation.get_animation("idle").loop_mode == Animation.LOOP_LINEAR, "Kit breathes on a loop")
 	room.free()
 	room = Node3D.new()
 	root.add_child(room)
 	world = Room.build(room, true)
 	check(not world.mentor.has_node("figure") and not world.eddington.has_node("figure"), "departure people stay procedural")
+	check(world.kit.has_node("figure"), "Kit uses imported body at departure")
 	room.free()
 	await frames()
 	var chapter = load("res://scripts/cambridge/director.gd").new()
@@ -124,6 +133,16 @@ func _run() -> void:
 				tags.append(tag)
 	check(tags.size() == 3, "all three Cambridge name tags exist")
 	check(tags.all(func(tag): return not tag.visible), "all name tags hide during dialogue")
+	chapter.player.global_position = chapter.world.kit.global_position + Vector3(2, 0, 1)
+	chapter._frame_speaker(Cast.YOU)
+	chapter._frame_speaker(Cast.KIT)
+	var kit_figure := chapter.world.kit.get_node_or_null("figure") as Node3D
+	if kit_figure:
+		var facing := kit_figure.global_basis.z.normalized()
+		var toward_player: Vector3 = (chapter.player.global_position - chapter.world.kit.global_position).normalized()
+		check(facing.dot(toward_player) > 0.99, "Kit figure faces the player after the turn")
+	else:
+		check(false, "Kit figure faces the player after the turn")
 	# A far speaker takes the long lens; the next unframed line returns to 55.
 	var eddington_pos: Vector3 = chapter.world.eddington.global_position
 	chapter.world.eddington.show()
