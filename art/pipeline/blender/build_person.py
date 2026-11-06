@@ -139,20 +139,27 @@ def shirt_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Ob
     body_evaluated = body.evaluated_get(bpy.context.evaluated_depsgraph_get())
     body_inverse = body_evaluated.matrix_world.inverted()
     vertices, faces, materials = [], [], []
-    rows, columns = 12, 7
-    for start, end, top_width, bottom_width, offset, material in (
-        (0.02, 0.30, 0.095, 0.03, 0.003, "waistcoat"),
-        (0.015, 0.24, 0.075, 0.012, 0.005, "collar"),
-        (0.03, 0.26, 0.016, 0.016, 0.008, "tie"),
+    rows = 12
+    for start, end, top_width, bottom_width, offset, material, side in (
+        (0.02, 0.30, 0.095, 0.03, 0.003, "waistcoat", -1),
+        (0.02, 0.30, 0.095, 0.03, 0.003, "waistcoat", 1),
+        (0.015, 0.24, 0.075, 0.012, 0.005, "collar", 0),
+        (0.03, 0.26, 0.016, 0.016, 0.008, "tie", 0),
     ):
+        columns = 3 if side else 7
         grid = []
         for row in range(rows):
             t = row / (rows - 1)
             width = top_width + t * (bottom_width - top_width)
+            down = start + t * (end - start)
+            shirt_half = 0.075 if down < 0.015 else (0.075 + (down - 0.015) / 0.225 * (0.012 - 0.075) if down <= 0.24 else 0.0)
+            inner = max(shirt_half - 0.004, 0.0)
             points = []
             for col in range(columns):
-                x = width * (2 * col / (columns - 1) - 1)
-                origin = Vector((x, -1, neck - (start + t * (end - start))))
+                x = (-(width - (width - inner) * col / (columns - 1)) if side < 0 else
+                     inner + (width - inner) * col / (columns - 1) if side > 0 else
+                     width * (2 * col / (columns - 1) - 1))
+                origin = Vector((x, -1, neck - down))
                 hit, location, _, _ = evaluated.ray_cast(inverse @ origin, inverse.to_3x3() @ Vector((0, 1, 0)))
                 body_hit, body_location, _, _ = body_evaluated.ray_cast(
                     body_inverse @ origin, body_inverse.to_3x3() @ Vector((0, 1, 0)))
