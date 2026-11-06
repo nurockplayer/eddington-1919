@@ -143,7 +143,9 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 | 7 | 閃爍比對 | careful 路線加 `--store-shots`；同一張選定底片按「閃爍比對」，截圖 `careful_store_g_blink_eclipse.png` 與 `careful_store_g_blink_oxford.png` 成對（商店圖取其一或做成兩格 GIF，待 Owner／lead 挑選）。僅視窗化執行會存圖（headless 不存）。 2026-11-05 已視窗拍攝（KIOXIA `store-b5/careful/`）；lead 判讀：兩格確實不同，適合做兩格 GIF，單張不易看出位移。2026-11-05 13:4x JST 在 #179（檢視器隨 1080p 放大）合併後於 main dbd37b4 重拍第 5–8 列，存於同一資料夾；檢視器現用到畫面約九成高度。 | 這是讀片的「啊哈」時刻：星點真的動了。 |
 | 8 | 量測後的數值與誤差區間 | 同一路線選片並按「量測」；`--store-shots` 拍攝 `careful_store_d_measured_2sigma.png`（另保留 `careful_09_viewer_measured.png`）。 | 讓玩家知道要判讀有不確定性的結果；畫面數字屬示意模擬。 |
 | 9 | 玩家寄出的短電報 | 同一路線完成區間判讀，選電報與理由到結尾；`--store-shots` 拍攝 `careful_store_f_ending_telegram.png`（另保留 `careful_10_ending.png`）。 | 用玩家自己的措辭收尾，呈現這段體驗最後留下的東西。 |
-
-轉變弧線（帳本、太陽系儀、測微器、1919 年 10 月書房）尚未列入上表，也還沒有固定的商店截圖；2026-11-06 JST 補文案時留下，重拍判讀後再補列。
+| 10 | 太陽系儀：核對牛頓的預測 | 序章 honest 路線；`honest_choice_orrery_orrery_check.png`。 | 先讓玩家信任牛頓，再看見那 43 角秒。 |
+| 11 | 在帳本上押下預測 | careful 路線加 `--store-shots`；`careful_store_h_bet.png`（待下次視窗拍攝）。 | 數字出現前先承諾，判斷才算自己的。 |
+| 12 | 親手用測微器讀數 | careful 路線加 `--store-shots`；`careful_store_i_micrometer.png`（待下次視窗拍攝）。 | 結果的數字來自玩家自己的讀數。 |
+| 13 | 1919 年 10 月，抄上 Sobral 的數字 | 序章 honest 路線；`honest_epilogue_chart_rows.png`。 | 自己的結果與歷史數字並排；畫面數字為示意。 |
 
 實際圖片、capsule 尺寸／裁切、商標可讀性、肖像與數字的呈現，均待 Owner／lead 挑選；本文件不代表已完成圖像驗收。

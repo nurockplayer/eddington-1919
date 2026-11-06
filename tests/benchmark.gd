@@ -125,6 +125,9 @@ func _hide_groups() -> Array:
 func _run() -> void:
 	var hidden := _hide_groups()
 	main.ui.visible = false
+	# Name tags are HUD text: fixed-size, unlike the painted signs.
+	for tag in main.find_children("*", "Label3D", true, false):
+		tag.visible = not tag.fixed_size
 	main.player.can_move = false
 	main.player.can_look = false
 	var results := []
