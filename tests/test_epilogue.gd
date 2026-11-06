@@ -137,15 +137,13 @@ func _test_full_flow(story: Node) -> void:
 		"the objective names the letter")
 	# The normal southern approach must reach the letter, not the 1917 copyist's desk volume.
 	chapter.player.velocity = Vector3.ZERO
-	chapter.player.global_position = Vector3(-2.47, 0, 1.3)
+	chapter.player.global_position = chapter.world.targets.letter + Vector3(0, -0.86, 0.85)
 	chapter.player.look_at_point(chapter.world.targets.letter)
 	for i in 5:
 		await process_frame
 	var aimed = chapter.player.aimed_interactable()
 	check(aimed != null and str(aimed.get_meta("interact_id", "")) == "letter",
 		"the letter is aimable from the southern approach")
-	chapter.player.global_position = chapter.world.spawn
-	chapter.player.look_at_point(chapter.world.targets.notebook)
 	chapter._interact("letter")
 	check(chapter.ui.dialog_active(), "the letter opens as real dialogue")
 	var letter := _text(chapter)
@@ -180,15 +178,24 @@ func _test_full_flow(story: Node) -> void:
 	chapter.chart.button.pressed.emit()
 	check(not chapter.chart.visible and chapter.ui.dialog_active(), "press 3 closes the chart into the weight question")
 	check(chapter._pending == "weight", "the weight question is the authored beat after the chart")
+	check(chapter.player.camera.global_position.distance_to(chapter.world.lamp.global_position) > 1.5, "weight dialogue is clear of the lamp")
 	_finish(chapter, {"astro_weight": 1})
 	check(chapter.beat == chapter.Beat.ORRERY, "the ledger hands the room to the orrery")
 	check(chapter.ui.objectives.text.contains("太陽系儀還在架上"), "the objective names the orrery")
 	chapter._interact("orrery")
+	check(root.get_camera_3d().name == "OrreryCloseup", "orrery dialogue uses the close-up")
 	var orrery := _text(chapter)
 	check(orrery.contains("你在 1917 年最懷疑的是") and orrery.contains("引力的平方反比"),
 		"the orrery repeats the 1917 suspect")
 	check(orrery.contains("1915 年 11 月") and orrery.contains("43 角秒"), "the orrery pays off Mercury")
-	_finish(chapter, {"click": 1, "final_reason": 2})
+	while chapter._pending in ["orrery_talk", "click_reply"]:
+		check(root.get_camera_3d().name == "OrreryCloseup", "orrery and click reply keep the close-up")
+		if chapter.ui._seq[chapter.ui._seq_i].has("choices"):
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+	check(root.get_camera_3d() == chapter.player.camera and chapter.find_child("OrreryCloseup", true, false) == null, "final reason restores the player camera")
+	_finish(chapter, {"final_reason": 2})
 	var back: Dictionary = story.runs.back()
 	check(int(back.get("astro_weight", -1)) == 1, "the astrographic weighting is stored on the run")
 	check(int(back.get("click", -1)) == 1, "the orrery answer is stored on the run")

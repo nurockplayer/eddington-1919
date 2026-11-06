@@ -105,7 +105,9 @@ func _test_review_gate_and_check(story: Node) -> void:
 	check(story.orrery.is_empty() and chapter._pending != "dyson", "the check is still owed")
 	chapter._interact("orrery")
 	check(chapter._pending == "orrery_check" and chapter.ui.dialog_active(), "the orrery opens the check")
+	check(root.get_camera_3d().name == "OrreryCloseup", "check uses the close-up")
 	var keys := _drive_check(chapter, PICKS)
+	check(root.get_camera_3d() == chapter.player.camera and chapter.find_child("OrreryCloseup", true, false) == null, "check restores the player camera")
 	check(keys == ["orrery_neptune", "orrery_halley", "orrery_mercury", "mercury_suspect"],
 		"the check asks three marks and the suspect in order")
 	check(story.orrery == {"neptune": 0, "halley": 0, "mercury": 1}, "the three marks are stored in Story.orrery")
@@ -131,7 +133,8 @@ func _test_prechecked_goes_to_dyson(story: Node) -> void:
 	check(chapter._pending == "" and chapter.beat == chapter.Beat.INVESTIGATE, "an early check returns to the room")
 	check(story.orrery.size() == 3 and story.mercury_suspect == 1, "the early check is kept")
 	chapter._interact("orrery")
-	check(chapter._pending == "" and chapter.ui.dialog_active(), "a second visit shows the summary")
+	check(chapter._pending == "orrery_summary" and chapter.ui.dialog_active(), "a second visit shows the summary")
+	check(root.get_camera_3d().name == "OrreryCloseup", "summary uses the close-up")
 	var summary := _text(chapter)
 	check(summary.contains("你留在年鑑上的記號"), "the summary says what the player marked")
 	check(summary.contains("海王星：對得上") and summary.contains("水星的 43 角秒：對不上"),
@@ -140,6 +143,7 @@ func _test_prechecked_goes_to_dyson(story: Node) -> void:
 	check(not chapter.ui._seq.any(func(line): return str(line.get("key", "")).begins_with("orrery_") or line.get("key", "") == "mercury_suspect"),
 		"the summary asks nothing")
 	_finish(chapter)
+	check(root.get_camera_3d() == chapter.player.camera and chapter.find_child("OrreryCloseup", true, false) == null, "summary restores the player camera")
 	chapter._pending = "mentor_review"
 	chapter._dialogue_done({"revise_report": 1})
 	check(chapter._pending == "dyson", "a player who checked earlier goes straight to Dyson")

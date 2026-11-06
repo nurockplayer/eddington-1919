@@ -21,6 +21,7 @@ var input_blocked := false:
 			button.disabled = value
 var _built := false
 var _note_box: VBoxContainer
+var _column: VBoxContainer
 
 
 func _ready() -> void:
@@ -33,6 +34,7 @@ func open(p_run: Dictionary) -> void:
 	if not _built:
 		_build()
 		_built = true
+	_column.custom_minimum_size.x = minf(1040, get_viewport_rect().size.x - 64)
 	_refresh()
 	chart.refresh_fonts()
 	show()
@@ -52,28 +54,25 @@ func _build() -> void:
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(backdrop)
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 32)
-	add_child(margin)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 10)
-	margin.add_child(column)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(center)
+	_column = VBoxContainer.new()
+	_column.add_theme_constant_override("separation", 10)
+	center.add_child(_column)
 	chart = Chart.new()
-	chart.custom_minimum_size = Vector2(0, 280)
+	chart.custom_minimum_size = Vector2(0, 340)
 	chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	chart.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(chart)
+	_column.add_child(chart)
 	_note_box = VBoxContainer.new()
 	_note_box.add_theme_constant_override("separation", 2)
-	column.add_child(_note_box)
+	_column.add_child(_note_box)
 	button = Button.new()
 	button.custom_minimum_size = Vector2(0, 48)
 	button.focus_mode = Control.FOCUS_ALL
 	Settings.track_font(button, 22)
 	button.pressed.connect(_press)
-	column.add_child(button)
+	_column.add_child(button)
 
 
 func _refresh() -> void:

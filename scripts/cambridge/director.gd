@@ -45,6 +45,7 @@ var _busy := true
 var _clock_t := 0.0
 var _light_t := 0.0
 var _daylight := false
+var _orrery_camera: Camera3D
 var _camera_turn: Tween
 var _speaker_fill: SpotLight3D
 var _lens_tween: Tween
@@ -284,11 +285,12 @@ func _interact(id: String) -> void:
 
 ## Conversion arc move B: the first visit is the check; later visits summarise it.
 func _open_orrery() -> void:
+	_orrery_camera = Room.StarDecor.orrery_closeup(self, world.orrery)
 	orrery_seen = true
 	if Story.orrery.is_empty():
 		_say(C17.orrery_check(), "orrery_check")
 	else:
-		_say(C17.orrery_summary(Story.orrery, Story.mercury_suspect), "")
+		_say(C17.orrery_summary(Story.orrery, Story.mercury_suspect), "orrery_summary")
 
 
 func _clue_found(id: String) -> void:
@@ -420,6 +422,9 @@ func _dialogue_done(results: Dictionary) -> void:
 	_speaker_fill.light_energy = 0.0
 	var purpose := _pending
 	_pending = ""
+	if purpose in ["orrery_check", "orrery_summary"]:
+		Room.StarDecor.end_orrery_closeup(_orrery_camera, player.camera)
+		_orrery_camera = null
 	match purpose:
 		"opening":
 			beat = Beat.INVESTIGATE

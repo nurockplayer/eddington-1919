@@ -263,6 +263,8 @@ func _run() -> void:
 				"%dx%d @%.1f epilogue overlay button fits" % [window.x, window.y, scale])
 			check(root.get_visible_rect().encloses(epilogue_chart.chart.get_global_rect()),
 				"%dx%d @%.1f epilogue chart fits" % [window.x, window.y, scale])
+			if window.y == 1080:
+				check(epilogue_chart.chart.size.y < window.y * 0.6, "1080p epilogue chart is under 60% height")
 			epilogue_chart.free()
 			story.runs.clear()
 			game._telegram = 1
