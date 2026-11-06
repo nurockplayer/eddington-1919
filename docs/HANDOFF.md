@@ -451,3 +451,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **PR #231** head 2e3f0d0: oracle approve, 1 minor (the journal does not follow the hand's breathing: let go). Blender renders judged and deleted. Pass: head, build, suit. Fail: flecks through the shirt, a broken tie, a flat-ended waistcoat bib. The same `shirt_front()` still builds the desk Ashby and Eddington, so check Eddington's chest in Monday's crops; his GLB is untouched here.
 - **Running:** `lead-wait run ashby-chest`, same Codex session in ds-2, brief `director/ashby-chest.md`: new `waistcoat_v_front()` for both Ashby GLBs, journal outside the hand. Renders to `director/ashby-r2/`.
 - **On its event:** judge `ashby-r2/` (three stills), then delete it. The journal itself is only visible in Monday's look. The Monday order above stands. `look_kit.sh` shoots the tip of `art/ashby-departure`, so this round is included.
+
+### Ashby round 2 judged (edd-lead) | 2026-11-06 16:5x JST
+
+- **PR #231 head af1bc93:** Blender renders judged and deleted. Pass: clean chest, continuous tie, the V closes to a point, on both the standing and desk GLBs. 14,479 triangles each, G2 pass, other GLB hashes unchanged, portrait 78/0, departure 251/0, journal outside the hand.
+- **Not yet proven:** `test_prologue` and `e2e_headless` exited 124 at the worker's 90 s and 180 s caps. Earlier rounds used far longer caps, and the host load was 16, but the cause is not established. Running: `lw-ashby-r2-tests-20261106-165450`, `director/ashby_r2_tests.sh`, caps 900 s and 1800 s.
+- **On its event:** both pass → correct the PR body's results table and render line. A real failure or a repeat timeout → investigate before Monday.
+- **Monday's look, also judge:** Ashby's moustache (two end caps read as flat discs in a close render) and his dark slit eyes, at the game's real camera distance. `moustache()` is shared with Eddington, so a change there moves his GLB.
