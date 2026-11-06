@@ -18,7 +18,7 @@ All third-party content in `assets/models/eddington.glb` and `assets/models/cott
 `ashby.glb` and `eddington_cambridge.glb` reuse the same checked CC0 base,
 `game_engine` rig, `male1591` proxy, `short02` hair, `eyebrow004` (Ashby) /
 `eyebrow010` (Eddington), `low-poly` eyes, `male_elegantsuit01` and `shoes02`.
-`kit.glb` uses the same inputs with `short04` hair and `eyebrow010`.
+`kit.glb` uses the same inputs with `short04` hair and `eyebrow004`. Its iris discs are repo-authored geometry, released under CC0.
 The existing affirmative-header and bundled-input SHA gates apply unchanged.
 No new third-party download is required. Grey moustache and spectacles are
 repo-authored procedural geometry; palette, garment region colours and poses

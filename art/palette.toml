@@ -119,6 +119,11 @@ hex = "#C7BCA3"
 role = "structure"
 roughness = 0.92
 
+[swatch.linen_coat]
+hex = "#B8A98C"
+role = "structure"
+roughness = 0.92
+
 [swatch.drill_khaki]
 hex = "#9E8F6E"
 role = "structure"
@@ -159,6 +164,11 @@ hex = "#1E1A17"
 role = "structure"
 roughness = 0.2
 
+[swatch.eye_white]
+hex = "#D8CFC2"
+role = "structure"
+roughness = 0.7
+
 [swatch.hair_greying]
 hex = "#4A423B"
 role = "structure"
@@ -174,6 +184,11 @@ roughness = 0.94
 hex = "#4E463E"
 role = "structure"
 roughness = 0.96
+
+[swatch.wool_pullover]
+hex = "#6E6C68"
+role = "structure"
+roughness = 0.82
 
 [swatch.wool_waistcoat]
 hex = "#494747"

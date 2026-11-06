@@ -291,7 +291,7 @@ def main() -> None:
 
     # Palette materials: one flat palette material per slot (BIBLE §3/§4).
     for slot, obj in added.items():
-        key = spec["materials"].get(slot)
+        key = spec["iris"]["sclera"] if slot == "eyes" and "iris" in spec else spec["materials"].get(slot)
         if obj is None or key is None:
             continue
         obj.data.materials.clear()
@@ -420,8 +420,13 @@ def main() -> None:
         head = rig.matrix_world @ rig.data.bones["head"].head_local
         top = Vector((head.x, head.y, top_z - spec["hat"].get("sink", 0.03)))
         parts.append(kit.join(f"{pid}_hat", hat(spec["hat"], top, f"{pid}_hat")))
-    if "eyes" in added and (spec.get("glasses") or spec.get("moustache")):
+    if "eyes" in added and (spec.get("glasses") or spec.get("moustache") or spec.get("iris")):
         c, front = face_anchor(added["eyes"])
+        if spec.get("iris"):
+            discs = [kit.cyl(f"{pid}_iris", 0.0045, 0.001, (c.x + sx * 0.032, front - 0.001, c.z),
+                             spec["iris"]["iris"], rot=(90, 0, 0), verts=16, bevel=0)
+                     for sx in (-1, 1)]
+            parts.append(kit.join(f"{pid}_irises", discs))
         if spec.get("glasses"):
             parts.append(kit.join(f"{pid}_glasses", glasses(c, front, f"{pid}_glasses")))
         if spec.get("moustache"):

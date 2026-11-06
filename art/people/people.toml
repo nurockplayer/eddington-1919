@@ -129,11 +129,12 @@ macro = { gender = 0.45, weight = 0.3, muscle = 0.4, proportions = 0.55, race = 
 export = "assets/models/kit.glb"
 breath_deg = 1.2
 glasses = true
-formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "wool_waistcoat", collar_drop = 0.08, tie_half_width = 0.03, shirt_front = true }
+iris = { sclera = "eye_white", iris = "eye_dark" }
+formal = { collar = "linen", waistcoat = "wool_pullover", tie = "wool_pullover", collar_drop = 0.08, tie_half_width = 0.03, shirt_front = true }
 [person.kit.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short04/short04.mhclo", "Hair"]
-eyebrows = ["eyebrows/eyebrow010/eyebrow010.mhclo", "Eyebrows"]
+eyebrows = ["eyebrows/eyebrow004/eyebrow004.mhclo", "Eyebrows"]
 eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
 suit = ["clothes/male_elegantsuit01/male_elegantsuit01.mhclo", "Clothes"]
 shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
@@ -142,8 +143,10 @@ body = "skin"
 hair = "hair_brown"
 eyebrows = "hair_brown"
 eyes = "eye_dark"
-suit = "linen"
+suit = "linen_coat"
 shoes = "leather"
+[person.kit.split_below_waist]
+suit = "felt"
 [person.kit.decimate]
 suit = 0.4
 hair = 0.6
