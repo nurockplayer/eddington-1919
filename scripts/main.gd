@@ -1754,7 +1754,9 @@ func _show_ending() -> void:
 	_stop_night_bed()
 	_play_resolution()
 	phase = Phase.ENDING
-	Checkpoint.clear()
+	# A 尾章-only run ending must not cost the player their story checkpoint.
+	if _came_from_departure:
+		Checkpoint.clear()
 	ui.pause_enabled = false
 	ui.hud.visible = false
 	player.can_move = false

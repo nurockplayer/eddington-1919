@@ -253,6 +253,10 @@ func _check_ending_clear(story) -> void:
 	Checkpoint.save("epilogue")
 	check(FileAccess.file_exists(Checkpoint.path()), "a checkpoint exists before the ending")
 	game._run_record_index = 0
+	game._came_from_departure = false
 	game._show_ending()
-	check(not FileAccess.file_exists(Checkpoint.path()), "showing the ending clears the checkpoint")
+	check(FileAccess.file_exists(Checkpoint.path()), "a 1919-only ending keeps the story's checkpoint")
+	game._came_from_departure = true
+	game._show_ending()
+	check(not FileAccess.file_exists(Checkpoint.path()), "the story's ending clears the checkpoint")
 	check(Checkpoint.peek() == "", "nothing is left to continue after the ending")
