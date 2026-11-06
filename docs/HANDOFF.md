@@ -422,3 +422,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - Renders at cfaa7cc judged and deleted. Pass: clean chest, coat colour to the hem, dark trousers. Picked hair `short01` + `eyebrow005` (softest, youngest; `short03` covers an eye). Left: pale band with a jagged edge below the hem (split at 0.73 m, hem near 0.81 m); the V's flat top reads as a bib.
 - **Running:** `lead-wait run kit-mpfb-fu5`, brief `director/kit-mpfb-fu5.md`, renders to `director/kit-r4/`. If those pass, windowed look Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`, then e2e on the final head and `lead-wait pr 229 --reason "<art rounds>"` (from the 4th reviewed head `--reason` is required). Delete `kit-r4/` and `look-kit/` after judging.
 
+### Kit look round 4 + store shots (edd-lead) | 2026-11-06 16:0x JST
+
+- **PR #229 head 53db2e9:** Blender renders judged and deleted, all pass (young friendly face with `short01` + `eyebrow005`, clean chest, split at 0.814 m hidden at the hem). 14,881 triangles. G2 pass, portrait 69/0, prologue 395/0, other four GLB hashes unchanged. `kit_e2e.sh` running on this head (`lead-wait run kit-e2e`).
+- **Do not run `lead-wait pr 229` yet: it would merge before the in-game look.** The worker's post-run review exited 91 (fourth head needs `--reason`), so head 53db2e9 has no review.
+- **Monday 2026-11-09 from 09:00 JST:** `lead-wait run look-kit -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_kit.sh`. Judge close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `honest_m2_speaker_promise_kit`, `honest_beat_orrery`, `honest_speaker_coda_kit`, in the room's warm light; delete `director/look-kit/`. Pass → `lead-wait pr 229 --reason "fourth head after art rounds: check the Kit-only pullover and split changes in build_person.py leave the other people unchanged"`. Oracle's major (no test that Kit's idle plays) → follow-up issue.
+- **PR #230** (`test/store-arc-shots`, lead's own, worktree ds-2): bet and micrometer store shots, benchmark name tags hidden, store rows 10–13. `lead-wait pr 230` running.
+- **Monday, after #229 and #230 merge:** reshoot `store-b5` (`director/store_045.sh`), judge row 2 (Kit), row 4 (no tag), rows 11–12. Then a new build for the Owner, since Kit is the most visible change: update Issue #1.
+
