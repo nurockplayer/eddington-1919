@@ -498,3 +498,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **PR #234** head 5b724d0: oracle approve, 0 findings. Five people rebuilt, G2 pass, tests exit 0, e2e 6/6, seated moustache 0.0019 m from the skin. Face crops judged and deleted, all pass: the moustaches read as moustaches and the eyes have whites and irises. Check in game whether Eddington's eyes stare behind the glasses. `director/look_kit.sh` now shoots `origin/art/faces`.
 - **Nothing is running.** Stack, each based on the one before: #229 (a9b6120, no review yet) → #231 (af1bc93, no review on this head) → #232 (636163f, approve) → #234 (5b724d0, approve).
 - **Monday 2026-11-09 from 09:00 JST:** `lead-wait run look-kit -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_kit.sh`. Judge Kit, Ashby, Eddington and the journal in close crops. Then `lead-wait pr 229 --reason "…"`, retarget #231 to main and `lead-wait pr 231`, then the same for #232 and #234 (retargeting may need a new review). Then `store_045.sh` (rows 2, 4, 11, 12; the Príncipe rows now show the new Eddington and Cottingham), bump and build 0.4.6 as in `director/release-045.md`, update Issue #1. Close #203, #213, #214, #224 if allowed.
+
+### #225 checked; still waiting for Monday (edd-lead) | 2026-11-06 18:0x JST
+
+- **#225:** its only item is the same shirt-front gate as #224, and `shirt_front` no longer exists on `origin/art/faces`. Both issues are moot once #232 merges; add #225 to the close list.
+- **Inbox:** the two `PENDING job` events (`ashby-r2-renders`, `faces-rest-build`) were acked. Their jobs were followed up and judged in the sections above.
+- **Next:** unchanged. The Monday 2026-11-09 09:00 JST look kit, then the merge stack. Move E waits for the blind newcomer session, which needs a real person (Issue #1).
