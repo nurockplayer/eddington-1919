@@ -352,8 +352,8 @@ func _test_final_reply_rules() -> void:
 		"an unchanged ledger keeps the old line")
 	check(CONTENT.final_reply(-1, run, {}, {"pick": 2, "sure": 1}).is_empty(),
 		"a cancelled notebook answer has no reply")
-	var empty := CONTENT.final_reply(3, _make_run({}, {}), {"pick": 1, "sure": 1}, {"pick": 1, "sure": 1})
-	check(empty.size() == 1 and str(empty[0].t) == "那就這麼寫。", "the empty path now gives one line")
+	var plain := CONTENT.final_reply(3, _make_run({}, {}), {"pick": 1, "sure": 1}, {"pick": 1, "sure": 1})
+	check(plain.size() == 1 and str(plain[0].t) == "那就這麼寫。", "the empty path now gives one line")
 
 
 ## The Sobral reading: the chart asks it and every answer progresses; the truth is
