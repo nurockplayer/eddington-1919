@@ -20,6 +20,7 @@ var main
 var scenario := "careful"
 var shots_dir := ""
 var store_shots := false
+var store_mic_shot_done := false
 var log_lines: Array[String] = []
 var stuck := 0
 var _phase_event := ""
@@ -219,6 +220,8 @@ func talk(choices: Array = [], random_choices := true) -> void:
 				await shot("store_a_rule")
 			elif store_shots and e.get("key", "") == "reason" and e.choices.size() == 5:
 				await shot("store_e_five_reasons")
+			elif store_shots and e.get("key", "") == "bet":
+				await shot("store_h_bet")
 			var pick: int = choices[ci] if ci < choices.size() else 0
 			if e.get("key", "") == "kit_first":
 				pick = 0
@@ -495,6 +498,9 @@ func _night() -> void:
 			if scenario == "rushed":
 				px += 1.5
 			main.ui.set_micrometer_reading(px)
+			if store_shots and not store_mic_shot_done:
+				store_mic_shot_done = true
+				await shot("store_i_micrometer")
 			await _click(main.ui.mic_record_btn.get_global_rect().get_center())
 			await _frames(1)
 		await _click(main.ui.mic_btn.get_global_rect().get_center())
