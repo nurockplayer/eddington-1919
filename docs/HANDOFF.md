@@ -382,3 +382,12 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Open:** #224 (shirt_front clearance gate can never fail; low priority). Oracle/Codex quota: Codex weekly was 88% against a 54% target at 13:49 JST, so ask `quota-advisor` and read its answer **before** dispatching. Do not chain the two in one command: a mis-dispatch to Codex happened that way at 13:49 JST and was stopped within a minute.
 - **Visual judging lesson:** judge figures from a close crop. A downscaled full frame hid Eddington's ragged waistcoat in one round, and oracle reads geometry a still cannot show (tie buried in the neck). Oracle approve and lead's look are separate gates for art PRs.
 - **Heartbeat:** session-only one-shot cron; re-arm after /clear, 45 min after the turn ends, with the heartbeat prompt.
+
+### Arc status (edd-lead) | 2026-11-06 14:08 JST
+
+- **0.4.5 merged:** #228 (b8b69b6, 2026-11-06 14:05 JST; worker oracle approve on the head, 0 findings). Builds on KIOXIA `/Volumes/KIOXIA/eddington/builds/0.4.5/`, built from 58954b1; the lead re-read all three SHA-256 and they match `BUILD.txt`. e2e 6/6 on 23fe280. The DeepSeek run was healthy: the `unrecognized_model` line is only a log warning.
+- **Issue #1:** the Owner was asked 2026-11-06 14:0x JST to play 0.4.5 and to arrange the blind newcomer session. Move E waits on that session.
+- **Running:** `lead-wait run store-045`: `director/store_045.sh` on KIOXIA reshoots the store sets on main to `store-b5/{careful,prologue,cambridge,principe}-045/`, beside the old sets. It stops starting new steps at 14:50 JST (Mon–Fri 09–15 JST rule) and removes its temp tree `/private/tmp/edd-store-045`. If the heavy queue held it past that, it exits 3: rerun Monday 2026-11-09 from 09:00 JST.
+- **On its event:** judge from close crops against `docs/store/STORE_PAGE.md` rows 1–9, replace the old sets, delete the rest, update the paths. Stale in text regardless: the features list in `STORE_PAGE.md` (lines 60–66) has no ledger, orrery, micrometer or epilogue. The shot list has no row for them either, and the bot has no store shots there.
+- **Open:** #224, #225, #214, #213, and #203 (duplicate of #204, close by hand).
+- **Heartbeat:** session-only one-shot cron; re-arm after /clear, 45 min after the turn ends.
