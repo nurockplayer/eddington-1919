@@ -391,3 +391,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **On its event:** judge from close crops against `docs/store/STORE_PAGE.md` rows 1–9, replace the old sets, delete the rest, update the paths. The about text and features now cover the arc (35f46aa, not yet read by the Owner). Still missing: shot-list rows for the ledger, orrery, micrometer and epilogue, and bot store shots for them; `STORE_PAGE.md` has a note above the closing line.
 - **Open:** #224, #225, #214, #213, and #203 (duplicate of #204, close by hand).
 - **Heartbeat:** session-only one-shot cron; re-arm after /clear, 45 min after the turn ends.
+
+### Store reshoot judged; Kit goes to MPFB (edd-lead) | 2026-11-06 14:2x JST
+
+- **Store sets:** the reshoot on b8b69b6 replaced the old sets in `store-b5/{careful,prologue,cambridge,principe}/` (1920×1080; old sets deleted; `INDEX.md` and `sheet_*.jpg` there are older). Lead verdict: rows 1, 3, 5–9 usable. Row 4 `totality_sky` has a stray "Eddington" name tag at the left edge: hide name tags in `tests/benchmark.gd`, or crop. Row 2 fails: Kit is the primitive figure. Orrery candidate for a new row: `prologue/honest_choice_orrery_orrery_check.png` (reads well). No micrometer or bet still exists yet; `honest_epilogue_ledger.png` does not show the ledger.
+- **Decision (edd-lead, under the 2026-11-06 mandate):** the HG vs MPFB question has waited on the Owner since 2026-10-28, and Kit is the last principal built from primitives. Ship an MPFB Kit now (CC0, public repo). HG can still replace it later. This does not spend money or close that route.
+- **Running:** `lead-wait run kit-mpfb`, Codex Terra in worktree ds-1, brief `kit-mpfb.md` on KIOXIA `director/`, branch `art/kit-mpfb`.
+- **On its event:** read the final report. Windowed look at Kit, close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `m2_speaker_promise_kit`, `honest_beat_orrery` (Mon–Fri 09–15 JST; otherwise Monday 2026-11-09). Copy `director/store_045.sh` for the prologue run. Oracle approve and the lead's look are separate gates. Then `lead-wait pr <n>`, reshoot store row 2, add the arc rows, and consider a 0.4.6 for the Owner (Issue #1 now says 0.4.5; tell the Owner if Kit lands before they play).
+
