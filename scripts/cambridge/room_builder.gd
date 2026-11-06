@@ -543,7 +543,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	# A plain closed journal at the mentor's right hand, kept as a single prop.
 	if departure:
 		var skeleton := out.mentor.get_node("figure").find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
-		var hand := out.mentor.to_local(skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("hand_r")).origin))
+		var hand: Vector3 = out.mentor.to_local(skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("hand_r")).origin))
 		var journal = w.box(Vector3(0.035, 0.24, 0.20), hand + Vector3(0.035, 0, 0), Color(0.27, 0.22, 0.17), out.mentor, false)
 		journal.name = "journal"
 	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-3.35, 0, 2.35) if departure else Vector3(-2.35, 0, -0.95), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington", not departure)
