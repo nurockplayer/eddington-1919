@@ -172,7 +172,7 @@ def shirt_front(obj: bpy.types.Object, rig: bpy.types.Object, neck: float, forma
     mesh = bpy.data.meshes.new("shirt_front")
     mesh.from_pydata(vertices, [], faces)
     mesh.update()
-    front = bpy.data.objects.new("shirt_front", mesh)
+    front = bpy.data.objects.new(f"{obj.name.rsplit('_', 1)[0]}_shirt_front", mesh)
     bpy.context.collection.objects.link(front)
     for key in ("collar", "tie"):
         mesh.materials.append(kit.mat(formal[key]))
