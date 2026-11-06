@@ -533,3 +533,16 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Monkey pass 1** (45fa897, seeds 1106–1117): 8/8 Príncipe routes passed; the 4 prologue failures are the ones above.
 - **Running:** `lw-monkey2-20261106-223303`, 12 routes, seeds from 2000, on 6ad1278, in ds-2. On its event: a stall or a missing ENDING gets a replay with that seed; do not widen timeouts. A real trap would show as STUCK after SIDESTEP lines.
 - **Next:** unchanged. Monday 2026-11-09 09:00 JST look kit, then the stack, store reshoot, 0.4.6.
+
+### Monkey pass 2: bot routing out (edd-lead) | 2026-11-06 23:3x JST
+
+- **Monkey pass 2** (6ad1278, seeds 2000–2011): 10/12 passed. 2005 (`M2_KIT`) and 2011 (epilogue) stuck against the central table, since `_in_cambridge_room()` matches only `cambridge/director.gd` and the table routing never ran in those rooms. That no player is trapped there is read from the code, not yet shown: the two replays must reach ENDING.
+- **Running:** `lw-monkey-bot2-20261106-230656`, DeepSeek `ds-edd-2` (worktree ds-2), brief `director/monkey-bot2.md`, branch `test/monkey-bot2`, closes #240. No unacked inbox events at this writing.
+- **On its event:**
+  1. Read the report and the diff. A run ending in `PENDING job` or `WAIT:` is not finished.
+  2. If the PR is a draft, `gh pr ready` it. Wait until GitHub shows the new head, then `lead-wait pr <n>`.
+  3. After MERGED, delete the branch and run `lead-wait --role edd-lead run monkey3 -- orb-test --host -- bash -c 'godot --headless --path . --import >/dev/null 2>&1; ./tools/monkey_headless.sh 12 3000 mixed'` from ds-2 detached at `origin/main`, with `EDD_SETTINGS_PATH=/Volumes/KIOXIA/eddington/tmp-settings-monkey.cfg`.
+  4. If 2005 or 2011 still fails after sidesteps and routing, treat it as a possible geometry bug: replay it, do not widen budgets.
+- **Dispatch rule learned:** read `quota-advisor` before dispatching (19:32 JST slip). It has named deepseek since then.
+- **Heartbeat:** one-shot due 2026-11-07 00:14 JST; crons are session-only, recreate after a restart.
+- **Next after that:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`; the look now also covers #235's long pages and `box_light`, and #236's replies. Then #229 → #231 (override the false-positive blocker, see 19:2x section) → #232 → #234, store reshoot, 0.4.6, Issue #1. Close #203, #213, #214, then #224 and #225 once #232 merges, if allowed.
