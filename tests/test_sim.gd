@@ -134,6 +134,19 @@ func _init() -> void:
 	_read(trio)
 	check(Judgment.grade(trio, "hopeful", "measured").lines.has("第 2、4 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"),
 		"poor plates do not break the good plates' agreement")
+	# Corroboration comes from the player's readings, never the generated values.
+	var recorded = Sim.new(77)
+	recorded.plates = [
+		{"number": 2, "usable": true, "quality": "good", "included": true, "value": 1.7, "sigma": 0.2, "duration": 4.0},
+		{"number": 4, "usable": true, "quality": "good", "included": true, "value": 1.8, "sigma": 0.2, "duration": 4.0},
+	]
+	_read(recorded)
+	recorded.plates[1].value = 2.9
+	check(Judgment.grade(recorded, "hopeful", "measured").lines.has(agreement), "agreeing readings corroborate whatever the generated values are")
+	recorded.plates[1].read = false
+	recorded.plates[1].value = 1.8
+	var unread_lines: Array = Judgment.grade(recorded, "hopeful", "measured").lines
+	check(not unread_lines.has(agreement) and unread_lines.has(single), "an included but unread good plate does not corroborate")
 	# 2.9 is outside two measured sigma of 1.7 (the setting error widens it).
 	pair.plates[1].value = 2.9
 	_read(pair)
