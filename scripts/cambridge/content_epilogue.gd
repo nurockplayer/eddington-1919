@@ -43,7 +43,7 @@ static func weight() -> Array:
 static func weight_reply(choice: int) -> Array:
 	match choice:
 		0:
-			return [{"s": A, "t": "一樣重，平均下來約 1.46″——兩個預測都搆不上。可是一架比例尺可能變了的鏡頭，憑什麼和沒變的一樣重？"}]
+			return [{"s": A, "t": "一樣重，平均下來約 1.46″。可是這兩組自己就差了一倍，平均只是把分歧藏起來。再說，一架比例尺可能變了的鏡頭，憑什麼和沒變的一樣重？"}]
 		1:
 			return [{"s": A, "t": "好。寫明白：星像糊，比例尺可能變了——讓後人可以不同意。Greenwich 那邊也是這麼做的。"}]
 		2:
@@ -98,6 +98,8 @@ static func orrery_talk(suspect_text: String) -> Array:
 		seq.append({"s": "太陽系儀", "t": "你在 1917 年最懷疑的是：%s。" % suspect_text})
 	seq.append_array([
 		{"s": A, "t": "1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。我那時想：先知道答案再去算，誰都算得對。"},
+		# HISTORICAL_RECORD: Vulcan, Seeliger, Hall (factcheck claim 12). FICTION: Ashby's judgement.
+		{"s": A, "t": "我們找過的那些說法——看不見的行星、太陽旁的物質、改一點引力的規則——都只為了水星，沒有一個能讓星光彎得像愛因斯坦說的那麼多。"},
 		{"s": A, "t": "可是光彎多少，是在任何人量之前就寫下的。"},
 		{"s": A, "t": "一個是事後的解釋，一個是事先的下注——現在指著同一邊。",
 			"key": "click", "choices": ["水星也不再是例外了", "同一個想法，說中兩件不相干的事", "還要更多證據"]},

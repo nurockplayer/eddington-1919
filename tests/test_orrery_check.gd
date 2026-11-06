@@ -117,6 +117,8 @@ func _test_review_gate_and_check(story: Node) -> void:
 	check(chapter._pending == "orrery_check" and chapter.ui.dialog_active(), "the orrery opens the check")
 	check(root.get_camera_3d().name == "OrreryCloseup", "check uses the close-up")
 	_check_orrery_frustum(chapter)
+	var mercury: Array = chapter.ui._seq.filter(func(line): return line.get("s", "") == "年鑑・水星")
+	check(mercury.size() == 2 and not mercury[0].has("choices") and str(mercury[1].t).contains("3600") and mercury[1].get("key", "") == "orrery_mercury" and mercury[1].has("choices"), "Mercury explanation precedes the 3600 choice")
 	var keys := _drive_check(chapter, PICKS)
 	check(root.get_camera_3d() == chapter.player.camera and chapter.find_child("OrreryCloseup", true, false) == null, "check restores the player camera")
 	check(keys == ["orrery_neptune", "orrery_halley", "orrery_mercury", "mercury_suspect"],
