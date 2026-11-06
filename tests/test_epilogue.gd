@@ -375,6 +375,14 @@ func _test_final_reply_rules() -> void:
 	var unchanged := CONTENT.final_reply(4, run, {"pick": 2, "sure": 1}, {"pick": 1, "sure": 1})
 	check(unchanged.size() == 1 and str(unchanged[0].t) == "那就寫下來。沒有改變，也是一筆紀錄。",
 		"an unchanged ledger keeps the old line")
+	var left := CONTENT.final_reply(1, run, {"pick": 2, "sure": 1}, {"pick": 2, "sure": 1})
+	check(left.size() == 1 and str(left[0].t).contains("今天這一行不是"),
+		"1.75 in 1917 but not in October: Ashby does not say the number stayed")
+	var kept_run := run.duplicate()
+	kept_run["bet_oct"] = 2
+	var kept := CONTENT.final_reply(1, kept_run, {"pick": 2, "sure": 1}, {"pick": 2, "sure": 1})
+	check(kept.size() == 1 and str(kept[0].t).contains("你改變的不是數字"),
+		"1.75 kept in October still gets the reason line")
 	check(CONTENT.final_reply(-1, run, {}, {"pick": 2, "sure": 1}).is_empty(),
 		"a cancelled notebook answer has no reply")
 	var plain := CONTENT.final_reply(3, _make_run({}, {}), {"pick": 1, "sure": 1}, {"pick": 1, "sure": 1})
