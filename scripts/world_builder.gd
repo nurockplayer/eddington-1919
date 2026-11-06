@@ -7,6 +7,7 @@ extends RefCounted
 const Palette := preload("res://scripts/palette.gd")
 const PalmSway := preload("res://scripts/palm_sway.gd")
 const SafelightGlass := preload("res://scripts/safelight_glass.gd")
+const Look := preload("res://scripts/look.gd")
 const MODELS := "res://assets/models/"
 
 var root: Node3D
@@ -183,6 +184,20 @@ func weather_model(n: Node) -> void:
 				weather(w)
 				_weathered[src] = w
 			mi.set_surface_override_material(i, _weathered[src])
+
+
+## Night dress: under the safelight only red shows, so linen must sit well below skin (#216).
+## No-op on the primitive fallback figures, which have no E1919_linen surface.
+static func night_dress(n: Node) -> void:
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		var mesh: Mesh = mi.mesh
+		for i in mesh.get_surface_count():
+			var src := mesh.surface_get_material(i) as BaseMaterial3D
+			if src == null or src.resource_name != "E1919_linen":
+				continue
+			var dark := src.duplicate() as BaseMaterial3D
+			dark.albedo_color = Color(src.albedo_color.r * Look.NIGHT_LINEN_DIM, src.albedo_color.g * Look.NIGHT_LINEN_DIM, src.albedo_color.b * Look.NIGHT_LINEN_DIM, src.albedo_color.a)
+			mi.set_surface_override_material(i, dark)
 
 
 func box(size: Vector3, pos: Vector3, color: Color, parent: Node3D = null, collide := true, rot := Vector3.ZERO) -> Node3D:

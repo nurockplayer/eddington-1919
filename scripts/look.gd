@@ -18,6 +18,7 @@ const SUN_GAIN := 1.25         # stronger key through the cloud breaks
 const CLOUD_SHADE := 0.34      # heavier, brooding cloud undersides (v0.1: 0.22; 0.40 read as camouflage)
 const DAY_SKY_GAIN := 0.86     # stop the overcast sky clipping to white
 const NIGHT_SAFELIGHT := 0.5   # darkroom red safelight at night (v0.1: 0.25; r05 darker room needs it to read)
+const NIGHT_LINEN_DIM := 0.55   # linen albedo at night: under the red safelight linen and skin have the same red, so the suit read as bare skin
 
 static func apply_grade(env: Environment) -> void:
 	env.adjustment_enabled = true
