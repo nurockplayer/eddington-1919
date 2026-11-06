@@ -567,7 +567,13 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 
 - **Monkey pass 4** (08b0e6a, seeds 4000–4011): 12/12 reached ENDING, stuck 0.
 - **Fable critique** of the finished arc (2026-11-07 01:2x JST): three gaps at the payoff, all adopted with changes. **#243 merged** (ba05ba8; codex approve because oracle failed): the player writes a new ledger line `bet_oct` in October and the ending lists it; the player reads Sobral's 2σ range in the chart (`sobral_read`, any answer progresses); Mercury returns in the almanac with the player's 1917 mark; the "inconclusive" Ashby line no longer overclaims. `test_epilogue` 230/0, `test_layout_bounds` 4780/0, e2e 6/6, monkey 1/1. Fable's ideas not taken: shortening Ashby's Mercury lines. The "two instruments, one Atlantic" line appears only in the `conceded` case.
-- **#245 running** (`lw-pr-245`, branch `fix/final-reply-october`, worktree ds-2): Codex's major on #243, a 1.75 player who changes in October was told the number stayed. Lead's own fix. After MERGED, delete the branch.
+- **#245 merged** (f86984a, codex approve, 0 findings): Codex's major on #243, a 1.75 player who changes in October was told the number stayed. Branch deleted.
 - **Oracle is down:** ChatGPT logged out in ego-lite (2026-11-07 02:30 JST); `owner-notify --key ego-lite-chatgpt-login` sent. `lead-wait pr` falls back to codex by itself. Do not brief workers to rerun an oracle review until it is back: they report exit 5 and stop.
 - **Monday look adds:** the Sobral question inside the chart (default label colour, four buttons, at 1080 and 720/1.2), the October ledger line, the almanac note.
 - **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Note that 0.4.6 also needs a change list for Issue #1 covering moves E and the payoff.
+
+### All suites running (edd-lead) | 2026-11-07 03:0x JST
+
+- **Running:** `lw-all-suites-20261107-024337`, in ds-2 detached at f86984a: `director/all_suites.sh` on KIOXIA runs all 52 `tests/test_*.gd` one at a time, 15-minute cap each, one result line per suite. The repo has no GitHub Actions, and tonight's PRs ran only related suites plus e2e. No unacked inbox events at this writing.
+- **On its event:** read the job log `~/.local/state/job-run/lw-all-suites-20261107-024337/log` (the event text is cut short). A failure: read the cause first. Test assuming the old flow → small fix. Real bug → fix or brief it. Do not widen a budget. A suite that hits the cap or times out on load: rerun that one alone before judging.
+- **After that:** no design item is open. Monday 2026-11-09 09:00 JST `look_kit.sh` plus the additions above, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Heartbeat: one-shot due 2026-11-07 03:19 JST; crons are session-only, recreate after a restart.
