@@ -4,7 +4,7 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 12870,
+      "value": 13304,
       "max": 16000,
       "ok": true
     },
@@ -125,7 +125,7 @@
           ],
           "ok": true
         },
-        "kit_shirt_front": {
+        "kit_pullover_front": {
           "origin": [
             0.0,
             0.0,
@@ -233,7 +233,7 @@
         "kit_eyebrows",
         "kit_eyes",
         "kit_hair",
-        "kit_shirt_front",
+        "kit_pullover_front",
         "kit_shoes",
         "kit_suit",
         "kit_glasses",
