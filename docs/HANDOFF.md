@@ -474,3 +474,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **On its event:** judge `faces-r1/`, delete it. If it passes, point `look_kit.sh` at `origin/art/faces`. Merge order: #229 → #231 → #232 → faces. If it fails after one follow-up, drop it from Monday's stack: #232 must not wait on it.
 - **Next if idle (real defects, read the code first):** #213 (Ashby speaks in the orrery correction before he has entered), #204 (hold not cancelled on pause, gamepad A that closes the pause menu counts as an interaction), #214 (micrometer with the loupe already on; test that cannot catch hidden values).
 - **#203 still open:** closing it as a duplicate of #204 was denied by the permission check (2026-11-06 17:2x JST). It stays open; the Owner can close it by hand.
+
+### Follow-up issues checked (edd-lead) | 2026-11-06 17:2x JST
+
+- This corrects the "Next if idle" line above. **#204** is already closed. **#213:** the orrery corrections now use the speaker 太陽系儀, not Ashby, so the defect is gone from the code; the issue is still open. **#203** stays open only because closing it was denied.
+- **PR #233** (`test/judgment-readings`, lead's own, temp worktree `/private/tmp/edd-read-test`): covers the second item of #214, test-only. `test_sim` 241/0; each of the two reverts fails exactly one new check. `lead-wait pr 233` running. Once its state is MERGED, remove that worktree and branch.
+- **#214 first item (loupe with the micrometer):** `_set_micrometer` now calls `_show_loupe(loupe_start)`, which looks like a fix, but no caller or test was checked. Next if idle: check it with a test through the real input path.
