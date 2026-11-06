@@ -132,10 +132,12 @@ def moustache(c: Vector, front: float, name: str, material: str) -> list:
     return parts
 
 
-def shirt_front(obj: bpy.types.Object, rig: bpy.types.Object, neck: float, formal: dict) -> None:
+def shirt_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Object, neck: float, formal: dict) -> None:
     """Repo-authored shirt and tie surfaces, fitted to the rest-pose suit."""
     evaluated = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
     inverse = evaluated.matrix_world.inverted()
+    body_evaluated = body.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    body_inverse = body_evaluated.matrix_world.inverted()
     vertices, faces, materials = [], [], []
     rows, columns = 12, 7
     for start, end, top_width, bottom_width, offset, material in (
@@ -151,19 +153,31 @@ def shirt_front(obj: bpy.types.Object, rig: bpy.types.Object, neck: float, forma
                 x = width * (2 * col / (columns - 1) - 1)
                 origin = Vector((x, -1, neck - (start + t * (end - start))))
                 hit, location, _, _ = evaluated.ray_cast(inverse @ origin, inverse.to_3x3() @ Vector((0, 1, 0)))
-                points.append([x, (evaluated.matrix_world @ location).y if hit else None, origin.z])
+                body_hit, body_location, _, _ = body_evaluated.ray_cast(
+                    body_inverse @ origin, body_inverse.to_3x3() @ Vector((0, 1, 0)))
+                body_y = (body_evaluated.matrix_world @ body_location).y if body_hit else None
+                hits = [y for y in ((evaluated.matrix_world @ location).y if hit else None, body_y) if y is not None]
+                points.append([x, min(hits) if hits else None, origin.z, body_y])
             grid.append(points)
         for col in range(columns):
-            # A top-row miss borrows the first lower hit; subsequent misses use the previous row.
-            previous = next((grid[row][col][1] for row in range(rows) if grid[row][col][1] is not None), None)
+            previous = grid[-1][col][1]
             if previous is None:
-                raise RuntimeError(f"shirt front ray missed every row in column {col}")
-            for row in range(rows):
+                raise RuntimeError(f"shirt front ray missed bottom row in column {col}")
+            for row in range(rows - 1, -1, -1):
                 point = grid[row][col]
-                previous = point[1] if point[1] is not None else previous
-                point[1] = previous - offset
+                previous = max(previous - 0.03, min(previous + 0.03, point[1])) if point[1] is not None else previous
+                point[1] = min(previous - offset, point[3] - 0.003) if point[3] is not None else previous - offset
+        for row in range(rows):
+            for col in range(columns):
+                point = grid[row][col]
+                if point[3] is not None and point[1] > point[3] - 0.003:
+                    raise RuntimeError(f"shirt front vertex behind body at row {row}, column {col}")
+                if row and abs(point[1] - grid[row - 1][col][1]) > 0.035:
+                    raise RuntimeError(f"shirt front discontinuity at row {row}, column {col}")
+        top = [point[1] for point in grid[0]]
+        print(f"shirt front {material} top y range: {min(top):.6f} to {max(top):.6f}; body front y at x=0: {grid[0][columns // 2][3]}")
         base = len(vertices)
-        vertices.extend(tuple(point) for row in grid for point in row)
+        vertices.extend(tuple(point[:3]) for row in grid for point in row)
         for row in range(rows - 1):
             for col in range(columns - 1):
                 a = base + row * columns + col
@@ -327,7 +341,7 @@ def main() -> None:
             elif waist - 0.04 < c.z < neck - 0.16 and abs(c.x) < 0.11:
                 poly.material_index = slots["waistcoat"]
         if spec["formal"].get("shirt_front"):
-            shirt_front(obj, rig, neck, spec["formal"])
+            shirt_front(obj, added["body"], rig, neck, spec["formal"])
 
     # The hidden full-resolution base mesh is not shipped (the proxy is the body).
     bpy.data.objects.remove(base)
