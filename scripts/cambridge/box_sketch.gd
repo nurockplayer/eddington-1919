@@ -403,7 +403,7 @@ func _draw_drop(c: Control) -> void:
 	for i in fall_ticks.size():
 		var alpha := 0.5 if i == fall_ticks.size() - 1 else 0.16
 		for offset in fall_ticks[i]:
-			var tick_y := base.position.y + (PENCIL_Y + offset) * scale_
+			var tick_y: float = base.position.y + (PENCIL_Y + float(offset)) * scale_
 			c.draw_line(Vector2(pencil_x + 20.0, tick_y), Vector2(pencil_x + 38.0, tick_y), Color(INK, alpha), 2.0)
 	c.draw_line(Vector2(pencil_x, pencil_y), Vector2(pencil_x, pencil_y + 44.0 * scale_), INK, 5.0 * scale_)
 	c.draw_colored_polygon(PackedVector2Array([

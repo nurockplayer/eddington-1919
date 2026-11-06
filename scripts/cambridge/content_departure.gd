@@ -151,8 +151,7 @@ static func mentor_farewell_after() -> Array:
 		{"s": A, "t": "我還是不信。你知道的。"},
 		{"s": A, "t": "可是我希望你帶回來的，是一張讓我不得不信、或者讓他不得不放棄的底片。哪一種都好——只要是乾淨的。"},
 		{"s": A, "t": "去看看吧。無論你看見什麼，都把它記下來。"},
-	])
-	return seq
+	]
 
 
 ## Captions over black between departure and Príncipe. Moves the tail of M1's montage here;
