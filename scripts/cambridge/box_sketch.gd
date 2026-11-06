@@ -257,7 +257,7 @@ func _layout() -> void:
 		_inset_label.position = inset.position + Vector2(inset.size.x * 0.06, inset.size.y * 0.40)
 		_inset_label.size = Vector2(inset.size.x * 0.88, inset.size.y * 0.5)
 	_arrow_label.position = Vector2(inset.end.x + size_.x * 0.01, inset.position.y + inset.size.y * 0.04)
-	_arrow_label.size = Vector2(size_.x * 0.16, inset.size.y * 0.3)
+	_arrow_label.size = Vector2(size_.x - _arrow_label.position.x, inset.size.y * 0.3)
 
 
 func _refresh_stage() -> void:

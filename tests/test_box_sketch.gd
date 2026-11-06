@@ -54,6 +54,8 @@ func _run() -> void:
 	await _test_input_blocked()
 	print("box: 5 the sketch's own layout")
 	await _test_layout()
+	print("box: 6 a gamepad alone gets through both modes")
+	await _test_gamepad()
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -246,6 +248,55 @@ func _test_layout() -> void:
 	for button in sketch.frame_btns:
 		check(screen.encloses(button.get_global_rect()),
 			"the light frame button %s sits inside the screen (%s)" % [button.text, button.get_global_rect()])
+	layer.queue_free()
+	await process_frame
+
+
+func _pad(index: JoyButton) -> void:
+	var event := InputEventJoypadButton.new()
+	event.button_index = index
+	event.pressed = true
+	root.push_input(event)
+	await process_frame
+	event.pressed = false
+	root.push_input(event)
+	await process_frame
+
+
+func _test_gamepad() -> void:
+	var layer := CanvasLayer.new()
+	root.add_child(layer)
+	var sketch = Sketch.new()
+	layer.add_child(sketch)
+	await process_frame
+	sketch.open("drop")
+	await process_frame
+	for i in 3:
+		check(sketch.stage == i, "drop stage %d is reached by gamepad" % i)
+		check(sketch.release_btn.has_focus(), "drop stage %d lands focus on 鬆手" % i)
+		await _pad(JOY_BUTTON_A)
+		check(sketch._falling, "drop stage %d: A releases the pencil" % i)
+		check(await _wait_for(func(): return not sketch._falling, 5.0), "drop stage %d: the pencil lands" % i)
+		check(sketch.next_btn.has_focus() and not sketch.next_btn.disabled, "drop stage %d: focus moves to the next button" % i)
+		await _pad(JOY_BUTTON_A)
+	check(not sketch.visible, "the last A closes the drop sketch")
+	sketch.open("light")
+	await process_frame
+	check(sketch.release_btn.has_focus(), "the light sketch lands focus on 鬆手")
+	await _pad(JOY_BUTTON_A)
+	check(sketch._light_running, "A runs the light in the first view")
+	check(await _wait_for(func(): return not sketch._light_running, 5.0), "the first light run ends")
+	check(sketch.next_btn.disabled, "收起來 waits for the second view")
+	await _pad(JOY_BUTTON_DPAD_LEFT)
+	check(sketch.frame_btns[1].has_focus(), "the d-pad reaches the other view from 鬆手")
+	await _pad(JOY_BUTTON_A)
+	check(sketch.view == "inside" and sketch.release_btn.has_focus(), "A changes the view and returns focus to 鬆手")
+	await _pad(JOY_BUTTON_A)
+	check(sketch._light_running, "A runs the light in the second view")
+	check(await _wait_for(func(): return not sketch._light_running, 5.0), "the second light run ends")
+	check(sketch.next_btn.has_focus() and not sketch.next_btn.disabled, "focus moves to 收起來 once both views ran")
+	await _pad(JOY_BUTTON_A)
+	check(not sketch.visible, "A closes the light sketch")
 	layer.queue_free()
 	await process_frame
 
