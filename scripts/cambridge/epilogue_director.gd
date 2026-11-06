@@ -229,7 +229,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			_store("final_reason", choice)
 			var choices: Array = Content.final_reason()[0].choices
 			_store("final_reason_text", str(choices[choice]) if choice >= 0 and choice < choices.size() else "")
-			_say(Content.final_reply(choice) + Content.close(), "close")
+			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet) + Content.close(), "close")
 			return
 		"close":
 			_end_epilogue()
