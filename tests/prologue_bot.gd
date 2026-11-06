@@ -29,6 +29,7 @@ var _speaker_scene_id := 0
 var _departure_handled := false
 var _speaker_shots: Dictionary = {}
 var _choice_shots: Dictionary = {}
+var _walking := false
 var _coda_capture_seen: Dictionary = {}
 var _coda_fade_capture_started := false
 var _coda_checks := {"workbook": false, "loupe": false, "kit_close": false, "lamp_out": false, "complete": false}
@@ -108,7 +109,10 @@ func _beat_shot(name_: String) -> void:
 		var wait_left := 18.0
 		while wait_left > 0.0 and is_instance_valid(main) and not main.ui.dialog_active():
 			await get_tree().process_frame
-			wait_left -= get_process_delta_time()
+			# A planned walk to the beat's actor is not a stuck dialogue: the bot has
+			# not had its chance to interact yet, so only count time spent standing.
+			if not _walking:
+				wait_left -= get_process_delta_time()
 		if not is_instance_valid(main) or not main.ui.dialog_active():
 			failures.append("beat shot did not reach visible dialogue: " + name_)
 			_capturing -= 1
@@ -278,6 +282,7 @@ func look(target: Vector3) -> void:
 
 
 func walk(target: Vector3) -> void:
+	_walking = true
 	await _monkey_step("walk", true)
 	if monkey:
 		print("[PROLOGUE monkey] WALK target=%s from=%s elapsed_s=%.2f" % [target, main.player.global_position, _elapsed])
@@ -323,6 +328,7 @@ func walk(target: Vector3) -> void:
 			print("[PROLOGUE monkey] STUCK target=%s at=%s can_move=%s busy=%s dialog=%s log=%s paused=%s" % [target, main.player.global_position, main.player.can_move, main.get("_busy"), main.ui.dialog_active(), main.ui.log_open(), get_tree().paused])
 	if monkey:
 		print("[PROLOGUE monkey] WALK done target=%s at=%s reached=%s elapsed_s=%.2f" % [target, main.player.global_position, reached, _elapsed])
+	_walking = false
 
 
 func _in_cambridge_room() -> bool:
