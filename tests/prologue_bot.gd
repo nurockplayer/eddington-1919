@@ -844,12 +844,24 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue did not reach the ending")
 		return false
 	var back: Dictionary = Story.runs.back()
-	if int(back.get("astro_weight", -1)) != 1:
-		failures.append("epilogue astrographic weighting was not stored")
-	if int(back.get("click", -1)) != 1:
-		failures.append("epilogue orrery answer was not stored")
-	if int(back.get("final_reason", -1)) != 2:
-		failures.append("epilogue notebook answer was not stored")
+	var astro := int(back.get("astro_weight", -1))
+	var click := int(back.get("click", -1))
+	var reason := int(back.get("final_reason", -1))
+	if monkey:
+		# Monkey mode mashing E may pick another offered answer; require a valid one.
+		if astro < 0 or astro > 3:
+			failures.append("epilogue astrographic weighting was not stored: %d" % astro)
+		if click < 0 or click > 2:
+			failures.append("epilogue orrery answer was not stored: %d" % click)
+		if reason < 0 or reason > 4:
+			failures.append("epilogue notebook answer was not stored: %d" % reason)
+	else:
+		if astro != 1:
+			failures.append("epilogue astrographic weighting was not stored: %d" % astro)
+		if click != 1:
+			failures.append("epilogue orrery answer was not stored: %d" % click)
+		if reason != 2:
+			failures.append("epilogue notebook answer was not stored: %d" % reason)
 	if not Story.epilogue_done:
 		failures.append("epilogue completion flag missing")
 	if not main.ui.ending_review.text.contains("筆記本最後一句"):
