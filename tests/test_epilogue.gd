@@ -103,6 +103,8 @@ func _test_final_replies(story: Node) -> void:
 		{"choice": 0, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 1, "reply": ""},
 		{"choice": 1, "case": "no_value", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 2,
 			"reply": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"},
+		{"choice": 1, "case": "changed_prediction", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 2, "current_pick": 1,
+			"reply": "你在 1917 年寫了 1.75，現在寫下了另一個數字。你改變的，也許是你憑什麼相信它。"},
 		{"choice": 4, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 2,
 			"reply": "那就寫下來。沒有改變，也是一筆紀錄。"},
 	]
@@ -112,6 +114,7 @@ func _test_final_replies(story: Node) -> void:
 		var run := _make_run(case.combined, case.bounds)
 		story.runs.append(run)
 		story.bet_1917 = {"pick": case.pick, "sure": 1}
+		story.bet = {"pick": int(case.get("current_pick", case.pick)), "sure": 1}
 		chapter._pending = "final_reason"
 		chapter._dialogue_done({"final_reason": case.choice})
 		var seq: Array = chapter.ui._seq
