@@ -141,6 +141,7 @@ def shirt_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Ob
     vertices, faces, materials = [], [], []
     rows, columns = 12, 7
     for start, end, top_width, bottom_width, offset, material in (
+        (0.02, 0.30, 0.095, 0.03, 0.003, "waistcoat"),
         (0.015, 0.24, 0.075, 0.012, 0.005, "collar"),
         (0.03, 0.26, 0.016, 0.016, 0.008, "tie"),
     ):
@@ -188,10 +189,11 @@ def shirt_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Ob
     mesh.update()
     front = bpy.data.objects.new(f"{obj.name.rsplit('_', 1)[0]}_shirt_front", mesh)
     bpy.context.collection.objects.link(front)
-    for key in ("collar", "tie"):
+    surface_materials = ("waistcoat", "collar", "tie")
+    for key in surface_materials:
         mesh.materials.append(kit.mat(formal[key]))
     for poly, material in zip(mesh.polygons, materials):
-        poly.material_index = 0 if material == "collar" else 1
+        poly.material_index = surface_materials.index(material)
         poly.use_smooth = True
     bone = "spine_03" if "spine_03" in rig.data.bones else max(
         (b for b in rig.data.bones if b.name.startswith("spine_")), key=lambda b: b.head_local.z
@@ -329,15 +331,17 @@ def main() -> None:
         collar_drop = spec["formal"].get("collar_drop", 0.15)
         tie_w = spec["formal"].get("tie_half_width", 0.025)
         for poly in obj.data.polygons:
+            if spec["formal"].get("shirt_front"):
+                continue
             c = obj.matrix_world @ poly.center
             n = (obj.matrix_world.to_3x3() @ poly.normal).normalized()
             if n.y > -0.35:
                 continue
             down = neck - c.z
             if 0.015 < down < collar_drop and abs(c.x) < 0.105:
-                poly.material_index = slots["waistcoat" if spec["formal"].get("shirt_front") else "collar"]
+                poly.material_index = slots["collar"]
             elif collar_drop <= down < 0.42 and abs(c.x) < tie_w:
-                poly.material_index = slots["waistcoat" if spec["formal"].get("shirt_front") else "tie"]
+                poly.material_index = slots["tie"]
             elif waist - 0.04 < c.z < neck - 0.16 and abs(c.x) < 0.11:
                 poly.material_index = slots["waistcoat"]
         if spec["formal"].get("shirt_front"):
