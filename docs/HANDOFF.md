@@ -411,3 +411,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lead-wait run kit-mpfb-fu2`, brief `director/kit-mpfb-fu2.md` (coat and pullover colours, dark trousers, softer brows, sclera and iris; Kit only). The worker renders to `director/kit-r2/` for the lead.
 - **On its event:** judge `director/kit-r2/`. Next windowed look: Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`; then final-head tests and `lead-wait pr 229` (a push needs a new review). Delete `kit-r2/` and `look-kit/` afterwards.
 
+### Kit look round 2 (edd-lead) | 2026-11-06 15:3x JST
+
+- Blender renders at f5b14ca judged and deleted. Pass: eyes, coat colour. Fail: the split paints the jacket skirt dark, the chest is still ragged, and the brow and hair read as an angry 40-year-old.
+- **Running:** `lead-wait run kit-mpfb-fu3`, brief `director/kit-mpfb-fu3.md`: split at the jacket hem, a clean pullover V (Kit only), and a hair × brow sheet at `director/kit-r3/sheet.jpg`. The lead picks one combination.
+- **On its event:** judge the sheet and `kit_chest.png`, then tell the worker the combination (same session, one small follow-up). Windowed look Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`, then final-head tests, then `lead-wait pr 229` with `--reason`. If this round's chest fails too, consider a plain closed coat instead of more layers.
+
