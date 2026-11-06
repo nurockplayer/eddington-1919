@@ -135,6 +135,9 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.beat == chapter.Beat.LETTER, "the opening releases the letter beat")
 	check(chapter.ui.objectives.text.contains("劍橋・1919 年 10 月") and chapter.ui.objectives.text.contains("Dyson"),
 		"the objective names the letter")
+	var letter_prop: MeshInstance3D = chapter.world.letter_prop
+	var letter_bounds: AABB = letter_prop.global_transform * letter_prop.get_aabb()
+	check(letter_bounds.position.y >= 0.83 - 0.00001, "letter rests above the tabletop")
 	# The normal southern approach must reach the letter, not the 1917 copyist's desk volume.
 	chapter.player.velocity = Vector3.ZERO
 	chapter.player.global_position = chapter.world.targets.letter + Vector3(0, -0.86, 0.85)

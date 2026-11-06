@@ -51,7 +51,7 @@ static func orrery_closeup(root: Node3D, orrery: Node3D) -> Camera3D:
 	camera.name = "OrreryCloseup"
 	root.add_child(camera)
 	camera.global_position = orrery.global_position + Vector3(-0.55, 0.20, 0.0)
-	camera.look_at(orrery.global_position + Vector3(0, -0.10, 0))
+	camera.look_at(orrery.global_position + Vector3(0, 0.11, 0))
 	camera.fov = 35
 	camera.current = true
 	var light := OmniLight3D.new()

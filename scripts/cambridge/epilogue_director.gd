@@ -36,7 +36,7 @@ var street: AudioStreamPlayer
 func _ready() -> void:
 	ExistingDirector._ensure_inputs()
 	world = Room.build(self, false)
-	world.letter_prop.position = Vector3(-0.6, 0.80, 0.55)
+	world.letter_prop.position = Vector3(-0.6, 0.845, 0.55)
 	world.letter_hotspot.position = Vector3(-0.6, 0.86, 0.55)
 	world.targets.letter = world.letter_hotspot.position
 	# October 1919: Kit has not come back from the observatory; the desk is Ashby's.

@@ -58,7 +58,6 @@ func _build() -> void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	_column = VBoxContainer.new()
-	_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	_column.add_theme_constant_override("separation", 10)
 	center.add_child(_column)

@@ -88,6 +88,15 @@ func _seq_text(seq: Array) -> String:
 	return out
 
 
+func _check_orrery_frustum(chapter) -> void:
+	var camera := root.get_camera_3d()
+	var orrery: Node3D = chapter.world.orrery
+	var sun := orrery.get_node("Sun") as Node3D
+	check(camera.is_position_in_frustum(sun.global_position), "Sun is in the close-up frustum")
+	for ball in orrery.find_children("Ball", "MeshInstance3D", true, false):
+		check(camera.is_position_in_frustum(ball.global_position), "%s is in the close-up frustum" % ball.get_parent().name)
+
+
 ## After the report review: the objective names the orrery, Dyson waits, and the
 ## real check stores the three marks and the suspect before Dyson plays.
 func _test_review_gate_and_check(story: Node) -> void:
@@ -106,6 +115,7 @@ func _test_review_gate_and_check(story: Node) -> void:
 	chapter._interact("orrery")
 	check(chapter._pending == "orrery_check" and chapter.ui.dialog_active(), "the orrery opens the check")
 	check(root.get_camera_3d().name == "OrreryCloseup", "check uses the close-up")
+	_check_orrery_frustum(chapter)
 	var keys := _drive_check(chapter, PICKS)
 	check(root.get_camera_3d() == chapter.player.camera and chapter.find_child("OrreryCloseup", true, false) == null, "check restores the player camera")
 	check(keys == ["orrery_neptune", "orrery_halley", "orrery_mercury", "mercury_suspect"],
@@ -135,6 +145,7 @@ func _test_prechecked_goes_to_dyson(story: Node) -> void:
 	chapter._interact("orrery")
 	check(chapter._pending == "orrery_summary" and chapter.ui.dialog_active(), "a second visit shows the summary")
 	check(root.get_camera_3d().name == "OrreryCloseup", "summary uses the close-up")
+	_check_orrery_frustum(chapter)
 	var summary := _text(chapter)
 	check(summary.contains("你留在年鑑上的記號"), "the summary says what the player marked")
 	check(summary.contains("海王星：對得上") and summary.contains("水星的 43 角秒：對不上"),
