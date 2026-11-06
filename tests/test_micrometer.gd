@@ -6,6 +6,7 @@ extends SceneTree
 
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Render := preload("res://scripts/plate_render.gd")
+const Judgment := preload("res://scripts/judgment.gd")
 
 var failures := 0
 var checks := 0
@@ -186,5 +187,58 @@ func _run() -> void:
 	await _finish(game6)
 	print("mic: 6 done")
 
+	# 7. Turning on the micrometer recentres an already-open loupe on the reference star.
+	print("mic: 7 new game")
+	var game7 := await _new_game([1.75])
+	var ui7 = game7.ui
+	ui7.loupe_btn.button_pressed = true
+	ui7._show_loupe(Vector2(100000.0, 100000.0))
+	var half: Vector2 = ui7._plate_texture.get_size() * 0.5
+	var expected_center: Vector2 = ui7.loupe_start.clamp(half * 0.5, ui7._plate_texture.get_size() - half * 0.5)
+	ui7._set_micrometer(true)
+	check(ui7._loupe_center == expected_center,
+		"micrometer recentres an active loupe on the reference star (%s vs %s)" % [ui7._loupe_center, expected_center])
+	await _finish(game7)
+	print("mic: 7 done")
+
+	# 8. Corroboration uses recorded readings and excludes included unread plates.
+	print("mic: 8 new game")
+	var game8 := await _new_game([1.0, 2.5])
+	for i in 2:
+		game8.sim.plates[i].read = true
+		game8.sim.plates[i].reading = game8.sim.reading_for_value(1.75)
+	var agree_readings: Dictionary = Judgment.grade(game8.sim, Judgment.TELEGRAMS[0].id, Judgment.REASONS[0].id)
+	check(_has_line(agree_readings, "互相印證"), "agreeing readings corroborate despite differing hidden values")
+	await _finish(game8)
+	print("mic: 8 done")
+
+	print("mic: 9 new game")
+	var game9 := await _new_game([1.75, 1.75])
+	game9.sim.plates[0].read = true
+	game9.sim.plates[0].reading = game9.sim.reading_for_value(1.0)
+	game9.sim.plates[1].read = true
+	game9.sim.plates[1].reading = game9.sim.reading_for_value(2.5)
+	var disagree_readings: Dictionary = Judgment.grade(game9.sim, Judgment.TELEGRAMS[0].id, Judgment.REASONS[0].id)
+	check(not _has_line(disagree_readings, "互相印證"), "disagreeing readings do not corroborate despite matching hidden values")
+	await _finish(game9)
+	print("mic: 9 done")
+
+	print("mic: 10 new game")
+	var game10 := await _new_game([1.75, 1.75])
+	game10.sim.plates[0].read = true
+	game10.sim.plates[0].reading = game10.sim.reading_for_value(1.75)
+	var unread_grade: Dictionary = Judgment.grade(game10.sim, Judgment.TELEGRAMS[0].id, Judgment.REASONS[0].id)
+	check(not _has_line(unread_grade, "互相印證"), "included unread plate cannot corroborate")
+	check(_has_line(unread_grade, "只有一張好片"), "a single read good plate gets the single-plate line")
+	await _finish(game10)
+	print("mic: 10 done")
+
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
+
+
+func _has_line(grade: Dictionary, phrase: String) -> bool:
+	for line in grade.lines:
+		if line.contains(phrase):
+			return true
+	return false

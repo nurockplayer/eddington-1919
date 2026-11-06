@@ -976,6 +976,8 @@ func _set_micrometer(on: bool) -> void:
 		if not _mic_had_loupe:
 			loupe_btn.set_pressed_no_signal(true)
 			_set_loupe(true)
+		elif loupe_start.x >= 0.0 and loupe_start.y >= 0.0:
+			_show_loupe(loupe_start)
 		_sync_micrometer()
 	else:
 		_mic_dragging = false
