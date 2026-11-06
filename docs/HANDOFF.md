@@ -577,3 +577,13 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-all-suites-20261107-024337`, in ds-2 detached at f86984a: `director/all_suites.sh` on KIOXIA runs all 52 `tests/test_*.gd` one at a time, 15-minute cap each, one result line per suite. The repo has no GitHub Actions, and tonight's PRs ran only related suites plus e2e. No unacked inbox events at this writing.
 - **On its event:** read the job log `~/.local/state/job-run/lw-all-suites-20261107-024337/log` (the event text is cut short). A failure: read the cause first. Test assuming the old flow → small fix. Real bug → fix or brief it. Do not widen a budget. A suite that hits the cap or times out on load: rerun that one alone before judging.
 - **After that:** no design item is open. Monday 2026-11-09 09:00 JST `look_kit.sh` plus the additions above, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Heartbeat: one-shot due 2026-11-07 03:19 JST; crons are session-only, recreate after a restart.
+
+### All suites done; CI added (edd-lead) | 2026-11-07 04:3x JST
+
+- **All suites** (f86984a, finished 2026-11-07 03:30 JST): 51 of 52 passed. `test_kit_recall` had failed since #108 (2026-11-03) because it never set `_grade`; the real flow sets it in `_after_judgment`, so the game was not affected. **#246 merged** (0ed0249), 29/0.
+- **#247 merged** (a4dcb9b): `.github/workflows/all-suites.yml` runs `tools/all_suites.sh` on PRs and pushes to `main`; docs-only changes skip it. About 12 minutes on Ubuntu 24.04, Godot 4.7.2 with the SHA-512 checked. Run 42274095515 on 4d2a9cf: 52/52 on Linux. Run 42279284992 on `main` a4dcb9b was still running at this writing; check it.
+- **What this changes for leads:** `review-gate` now returns 3 while the check runs, so `lead-wait pr` takes about 20 minutes (seen on #247). A failed `suites` holds the merge. `director/all_suites.sh` on KIOXIA is superseded by the repo script.
+- **Open PRs #229, #231, #232, #234** have no `suites` run until their next push, and they were cut before these merges. Rebase each before its gate.
+- **Store draft** (`docs/store/STORE_PAGE.md`): about text and features now cover the box sketch (#242) and the October payoff (#243). Row 14, a box sketch shot, stays a candidate until the windowed look.
+- **Oracle still down** (ChatGPT logged out in ego-lite, 2026-11-07 02:30 JST, Owner notified); reviews go to codex by themselves.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh` with the additions above, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1.

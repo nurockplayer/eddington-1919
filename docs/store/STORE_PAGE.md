@@ -25,13 +25,13 @@ From Cambridge's light box to a clouded eclipse on Príncipe: call each exposure
 
 1917 年的劍橋，Kit 和 Ashby 先生陪你辨認鏡像與轉角、核對星圖，面對仍然對不上的殘點。你會接受複核、寫下報告，並為一次公平的觀測安排計畫。人物之間的對話與工作，讓「不知道」也有被認真記錄的位置。
 
-書架上的太陽系儀讓你核對牛頓的預測：海王星與哈雷彗星都對得上，水星卻留下每世紀 43 角秒。你要決定先懷疑什麼，再在帳本上寫下你認為光會偏折多少、有多少把握；Ashby 先生也會寫下他的數字。
+書架上的太陽系儀讓你核對牛頓的預測：海王星與哈雷彗星都對得上，水星卻留下每世紀 43 角秒。你要決定先懷疑什麼，再在帳本上寫下你認為光會偏折多少、有多少把握；Ashby 先生也會寫下他的數字。Eddington 還會遞來一張草圖：箱子放在地上鬆手，看鉛筆怎麼掉；箱子在太空裡被越拉越快地往上拉，再鬆手一次；外面蓋住之後，你還分得出來嗎？出發前，同一個箱子再畫一次，這次裡面是光。
 
 到了 1919 年的普林西比，你要準備底片、協助時鐘驅動，在全食中看雲、喊開始與停止，讓 Cottingham 操作遮光板。雲縫不會配合你的期待；一次曝光結束後，還得判斷是否換片再等。錯過的光，不能靠事後的措辭補回。
 
 夜裡回到暗房，先寫下選片規則，再查看量測結果。用放大鏡與參考底片分辨星點、拖線和霧，讓底片與牛津的對照片閃爍比對，看星點是否移動（位移經放大示意），再決定哪些底片值得採用。每張採用的底片，都要用顯微測微器親手對準參考星，數值來自你自己的讀數。量測前，1917 年的帳本會回到你面前，讓你堅持或改押。讀懂合併數值和誤差區間後，你才選擇電報與理由。若看過結果後重新選片，第一次的結果仍會留下。
 
-1919 年 10 月，故事回到劍橋那間書房（重建情節）。Dyson 的來信帶來 Sobral 的兩組數字：4 吋望遠鏡支持完整的偏折，天體照相儀那組卻不一致。你把它們抄到自己的結果旁，決定那組有問題的底片該算多重；Ashby 先生則翻開 1917 年的帳本，面對他自己寫下的數字。
+1919 年 10 月，故事回到劍橋那間書房（重建情節）。Dyson 的來信帶來 Sobral 的兩組數字：4 吋望遠鏡支持完整的偏折，天體照相儀那組卻不一致。你把它們抄到自己的結果旁，決定那組有問題的底片該算多重；Ashby 先生則翻開 1917 年的帳本，面對他自己寫下的數字。Sobral 的兩倍誤差範圍要由你自己從圖上讀出來；水星那 43 角秒回到年鑑裡；帳本翻到新的一頁，筆推到你面前，由你寫下現在的看法。
 
 這段故事把一個克制的主張，放在不完美的證據旁邊。1919 年的結果曾引發爭論；普林西比的雲直到全食最後三分之一才明顯變薄，只有兩張底片能用於量測。當年的報告最倚重的是 Sobral 的 4 吋望遠鏡。遊戲讓你走過判斷的過程，歷史背景與戲劇創作則分開標示。
 
@@ -43,13 +43,13 @@ How much certainty fits inside a telegram? Eddington 1919 is a narrative adventu
 
 Begin in Cambridge in 1917. With Kit and Mr Ashby, compare a tracing with a plate, work through mirrored and rotated images, and face a residual that remains unresolved. Accept an independent check, write your report, and plan a fair observation. These fictional conversations leave room for an honest “I don't know.”
 
-The orrery on the shelf lets you check Newton's predictions: Neptune and Halley's Comet hold up, but Mercury leaves 43 arcseconds per century unexplained. Decide what to suspect first, then write in the ledger how far you expect light to bend and how sure you are; Mr Ashby writes down his own figure.
+The orrery on the shelf lets you check Newton's predictions: Neptune and Halley's Comet hold up, but Mercury leaves 43 arcseconds per century unexplained. Decide what to suspect first, then write in the ledger how far you expect light to bend and how sure you are; Mr Ashby writes down his own figure. Eddington also hands you a sketch: drop a pencil in a box on the ground, then in a box pulled ever faster through empty space, then cover the outside and ask whether you can still tell them apart. Before you sail, the same box is drawn again, this time with light inside.
 
 On Príncipe in 1919, prepare photographic plates and help with the clock drive. During totality, watch the clouds and call when each exposure should start and stop; Cottingham handles the shutter. A gap in the cloud may be brief. Decide when to finish, change plates, and wait again.
 
 In the darkroom, commit to a selection rule before seeing the measured values. Inspect star images, trailing, and fog with a loupe and reference plates; blink the plate against the Oxford comparison plate to see whether the stars shift (the shift is exaggerated for illustration). Choose what to include, read the combined measurement and its uncertainty interval, then select a short telegram and a reason. If you change your selection after seeing the numbers, your first result remains on record. For each plate you use, you set a micrometer on a reference star yourself, so the value comes from your own reading. Before you measure, the 1917 ledger comes back: keep your figure or change it.
 
-In October 1919 the story returns to the Cambridge study (a reconstructed scene). Dyson's letter brings two sets of numbers from Sobral: the four-inch telescope favors the full deflection, and the astrographic plates disagree. Copy them beside your own result and decide how much weight the troubled set deserves, while Mr Ashby opens the 1917 ledger and faces the figure he wrote.
+In October 1919 the story returns to the Cambridge study (a reconstructed scene). Dyson's letter brings two sets of numbers from Sobral: the four-inch telescope favors the full deflection, and the astrographic plates disagree. Copy them beside your own result and decide how much weight the troubled set deserves, while Mr Ashby opens the 1917 ledger and faces the figure he wrote. You read Sobral's two-sigma range off the chart yourself, Mercury's 43 arcseconds return in the almanac, and the ledger opens on a new page with the pen pushed your way.
 
 The 1919 results were debated. On Príncipe, the clouds thinned only in the last third of totality, and just two plates could be measured. The historical report relied most heavily on Sobral's four-inch telescope. The game keeps historical context separate from its dramatic inventions.
 
@@ -72,8 +72,9 @@ Fiction and illustration: the player character, all dialogue, the episode in whi
 | 用放大鏡和參考底片，辨認星點、拖線與霧。 | Read star images, trailing, and fog with a loupe and reference plates. | HANDOFF：#84；#133 |
 | 量測前先寫下選片規則；若事後改選，記錄理由並保留第一次結果。 | Write your selection rule before measuring; later changes keep a reason and the first result. | HANDOFF：#85；#131 |
 | 核對牛頓的預測，找出水星那 43 角秒，再在帳本上押下自己對光線偏折的預測。 | Check Newton's predictions, find Mercury's 43 arcseconds, then stake your own figure for the bending of light in a ledger. | #208；#210、#219 |
+| 親手做箱子實驗：放開鉛筆、蓋住外面，再看光在同一個箱子裡怎麼走（皆為示意圖）。 | Work the box by hand: drop the pencil, cover the outside, then follow light through the same box (all illustration). | #242 |
 | 用顯微測微器親手對準參考星：結果的數字，來自你自己的讀數。 | Set the micrometer on a reference star by hand: the result comes from your own readings. | #207、#220 |
-| 1919 年 10 月回到劍橋：Sobral 的數字到了，你和 Ashby 先生各自面對當年寫下的預測。 | October 1919, back in Cambridge: the Sobral numbers arrive, and you and Mr Ashby each face the figure you wrote. | #215 |
+| 1919 年 10 月回到劍橋：Sobral 的數字到了，你自己讀出範圍，在帳本新的一頁寫下現在的看法；Ashby 先生也要面對當年的數字。 | October 1919, back in Cambridge: the Sobral numbers arrive, you read the range yourself and write a new ledger line, and Mr Ashby faces the figure he wrote. | #215、#243 |
 | 判讀誤差區間，選擇電報與理由，最後看見自己寄出的那封電報。 | Read the uncertainty interval, choose your words and reason, and end on your telegram. | HANDOFF：#88、#98、#109；#130、#134 |
 | 支援遊戲手把操作，並提供文字大小、畫質與音量設定。 | Gamepad controls, adjustable text size, graphics quality, and volume settings. | RELEASE_READINESS：A5–A7、A12；#115、#120、#122–#126 |
 
@@ -147,5 +148,6 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 | 11 | 在帳本上押下預測 | careful 路線加 `--store-shots`；`careful_store_h_bet.png`（待下次視窗拍攝）。 | 數字出現前先承諾，判斷才算自己的。 |
 | 12 | 親手用測微器讀數 | careful 路線加 `--store-shots`；`careful_store_i_micrometer.png`（待下次視窗拍攝）。 | 結果的數字來自玩家自己的讀數。 |
 | 13 | 1919 年 10 月，抄上 Sobral 的數字 | 序章 honest 路線；`honest_epilogue_chart_rows.png`。 | 自己的結果與歷史數字並排；畫面數字為示意。 |
+| 14 | 箱子草圖（候選） | 序章 honest 路線，考試中段；尚無固定截圖，待視窗檢查判斷是否值得拍。 | 玩家親手動的物理想法；只有畫面讀得懂才放。 |
 
 實際圖片、capsule 尺寸／裁切、商標可讀性、肖像與數字的呈現，均待 Owner／lead 挑選；本文件不代表已完成圖像驗收。
