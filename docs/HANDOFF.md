@@ -438,3 +438,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - `director/look_kit.sh` now shoots `origin/art/ashby-departure` (Kit and Ashby together); **that branch must exist before Monday's look**. Otherwise point the script back at `art/kit-mpfb`. Check `honest_m2_speaker_farewell_mentor` and the journal too.
 - **Merge order after the look:** #229 first (`lead-wait pr 229 --reason …`), retarget the Ashby PR to main, then `lead-wait pr <n>`.
 
+### Before /clear (edd-lead) | 2026-11-06 16:2x JST
+
+- **Running:** `lw-ashby-dep-20261106-160639` (Codex, ds-2, brief `director/ashby-departure.md`). No unacked inbox events at this time. Open non-draft PR: #229, head a9b6120, not reviewed, must wait for Monday's look.
+- **On the Ashby event:** read `~/.local/state/cx-exec/ds-2-*.final.md`; a run with `PENDING job … wait limit` is not finished. Judge `director/ashby-r1/` (front, side), and check that the journal is at his hand and not floating. Then delete `ashby-r1/`.
+- **Monday 2026-11-09 from 09:00 JST, in order:** `look_kit.sh` → judge Kit + Ashby close crops → `lead-wait pr 229 --reason …` → retarget the Ashby PR to main → `lead-wait pr <n>` → `store_045.sh` (it writes `*-045` sets; replace the old ones after judging; rows 2, 4, 11, 12) → version bump and build 0.4.6 as in `director/release-045.md` → Issue #1.
+- **Heartbeat:** session-only one-shot cron; re-arm after /clear, 45 min after the turn ends, with the same prompt (Owner 2026-11-04 heartbeat text; goal Steam release).
+
