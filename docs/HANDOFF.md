@@ -504,3 +504,12 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#225:** its only item is the same shirt-front gate as #224, and `shirt_front` no longer exists on `origin/art/faces`. Both issues are moot once #232 merges; add #225 to the close list.
 - **Inbox:** the two `PENDING job` events (`ashby-r2-renders`, `faces-rest-build`) were acked. Their jobs were followed up and judged in the sections above.
 - **Next:** unchanged. The Monday 2026-11-09 09:00 JST look kit, then the merge stack. Move E waits for the blind newcomer session, which needs a real person (Issue #1).
+
+### Pre-reviews done; arc clarity #235 (edd-lead) | 2026-11-06 19:2x JST
+
+- **#229 a9b6120:** round 4 oracle approve, 0 findings, no gate run. `lead-wait pr 229` reuses it. The rendered collar was not reviewed: judge it in Monday's look.
+- **#231 af1bc93:** oracle blocker on `tests/test_portrait.gd:128` (journal assertion must fail) is a false positive: job `ashby-r2-tests` ran it, `78 portrait checks, 0 failures`. PR comment posted. After Monday's look use `review-gate 231 --override-blockers "<reason>"`, unless a rerun on the final head fails. Oracle's minor: the journal does not follow the breathing hand; judge drift in game.
+- **#235 (9195f69):** text from a Sonnet cold read of the arc, plus a Sonnet fact-check with one oracle-ego run. It explains the second half of the deflection, gives Mercury a scale, says why the Newtonian alternatives don't reach the light result, and adds choice `box_light`, a cheap version of the box contradiction. Oracle approve; prologue 397/0, orrery 81/0, epilogue 89/0, departure 251/0, e2e 6/6. Add to Monday's look: the long 「箱子只說會彎」 page, the two Mercury pages, and the `box_light` choice. Not checked: whether the six ObjectDB leaks at the epilogue suite's exit predate #235.
+- **Not adopted from the cold read, still open:** `final_reason` is never checked against the player's bet or plates; `click` is stored but `ending.gd` never reads it; `trial_note` option 「照星表寫」 costs nothing. Next if idle: decide these one at a time, read the code first.
+- **Move E:** still waits for the blind newcomer session; the cold read is a proxy, not that session. It judged that the box needs doing by hand; `box_light` tests a cheap answer first.
+- **Close list when allowed:** #203, #213, #214; #224 and #225 once #232 merges.
