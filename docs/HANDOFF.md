@@ -519,3 +519,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **`click`:** no change. Every option already has its own reply, so the answer is heard; the ending does not need it.
 - **`trial_note`:** no change. Ashby's next line answers it directly (「哪顆星對不上，就寫它對不上」).
 - **`final_reason`:** `lead-wait run final-reply`, Codex luna in ds-2 (quota-advisor had named deepseek; the lead dispatched in the same call without reading it, and stopping the run was denied by the permission check at 2026-11-06 19:3x JST, so it runs on), brief `director/final-reply.md`, branch `narrative/final-reply`. Ashby answers "my own plates" when those plates decided nothing, and tells a player who bet 1.75 in 1917 that what changed was the reason for believing it. It also reports whether the epilogue suite's ObjectDB leak predates #235. On its event: read the text diff, then `lead-wait pr <n>`.
+
+### Notebook answer merged (edd-lead) | 2026-11-06 20:0x JST
+
+- **#236 merged-armed** (head 4c124cb, oracle approve): Ashby answers the `final_reason` choice from the run and the 1917 bet. Oracle caught that a bet changed away from 1.75 needed its own line; the lead reworded it because a bet can change to 說不準. `test_epilogue` 138/0. E2E 6/6 was on 6adbcb1; the last commit changed one line and its test string. Add the reply lines to Monday's look.
+- **ObjectDB:** #236's baseline on `origin/main` (with #235) reported 0, so the six seen in the #235 run did not recur. No pre-#235 comparison was run.
+- **Lead slip:** after a push, `lead-wait pr` can read the old head and reuse its bundle. The gate then fails with "no review for head". Rerun once the head shows.
+- **Next if idle:** nothing left from the cold read. Monday 2026-11-09 09:00 JST is still next: look kit, stack, store reshoot, 0.4.6.
