@@ -250,6 +250,7 @@ func _end_epilogue() -> void:
 	await ui.fade_to(1.0, 1.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
 	score.play("coda_resolution", 0.6)
+	Checkpoint.clear()
 	var ending: Dictionary = Ending.build(Story.runs.back(), Ending.story_view(Story))
 	ui.show_ending(ending.title, ending.body, ending.history, ending.review, ending.telegram,
 		Story.ending_plate, Story.ending_plate_caption)

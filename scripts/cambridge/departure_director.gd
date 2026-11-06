@@ -289,6 +289,7 @@ func _montage() -> void:
 	Story.departure_done = true
 	Story.from_prologue = true
 	beat = Beat.DONE
+	Checkpoint.save("principe")
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 

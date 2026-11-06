@@ -160,6 +160,7 @@ func _ready() -> void:
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	ui.start_pressed.connect(_start_from_title)
 	ui.prologue_pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/cambridge.tscn"))
+	ui.continue_pressed.connect(_continue_from_title)
 	ui.log_toggled.connect(func(_open): _sync_player_input())
 	ui.pause_toggled.connect(func(_paused): _sync_player_input())
 	ui.log_toggled.connect(_sync_coda_log)
@@ -665,6 +666,17 @@ func stop_all_audio() -> void:
 
 
 # ------------------------------------------------------------------------ Flow
+
+func _continue_from_title() -> void:
+	var chapter := Checkpoint.restore()
+	if chapter == "":
+		return
+	if chapter == "principe":
+		Story.from_prologue = true
+	# A continued chapter starts with no log from the run that ended.
+	UI.history.clear()
+	get_tree().change_scene_to_file(Checkpoint.scene(chapter))
+
 
 # The title hands over through black, so 1919 fades in instead of cutting.
 func _start_from_title() -> void:
@@ -1538,6 +1550,7 @@ func _lamp_out_then_ending() -> void:
 		Story.ending_plate = plate[0]
 		Story.ending_plate_caption = plate[1]
 		Story.epilogue_done = true
+		Checkpoint.save("epilogue")
 		get_tree().change_scene_to_file("res://scenes/epilogue.tscn")
 		return
 	_show_ending()
@@ -1741,6 +1754,7 @@ func _show_ending() -> void:
 	_stop_night_bed()
 	_play_resolution()
 	phase = Phase.ENDING
+	Checkpoint.clear()
 	ui.pause_enabled = false
 	ui.hud.visible = false
 	player.can_move = false
