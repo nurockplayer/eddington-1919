@@ -114,7 +114,19 @@ func _run() -> void:
 	room = Node3D.new()
 	root.add_child(room)
 	world = Room.build(room, true)
-	check(not world.mentor.has_node("figure") and not world.eddington.has_node("figure"), "departure people stay procedural")
+	check(not world.eddington.has_node("figure"), "Eddington stays procedural at departure")
+	check(world.mentor.has_node("figure"), "Ashby uses imported body at departure")
+	if world.mentor.has_node("figure"):
+		var ashby_body: Node = world.mentor.get_node("figure")
+		var ashby_skeleton := ashby_body.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+		for side in ["l", "r"]:
+			var bone := ashby_skeleton.find_bone("hand_" + side)
+			var hand: Vector3 = world.mentor.to_local(ashby_skeleton.to_global(ashby_skeleton.get_bone_global_pose(bone).origin))
+			check(hand.y > 0.55 and hand.y < 1.05, "Ashby %s hand is arms-down: %s" % [side, hand])
+			if side == "r":
+				check(world.mentor.get_node("journal").position.distance_to(hand) < 0.25, "journal is at Ashby's right hand")
+		var ashby_animation := ashby_body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+		check(ashby_animation.is_playing() and ashby_animation.get_animation("idle").loop_mode == Animation.LOOP_LINEAR, "Ashby breathes on a loop")
 	check(world.kit.has_node("figure"), "Kit uses imported body at departure")
 	room.free()
 	await frames()
