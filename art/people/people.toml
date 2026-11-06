@@ -101,7 +101,7 @@ macro = { gender = 1.0, weight = 0.46, muscle = 0.36, proportions = 0.5, race = 
 export = "assets/models/ashby.glb"
 breath_deg = 0.0
 moustache = true # Repo-authored geometry; no unlicensed community hair asset.
-formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", shirt_front = true }
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
 pose = { kind = "desk", head_deg = 5.0, stoop_deg = 12.0 }
 [person.ashby.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
@@ -129,7 +129,7 @@ macro = { gender = 1.0, weight = 0.46, muscle = 0.36, proportions = 0.5, race = 
 export = "assets/models/ashby_standing.glb"
 breath_deg = 1.2
 moustache = true # Repo-authored geometry; no unlicensed community hair asset.
-formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", shirt_front = true }
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
 [person.ashby_standing.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short02/short02.mhclo", "Hair"]

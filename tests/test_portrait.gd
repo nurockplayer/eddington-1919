@@ -125,6 +125,7 @@ func _run() -> void:
 			check(hand.y > 0.55 and hand.y < 1.05, "Ashby %s hand is arms-down: %s" % [side, hand])
 			if side == "r":
 				check(world.mentor.get_node("journal").position.distance_to(hand) < 0.25, "journal is at Ashby's right hand")
+				check(abs(world.mentor.get_node("journal").position.x) > abs(hand.x), "journal is outside Ashby's right hand")
 		var ashby_animation := ashby_body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 		check(ashby_animation.is_playing() and ashby_animation.get_animation("idle").loop_mode == Animation.LOOP_LINEAR, "Ashby breathes on a loop")
 	check(world.kit.has_node("figure"), "Kit uses imported body at departure")
