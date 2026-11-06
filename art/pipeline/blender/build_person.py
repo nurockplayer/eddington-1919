@@ -116,20 +116,33 @@ def glasses(c: Vector, front: float, name: str) -> list:
     return parts
 
 
-def moustache(c: Vector, front: float, name: str, material: str) -> list:
+def moustache(c: Vector, body: bpy.types.Object, name: str, material: str) -> list:
     """Full Edwardian moustache (Thrapston photo c.1910): wide across the upper lip
     with slightly drooping ends. Deliberately NOT a narrow block (r06 try3 read as a
     "toothbrush" moustache, an unwanted association)."""
-    y = front - 0.004
-    z = c.z - 0.054
-    mid = kit.cyl(f"{name}_moustache", 0.034, 0.012, (c.x, y, z), material, rot=(90, 0, 0), verts=14, bevel=0.004)
-    mid.scale = (1.0, 0.42, 1.0)
-    parts = [mid]
-    for sx in (-1, 1):
-        end = kit.cyl(f"{name}_moustache_end", 0.012, 0.01, (c.x + sx * 0.03, y + 0.003, z - 0.012), material, rot=(90, 0, sx * 25), verts=8, bevel=0.003)
-        end.scale = (0.7, 1.0, 1.0)
-        parts.append(end)
-    return parts
+    vertices = []
+    inv = body.matrix_world.inverted()
+    for row in range(3):
+        for col in range(13):
+            u = 2 * col / 12 - 1
+            x = c.x + u * 0.05
+            z = c.z - 0.054 - 0.014 * u * u + (1 - row) * (0.009 * (1 - u * u) + 0.002)
+            origin = Vector((x, -1, z))
+            hit, location, _, _ = body.ray_cast(inv @ origin, inv.to_3x3() @ Vector((0, 1, 0)))
+            if not hit:
+                raise RuntimeError(f"moustache ray missed at row {row}, column {col}")
+            vertices.append((x, (body.matrix_world @ location).y - (0.005 if row == 1 else 0.002), z))
+    faces = [(row * 13 + col, (row + 1) * 13 + col, (row + 1) * 13 + col + 1, row * 13 + col + 1)
+             for row in range(2) for col in range(12)]
+    mesh = bpy.data.meshes.new(f"{name}_moustache")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(f"{name}_moustache", mesh)
+    bpy.context.collection.objects.link(obj)
+    mesh.materials.append(kit.mat(material))
+    for poly in mesh.polygons:
+        poly.use_smooth = True
+    return [obj]
 
 
 def pullover_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types.Object, neck: float, formal: dict) -> None:
@@ -494,7 +507,7 @@ def main() -> None:
         if spec.get("glasses"):
             parts.append(kit.join(f"{pid}_glasses", glasses(c, front, f"{pid}_glasses")))
         if spec.get("moustache"):
-            parts.append(kit.join(f"{pid}_moustache", moustache(c, front, pid, spec["materials"].get("hair", "hair_dark"))))
+            parts.append(kit.join(f"{pid}_moustache", moustache(c, added["body"], pid, spec["materials"].get("hair", "hair_dark"))))
     for obj in parts:  # head accessories follow the head bone (idle breathing, look-at)
         mw = obj.matrix_world.copy()
         obj.parent = rig
