@@ -30,6 +30,8 @@ func _run() -> void:
 	story.reset()
 	await _test_full_flow(story)
 	story.reset()
+	await _test_final_replies(story)
+	story.reset()
 	await _test_gamepad(story)
 	story.reset()
 	check(not story.epilogue_done and story.ending_plate == null and story.ending_plate_caption == "",
@@ -86,6 +88,48 @@ func _text(chapter) -> String:
 	for line in chapter.ui._seq:
 		out += str(line.get("s", "")) + "：" + str(line.get("t", "")) + "\n"
 	return out
+
+
+func _test_final_replies(story: Node) -> void:
+	var cases := [
+		{"choice": 0, "case": "own_low", "combined": {"n": 2, "value": 0.70, "sigma": 0.12}, "bounds": {"lo": 0.40, "hi": 1.50}, "pick": 1,
+			"reply": "你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。"},
+		{"choice": 0, "case": "inconclusive", "combined": {"n": 2, "value": 1.30, "sigma": 0.30}, "bounds": {"lo": 0.60, "hi": 1.90}, "pick": 1,
+			"reply": "你的底片還分不出 0.87 和 1.75，剛才我們都看見了。讓你改變想法的，也許不是那個數字，是你親手量過它。那就照這樣寫。"},
+		{"choice": 0, "case": "no_value", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 1,
+			"reply": "你沒有帶回數值。你要寫底片，就寫明白：改變你的是拍它們的那幾分鐘，不是數字。"},
+		{"choice": 0, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 2,
+			"reply": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"},
+		{"choice": 0, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 1, "reply": ""},
+		{"choice": 1, "case": "no_value", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 2,
+			"reply": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"},
+		{"choice": 4, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 2,
+			"reply": "那就寫下來。沒有改變，也是一筆紀錄。"},
+	]
+	for case in cases:
+		story.reset()
+		var run := _make_run(case.combined, case.bounds)
+		story.runs.append(run)
+		story.bet_1917 = {"pick": case.pick, "sure": 1}
+		var chapter = await _new_epilogue()
+		chapter._pending = "final_reason"
+		chapter._dialogue_done({"final_reason": case.choice})
+		var seq: Array = chapter.ui._seq
+		var expected: String = case.reply
+		check(seq.size() == (1 if expected == "" else 2), "%s has its reply before the close lines" % case.case)
+		if expected != "":
+			check(str(seq[0].get("t", "")) == expected, "%s final answer receives its intended Ashby line" % case.case)
+		else:
+			check(seq.size() > 0 and str(seq[0].get("t", "")) == "11 月 6 日，倫敦開會。", "conceded with pick 1 has no Ashby reply")
+		check(str(seq[seq.size() - 1].get("t", "")) == "11 月 6 日，倫敦開會。", "%s includes the epilogue close" % case.case)
+		_finish(chapter)
+		check(str(story.runs.back().get("final_reason_text", "")) == str(CONTENT.final_reason()[0].choices[case.choice]), "%s stores final_reason_text" % case.case)
+		var deadline := Time.get_ticks_msec() + 8000
+		while chapter.beat != chapter.Beat.ENDING and Time.get_ticks_msec() < deadline:
+			await process_frame
+		check(chapter.beat == chapter.Beat.ENDING, "%s ends the epilogue" % case.case)
+		chapter.free()
+		await process_frame
 
 
 ## Cases 8–10 of the fact check are the four shapes the ledger can take; each one is

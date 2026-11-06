@@ -126,9 +126,23 @@ static func final_reason() -> Array:
 	]
 
 
-static func final_reply(choice: int) -> Array:
+## FICTION. The answer is the player's and is never corrected; Ashby only says what
+## their own run can and cannot carry. Bet pick 2 is 1.75 in mentor_dyson's ledger.
+static func final_reply(choice: int, run := {}, bet_1917 := {}) -> Array:
 	if choice == 4:
 		return [{"s": A, "t": "那就寫下來。沒有改變，也是一筆紀錄。"}]
+	if choice < 0:
+		return []
+	if choice == 0:
+		match ledger_case(run):
+			"own_low":
+				return [{"s": A, "t": "你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。"}]
+			"inconclusive":
+				return [{"s": A, "t": "你的底片還分不出 0.87 和 1.75，剛才我們都看見了。讓你改變想法的，也許不是那個數字，是你親手量過它。那就照這樣寫。"}]
+			"no_value":
+				return [{"s": A, "t": "你沒有帶回數值。你要寫底片，就寫明白：改變你的是拍它們的那幾分鐘，不是數字。"}]
+	if int(bet_1917.get("pick", -1)) == 2:
+		return [{"s": A, "t": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"}]
 	return []
 
 
