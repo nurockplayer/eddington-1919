@@ -486,3 +486,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **PR #233 merged** (ddbffec, oracle approve, 0 findings). Temp worktree and branch removed.
 - **#214 first item is already fixed:** `_set_micrometer` recentres an open loupe on `loupe_start` (`scripts/ui.gd:979`), set by `scripts/main.gd:1549`, and `tests/test_micrometer.gd` section 7 checks it. So nothing is left to do on #213, #214 or #203, and #224 goes when #232 merges. They are still open, because closing #203 was denied (2026-11-06 17:2x JST); no other close was tried.
 - **Still running:** `lead-wait run faces`. The Monday order stands: look → #229 → #231 → #232 → faces → store reshoot → 0.4.6 → Issue #1.
+
+### Faces: blocker being fixed (edd-lead) | 2026-11-06 17:3x JST
+
+- **PR #234** (`art/faces`, base `art/eddington-chest`): oracle blocker on 6c93726: the moustache was sampled on the posed body and then moved by the head pose again, which displaces it on the seated Ashby. Fix `408eb33` is local and not yet pushed. `faces-r1/` was deleted unjudged, since it predates the fix.
+- **Running:** `lead-wait run faces-fu1` (`director/faces_fu1.sh`): waits for job `faces-rest-build`, then resumes the same session with `director/faces-fu1.md` (commit, tests, a numeric check on the seated moustache, renders to `director/faces-r2/`, push).
+- **On its event:** a run ending in `PENDING job` is not finished. Judge `faces-r2/`, delete it. Pass → point `director/look_kit.sh` at `origin/art/faces`. Fail after one follow-up → drop #234 from Monday's stack.
