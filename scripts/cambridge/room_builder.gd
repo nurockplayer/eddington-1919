@@ -529,7 +529,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	out.targets["clock"] = clock_hotspot.position
 
 	# Kit waits at the far end of the table and is reachable from either side.
-	var kit := _npc_without_hat(w, Cast.KIT, Vector3(-2.1, 0, 0.5) if departure else Vector3(2.7, 0, 0.85), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit")
+	var kit := _npc_without_hat(w, Cast.KIT, Vector3(-2.1, 0, 0.5) if departure else Vector3(2.7, 0, 0.85), Color(0.27, 0.29, 0.30), Color(0.75, 0.70, 0.60), "kit", true)
 	kit.rotation.y = deg_to_rad(155)
 	out.kit = kit
 	out.targets["kit"] = kit.global_position if root.is_inside_tree() else kit.position
@@ -667,7 +667,8 @@ static func _shelf(w, pos: Vector3, wood: Color, dark_wood: Color) -> void:
 static func _npc_without_hat(w, display_name: String, pos: Vector3, coat: Color, shirt: Color, id: String, production := false) -> Node3D:
 	var body: Node3D
 	if production:
-		body = Figures.build_person(w, display_name, pos, id, "ashby" if id == "mentor" else "eddington_cambridge")
+		var assets := {"mentor": "ashby", "eddington": "eddington_cambridge", "kit": "kit"}
+		body = Figures.build_person(w, display_name, pos, id, assets[id])
 	else:
 		body = Figures.build(w, display_name, pos, coat, shirt, id)
 	var cs := body.get_child(0) as CollisionShape3D

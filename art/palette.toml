@@ -129,6 +129,11 @@ hex = "#2F251E"
 role = "structure"
 roughness = 0.6
 
+[swatch.hair_brown]
+hex = "#5A4332"
+role = "structure"
+roughness = 0.6
+
 [swatch.hair_grey]
 hex = "#6A6159"
 role = "structure"

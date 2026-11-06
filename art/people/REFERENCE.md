@@ -73,3 +73,6 @@ These are generated reconstructions approved by the Owner on 2026-10-25 JST,
 not historical photographs. Each displayed print is captioned exactly
 `重建肖像，非歷史照片`. Expression lookup supports an optional entry `mood` and
 falls back to neutral; this slice adds no mood keys to authored dialogue.
+
+Kit is fictional, with no real-person likeness. The 1.68 m height, medium-brown
+`short04` hair, spectacles, pale coat and grey pullover are invented.

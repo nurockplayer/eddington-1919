@@ -144,3 +144,9 @@ a public repo are publicly downloadable. Never copy those files into this repo.
 Public clones without access keep working: code must fall back to the CC0 MPFB
 figures in `assets/models/` when `assets/licensed/` is empty. Fetch with
 `git submodule update --init assets/licensed` (needs access to the private repo).
+
+## Kit MPFB figure
+
+Kit is fictional and uses the CC0 `kit.glb` in both Cambridge rooms. The
+1.68 m figure has brown `short04` hair, spectacles, a pale coat and grey pullover.
+The lead will judge its appearance in a windowed run.
