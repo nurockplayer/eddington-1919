@@ -40,7 +40,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | B10 | Human playtest of the current build | PLAYTEST.md: human playtest still absent |
 | B11 | Final names for the fictional characters (you, Kit, Ashby) | title screen says 「姓名暫定」 |
 
-## D. Release plan (edd-lead, 2026-11-07 09:0x JST)
+## D. Release plan (edd-lead, 2026-11-07 08:5x JST)
 
 From two oracle-ego rounds plus a read of the Steamworks pages. The Owner's own calls are marked. Steam facts: US$100 per product, not refundable, recouped after US$1,000 revenue; paperwork 15–30 days; 21 days from fee to release; Coming Soon at least 2 weeks; store and build review 3–5 business days, plan 7; 5 screenshots at 1920x1080 minimum; no trailer requirement found on the pages read.
 

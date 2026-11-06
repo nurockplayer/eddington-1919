@@ -109,7 +109,11 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 
 可供 Owner 編輯的 AI 說明：
 
-> 遊戲使用 AI 輔助生成的對話肖像，作為人物的重建圖像；它們不是歷史照片。已記錄的四張 JPEG 位於 `assets/portraits/`。其他 AI 使用範圍與最終 Steam 申報文字須由 Owner 確認。
+> 本遊戲的部分內容由 AI 代理在人工指導下協助製作，包括人物肖像、故事文本、角色對話、翻譯，以及以程式碼生成並使用 CC0 取樣音源渲染的音樂與音效。對話肖像是重建圖像，不是歷史照片。遊戲執行期間不會即時生成 AI 內容。
+
+> Some content in this game was created with the assistance of AI agents under human direction, including character portraits, story text, dialogue, localization, and music and sound effects generated through code and rendered using CC0 sample libraries. The portraits are reconstructions, not historical photographs. The game does not generate AI content at runtime.
+
+依據：Steam 內容問卷涵蓋「content that ships with your game, and is consumed by players... artwork, sound, narrative, localization」（`partner.steamgames.com/doc/gettingstarted/contentsurvey`）。文本由 AI 代理起草是 edd-lead 2026-11-07 08:5x JST 確認的製作事實，舊稿只寫肖像並不完整。送出前由 Owner 確認並申報。
 
 | 項目 | 已有記錄與檔案依據 | 申報／待確認 |
 |---|---|---|
