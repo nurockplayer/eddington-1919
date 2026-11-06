@@ -147,16 +147,33 @@ func walk(points: Array) -> void:
 	for target in points:
 		var t2 := Vector2(target.x, target.z)
 		var timeout := 12.0
+		var blocked := 0
+		var sidesteps := 0
 		while timeout > 0.0:
 			var here := Vector2(p.global_position.x, p.global_position.z)
 			var d := here.distance_to(t2)
 			if d < 0.35:
 				break
 			if real_input_only:
+				if main.ui.dialog_active():
+					# A notice can open mid-walk; a player reads it and walks on.
+					await talk()
+					# Keep the schedule honest: an endless dialogue still ends STUCK.
+					timeout -= get_process_delta_time()
+					continue
+				var before: Vector3 = p.global_position
 				await look(Vector3(target.x, p.camera.global_position.y, target.z))
 				_key(KEY_W, true)
 				await _frames(2)
 				_key(KEY_W, false)
+				blocked = blocked + 1 if p.global_position.distance_to(before) < 0.002 else 0
+				if blocked >= 30:
+					# Off the authored line against a prop: step away as a player would.
+					blocked = 0
+					var step: Key = [KEY_S, KEY_D, KEY_A][sidesteps % 3]
+					sidesteps += 1
+					_log("SIDESTEP %d near %s heading to %s" % [sidesteps, p.global_position, target])
+					await _hold(step, 0.6)
 			else:
 				var to: Vector2 = t2 - here
 				p.yaw = atan2(-to.x, -to.y)
