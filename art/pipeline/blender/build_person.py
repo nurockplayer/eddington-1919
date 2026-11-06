@@ -22,6 +22,7 @@ from pathlib import Path
 import addon_utils
 import bpy
 from mathutils import Matrix, Quaternion, Vector
+from mathutils.bvhtree import BVHTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kit  # noqa: E402
@@ -122,14 +123,18 @@ def moustache(c: Vector, body: bpy.types.Object, name: str, material: str) -> li
     "toothbrush" moustache, an unwanted association)."""
     vertices = []
     inv = body.matrix_world.inverted()
+    # Eye anchors use the rest mesh; sample the body in that same space before
+    # the head transform is applied to the finished accessory.
+    surface = BVHTree.FromPolygons([v.co for v in body.data.vertices],
+                                   [p.vertices[:] for p in body.data.polygons])
     for row in range(3):
         for col in range(13):
             u = 2 * col / 12 - 1
             x = c.x + u * 0.05
             z = c.z - 0.054 - 0.014 * u * u + (1 - row) * (0.009 * (1 - u * u) + 0.002)
             origin = Vector((x, -1, z))
-            hit, location, _, _ = body.ray_cast(inv @ origin, inv.to_3x3() @ Vector((0, 1, 0)))
-            if not hit:
+            location, _, _, _ = surface.ray_cast(inv @ origin, inv.to_3x3() @ Vector((0, 1, 0)))
+            if location is None:
                 raise RuntimeError(f"moustache ray missed at row {row}, column {col}")
             vertices.append((x, (body.matrix_world @ location).y - (0.005 if row == 1 else 0.002), z))
     faces = [(row * 13 + col, (row + 1) * 13 + col, (row + 1) * 13 + col + 1, row * 13 + col + 1)
