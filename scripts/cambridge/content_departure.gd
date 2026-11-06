@@ -134,6 +134,13 @@ static func mentor_farewell(slip_fix: int) -> Array:
 		# working. Physics: relative to an accelerating box, a light ray lands lower on the far wall;
 		# across a room the drop is far smaller than an atom, so no real box could show it.
 		{"s": A, "t": "Eddington 那個箱子，我後來又想了一次。這回在一面牆上開個小洞，讓一道光照進去。"},
+	])
+	return seq
+
+
+## Conversion arc move E (FICTION): the light in the box, played by hand in the sketch.
+static func mentor_farewell_after() -> Array:
+	return [
 		{"s": A, "t": "箱子越走越快，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"},
 		{"s": A, "t": "低多少？一個房間那麼寬，比一個原子還小得多。誰也看不見。",
 			"key": "light_box", "choices": ["「所以要用太陽。」", "「那就只是想像。」"],
@@ -144,8 +151,7 @@ static func mentor_farewell(slip_fix: int) -> Array:
 		{"s": A, "t": "我還是不信。你知道的。"},
 		{"s": A, "t": "可是我希望你帶回來的，是一張讓我不得不信、或者讓他不得不放棄的底片。哪一種都好——只要是乾淨的。"},
 		{"s": A, "t": "去看看吧。無論你看見什麼，都把它記下來。"},
-	])
-	return seq
+	]
 
 
 ## Captions over black between departure and Príncipe. Moves the tail of M1's montage here;

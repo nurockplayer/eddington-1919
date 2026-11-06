@@ -438,7 +438,14 @@ static func eddington_exam(report: Dictionary, _state: Dictionary) -> Array:
 		# FICTION: this conversation. No "lift/elevator": a later label.
 		{"s": E, "t": "可是不信以前，得先弄懂他在說什麼。陪我想一件事。"},
 			]]},
-		{"s": E, "t": "想像你在一個關緊的箱子裡，沒有窗。你一鬆手，鉛筆掉到地板上。你在哪裡？",
+	]
+
+
+## Conversion arc move E (FICTION): the box is hands-on now, so the question follows the
+## sketch. The outside is covered by Eddington's hand, which is why only the inside shows.
+static func eddington_box() -> Array:
+	return [
+		{"s": E, "t": "關緊的箱子，沒有窗，外面被我蓋住了。鉛筆還是掉到地板上。你在哪裡？",
 			"key": "box", "choices": ["箱子放在地上。", "箱子在空無一物的太空裡，被越拉越快地往上拉。", "……光看箱子裡面，分不出來。"],
 			"then": [
 				[{"s": E, "t": "也許。可是箱子要是在太空裡被越拉越快地往上拉，地板會迎上來接住鉛筆——裡面看起來一模一樣。"}],

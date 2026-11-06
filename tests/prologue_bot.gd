@@ -581,6 +581,12 @@ func _run() -> void:
 	await shot("08_report")
 	await click_button(sheet.submit_btn)
 	while not main.plan_board.visible:
+		if main.box_sketch.visible:
+			# Conversion arc move E: the box is played with real button presses.
+			await shot("bookkeeping_box_" + str(main.box_sketch.mode))
+			await _box_sketch_run()
+			await frames(3)
+			continue
 		if main.ui.dialog_active():
 			await shot("dialogue_" + str(main._pending))
 			if main._pending == "mentor_review":
@@ -941,6 +947,40 @@ func _capture_coda_lamp_out() -> void:
 		await shot("coda_lamp_out")
 
 
+## Conversion arc move E. The sketch only advances through its own buttons and its
+## own animation clock, so every stage waits for the real fall or light to finish.
+func _box_sketch_run() -> void:
+	var sketch = main.box_sketch
+	if sketch.mode == "drop":
+		for stage in 3:
+			await _box_wait(sketch, func(): return not sketch.release_btn.disabled, "stage %d release is ready" % stage)
+			await shot("box_drop_%d" % stage)
+			await click_button(sketch.release_btn)
+			await _box_wait(sketch, func(): return not sketch.next_btn.disabled, "stage %d fall ends" % stage)
+			await shot("box_drop_%d_ticks" % stage)
+			await click_button(sketch.next_btn)
+		return
+	for index in 2:
+		var view_name: String = "outside" if index == 0 else "inside"
+		if sketch.view != view_name:
+			await click_button(sketch.frame_btns[index])
+		await click_button(sketch.release_btn)
+		await _box_wait(sketch, func(): return not sketch.release_btn.disabled, "light lands %s" % view_name)
+		await shot("box_light_" + view_name)
+	await _box_wait(sketch, func(): return not sketch.next_btn.disabled, "both light views are played")
+	await click_button(sketch.next_btn)
+
+
+func _box_wait(sketch, cond: Callable, what: String) -> void:
+	var wait_left := 8.0
+	while is_instance_valid(sketch) and sketch.visible and not cond.call() and wait_left > 0.0:
+		await frames(2)
+		wait_left -= get_process_delta_time()
+	if not cond.call():
+		failures.append("box sketch: " + what)
+		_finish()
+
+
 func _departure_run() -> void:
 	var deadline := 45.0
 	while is_instance_valid(main) and main._busy and deadline > 0.0:
@@ -1018,6 +1058,19 @@ func _departure_run() -> void:
 		_finish()
 		return
 	await talk_keys({"gift": 0})
+	# Conversion arc move E: Ashby hands the light in the box to the sketch before he
+	# goes on, so the farewell's tail is played and then spoken.
+	var box_wait := 10.0
+	while is_instance_valid(main.box_sketch) and not main.box_sketch.visible and box_wait > 0.0:
+		await frames()
+		box_wait -= get_process_delta_time()
+	if not is_instance_valid(main.box_sketch) or not main.box_sketch.visible:
+		failures.append("Ashby's farewell did not open the box sketch")
+		_finish()
+		return
+	await shot("m2_box_light")
+	await _box_sketch_run()
+	await talk_keys({"light_box": 1 if scenario == "tidy" else 0})
 	var gift_wait := 3.0
 	while not main.keepsake.visible and gift_wait > 0.0:
 		await frames()

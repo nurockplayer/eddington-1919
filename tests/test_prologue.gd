@@ -328,7 +328,7 @@ func _test_teaching_paths() -> void:
 	await process_frame
 	for name_ in ["dyson", "exam"]:
 		var old: Array = OriginalTeaching.mentor_dyson({}, {}) if name_ == "dyson" else OriginalTeaching.eddington_exam({}, {})
-		var current: Array = C17.mentor_dyson({}, {}) if name_ == "dyson" else C17.eddington_exam({}, {})
+		var current: Array = C17.mentor_dyson({}, {}) if name_ == "dyson" else C17.eddington_exam({}, {}) + C17.eddington_box()
 		for answer in [0, 1, 2]:
 			var answers := {"size": mini(answer, 1), "bridge": answer, "q1": answer, "q2": answer, "box": answer}
 			var baseline := _teaching_route(ui, old, 0, answers)
@@ -336,7 +336,7 @@ func _test_teaching_paths() -> void:
 			var detail := _teaching_route(ui, current, 1, answers)
 			var reverted := _teaching_route(ui, current, 0, answers)
 			check(baseline.done and short.done and detail.done, name_ + " paths complete the dialogue")
-			var unchanged: Array = baseline.lines.filter(func(line): return not (str(line[1]).contains("可是箱子要是在太空裡被一直往上拉") or str(line[1]).contains("在一個往上加速的箱子裡") or str(line[1]).contains("箱子裡分不出加速和引力")))
+			var unchanged: Array = baseline.lines.filter(func(line): return not (str(line[1]).contains("可是箱子要是在太空裡被一直往上拉") or str(line[1]).contains("在一個往上加速的箱子裡") or str(line[1]).contains("箱子裡分不出加速和引力") or str(line[1]).contains("想像你在一個關緊的箱子裡")))
 			check(_contains_in_order(detail.lines, unchanged), name_ + " details preserve unchanged original lines in order")
 			if name_ == "exam":
 				var opening := [C17.E, "%s大概跟你說過 Dyson 的那篇短文了。" % C17.A]
@@ -625,6 +625,12 @@ func _test_cambridge_rain() -> void:
 		return
 	check(is_equal_approx(chapter.rain.volume_db, -30.0), "Cambridge daylight rain settles at -30 dB")
 	_finish_test_dialogue(chapter)
+	# Conversion arc move E: the exam half now leaves the box sketch open, so play it
+	# through its real buttons before the exam's second half is finished.
+	if not await _rain_wait(chapter, func(): return chapter.box_sketch.visible, "the exam opens the box sketch"):
+		return
+	await _drive_box(chapter)
+	_finish_test_dialogue(chapter)
 	chapter._finish_plan(["comparison", "far_stars", "rules_first"])
 	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.
 	var guard := 100
@@ -752,6 +758,21 @@ func _rain_wait(chapter, cond: Callable, what: String) -> bool:
 	return ok
 
 
+## Conversion arc move E: three presses of 鬆手 and two of 換一格, each waiting for
+## the sketch's own animation to end before the next button enables.
+func _drive_box(chapter) -> void:
+	var sketch = chapter.box_sketch
+	for stage in 3:
+		sketch.release_btn.pressed.emit()
+		var deadline := Time.get_ticks_msec() + 5000
+		while sketch.next_btn.disabled and Time.get_ticks_msec() < deadline:
+			await process_frame
+		check(not sketch.next_btn.disabled, "box stage %d fall finishes and enables the next cell" % stage)
+		sketch.next_btn.pressed.emit()
+		await process_frame
+	check(not sketch.visible, "the third 回到桌邊 closes the box sketch")
+
+
 func _finish_test_dialogue(chapter) -> void:
 	var guard := 50
 	while chapter.ui.dialog_active() and guard > 0:
@@ -811,7 +832,7 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	check(answered.any(func(line): return str(line.get("t", "")).contains("1911")), "the mentor adds Einstein's 1911 half value")
 	check(answered.any(func(line): return line.get("key", "") == "bridge"), "the bridge question still follows")
 	# Issue #37 loop 2: the closed box sits in Eddington's exam, before the clean-plate list.
-	var exam: Array = C17.eddington_exam({}, {})
+	var exam: Array = C17.eddington_exam({}, {}) + C17.eddington_box()
 	var box_i := exam.find(exam.filter(func(l): return l.get("key", "") == "box" and l.get("choices", []).size() == 3).front())
 	check(box_i > 0 and exam[box_i].choices.size() == 3 and str(exam[box_i].then[2][0].t).contains("分不出來"), "the closed box asks where you are and accepts 'cannot tell'")
 	check(str(exam[exam.size() - 1].t).contains("清單"), "the exam still ends on the clean-plate list")
@@ -819,10 +840,19 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	var exam_results: Array = []
 	for details in [0, 1]:
 		chapter._say(C17.eddington_exam({}, {}), "exam")
-		var exam_guard := 100
+		var exam_guard := 200
 		var light_lines: Array = []
-		while chapter._pending == "exam" and exam_guard > 0:
+		while exam_guard > 0:
 			exam_guard -= 1
+			if chapter.box_sketch.visible:
+				# Conversion arc move E: the box is played between the two halves.
+				await _drive_box(chapter)
+				continue
+			if chapter._pending not in ["exam", "exam_box"]:
+				break
+			if not chapter.ui.dialog_active():
+				await process_frame
+				continue
 			var line: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
 			light_lines.append(str(line.get("t", "")))
 			if line.has("choices"):

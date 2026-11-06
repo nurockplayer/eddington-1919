@@ -77,7 +77,8 @@ func _test_content_branches() -> void:
 	for fix in [0, 1]:
 		check(not Content.mentor_farewell(fix).is_empty(), "mentor farewell exists for slip fix %d" % fix)
 		# Issue #37 loop 3: Ashby revisits the box with light, says no box could show it, still doubts.
-		var bye: Array = Content.mentor_farewell(fix)
+		# Conversion arc move E splits the box off so the sketch is played between the halves.
+		var bye: Array = Content.mentor_farewell(fix) + Content.mentor_farewell_after()
 		var at := bye.find(bye.filter(func(l): return l.get("key", "") == "light_box").front())
 		check(at > 0 and str(bye[at].t).contains("原子") and str(bye[at + 1].t).contains("不信"), "light in the box comes before Ashby's doubt, slip fix %d" % fix)
 		var answers: Array = bye[at].then if at > 0 else []
@@ -90,7 +91,8 @@ func _test_content_branches() -> void:
 	var dialogue: Array = [Content.opening(), Content.before_closing(), Content.sky_promise("close"), Content.sky_promise("warm"),
 		Content.slip_found(false, false), Content.slip_found(false, true),
 		Content.slip_found(true, false), Content.slip_found(true, true),
-		Content.mentor_farewell(0), Content.mentor_farewell(1), Content.principe_workbook("close", [], false),
+		Content.mentor_farewell(0), Content.mentor_farewell(1), Content.mentor_farewell_after(),
+		Content.principe_workbook("close", [], false),
 		Content.principe_workbook("warm", [], false), Content.principe_workbook("warm", [{"sky_read": "clear"}], true)]
 	for entry in Content.check_entries():
 		dialogue.append(Content.kit_reads(entry))
@@ -207,6 +209,24 @@ func _drain_dialogue(chapter, choices: Dictionary = {}) -> void:
 	check(guard > 0, "M2 dialogue sequence terminates")
 
 
+## Both light views run through their real buttons, and only then does 收起來 enable.
+func _play_box_light(chapter) -> void:
+	var sketch = chapter.box_sketch
+	for index in 2:
+		if index > 0:
+			sketch.frame_btns[1].pressed.emit()
+		check(sketch.release_btn.disabled == false, "light view %d can start" % index)
+		sketch.release_btn.pressed.emit()
+		var deadline := Time.get_ticks_msec() + 5000
+		while sketch.release_btn.disabled and Time.get_ticks_msec() < deadline:
+			await process_frame
+		check(not sketch.release_btn.disabled, "light view %d reaches the far wall" % index)
+	check(not sketch.next_btn.disabled, "both light views enable 收起來")
+	sketch.next_btn.pressed.emit()
+	await process_frame
+	check(not sketch.visible and chapter.ui.dialog_active(), "收起來 hands the farewell back to Ashby")
+
+
 func _test_director_input_and_story() -> void:
 	ScorePlayer.cue_log.clear()
 	var story = root.get_node("Story")
@@ -294,6 +314,11 @@ func _test_director_input_and_story() -> void:
 		"corridor stand ray reaches Ashby for the farewell (got %s)" % (str(mentor_target.get_meta("interact_id", "")) if mentor_target else "none"))
 	chapter._interact("mentor")
 	await _drain_dialogue(chapter, {"gift": 0})
+	# Conversion arc move E: the light in the box is played before Ashby goes on.
+	check(chapter.box_sketch.visible and chapter.box_sketch.mode == "light",
+		"the farewell opens the box sketch in its light mode")
+	await _play_box_light(chapter)
+	await _drain_dialogue(chapter, {"light_box": 0})
 	check(chapter.keepsake.visible, "farewell displays the mentor gift HUD icon")
 	check(chapter.keepsake.visible and chapter.beat == chapter.Beat.FAREWELL, "farewell displays the gift before departure")
 	chapter.ui.toggle_pause()
