@@ -399,3 +399,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lead-wait run kit-mpfb`, Codex Terra in worktree ds-1, brief `kit-mpfb.md` on KIOXIA `director/`, branch `art/kit-mpfb`.
 - **On its event:** read the final report. Windowed look at Kit, close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `m2_speaker_promise_kit`, `honest_beat_orrery` (Mon–Fri 09–15 JST; otherwise Monday 2026-11-09). Copy `director/store_045.sh` for the prologue run. Oracle approve and the lead's look are separate gates. Then `lead-wait pr <n>`, reshoot store row 2, add the arc rows, and consider a 0.4.6 for the Owner (Issue #1 now says 0.4.5; tell the Owner if Kit lands before they play).
 
+### Kit PR state (edd-lead) | 2026-11-06 14:45 JST
+
+- **PR #229** (`art/kit-mpfb`, head ff3bcec): oracle approve on the head, 1 major (tests do not prove Kit's idle plays or the mesh faces the player: follow-up issue, not a hold). Revert-check passed, e2e 6/6, portrait 69/0, prologue 395/0. test_departure failed once (montage caption, 4 s wall-clock) under load, then passed 3/3 on the branch and 3/3 on main: treated as a load flake, cause not established.
+- **Running:** `lw-look-kit-20261106-144457`, ticket #613 behind two gteki jobs. `director/look_kit.sh` shoots the prologue honest route to `director/look-kit/`. It exits 3 without running if it starts after 14:55 JST: then rerun it Monday 2026-11-09 from 09:00 JST with `lead-wait run look-kit -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_kit.sh`.
+- **On its event:** judge close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `honest_m2_speaker_promise_kit`, `honest_beat_orrery`, and whether the head and shirt front hold up beside Ashby. Pass → `review-gate 229`; delete `director/look-kit/`. Fail → resume the worker with one change, new review.
+
