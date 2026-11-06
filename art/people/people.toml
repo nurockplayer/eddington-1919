@@ -15,6 +15,7 @@ breath_deg = 1.2
 hat = { kind = "straw_hat", material = "straw", sink = 0.035 }
 glasses = true
 formal = { collar = "linen", waistcoat = "linen", tie = "hair_dark", waistcoat_v = true }
+iris = { sclera = "eye_white", iris = "eye_dark" }
 [person.eddington.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short02/short02.mhclo", "Hair"]
@@ -44,6 +45,7 @@ export = "assets/models/cottingham.glb"
 breath_deg = 1.5
 hat = { kind = "felt_hat", material = "felt", sink = 0.035 }
 moustache = true
+iris = { sclera = "eye_white", iris = "eye_dark" }
 [person.cottingham.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short02/short02.mhclo", "Hair"]  # short04 (try1) and short01 (try2) read as a bob under the hat
@@ -75,6 +77,7 @@ breath_deg = 0.0
 glasses = true
 formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
 pose = { kind = "papers", head_deg = 9.0, stoop_deg = 3.0 }
+iris = { sclera = "eye_white", iris = "eye_dark" }
 [person.eddington_cambridge.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short02/short02.mhclo", "Hair"]
@@ -103,6 +106,7 @@ breath_deg = 0.0
 moustache = true # Repo-authored geometry; no unlicensed community hair asset.
 formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
 pose = { kind = "desk", head_deg = 5.0, stoop_deg = 12.0 }
+iris = { sclera = "eye_white", iris = "eye_dark" }
 [person.ashby.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short02/short02.mhclo", "Hair"]
@@ -130,6 +134,7 @@ export = "assets/models/ashby_standing.glb"
 breath_deg = 1.2
 moustache = true # Repo-authored geometry; no unlicensed community hair asset.
 formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
+iris = { sclera = "eye_white", iris = "eye_dark" }
 [person.ashby_standing.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short02/short02.mhclo", "Hair"]
