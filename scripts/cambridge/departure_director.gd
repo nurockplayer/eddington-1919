@@ -12,6 +12,7 @@ const UI := preload("res://scripts/ui.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 const Content := preload("res://scripts/cambridge/content_departure.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
+const BoxSketch := preload("res://scripts/cambridge/box_sketch.gd")
 
 enum Beat { OPENING, CHECKLIST, CHECKING, KIT, PROMISE, FAREWELL, MONTAGE, DONE }
 var beat := Beat.OPENING
@@ -19,6 +20,7 @@ var world: Dictionary
 var player
 var ui
 var checklist
+var box_sketch
 var _pending := ""
 var _busy := true
 var _clock_t := 0.0
@@ -76,6 +78,11 @@ func _ready() -> void:
 	checklist.row_requested.connect(_read_row)
 	checklist.completed.connect(_checked)
 	checklist.closed.connect(func(): beat = Beat.KIT; _sync_player())
+	box_sketch = BoxSketch.new()
+	box_sketch.theme = ui.theme_res
+	layer.add_child(box_sketch)
+	box_sketch.hide()
+	box_sketch.finished.connect(func(): _say(Content.mentor_farewell_after(), "gift"))
 	_speaker_fill = OmniLight3D.new()
 	_speaker_fill.name = "DepartureDialogueBounce"
 	_speaker_fill.light_color = Color(1.0, 0.86, 0.69)
@@ -96,15 +103,16 @@ func _ready() -> void:
 
 
 func _free() -> bool:
-	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not checklist.visible
+	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not checklist.visible and not box_sketch.visible
 
 
 func _sync_player() -> void:
 	var free := _free()
 	checklist.input_blocked = get_tree().paused or _busy or ui.log_open() or ui.dialog_active()
+	box_sketch.input_blocked = get_tree().paused or ui.log_open()
 	player.can_move = free and beat in [Beat.CHECKLIST, Beat.KIT, Beat.FAREWELL]
 	player.can_look = free
-	ui.hud.visible = not checklist.visible and not ui.log_open() and not ui.dialog_active() and not _busy
+	ui.hud.visible = not checklist.visible and not box_sketch.visible and not ui.log_open() and not ui.dialog_active() and not _busy
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	var objective := ""
 	match beat:
@@ -152,7 +160,7 @@ func _interact(id: String) -> void:
 			beat = Beat.CHECKING
 			checklist.open()
 		"kit": _say(Content.before_closing(), "bond")
-		"mentor": _say(Content.mentor_farewell(Story.slip_fix), "gift")
+		"mentor": _say(Content.mentor_farewell(Story.slip_fix), "farewell")
 		"workbook":
 			_frame_point(world.targets.workbook)
 			ui.show_toast("1919 年 5 月 29 日", 4.0)
@@ -199,6 +207,11 @@ func _dialogue_done(results: Dictionary) -> void:
 		"promise":
 			Story.sky_promise = int(results.get("promise", -1))
 			beat = Beat.FAREWELL
+		"farewell":
+			# Conversion arc move E: the light in the box is played before Ashby's rest.
+			box_sketch.open("light")
+			_sync_player()
+			return
 		"gift":
 			keepsake.show()
 			_busy = true

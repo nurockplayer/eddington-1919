@@ -15,6 +15,7 @@ const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Board := preload("res://scripts/cambridge/plan_board.gd")
+const BoxSketch := preload("res://scripts/cambridge/box_sketch.gd")
 
 static var bench_cambridge_out := ""
 
@@ -26,6 +27,7 @@ var ui
 var overlay
 var report_sheet
 var plan_board
+var box_sketch
 var aligned := false
 var residual_found := false
 var kit_checked := false
@@ -119,7 +121,8 @@ func _ready() -> void:
 	overlay.ui = ui
 	report_sheet = Report.new()
 	plan_board = Board.new()
-	for modal in [overlay, report_sheet, plan_board]:
+	box_sketch = BoxSketch.new()
+	for modal in [overlay, report_sheet, plan_board, box_sketch]:
 		modal.theme = ui.theme_res
 		layer.add_child(modal)
 		modal.hide()
@@ -137,6 +140,7 @@ func _ready() -> void:
 	plan_board.reaction.connect(func(seq): plan_board.hide(); _say(seq, "board_reaction"))
 	plan_board.blocked.connect(func(card): plan_board.hide(); _say(C17.plan_blocked(card), "board_reaction"))
 	plan_board.finished.connect(_finish_plan)
+	box_sketch.finished.connect(_box_finished)
 	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
@@ -167,14 +171,15 @@ func state() -> Dictionary:
 
 
 func _free() -> bool:
-	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not overlay.visible and not report_sheet.visible and not plan_board.visible
+	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible
 
 
 func _sync_player() -> void:
 	var free := _free()
+	box_sketch.input_blocked = get_tree().paused or ui.log_open()
 	player.can_move = free and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK, Beat.ORRERY]
 	player.can_look = free
-	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not ui.log_open()
+	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	if beat == Beat.INVESTIGATE:
 		var task := "核對 14 號星場的抄錄圖，交給 %s" % Cast.MENTOR
@@ -469,6 +474,13 @@ func _dialogue_done(results: Dictionary) -> void:
 			return
 		"exam":
 			Story.exam = results.duplicate()
+			# Conversion arc move E: the box is played, not read. The rest of the exam
+			# follows the sketch in "exam_box".
+			box_sketch.open("drop")
+			_sync_player()
+			return
+		"exam_box":
+			Story.exam.merge(results, true)
 			beat = Beat.PLAN
 			_say(C17.plan_intro(), "plan_intro")
 			return
@@ -544,6 +556,10 @@ func _interlude() -> void:
 	_busy = false
 	beat = Beat.EXAM
 	_say(C17.eddington_exam(Story.report, state()), "exam")
+
+
+func _box_finished() -> void:
+	_say(C17.eddington_box(), "exam_box")
 
 
 func _finish_plan(ids: Array) -> void:
