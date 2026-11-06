@@ -525,4 +525,4 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#236 merged-armed** (head 4c124cb, oracle approve): Ashby answers the `final_reason` choice from the run and the 1917 bet. Oracle caught that a bet changed away from 1.75 needed its own line; the lead reworded it because a bet can change to 說不準. `test_epilogue` 138/0. E2E 6/6 was on 6adbcb1; the last commit changed one line and its test string. Add the reply lines to Monday's look.
 - **ObjectDB:** #236's baseline on `origin/main` (with #235) reported 0, so the six seen in the #235 run did not recur. No pre-#235 comparison was run.
 - **Lead slip:** after a push, `lead-wait pr` can read the old head and reuse its bundle. The gate then fails with "no review for head". Rerun once the head shows.
-- **Next if idle:** nothing left from the cold read. Monday 2026-11-09 09:00 JST is still next: look kit, stack, store reshoot, 0.4.6.
+- **Next if idle:** #237 (test-only, PR open 2026-11-06 20:2x JST), then nothing left from the cold read. Monday 2026-11-09 09:00 JST is still next: look kit, stack, store reshoot, 0.4.6.
