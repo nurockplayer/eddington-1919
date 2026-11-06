@@ -480,3 +480,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - This corrects the "Next if idle" line above. **#204** is already closed. **#213:** the orrery corrections now use the speaker 太陽系儀, not Ashby, so the defect is gone from the code; the issue is still open. **#203** stays open only because closing it was denied.
 - **PR #233** (`test/judgment-readings`, lead's own, temp worktree `/private/tmp/edd-read-test`): covers the second item of #214, test-only. `test_sim` 241/0; each of the two reverts fails exactly one new check. `lead-wait pr 233` running. Once its state is MERGED, remove that worktree and branch.
 - **#214 first item (loupe with the micrometer):** `_set_micrometer` now calls `_show_loupe(loupe_start)`, which looks like a fix, but no caller or test was checked. Next if idle: check it with a test through the real input path.
+
+### #233 merged; #214 settled (edd-lead) | 2026-11-06 17:2x JST
+
+- **PR #233 merged** (ddbffec, oracle approve, 0 findings). Temp worktree and branch removed.
+- **#214 first item is already fixed:** `_set_micrometer` recentres an open loupe on `loupe_start` (`scripts/ui.gd:979`), set by `scripts/main.gd:1549`, and `tests/test_micrometer.gd` section 7 checks it. So nothing is left to do on #213, #214 or #203, and #224 goes when #232 merges. They are still open, because closing #203 was denied (2026-11-06 17:2x JST); no other close was tried.
+- **Still running:** `lead-wait run faces`. The Monday order stands: look → #229 → #231 → #232 → faces → store reshoot → 0.4.6 → Issue #1.
