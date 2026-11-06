@@ -543,7 +543,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	# A plain closed journal under the mentor's arm, kept as a single prop.
 	if departure:
 		w.box(Vector3(0.20, 0.035, 0.24), Vector3(0.27, 1.28, -0.12), Color(0.27, 0.22, 0.17), out.mentor, false)
-	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-3.35, 0, 2.35) if departure else Vector3(-3.65, 0, -0.30), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington", not departure)
+	out.eddington = _npc_without_hat(w, Cast.EDDINGTON, Vector3(-3.35, 0, 2.35) if departure else Vector3(-3.65, 0, 0.75), Color(0.19, 0.2, 0.21), Color(0.83, 0.81, 0.76), "eddington", not departure)
 	if not departure:
 		out.eddington.rotation.y = -PI * 0.5
 	out.eddington.visible = false
