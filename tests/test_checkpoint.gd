@@ -52,11 +52,12 @@ func _run() -> void:
 	_check_plate(story)
 	_check_peek()
 	_check_enabled()
+	_check_automation_leaves_checkpoints_alone()
 	await _check_title(story)
 	await _check_ending_clear(story)
 	Checkpoint.clear()
-	Checkpoint.force_enabled = false
 	check(not FileAccess.file_exists(Checkpoint.path()), "the suite leaves no checkpoint file")
+	Checkpoint.force_enabled = false
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -156,6 +157,20 @@ func _check_peek() -> void:
 	file.close()
 	check(Checkpoint.peek() == "", "another version peeks empty")
 	check(Checkpoint.restore() == "", "a rejected file restores nothing")
+	Checkpoint.clear()
+
+
+func _check_automation_leaves_checkpoints_alone() -> void:
+	Checkpoint.save("principe")
+	var test_file := Checkpoint.path()
+	check(test_file.ends_with("checkpoint.test.save"), "a forced suite uses its own file")
+	Checkpoint.force_enabled = false
+	check(Checkpoint.path().ends_with("/checkpoint.save") and Checkpoint.path() != test_file, "the real path is a different file")
+	check(Checkpoint.peek() == "", "under --script a checkpoint does not show")
+	check(Checkpoint.restore() == "", "under --script a checkpoint does not restore")
+	Checkpoint.clear()
+	Checkpoint.force_enabled = true
+	check(FileAccess.file_exists(Checkpoint.path()) and Checkpoint.peek() == "principe", "a forced-off clear deletes nothing")
 	Checkpoint.clear()
 
 

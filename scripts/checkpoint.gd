@@ -8,7 +8,8 @@ extends RefCounted
 const Settings := preload("res://scripts/settings.gd")
 
 const VERSION := 1
-## Test suites and bots share one settings directory; they set this and clear the file.
+## Suites that exercise checkpoints set this: it turns them on, on a separate test
+## file, so a suite never touches a player's real one.
 static var force_enabled := false
 
 const LABELS := {
@@ -25,11 +26,12 @@ const BOT_ARGS := ["autoplay", "prologue-autoplay", "benchmark"]
 
 
 static func path() -> String:
-	return Settings.settings_path().get_base_dir().path_join("checkpoint.save")
+	return Settings.settings_path().get_base_dir().path_join("checkpoint.test.save" if force_enabled else "checkpoint.save")
 
 
-## Test suites and bots share one settings directory: a leftover file would add a
-## title button in a later suite. `--script` covers every suite; bots use user args.
+## Test suites and bots neither read, write nor delete checkpoints: a bot's ending
+## must not cost a player their save, and a save must not add a title button under a
+## test. `--script` covers every suite; bots use user args.
 static func enabled() -> bool:
 	if force_enabled:
 		return true
@@ -62,6 +64,8 @@ static func save(chapter: String) -> void:
 
 ## The chapter the file names, or "" when it is missing, unreadable or another version.
 static func peek() -> String:
+	if not enabled():
+		return ""
 	var data := _read()
 	if data.is_empty():
 		return ""
@@ -70,6 +74,8 @@ static func peek() -> String:
 
 
 static func restore() -> String:
+	if not enabled():
+		return ""
 	var data := _read()
 	if data.is_empty():
 		return ""
@@ -84,7 +90,7 @@ static func restore() -> String:
 
 
 static func clear() -> void:
-	if FileAccess.file_exists(path()):
+	if enabled() and FileAccess.file_exists(path()):
 		DirAccess.remove_absolute(path())
 
 
