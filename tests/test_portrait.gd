@@ -126,6 +126,7 @@ func _run() -> void:
 	check(tags.size() == 3, "all three Cambridge name tags exist")
 	check(tags.all(func(tag): return not tag.visible), "all name tags hide during dialogue")
 	chapter.player.global_position = chapter.world.kit.global_position + Vector3(2, 0, 1)
+	chapter._frame_speaker(Cast.YOU)
 	chapter._frame_speaker(Cast.KIT)
 	var kit_figure := chapter.world.kit.get_node_or_null("figure") as Node3D
 	if kit_figure:
