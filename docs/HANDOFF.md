@@ -526,3 +526,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **ObjectDB:** #236's baseline on `origin/main` (with #235) reported 0, so the six seen in the #235 run did not recur. No pre-#235 comparison was run.
 - **Lead slip:** after a push, `lead-wait pr` can read the old head and reuse its bundle. The gate then fails with "no review for head". Rerun once the head shows.
 - **Next if idle:** #237 (test-only, PR open 2026-11-06 20:2x JST), then nothing left from the cold read. Monday 2026-11-09 09:00 JST is still next: look kit, stack, store reshoot, 0.4.6.
+
+### Monkey pass after the arc (edd-lead) | 2026-11-06 22:5x JST
+
+- **#238 merged** (a80fa11), #237 closed. **#239 merged** (6ad1278): bot only. Seeds 1111, 1114, 1117 failed on honest-route answers while monkey mode can pick others. Seed 1108 was not a trap: the bot only walks straight, and with sidesteps it left (3.933, -5.383) in 2 and reached ENDING. Follow-up #240: a long mid-walk dialogue barely consumes the waypoint timeout (tool only).
+- **Monkey pass 1** (45fa897, seeds 1106–1117): 8/8 Príncipe routes passed; the 4 prologue failures are the ones above.
+- **Running:** `lw-monkey2-20261106-223303`, 12 routes, seeds from 2000, on 6ad1278, in ds-2. On its event: a stall or a missing ENDING gets a replay with that seed; do not widen timeouts. A real trap would show as STUCK after SIDESTEP lines.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST look kit, then the stack, store reshoot, 0.4.6.
