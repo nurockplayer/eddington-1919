@@ -130,7 +130,8 @@ export = "assets/models/kit.glb"
 breath_deg = 1.2
 glasses = true
 iris = { sclera = "eye_white", iris = "eye_dark" }
-formal = { collar = "linen", waistcoat = "wool_pullover", tie = "wool_pullover", collar_drop = 0.08, tie_half_width = 0.03, shirt_front = true }
+formal = { collar = "linen", waistcoat = "wool_pullover", tie = "wool_pullover", pullover = true }
+split_below_z_m = 0.73
 [person.kit.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
 hair = ["hair/short04/short04.mhclo", "Hair"]
