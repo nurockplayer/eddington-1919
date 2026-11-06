@@ -417,3 +417,8 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lead-wait run kit-mpfb-fu3`, brief `director/kit-mpfb-fu3.md`: split at the jacket hem, a clean pullover V (Kit only), and a hair × brow sheet at `director/kit-r3/sheet.jpg`. The lead picks one combination.
 - **On its event:** judge the sheet and `kit_chest.png`, then tell the worker the combination (same session, one small follow-up). Windowed look Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`, then final-head tests, then `lead-wait pr 229` with `--reason`. If this round's chest fails too, consider a plain closed coat instead of more layers.
 
+### Kit look round 3 (edd-lead) | 2026-11-06 15:5x JST
+
+- Renders at cfaa7cc judged and deleted. Pass: clean chest, coat colour to the hem, dark trousers. Picked hair `short01` + `eyebrow005` (softest, youngest; `short03` covers an eye). Left: pale band with a jagged edge below the hem (split at 0.73 m, hem near 0.81 m); the V's flat top reads as a bib.
+- **Running:** `lead-wait run kit-mpfb-fu5`, brief `director/kit-mpfb-fu5.md`, renders to `director/kit-r4/`. If those pass, windowed look Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`, then e2e on the final head and `lead-wait pr 229 --reason "<art rounds>"` (from the 4th reviewed head `--reason` is required). Delete `kit-r4/` and `look-kit/` after judging.
+
