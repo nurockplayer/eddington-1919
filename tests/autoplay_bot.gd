@@ -157,9 +157,10 @@ func walk(points: Array) -> void:
 			if real_input_only:
 				if main.ui.dialog_active():
 					# A notice can open mid-walk; a player reads it and walks on.
+					var talk_start := Time.get_ticks_msec()
 					await talk()
 					# Keep the schedule honest: an endless dialogue still ends STUCK.
-					timeout -= get_process_delta_time()
+					timeout -= (Time.get_ticks_msec() - talk_start) / 1000.0
 					continue
 				var before: Vector3 = p.global_position
 				await look(Vector3(target.x, p.camera.global_position.y, target.z))

@@ -290,15 +290,18 @@ func walk(target: Vector3) -> void:
 			await _walk_to(Vector3(0, 0, 2.35))
 		# A disruption can leave the straight line crossing the central table; the east
 		# lane x=2.1 is the only way round, the west side is closed by the desk.
-		if _in_cambridge_room() and _table_blocks(main.player.global_position, target):
+		if _in_study_room() and _table_blocks(main.player.global_position, target):
 			var north: bool = main.player.global_position.z > 0.0
-			var lane_z := 2.35 if north else -1.5
+			# A shipping crate at (2.55, 2.05) covers the (2.1, 2.35) point at departure;
+			# z=1.25 is clear of it (crate z 1.66..2.44).
+			var north_z := 1.25 if _in_departure_room() else 2.35
+			var lane_z := north_z if north else -1.5
 			# From the west side, pull back to the open half before crossing.
 			if _table_blocks(main.player.global_position, Vector3(2.1, 0, lane_z)):
 				await _walk_to(Vector3(0, 0, lane_z))
 			await _walk_to(Vector3(2.1, 0, lane_z))
 			if (north and target.z < -0.725) or (not north and target.z > 0.725):
-				await _walk_to(Vector3(2.1, 0, -1.5 if north else 2.35))
+				await _walk_to(Vector3(2.1, 0, -1.5 if north else north_z))
 		# A disruption can leave us east of Kit: his 1.8 m capsule at (2.7, 0.85) plus
 		# the player's 0.3 m radius closes a 0.55 m disc (x 2.15..3.25, z 0.30..1.40)
 		# across the straight line back to the x=2.1 lane. Step clear of it along our
@@ -324,6 +327,16 @@ func walk(target: Vector3) -> void:
 
 func _in_cambridge_room() -> bool:
 	return is_instance_valid(main) and main.get_script() != null and main.get_script().resource_path.ends_with("cambridge/director.gd")
+
+
+## The study room as built in all three scenes: the central table is the same.
+func _in_study_room() -> bool:
+	return is_instance_valid(main) and main.get_script() != null and main.get_script().resource_path.contains("/cambridge/")
+
+
+## Departure uses the study room with shipping crates at the entrance.
+func _in_departure_room() -> bool:
+	return is_instance_valid(main) and main.get_script() != null and main.get_script().resource_path.ends_with("cambridge/departure_director.gd")
 
 
 func _table_blocks(from: Vector3, to: Vector3) -> bool:
