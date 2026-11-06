@@ -102,6 +102,14 @@ func _run() -> void:
 		actor.hide()
 		check(actor.get_meta("room_collision_shape").disabled, "hide disables principal collider")
 	check(world.kit.has_node("figure"), "Kit uses imported body in 1917")
+	var kit_body: Node = world.kit.get_node("figure")
+	var kit_skeleton := kit_body.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	for side in ["l", "r"]:
+		var bone := kit_skeleton.find_bone("hand_" + side)
+		var hand: Vector3 = world.kit.to_local(kit_skeleton.to_global(kit_skeleton.get_bone_global_pose(bone).origin))
+		check(hand.y > 0.55 and hand.y < 1.05, "Kit %s hand uses the arms-down pose rather than rest pose: %s" % [side, hand])
+	var kit_animation := kit_body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+	check(kit_animation.is_playing() and kit_animation.get_animation("idle").loop_mode == Animation.LOOP_LINEAR, "Kit breathes on a loop")
 	room.free()
 	room = Node3D.new()
 	root.add_child(room)
