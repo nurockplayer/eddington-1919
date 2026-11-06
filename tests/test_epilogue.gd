@@ -108,13 +108,14 @@ func _test_final_replies(story: Node) -> void:
 		{"choice": 4, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 2,
 			"reply": "那就寫下來。沒有改變，也是一筆紀錄。"},
 	]
-	var chapter = await _new_epilogue()
 	for case in cases:
 		story.reset()
 		var run := _make_run(case.combined, case.bounds)
 		story.runs.append(run)
 		story.bet_1917 = {"pick": case.pick, "sure": 1}
 		story.bet = {"pick": int(case.get("current_pick", case.pick)), "sure": 1}
+		# A fresh room each time: an ended epilogue would pass the ENDING check by itself.
+		var chapter = await _new_epilogue()
 		chapter._pending = "final_reason"
 		chapter._dialogue_done({"final_reason": case.choice})
 		var seq: Array = chapter.ui._seq
@@ -133,8 +134,8 @@ func _test_final_replies(story: Node) -> void:
 		check(chapter.beat == chapter.Beat.ENDING, "%s ends the epilogue" % case.case)
 		while chapter._busy:
 			await process_frame
-	chapter.free()
-	await process_frame
+		chapter.free()
+		await process_frame
 
 
 ## Cases 8–10 of the fact check are the four shapes the ledger can take; each one is
