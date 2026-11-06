@@ -430,3 +430,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **PR #230** (`test/store-arc-shots`, lead's own, worktree ds-2): bet and micrometer store shots, benchmark name tags hidden, store rows 10–13. `lead-wait pr 230` running.
 - **Monday, after #229 and #230 merge:** reshoot `store-b5` (`director/store_045.sh`), judge row 2 (Kit), row 4 (no tag), rows 11–12. Then a new build for the Owner, since Kit is the most visible change: update Issue #1.
 
+### Kit e2e passed; departure Ashby found (edd-lead) | 2026-11-06 16:0x JST
+
+- **PR #229:** e2e 6/6 and test_departure 251/0 on 53db2e9. The lead added a test commit on top: Kit's arms-down pose and looping idle (portrait 72/0), which answers oracle's major, so no follow-up issue is needed for it. No revert-check on that test. The final head still has no review.
+- **PR #230 merged** (316e529, oracle approve, 0 findings). Store rows 10–13 and new bot shots are in main; the stills come with the next windowed run.
+- **Found:** Ashby is still the primitive figure at the departure (`honest_m2_speaker_farewell_mentor.png`), though MPFB in 1917 and the epilogue. Sent out: `lead-wait run ashby-dep`, Codex in worktree ds-2, brief `director/ashby-departure.md`, branch `art/ashby-departure` on top of `art/kit-mpfb`, PR base `art/kit-mpfb`, renders in `director/ashby-r1/`.
+- `director/look_kit.sh` now shoots `origin/art/ashby-departure` (Kit and Ashby together); **that branch must exist before Monday's look**. Otherwise point the script back at `art/kit-mpfb`. Check `honest_m2_speaker_farewell_mentor` and the journal too.
+- **Merge order after the look:** #229 first (`lead-wait pr 229 --reason …`), retarget the Ashby PR to main, then `lead-wait pr <n>`.
+
