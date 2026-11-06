@@ -1411,6 +1411,8 @@ func _begin_night() -> void:
 	world.safelight.light_energy = Look.NIGHT_SAFELIGHT if _look_ambient < 1.0 else 0.25
 	if Story.departure_done or _came_from_departure:
 		_add_night_workbook()
+	World.night_dress(world.eddington)
+	World.night_dress(world.cottingham)
 	world.eddington.position = world.eddington_night
 	world.eddington.rotation.y = deg_to_rad(-120)
 	world.cottingham.position = world.darkroom_spot + Vector3(-1.5, 0, 1.2)
