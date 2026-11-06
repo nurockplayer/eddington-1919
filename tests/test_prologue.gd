@@ -336,7 +336,8 @@ func _test_teaching_paths() -> void:
 			var detail := _teaching_route(ui, current, 1, answers)
 			var reverted := _teaching_route(ui, current, 0, answers)
 			check(baseline.done and short.done and detail.done, name_ + " paths complete the dialogue")
-			check(_contains_in_order(detail.lines, baseline.lines), name_ + " details preserve every original line in order")
+			var unchanged: Array = baseline.lines.filter(func(line): return not (str(line[1]).contains("可是箱子要是在太空裡被一直往上拉") or str(line[1]).contains("在一個往上加速的箱子裡") or str(line[1]).contains("箱子裡分不出加速和引力")))
+			check(_contains_in_order(detail.lines, unchanged), name_ + " details preserve unchanged original lines in order")
 			if name_ == "exam":
 				var opening := [C17.E, "%s大概跟你說過 Dyson 的那篇短文了。" % C17.A]
 				var start: int = short.lines.find(opening)
@@ -350,7 +351,7 @@ func _test_teaching_paths() -> void:
 			if answer == 0:
 				# Conversion arc move B adds the Mercury answer (2 lines) and the
 				# 1911 humility line to every Dyson path.
-				var expected := [17, 22, 25] if name_ == "dyson" else [19, 17, 20]
+				var expected := [17, 22, 25] if name_ == "dyson" else [19, 21, 24]
 				check([baseline.advances, short.advances, detail.advances] == expected, name_ + " exact baseline, short, detail advances: %s" % [[baseline.advances, short.advances, detail.advances]])
 	ui.queue_free()
 	await process_frame
@@ -819,17 +820,28 @@ func _test_cambridge_report_and_kit(chapter) -> void:
 	for details in [0, 1]:
 		chapter._say(C17.eddington_exam({}, {}), "exam")
 		var exam_guard := 100
+		var light_lines: Array = []
 		while chapter._pending == "exam" and exam_guard > 0:
 			exam_guard -= 1
 			var line: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+			light_lines.append(str(line.get("t", "")))
 			if line.has("choices"):
 				var optional: bool = line.choices == ["（點頭，記下重點）", "（聽他說完細節）"]
-				chapter.ui._choose(details if optional else 0)
+				chapter.ui._choose(details if optional or line.get("key", "") == "box_light" else 0)
 			else:
 				chapter.ui._advance()
 		check(exam_guard > 0 and chapter._pending == "plan_intro" and chapter.beat == chapter.Beat.PLAN, "exam path reaches the plan through the director")
+		var reply := "那你只要看光落在哪" if details == 0 else "對。要是不低"
+		var ri := -1
+		var gi := -1
+		var hi := -1
+		for i in light_lines.size():
+			if light_lines[i].contains(reply): ri = i
+			if light_lines[i].contains("箱子裡分不出加速和引力"): gi = i
+			if light_lines[i].contains("箱子只說會彎"): hi = i
+		check(ri >= 0 and gi == ri + 1 and hi == gi + 1, "box light option %d reaches its reply and both explanations" % details)
 		exam_results.append(story.exam.duplicate(true))
-	check(exam_results[0] == exam_results[1] and exam_results[0] == {"q1": 0, "q2": 0, "box": 0}, "exam paths record identical Story.exam")
+	check(exam_results[0] == {"q1": 0, "q2": 0, "box": 0, "box_light": 0} and exam_results[1] == {"q1": 0, "q2": 0, "box": 0, "box_light": 1}, "exam paths record identical Story.exam")
 	# The director itself hands the state on: finishing the mentor review plays Mercury's lines.
 	var saved_beat = chapter.beat
 	chapter._pending = "mentor_review"

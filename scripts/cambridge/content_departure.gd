@@ -134,7 +134,7 @@ static func mentor_farewell(slip_fix: int) -> Array:
 		# working. Physics: relative to an accelerating box, a light ray lands lower on the far wall;
 		# across a room the drop is far smaller than an atom, so no real box could show it.
 		{"s": A, "t": "Eddington 那個箱子，我後來又想了一次。這回在一面牆上開個小洞，讓一道光照進去。"},
-		{"s": A, "t": "箱子一直往上走，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"},
+		{"s": A, "t": "箱子越走越快，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"},
 		{"s": A, "t": "低多少？一個房間那麼寬，比一個原子還小得多。誰也看不見。",
 			"key": "light_box", "choices": ["「所以要用太陽。」", "「那就只是想像。」"],
 			"then": [

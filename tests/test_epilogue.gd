@@ -111,6 +111,8 @@ func _test_ledger_cases(story: Node) -> void:
 		chapter._dialogue_done({"astro_weight": i})
 		check(chapter.ui.dialog_active(), "%s plays Ashby's reply in the real dialogue" % cases[i].case)
 		var text := _text(chapter)
+		if i == 0:
+			check(not text.contains("搆不上") and text.contains("平均只是把分歧藏起來"), "equal weight explains the disagreement")
 		check(text.contains(CONTENT.weight_reply(i)[0].t), "astro_weight %d gets its authored reply" % i)
 		check(text.contains(CONTENT._case_line(run)), "%s shows Ashby's ledger line" % cases[i].case)
 		check(text.contains("1917 年的帳本") and text.contains("Ashby 先生寫的：0.87")
@@ -188,9 +190,13 @@ func _test_full_flow(story: Node) -> void:
 	chapter._interact("orrery")
 	check(root.get_camera_3d().name == "OrreryCloseup", "orrery dialogue uses the close-up")
 	var orrery := _text(chapter)
-	check(orrery.contains("你在 1917 年最懷疑的是") and orrery.contains("引力的平方反比"),
+	check(orrery.contains("你在 1917 年最懷疑的是") and orrery.contains("引力隨距離減弱的規則"),
 		"the orrery repeats the 1917 suspect")
 	check(orrery.contains("1915 年 11 月") and orrery.contains("43 角秒"), "the orrery pays off Mercury")
+	var prior := orrery.find("1915 年 11 月")
+	var alternatives := orrery.find("我們找過的那些說法")
+	var light := orrery.find("可是光彎多少")
+	check(prior >= 0 and alternatives > prior and light > alternatives, "alternatives connect Mercury to the light prediction")
 	while chapter._pending in ["orrery_talk", "click_reply"]:
 		check(root.get_camera_3d().name == "OrreryCloseup", "orrery and click reply keep the close-up")
 		if chapter.ui._seq[chapter.ui._seq_i].has("choices"):
