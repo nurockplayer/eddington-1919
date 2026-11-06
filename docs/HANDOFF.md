@@ -445,3 +445,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Monday 2026-11-09 from 09:00 JST, in order:** `look_kit.sh` → judge Kit + Ashby close crops → `lead-wait pr 229 --reason …` → retarget the Ashby PR to main → `lead-wait pr <n>` → `store_045.sh` (it writes `*-045` sets; replace the old ones after judging; rows 2, 4, 11, 12) → version bump and build 0.4.6 as in `director/release-045.md` → Issue #1.
 - **Heartbeat:** session-only one-shot cron; re-arm after /clear, 45 min after the turn ends, with the same prompt (Owner 2026-11-04 heartbeat text; goal Steam release).
 
+
+### Ashby round 1 judged (edd-lead) | 2026-11-06 16:4x JST
+
+- **PR #231** head 2e3f0d0: oracle approve, 1 minor (the journal does not follow the hand's breathing: let go). Blender renders judged and deleted. Pass: head, build, suit. Fail: flecks through the shirt, a broken tie, a flat-ended waistcoat bib. The same `shirt_front()` still builds the desk Ashby and Eddington, so check Eddington's chest in Monday's crops; his GLB is untouched here.
+- **Running:** `lead-wait run ashby-chest`, same Codex session in ds-2, brief `director/ashby-chest.md`: new `waistcoat_v_front()` for both Ashby GLBs, journal outside the hand. Renders to `director/ashby-r2/`.
+- **On its event:** judge `ashby-r2/` (three stills), then delete it. The journal itself is only visible in Monday's look. The Monday order above stands. `look_kit.sh` shoots the tip of `art/ashby-departure`, so this round is included.
