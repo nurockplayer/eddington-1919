@@ -221,11 +221,12 @@ def pullover_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types
     grid = []
     for row in range(rows):
         t = row / rows
-        width = 0.075 * (1 - t)
+        width = 0.075 * (1 - t) * (0.7 + 0.3 * min(row / 5, 1))
         points = []
         for col in range(columns):
             x = width * (2 * col / (columns - 1) - 1)
-            origin = Vector((x, -1, neck - 0.015 - 0.29 * t))
+            u = 2 * col / (columns - 1) - 1
+            origin = Vector((x, -1, neck - 0.015 - 0.29 * t + 0.035 * u * u * (1 - t) ** 4))
             hits = []
             for source in sources:
                 inv = source.matrix_world.inverted()
@@ -245,6 +246,11 @@ def pullover_front(obj: bpy.types.Object, body: bpy.types.Object, rig: bpy.types
                 grid[row][col][1] = min(depths[r][c] + 0.002 * (abs(r-row) + abs(c-col))
                     for r in range(max(0,row-1), min(rows,row+2))
                     for c in range(max(0,col-1), min(columns,col+2)))
+    # Mirror the collar samples at the frontmost depth so both points cover the fabric.
+    for row in (0, 5):
+        for col in range(columns // 2):
+            depth = min(grid[row][col][1], grid[row][-1-col][1])
+            grid[row][col][1] = grid[row][-1-col][1] = depth
     vertices = [(x, y - 0.005, z) for row in grid for x, y, z in row]
     faces = []
     for row in range(rows - 1):
