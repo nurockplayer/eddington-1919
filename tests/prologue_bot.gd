@@ -793,12 +793,8 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue opening did not reach the letter")
 		return false
 	await shot("epilogue_opening")
-	# The copyist's empty desk hotspot covers the letter from the south; approach
-	# from the north aisle so the ray reaches the letter itself.
 	await walk(Vector3(2.1, 0, 2.35))
-	await walk(Vector3(2.1, 0, -1.5))
-	await walk(Vector3(-1.9, 0, -1.5))
-	await walk(Vector3(-2.2, 0, -0.8))
+	await walk(Vector3(-0.6, 0, 1.4))
 	await interact("letter")
 	await talk()
 	guard = 15.0
@@ -833,8 +829,8 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue weight did not reach the orrery")
 		return false
 	await shot("epilogue_ledger")
-	# Back along the north aisle to the shelf; the central table blocks a direct line.
-	await walk(Vector3(-2.2, 0, -1.5))
+	# Around the eastern end of the table to the shelf.
+	await walk(Vector3(2.1, 0, 2.35))
 	await walk(Vector3(2.6, 0, -1.5))
 	await interact("orrery")
 	await talk_keys({"click": 1, "final_reason": 2})
@@ -1042,7 +1038,7 @@ func _finish() -> void:
 		evidence = main.sim.evidence_class()
 	elif scene_path.ends_with("cambridge/epilogue_director.gd") and not Story.runs.is_empty():
 		run_seed = int(Story.runs.back().get("seed", -1))
-		evidence = "epilogue"
+		evidence = str(Story.runs.back().get("grade", {}).get("evidence", "-"))
 	print("[PROLOGUE %s] score cue checks=%s cue_log=%s" % [scenario, str(score_failures), JSON.stringify(ScorePlayer.cue_log)])
 	if shots_dir != "":
 		var file := FileAccess.open(shots_dir.path_join("result_" + scenario + ".json"), FileAccess.WRITE)

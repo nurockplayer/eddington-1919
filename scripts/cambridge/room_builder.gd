@@ -470,6 +470,8 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		folded_letter.position.y = 0.815
 		(folded_letter as MeshInstance3D).material_override = w.evidence_mat(Color(0.91, 0.90, 0.85))
 	var letter_hotspot := w.hotspot(Vector3(0.4, 0.18, 0.3), Vector3(-2.47, 0.86, -0.02), "letter", "查看摺起的信")
+	out.letter_prop = folded_letter
+	out.letter_hotspot = letter_hotspot
 	out.targets["letter"] = letter_hotspot.position
 	var chair_shift := Vector3.ZERO if departure else Vector3(0.8, 0, 0.55)
 	w.box(Vector3(0.52, 0.1, 0.52), Vector3(-2.55, 0.52, 0.82) + chair_shift, wood)

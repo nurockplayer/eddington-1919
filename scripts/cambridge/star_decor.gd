@@ -46,6 +46,30 @@ static func build(w, brass: Color, dark_wood: Color) -> Dictionary:
 
 
 ## Turn every arm to time t (seconds); the Moon circles the Earth on its own arm.
+static func orrery_closeup(root: Node3D, orrery: Node3D) -> Camera3D:
+	var camera := Camera3D.new()
+	camera.name = "OrreryCloseup"
+	root.add_child(camera)
+	camera.global_position = orrery.global_position + Vector3(-0.55, 0.20, 0.0)
+	camera.look_at(orrery.global_position + Vector3(0, 0.11, 0))
+	camera.fov = 35
+	camera.current = true
+	var light := OmniLight3D.new()
+	light.light_color = Color(1.0, 0.86, 0.69)
+	light.omni_range = 1.0
+	light.light_energy = 0.6
+	light.shadow_enabled = false
+	camera.add_child(light)
+	return camera
+
+
+static func end_orrery_closeup(camera: Camera3D, player_camera: Camera3D) -> void:
+	if camera == null:
+		return
+	player_camera.make_current()
+	camera.free()
+
+
 static func turn_orrery(orrery: Node3D, t: float) -> void:
 	var years := t / ORRERY_YEAR
 	for arm in orrery.get_meta("arms"):

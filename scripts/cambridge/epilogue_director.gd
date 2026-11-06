@@ -24,6 +24,7 @@ var _pending := ""
 var _busy := true
 var _clock_t := 0.0
 var _light_t := 0.0
+var _orrery_camera: Camera3D
 var _camera_turn: Tween
 var _speaker_fill: OmniLight3D
 var _last_speaker := ""
@@ -35,6 +36,9 @@ var street: AudioStreamPlayer
 func _ready() -> void:
 	ExistingDirector._ensure_inputs()
 	world = Room.build(self, false)
+	world.letter_prop.position = Vector3(-0.6, 0.845, 0.55)
+	world.letter_hotspot.position = Vector3(-0.6, 0.86, 0.55)
+	world.targets.letter = world.letter_hotspot.position
 	# October 1919: Kit has not come back from the observatory; the desk is Ashby's.
 	world.kit.visible = false
 	var kit_shape := world.kit.get_meta("room_collision_shape") as CollisionShape3D
@@ -163,6 +167,7 @@ func _interact(id: String) -> void:
 		"letter":
 			_say(Content.letter(), "letter")
 		"orrery":
+			_orrery_camera = Room.StarDecor.orrery_closeup(self, world.orrery)
 			beat = Beat.ORRERY_TALK
 			_say(Content.orrery_talk(Content.suspect_text(Story.mercury_suspect)), "orrery_talk")
 		"mentor":
@@ -212,7 +217,12 @@ func _dialogue_done(results: Dictionary) -> void:
 			beat = Beat.ORRERY
 		"orrery_talk":
 			_store("click", int(results.get("click", 0)))
-			_say(Content.click_reply(int(results.get("click", 0))) + Content.final_reason(), "final_reason")
+			_say(Content.click_reply(int(results.get("click", 0))), "click_reply")
+			return
+		"click_reply":
+			Room.StarDecor.end_orrery_closeup(_orrery_camera, player.camera)
+			_orrery_camera = null
+			_say(Content.final_reason(), "final_reason")
 			return
 		"final_reason":
 			var choice := int(results.get("final_reason", -1))
