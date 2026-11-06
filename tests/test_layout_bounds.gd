@@ -9,6 +9,7 @@ const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const EpilogueChart := preload("res://scripts/cambridge/epilogue_chart.gd")
+const BoxSketch := preload("res://scripts/cambridge/box_sketch.gd")
 var checks := 0
 var failures := 0
 var context := ""
@@ -274,6 +275,24 @@ func _run() -> void:
 			if window.y == 1080:
 				check(epilogue_chart.chart.size.y < root.get_visible_rect().size.y * 0.6, "1080p epilogue chart is under 60% height")
 			epilogue_chart.free()
+			# Conversion arc E: the box sketch's text and buttons at every size.
+			var sketch_layer := CanvasLayer.new()
+			root.add_child(sketch_layer)
+			var sketch := BoxSketch.new()
+			sketch_layer.add_child(sketch)
+			await settle()
+			for sketch_case in [["drop", 0], ["drop", 1], ["drop", 2], ["light", 0]]:
+				sketch.open(sketch_case[0])
+				sketch.stage = sketch_case[1]
+				sketch._refresh_stage()
+				await settle()
+				bounds(sketch)
+				var sketch_label := "%dx%d @%.1f box sketch %s %d" % [window.x, window.y, scale, sketch_case[0], sketch_case[1]]
+				check(not sketch._prompt.get_global_rect().intersects(sketch._note.get_global_rect()), sketch_label + ": prompt clears the note")
+				check(not sketch._note.get_global_rect().intersects(sketch._buttons.get_global_rect()), sketch_label + ": note clears the buttons")
+				for sketch_text in [sketch._prompt, sketch._note]:
+					check(sketch_text.get_line_count() * sketch_text.get_line_height() <= sketch_text.get_global_rect().size.y + 1.0, sketch_label + ": text fits its label")
+			sketch_layer.free()
 			story.runs.clear()
 			game._telegram = 1
 			game._reason = 0
