@@ -104,7 +104,7 @@ func _test_final_replies(story: Node) -> void:
 		{"choice": 1, "case": "no_value", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 2,
 			"reply": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"},
 		{"choice": 1, "case": "changed_prediction", "combined": {"n": 0, "value": 0.0, "sigma": 0.0}, "bounds": {}, "pick": 2, "current_pick": 1,
-			"reply": "你在 1917 年寫了 1.75，現在寫下了另一個數字。你改變的，也許是你憑什麼相信它。"},
+			"reply": "你在 1917 年寫了 1.75，量之前又改了。所以你改變想法，不只這一次。"},
 		{"choice": 4, "case": "conceded", "combined": {"n": 3, "value": 1.90, "sigma": 0.09}, "bounds": {"lo": 1.20, "hi": 2.10}, "pick": 2,
 			"reply": "那就寫下來。沒有改變，也是一筆紀錄。"},
 	]
