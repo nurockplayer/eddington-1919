@@ -744,3 +744,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-en-layout-real-20261107-202228` (`test_layout_bounds` under real `EDD_LOCALE=en` in ds-2 at c6c4b04). CI runs pseudo and zh-TW but not real English, so this run is the only proof for English.
 - **On its event, if 0 failures, and with CI green:** `lead-wait pr 273`. If not 0: the left column needs something that gives way.
 - **Corrects the 20:0x section's reading:** with no wrap, a language whose hint line is wider than 458 px widens the left column again. Only pseudo catches that.
+
+### #273 merged; #274 at the gate (edd-lead) | 2026-11-07 20:4x JST
+
+- **Merged:** #273 (1be7702, 2026-11-07 20:36 JST). Real `EDD_LOCALE=en` layout at c6c4b04: 0 failures in 8462 checks. `Sir Frank`, `Professor Eddington` and the glossary are in; #268 was already closed.
+- **Running:** `lw-pr-274-20261107-204240`. #274 (`fix/i18n-po-order`, worktree ds-2) closes #270 and #271. Placeholders must stay in order with no tolerance: GDScript's `%` has no positional form. **ja and ko word order will hit this:** where a sentence cannot keep the order, the source moves to a named `.format()`.
+- **Test evidence on #274:** revert-check stopped at the order assert, so the fuzzy cases were not separately shown to fail on the old code.
+- **Host note:** `orb-test --` on a light check waited over 5 minutes on 2026-11-07 20:3x JST, so I stopped it and used `orb-test --host --`. `docker ps` also still fails on the Mac: `VM left running: docker ps failed`.
+- **Next on the English line:** the oracle back-translation and physics check does not need Codex, and could run before the Sol polish. Not started. Sol polish waits for the Codex week to reset.
