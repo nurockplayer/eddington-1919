@@ -153,6 +153,8 @@ func _build() -> void:
 		var hand := SystemFont.new()
 		hand.font_names = PackedStringArray(["Snell Roundhand", "Baskerville", "serif"] if entry.hand == "kit" else ["Baskerville", "Georgia", "serif"])
 		hand.font_italic = true
+		var hand_fallbacks: Array[Font] = [Fonts.cjk()]
+		hand.fallbacks = hand_fallbacks
 		value.add_theme_font_override("normal_font", hand)
 		Settings.track_font(value, 25)
 		value.add_theme_color_override("default_color", Color(0.10, 0.23, 0.31) if entry.hand == "kit" else Color(0.30, 0.16, 0.09))

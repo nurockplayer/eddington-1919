@@ -1,7 +1,7 @@
 class_name Fonts
 extends RefCounted
-## Traditional Chinese keeps the native macOS face first; the other locales use the
-## bundled faces only, so layout gates see the same glyphs on every OS.
+## Every locale uses the bundled faces only, so layout gates see the same glyphs on
+## every OS and a system font that fails to resolve cannot reach the player.
 
 const L := preload("res://scripts/l10n.gd")
 
@@ -23,11 +23,6 @@ static func cjk() -> Font:
 
 static func for_locale(locale: String) -> Font:
 	var order: Array = ORDERS.get(locale, ORDERS["en"])
-	if locale == "zh_TW":
-		var system := SystemFont.new()
-		system.font_names = PackedStringArray(["PingFang TC", "Heiti TC", "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "Source Han Sans TC", "sans-serif"])
-		system.fallbacks = _faces(order)
-		return system
 	var bundled := FontVariation.new()
 	bundled.base_font = _face(order[0])
 	bundled.fallbacks = _faces(order.slice(1))
