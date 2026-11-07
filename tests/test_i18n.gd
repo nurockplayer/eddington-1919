@@ -22,6 +22,8 @@ func _initialize() -> void:
 func _run() -> void:
 	# Suites run with --script, so startup rule 2 keeps the zh-TW source text.
 	check(L.current() == "zh_TW", "suite startup stays zh-TW, got " + L.current())
+	if not L.TRANSLATED:
+		check(L._startup_locale() == "zh_TW", "an untranslated release stays on the source text")
 	for pair in [["zh_TW", "zh_TW"], ["zh_HK", "zh_TW"], ["zh_CN", "zh_TW"], ["ja_JP", "ja"],
 			["ko_KR", "ko"], ["en_US", "en"], ["de_DE", "en"], ["", "en"]]:
 		check(L.resolve(pair[0]) == pair[1], "resolve(%s) is %s" % [pair[0], pair[1]])

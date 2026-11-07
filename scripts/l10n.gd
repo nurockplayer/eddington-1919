@@ -7,6 +7,9 @@ const Checkpoint := preload("res://scripts/checkpoint.gd")
 
 const LOCALES := ["zh_TW", "en", "ja", "ko"]
 const NAMES := {"zh_TW": "繁體中文", "en": "English", "ja": "日本語", "ko": "한국어"}
+## Turn on once en, ja and ko are fully translated. Until then a release stays on the
+## source text with no language button; EDD_LOCALE still reaches the other locales.
+const TRANSLATED := false
 
 ## The locale in use; `_static_init` picks it before any scene reads a string.
 static var language := ""
@@ -55,6 +58,8 @@ static func _startup_locale() -> String:
 	if not env.is_empty():
 		return resolve(env)
 	if _script_or_bot():
+		return "zh_TW"
+	if not TRANSLATED:
 		return "zh_TW"
 	var saved := _saved_locale()
 	if not saved.is_empty():

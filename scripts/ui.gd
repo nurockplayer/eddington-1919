@@ -1842,7 +1842,7 @@ func open_settings() -> void:
 	quit_button.hide()
 	pause_panel.show()
 	quality_button.text = _quality_caption()
-	language_button.visible = title_panel.visible
+	language_button.visible = L.TRANSLATED and title_panel.visible
 	Settings.sync_fullscreen()
 	fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -1873,7 +1873,7 @@ func toggle_pause() -> void:
 	pause_panel.visible = p
 	if p:
 		quality_button.text = _quality_caption()
-		language_button.visible = title_panel.visible
+		language_button.visible = L.TRANSLATED and title_panel.visible
 		Settings.sync_fullscreen()
 		fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
