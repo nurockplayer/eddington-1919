@@ -110,7 +110,7 @@ func _run() -> void:
 				check(root.get_visible_rect().encloses(title_buttons[i].get_global_rect()), "title button fits")
 				for j in range(i):
 					check(not title_buttons[i].get_global_rect().intersects(title_buttons[j].get_global_rect()), "title buttons do not overlap")
-			if L.current() == "zh_TW" and is_equal_approx(scale, 1.0):
+			if L.current() == "zh_TW":
 				var title_row_y: float = title_buttons[0].get_global_rect().position.y
 				for button in title_buttons:
 					check(is_equal_approx(button.get_global_rect().position.y, title_row_y),
@@ -137,7 +137,7 @@ func _run() -> void:
 				for j in range(i):
 					check(not resume_buttons[i].get_global_rect().intersects(resume_buttons[j].get_global_rect()),
 						"checkpoint title buttons do not overlap: " + resume_buttons[i].text)
-			if L.current() == "zh_TW" and is_equal_approx(scale, 1.0):
+			if L.current() == "zh_TW":
 				var resume_row_y: float = resume_buttons[0].get_global_rect().position.y
 				for button in resume_buttons:
 					check(is_equal_approx(button.get_global_rect().position.y, resume_row_y),
