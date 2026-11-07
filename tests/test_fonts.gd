@@ -19,12 +19,11 @@ func check(condition: bool, message: String) -> void:
 
 
 func _initialize() -> void:
-	# Suites start in zh-TW, whose font keeps the system face and all three bundles behind it.
+	# Suites start in zh-TW, which uses the bundled TC face on every OS.
 	var font := Fonts.cjk()
-	check(font is SystemFont, "CJK helper keeps system font selection")
-	check((font as SystemFont).font_names[0] == "PingFang TC", "PingFang stays first")
-	check(font.fallbacks.size() == 3 and font.fallbacks[0] == Bundled, "TC ships first in its fallbacks")
-	check(font.fallbacks[1] == BundledJP and font.fallbacks[2] == BundledKR, "TC also carries JP and KR fallbacks")
+	check(not (font is SystemFont), "zh-TW uses no system font")
+	check(font is FontVariation and font.base_font == Bundled, "zh-TW sets TC first")
+	check(font.fallbacks.size() == 2 and font.fallbacks[0] == BundledJP and font.fallbacks[1] == BundledKR, "zh-TW also carries JP and KR fallbacks")
 	check(Bundled is FontFile and BundledJP is FontFile and BundledKR is FontFile, "bundled faces load as FontFile")
 	for character in ["食", "偏"]:
 		check(font.has_char(character.unicode_at(0)), "helper covers " + character)
