@@ -737,3 +737,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lead-wait run en-viewer-fu1` (`ds-edd-2`, session `1605611c-7a5f-4b2c-a10f-cb96dc1173ce`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/en-viewer-fu1.md`). On its event: `lead-wait pr 273`.
 - **For ja and ko:** the viewer's left column has nothing that gives way, so a longer language can overflow at scale 1.2 again. Run `test_layout_bounds` under each locale early. If text cuts lose meaning, the options are a scrolling note or a smaller thumbnail grid on short windows (the grid changes zh-TW).
 - **Unresolved, not looked into:** the worker reports that `orb-test`'s container route failed with `docker ps` timing out, once hung for 5 minutes, and that it ran `tools/i18n.py check` on the host instead (text check only).
+
+### #273 back at c6c4b04 (edd-lead) | 2026-11-07 20:2x JST
+
+- **Leak gate failed on 11e235f, from my decision to wrap the hint:** the pseudo catalogue wrapped to three lines, 32 px over at scale 1.2 (36 failures). The worker ran only en and zh-TW, not pseudo. I removed the wrap in c6c4b04. The short English hint fits two lines by itself, and pseudo goes back to what `main` does.
+- **Running:** `lw-en-layout-real-20261107-202228` (`test_layout_bounds` under real `EDD_LOCALE=en` in ds-2 at c6c4b04). CI runs pseudo and zh-TW but not real English, so this run is the only proof for English.
+- **On its event, if 0 failures, and with CI green:** `lead-wait pr 273`. If not 0: the left column needs something that gives way.
+- **Corrects the 20:0x section's reading:** with no wrap, a language whose hint line is wider than 458 px widens the left column again. Only pseudo catches that.
