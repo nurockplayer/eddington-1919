@@ -383,7 +383,8 @@ def po_decode(text: str) -> str:
 
 
 def _po_field(block: str, name: str) -> str | None:
-    match = re.search(r"(?m)^%s[ \t]+((?:%s[ \t]*)+)" % (name, PO_STRING), block)
+    # A value may continue over quoted lines, as PO editors write long entries.
+    match = re.search(r"(?m)^%s[ \t]+((?:%s\s*)+)" % (name, PO_STRING), block)
     if not match:
         return None
     parts = re.findall(PO_STRING, match.group(1))

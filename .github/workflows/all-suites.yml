@@ -34,6 +34,6 @@ jobs:
           echo "$HOME/godot" >> "$GITHUB_PATH"
           rm "$zip" SHA512-SUMS.txt
       - name: Localization gate
-        run: python3 -I tools/i18n.py check
+        run: python3 -I tools/i18n.py check && python3 tools/test_i18n_po.py
       - name: Run all suites
         run: ./tools/all_suites.sh
