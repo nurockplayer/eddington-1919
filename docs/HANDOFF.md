@@ -669,3 +669,16 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-i18n-sentences-20261107-110435` (ds-edd-2).
 - **Next, on sentences merging:** dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/i18n-leak-gate.md` in ds-2 (brief written, not dispatched). It uses a pseudo locale, so leaks show before translation.
 - **Then:** translation after Monday's text look. The new issue on `package-smoke`'s ko run goes with it: the run does not prove the locale was selected.
+
+### Wrap, sentences and leak gate merged; layout running (edd-lead) | 2026-11-07 12:4x JST
+
+- **Merged:** #259 (0e34bee: whole sentences, `L.tn`), #262 (9641edd: pseudo catalogue, `tests/leak_watch.gd`, CI job `leak-gate`). Under pseudo, all 6 routes show 0 leaks. Three routes leaked on the first run (`Ashby 先生` in 6–7 places), so the watcher does catch them.
+- **Running:** `lw-layout-long-text-20261107-123953` (`ds-edd-2`, ds-2, branch `fix/layout-long-text`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/layout-long-text.md`). No unacked events at this writing. The branch's first commit is mine: pseudo text breaks into words.
+- **Why:** word pseudo on 2026-11-07 12:38 JST gave 406 failures in `test_layout_bounds`, from the title row (up to 632 px), the plate viewer's right column (150 px), one `RichTextLabel` (11 px), and tests that compare Chinese.
+- **On its event:** read the report. **zh-TW must be unchanged at scale 1.0**: check the rects it reports against `main`. It may end on `DECISION:` if pseudo cannot reach 0 without a zh-TW change. Then `lead-wait pr <n>`.
+- **Monday look adds:** the title row and viewer buttons, in zh-TW and with `EDD_LOCALE=en`; no one will have seen this change in a window.
+- **Issues:** #258 (the `ko` smoke does not prove the locale), #260 (saved runs keep formatted text; accepted for launch), #263 (leak gate misses `draw_string` and screens no bot opens; close before `L.TRANSLATED`).
+- **Open question, cheap:** `ds-exec` reported `Test: could not run (orb-test exit 127)` on the leak-gate brief; not looked into. Its `Test:` line used `VAR=1 VAR2=x orb-test`. The new brief uses `orb-test --host -- env VAR=x …`; see whether that one runs.
+- **Next after layout:** nothing in the release order can start until Monday 2026-11-09 09:00 JST: `look_kit.sh`, art stack #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1, then translation. Refresh `look/monday` first: it is still `main` at ec304b7 with `art/faces` and lacks today's font, l10n and layout changes. After the art stack merges, rerun `tools/i18n.py wrap` and `extract`.
+- **Waiting on the Owner (iMessage 2026-11-07 08:34 JST):** Steam Direct fee and paperwork; 1–2 newcomers for 0.4.6; credits name, now `nurockplayer` in the game.
+- **Heartbeat:** one-shot due 2026-11-07 13:03 JST; crons are session-only, recreate after a restart.
