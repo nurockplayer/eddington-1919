@@ -79,7 +79,7 @@ func _run() -> void:
 	for plate in sim.plates:
 		textures.append(Render.render(sim, plate))
 	var comparison := Render.render(sim, null)
-	for window in [Vector2i(1600, 900), Vector2i(1280, 800), Vector2i(1280, 720), Vector2i(1920, 1080)]:
+	for window in [Vector2i(1600, 900), Vector2i(1280, 800), Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(2560, 1080), Vector2i(3440, 1440)]:
 		root.content_scale_size = Vector2i(1600, 900)
 		root.size = window
 		for scale in [1.0, 1.2]:
@@ -146,7 +146,12 @@ func _run() -> void:
 				"PREP objectives name the measurement and the darkroom")
 			check(ui.objectives.get_content_height() <= ui.objectives.size.y + 1.0,
 				"PREP objectives text fits its panel (content %s, label %s)" % [ui.objectives.get_content_height(), ui.objectives.size.y])
-			var expected := Vector2(1600, 1000) if window == Vector2i(1280, 800) else Vector2(1600, 900)
+			# aspect=expand keeps the 1600×900 base and widens: the scale is the
+			# smaller of the two window/base ratios, so 2560×1080 → 2133×900 and
+			# 3440×1440 → 2150×900.
+			# The viewport keeps whole pixels (2560×1080 → 2133, not 2133.333).
+			var factor := minf(window.x / 1600.0, window.y / 900.0)
+			var expected := (Vector2(window) / factor).round()
 			check(root.get_visible_rect().size.is_equal_approx(expected), "visible rect %s expected %s" % [root.get_visible_rect(), expected])
 			ui.hide_title()
 			ui.play([Content.rules_prompt(true)[-1]])
