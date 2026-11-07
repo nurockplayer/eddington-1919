@@ -689,3 +689,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **On its event:** read the panel list in the PR body. What sits under "Not covered" is mine to decide. Then `lead-wait pr <n>`. Merge order with layout does not matter; the files do not overlap.
 - **`orb-test exit 127` explained:** `proof-pack` reruns a `Test:` line as `orb-test -- sh -c "<line>"`, on dot, where `godot` and `python3` exist and `orb-test` does not. So a `Test:` line is the bare command with no `orb-test` inside. Both running briefs were corrected on 2026-11-07 13:0x JST; `proof-pack` reads the brief at the end of a run, so this first rerun on dot is also the first test of the fix.
 - **Later, for translation:** the OS window title and the macOS app name come from `config/name` in `project.godot`, which stays Chinese under every locale. The leak gate cannot see it. Decide `config/name_localized` or a `DisplayServer.window_set_title` call when `L.TRANSLATED` turns on. Credits now carries the name as a `L.t` literal, with a check against `config/name` (#265).
+
+### #265 at the gate (edd-lead) | 2026-11-07 14:0x JST
+
+- **#265:** `leak-gate` passed on b556855, `suites` still running. `lw-pr-265` holds the gate and reuses the worker's oracle approve (blocker 0, major 1: the log panel is opened with no history in it). On merge, #263 and #264 close. Revert-checks passed on all three paths: chart, pause caption, a bare `draw_string` literal.
+- **Test: rerun:** works on dot with a bare command (`check: 0 problem(s)`). Editing the brief mid-run does not reach it: the rerun used the line from dispatch, so the layout run may still show 127. Only new briefs get the fix.
+- **`test_layout_bounds` got SIGTERM (exit 143)** at about 7 minutes in a batch of eight suites inside one `orb-test --host` run in ds-1. Not rerun as it was. Look at how long it takes alone when layout's event arrives, and at its time in CI.
