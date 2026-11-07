@@ -70,14 +70,36 @@ func scan() -> int:
 	return total
 
 
-func leaked_text(text: String) -> bool:
+## A multi-line source (Chart joins its strings) is one entry; match a whole
+## line so the Chinese reference lines under zh-TW cannot stand in for the label.
+func leaked_line(text: String) -> bool:
 	for entry in _last_leaks:
-		if String(entry).contains(text):
-			return true
+		for line in String(entry).get_slice("\u0000", 1).split("\n"):
+			if line == text:
+				return true
 	return false
 
 
 # --- Part A: the watcher sees what draw_string painted -----------------------
+
+## The chart always draws its three reference lines. They reach L.t, so under
+## zh-TW they are Chinese and would mask a label leak; give them ASCII text for
+## the case so only the row label can be CJK. Under pseudo they are ASCII already.
+const REF_MSGIDS := ["無偏折 0″", "牛頓式 0.87″", "愛因斯坦 1.75″"]
+
+var _ref_translation: Translation = null
+
+
+func _ascii_reference_lines() -> void:
+	if TranslationServer.get_locale() == "en_XA":
+		return
+	var translation := Translation.new()
+	translation.locale = TranslationServer.get_locale()
+	for i in REF_MSGIDS.size():
+		translation.add_message(REF_MSGIDS[i], "reference %d" % i)
+	TranslationServer.add_translation(translation)
+	_ref_translation = translation
+
 
 func _draw_chart(chart: Control, label: String) -> void:
 	chart.set_data([{"label": label, "value": 1.0, "sigma": 0.2, "weak": false}], {}, true)
@@ -87,6 +109,7 @@ func _draw_chart(chart: Control, label: String) -> void:
 
 func _chart_cases() -> void:
 	root.size = Vector2i(1280, 720)
+	_ascii_reference_lines()
 	var chart: Control = Chart.new()
 	root.add_child(chart)
 	chart.size = Vector2(560, 420)
@@ -94,15 +117,16 @@ func _chart_cases() -> void:
 	check(chart.drawn().label_px == Settings.fs(14), "the chart draws its labels")
 	check(chart.drawn_texts().has("第1號"), "the chart records the text it draws")
 	var leaked: int = await scan()
-	check(leaked > 0, "a bare CJK label is reported above 0")
-	check(leaked_text("第1號"), "the [LEAK] report names the bare label")
+	check(leaked == 1, "a bare CJK label is reported above 0 (total %d)" % leaked)
+	check(leaked_line("第1號"), "the [LEAK] report names the bare label")
 	await _draw_chart(chart, "No. 1")
 	var clean: int = await scan()
-	check(not leaked_text("No. 1"), "an ASCII label is not reported")
-	if _pseudo:
-		check(clean == 0, "under the pseudo catalogue the chart draws no CJK (total %d)" % clean)
+	check(clean == 0, "an ASCII label in the same chart returns 0 (total %d)" % clean)
 	chart.queue_free()
 	await settle(2)
+	if _ref_translation != null:
+		TranslationServer.remove_translation(_ref_translation)
+		_ref_translation = null
 
 
 # --- Part B: the menu walk (pseudo only) -------------------------------------
