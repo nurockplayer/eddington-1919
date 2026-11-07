@@ -40,7 +40,7 @@ No unwrapped CJK literal outside an allowlist; every msgid present in en, ja, ko
 | 閃爍比對 | blink comparison | ブリンク比較 | 블링크 비교 |
 | 太陽系儀 | orrery | オーラリー | 오러리 (태양계 모형) |
 
-**Forms of address.** Dyson is `Sir Frank` or `Dyson`, never `Mr Dyson` (knighted 1915); Eddington is `Professor Eddington` or `Eddington`, never `Mr Eddington`; Ashby is `Mr Ashby`.
+**Forms of address.** Dyson is ダイソン卿 in Japanese and 다이슨 경 in Korean. Dyson is `Sir Frank` or `Dyson`, never `Mr Dyson` (knighted 1915); Eddington is `Professor Eddington` or `Eddington`, never `Mr Eddington`; Ashby is `Mr Ashby`.
 
 **Never confuse:** Mercury's perihelion (43″ per century) and the deflection of light (1.75″) are different effects. A wrong word here keeps the number right and loses the argument, and a back-translation can miss it. Probable error is about 0.6745σ, not 2σ. Keep "predicted", "measured" and "apparent displacement" distinct.
 

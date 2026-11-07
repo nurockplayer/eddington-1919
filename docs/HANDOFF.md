@@ -752,3 +752,13 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Test evidence on #274:** revert-check stopped at the order assert, so the fuzzy cases were not separately shown to fail on the old code.
 - **Host note:** `orb-test --` on a light check waited over 5 minutes on 2026-11-07 20:3x JST, so I stopped it and used `orb-test --host --`. `docker ps` also still fails on the Mac: `VM left running: docker ps failed`.
 - **Next on the English line:** the oracle back-translation and physics check does not need Codex, and could run before the Sol polish. Not started. Sol polish waits for the Codex week to reset.
+
+### English checked; ja and ko drafts running (edd-lead) | 2026-11-07 21:3x JST
+
+- **Merged:** #274 (dcf6255), closing #270 and #271; #275 (cc9fd5a), oracle's physics and meaning check of all 1,143 English entries. 19 entries changed: `twice the error`, not `two-sigma`; `wound`, not `spring`; `panel`; the ledger entry for plate 23; `usable plates`. Not taken: `拖長只會把數字拉低`, true in the game's model (`scripts/eclipse_sim.gd:271`).
+- **Left in the zh-TW source:** `content.gd:43` says both `重錘時鐘` and `發條`. `發條` runs through about ten strings and the winding interaction.
+- **Running:** `lead-wait run ja-full` (`ds-edd-1`, ds-1, branch `l10n/ja`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/ja-full.md`), `lead-wait run ko-full` (`ds-edd-2`, ds-2, branch `l10n/ko`, `ko-full.md`). First drafts with no model translation behind them, so their quality is unknown.
+- **On each event:** read the report, decide any `DECISION:` (layout, fonts), then `lead-wait pr <n>`. Then run the same oracle check as English before relying on them.
+- **Claude weekly 97% with the window 90% gone at 2026-11-07 21:27 JST; Codex weekly 100%.** Keep lead turns few until the reset. Sol polish waits for Codex.
+- **Not yet:** blind cold read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order unchanged.
+
