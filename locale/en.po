@@ -9,7 +9,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
-msgstr ""
+msgstr "\n\n[color=#8f8676]Results announced on 6 November 1919: Sobral 1.98″, Príncipe 1.61″, both closer to Einstein's 1.75″. How they were obtained, and what doubts remained, are in 'What Happened Historically'.[/color]"
 
 msgid "\n\n（"
 msgstr ""
@@ -21,10 +21,10 @@ msgid "\nCottingham 只能自己趕著上發條，來不及對時。"
 msgstr "\nCottingham had to wind the drive in haste, with no time to check the timing."
 
 msgid "\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]"
-msgstr ""
+msgstr "\n[b]Historically[/b] [color=#8f8676](HISTORICAL_RECORD; see docs/PROVENANCE.md)[/color]"
 
 msgid "\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]"
-msgstr ""
+msgstr "\n[color=#8f8676][font_size=%d]Fiction and illustration: the player character, all dialogue, the business of the clock drive needing help, the details of the cloud, the plate images and every figure. The scene is a speculative reconstruction; no photograph of the Príncipe station is known, and the original plates are lost.[/font_size][/color]"
 
 msgid "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]"
 msgstr "\n[color=#fd8]Combined: %.2f″ ± %.2f″ (two-sigma range %.2f–%.2f″)[/color]"
@@ -33,13 +33,13 @@ msgid "\n你：『停！』　Eddington 換片——真的換片要四秒左右�
 msgstr "\nYou: 'Stop!'  Eddington changes the plate—a real change takes about four seconds, and pressing during it does nothing. You must call stop before third contact."
 
 msgid "\n全食時：空白鍵（或 RB／X）喊開始與停。"
-msgstr ""
+msgstr "\nDuring totality: Space (or RB/X) calls start and stop."
 
 msgid "\n快門還開著——最後那張底片曝到了陽光。"
 msgstr "\nThe shutter is still open—the last plate caught the sunlight."
 
 msgid "\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。"
-msgstr ""
+msgstr "\nPress 'Blink comparison': the same star jumps between the two plates—that jump is what you are measuring.\nThe displacement is exaggerated so the eye can see it; the real measurement uses the micrometer."
 
 msgid "\n發條上滿了，但走速沒有校過。"
 msgstr "\nThe spring is fully wound, but the drive rate was never checked."
@@ -60,7 +60,7 @@ msgid "\n（和你的底片放在一起看——兩套儀器、隔一個大西�
 msgstr ""
 
 msgid " ✓讀"
-msgstr ""
+msgstr " ✓read"
 
 msgid " 已記"
 msgstr ""
@@ -128,7 +128,7 @@ msgid "%s（%s）"
 msgstr "%s (%s)"
 
 msgid "%s：%s"
-msgstr ""
+msgstr "%s: %s"
 
 msgid "+0.5°　E"
 msgstr ""
@@ -185,7 +185,7 @@ msgid "1919 年 1 月，用[b]同一具望遠鏡[/b]在牛津夜空拍下的同�
 msgstr "January 1919: the same field, photographed at night over Oxford with [b]the same telescope[/b] (the region of the Hyades in Taurus). On the day of the eclipse the Sun stands in front of this field."
 
 msgid "1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。"
-msgstr ""
+msgstr "On 6 November 1919, the results were announced at a joint meeting of the Royal Society and the Royal Astronomical Society. The report relied chiefly on the 4-inch telescope at Sobral in Brazil (1.98″ ± 0.12″); Príncipe gave 1.61″ ± 0.30″ (written at the time as 'probable error', roughly two-thirds of one standard error). The Sobral astrographic result was set aside because the focal length had changed and the star images were blurred—a documented technical reason, not a cover-up. One expedition did not make every doubt disappear."
 
 msgid "1919 年 3 月 8 日，兩支日食隊從利物浦搭船出發。"
 msgstr "8 March 1919: the two eclipse expeditions sail from Liverpool."
@@ -200,7 +200,7 @@ msgid "1919 年 5 月 29 日有一次日全食。那天，太陽會停在金牛�
 msgstr "There is a total eclipse of the Sun on 29 May 1919. That day the Sun will stand in front of a field of stars in Taurus—unusually rich in bright stars."
 
 msgid "1979 年，有人重新量了 Sobral 的底片（Harvey）：4 吋 1.90″ ± 0.11″，天體照相儀 1.55″ ± 0.34″——支持了當年團隊對那組 0.93″ 的疑慮。"
-msgstr ""
+msgstr "In 1979 the Sobral plates were measured again (Harvey): 4-inch 1.90″ ± 0.11″, astrographic 1.55″ ± 0.34″—supporting the team's doubts at the time about the 0.93″ set."
 
 msgid "43 角秒很小：一度是 3600 角秒，它還不到一度的八十分之一。可是一百多年的紀錄量下來，這個差比量測誤差大得多，而且每個世紀都往同一邊多走，不會抵消。"
 msgstr "43 arcseconds is very little: a degree is 3600 arcseconds, so it is less than an eightieth of a degree. But measurements from over a century of records put this discrepancy far beyond the errors of measurement. And the extra advance is in the same direction every century; it does not cancel out."
@@ -349,10 +349,10 @@ msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12
 msgstr "The Sobral plates have been measured at Greenwich.\n4-inch lens: 1.98″ ± 0.12″.\nAstrographic telescope: about 0.93″; the star images are blurred, and the focal length and plate scale may have changed that day."
 
 msgid "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停"
-msgstr ""
+msgstr "WASD/left stick move · mouse/arrows/right stick look · Shift/L3 run\n%s interact · %s log · %s start/stop · %s pause"
 
 msgid "[b]Eddington 的回應[/b]"
-msgstr ""
+msgstr "[b]Eddington's Reply[/b]"
 
 msgid "[b]Godot 第三方元件[/b]"
 msgstr ""
@@ -361,7 +361,7 @@ msgid "[b]Godot 第三方授權全文[/b]"
 msgstr ""
 
 msgid "[b]你留下的證據[/b]"
-msgstr ""
+msgstr "[b]The Evidence You Left[/b]"
 
 msgid "[b]全食[/b]　[font_size=%d][color=#e88]%d[/color][/font_size] 秒"
 msgstr "[b]Totality[/b]  [font_size=%d][color=#e88]%d[/color][/font_size] s"
@@ -421,10 +421,10 @@ msgid "[b]準備（全食之前）[/b]"
 msgstr "[b]Preparation (before totality)[/b]"
 
 msgid "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
-msgstr ""
+msgstr "[b]Oxford comparison plate[/b] (January 1919, the same telescope and the same star field, photographed at night)\nStar positions without the sun. If the sun's gravity deflects the stars on the eclipse plates, they will lie outward from here."
 
 msgid "[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）"
-msgstr ""
+msgstr "[b]Plate %d[/b]  exposure %.1f s (started at second %d of totality)"
 
 msgid "[b]第三方素材與授權[/b]\n"
 msgstr ""
@@ -439,7 +439,7 @@ msgid "[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，
 msgstr ""
 
 msgid "[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n"
-msgstr ""
+msgstr "[center]Cambridge, 1917, a rainy night. Two records of the same patch of sky do not agree.\nSome will say that what does not agree is false.\nTwo years later, under the clouds at the equator, you have 302 seconds—to measure whether starlight bends as it passes the sun.[/center]\n"
 
 msgid "[center][b]製作名單[/b]\n%s · v%s[/center]"
 msgstr ""
@@ -478,28 +478,28 @@ msgid "[color=#db8]準備好了就告訴 Eddington，或等倒數結束[/color]"
 msgstr "[color=#db8]When you are ready, tell Eddington, or wait for the countdown[/color]"
 
 msgid "[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]"
-msgstr ""
+msgstr "[color=#e88]Fewer than five identifiable stars: plate scale and deflection cannot both be solved.[/color]"
 
 msgid "[color=#e88]幾乎沒有曝光。[/color]"
-msgstr ""
+msgstr "[color=#e88]Almost no exposure.[/color]"
 
 msgid "[color=#e88]底片用完了[/color]"
 msgstr "[color=#e88]No plates left[/color]"
 
 msgid "[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]"
-msgstr ""
+msgstr "[color=#e88]The shutter was still open at third contact—the sunlight returned and overexposed the whole plate.[/color]"
 
 msgid "[color=#fd8]● 曝光中 %.1f 秒[/color]"
 msgstr "[color=#fd8]● Exposing %.1f s[/color]"
 
 msgid "[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]"
-msgstr ""
+msgstr "[color=#fd8]Measurable, but the star images are trailed or covered by cloud.[/color]"
 
 msgid "[color=#fd8]這張還沒讀數——用測微器對好參考星再記下，才會算進結果。[/color]"
-msgstr ""
+msgstr "[color=#fd8]This plate has no reading yet—set the micrometer on the reference star and record it; only then will it count.[/color]"
 
 msgid "[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s"
-msgstr ""
+msgstr "[font_size=%d]TELEGRAM  Príncipe → London  for Dyson[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\nReason: %s"
 
 msgid "x 38.42　y 12.07"
 msgstr "x 38.42  y 12.07"
@@ -529,42 +529,42 @@ msgid "x 47.06　y 15.52"
 msgstr "x 47.06  y 15.52"
 
 msgid "· 1919 年 10 月你寫的：%s。"
-msgstr ""
+msgstr "· Written in October 1919: %s."
 
 msgid "· Ashby 先生寫的：0.87。"
-msgstr ""
+msgstr "· Ashby wrote: 0.87."
 
 msgid "· Sobral 天體照相儀那組：%s。"
-msgstr ""
+msgstr "· Sobral's astrographic set: %s."
 
 msgid "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。"
 msgid_plural "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "· You measured %d plate, combined %.2f″ ± %.2f″ (illustrative simulation)."
+msgstr[1] "· You measured %d plates, combined %.2f″ ± %.2f″ (illustrative simulation)."
 
 msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
 msgstr "· Total eclipse 302 seconds. Exposures are expected to run from 2 to 20 seconds; changing a plate takes about 4 seconds.\n· A star image needs enough 'clear sky': a few seconds will do when the cloud is thin; under thick cloud, any length of exposure gives only fog.\n· With the drive rate unchecked, star images begin to trail after about 6 seconds.\n· The moment the sky brightens, take one short exposure and close; changing the plate takes four seconds. If the sky is still bright when it is done, take a second—the two can check one another. The second is a chance, not a guarantee.\n· [b]Close the shutter before third contact, without fail.[/b]"
 
 msgid "· 拍了 %d 張底片（底片匣一共 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。"
-msgstr ""
+msgstr "· Exposed %d plates (out of %d plate holders). Clear star images %d, flawed %d, fewer than five stars %d."
 
 msgid "· 時鐘驅動：%s。"
-msgstr ""
+msgstr "· Clock drive: %s."
 
 msgid "· 沒有量出任何數值。"
-msgstr ""
+msgstr "· No value was measured."
 
 msgid "· 第一次量：%.2f″ ± %.2f″"
-msgstr ""
+msgstr "· First measurement: %.2f″ ± %.2f″"
 
 msgid "· 第一次量：沒有量出任何數值。"
-msgstr ""
+msgstr "· First measurement: no value was measured."
 
 msgid "· 筆記本最後一句：%s。"
-msgstr ""
+msgstr "· Last line of the notebook: %s."
 
 msgid "· 量之前你寫的：%s（%s）。"
-msgstr ""
+msgstr "· Written before measuring: %s (%s)."
 
 msgid "……一顆都對不上？這不是差一點，是完全不像。"
 msgstr "…Not a single star matches? They're not a little out. They look nothing alike."
@@ -621,7 +621,7 @@ msgid "……（看了你一眼）這句話留著。過幾天，也許有人會�
 msgstr "…(Looks at you.) Keep that sentence. In a few days, someone may want to hear it."
 
 msgid "↑↓ 或右搖桿：捲動"
-msgstr ""
+msgstr "↑↓ or right stick: scroll"
 
 msgid "□ 到測量桌：先寫下選片規則，再量底片"
 msgstr "□ Go to the measuring table: write your selection rule first, then measure the plates"
@@ -636,7 +636,7 @@ msgid "　　"
 msgstr ""
 
 msgid "　離開　"
-msgstr ""
+msgstr "Quit"
 
 msgid "、"
 msgstr ", "
@@ -744,7 +744,7 @@ msgid "『看了數字再決定』——這正是規則要先寫的原因。數�
 msgstr "'Decide after seeing the numbers'—that is exactly why the rule is written first. Once the numbers are out, everyone wants to keep the plates they like."
 
 msgid "・"
-msgstr ""
+msgstr "· "
 
 msgid "・ "
 msgstr ""
@@ -792,16 +792,16 @@ msgid "上一回的曝光"
 msgstr "The last exposure"
 
 msgid "上下反轉：開"
-msgstr ""
+msgstr "Invert vertical: On"
 
 msgid "上下反轉：關"
-msgstr ""
+msgstr "Invert vertical: Off"
 
 msgid "上了發條並校過走速"
 msgstr "wound, and the drive rate checked"
 
 msgid "上了發條但沒校走速"
-msgstr "wound, but the drive rate unchecked"
+msgstr "wound, but the drive rate not checked"
 
 msgid "上午的雷雨在十一點半左右停了。日偏食已經開始，太陽在雲後時隱時現。\n找 Eddington 報到——他在望遠鏡旁。"
 msgstr "The morning thunderstorm eased off around half past eleven. The partial eclipse has begun; the sun comes and goes behind the cloud.\nReport to Eddington—he is by the telescope."
@@ -846,7 +846,7 @@ msgid "不行。不提，就是替讀的人決定他不必知道。丟不丟是�
 msgstr "No. Leaving it out decides for the reader that they need not know. Dropping it is one thing; hiding it is another."
 
 msgid "主音量"
-msgstr ""
+msgstr "Master"
 
 msgid "也可能等到沒有船、沒有人。準備可以——別把準備當成結論。"
 msgstr "Or it may wait until there are no ships and no men. Prepare, by all means—but don't mistake preparation for a conclusion."
@@ -888,10 +888,10 @@ msgid "他還提到一件事：上一次拿日食底片來比，底片因為用�
 msgstr "He mentions one other thing: the last time eclipse plates were compared, the mirror in the instrument had turned the whole image round, and they had to be turned over, emulsion to emulsion, before any comparison could be made."
 
 msgid "位移為示意放大；真實的位移比一個星點還小得多。"
-msgstr ""
+msgstr "The displacement is exaggerated for illustration; the real shift is far smaller than a star image."
 
 msgid "低"
-msgstr ""
+msgstr "Low"
 
 msgid "低一點"
 msgstr "A little lower"
@@ -1080,7 +1080,7 @@ msgid "你："
 msgstr ""
 
 msgid "你：%s"
-msgstr ""
+msgstr "You: %s"
 
 msgid "你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。\n%s"
 msgstr "You: 'Stop!'  Cottingham closes the shutter. Plate %d: %.1f seconds.\n%s"
@@ -1098,7 +1098,7 @@ msgid "信"
 msgstr "Letter"
 
 msgid "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
-msgstr ""
+msgstr "Borrows Ashby's magnifying glass: click the plate to move the centre; with this button focused, move with the right stick or arrows; press again to put it away. Q/E or L1/R1 switch between the loupe and blink buttons."
 
 msgid "假如你當時沒找到那個反過來的「14」——你會交什麼？"
 msgstr "Suppose you had not found that reversed '14'—what would you have handed in?"
@@ -1122,7 +1122,7 @@ msgid "先放一邊，但寫明原因（星像糊、比例尺可能變了）"
 msgstr "Set it aside, but write down why (blurred star images, the plate scale may have changed)"
 
 msgid "先放一邊，寫明了原因"
-msgstr ""
+msgstr "set aside, with the reason stated"
 
 msgid "先生……您真的不信嗎？"
 msgstr "Sir… do you truly not believe it?"
@@ -1134,16 +1134,16 @@ msgid "先空拍一次，練練喊開始和停？"
 msgstr "A dry run first, to practise calling start and stop?"
 
 msgid "先說不確定：數字很小，範圍很寬。"
-msgstr ""
+msgstr "Start with the uncertainty: the numbers are small, the range wide."
 
 msgid "先說天空：雲在最後才薄下去。"
-msgstr ""
+msgstr "Start with the sky: the cloud thinned only at the end."
 
 msgid "先說那張星圖。"
-msgstr ""
+msgstr "Start with the star chart."
 
 msgid "先說錯誤：我今天也犯了一個錯。"
-msgstr ""
+msgstr "Start with the mistake: I made one today too."
 
 msgid "先跳過這顆，等量多幾張再說。"
 msgstr "Skip this one for now; decide after more plates are measured."
@@ -1158,10 +1158,10 @@ msgid "全是雲，無結果"
 msgstr "Cloud, no results"
 
 msgid "全螢幕：開"
-msgstr ""
+msgstr "Fullscreen: On"
 
 msgid "全螢幕：關"
-msgstr ""
+msgstr "Fullscreen: Off"
 
 msgid "兩個人各自對過。%s，謝謝。"
 msgstr "Two people checked it independently. Thank you, %s."
@@ -1200,13 +1200,13 @@ msgid "再去看一次吧。看看角落那個「14」。我在這裡等。"
 msgstr "Go and look again. Look at the '14' in the corner. I'll wait here."
 
 msgid "再按一次：回到標題"
-msgstr ""
+msgstr "Press again: return to title"
 
 msgid "再按一次：從頭開始"
-msgstr ""
+msgstr "Press again: start over"
 
 msgid "再按一次：離開（進度不會保留）"
-msgstr ""
+msgstr "Press again: quit (progress will not be kept)"
 
 msgid "再看一次：%s。\n看圖上的細線：兩條預測線，哪一條落在細線裡面？"
 msgstr "Look again: %s.\nLook at the fine lines: of the two prediction lines, which falls inside them?"
@@ -1257,7 +1257,7 @@ msgid "劍橋天文台・1919 年 3 月，出發前一晚\n（重建場景）"
 msgstr "Cambridge Observatory, March 1919, the night before departure\n(reconstructed scene)"
 
 msgid "劍橋，1917 → 普林西比，1919"
-msgstr ""
+msgstr "Cambridge, 1917 → Príncipe, 1919"
 
 msgid "劍橋，1919 年 10 月\n\n（推測重建）"
 msgstr "Cambridge, October 1919\n\n(speculative reconstruction)"
@@ -1284,7 +1284,7 @@ msgid "去看看吧。無論你看見什麼，都把它記下來。"
 msgstr "Go and look. Whatever you see, write it down."
 
 msgid "參考底片"
-msgstr ""
+msgstr "Reference plates"
 
 msgid "只容得下 0.87″"
 msgstr "Only 0.87″ fits"
@@ -1308,7 +1308,7 @@ msgid "只有拖長或起霧的底片可用。你照規則量了它們，也該�
 msgstr "Only trailed or clouded plates could be used. You measured them by the rule; that uncertainty belongs in the telegram too."
 
 msgid "只玩尾章：普林西比，1919"
-msgstr ""
+msgstr "Finale only: Príncipe, 1919"
 
 msgid "可以。Greenwich 也還在比校驗片。只是十一月不會等你——到時候要有一句話交代。"
 msgstr "That will do. Greenwich is still comparing its check plates. But November will not wait—by then you must have a sentence to account for it."
@@ -1350,7 +1350,7 @@ msgid "可能是很暗的星。"
 msgstr "It may be a very faint star."
 
 msgid "可辨識的星點：%d 顆"
-msgstr ""
+msgstr "Identifiable stars: %d"
 
 msgid "史實"
 msgstr ""
@@ -1368,7 +1368,7 @@ msgid "同一片雲。"
 msgstr "The same cloud."
 
 msgid "同一片雲：換個做法，再量一次"
-msgstr ""
+msgstr "Same cloud: another method, measure again"
 
 msgid "同一行的邊上有鉛筆字：「已抄錄，見星圖櫃。」筆跡和抄錄圖上的一樣。\n[color=#b8ad98]——是同一張底片、同一片天。[/color]"
 msgstr "Beside the same line, in pencil: 'Traced; see star-chart cabinet.' The handwriting matches the tracing.\n[color=#b8ad98]—The same plate, the same part of the sky.[/color]"
@@ -1377,7 +1377,7 @@ msgid "同一顆變星，一行一行的亮度估計，字跡工整得近乎固�
 msgstr "Brightness estimates for the same variable star, line after line, in handwriting so neat it is almost obstinate.\nIn the corner of the latest page is a very small question mark."
 
 msgid "向 Eddington 報告 →"
-msgstr ""
+msgstr "Report to Eddington →"
 
 msgid "和出發時一樣高"
 msgstr "At the same height it started"
@@ -1398,10 +1398,10 @@ msgid "回到桌邊"
 msgstr ""
 
 msgid "回到標題"
-msgstr ""
+msgstr "Return to title"
 
 msgid "回顧證據與評語"
-msgstr ""
+msgstr "Review the evidence and comments"
 
 msgid "固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉"
 msgstr ""
@@ -1434,7 +1434,7 @@ msgid "多出來那一點，我也找不到對應的星。底片上那裡只有�
 msgstr "I can't find a star to match that extra point either. There's only a tiny speck of white there on the plate—it could be a very faint star, or just a flaw in the emulsion."
 
 msgid "夜裡的位置"
-msgstr ""
+msgstr "Night positions"
 
 msgid "夜裡的比對片"
 msgstr "the comparison plate taken at night"
@@ -1443,7 +1443,7 @@ msgid "夠。"
 msgstr "Enough."
 
 msgid "大"
-msgstr ""
+msgstr "Large"
 
 msgid "大概是。"
 msgstr "Probably."
@@ -1602,13 +1602,13 @@ msgid "對得上"
 msgstr "It does"
 
 msgid "對話紀錄　［%s 關閉］"
-msgstr ""
+msgstr "Dialogue log  [%s to close]"
 
 msgid "對，範圍就是這樣讀的。"
 msgstr "Yes, that is how the range is read."
 
 msgid "小"
-msgstr ""
+msgstr "Small"
 
 msgid "少了%s。"
 msgstr "It is missing %s."
@@ -1623,7 +1623,7 @@ msgid "島上要再過好幾個月才能在夜裡看到這片星，所以比對�
 msgstr "This field will not be visible at night from the island for several months, so the comparison plate had to be taken in advance. Later the eclipse plate will be laid over it to compare the star positions."
 
 msgid "工作簿"
-msgstr ""
+msgstr "The workbook"
 
 msgid "工作簿最後一頁還是空的。你把它放在箱子的最上層。"
 msgstr "The last page of the workbook is still blank. You pack it at the top of the crate."
@@ -1632,10 +1632,10 @@ msgid "差異的原因"
 msgstr "Cause of the difference"
 
 msgid "已沖洗的底片"
-msgstr ""
+msgstr "Developed plates"
 
 msgid "已記下讀數：%.2f 格。"
-msgstr ""
+msgstr "Reading recorded: %.2f div."
 
 msgid "帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［"
 msgstr ""
@@ -1724,7 +1724,7 @@ msgid "從箱裡看"
 msgstr ""
 
 msgid "從頭開始"
-msgstr ""
+msgstr "Start over"
 
 msgid "微弱斑點：恆星？乳劑瑕疵？"
 msgstr ""
@@ -1781,7 +1781,7 @@ msgid "我也覺得少了什麼。換一張吧。"
 msgstr "I feel something is missing too. Choose another."
 
 msgid "我今天也犯了一個錯，回去再慢慢告訴你。"
-msgstr ""
+msgstr "I made a mistake today too. I'll tell you all of it when I'm back."
 
 msgid "我信了牛頓三十年。"
 msgstr "I have believed Newton for thirty years."
@@ -1880,7 +1880,7 @@ msgid "我還沒有改變想法"
 msgstr "I have not changed my mind"
 
 msgid "我還記得小時候那張星圖。"
-msgstr ""
+msgstr "I still remember that star chart from childhood."
 
 msgid "所以……今晚沒有別的事了。"
 msgstr "So… there's nothing else tonight."
@@ -1946,7 +1946,7 @@ msgid "拍攝時：曝光太短。"
 msgstr "At the time: the exposure was too short."
 
 msgid "拖長：每顆星都拉成同方向的短線（時鐘走速不準）"
-msgstr ""
+msgstr "Trailed: each star drawn into a short line in the same direction (the clock drive was off)"
 
 msgid "拿底片匣（手上 %d，箱裡還有 %d）"
 msgstr ""
@@ -1970,7 +1970,7 @@ msgid "換一格"
 msgstr ""
 
 msgid "操作說明"
-msgstr ""
+msgstr "Controls"
 
 msgid "擦掉，直接寫上正確的數字。"
 msgstr "Rub it out and write the correct figure over it."
@@ -1985,13 +1985,13 @@ msgid "收起來"
 msgstr ""
 
 msgid "收起參考"
-msgstr ""
+msgstr "Close reference"
 
 msgid "收起回顧"
-msgstr ""
+msgstr "Close review"
 
 msgid "收起歷史"
-msgstr ""
+msgstr "Close history"
 
 msgid "改。（回到看片台和筆記本）"
 msgstr "Change it. (Return to the light box and the notebook)"
@@ -2018,7 +2018,7 @@ msgid "放大未重合點"
 msgstr ""
 
 msgid "放大鏡 ×2"
-msgstr ""
+msgstr "Loupe ×2"
 
 msgid "放大鏡下，底片上那個位置只有一點極淡的白。可能是一顆很暗的星，也可能是藥膜上的瑕疵——光憑這一張，分不出來。"
 msgstr "Under the magnifying glass there is only the faintest speck of white at that spot on the plate. It may be a very faint star, or a flaw in the emulsion—one plate alone cannot tell."
@@ -2027,10 +2027,10 @@ msgid "整組丟掉，不用提"
 msgstr "Drop the whole set, no need to mention it"
 
 msgid "整組丟掉，沒有提"
-msgstr ""
+msgstr "the whole set dropped, unmentioned"
 
 msgid "數字很小，範圍很寬，我還不能說得更確定。"
-msgstr ""
+msgstr "The numbers are small and the range wide; I cannot yet say more certainly."
 
 msgid "數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。"
 msgstr "The number is not off enough to need the instrument to explain it. Don't have a reason ready for a result you did not expect."
@@ -2039,13 +2039,13 @@ msgid "文字大小："
 msgstr ""
 
 msgid "文字大小：%s"
-msgstr ""
+msgstr "Text size: %s"
 
 msgid "新天體。（笑了一下，不是嘲笑）一張底片、一個白點、一個晚上。如果我每次這樣想都寫下來，皇家天文學會早就把我請出去了。"
 msgstr "A new object. (A small laugh, not unkind.) One plate, one white speck, one night. If I wrote down every such thought, the Royal Astronomical Society would have shown me the door long ago."
 
 msgid "新的天空：換一種雲況"
-msgstr ""
+msgstr "New sky: a different cloud"
 
 msgid "日冕很美，我也看了一眼。但美不是量測——量測在底片上。"
 msgstr "The corona was beautiful; I looked at it too. But beauty is not measurement—measurement is on the plates."
@@ -2075,13 +2075,13 @@ msgid "星像拖長了——走速沒校過。數值偏低，可能是儀器，�
 msgstr "The star images are trailed—the drive rate wasn't checked. The low value may be due to the instrument, rather than the stars."
 
 msgid "星像清楚。"
-msgstr ""
+msgstr "The star images are clear."
 
 msgid "星像確實拖長了——可是拖長只會把數字拉低，這個結果並沒有偏低。"
 msgstr "The star images are indeed trailed—but trailing only pulls the number down, and this result is not low."
 
 msgid "星光偏折（太陽邊緣，角秒）"
-msgstr ""
+msgstr "Deflection of starlight (at the sun's edge, arcseconds)"
 
 msgid "星表也是人量的。"
 msgstr "Catalogues are measured by people too."
@@ -2090,7 +2090,7 @@ msgid "星點不足五顆的不量；星像拖長或被雲霧蓋住的，不和�
 msgstr "Plates with fewer than five star images are not measured; those with trailed images or covered by cloud are not averaged with the clear ones."
 
 msgid "星點清楚：小而圓"
-msgstr ""
+msgstr "Sharp star images: small and round"
 
 msgid "是啊。"
 msgstr "No. It doesn't."
@@ -2108,10 +2108,10 @@ msgid "時鐘驅動：發條已上滿"
 msgstr "Clock drive: spring fully wound"
 
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
-msgstr ""
+msgstr "At Príncipe, 16 plates were exposed during the 302-second totality, with exposures of 2 to 20 seconds; the cloud thinned noticeably only in the last third of totality. The first ten plates showed almost no stars, and in the end only two plates, with five stars in all, could be measured. Eddington measured one plate on the island and found it agreed with Einstein's prediction; his telegram to Dyson said the cloud was thick but 'hopeful' (quoted as \"Through cloud, hopeful\" in Nature, 5 June 1919; the date of sending is not confirmed)."
 
 msgid "暫停"
-msgstr ""
+msgstr "Paused"
 
 msgid "曝光的要領再說一次？"
 msgstr "Go over the exposure points again?"
@@ -2156,10 +2156,10 @@ msgid "未寫規則"
 msgstr "no rule written"
 
 msgid "本子上：%.2f″ ± %.2f″（示意模擬）"
-msgstr ""
+msgstr "In the workbook: %.2f″ ± %.2f″ (illustrative simulation)"
 
 msgid "本子上：沒有量出任何數值。"
-msgstr ""
+msgstr "In the workbook: no value was measured."
 
 msgid "本子翻到新的一頁：第 %d 次試驗。上一回的記錄留在旁邊。"
 msgstr "A new page in the book: trial %d. The last record stays beside it."
@@ -2219,7 +2219,7 @@ msgid "根據什麼？"
 msgstr "On what grounds?"
 
 msgid "標準"
-msgstr ""
+msgstr "Standard"
 
 msgid "標籤倒了過來；先看看底片與描圖紙的方向。"
 msgstr ""
@@ -2228,13 +2228,13 @@ msgid "標記「未解決：需要另一張同天區的底片」"
 msgstr "Mark it 'Unresolved: another plate of the same region is needed'"
 
 msgid "歷史上發生了什麼"
-msgstr ""
+msgstr "What Happened Historically"
 
 msgid "歷史上，普林西比的觀測者是 Eddington 與 Cottingham 兩人。你和他們同行——這是虛構的。"
 msgstr "Historically, the two observers at Príncipe were Eddington and Cottingham. You travel with them—this is fiction."
 
 msgid "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
-msgstr ""
+msgstr "Compares the same area every half second; move with the right stick or arrows. Q/E or L1/R1 switch between the loupe and blink buttons."
 
 msgid "比例和方向，先用遠處的星校正過——1917 年你寫進了計畫。"
 msgstr "Scale and orientation were corrected first against the distant stars—you wrote that into the plan in 1917."
@@ -2315,13 +2315,13 @@ msgid "清單？"
 msgstr "The list?"
 
 msgid "減少晃動：開"
-msgstr ""
+msgstr "Reduce motion: On"
 
 msgid "減少晃動：關"
-msgstr ""
+msgstr "Reduce motion: Off"
 
 msgid "測微器"
-msgstr ""
+msgstr "Micrometer"
 
 msgid "測量桌"
 msgstr ""
@@ -2357,7 +2357,7 @@ msgid "照最像的那樣對齊，交上去。"
 msgstr "Align it the way that fits best, and hand it in."
 
 msgid "照樣一樣重地算"
-msgstr ""
+msgstr "counted as it stands, with equal weight"
 
 msgid "照樣算，一樣重"
 msgstr "Count it as it stands, with equal weight"
@@ -2378,10 +2378,10 @@ msgid "牛津比對底片盒"
 msgstr ""
 
 msgid "牛津比對片"
-msgstr ""
+msgstr "Oxford comparison plate"
 
 msgid "牛津（無日）"
-msgstr ""
+msgstr "Oxford (no sun)"
 
 msgid "牛頓式 0.87″"
 msgstr ""
@@ -2402,7 +2402,7 @@ msgid "用離太陽很遠的星當基準，校正底片的比例和方向"
 msgstr "Use stars far from the Sun as the reference, to correct the plate's scale and orientation"
 
 msgid "由 Cottingham 匆忙處理"
-msgstr ""
+msgstr "seen to in haste by Cottingham"
 
 msgid "留聲機"
 msgstr "Gramophone"
@@ -2414,10 +2414,10 @@ msgid "畢宿星團那一帶，夠亮、能在日冕旁邊拍得到的星——�
 msgstr "In the region of the Hyades, the stars bright enough to be photographed beside the corona—pick them out of the catalogue and make a list. For each one, find an old plate and check its position."
 
 msgid "畫質：低"
-msgstr ""
+msgstr "Quality: Low"
 
 msgid "畫質：標準"
-msgstr ""
+msgstr "Quality: Standard"
 
 msgid "當成墨漬，刪掉"
 msgstr "Take it for an ink blot and delete it"
@@ -2459,13 +2459,13 @@ msgid "示意圖，不按比例。"
 msgstr ""
 
 msgid "示意圖，不是你的底片。"
-msgstr ""
+msgstr "Diagram, not your plates."
 
 msgid "示意圖：落差放大了許多。真的箱子裡，比一個原子還小。"
 msgstr ""
 
 msgid "示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"
-msgstr ""
+msgstr "Illustrative simulation data: the figures come from the game's model, not from actual measurements in 1919."
 
 msgid "空桌子"
 msgstr "Empty Desk"
@@ -2483,13 +2483,13 @@ msgid "窗簾拆了。整整四年，我第一次在這個房間看見外面的�
 msgstr "The curtain is down. For four whole years, this is the first time I have seen the street lamp from this room."
 
 msgid "第 %d 號%s%s"
-msgstr ""
+msgstr "Plate %d%s%s"
 
 msgid "第 %d 號底片"
 msgstr "Plate %d"
 
 msgid "第 %d 號（全食）・位移已放大（示意）"
-msgstr ""
+msgstr "Plate %d (totality) · displacement exaggerated (schematic)"
 
 msgid "第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。"
 msgstr "There are not even five stars to count on plate %s; nothing can be measured from it. Choose plates by the star images, not by how many there are."
@@ -2534,16 +2534,16 @@ msgid "第%d號"
 msgstr "Plate %d"
 
 msgid "第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。"
-msgstr ""
+msgstr "For a first play, begin with the prologue; the finale alone skips the Cambridge investigation, the preparation for departure and what follows the ending."
 
 msgid "第一次的數字不合我的預期"
 msgstr "The first numbers did not match what I expected"
 
 msgid "第一次量：%.2f″ ± %.2f″"
-msgstr ""
+msgstr "First measurement: %.2f″ ± %.2f″"
 
 msgid "第一次量：沒有量出任何數值。"
-msgstr ""
+msgstr "First measurement: no value was measured."
 
 msgid "第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。"
 msgstr "Third contact. Sunlight bursts from the moon's edge like a diamond."
@@ -2594,7 +2594,7 @@ msgid "範圍同時容得下 0.87″ 和 1.75″"
 msgstr "The range holds both 0.87″ and 1.75″"
 
 msgid "納入量測"
-msgstr ""
+msgstr "Include in measurement"
 
 msgid "給 Kit："
 msgstr ""
@@ -2603,7 +2603,7 @@ msgid "給 Kit：%s"
 msgstr "For Kit: %s"
 
 msgid "繼續"
-msgstr ""
+msgstr "Resume"
 
 msgid "繼續：1919 年 10 月"
 msgstr ""
@@ -2651,7 +2651,7 @@ msgid "被丟下的星光"
 msgstr "Starlight Left Behind"
 
 msgid "製作名單"
-msgstr ""
+msgstr "Credits"
 
 msgid "複核"
 msgstr "Independent check"
@@ -2663,13 +2663,13 @@ msgid "視角靈敏度："
 msgstr ""
 
 msgid "視角靈敏度：%s"
-msgstr ""
+msgstr "Look sensitivity: %s"
 
 msgid "記下每張底片的狀況：雲、曝光秒數、溫度、時鐘驅動"
 msgstr "Record the condition of each plate: cloud, exposure in seconds, temperature, clock drive"
 
 msgid "記下讀數"
-msgstr ""
+msgstr "Record reading"
 
 msgid "記得。他們說我們是編的。"
 msgstr "I remember. They said we made it up."
@@ -2723,13 +2723,13 @@ msgid "讀 Dyson 的信"
 msgstr ""
 
 msgid "讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]"
-msgstr ""
+msgstr "Reading [b]%.2f div.[/b] — deflection measured: [b]%.2f″ ± %.2f″[/b]"
 
 msgid "讀數：%.2f 格"
-msgstr ""
+msgstr "Reading: %.2f div."
 
 msgid "讀數：0.00 格"
-msgstr ""
+msgstr "Reading: 0.00 div."
 
 msgid "讀桌上 Dyson 的信。"
 msgstr ""
@@ -2762,7 +2762,7 @@ msgid "起/曝（約秒）：%s；選片：%s；可用 %d 張"
 msgstr "Start/exposure (about seconds): %s; plates selected: %s; usable: %d"
 
 msgid "起霧：雲光蓋住，星點淡、數得到的少"
-msgstr ""
+msgstr "Fogged: veiled by cloud light, faint stars, few to count"
 
 msgid "越拉越快"
 msgstr ""
@@ -2774,10 +2774,10 @@ msgid "轉一點就對上了。可是為什麼要轉？底片的藥膜面上應�
 msgstr "A small turn brings it into line. But why should it need turning? There should be a pencil mark on the emulsion side of the plate to tell us where north is."
 
 msgid "返回"
-msgstr ""
+msgstr "Back"
 
 msgid "返回　%s"
-msgstr ""
+msgstr "Back  %s"
 
 msgid "這 %d 張"
 msgstr ""
@@ -2846,7 +2846,7 @@ msgid "選片規則：『%s』→『%s』。"
 msgstr "Rule for selecting plates: '%s' → '%s'."
 
 msgid "還不能決定，先重量一次"
-msgstr "Can't decide yet; measure it again first"
+msgstr "not yet decided; measured again first"
 
 msgid "還剩一個點沒著落。點它一下，用放大鏡看看底片上那個位置。"
 msgstr "There's still one point we haven't accounted for. Click on it and look at that spot on the plate through the magnifying glass."
@@ -2939,10 +2939,10 @@ msgid "重建肖像，非歷史照片"
 msgstr ""
 
 msgid "重新選片"
-msgstr ""
+msgstr "Reselect plates"
 
 msgid "重玩從 1919 年 5 月 29 日的準備開始；上一回的紀錄會留著，結尾會和這一回並排比較。"
-msgstr ""
+msgstr "A replay begins at the preparation on 29 May 1919; the previous run's record is kept, and the two endings are compared side by side."
 
 msgid "重畫一張乾淨的，舊的作廢"
 msgstr "Draw a clean copy and discard the old one"
@@ -2983,7 +2983,7 @@ msgid "量測儀"
 msgstr "Measuring Machine"
 
 msgid "量測所選底片"
-msgstr ""
+msgstr "Measure selected plates"
 
 msgid "量錯了，或算漏了什麼"
 msgstr "The measurement is wrong, or something was left out of the calculation"
@@ -2992,19 +2992,19 @@ msgid "量錯了，或算漏了什麼。很有可能。六十年來，每一張�
 msgstr "Measured wrongly, or something left out of the calculation. Quite possible. For sixty years every Mercury plate has been measured again, every planet's mass recalculated. And still the number is there."
 
 msgid "長按互動：按一下"
-msgstr ""
+msgstr "Hold to interact: press once"
 
 msgid "長按互動：按住"
-msgstr ""
+msgstr "Hold to interact: hold"
 
 msgid "閃爍比對"
-msgstr ""
+msgstr "Blink comparison"
 
 msgid "開始——就位等待全食。"
 msgstr "Begin—take your places and wait for totality."
 
 msgid "開始遊戲：序章・劍橋，1917"
-msgstr ""
+msgstr "Start: Prologue · Cambridge, 1917"
 
 msgid "關緊的箱子，沒有窗，外面被我蓋住了。鉛筆還是掉到地板上。你在哪裡？"
 msgstr "A closed box, no window, the outside covered by my hand. A pencil still falls to the floor. Where are you?"
@@ -3019,25 +3019,25 @@ msgid "隔著雲，有希望"
 msgstr "Through cloud, hopeful"
 
 msgid "離開"
-msgstr ""
+msgstr "Quit"
 
 msgid "離開桌子"
-msgstr ""
+msgstr "Leave the table"
 
 msgid "離開遊戲"
-msgstr ""
+msgstr "Quit game"
 
 msgid "雨打在玻璃上。簾子拉下了一半——戰時有燈火的規定，天黑以後，燈光不能明晃晃地透出窗外。"
 msgstr "Rain on the glass. The blind is half drawn—wartime lighting rules: after dark, no lamp may show plainly through a window."
 
 msgid "雲在最後才薄下去，我一直看著。"
-msgstr ""
+msgstr "The cloud thinned only at the end. I watched the whole time."
 
 msgid "雲太厚，底片上沒有足夠的星點可以量。"
 msgstr "The cloud was too thick. There aren't enough star images on the plates to measure."
 
 msgid "雲層之後"
-msgstr ""
+msgstr "Eddington 1919: Beyond the Clouds"
 
 msgid "雲層之後的希望"
 msgstr "Hope Beyond the Clouds"
@@ -3061,19 +3061,19 @@ msgid "電報的理由%s：『%s』→『%s』。"
 msgstr "The telegram's grounds %s: '%s' → '%s'."
 
 msgid "音效"
-msgstr ""
+msgstr "Sound effects"
 
 msgid "音樂"
-msgstr ""
+msgstr "Music"
 
 msgid "音樂：開"
-msgstr ""
+msgstr "Music: On"
 
 msgid "音樂：關"
-msgstr ""
+msgstr "Music: Off"
 
 msgid "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
-msgstr ""
+msgstr "Micrometer: set the crosshair on the reference star's position on the eclipse plate. ←/→ (arrow keys/D-pad) move 0.25 division; Shift or L2 fine-tune 0.05. The mouse can drag the crosshair. When it is set, press 'Record reading' or the A button; only then does the plate count as measured. 1 division = 1 pixel on the plate."
 
 msgid "驅動箱就在我旁邊——%s上發條。"
 msgstr ""
@@ -3085,7 +3085,7 @@ msgid "驅動箱就在我旁邊——按住 %s 上發條。"
 msgstr "The drive box is right beside me—hold %s to wind it."
 
 msgid "高"
-msgstr ""
+msgstr "High"
 
 msgid "鬆手"
 msgstr ""
@@ -3094,13 +3094,13 @@ msgid "黃銅做的小太陽系，發條帶著行星各走各的路；一本舊�
 msgstr "A little solar system in brass, its clockwork carrying each planet along its own path; an old almanac lies beside it.\nWork it out by Newton's gravity: what the almanac predicted, set against what the telescope later saw."
 
 msgid "點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。"
-msgstr ""
+msgstr "Click to view; tick the plates you want to measure.\nDecide by the quality of the star images first, then press 'Measure'."
 
 msgid "（%s）"
-msgstr ""
+msgstr "(%s)"
 
 msgid "（14 號底片上那一點極淡的白。兩年了，還是沒有人知道它是什麼。）"
-msgstr ""
+msgstr "(That faint white point on plate 14. Two years on, no one yet knows what it is.)"
 
 msgid "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：交上差異，寫「原因未明」。）"
 msgstr "(In 1917 Eddington asked what you would hand in without a cause. You said: the discrepancy, marked 'cause unknown'.)"
@@ -3115,34 +3115,34 @@ msgid "（1917 年的計畫板上，這張比對片是你放上去的。）"
 msgstr "(On the 1917 plan board, this comparison plate was put there by you.)"
 
 msgid "（Eddington 把電報稿折好，收進外套口袋，出去找送電報的人。）"
-msgstr ""
+msgstr "(Eddington folds the telegram, puts it in his coat pocket, and goes out to find the messenger.)"
 
 msgid "（Eddington 那個關緊的箱子。從裡面分不出來——所以才要到這裡，看太陽旁邊的星。）"
-msgstr ""
+msgstr "(Eddington's closed box. From inside it, you cannot tell—which is why you had to come here, to look at the stars beside the sun.)"
 
 msgid "（Kit 一定會先問天空，再問底片。）"
-msgstr ""
+msgstr "(Kit will ask about the sky first, then the plates.)"
 
 msgid "（Kit 停了很久。）"
 msgstr "(Kit is quiet for a long time.)"
 
 msgid "（也許。）"
-msgstr ""
+msgstr "(Perhaps.)"
 
 msgid "（今晚什麼也沒量到。沒有數字，也是一筆紀錄。）"
-msgstr ""
+msgstr "(Nothing was measured tonight. No number is a record too.)"
 
 msgid "（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）"
-msgstr ""
+msgstr "(What was measured tonight is only a few very small numbers. Small does not mean nothing; nor does it mean proof.)"
 
 msgid "（他不會因為這樣就相信。可是他會一頁一頁讀下去。這就夠了。）"
-msgstr ""
+msgstr "(It will not make him believe. But he will read it page by page. That is enough.)"
 
 msgid "（他在 1917 年那頁寫的是 0.87。我的底片，要寄給他看。）"
-msgstr ""
+msgstr "(On the 1917 page he wrote 0.87. My plates should be sent to him.)"
 
 msgid "（他會在旁邊畫一個問號。問號不丟人。）"
-msgstr ""
+msgstr "(He will put a question mark beside it. A question mark is no disgrace.)"
 
 msgid "（他看向桌上的紙。）"
 msgstr "(He looks at the sheet on the table.)"
@@ -3151,10 +3151,10 @@ msgid "（他翻開期刊。）"
 msgstr "(He opens the journal.)"
 
 msgid "（你又讀了一遍工作簿最後一頁。字比你記得的還要歪。）"
-msgstr ""
+msgstr "(You read the last page of the workbook again. The writing is more crooked than you remember.)"
 
 msgid "（你吹熄了燈。）"
-msgstr ""
+msgstr "(You blow out the lamp.)"
 
 msgid "（你從櫃子取出畢宿星團的舊底片，攤開 Eddington 的清單。）"
 msgstr "(You take the old Hyades plates from the cabinet and spread out Eddington's list.)"
@@ -3166,7 +3166,7 @@ msgid "（你想起 1917 年計畫板上那張卡：量之前，先寫下什麼�
 msgstr "(You remember the card on the 1917 plan board: before measuring, write down what makes a plate unusable.)"
 
 msgid "（你想起他說的：要被一張乾淨的底片說服，而不是被一個好故事。）"
-msgstr ""
+msgstr "(You remember what he said: be convinced by a clean plate, not by a good story.)"
 
 msgid "（你手上的 %d 張會交給 Cottingham）"
 msgid_plural "（你手上的 %d 張會交給 Cottingham）"
@@ -3177,7 +3177,7 @@ msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一�
 msgstr "(You carry the box of Oxford comparison plates to the measuring table. A January night sky, the same telescope.)"
 
 msgid "（你拿起 %s的放大鏡。）"
-msgstr ""
+msgstr "(You pick up %s's magnifying glass.)"
 
 msgid "（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）"
 msgid_plural "（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）"
@@ -3191,37 +3191,37 @@ msgid "（兩年前在這張桌子上，你在報告裡寫過：對不上的地�
 msgstr "(Two years ago at this table you wrote in a report: where something doesn't match, write that it doesn't match.)"
 
 msgid "（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。她大概已經記了一整頁。）"
-msgstr ""
+msgstr "(Before I left I asked Kit to tell me what had changed in Cambridge. Kit has probably filled a page already.)"
 
 msgid "（又念了一次）……那一行是對的。眼睛累了。沒關係，就是要這樣一行一行對。"
 msgstr "(reads it again) …That line is right. Tired eyes. Never mind—this is how it has to be done, line by line."
 
 msgid "（可是你把雲記下來了。他說過：無論看見什麼。）"
-msgstr ""
+msgstr "(But you wrote the cloud down. He said: whatever you see.)"
 
 msgid "（和 Kit 一起把底片收進木框，一格一格，誰也沒說話。）"
 msgstr "…There. Twice as fast as doing it alone."
 
 msgid "（回去以後把它寫清楚——在他問之前。）"
-msgstr ""
+msgstr "(Write it plainly when you are back—before he asks.)"
 
 msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事——今晚的電報，和底片上的不一樣。）"
-msgstr ""
+msgstr "(That star chart from childhood. Drawing it wrong is not the same as lying—but tonight's telegram does not match the plates.)"
 
 msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事——可是今晚的電報，寫得比底片上的多。）"
-msgstr ""
+msgstr "(That star chart from childhood. Drawing it wrong is not the same as lying—but tonight's telegram said more than the plates did.)"
 
 msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事。今晚的電報，只寫了底片上有的。）"
-msgstr ""
+msgstr "(That star chart from childhood. Drawing it wrong is not the same as lying. Tonight's telegram says only what the plates say.)"
 
 msgid "（工作簿後面還有很多空白頁。回去的路還很長。）"
-msgstr ""
+msgstr "(There are many blank pages left in the workbook. The way home is long.)"
 
 msgid "（工作簿最後一頁。日期是 Kit 的字：1919 年 5 月 29 日。）"
 msgstr "(The last page of the workbook. The date is in Kit's hand: 29 May 1919.)"
 
 msgid "（底片、數字、電報——每一步都寫在紙上了，連那幾張不能用的也是。）"
-msgstr ""
+msgstr "(Plates, numbers, telegram—every step is on paper, even the plates that were no use.)"
 
 msgid "（很輕地）……我們小時候畫的那張星圖，也被人這樣說過。"
 msgstr "(Very quietly) …The star chart we drew as children was spoken of that way too."
@@ -3233,7 +3233,7 @@ msgid "（從房間另一頭）……兩週？"
 msgstr "(From the other side of the room) …Two weeks?"
 
 msgid "（我跟 Kit 說過，全食那五分鐘我會在換底片。她會想知道，那五分鐘裡底片上留下了什麼。）"
-msgstr ""
+msgstr "(I told Kit I would be changing plates during the five minutes of totality. Kit will want to know what those five minutes left on the plates.)"
 
 msgid "（把一本濕了邊的期刊放在桌上）皇家天文學會的月報。今年春天，皇家天文學家 Dyson 寫了一篇短文。"
 msgstr "(Sets a journal with damp-stained edges on the table.) The Monthly Notices of the Royal Astronomical Society. This spring, the Astronomer Royal, Dyson, wrote a short paper."
@@ -3245,13 +3245,13 @@ msgid "（把清單轉過來給你看）……是你的字。"
 msgstr "(turns the list round to show you) …It's your hand."
 
 msgid "（放大鏡底下有星點——是你沒有拿去量的那幾張。）"
-msgstr ""
+msgstr "(There are stars under the glass—on the plates you never measured.)"
 
 msgid "（放大鏡底下沒有可以量的東西——只有雲留下的一片灰。）"
-msgstr ""
+msgstr "(There is nothing to measure under the glass—only the grey the cloud left.)"
 
 msgid "（有些話，也許可以等到見了面再說。）"
-msgstr ""
+msgstr "(Some things can perhaps wait until you meet.)"
 
 msgid "（沉默）"
 msgstr "(Silence)"
@@ -3275,7 +3275,7 @@ msgid "（聽他說完細節）"
 msgstr "(Let him finish the details)"
 
 msgid "（見到 Kit，第一句話要說什麼？）"
-msgstr ""
+msgstr "(When you see Kit, what will you say first?)"
 
 msgid "（讀了很久）……這張紙，我願意簽。"
 msgstr "(Reads for a long time.) …This sheet I would sign."
@@ -3284,31 +3284,31 @@ msgid "（輕聲）……他在法國。"
 msgstr "(Quietly) …In France."
 
 msgid "（這一次，你差一點就成了那個好故事。）"
-msgstr ""
+msgstr "(This time, you came close to being that good story.)"
 
 msgid "（選片那一頁還有一行說不清楚：為什麼留這張、丟那張。）"
-msgstr ""
+msgstr "(One line on the selection page still cannot be explained: why this plate was kept and that one dropped.)"
 
 msgid "（還沒有人獨立複核）"
 msgstr ""
 
 msgid "（那天晚上 Kit 問起那張星圖，你沒有回答。見了面，也許可以從那張圖說起。）"
-msgstr ""
+msgstr "(That night Kit asked about the star chart and you gave no answer. When you meet, perhaps you can begin with the chart.)"
 
 msgid "（雨停了。Eddington 的腳步聲消失在走廊盡頭。）"
 msgstr "(The rain has stopped. Eddington's footsteps fade down the corridor.)"
 
 msgid "（雨早就停了。屋外的蟲聲很響，暗房裡只剩下你和桌上的燈。）"
-msgstr ""
+msgstr "(The rain stopped long ago. The insects outside are loud; in the darkroom there is only you and the lamp on the table.)"
 
 msgid "（雲很厚，可是不是什麼都沒留下。回去以後，先把它們量完。）"
-msgstr ""
+msgstr "(The cloud was thick, but it did not leave nothing. When you get back, measure those first.)"
 
 msgid "（電報寫得太小心，或是太寬鬆——你自己也說不準。）"
-msgstr ""
+msgstr "(The telegram was too cautious, or too loose—even you cannot say which.)"
 
 msgid "（電報已經發出去了，收不回來。）"
-msgstr ""
+msgstr "(The telegram has gone; it cannot be taken back.)"
 
 msgid "（點頭，記下重點）"
 msgstr "(Nod and note the main points)"
@@ -3329,7 +3329,7 @@ msgid "［"
 msgstr ""
 
 msgid "［%s／%s］開始・停"
-msgstr ""
+msgstr "[%s/%s] Start/Stop"
 
 msgid "［%s］%s"
 msgstr ""
@@ -3367,7 +3367,7 @@ msgid "［%s］看牛津比對底片"
 msgstr "[%s] Look at the Oxford comparison plate"
 
 msgid "［%s］繼續"
-msgstr ""
+msgstr "[%s] Continue"
 
 msgid "［%s］讀曝光計畫"
 msgstr "[%s] Read the exposure plan"
@@ -3376,10 +3376,10 @@ msgid "［%s］開始／停"
 msgstr "[%s] Start/Stop"
 
 msgid "［1–%d 或點擊］選擇"
-msgstr ""
+msgstr "[1–%d or click] Choose"
 
 msgid "［E／空白鍵／點擊］繼續"
-msgstr ""
+msgstr "[E/Space/Click] Continue"
 
 msgid "［按 "
 msgstr ""
@@ -3406,10 +3406,10 @@ msgid "［按住 %s］替 Cottingham 報秒、校走速"
 msgstr "[Hold %s] Call the seconds for Cottingham, check the drive rate"
 
 msgid "［方向鍵／A 鍵］選擇"
-msgstr ""
+msgstr "[Arrow keys/A button] Choose"
 
 msgid "［空白鍵／E／左鍵］開始・停"
-msgstr ""
+msgstr "[Space/E/Left click] Start/Stop"
 
 msgid "］"
 msgstr ""
