@@ -23,6 +23,11 @@ static func t(s: String) -> String:
 	return String(TranslationServer.translate(s))
 
 
+## A sentence with one count whose noun inflects in English. The msgid is both forms.
+static func tn(s: String, n: int) -> String:
+	return String(TranslationServer.translate_plural(s, s, n))
+
+
 ## Simplified and Hong Kong readers get Traditional rather than English.
 static func resolve(os_locale: String) -> String:
 	var tag := os_locale.replace("-", "_").to_lower()

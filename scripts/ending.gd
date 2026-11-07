@@ -35,7 +35,7 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 		workbook += L.t("（%s）") % first_result
 	if run.get("departure_kit", false):
 		workbook += "\n" + str(run.get("kit_line", ""))
-	var telegram := L.t("[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s") % [Settings.fs(17), Settings.fs(30), _telegram_text(run["telegram_id"]), run["reason_text"]]
+	var telegram := L.t("[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s") % [Settings.fs(17), Settings.fs(30), _telegram_text(run["telegram_id"]), L.t(str(run["reason_text"]))]
 	var tableau := "[color=#8f8676]%s[/color]" % workbook
 	var counts: Dictionary = run["plate_counts"]
 	var lines := []
@@ -46,7 +46,7 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 	lines.append(L.t("[b]你留下的證據[/b]"))
 	lines.append(L.t("· 拍了 %d 張底片（底片匣一共 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。") % [run["plate_total"], run["plates_available"], counts["good"], counts["poor"], counts["unusable"]])
 	if c.n > 0:
-		lines.append(L.t("· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。") % [c.n, c.value, c.sigma])
+		lines.append(L.tn("· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。", c.n) % [c.n, c.value, c.sigma])
 	else:
 		lines.append(L.t("· 沒有量出任何數值。"))
 	if first != null and reselected:
@@ -66,7 +66,7 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 		lines.append(L.t("· 1919 年 10 月你寫的：%s。") % Content.bet_pick_text(int(run.bet_oct)))
 	# Conversion arc D: the epilogue's notebook answer and the astrographic decision.
 	if str(run.get("final_reason_text", "")) != "":
-		lines.append(L.t("· 筆記本最後一句：%s。") % run.final_reason_text)
+		lines.append(L.t("· 筆記本最後一句：%s。") % L.t(str(run.final_reason_text)))
 	if run.has("astro_weight"):
 		lines.append(L.t("· Sobral 天體照相儀那組：%s。") % _astro_weight_text(int(run.astro_weight)))
 	var history := []

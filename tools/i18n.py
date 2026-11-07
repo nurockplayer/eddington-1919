@@ -33,7 +33,11 @@ ALLOWLIST_FILES = {"scripts/lookdev.gd"}
 NAMES_CONST_RE = re.compile(r"(?m)^[ \t]*const[ \t]+NAMES\b")
 
 WRAPPERS = ("t", "tn", "tc")
-WRAPPER_TAIL_RE = re.compile(r"(?:^|[^A-Za-z0-9_.])L\.t(?:n|c)?\(\s*$")
+WRAPPER_TAIL_RE = re.compile(r"(?:^|[^A-Za-z0-9_.])L\.(t|tn|tc)\(\s*$")
+
+# Plural forms each catalogue carries. en inflects, ja and ko do not.
+PLURAL_FORMS = {"en": "nplurals=2; plural=(n != 1);", "ja": "nplurals=1; plural=0;",
+                "ko": "nplurals=1; plural=0;"}
 
 CONST_RE = re.compile(r"(?m)^[ \t]*const\b")
 FUNC_SIG_RE = re.compile(r"\bfunc\b[ \t]*[A-Za-z0-9_]*[ \t]*\(")
@@ -279,6 +283,16 @@ def _inside(position: int, spans: list[tuple[int, int]]) -> bool:
     return any(start <= position < end for start, end in spans)
 
 
+def wrapper_kind(source: str, position: int) -> str | None:
+    """``t``, ``tn`` or ``tc`` when the literal at ``position`` is an argument of one."""
+    match = WRAPPER_TAIL_RE.search(source[:position])
+    return match.group(1) if match else None
+
+
+def plural_forms(locale: str) -> int:
+    return 2 if PLURAL_FORMS[locale].startswith("nplurals=2") else 1
+
+
 def script_paths() -> list[Path]:
     return sorted(SCRIPTS.rglob("*.gd"))
 
@@ -384,29 +398,40 @@ def po_decode(text: str) -> str:
 
 def _po_field(block: str, name: str) -> str | None:
     # A value may continue over quoted lines, as PO editors write long entries.
-    match = re.search(r"(?m)^%s[ \t]+((?:%s\s*)+)" % (name, PO_STRING), block)
+    match = re.search(r"(?m)^%s[ \t]+((?:%s\s*)+)" % (re.escape(name), PO_STRING), block)
     if not match:
         return None
     parts = re.findall(PO_STRING, match.group(1))
     return "".join(po_decode(part[1:-1]) for part in parts)
 
 
-def parse_po(path: Path) -> tuple[str, dict[str, str]]:
-    """Return (header block, {msgid: msgstr}); keeps every existing entry."""
+def parse_po(path: Path) -> tuple[str, dict[str, object]]:
+    """Return (header block, {msgid: msgstr or [msgstr forms]}); keeps every entry.
+
+    A plural entry's value is the list of ``msgstr[0]`` … in index order.
+    """
     if not path.exists():
         return "", {}
     text = path.read_text(encoding="utf-8").strip("\n")
     header = ""
-    entries: dict[str, str] = {}
+    entries: dict[str, object] = {}
     for block in re.split(r"\n\s*\n", text):
         msgid = _po_field(block, "msgid")
         if msgid is None:
             continue
-        msgstr = _po_field(block, "msgstr") or ""
         if msgid == "" and not header:
             header = block
             continue
-        entries[msgid] = msgstr
+        if _po_field(block, "msgid_plural") is not None:
+            forms: list[str] = []
+            while True:
+                form = _po_field(block, "msgstr[%d]" % len(forms))
+                if form is None:
+                    break
+                forms.append(form)
+            entries[msgid] = forms
+            continue
+        entries[msgid] = _po_field(block, "msgstr") or ""
     return header, entries
 
 
@@ -431,25 +456,48 @@ def _po_header(locale: str) -> str:
         '"MIME-Version: 1.0\\n"\n'
         '"Content-Type: text/plain; charset=UTF-8\\n"\n'
         '"Content-Transfer-Encoding: 8bit\\n"\n'
-        '"Plural-Forms: nplurals=2; plural=(n != 1);\\n"' % locale
+        '"Plural-Forms: %s\\n"' % (locale, PLURAL_FORMS[locale])
     )
 
 
-def write_po(path: Path, header: str, entries: dict[str, str],
-             refs: dict[str, list[str]] | None = None) -> None:
+def with_plural_forms(header: str, locale: str) -> str:
+    """The header block with this catalogue's ``Plural-Forms`` line in place."""
+    line = '"Plural-Forms: %s\\n"' % PLURAL_FORMS[locale]
+    if re.search(r'(?m)^"Plural-Forms:', header):
+        return re.sub(r'(?m)^"Plural-Forms:.*$', lambda _match: line, header)
+    return header.rstrip("\n") + "\n" + line
+
+
+def write_po(path: Path, header: str, entries: dict[str, object],
+             refs: dict[str, list[str]] | None = None,
+             plurals: set[str] | None = None) -> None:
+    """Write the file; a list value or a msgid in ``plurals`` is a plural entry."""
+    plurals = plurals or set()
     blocks = [header.rstrip("\n")]
     for msgid in sorted(entries):
         lines = []
         if refs and refs.get(msgid):
             lines.append("#: " + " ".join(refs[msgid]))
         lines.append("msgid " + po_encode(msgid))
-        lines.append("msgstr " + po_encode(entries[msgid]))
+        value = entries[msgid]
+        if isinstance(value, list) or msgid in plurals:
+            forms = value if isinstance(value, list) else [value]
+            lines.append("msgid_plural " + po_encode(msgid))
+            for index, form in enumerate(forms):
+                lines.append("msgstr[%d] %s" % (index, po_encode(form)))
+        else:
+            lines.append("msgstr " + po_encode(str(value)))
         blocks.append("\n".join(lines))
     path.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
 
 
-def collect_msgids() -> dict[str, list[str]]:
-    found: dict[str, set[str]] = {}
+def collect_msgids() -> dict[str, dict]:
+    """Every msgid with its refs and the wrappers it is used through.
+
+    A const string is collected as ``const``: it is still a msgid, but it gains
+    its wrapper where it is used.
+    """
+    found: dict[str, dict] = {}
     for path in script_paths():
         source = path.read_text(encoding="utf-8")
         tokens = tokenize(source)
@@ -467,25 +515,50 @@ def collect_msgids() -> dict[str, list[str]]:
             value = decode_escapes(source[token.content_start:token.content_end], token.raw)
             if not has_cjk(value):
                 continue
-            if _inside(token.start, consts) or WRAPPER_TAIL_RE.search(source[:token.start]):
-                found.setdefault(value, set()).add("%s:%d" % (rel(path), token.line))
-    return {msgid: sorted(refs) for msgid, refs in found.items()}
+            if _inside(token.start, consts):
+                kind = "const"
+            else:
+                kind = wrapper_kind(source, token.start)
+                if kind is None:
+                    continue
+            entry = found.setdefault(value, {"refs": set(), "kinds": set()})
+            entry["refs"].add("%s:%d" % (rel(path), token.line))
+            entry["kinds"].add(kind)
+    return found
 
 
 def command_extract(args: argparse.Namespace) -> int:
-    refs = collect_msgids()
+    found = collect_msgids()
+    conflicts = sorted(msgid for msgid, entry in found.items()
+                       if "tn" in entry["kinds"] and "t" in entry["kinds"])
+    if conflicts:
+        for msgid in conflicts:
+            print("CONFLICT: used through both L.t and L.tn: " + msgid.replace("\n", "\\n"))
+        print("extract: %d conflicting msgid(s), nothing written" % len(conflicts))
+        return 1
+    plurals = {msgid for msgid, entry in found.items() if "tn" in entry["kinds"]}
+    refs = {msgid: sorted(entry["refs"]) for msgid, entry in found.items()}
     msgids = sorted(refs)
-    write_po(PO_DIR / "messages.pot", _pot_header(), {msgid: "" for msgid in msgids}, refs)
+    write_po(PO_DIR / "messages.pot", _pot_header(),
+             {msgid: [""] * plural_forms("en") if msgid in plurals else "" for msgid in msgids},
+             refs, plurals)
     print("extract: %d msgids -> locale/messages.pot" % len(msgids))
     for locale in LOCALES:
         path = PO_DIR / ("%s.po" % locale)
         header, entries = parse_po(path)
-        if not header:
-            header = _po_header(locale)
+        header = with_plural_forms(header or _po_header(locale), locale)
+        count = plural_forms(locale)
         before = len(entries)
         for msgid in msgids:
-            entries.setdefault(msgid, "")
-        write_po(path, header, entries)
+            current = entries.get(msgid)
+            if msgid in plurals:
+                forms = current if isinstance(current, list) else [""] if not current else [str(current)]
+                entries[msgid] = list(forms[:count]) + [""] * max(0, count - len(forms))
+            elif isinstance(current, list):
+                entries[msgid] = current[0] if current else ""
+            elif current is None:
+                entries[msgid] = ""
+        write_po(path, header, entries, plurals=plurals)
         print("extract: %s.po %d -> %d entries" % (locale, before, len(entries)))
     return 0
 
@@ -526,6 +599,18 @@ def tag_problems(msgid: str, msgstr: str) -> list[str]:
     return problems
 
 
+def _translated_problems(locale: str, msgid: str, msgstr: str) -> int:
+    """Placeholder and BBCode problems in one translated string."""
+    problems = 0
+    if placeholders(msgid) != placeholders(msgstr):
+        print("PLACEHOLDERS %s: %s" % (locale, msgid.replace("\n", "\\n")))
+        problems += 1
+    for problem in tag_problems(msgid, msgstr):
+        print("%s %s: %s" % (problem.upper().replace(" ", "-"), locale, msgid.replace("\n", "\\n")))
+        problems += 1
+    return problems
+
+
 def command_check(args: argparse.Namespace) -> int:
     failures = 0
     for path in script_paths():
@@ -537,30 +622,34 @@ def command_check(args: argparse.Namespace) -> int:
             failures += 1
 
     if args.require_translated:
-        refs = collect_msgids()
-        translations: dict[str, dict[str, str]] = {}
+        found = collect_msgids()
+        plurals = {msgid for msgid, entry in found.items() if "tn" in entry["kinds"]}
         for locale in LOCALES:
             path = PO_DIR / ("%s.po" % locale)
             if not path.exists():
                 print("MISSING %s" % rel(path))
                 failures += 1
-                translations[locale] = {}
                 continue
             _, entries = parse_po(path)
-            translations[locale] = entries
-            for msgid in sorted(refs):
-                msgstr = entries.get(msgid, "")
-                if not msgstr:
-                    print("UNTRANSLATED %s: %s" % (locale, msgid.replace("\n", "\\n")))
-                    failures += 1
-                    continue
-                if placeholders(msgid) != placeholders(msgstr):
-                    print("PLACEHOLDERS %s: %s" % (locale, msgid.replace("\n", "\\n")))
-                    failures += 1
-                for problem in tag_problems(msgid, msgstr):
-                    print("%s %s: %s" % (problem.upper().replace(" ", "-"), locale,
-                                         msgid.replace("\n", "\\n")))
-                    failures += 1
+            count = plural_forms(locale)
+            for msgid in sorted(found):
+                current = entries.get(msgid)
+                if msgid in plurals:
+                    forms = current if isinstance(current, list) else []
+                    for index in range(count):
+                        form = forms[index] if index < len(forms) else ""
+                        if not form:
+                            print("UNTRANSLATED %s: %s [%d]" % (locale, msgid.replace("\n", "\\n"), index))
+                            failures += 1
+                            continue
+                        failures += _translated_problems(locale, msgid, form)
+                else:
+                    msgstr = current if isinstance(current, str) else ""
+                    if not msgstr:
+                        print("UNTRANSLATED %s: %s" % (locale, msgid.replace("\n", "\\n")))
+                        failures += 1
+                        continue
+                    failures += _translated_problems(locale, msgid, msgstr)
 
     print("check: %d problem(s)" % failures)
     return 1 if failures else 0

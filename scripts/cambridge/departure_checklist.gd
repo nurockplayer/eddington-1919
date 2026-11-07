@@ -212,7 +212,7 @@ func _layout_smudge(hand: Font) -> void:
 
 func begin_read() -> void:
 	ready_to_mark = false
-	plate_lines[active_index].text = L.t("Kit 念出：") + str(entries[active_index].plate)
+	plate_lines[active_index].text = L.t("Kit 念出：%s") % str(entries[active_index].plate)
 	_scroll.ensure_control_visible(_rows[active_index])
 
 
@@ -245,9 +245,9 @@ func show_correction(fix: int) -> void:
 	for i in entries.size():
 		if not entries[i].get("slip", false):
 			continue
-		values[i].text = L.t("x 41.27　y [s]18.63[/s]　16.83　") + Cast.YOU_INITIALS if fix == 0 else L.t("x 41.27　y 16.83")
+		values[i].text = L.t("x 41.27　y [s]18.63[/s]　16.83　%s") % Cast.YOU_INITIALS if fix == 0 else L.t("x 41.27　y 16.83")
 		_smudge.visible = fix == 1
-		plate_lines[i].text = L.t("劃線、改正、簽名（") + Cast.YOU_INITIALS + L.t("：你的縮寫）") if fix == 0 else L.t("擦改的墨跡還留在紙上")
+		plate_lines[i].text = L.t("劃線、改正、簽名（%s：你的縮寫）") % Cast.YOU_INITIALS if fix == 0 else L.t("擦改的墨跡還留在紙上")
 		_scroll.ensure_control_visible(_rows[i])
 	continue_btn.show()
 	continue_btn.disabled = true

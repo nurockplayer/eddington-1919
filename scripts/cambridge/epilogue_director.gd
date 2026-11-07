@@ -127,7 +127,7 @@ func _sync_player() -> void:
 	match beat:
 		Beat.LETTER: objective = L.t("讀桌上 Dyson 的信。")
 		Beat.ORRERY: objective = L.t("太陽系儀還在架上。")
-	ui.set_objectives(L.t("[b]劍橋・1919 年 10 月[/b]\n") + objective if objective != "" else "")
+	ui.set_objectives(L.t("[b]劍橋・1919 年 10 月[/b]\n%s") % objective if objective != "" else "")
 
 
 func _process(delta: float) -> void:
@@ -145,7 +145,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt(L.t("［") + Prompts.key("interact") + L.t("］") + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), str(target.get_meta("prompt"))] if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -233,8 +233,8 @@ func _dialogue_done(results: Dictionary) -> void:
 		"final_reason":
 			var choice := int(results.get("final_reason", -1))
 			_store("final_reason", choice)
-			var choices: Array = Content.final_reason()[0].choices
-			_store("final_reason_text", str(choices[choice]) if choice >= 0 and choice < choices.size() else "")
+			var sources: Array = Content.final_reason()[0].get("sources", [])
+			_store("final_reason_text", str(sources[choice]) if choice >= 0 and choice < sources.size() else "")
 			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet) + Content.close(), "close")
 			return
 		"close":

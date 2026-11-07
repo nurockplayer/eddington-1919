@@ -870,55 +870,55 @@ func _hold_allowed(id: String) -> bool:
 	return false
 
 
-func _hold_prefix() -> String:
-	return L.t("［按 ") + Prompts.key("interact") + L.t(" 開始］") if Settings.hold_toggle else L.t("［按住 ") + Prompts.key("interact") + L.t("］")
-
-
 func _prompt_for(id: String, n: Node) -> String:
 	if id == "":
 		return ""
 	var name_: String = n.get_meta("prompt")
 	if phase == Phase.CODA:
 		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
-			return L.t("［") + Prompts.key("interact") + L.t("］再讀工作簿最後一頁。") if _departure_workbook_seen else L.t("［") + Prompts.key("interact") + L.t("］在工作簿記下你看到的天空。")
+			return L.t("［%s］再讀工作簿最後一頁。") % Prompts.key("interact") if _departure_workbook_seen else L.t("［%s］在工作簿記下你看到的天空。") % Prompts.key("interact")
 		if coda_step == CodaStep.LOUPE and id == "mentor_loupe":
-			return L.t("［") + Prompts.key("interact") + L.t("］拿起 Ashby 先生給的放大鏡。")
+			return L.t("［%s］拿起 Ashby 先生給的放大鏡。") % Prompts.key("interact")
 		return ""
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
-		return L.t("［") + Prompts.key("interact") + L.t("］Ashby 先生給的放大鏡。")
+		return L.t("［%s］Ashby 先生給的放大鏡。") % Prompts.key("interact")
 	if phase == Phase.NIGHT:
 		match id:
 			"measure":
-				return L.t("［") + Prompts.key("interact") + L.t("］檢視底片")
+				return L.t("［%s］檢視底片") % Prompts.key("interact")
 			"oxford_case":
-				return L.t("［") + Prompts.key("interact") + L.t("］看牛津比對底片")
+				return L.t("［%s］看牛津比對底片") % Prompts.key("interact")
 			"eddington":
-				return L.t("［") + Prompts.key("interact") + L.t("］和 Eddington 說話")
+				return L.t("［%s］和 Eddington 說話") % Prompts.key("interact")
 			"departure_workbook":
-				return L.t("［") + Prompts.key("interact") + L.t("］在工作簿記下你看到的天空。") if not _departure_workbook_seen else ""
+				return L.t("［%s］在工作簿記下你看到的天空。") % Prompts.key("interact") if not _departure_workbook_seen else ""
 		return ""
 	match id:
 		"eddington", "cottingham":
-			return L.t("［") + Prompts.key("interact") + L.t("］和 %s 說話") % name_
+			return L.t("［%s］和 %s 說話") % [Prompts.key("interact"), name_]
 		"drive":
-			return _hold_prefix() + L.t("上發條") if not sim.drive_wound else L.t("時鐘驅動：發條已上滿")
+			if not sim.drive_wound:
+				return L.t("［按 %s 開始］上發條") % Prompts.key("interact") if Settings.hold_toggle else L.t("［按住 %s］上發條") % Prompts.key("interact")
+			return L.t("時鐘驅動：發條已上滿")
 		"chronometer":
 			if sim.drive_wound and not sim.drive_rate_checked:
-				return _hold_prefix() + L.t("替 Cottingham 報秒、校走速")
-			return L.t("［") + Prompts.key("interact") + L.t("］看天文鐘")
+				return L.t("［按 %s 開始］替 Cottingham 報秒、校走速") % Prompts.key("interact") if Settings.hold_toggle else L.t("［按住 %s］替 Cottingham 報秒、校走速") % Prompts.key("interact")
+			return L.t("［%s］看天文鐘") % Prompts.key("interact")
 		"plate_box":
 			var left: int = sim.MAX_EXTRA_PLATES - sim.plates_carried - sim.plates_delivered
 			if left <= 0:
 				return L.t("底片匣都拿完了")
-			return _hold_prefix() + L.t("拿底片匣（手上 %d，箱裡還有 %d）") % [sim.plates_carried, left]
+			if Settings.hold_toggle:
+				return L.t("［按 %s 開始］拿底片匣（手上 %d，箱裡還有 %d）") % [Prompts.key("interact"), sim.plates_carried, left]
+			return L.t("［按住 %s］拿底片匣（手上 %d，箱裡還有 %d）") % [Prompts.key("interact"), sim.plates_carried, left]
 		"station":
 			if sim.plates_carried > 0:
-				return L.t("［") + Prompts.key("interact") + L.t("］把 %d 個底片匣放上架子") % sim.plates_carried
+				return L.tn("［%s］把 %d 個底片匣放上架子", sim.plates_carried) % [Prompts.key("interact"), sim.plates_carried]
 			return L.t("底片架：可用底片 %d 張") % sim.plates_available()
 		"plan":
-			return L.t("［") + Prompts.key("interact") + L.t("］讀曝光計畫")
+			return L.t("［%s］讀曝光計畫") % Prompts.key("interact")
 		"oxford_case":
-			return L.t("［") + Prompts.key("interact") + L.t("］看牛津比對底片")
+			return L.t("［%s］看牛津比對底片") % Prompts.key("interact")
 		"measure":
 			return L.t("測量桌——今晚才會用到")
 	return name_
@@ -1011,7 +1011,7 @@ func _interact(id: String) -> void:
 			elif sim.drive_wound:
 				_say(Content.cottingham_after_wind(), "")
 			else:
-				_say([{"s": Content.C, "t": L.t("驅動箱就在我旁邊——%s上發條。") % Settings.hold_phrase(Prompts.key("interact"))}], "")
+				_say([{"s": Content.C, "t": L.t("驅動箱就在我旁邊——按一下 %s 開始上發條。") % Prompts.key("interact") if Settings.hold_toggle else L.t("驅動箱就在我旁邊——按住 %s 上發條。") % Prompts.key("interact")}], "")
 		"station":
 			if sim.plates_carried > 0:
 				sim.plates_delivered += sim.plates_carried
@@ -1111,7 +1111,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"coda_kit":
 			Story.kit_first = int(results.get("kit_first", -1))
 			var no_mistake: bool = Judgment.TELEGRAMS[_telegram].id != "confirmed" and _grade.fit != 0 and _grade.clean
-			_night_departure_workbook.write_kit_line(L.t("給 Kit：") + CodaContent.kit_first_reply(Story.kit_first, no_mistake))
+			_night_departure_workbook.write_kit_line(L.t("給 Kit：%s") % CodaContent.kit_first_reply(Story.kit_first, no_mistake))
 			_end_coda()
 	_refresh_objectives()
 	_sync_player_input()
@@ -1155,15 +1155,15 @@ func _refresh_objectives() -> void:
 			objective = L.t("再讀工作簿最後一頁") if _departure_workbook_seen else L.t("在工作簿記下你看到的天空")
 		elif coda_step == CodaStep.LOUPE:
 			objective = L.t("拿起 Ashby 先生給的放大鏡")
-		ui.set_objectives(L.t("[b]夜晚・暗房[/b]\n□ ") + objective if objective != "" else "")
+		ui.set_objectives(L.t("[b]夜晚・暗房[/b]\n□ %s") % objective if objective != "" else "")
 	elif phase == Phase.NIGHT:
 		var measure := L.t("□ 到測量桌：先寫下選片規則，再量底片") if sim.rule_id == "" else L.t("□ 在測量桌上檢視並量測底片")
 		if _needs_comparison_fetch():
-			ui.set_objectives(L.t("[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n") + measure)
+			ui.set_objectives(L.t("[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n%s") % measure)
 		elif sim.measured:
 			ui.set_objectives(L.t("[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷"))
 		else:
-			ui.set_objectives(L.t("[b]夜晚・暗房[/b]\n") + measure)
+			ui.set_objectives(L.t("[b]夜晚・暗房[/b]\n%s") % measure)
 	else:
 		ui.set_objectives("")
 
@@ -1265,7 +1265,7 @@ func _begin_totality() -> void:
 		note = L.t("\nCottingham 只能自己趕著上發條，來不及對時。")
 	elif not sim.drive_rate_checked:
 		note = L.t("\n發條上滿了，但走速沒有校過。")
-	ui.show_toast(L.t("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［") + Prompts.key("shutter") + L.t("］喊「開始」，雲厚或快結束時再按一次喊「停」。") + note, 7.0)
+	ui.show_toast(L.t("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。") % Prompts.key("shutter") + note, 7.0)
 	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
 	if bot:
 		bot.on_phase("totality")
@@ -1605,7 +1605,7 @@ func _refresh_viewer() -> void:
 		if p.included and p.usable and not p.get("read", false):
 			note += L.t("\n第%d號還沒讀數，不會算進去。") % p.number
 	var rule_index := ["strict", "after", "none"].find(sim.rule_id)
-	ui.viewer_rule.text = L.t("你寫下的規則：") + Content.rules_prompt(false)[-1].choices[rule_index] if rule_index >= 0 else ""
+	ui.viewer_rule.text = L.t("你寫下的規則：%s") % Content.rules_prompt(false)[-1].choices[rule_index] if rule_index >= 0 else ""
 	ui.set_viewer_note(note)
 	ui.refresh_thumbs()
 
@@ -1713,7 +1713,7 @@ func _record_run() -> void:
 	Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
 		"rule_id": sim.rule_id, "bet": Story.bet.duplicate(true), "bet_pick": sim.bet_pick,
 		"telegram_id": Judgment.TELEGRAMS[_telegram].id,
-		"reason_id": reasons[_reason].id, "reason_text": L.t(reasons[_reason].text),
+		"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
 		"score": _grade.get("score", 0), "clean": _grade.clean,
 		"grade": _grade.duplicate(true),
 		"first_result": sim.first_result.duplicate(true) if sim.first_result != null else null,

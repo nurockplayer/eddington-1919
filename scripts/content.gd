@@ -25,7 +25,7 @@ static func briefing() -> Array:
 
 
 static func eddington_prep(plates: int, drive_wound: bool, drive_rate_checked: bool, carried: int) -> Array:
-	var handoff := L.t("（你手上的 %d 張會交給 Cottingham）") % carried if carried > 0 else ""
+	var handoff := L.tn("（你手上的 %d 張會交給 Cottingham）", carried) % carried if carried > 0 else ""
 	var drive := L.t("上了發條並校過走速") if drive_rate_checked else (L.t("上了發條但沒校走速") if drive_wound else L.t("還沒上發條"))
 	return [
 		{"s": E, "t": L.t("可用底片 %d 張%s。時鐘驅動：%s。") % [plates, handoff, drive]},
@@ -41,7 +41,7 @@ static func cottingham_first() -> Array:
 	return [
 		{"s": C, "t": L.t("啊，你來得正好。這場雨把什麼都弄濕了。")},
 		{"s": C, "t": L.t("定天鏡靠這具重錘時鐘轉動，跟著太陽走。發條得上滿，走速還要對著天文鐘校一次——不然曝光一長，星像就拖成短線。")},
-		{"s": C, "t": L.t("你先在驅動箱上[b]%s上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。") % Settings.hold_phrase(Prompts.key("interact"))},
+		{"s": C, "t": L.t("你先在驅動箱上[b]按一下 %s 開始上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。") % Prompts.key("interact") if Settings.hold_toggle else L.t("你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。") % Prompts.key("interact")},
 	]
 
 
@@ -67,7 +67,7 @@ static func plan_text() -> Array:
 		for card in preload("res://scripts/cambridge/content_1917.gd").plan_cards():
 			if card.id in story.plan:
 				names.append(card.text)
-		lines.append({"s": L.t("1917 年的筆記"), "t": L.t("你在 1917 年參與擬定的原則：") + L.t("；").join(names)})
+		lines.append({"s": L.t("1917 年的筆記"), "t": L.t("你在 1917 年參與擬定的原則：%s") % L.t("；").join(names)})
 	return lines
 
 
@@ -189,7 +189,7 @@ static func bet_vs_plates(pick: int, bounds: Dictionary) -> String:
 	if not held.is_empty():
 		clause = L.t("容得下 %s，容不下 %s。") % [_bet_join(held), _bet_join(lost)] if not lost.is_empty() else L.t("三個都在裡面。")
 	if pick == 3:
-		return L.t("你寫的是「說不準」。現在，你的底片能說準一點了嗎？") + clause
+		return L.t("你寫的是「說不準」。現在，你的底片能說準一點了嗎？%s") % clause
 	var own := L.t("容得下它") if names[pick] in held else L.t("容不下它")
 	return L.t("你押的是 %s。你的底片——兩倍誤差之內——%s。%s") % [names[pick], own, clause]
 
@@ -272,7 +272,7 @@ static func totality_last_plate() -> String:
 
 ## Late in totality, plates unused and nothing taken for a while. Facts only.
 static func totality_plates_left(n: int) -> String:
-	return L.t("Eddington：「還有 %d 張底片。」") % n
+	return L.tn("Eddington：「還有 %d 張底片。」", n) % n
 
 
 ## No exposure in the first 45 s: say where to look, never when.
@@ -283,7 +283,7 @@ static func totality_first_nudge() -> String:
 static func replay_opening(trial: int, same_sky: bool) -> Array:
 	return [
 		{"s": "", "t": L.t("本子翻到新的一頁：第 %d 次試驗。上一回的記錄留在旁邊。") % trial},
-		{"s": E, "t": (L.t("同一片雲。") if same_sky else L.t("天空換了；差異也可能來自雲況。")) + L.t("這回，你想改哪一步？先記住自己的打算。")},
+		{"s": E, "t": L.t("%s這回，你想改哪一步？先記住自己的打算。") % (L.t("同一片雲。") if same_sky else L.t("天空換了；差異也可能來自雲況。"))},
 		{"s": E, "t": L.t("到了晚上，把兩回的做法和數字並排看看。")},
 	]
 
@@ -308,7 +308,7 @@ static func exposure_summary(run: Dictionary) -> String:
 
 static func run_value(run: Dictionary) -> String:
 	var c: Dictionary = run.combined
-	return L.t("%.2f″ ± %.2f″（量 %d 張）") % [c.value, c.sigma, c.n] if c.n > 0 else L.t("沒有量出數值。")
+	return L.tn("%.2f″ ± %.2f″（量 %d 張）", c.n) % [c.value, c.sigma, c.n] if c.n > 0 else L.t("沒有量出數值。")
 
 
 static func run_comparison(previous: Dictionary, current: Dictionary) -> String:

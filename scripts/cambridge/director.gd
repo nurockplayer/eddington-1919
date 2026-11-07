@@ -224,7 +224,7 @@ func _process(delta: float) -> void:
 			relevant = target.get_meta("interact_id") == "cabinet"
 		elif relevant and beat == Beat.ORRERY:
 			relevant = target.get_meta("interact_id") == "orrery"
-		ui.set_prompt(L.t("［") + Prompts.key("interact") + L.t("］") + str(target.get_meta("prompt")) if relevant else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), str(target.get_meta("prompt"))] if relevant else "")
 	else:
 		ui.set_prompt("")
 
@@ -612,8 +612,7 @@ func _montage() -> void:
 	_sync_player()
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	for entry in C17.montage():
-		var tag := L.t("史實") if entry.tag == "HISTORICAL" else L.t("虛構")
-		await _montage_caption(str(entry.t) + L.t("\n\n（") + tag + L.t("）"))
+		await _montage_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t))
 	Story.prologue_done = true
 	beat = Beat.DONE
 	Checkpoint.save("departure")

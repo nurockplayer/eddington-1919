@@ -241,7 +241,7 @@ func _panel_style(bg: Color, border := Color(0, 0, 0, 0)) -> StyleBoxFlat:
 
 
 func _text_size_caption() -> String:
-	return L.t("文字大小：") + [L.t("小"), L.t("標準"), L.t("大")][Settings.TEXT_SCALES.find(Settings.text_scale)]
+	return L.t("文字大小：%s") % [L.t("小"), L.t("標準"), L.t("大")][Settings.TEXT_SCALES.find(Settings.text_scale)]
 
 
 func _cycle_text_size() -> void:
@@ -565,7 +565,7 @@ func play(seq: Array) -> void:
 
 func _show_entry() -> void:
 	var e: Dictionary = _seq[_seq_i]
-	history.append(L.t("%s：%s") % [e.get("s", ""), e.get("t", "")])
+	history.append(L.t("%s：%s") % [L.t(str(e.get("s", ""))), e.get("t", "")])
 	if history.size() > 60:
 		history.pop_front()
 	speaker_label.text = L.t(str(e.get("s", "")))
@@ -595,7 +595,7 @@ func _show_entry() -> void:
 
 func _choose(i: int) -> void:
 	var e: Dictionary = _seq[_seq_i]
-	history.append(L.t("你：") + str(e.choices[i]))
+	history.append(L.t("你：%s") % str(e.choices[i]))
 	if history.size() > 60:
 		history.pop_front()
 	_results[e.get("key", str(_seq_i))] = i
@@ -1376,9 +1376,7 @@ func _build_title(root: Control) -> void:
 	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(st)
 	var body := _rich(19)
-	body.text = (L.t("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n")
-		+ L.t("有人會說，對不上的東西就是假的。\n")
-		+ L.t("兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n"))
+	body.text = L.t("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n")
 	v.add_child(body)
 	var disclaimer := _rich(15)
 	disclaimer.text = "[color=#8f8676]" + Credits.DISCLAIMER + "[/color]"
@@ -1756,10 +1754,10 @@ func _build_pause(root: Control) -> void:
 	language_button = _button(_language_caption())
 	language_button.pressed.connect(_cycle_language)
 	v.add_child(language_button)
-	var look := _button(L.t("視角靈敏度：") + [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
+	var look := _button(L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	look.pressed.connect(func():
 		Settings.cycle_look_speed()
-		look.text = L.t("視角靈敏度：") + [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
+		look.text = L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	v.add_child(look)
 	var invert := _button(L.t("上下反轉：開") if Settings.invert_y else L.t("上下反轉：關"))
 	invert.pressed.connect(func():
