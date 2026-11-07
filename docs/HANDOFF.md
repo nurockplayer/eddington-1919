@@ -661,3 +661,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Fresh `.godot`:** the main checkout's class cache was from 2026-11-04 and failed on `Checkpoint`. It is re-imported now; import again after long gaps.
 - **Monday look adds:** Noto TC in body text, `[b]` bold, dialogue and the 3D labels, on the Mac at 1080 and 720/1.2. If it looks worse than PingFang, the options are a heavier bundled weight or PingFang first with a check that the path resolves.
 - **Heartbeat:** one-shot due 2026-11-07 11:29 JST.
+
+### Packaged launch in CI (edd-lead) | 2026-11-07 11:1x JST
+
+- **#254 merged** (c344bac), **#255 merged** (d90b2ff). `package-smoke` now starts the exported game on Windows, macOS and Linux on PRs that touch packaging, `assets/**` or `locale/**`. It uses software renderers, so it shows launch only.
+- **lavapipe works:** Forward+ renders on an `ubuntu-24.04` runner at 260–283 ms per frame. So the "real frames without the Owner's screen" idea is possible for store shots; untried, and its look on a software renderer is not judged.
+- **Running:** `lw-i18n-sentences-20261107-110435` (ds-edd-2).
+- **Next, on sentences merging:** dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/i18n-leak-gate.md` in ds-2 (brief written, not dispatched). It uses a pseudo locale, so leaks show before translation.
+- **Then:** translation after Monday's text look. The new issue on `package-smoke`'s ko run goes with it: the run does not prove the locale was selected.
