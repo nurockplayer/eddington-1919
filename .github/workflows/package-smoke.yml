@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - assets/**
       - export_presets.cfg
       - project.godot
       - tools/export_release.sh
@@ -246,23 +247,7 @@ jobs:
             tail -n 200 "$log"
             echo "$log: $(wc -l < "$log" | tr -d ' ') lines"
             if grep -q 'SCRIPT ERROR' "$log"; then echo "::error::$log has SCRIPT ERROR"; return 1; fi
-            # The hosted macOS runner does not resolve the zh_TW SystemFont family
-            # (scripts/fonts.gd): CoreText hands Godot an empty path and every text
-            # draw then logs FreeType/harfbuzz failures. Seen headless and windowed
-            # on the runner (2026-11-07, macOS 15, Apple Paravirtual device); the
-            # packaged game still boots and renders, so allow exactly these lines.
-            local font_errors errors
-            font_errors=$(grep -c '^ERROR: FreeType: Error loading font:' "$log" || true)
-            echo "headless SystemFont errors suppressed: ${font_errors:-0}"
-            errors=$(grep '^ERROR:' "$log" | grep -v \
-              -e '^ERROR: FreeType: Error loading font:' \
-              -e '^ERROR: Parameter "hb_font" is null\.' \
-              -e '^ERROR: Condition "!_ensure_cache_for_size' || true)
-            if [ -n "$errors" ]; then
-              printf '%s\n' "$errors" | head -40
-              echo "::error::$log has unexpected ERROR: lines"
-              return 1
-            fi
+            if grep -q 'ERROR:' "$log"; then echo "::error::$log has ERROR:"; return 1; fi
           }
 
           status=0
