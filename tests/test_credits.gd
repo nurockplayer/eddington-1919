@@ -31,6 +31,7 @@ func _run() -> void:
 	check(text.contains("以 Godot Engine 製作"), "credits name the engine")
 	check(text.contains("史實與虛構") and text.contains(Credits.DISCLAIMER), "credits contain historical disclaimer")
 	check(not Credits.DISCLAIMER.contains("暫定"), "disclaimer does not mark names as provisional")
+	check(not text.contains("待 Owner"), "credits show no pending-name marker")
 	var notice := FileAccess.get_file_as_string("res://THIRD_PARTY_NOTICES.md")
 	check(not notice.contains("Open questions"), "notice omits internal open questions")
 	var rendered_notice := text.get_slice("[b]第三方素材與授權[/b]\n", 1).get_slice("\n\n" + Engine.get_license_text().replace("[", "[lb]"), 0)

@@ -1,7 +1,7 @@
 class_name Credits
 extends RefCounted
 
-const AUTHOR := "（姓名待 Owner 確認）"
+const AUTHOR := "nurockplayer"
 const DISCLAIMER := "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構，場景為推測重建。"
 
 
