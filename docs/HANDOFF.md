@@ -621,3 +621,23 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running (2026-11-07 08:56 JST):** `lw-release-config` (`ds-edd-1`, brief `director/release-config.md`, branch `chore/release-config`); `lw-i18n-foundation` (`ds-edd-2`, brief `director/i18n-foundation.md`, branch `feat/i18n-foundation`); `lw-steam-gap-q3` (oracle: Godot traps, glossary, register, titles). On a worker's event: read the report and diff, then `lead-wait pr <n>`.
 - **Next briefs, not written yet:** packaged-launch CI on Windows, macOS, Linux (after release-config, in ds-1); wrap strings, extraction and gates (after i18n-foundation, re-runnable codemod so it can run again after the art stack merges); translation after Monday's text look.
 - **Monday 2026-11-09 09:00 JST:** unchanged, `look_kit.sh` then the art stack, store reshoot, 0.4.6. Also check Cmd-Tab with the mouse captured, and a 2560x1080 window.
+
+### Foundation merged; wrap running (edd-lead) | 2026-11-07 09:3x JST
+
+- **#252 merged** (079a8ba, 2026-11-07 09:33 JST; oracle approve, `suites` passed). `L.t`, locale pick, JP and KR fonts, language button. `L.TRANSLATED` is `false`: players stay on zh-TW with no button until en, ja and ko are complete, so Monday's 0.4.6 is unaffected. `EDD_LOCALE` still reaches the others. **Turn it on when translation lands.**
+- **Running:**
+  - `lw-release-config-20261107-085618`: `ds-edd-1`, PR #253, waiting on its own oracle review job `review-pr253`.
+  - `lw-i18n-wrap-20261107-093347`: `ds-edd-2`, brief `director/i18n-wrap.md`, branch `feat/i18n-wrap`, `DS_MAX_TURNS=90`.
+  - No unacked inbox events at this writing.
+- **On release-config's event:** read the report and diff. Add to #253 or a follow-up: `scripts/credits.gd:4` `AUTHOR` still shows 「（姓名待 Owner 確認）」 to players; set `nurockplayer` unless the Owner answered otherwise. Then `lead-wait pr 253`. After it merges, dispatch `director/package-smoke.md` in ds-1 (`ds-edd-1`, brief is written).
+- **On wrap's event:** read the skipped list and diff, `lead-wait pr <n>`. zh-TW output must not have changed. A PR with a run still in `WAIT:` is not finished.
+- **Next briefs, not written yet:**
+  1. Fragments to whole sentences: `scripts/main.gd:874–921` (`"［" + Prompts.key("interact") + "］…"`), `_hold_prefix`, `Settings.hold_phrase` (`content.gd:44`, `main.gd:1014`), directors' `set_prompt`, `"[b]…[/b]\n□ " + objective`, plurals via `L.tn` (`%d 張`), `ui.gd:242,1744` option lists.
+  2. Leak gate: a bot route under `EDD_LOCALE=en` fails on visible CJK. Bots match zh text (`tests/autoplay_bot.gd:344,706`, `tests/prologue_bot.gd:137,799,905,907`): compare to `L.t(...)`. `test_layout_bounds` in all four locales.
+  3. Translation after Monday's text look: en first (strong model, `docs/design/LOCALIZATION.md`), ja and ko from zh with en as reference; then independent back-translation and physics check through oracle-ego; a blind cold read; `check --require-translated` in CI; `L.TRANSLATED = true`; title strings per locale.
+- **After an App ID exists:** depots and `app_build` VDF (Windows `.exe`, macOS `.app`, Linux `.x86_64`), Auto-Cloud on `checkpoint.save` (root WinAppDataRoaming, subdir `Eddington1919`; overrides MacAppSupport, LinuxXdgDataHome), Steam Playtest, real macOS install check with `xattr`. Oracle's flow is in `~/.local/state/oracle-ego/runs/*steam-gap-q2/answer.md` section I. Godot's overrides for the paths have not been checked against Steam.
+- **Idea, untried:** xvfb plus lavapipe on a runner may render real frames without touching the Owner's screen. `package-smoke` will show whether Vulkan comes up. If so, store shots and looks may not need the Mon–Fri window.
+- **Oracle:** back up; one `review` submit failed at 2026-11-07 09:15 JST (exit 5) and fell to codex, later runs worked.
+- **Waiting on the Owner (iMessage 2026-11-07 08:34 JST):** Steam Direct fee and paperwork; 1–2 newcomers for 0.4.6; credits name.
+- **Heartbeat:** one-shot due 2026-11-07 09:47 JST; crons are session-only, recreate after a restart.
+- **Monday 2026-11-09 09:00 JST:** unchanged, `look_kit.sh`, art stack #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Rerun `tools/i18n.py wrap` and `extract` after the art stack merges, in case it added strings. Also check Cmd-Tab with the mouse captured, and a 2560x1080 window.
