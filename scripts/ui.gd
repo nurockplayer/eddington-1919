@@ -709,11 +709,7 @@ func _build_viewer(root: Control) -> void:
 	left.custom_minimum_size = Vector2(458, 0)
 	h.add_child(left)
 	left.add_child(_label(L.t("已沖洗的底片"), 24, ACCENT))
-	# Wrap: without it the English hint widens the left column from 458 to 580 px
-	# and pushes the row past the screen.
-	var hint := _label(L.t("點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。"), 16, DIM)
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	left.add_child(hint)
+	left.add_child(_label(L.t("點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。"), 16, DIM))
 	reference_btn = _button(L.t("參考底片"))
 	reference_btn.toggle_mode = true
 	left.add_child(reference_btn)
