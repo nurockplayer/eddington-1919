@@ -137,7 +137,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), str(target.get_meta("prompt"))] if available else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), L.t(str(target.get_meta("prompt")))] if available else "")
 	else:
 		ui.set_prompt("")
 
