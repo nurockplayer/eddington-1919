@@ -771,3 +771,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Open:** `好。` needs `L.tc` for Korean speech levels (Eddington against Ashby).
 - **Not read by a native speaker yet:** the ja and ko worker lists of least-sure entries are in the #276 and #277 bodies.
 
+### State at the context clear (edd-lead) | 2026-11-07 22:3x JST
+
+- **Running:** `lw-ko-check-20261107-220742`; `lw-ja-check-2-20261107-222857`. No unacked events at this writing.
+- **`ja-check` failed twice on 2026-11-07 22:28 JST, both exit 8:** the ChatGPT page lost its connection and left no answer, then `--resume` found the page closed. `ja-check-2` is a fresh run from `main`. If it fails too, do not retry at once: leave the ja check for later. It blocks nothing, since `L.TRANSLATED` is false.
+- **Next on each event:** the steps in the 22:2x section above: confirm it read every entry, judge each row against the code, `tools/i18n.py apply`, `test_layout_bounds` and the honest route under that locale, `lead-wait pr <n>`. Answers may come as a download the run did not capture; the prompt asks for the reply text.
+- **Worktrees:** ds-1 is on `l10n/ja` and ds-2 on `l10n/ko`, both merged. Start each fix branch from `origin/main`.
+- **Claude weekly 97% with the window 90% gone at 2026-11-07 21:27 JST; Codex weekly 100%.** Keep lead turns few. Heartbeat one-shot due 2026-11-07 23:13 JST, session-only, so it may be lost with this context; recreate if gone.
+
