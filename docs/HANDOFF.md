@@ -649,3 +649,15 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-pr-253-20261107-095016` (review and gate), `lw-i18n-wrap-20261107-093347`.
 - **On #253 merging:** ask `quota-advisor`, then dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/package-smoke.md` in ds-1.
 - **Heartbeat:** one-shot due 2026-11-07 10:37 JST.
+
+### Font moved to bundled; #254 and #255 in review (edd-lead) | 2026-11-07 11:0x JST
+
+- **Merged:** #253 (de7204a), #256 (d40187a; oracle exit 8, codex approve). A monkey run on de7204a reached ENDING with stuck 0.
+- **#256 decision:** zh-TW uses the bundled Noto Sans TC on every OS instead of PingFang. Reason: on the hosted macOS runner PingFang resolved to an empty path, with about 50,000 font errors in one headless run. Whether a real Mac can hit this is unknown. **Mac players now see a different face in all UI text, and nobody has looked at it yet.**
+- **Running:** `lw-pr-254-20261107-104935` (wrap, head 090d12d, scope `scope-254.md`); `lw-package-smoke-fu1-20261107-105857` (ds-edd-1 removes the macOS allow-list from #255 and adds `assets/**`).
+- **On #254 merging:** ask `quota-advisor`, then dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/i18n-sentences.md` in ds-2. It also fixes `reason_text`, saved in translated form (oracle major on #254). Then write the leak gate brief.
+- **On package-smoke-fu1:** read the run, then `lead-wait pr 255`. A red macOS job means real font errors: read them, do not allow-list. On the previous head the best-effort windowed runs passed on software renderers: Windows D3D12 on WARP, macOS Metal on a paravirtual device.
+- **Briefs need a `Test:` line:** i18n-wrap and package-smoke had none, so nothing reran their tests.
+- **Fresh `.godot`:** the main checkout's class cache was from 2026-11-04 and failed on `Checkpoint`. It is re-imported now; import again after long gaps.
+- **Monday look adds:** Noto TC in body text, `[b]` bold, dialogue and the 3D labels, on the Mac at 1080 and 720/1.2. If it looks worse than PingFang, the options are a heavier bundled weight or PingFang first with a check that the path resolves.
+- **Heartbeat:** one-shot due 2026-11-07 11:29 JST.
