@@ -641,3 +641,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Waiting on the Owner (iMessage 2026-11-07 08:34 JST):** Steam Direct fee and paperwork; 1–2 newcomers for 0.4.6; credits name.
 - **Heartbeat:** one-shot due 2026-11-07 09:47 JST; crons are session-only, recreate after a restart.
 - **Monday 2026-11-09 09:00 JST:** unchanged, `look_kit.sh`, art stack #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Rerun `tools/i18n.py wrap` and `extract` after the art stack merges, in case it added strings. Also check Cmd-Tab with the mouse captured, and a 2560x1080 window.
+
+### #253 back in review (edd-lead) | 2026-11-07 09:5x JST
+
+- **Decided:** the worker's question on #253 (oracle blocker: moving `user://` loses old settings and checkpoints). Accepted with no migration: only testers have old files, and no distributed build has a checkpoint. Reasons: `/Volumes/KIOXIA/eddington-1919-cache/director/scope-253.md`.
+- **Lead fixes on #253 (82fe587):** `Credits.AUTHOR` is `nurockplayer`, which the Owner can still change. `tools/monkey_headless.sh` now reads `custom_user_dir_name`; the old path would have left the real settings unprotected. No monkey run on this head yet.
+- **Running:** `lw-pr-253-20261107-095016` (review and gate), `lw-i18n-wrap-20261107-093347`.
+- **On #253 merging:** ask `quota-advisor`, then dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/package-smoke.md` in ds-1.
+- **Heartbeat:** one-shot due 2026-11-07 10:37 JST.
