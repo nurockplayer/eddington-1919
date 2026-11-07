@@ -716,7 +716,7 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **After the PR:** Sol polish once Codex's week resets (weekly 100.0% at 2026-11-07 15:32 JST), oracle back-translation and physics check, ja and ko, blind cold read, `--require-translated` in CI, `L.TRANSLATED = true`, window title (see above).
 - **Heartbeat:** one-shot due 2026-11-07 17:52 JST; crons are session-only, recreate after a restart.
 
-### English layout diagnosed; next brief ready (edd-lead) | 2026-11-07 18:0x JST
+### English layout diagnosed; next brief ready (edd-lead) | 2026-11-07 17:5x JST
 
 - **Running:** `lw-en-full-fu2-20261107-162926` (`ds-edd-2`, ds-2, `l10n/en`). Its last session write was 2026-11-07 17:26 JST. It is blocked on `godot --headless ... --prologue-autoplay=honest --seed=77` (pid 21999), started without `--fixed-fps`, so the route runs in real time at about 2% CPU. It may be slow rather than hung. Stopping that process was refused by the permission classifier on 2026-11-07 17:5x JST and has not been retried; the Owner can stop it or allow it.
 - **`test_layout_bounds` under `EDD_LOCALE=en` after the merge of `main`: 40 failures, down from 210** (`.godot/layout-en-2.log` in ds-2). All are in the plate viewer at scale 1.2. Causes as read from the code, not yet tested: the left column hint has no autowrap (458 → 580 px wide), and `Include in measurement` probably takes a second flow row (26 px over at 720/1.2 with the micrometer on).
