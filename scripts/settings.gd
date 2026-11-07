@@ -10,6 +10,8 @@ const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db
 static var volumes := {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 static var quality := "standard"
 static var text_scale := 1.0
+## The locale the player picked in the title settings; empty means not chosen.
+static var language := ""
 static var look_speed := 1.0
 static var invert_y := false
 static var reduced_motion := false
@@ -77,6 +79,7 @@ static func load_settings(path := settings_path()) -> void:
 	text_scale = float(cfg.get_value("ui", "text_scale", 1.0))
 	if text_scale not in TEXT_SCALES:
 		text_scale = 1.0
+	language = str(cfg.get_value("ui", "language", ""))
 
 
 static func save_settings(path := settings_path()) -> Error:
@@ -87,6 +90,7 @@ static func save_settings(path := settings_path()) -> Error:
 	cfg.set_value("video", "quality", quality)
 	cfg.set_value("video", "fullscreen", fullscreen)
 	cfg.set_value("ui", "text_scale", text_scale)
+	cfg.set_value("ui", "language", language)
 	cfg.set_value("ui", "reduced_motion", reduced_motion)
 	cfg.set_value("input", "look_speed", look_speed)
 	cfg.set_value("input", "invert_y", invert_y)
@@ -170,6 +174,15 @@ static func toggle_hold_toggle(path := settings_path()) -> Error:
 ## 「按住 E 上發條」 or 「按一下 E 開始上發條」; the trailing space belongs to the verb that follows.
 static func hold_phrase(key: String) -> String:
 	return ("按一下 %s 開始" if hold_toggle else "按住 %s ") % key
+
+
+## The language button reloads the scene right after; write only this key so an
+## unloaded settings file keeps every other value.
+static func save_language(path := settings_path()) -> Error:
+	var cfg := ConfigFile.new()
+	cfg.load(path)
+	cfg.set_value("ui", "language", language)
+	return cfg.save(path)
 
 
 static func cycle_quality(path := settings_path()) -> Error:

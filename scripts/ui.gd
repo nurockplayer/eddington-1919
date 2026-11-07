@@ -2,6 +2,7 @@ extends CanvasLayer
 
 const Prompts := preload("res://scripts/prompts.gd")
 const Fonts := preload("res://scripts/fonts.gd")
+const L := preload("res://scripts/l10n.gd")
 const Credits := preload("res://scripts/credits.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Settings := preload("res://scripts/settings.gd")
@@ -112,6 +113,7 @@ var _title_focus_modes: Array[int] = []
 var fullscreen_button: Button
 var text_size_button: Button
 var quality_button: Button
+var language_button: Button
 var hold_button: Button
 var restart_button: Button
 var quit_button: Button
@@ -248,6 +250,15 @@ func _cycle_text_size() -> void:
 	Settings.refresh_fonts(get_tree())
 	chart.refresh_fonts()
 	text_size_button.text = _text_size_caption()
+
+
+func _language_caption() -> String:
+	return L.t("語言：%s") % L.NAMES[L.current()]
+
+
+func _cycle_language() -> void:
+	L.cycle()
+	get_tree().reload_current_scene()
 
 
 func _quality_caption() -> String:
@@ -1402,7 +1413,7 @@ func _build_title(root: Control) -> void:
 	credits.focus_mode = Control.FOCUS_ALL
 	credits.pressed.connect(_open_credits)
 	hb.add_child(credits)
-	_settings_button = _button("設定")
+	_settings_button = _button(L.t("設定"))
 	_settings_button.focus_mode = Control.FOCUS_ALL
 	_settings_button.pressed.connect(open_settings)
 	hb.add_child(_settings_button)
@@ -1741,6 +1752,10 @@ func _build_pause(root: Control) -> void:
 	quality_button = _button(_quality_caption())
 	quality_button.pressed.connect(_cycle_quality)
 	v.add_child(quality_button)
+	# Dialogue is built when a scene starts, so a language change reloads the title.
+	language_button = _button(_language_caption())
+	language_button.pressed.connect(_cycle_language)
+	v.add_child(language_button)
 	var look := _button("視角靈敏度：" + ["低", "標準", "高"][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	look.pressed.connect(func():
 		Settings.cycle_look_speed()
@@ -1791,10 +1806,10 @@ func _build_pause(root: Control) -> void:
 			return
 		quit_pressed.emit())
 	v.add_child(quit_button)
-	for button in [r, music_button, fullscreen_button, look, invert, motion, hold_button, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, language_button, look, invert, motion, hold_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
-	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, look, invert, motion, hold_button, help, pause_title, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
@@ -1827,6 +1842,7 @@ func open_settings() -> void:
 	quit_button.hide()
 	pause_panel.show()
 	quality_button.text = _quality_caption()
+	language_button.visible = title_panel.visible
 	Settings.sync_fullscreen()
 	fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -1857,6 +1873,7 @@ func toggle_pause() -> void:
 	pause_panel.visible = p
 	if p:
 		quality_button.text = _quality_caption()
+		language_button.visible = title_panel.visible
 		Settings.sync_fullscreen()
 		fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
