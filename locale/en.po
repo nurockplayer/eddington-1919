@@ -27,7 +27,7 @@ msgid "\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對
 msgstr "\n[color=#8f8676][font_size=%d]Fiction and illustration: the player character, all dialogue, the business of the clock drive needing help, the details of the cloud, the plate images and every figure. The scene is a speculative reconstruction; no photograph of the Príncipe station is known, and the original plates are lost.[/font_size][/color]"
 
 msgid "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]"
-msgstr "\n[color=#fd8]Combined: %.2f″ ± %.2f″ (two-sigma range %.2f–%.2f″)[/color]"
+msgstr "\n[color=#fd8]Combined: %.2f″ ± %.2f″ (twice the error: %.2f–%.2f″)[/color]"
 
 msgid "\n你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。"
 msgstr "\nYou: 'Stop!'  Eddington changes the plate—a real change takes about four seconds, and pressing during it does nothing. You must call stop before third contact."
@@ -42,7 +42,7 @@ msgid "\n按「閃爍比對」：同一顆星，在兩張底片上跳一下—�
 msgstr "\nPress 'Blink comparison': the same star jumps between the two plates—that jump is what you are measuring.\nThe displacement is exaggerated so the eye can see it; the real measurement uses the micrometer."
 
 msgid "\n發條上滿了，但走速沒有校過。"
-msgstr "\nThe spring is fully wound, but the drive rate was never checked."
+msgstr "\nThe drive is fully wound, but its rate was never checked."
 
 msgid "\n第%d號還沒讀數，不會算進去。"
 msgstr "\nPlate %d has no reading yet and will not be counted."
@@ -54,7 +54,7 @@ msgid "\n第一次量：沒有量出任何數值。"
 msgstr "\nFirst measurement: no value came out."
 
 msgid "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
-msgstr "\nThe thin lines mark the two-sigma range: Eddington's test is whether that range holds a prediction, and which one it excludes."
+msgstr "\nThe thin lines mark twice the error: Eddington's test is which prediction that range includes, and which one it excludes."
 
 msgid "\n（和你的底片放在一起看——兩套儀器、隔一個大西洋。）"
 msgstr "\n(Seen beside your plates—two instruments, an ocean apart.)"
@@ -74,7 +74,7 @@ msgstr[0] "%.2f″ ± %.2f″ (plates: %d)"
 msgstr[1] "%.2f″ ± %.2f″ (plates: %d)"
 
 msgid "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″"
-msgstr "%.2f″ ± %.2f″, two-sigma range %.2f″ to %.2f″"
+msgstr "%.2f″ ± %.2f″, twice the error spans %.2f″ to %.2f″"
 
 msgid "%s\n\n（史實）"
 msgstr "%s\n\n(Historical)"
@@ -263,7 +263,7 @@ msgid "Eddington 抬頭看了一眼：「雲還是很厚……繼續。」"
 msgstr "Eddington glances up: 'The cloud is still thick… carry on.'"
 
 msgid "Eddington 用手蓋住了這一格。"
-msgstr "Eddington covers this stage with his hand."
+msgstr "Eddington covers this panel with his hand."
 
 msgid "Eddington 的清單。（把茶杯推過來，已經涼了）恭喜。真的。"
 msgstr "Eddington's list. (Pushes a cup of tea across; it has gone cold.) Congratulations. Truly."
@@ -331,7 +331,7 @@ msgid "Sobral 4 吋"
 msgstr "Sobral 4-inch"
 
 msgid "Sobral 4 吋那一點：細線（兩倍誤差）裡容得下哪一個？"
-msgstr "The Sobral 4-inch point: which prediction does the thin line (two-sigma range) hold?"
+msgstr "The Sobral 4-inch point: which prediction falls within the thin line (twice the error)?"
 
 msgid "Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差"
 msgstr "Sobral 4-inch: 1.98″, ±0.12″ probable error, about 0.18″ standard deviation"
@@ -990,7 +990,7 @@ msgid "你怎麼知道是底片翻了面，而不是星自己跑了？"
 msgstr "How do you know the plate was face-down, and not that the stars themselves moved?"
 
 msgid "你押的是 %s。你的底片——兩倍誤差之內——%s。%s"
-msgstr "You bet on %s. Your plates—within the two-sigma range—%s. %s"
+msgstr "You bet on %s. Your plates—within twice the error—%s. %s"
 
 msgid "你按星點數判斷，而不是按心情。"
 msgstr "You judged by the number of star images, not by how you felt."
@@ -1128,7 +1128,7 @@ msgid "先生……您真的不信嗎？"
 msgstr "Sir… do you truly not believe it?"
 
 msgid "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？"
-msgstr "First your number: %s. The heavy line on the chart is your value plus or minus one error; the fine lines extending from each end mark two errors. Within the fine-line range, which prediction fits?"
+msgstr "First your number: %s. The heavy line on the chart is your value plus or minus one error; the fine lines extending from each end mark twice the error. Within the fine-line range, which prediction fits?"
 
 msgid "先空拍一次，練練喊開始和停？"
 msgstr "A dry run first, to practise calling start and stop?"
@@ -1341,7 +1341,7 @@ msgid "可用底片 %d 張%s。時鐘驅動：%s。"
 msgstr "Usable plates: %d%s. Clock drive: %s."
 
 msgid "可用底片：%d 張。"
-msgstr "Plates ready: %d."
+msgstr "Usable plates: %d."
 
 msgid "可能只是藥膜的瑕疵。"
 msgstr "It may just be a flaw in the emulsion."
@@ -1533,7 +1533,7 @@ msgid "完整的量測要回國後才做得完，比例尺和校驗片都還得�
 msgstr "The full measurement cannot be finished until we are home; the plate scale and the check plates still have to be compared one by one, and we do not yet know the Sobral results. A telegram cannot be taken back."
 
 msgid "定天鏡靠這具重錘時鐘轉動，跟著太陽走。發條得上滿，走速還要對著天文鐘校一次——不然曝光一長，星像就拖成短線。"
-msgstr "The coelostat is turned by this weight-driven clock, following the Sun. The spring must be wound fully, and the drive rate checked once against the astronomical clock—otherwise a long exposure trails the star images into little lines."
+msgstr "The coelostat is turned by this weight-driven clock, following the Sun. Its driving weight must be wound up, and the drive rate checked once against the astronomical clock—otherwise a long exposure trails the star images into little lines."
 
 msgid "容不下它"
 msgstr "does not hold it"
@@ -1694,7 +1694,7 @@ msgid "底片架"
 msgstr "Plate rack"
 
 msgid "底片架：可用底片 %d 張"
-msgstr "Plate rack: %d plates ready"
+msgstr "Plate rack: %d usable plates"
 
 msgid "底片櫃"
 msgstr "Plate Cabinet"
@@ -1967,7 +1967,7 @@ msgid "接下來的六個晚上，我們每晚沖兩張。"
 msgstr "For the next six nights we develop two plates a night."
 
 msgid "換一格"
-msgstr "Next stage"
+msgstr "Next panel"
 
 msgid "操作說明"
 msgstr "Controls"
@@ -2105,7 +2105,7 @@ msgid "時鐘驅動"
 msgstr "Clock drive"
 
 msgid "時鐘驅動：發條已上滿"
-msgstr "Clock drive: spring fully wound"
+msgstr "Clock drive: fully wound"
 
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
 msgstr "At Príncipe, 16 plates were exposed during the 302-second totality, with exposures of 2 to 20 seconds; the cloud thinned noticeably only in the last third of totality. The first ten plates showed almost no stars, and in the end only two plates, with five stars in all, could be measured. Eddington measured one plate on the island and found it agreed with Einstein's prediction; his telegram to Dyson said the cloud was thick but 'hopeful' (quoted as \"Through cloud, hopeful\" in Nature, 5 June 1919; the date of sending is not confirmed)."
@@ -2426,13 +2426,13 @@ msgid "疊上去……一顆都對不上。"
 msgstr "Laid over it… not a single star matches."
 
 msgid "發條上滿了。"
-msgstr "The spring is fully wound."
+msgstr "The drive is fully wound."
 
 msgid "發條是滿的，可惜沒來得及對時——長一點的曝光，星像都有點拖。"
-msgstr "The spring was fully wound, but there was no time to check it against the clock—on the longer exposures the star images are a little trailed."
+msgstr "The drive was fully wound, but there was no time to check it against the clock—on the longer exposures the star images are a little trailed."
 
 msgid "發條滿了。現在到天文鐘那裡替我報秒，我來調走速。"
-msgstr "The spring is full. Now go to the astronomical clock and call the seconds for me; I'll set the rate."
+msgstr "The drive is fully wound. Now go to the astronomical clock and call the seconds for me; I'll set the rate."
 
 msgid "目標已更新。"
 msgstr "Objective updated."
@@ -2519,10 +2519,10 @@ msgid "第 23 號"
 msgstr "Plate 23"
 
 msgid "第 23 號劃了一條線，旁邊簽了名。兩年前你還不會這樣做。"
-msgstr "Plate 23 is struck through, with a signature beside it. Two years ago you wouldn't have done that."
+msgstr "The entry for plate 23 has been struck through, with a signature beside it. Two years ago you wouldn't have done that."
 
 msgid "第 23 號擦過。紙面上看得出來。"
-msgstr "Plate 23 has been rubbed out. It shows on the paper."
+msgstr "The entry for plate 23 has been rubbed out. You can see it on the paper."
 
 msgid "第 24 號"
 msgstr "Plate 24"
@@ -2970,8 +2970,8 @@ msgstr "After measuring, keep only the plates that agree with the prediction"
 
 msgid "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。"
 msgid_plural "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。"
-msgstr[0] "Measured %.2f″ ± %.2f″ (plates: %d): the two-sigma range includes 1.75″ and excludes 0.87″."
-msgstr[1] "Measured %.2f″ ± %.2f″ (plates: %d): the two-sigma range includes 1.75″ and excludes 0.87″."
+msgstr[0] "Measured %.2f″ ± %.2f″ (plates: %d): within twice the error, that includes 1.75″ and excludes 0.87″."
+msgstr[1] "Measured %.2f″ ± %.2f″ (plates: %d): within twice the error, that includes 1.75″ and excludes 0.87″."
 
 msgid "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。"
 msgstr "Measured %.2f″ ± %.2f″, but the error is still too large; we need the Sobral results and full measurements after we return home."

@@ -35,7 +35,7 @@ No unwrapped CJK literal outside an allowlist; every msgid present in en, ja, ko
 | 比較星 | comparison star | 比較星 | 비교성 |
 | 參考星 | reference star | 基準星 | 기준성 |
 | 機率誤差 | probable error | 確率誤差 | 확률 오차 |
-| 2σ 範圍 | two-sigma range | 2σ範囲 | 2σ 범위 |
+| 兩倍誤差 | twice the error (a probable error doubled is not 2σ) | 誤差の2倍 | 오차의 2배 |
 | 帳本 | ledger | 帳簿 | 장부 |
 | 閃爍比對 | blink comparison | ブリンク比較 | 블링크 비교 |
 | 太陽系儀 | orrery | オーラリー | 오러리 (태양계 모형) |
