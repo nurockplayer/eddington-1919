@@ -251,6 +251,7 @@ func _cycle_text_size() -> void:
 	theme_res.default_font_size = Settings.fs(21)
 	Settings.refresh_fonts(get_tree())
 	chart.refresh_fonts()
+	_layout_viewer()
 	text_size_button.text = _text_size_caption()
 
 
