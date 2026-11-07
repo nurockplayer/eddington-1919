@@ -99,6 +99,46 @@ for batch in (
     assert all(not value if isinstance(value, str) else not any(value)
                for value in entries.values()), (batch, entries)
 
+# --- apply keeps what it was not asked to change --------------------------
+
+METADATA_PO = '''msgid ""
+msgstr ""
+"Language: en\\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\\n"
+
+#. translator note
+#: scripts/a.gd:3
+msgid "單行"
+msgstr ""
+
+#~ msgid "舊的"
+#~ msgstr "old"
+'''
+
+code, entries, after = apply_case([{"msgid": "單行", "msgstr": "one line"}], METADATA_PO)
+assert code == 0, code
+assert entries["單行"] == "one line", entries
+assert "#. translator note" in after, after
+assert "#: scripts/a.gd:3" in after, after
+assert '#~ msgid "舊的"' in after, after
+
+# The same msgid under two contexts cannot be addressed by a contextless batch.
+CONTEXT_PO = '''msgid ""
+msgstr ""
+
+msgctxt "a"
+msgid "開"
+msgstr ""
+
+msgctxt "b"
+msgid "開"
+msgstr ""
+'''
+
+code, entries, after = apply_case([{"msgid": "開", "msgstr": "open"}], CONTEXT_PO)
+assert code == 1, code
+assert after == CONTEXT_PO, after
+
 # --- check --locales ------------------------------------------------------
 
 with tempfile.TemporaryDirectory() as folder:

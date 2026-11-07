@@ -496,6 +496,54 @@ def write_po(path: Path, header: str, entries: dict[str, object],
     path.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
 
 
+def replace_msgstr(block: str, value: object) -> str:
+    """The block with its msgstr section replaced; every other line stays as it was."""
+    lines = block.split("\n")
+    start = next((i for i, line in enumerate(lines) if line.startswith("msgstr")), None)
+    if start is None:
+        raise ValueError("block has no msgstr")
+    end = start
+    while end < len(lines) and (lines[end].startswith("msgstr") or lines[end].startswith('"')):
+        end += 1
+    if isinstance(value, list):
+        new = ["msgstr[%d] %s" % (index, po_encode(str(form))) for index, form in enumerate(value)]
+    else:
+        new = ["msgstr " + po_encode(str(value))]
+    return "\n".join(lines[:start] + new + lines[end:])
+
+
+def apply_entries(path: Path, updates: dict[str, object]) -> int:
+    """Rewrite only the updated entries in place.
+
+    Comments, source references and ``#~`` obsolete entries stay exactly as a PO
+    editor left them; a msgid that is not unique in the file (two msgctxt entries)
+    is refused rather than collapsed into one contextless translation.
+    """
+    blocks = re.split(r"\n\s*\n", path.read_text(encoding="utf-8").strip("\n"))
+    table: dict[str, list[int]] = {}
+    for index, block in enumerate(blocks):
+        msgid = _po_field(block, "msgid")
+        if msgid is None or msgid == "":
+            continue
+        table.setdefault(msgid, []).append(index)
+    problems = 0
+    for msgid in updates:
+        indexes = table.get(msgid, [])
+        if not indexes:
+            print("apply: unknown msgid: %s" % msgid.replace("\n", "\\n"))
+            problems += 1
+        elif len(indexes) > 1 or _po_field(blocks[indexes[0]], "msgctxt") is not None:
+            print("apply: msgid has a context or repeats, refusing: %s" % msgid.replace("\n", "\\n"))
+            problems += 1
+    if problems:
+        return problems
+    for msgid, value in updates.items():
+        index = table[msgid][0]
+        blocks[index] = replace_msgstr(blocks[index], value)
+    path.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
+    return 0
+
+
 def collect_msgids() -> dict[str, dict]:
     """Every msgid with its refs and the wrappers it is used through.
 
@@ -747,7 +795,7 @@ def command_apply(args: argparse.Namespace) -> int:
     if not isinstance(data, list):
         print("apply: %s is not a JSON array" % args.file)
         return 1
-    header, entries = parse_po(path)
+    _, entries = parse_po(path)
     count = plural_forms(locale)
     problems = 0
     updates: dict[str, object] = {}
@@ -798,11 +846,11 @@ def command_apply(args: argparse.Namespace) -> int:
                 print("apply: %s: %s" % (problem, str(msgid).replace("\n", "\\n")))
                 problems += 1
         updates[msgid] = value
+    if not problems and apply_entries(path, updates):
+        problems += 1
     if problems:
         print("apply: %d problem(s), nothing written" % problems)
         return 1
-    entries.update(updates)
-    write_po(path, header, entries)
     print("apply: %d entries -> locale/%s.po" % (len(updates), locale))
     return 0
 
