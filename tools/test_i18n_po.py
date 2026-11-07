@@ -139,6 +139,47 @@ code, entries, after = apply_case([{"msgid": "開", "msgstr": "open"}], CONTEXT_
 assert code == 1, code
 assert after == CONTEXT_PO, after
 
+# A reordered placeholder is refused: the caller still passes the msgid's order.
+ORDER_PO = '''msgid ""
+msgstr ""
+
+msgid "[%s]把 %d 個底片匣放上架子"
+msgstr ""
+'''
+
+code, entries, after = apply_case(
+    [{"msgid": "[%s]把 %d 個底片匣放上架子", "msgstr": "Put %d plate holders on the rack [%s]"}], ORDER_PO)
+assert code == 1, code
+assert after == ORDER_PO, after
+code, entries, after = apply_case(
+    [{"msgid": "[%s]把 %d 個底片匣放上架子", "msgstr": "[%s] Put %d plate holders on the rack"}], ORDER_PO)
+assert code == 0, code
+
+# An updated entry stops being fuzzy; its other flags and other entries stay.
+FUZZY_PO = '''msgid ""
+msgstr ""
+
+#, fuzzy
+msgid "甲"
+msgstr "old a"
+
+#, fuzzy, python-format
+msgid "乙"
+msgstr "old b"
+
+#, fuzzy
+msgid "丙"
+msgstr "old c"
+'''
+
+code, entries, after = apply_case(
+    [{"msgid": "甲", "msgstr": "new a"}, {"msgid": "乙", "msgstr": "new b"}], FUZZY_PO)
+assert code == 0, code
+assert entries["甲"] == "new a" and entries["乙"] == "new b", entries
+assert '#, fuzzy\nmsgid "甲"' not in after, after
+assert '#, python-format\nmsgid "乙"' in after, after
+assert '#, fuzzy\nmsgid "丙"' in after, after
+
 # --- check --locales ------------------------------------------------------
 
 with tempfile.TemporaryDirectory() as folder:

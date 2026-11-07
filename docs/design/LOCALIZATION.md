@@ -15,7 +15,7 @@ zh-TW is the source and the msgid. English, Japanese and Korean ship at launch (
 
 ## Gates
 
-No unwrapped CJK literal outside an allowlist; every msgid present in en, ja, ko; same `%` placeholders and balanced BBCode per entry; every character of each `.po` covered by that locale's font; a bot route under `EDD_LOCALE=en` fails on visible CJK; `test_layout_bounds` in all four locales. The existing suites stay locked to zh_TW.
+No unwrapped CJK literal outside an allowlist; every msgid present in en, ja, ko; same `%` placeholders in the same order and balanced BBCode per entry; every character of each `.po` covered by that locale's font; a bot route under `EDD_LOCALE=en` fails on visible CJK; `test_layout_bounds` in all four locales. The existing suites stay locked to zh_TW.
 
 ## Glossary
 
