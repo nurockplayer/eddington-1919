@@ -15,7 +15,10 @@ const TELEGRAM_GLOSS := {"confirmed": "日食極佳，愛因斯坦得證", "hope
 	"undecided": "隔著雲，星少，未定", "none": "全是雲，無結果"}
 
 ## Choice labels: the English cable with a short zh-TW gloss on the same line.
+## In English the gloss would only repeat the cable, so it is dropped there.
 static func telegram_choices() -> Array:
+	if L.current() == "en":
+		return TELEGRAMS.map(func(t): return t.text)
 	return TELEGRAMS.map(func(t): return L.t("%s（%s）") % [t.text, L.t(TELEGRAM_GLOSS[t.id])])
 
 const REASONS := [

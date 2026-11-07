@@ -55,7 +55,7 @@ The source avoids gendered pronouns for the player and Kit; keep that in every l
 | | Title screen | Steam |
 |---|---|---|
 | zh-TW | 雲層之後 · Eddington 1919 | The store name stays `Eddington 1919` in every language, so one name is searchable; localized names are added only if Steamworks allows them without splitting it. |
-| en | Eddington 1919: Beyond the Clouds | |
+| en | Beyond the Clouds | Eddington 1919: Beyond the Clouds |
 | ja | Eddington 1919：雲の向こう | |
 | ko | Eddington 1919: 구름 너머 | |
 

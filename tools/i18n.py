@@ -7,7 +7,8 @@ drives four subcommands:
   wrap     rewrite each player-facing CJK string literal as ``L.t("...")``
   extract  write locale/messages.pot and merge it into locale/{en,ja,ko}.po
   check    fail on an unwrapped CJK literal; --require-translated adds the
-           translation and placeholder/BBCode gates
+           translation and placeholder/BBCode gates (--locales narrows it)
+  apply    write a JSON batch [{msgid, msgstr}] into locale/<locale>.po
   pseudo   write an ASCII pseudo catalogue (EDD_PSEUDO_JSON) so any CJK left
            on screen is a real leak
 
@@ -495,6 +496,54 @@ def write_po(path: Path, header: str, entries: dict[str, object],
     path.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
 
 
+def replace_msgstr(block: str, value: object) -> str:
+    """The block with its msgstr section replaced; every other line stays as it was."""
+    lines = block.split("\n")
+    start = next((i for i, line in enumerate(lines) if line.startswith("msgstr")), None)
+    if start is None:
+        raise ValueError("block has no msgstr")
+    end = start
+    while end < len(lines) and (lines[end].startswith("msgstr") or lines[end].startswith('"')):
+        end += 1
+    if isinstance(value, list):
+        new = ["msgstr[%d] %s" % (index, po_encode(str(form))) for index, form in enumerate(value)]
+    else:
+        new = ["msgstr " + po_encode(str(value))]
+    return "\n".join(lines[:start] + new + lines[end:])
+
+
+def apply_entries(path: Path, updates: dict[str, object]) -> int:
+    """Rewrite only the updated entries in place.
+
+    Comments, source references and ``#~`` obsolete entries stay exactly as a PO
+    editor left them; a msgid that is not unique in the file (two msgctxt entries)
+    is refused rather than collapsed into one contextless translation.
+    """
+    blocks = re.split(r"\n\s*\n", path.read_text(encoding="utf-8").strip("\n"))
+    table: dict[str, list[int]] = {}
+    for index, block in enumerate(blocks):
+        msgid = _po_field(block, "msgid")
+        if msgid is None or msgid == "":
+            continue
+        table.setdefault(msgid, []).append(index)
+    problems = 0
+    for msgid in updates:
+        indexes = table.get(msgid, [])
+        if not indexes:
+            print("apply: unknown msgid: %s" % msgid.replace("\n", "\\n"))
+            problems += 1
+        elif len(indexes) > 1 or _po_field(blocks[indexes[0]], "msgctxt") is not None:
+            print("apply: msgid has a context or repeats, refusing: %s" % msgid.replace("\n", "\\n"))
+            problems += 1
+    if problems:
+        return problems
+    for msgid, value in updates.items():
+        index = table[msgid][0]
+        blocks[index] = replace_msgstr(blocks[index], value)
+    path.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
+    return 0
+
+
 def collect_msgids() -> dict[str, dict]:
     """Every msgid with its refs and the wrappers it is used through.
 
@@ -725,6 +774,87 @@ def command_pseudo(args: argparse.Namespace) -> int:
     return 0
 
 
+# --- apply ----------------------------------------------------------------
+
+
+def command_apply(args: argparse.Namespace) -> int:
+    """Write translations from a JSON batch into one catalogue, atomically."""
+    locale = args.locale
+    if locale not in LOCALES:
+        print("apply: unknown locale %s" % locale)
+        return 1
+    path = PO_DIR / ("%s.po" % locale)
+    if not path.exists():
+        print("apply: no catalogue at locale/%s.po" % locale)
+        return 1
+    try:
+        data = json.loads(Path(args.file).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        print("apply: cannot read %s: %s" % (args.file, error))
+        return 1
+    if not isinstance(data, list):
+        print("apply: %s is not a JSON array" % args.file)
+        return 1
+    _, entries = parse_po(path)
+    count = plural_forms(locale)
+    problems = 0
+    updates: dict[str, object] = {}
+    for item in data:
+        if not isinstance(item, dict) or "msgid" not in item:
+            print("apply: entry without msgid: %r" % (item,))
+            problems += 1
+            continue
+        msgid = item["msgid"]
+        if msgid not in entries:
+            print("apply: unknown msgid: %s" % str(msgid).replace("\n", "\\n"))
+            problems += 1
+            continue
+        plural_entry = isinstance(entries[msgid], list)
+        if ("msgstr_plural" in item) != plural_entry:
+            print("apply: %s entry given %s: %s"
+                  % ("plural" if plural_entry else "singular",
+                     "msgstr_plural" if "msgstr_plural" in item else "msgstr",
+                     str(msgid).replace("\n", "\\n")))
+            problems += 1
+            continue
+        if "msgstr_plural" in item:
+            forms = item["msgstr_plural"]
+            if not isinstance(forms, list) or len(forms) != count or not all(
+                    isinstance(form, str) for form in forms):
+                print("apply: plural forms must be %d strings: %s"
+                      % (count, str(msgid).replace("\n", "\\n")))
+                problems += 1
+                continue
+            value: object = list(forms)
+            checked = forms
+        elif "msgstr" in item:
+            if not isinstance(item["msgstr"], str):
+                print("apply: msgstr is not a string: %s" % str(msgid).replace("\n", "\\n"))
+                problems += 1
+                continue
+            value = item["msgstr"]
+            checked = [value]
+        else:
+            print("apply: entry has no msgstr: %s" % str(msgid).replace("\n", "\\n"))
+            problems += 1
+            continue
+        for form in checked:
+            if placeholders(msgid) != placeholders(form):
+                print("apply: placeholders differ: %s" % str(msgid).replace("\n", "\\n"))
+                problems += 1
+            for problem in tag_problems(msgid, form):
+                print("apply: %s: %s" % (problem, str(msgid).replace("\n", "\\n")))
+                problems += 1
+        updates[msgid] = value
+    if not problems and apply_entries(path, updates):
+        problems += 1
+    if problems:
+        print("apply: %d problem(s), nothing written" % problems)
+        return 1
+    print("apply: %d entries -> locale/%s.po" % (len(updates), locale))
+    return 0
+
+
 def command_check(args: argparse.Namespace) -> int:
     failures = 0
     for path in script_paths():
@@ -736,9 +866,16 @@ def command_check(args: argparse.Namespace) -> int:
             failures += 1
 
     if args.require_translated:
+        locales = LOCALES
+        if args.locales:
+            locales = tuple(name.strip() for name in args.locales.split(",") if name.strip())
+            unknown = [name for name in locales if name not in LOCALES]
+            if unknown:
+                print("UNKNOWN LOCALE: %s" % ", ".join(unknown))
+                return 1
         found = collect_msgids()
         plurals = {msgid for msgid, entry in found.items() if "tn" in entry["kinds"]}
-        for locale in LOCALES:
+        for locale in locales:
             path = PO_DIR / ("%s.po" % locale)
             if not path.exists():
                 print("MISSING %s" % rel(path))
@@ -777,6 +914,11 @@ def main(argv: list[str]) -> int:
     check = sub.add_parser("check", help="gate unwrapped literals and translations")
     check.add_argument("--require-translated", action="store_true",
                        help="also require a translated msgstr in en, ja and ko")
+    check.add_argument("--locales", default=None,
+                       help="comma-separated catalogues for --require-translated (default all)")
+    apply = sub.add_parser("apply", help="write a JSON batch into one catalogue")
+    apply.add_argument("locale")
+    apply.add_argument("file")
     pseudo = sub.add_parser("pseudo", help="write an ASCII pseudo catalogue")
     pseudo.add_argument("out")
     args = parser.parse_args(argv)
@@ -784,6 +926,8 @@ def main(argv: list[str]) -> int:
         return command_wrap(args)
     if args.command == "extract":
         return command_extract(args)
+    if args.command == "apply":
+        return command_apply(args)
     if args.command == "pseudo":
         return command_pseudo(args)
     return command_check(args)

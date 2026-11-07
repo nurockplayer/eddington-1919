@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """parse_po keeps what a PO editor writes: python3 tools/test_i18n_po.py"""
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -40,4 +41,119 @@ with tempfile.TemporaryDirectory() as folder:
     }, entries
     i18n.write_po(path, header, entries)
     assert i18n.parse_po(path) == (header, entries), "round trip changed the catalog"
+
+# --- apply ----------------------------------------------------------------
+
+APPLY_PO = '''msgid ""
+msgstr ""
+"Language: en\\n"
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\\n"
+
+msgid "單行"
+msgstr ""
+
+msgid "%d 張"
+msgid_plural "%d 張"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "[b]粗體[/b]與 %s"
+msgstr ""
+'''
+
+
+def apply_case(batch, po=APPLY_PO):
+    """Run apply in its own catalogue; return (exit code, entries, original text)."""
+    folder = tempfile.mkdtemp()
+    i18n.PO_DIR = Path(folder)
+    path = Path(folder) / "en.po"
+    path.write_text(po, encoding="utf-8")
+    source = Path(folder) / "batch.json"
+    source.write_text(json.dumps(batch, ensure_ascii=False), encoding="utf-8")
+    code = i18n.main(["apply", "en", str(source)])
+    return code, i18n.parse_po(path)[1], path.read_text(encoding="utf-8")
+
+
+code, entries, _ = apply_case([
+    {"msgid": "單行", "msgstr": "one line"},
+    {"msgid": "%d 張", "msgstr_plural": ["%d plate", "%d plates"]},
+    {"msgid": "[b]粗體[/b]與 %s", "msgstr": "[b]Bold[/b] and %s"},
+])
+assert code == 0, code
+assert entries["單行"] == "one line", entries
+assert entries["%d 張"] == ["%d plate", "%d plates"], entries
+
+for batch in (
+    [{"msgid": "沒這個", "msgstr": "not here"}],
+    [{"msgid": "%d 張", "msgstr_plural": ["plate", "plates"]}],
+    [{"msgid": "%d 張", "msgstr_plural": ["%d plate"]}],
+    [{"msgid": "%d 張", "msgstr": "line"}],
+    [{"msgid": "[b]粗體[/b]與 %s", "msgstr": "Bold and %s"}],
+    [{"msgid": "單行", "msgstr": "one", "msgstr_plural": ["one", "many"]}],
+):
+    before = APPLY_PO
+    code, entries, after = apply_case(batch)
+    assert code == 1, (batch, code)
+    assert after == before, (batch, after)
+    assert all(not value if isinstance(value, str) else not any(value)
+               for value in entries.values()), (batch, entries)
+
+# --- apply keeps what it was not asked to change --------------------------
+
+METADATA_PO = '''msgid ""
+msgstr ""
+"Language: en\\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\\n"
+
+#. translator note
+#: scripts/a.gd:3
+msgid "單行"
+msgstr ""
+
+#~ msgid "舊的"
+#~ msgstr "old"
+'''
+
+code, entries, after = apply_case([{"msgid": "單行", "msgstr": "one line"}], METADATA_PO)
+assert code == 0, code
+assert entries["單行"] == "one line", entries
+assert "#. translator note" in after, after
+assert "#: scripts/a.gd:3" in after, after
+assert '#~ msgid "舊的"' in after, after
+
+# The same msgid under two contexts cannot be addressed by a contextless batch.
+CONTEXT_PO = '''msgid ""
+msgstr ""
+
+msgctxt "a"
+msgid "開"
+msgstr ""
+
+msgctxt "b"
+msgid "開"
+msgstr ""
+'''
+
+code, entries, after = apply_case([{"msgid": "開", "msgstr": "open"}], CONTEXT_PO)
+assert code == 1, code
+assert after == CONTEXT_PO, after
+
+# --- check --locales ------------------------------------------------------
+
+with tempfile.TemporaryDirectory() as folder:
+    root = Path(folder)
+    (root / "scripts").mkdir()
+    (root / "scripts" / "a.gd").write_text('func _f():\n\tprint(L.t("你好"))\n',
+                                          encoding="utf-8")
+    (root / "locale").mkdir()
+    saved = i18n.ROOT, i18n.SCRIPTS, i18n.PO_DIR
+    i18n.ROOT, i18n.SCRIPTS, i18n.PO_DIR = root, root / "scripts", root / "locale"
+    i18n.write_po(i18n.PO_DIR / "en.po", i18n._po_header("en"), {"你好": "hello"})
+    assert i18n.main(["check", "--require-translated", "--locales", "en"]) == 0
+    assert i18n.main(["check", "--require-translated", "--locales", "ja"]) == 1
+    assert i18n.main(["check", "--require-translated"]) == 1
+    assert i18n.main(["check", "--require-translated", "--locales", "xx"]) == 1
+    i18n.ROOT, i18n.SCRIPTS, i18n.PO_DIR = saved
+
 print("test_i18n_po: passed")

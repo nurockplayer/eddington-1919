@@ -5,6 +5,7 @@ const L := preload("res://scripts/l10n.gd")
 const Fonts := preload("res://scripts/fonts.gd")
 const Settings := preload("res://scripts/settings.gd")
 const Content := preload("res://scripts/content.gd")
+const Judgment := preload("res://scripts/judgment.gd")
 const Prompts := preload("res://scripts/prompts.gd")
 
 var checks := 0
@@ -75,6 +76,19 @@ func plural_checks() -> void:
 	check(L.t("") == "", "the header entry does not leak into a blank speaker")
 	L.apply("zh_TW")
 	check(L.tn(msgid, 1) == msgid and L.tn(msgid, 3) == msgid, "zh-TW shows the source text at every count")
+
+
+## In English the cable stands alone; the zh gloss would only repeat it.
+func telegram_checks() -> void:
+	L.apply("en")
+	var labels: Array = Judgment.telegram_choices()
+	check(labels[0] == "ECLIPSE SPLENDID. EINSTEIN CONFIRMED.",
+		"en cable with no gloss, got " + str(labels[0]))
+	check(labels.size() == 4 and not str(labels[3]).contains("（"),
+		"en cables carry no full-width gloss")
+	L.apply("zh_TW")
+	check(Judgment.telegram_choices()[0] == "ECLIPSE SPLENDID. EINSTEIN CONFIRMED.（日食極佳，愛因斯坦得證）",
+		"zh-TW keeps the gloss, got " + str(Judgment.telegram_choices()[0]))
 
 
 ## Both hold modes keep the instruction sentence the player saw before the split.
@@ -175,6 +189,7 @@ func _run() -> void:
 	check(L.current() == "zh_TW", "locale restored to zh-TW")
 	check(root.auto_translate_mode == Node.AUTO_TRANSLATE_MODE_DISABLED,
 		"root auto-translate stays off")
+	telegram_checks()
 	hold_line_checks()
 	await reload_check()
 	await record_reason_check()
