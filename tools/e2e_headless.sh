@@ -155,6 +155,23 @@ for entry in "${ROUTES[@]}"; do
     "$label" "$seed" "$ending" "$evidence" "$score" "$stuck" "$cues" "$leaks" "$wall" "$code")")
 done
 
+# The routes never open the title, credits, settings, pause, help or log panels,
+# and Chart's draw_string text is not a node property. The pseudo catalogue is
+# already exported, so the suite walks those menus under the same locale. A
+# skipped walk is a failure: it means the gate would pass without checking them.
+if (( pseudo == 1 )); then
+  log="$tmp/menu_leaks.log"
+  /usr/bin/time -p perl -e 'alarm 300; exec @ARGV' \
+    "$GODOT" --headless --path . --script res://tests/test_menu_leaks.gd >"$log" 2>&1
+  code=$?
+  if (( code != 0 )) || ! grep -qE '^\[LEAK\] total 0$' "$log" || grep -q 'menu walk skipped' "$log"; then
+    failures=$((failures + 1))
+    echo "menu walk failed (exit $code):" >&2
+    grep '^\[LEAK\] ' "$log" | grep -v ' total ' | tail -n 20 >&2
+    tail -n 15 "$log" >&2
+  fi
+fi
+
 printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %-6s %8s %3s\n' \
   route seed ending evidence score stuck cues leaks wall exit
 printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %-6s %8s %3s\n' \
