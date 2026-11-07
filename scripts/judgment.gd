@@ -88,7 +88,7 @@ static func reasons_for(sim) -> Array:
 	var reasons := REASONS.duplicate(true)
 	var c: Dictionary = sim.combined()
 	if c.n > 0:
-		reasons[0].text = L.t("量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。") % [c.value, c.sigma, c.n]
+		reasons[0].text = L.tn("量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。", c.n) % [c.value, c.sigma, c.n]
 		reasons[1].text = L.t("量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。") % [c.value, c.sigma]
 		var trail_sum := 0.0
 		for p in sim.included_usable():
@@ -189,7 +189,7 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 			else:
 				out.append(L.t("……是的。很遺憾，但這是真的。至少我們沒有讓雲替我們說謊。"))
 	if c.n > 0:
-		out.append(L.t("（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）") % [c.value, c.sigma, c.n])
+		out.append(L.tn("（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）", c.n) % [c.value, c.sigma, c.n])
 	return out
 
 
@@ -286,8 +286,11 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		for m in measures:
 			agree = agree and absf(float(m.value) - mean) <= 2.0 * float(m.sigma)
 		if agree:
-			var count := L.t("兩張") if good.size() == 2 else L.t("這 %d 張") % good.size()
-			out.append(L.t("第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。") % [_nums(good.map(func(p): return p.number)), count])
+			var nums := _nums(good.map(func(p): return p.number))
+			if good.size() == 2:
+				out.append(L.t("第 %s 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。") % nums)
+			else:
+				out.append(L.t("第 %s 號各自量，數字彼此對得上。這 %d 張互相印證，比一張長片更難被說成巧合。") % [nums, good.size()])
 	elif good.size() == 1:
 		out.append(L.t("只有一張好片——一張底片只能提出問題，還不能回答。"))
 		# Two usable plates need ~4.5 s of clear sky each plus the 4 s change, so

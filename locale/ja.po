@@ -69,9 +69,16 @@ msgid " 開始］"
 msgstr ""
 
 msgid "%.2f″ ± %.2f″（量 %d 張）"
-msgstr ""
+msgid_plural "%.2f″ ± %.2f″（量 %d 張）"
+msgstr[0] ""
 
 msgid "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″"
+msgstr ""
+
+msgid "%s\n\n（史實）"
+msgstr ""
+
+msgid "%s\n\n（虛構）"
 msgstr ""
 
 msgid "%s 協助 Cottingham 上發條"
@@ -107,7 +114,13 @@ msgstr ""
 msgid "%s大概跟你說過 Dyson 的那篇短文了。"
 msgstr ""
 
+msgid "%s我要說的只有一句：做他的清單，就像做我的一樣。哪顆星對不上，就寫它對不上。不管那對誰有利。"
+msgstr ""
+
 msgid "%s的帳簿"
+msgstr ""
+
+msgid "%s這回，你想改哪一步？先記住自己的打算。"
 msgstr ""
 
 msgid "%s（%s）"
@@ -270,7 +283,8 @@ msgid "Eddington：「看太陽周圍那一小片，不是整片天。那裡變�
 msgstr ""
 
 msgid "Eddington：「還有 %d 張底片。」"
-msgstr ""
+msgid_plural "Eddington：「還有 %d 張底片。」"
+msgstr[0] ""
 
 msgid "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。"
 msgstr ""
@@ -285,6 +299,9 @@ msgid "KIT 的變星底片"
 msgstr ""
 
 msgid "Kit 念出："
+msgstr ""
+
+msgid "Kit 念出：%s"
 msgstr ""
 
 msgid "Kit 念出：……"
@@ -359,19 +376,37 @@ msgstr ""
 msgid "[b]劍橋・1919 年 10 月[/b]\n"
 msgstr ""
 
+msgid "[b]劍橋・1919 年 10 月[/b]\n%s"
+msgstr ""
+
 msgid "[b]劍橋・1919 年 3 月[/b]\n"
+msgstr ""
+
+msgid "[b]劍橋・1919 年 3 月[/b]\n%s"
 msgstr ""
 
 msgid "[b]史實與虛構[/b]\n"
 msgstr ""
 
+msgid "[b]史實與虛構[/b]\n%s"
+msgstr ""
+
 msgid "[b]夜晚・暗房[/b]\n"
+msgstr ""
+
+msgid "[b]夜晚・暗房[/b]\n%s"
 msgstr ""
 
 msgid "[b]夜晚・暗房[/b]\n□ "
 msgstr ""
 
+msgid "[b]夜晚・暗房[/b]\n□ %s"
+msgstr ""
+
 msgid "[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n"
+msgstr ""
+
+msgid "[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n%s"
 msgstr ""
 
 msgid "[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷"
@@ -392,10 +427,16 @@ msgstr ""
 msgid "[b]第三方素材與授權[/b]\n"
 msgstr ""
 
+msgid "[b]第三方素材與授權[/b]\n%s\n\n%s"
+msgstr ""
+
 msgid "[b]製作[/b]\n%s\n以 Godot Engine 製作"
 msgstr ""
 
 msgid "[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
+msgstr ""
+
+msgid "[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n"
 msgstr ""
 
 msgid "[center][b]製作名單[/b]\n%s · v%s[/center]"
@@ -476,6 +517,9 @@ msgstr ""
 msgid "x 41.27　y [s]18.63[/s]　16.83　"
 msgstr ""
 
+msgid "x 41.27　y [s]18.63[/s]　16.83　%s"
+msgstr ""
+
 msgid "x 44.90　y 21.35"
 msgstr ""
 
@@ -492,7 +536,8 @@ msgid "· Sobral 天體照相儀那組：%s。"
 msgstr ""
 
 msgid "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。"
-msgstr ""
+msgid_plural "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。"
+msgstr[0] ""
 
 msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
 msgstr ""
@@ -878,6 +923,12 @@ msgstr ""
 msgid "你先在驅動箱上[b]%s上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
 msgstr ""
 
+msgid "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
+msgstr ""
+
+msgid "你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
+msgstr ""
+
 msgid "你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。"
 msgstr ""
 
@@ -891,6 +942,9 @@ msgid "你刪掉的這一點——你確定它是墨漬？"
 msgstr ""
 
 msgid "你在 1917 年參與擬定的原則："
+msgstr ""
+
+msgid "你在 1917 年參與擬定的原則：%s"
 msgstr ""
 
 msgid "你在 1917 年寫了 1.75，今天這一行不是。寫清楚，是什麼讓你改的。"
@@ -917,7 +971,13 @@ msgstr ""
 msgid "你寫下的規則："
 msgstr ""
 
+msgid "你寫下的規則：%s"
+msgstr ""
+
 msgid "你寫的是「說不準」。現在，你的底片能說準一點了嗎？"
+msgstr ""
+
+msgid "你寫的是「說不準」。現在，你的底片能說準一點了嗎？%s"
 msgstr ""
 
 msgid "你對著天文鐘一秒一秒報數。Cottingham：「慢了一點……好，對上了。」"
@@ -1014,6 +1074,9 @@ msgid "你願意簽的，比你願意相信的多。"
 msgstr ""
 
 msgid "你："
+msgstr ""
+
+msgid "你：%s"
 msgstr ""
 
 msgid "你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。\n%s"
@@ -1179,6 +1242,9 @@ msgid "劃一條線，旁邊寫正確的數字，簽上縮寫。"
 msgstr ""
 
 msgid "劃線、改正、簽名（"
+msgstr ""
+
+msgid "劃線、改正、簽名（%s：你的縮寫）"
 msgstr ""
 
 msgid "劍橋天文台・1917 年 10 月\n（重建場景）"
@@ -1571,6 +1637,9 @@ msgstr ""
 msgid "帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［"
 msgstr ""
 
+msgid "帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。"
+msgstr ""
+
 msgid "希望什麼呢？我們沒有一張量得出結果的底片。這兩個字會讓倫敦誤會。"
 msgstr ""
 
@@ -1611,7 +1680,8 @@ msgid "底片已經擺在看片台上，抄錄圖也在旁邊。我這邊還有�
 msgstr ""
 
 msgid "底片拍了 %d 張，我不知道上面會留下什麼。」"
-msgstr ""
+msgid_plural "底片拍了 %d 張，我不知道上面會留下什麼。」"
+msgstr[0] ""
 
 msgid "底片放斜了約 3 度"
 msgstr ""
@@ -1962,6 +2032,9 @@ msgid "數字沒有偏到需要儀器來解釋。別替不合期望的結果先�
 msgstr ""
 
 msgid "文字大小："
+msgstr ""
+
+msgid "文字大小：%s"
 msgstr ""
 
 msgid "新天體。（笑了一下，不是嘲笑）一張底片、一個白點、一個晚上。如果我每次這樣想都寫下來，皇家天文學會早就把我請出去了。"
@@ -2420,6 +2493,12 @@ msgstr ""
 msgid "第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。"
 msgstr ""
 
+msgid "第 %s 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。"
+msgstr ""
+
+msgid "第 %s 號各自量，數字彼此對得上。這 %d 張互相印證，比一張長片更難被說成巧合。"
+msgstr ""
+
 msgid "第 %s 號底片的星像很清楚，你沒有量它。若它的數字不合我們的期望，那更應該量。"
 msgstr ""
 
@@ -2516,6 +2595,9 @@ msgstr ""
 msgid "給 Kit："
 msgstr ""
 
+msgid "給 Kit：%s"
+msgstr ""
+
 msgid "繼續"
 msgstr ""
 
@@ -2574,6 +2656,9 @@ msgid "要改，現在還來得及。"
 msgstr ""
 
 msgid "視角靈敏度："
+msgstr ""
+
+msgid "視角靈敏度：%s"
 msgstr ""
 
 msgid "記下每張底片的狀況：雲、曝光秒數、溫度、時鐘驅動"
@@ -2880,7 +2965,8 @@ msgid "量完之後，只留下和預測相符的底片"
 msgstr ""
 
 msgid "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。"
-msgstr ""
+msgid_plural "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。"
+msgstr[0] ""
 
 msgid "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。"
 msgstr ""
@@ -2987,6 +3073,12 @@ msgstr ""
 msgid "驅動箱就在我旁邊——%s上發條。"
 msgstr ""
 
+msgid "驅動箱就在我旁邊——按一下 %s 開始上發條。"
+msgstr ""
+
+msgid "驅動箱就在我旁邊——按住 %s 上發條。"
+msgstr ""
+
 msgid "高"
 msgstr ""
 
@@ -3072,7 +3164,8 @@ msgid "（你想起他說的：要被一張乾淨的底片說服，而不是被�
 msgstr ""
 
 msgid "（你手上的 %d 張會交給 Cottingham）"
-msgstr ""
+msgid_plural "（你手上的 %d 張會交給 Cottingham）"
+msgstr[0] ""
 
 msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）"
 msgstr ""
@@ -3081,7 +3174,8 @@ msgid "（你拿起 %s的放大鏡。）"
 msgstr ""
 
 msgid "（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）"
-msgstr ""
+msgid_plural "（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）"
+msgstr[0] ""
 
 msgid "（你的鉛筆削好了，排在清單旁邊。不是你削的。）"
 msgstr ""
@@ -3230,7 +3324,44 @@ msgstr ""
 msgid "［%s／%s］開始・停"
 msgstr ""
 
+msgid "［%s］%s"
+msgstr ""
+
+msgid "［%s］Ashby 先生給的放大鏡。"
+msgstr ""
+
+msgid "［%s］再讀工作簿最後一頁。"
+msgstr ""
+
+msgid "［%s］和 %s 說話"
+msgstr ""
+
+msgid "［%s］和 Eddington 說話"
+msgstr ""
+
+msgid "［%s］在工作簿記下你看到的天空。"
+msgstr ""
+
+msgid "［%s］把 %d 個底片匣放上架子"
+msgid_plural "［%s］把 %d 個底片匣放上架子"
+msgstr[0] ""
+
+msgid "［%s］拿起 Ashby 先生給的放大鏡。"
+msgstr ""
+
+msgid "［%s］檢視底片"
+msgstr ""
+
+msgid "［%s］看天文鐘"
+msgstr ""
+
+msgid "［%s］看牛津比對底片"
+msgstr ""
+
 msgid "［%s］繼續"
+msgstr ""
+
+msgid "［%s］讀曝光計畫"
 msgstr ""
 
 msgid "［%s］開始／停"
@@ -3245,7 +3376,25 @@ msgstr ""
 msgid "［按 "
 msgstr ""
 
+msgid "［按 %s 開始］上發條"
+msgstr ""
+
+msgid "［按 %s 開始］拿底片匣（手上 %d，箱裡還有 %d）"
+msgstr ""
+
+msgid "［按 %s 開始］替 Cottingham 報秒、校走速"
+msgstr ""
+
 msgid "［按住 "
+msgstr ""
+
+msgid "［按住 %s］上發條"
+msgstr ""
+
+msgid "［按住 %s］拿底片匣（手上 %d，箱裡還有 %d）"
+msgstr ""
+
+msgid "［按住 %s］替 Cottingham 報秒、校走速"
 msgstr ""
 
 msgid "［方向鍵／A 鍵］選擇"

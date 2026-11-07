@@ -11,8 +11,8 @@ static func text() -> String:
 			str(ProjectSettings.get_setting("application/config/name")).replace("[", "[lb]"),
 			str(ProjectSettings.get_setting("application/config/version")).replace("[", "[lb]")],
 		L.t("[b]製作[/b]\n%s\n以 Godot Engine 製作") % AUTHOR,
-		L.t("[b]史實與虛構[/b]\n") + L.t(DISCLAIMER),
-		L.t("[b]第三方素材與授權[/b]\n") + _md_to_bbcode(FileAccess.get_file_as_string("res://THIRD_PARTY_NOTICES.md")) + "\n\n" + Engine.get_license_text().replace("[", "[lb]"),
+		L.t("[b]史實與虛構[/b]\n%s") % L.t(DISCLAIMER),
+		L.t("[b]第三方素材與授權[/b]\n%s\n\n%s") % [_md_to_bbcode(FileAccess.get_file_as_string("res://THIRD_PARTY_NOTICES.md")), Engine.get_license_text().replace("[", "[lb]")],
 		L.t("[b]Godot 第三方元件[/b]"),
 	])
 	for component in Engine.get_copyright_info():

@@ -119,7 +119,7 @@ func _sync_player() -> void:
 		Beat.CHECKLIST: objective = L.t("走到看片台，核對最後一頁。")
 		Beat.KIT: objective = L.t("清單收好了。和 Kit 說說話。")
 		Beat.FAREWELL: objective = L.t("Ashby 先生在走廊等你。")
-	ui.set_objectives(L.t("[b]劍橋・1919 年 3 月[/b]\n") + objective if objective != "" else "")
+	ui.set_objectives(L.t("[b]劍橋・1919 年 3 月[/b]\n%s") % objective if objective != "" else "")
 
 
 func _process(delta: float) -> void:
@@ -137,7 +137,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt(L.t("［") + Prompts.key("interact") + L.t("］") + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), str(target.get_meta("prompt"))] if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -284,8 +284,7 @@ func _montage() -> void:
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	keepsake.hide()
 	for entry in Content.montage():
-		var tag := L.t("史實") if entry.tag == "HISTORICAL" else L.t("虛構")
-		await ui.show_caption(str(entry.t) + L.t("\n\n（") + tag + L.t("）"), 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+		await ui.show_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t), 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	Story.departure_done = true
 	Story.from_prologue = true
 	beat = Beat.DONE

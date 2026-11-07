@@ -183,7 +183,7 @@ static func principe_workbook(bond_tone: String, plates: Array, plate_changed: b
 	elif "cloud" in bands:
 		sky += L.t("Cottingham 看過的那幾張，都在雲後面；其餘的，我說不上來。」")
 	elif not plates.is_empty():
-		sky += L.t("底片拍了 %d 張，我不知道上面會留下什麼。」") % plates.size()
+		sky += L.tn("底片拍了 %d 張，我不知道上面會留下什麼。」", plates.size()) % plates.size()
 	else:
 		sky += L.t("我一張底片也沒有拍成。」")
 	var seq: Array = [

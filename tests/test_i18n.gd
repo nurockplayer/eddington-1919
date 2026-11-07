@@ -4,6 +4,8 @@ extends SceneTree
 const L := preload("res://scripts/l10n.gd")
 const Fonts := preload("res://scripts/fonts.gd")
 const Settings := preload("res://scripts/settings.gd")
+const Content := preload("res://scripts/content.gd")
+const Prompts := preload("res://scripts/prompts.gd")
 
 var checks := 0
 var failures := 0
@@ -62,6 +64,52 @@ func check(ok: bool, message: String) -> void:
 		print("FAIL: ", message)
 
 
+## The plural path: msgid and msgid_plural are the same source sentence, and the
+## real en.po supplies the two English forms.
+func plural_checks() -> void:
+	var msgid := "Eddington：「還有 %d 張底片。」"
+	L.apply("en")
+	check(L.tn(msgid, 1) == "Eddington: \"%d plate left.\"", "en singular form at 1, got " + L.tn(msgid, 1))
+	check(L.tn(msgid, 3) == "Eddington: \"%d plates left.\"", "en plural form at 3, got " + L.tn(msgid, 3))
+	check(L.tn(msgid, 3) % 3 == "Eddington: \"3 plates left.\"", "the caller formats the count")
+	check(L.t("") == "", "the header entry does not leak into a blank speaker")
+	L.apply("zh_TW")
+	check(L.tn(msgid, 1) == msgid and L.tn(msgid, 3) == msgid, "zh-TW shows the source text at every count")
+
+
+## Both hold modes keep the instruction sentence the player saw before the split.
+func hold_line_checks() -> void:
+	var previous := Settings.hold_toggle
+	Settings.hold_toggle = false
+	check(Content.cottingham_first()[2].t
+		== "你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。" % Prompts.key("interact"),
+		"holding mode keeps the old sentence")
+	Settings.hold_toggle = true
+	check(Content.cottingham_first()[2].t
+		== "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。" % Prompts.key("interact"),
+		"single-press mode keeps the old sentence")
+	Settings.hold_toggle = previous
+
+
+## Saved text stays source text: a run recorded under en keeps the zh-TW msgid.
+func record_reason_check() -> void:
+	var story = root.get_node("Story")
+	check(change_scene_to_file("res://scenes/main.tscn") == OK, "main scene loads for the reason record")
+	await settle()
+	var game = current_scene
+	game.set_process(false)
+	L.apply("en")
+	game._reasons = []
+	game._reason = 0
+	game._grade = {"score": 0, "clean": true}
+	game._record_run()
+	check(story.runs.size() == 1, "the run is recorded")
+	var stored: String = str(story.runs.back().get("reason_text", ""))
+	check(stored == "量得的偏折較接近 1.75″，而且有足夠星點的底片支持。",
+		"en stores the source text of reason_text, got " + stored)
+	L.apply("zh_TW")
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -84,6 +132,7 @@ func _run() -> void:
 		if pair[0].is_empty() or pair[1].is_empty():
 			continue
 		check(L.t(pair[0]) == pair[1], "en.po entry reaches the game: " + pair[0])
+	plural_checks()
 	L.apply("ja")
 	check(L.t("語言：%s") % L.NAMES["ja"] == "言語：日本語", "ja language caption")
 	L.apply("ko")
@@ -99,6 +148,8 @@ func _run() -> void:
 	check(L.current() == "zh_TW", "locale restored to zh-TW")
 	check(root.auto_translate_mode == Node.AUTO_TRANSLATE_MODE_DISABLED,
 		"root auto-translate stays off")
+	hold_line_checks()
 	await reload_check()
+	await record_reason_check()
 	print("test_i18n: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

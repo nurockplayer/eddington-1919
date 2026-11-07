@@ -5,7 +5,7 @@ zh-TW is the source and the msgid. English, Japanese and Korean ship at launch (
 ## Code rules
 
 - `L.t("…")` for every player-facing string. A `const` cannot call a function, so translate it where it is used.
-- **Whole sentences, not fragments.** A sentence built from parts gets rewritten as one msgid with placeholders. Example: `GameSettings.hold_phrase()` returns a fragment with a trailing-space contract; it becomes complete instructions.
+- **Whole sentences, not fragments.** A sentence built from parts gets rewritten as one msgid with placeholders. Example: the hold-interaction instruction used to be a fragment with a trailing-space contract; each site now picks a whole sentence on `Settings.hold_toggle`.
 - `%` formats stay in the msgid, typed and ordered. A literal `%` in a formatted string is `%%`. Use a named `.format()` only when a translator must reorder and `%1$s` style is not available.
 - Counts that need a plural in English go through a plural wrapper (`L.tn`). Chinese has no plural, so the source gives no signal: grep `%d 張` and similar.
 - A zh string needing two different translations gets a context (`L.tc(s, ctx)`), added only when a collision is found.

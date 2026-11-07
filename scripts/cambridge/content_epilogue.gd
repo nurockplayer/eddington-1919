@@ -12,6 +12,9 @@ const Content1917 := preload("res://scripts/cambridge/content_1917.gd")
 const A := CAST.MENTOR
 const YOU := CAST.YOU
 
+## The notebook answer, kept as source text so a stored copy stays translatable.
+const FINAL_REASON_CHOICES := ["我自己的底片", "Sobral 的 4 吋鏡頭", "兩地一起", "水星和光指向同一邊", "我還沒有改變想法"]
+
 
 static func intro_caption() -> String:
 	return L.t("劍橋，1919 年 10 月\n\n（推測重建）")
@@ -145,7 +148,8 @@ static func final_reason() -> Array:
 	return [
 		{"s": L.t("筆記本"), "t": L.t("在筆記本最後寫一句：哪一個證據最讓你改變想法？"),
 			"key": "final_reason",
-			"choices": [L.t("我自己的底片"), L.t("Sobral 的 4 吋鏡頭"), L.t("兩地一起"), L.t("水星和光指向同一邊"), L.t("我還沒有改變想法")]},
+			"choices": FINAL_REASON_CHOICES.map(func(c): return L.t(c)),
+			"sources": FINAL_REASON_CHOICES},
 	]
 
 
