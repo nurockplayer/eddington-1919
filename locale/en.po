@@ -2741,7 +2741,7 @@ msgid "貴重的是用它看見的東西。這個只是黃銅。"
 msgstr "What's valuable is what you see through it. This is only brass."
 
 msgid "走到看片台，核對最後一頁。"
-msgstr "Go to the viewing table and check the last page."
+msgstr "Go to the light box and check the last page."
 
 msgid "走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。"
 msgstr "The rate is set. During totality you watch the cloud, I take the shutter, and Mr Eddington changes the plates. Three people, just enough."
@@ -3242,7 +3242,7 @@ msgid "（把一本濕了邊的期刊放在桌上）皇家天文學會的月報�
 msgstr "(Sets a journal with damp-stained edges on the table.) The Monthly Notices of the Royal Astronomical Society. This spring, the Astronomer Royal, Dyson, wrote a short paper."
 
 msgid "（把椅子拉近看片台。沒有說話。燈光底下，兩個人的影子落在同一張底片上。）"
-msgstr "(draws the chair closer to the viewing table. Neither of you speaks. Under the lamp, two shadows fall on the same plate.)"
+msgstr "(draws the chair closer to the light box. Neither of you speaks. Under the lamp, two shadows fall on the same plate.)"
 
 msgid "（把清單轉過來給你看）……是你的字。"
 msgstr "(turns the list round to show you) …It's your hand."
