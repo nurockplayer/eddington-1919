@@ -729,3 +729,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Decided:** merge the text first; `L.TRANSLATED` is still false, so no player sees it. The 40 viewer overflows and the forms of address go in a separate small PR instead of a new review of the full draft.
 - **Running:** `lead-wait run en-viewer` (`ds-edd-2`, ds-2, new session, branch `fix/en-viewer-layout`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/en-full-fu3.md`). On its event: `lead-wait pr <n>`. It covers the left column autowrap, `Include`, `Oxford plate`, #268, `Sir Frank`, `Professor Eddington` and the glossary. **Until it merges, `Mr Dyson` and `Mr Eddington` are still on `main` in `locale/en.po`.**
 - **Later:** #270 and #271 (tools), then the Sol polish, starting from the 12 least-sure entries in the #269 body.
+
+### #273 English viewer: last 32 px (edd-lead) | 2026-11-07 20:0x JST
+
+- **#273** (`fix/en-viewer-layout`, 4b8abce): width overflow is gone, the left column is 458 px under both en and zh-TW. zh-TW suite: 0 failures. Under `EDD_LOCALE=en`: 36 failures, all height, at scale 1.2 (left column 902 px, 870 available; zh-TW 843).
+- **Decided:** English text only. The hint becomes two lines; a note is shortened only if that is not enough. No zh-TW or viewer code change.
+- **Running:** `lead-wait run en-viewer-fu1` (`ds-edd-2`, session `1605611c-7a5f-4b2c-a10f-cb96dc1173ce`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/en-viewer-fu1.md`). On its event: `lead-wait pr 273`.
+- **For ja and ko:** the viewer's left column has nothing that gives way, so a longer language can overflow at scale 1.2 again. Run `test_layout_bounds` under each locale early. If text cuts lose meaning, the options are a scrolling note or a smaller thumbnail grid on short windows (the grid changes zh-TW).
+- **Unresolved, not looked into:** the worker reports that `orb-test`'s container route failed with `docker ps` timing out, once hung for 5 minutes, and that it ran `tools/i18n.py check` on the host instead (text check only).
