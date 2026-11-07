@@ -115,7 +115,7 @@ func _build() -> void:
 		closed.emit())
 	actions.add_child(close_btn)
 	submit_btn = Button.new()
-	submit_btn.text = L.t("交給 %s") % Cast.MENTOR
+	submit_btn.text = L.t("交給 %s") % L.t(Cast.MENTOR)
 	_style_button(submit_btn)
 	submit_btn.pressed.connect(_submit)
 	actions.add_child(submit_btn)

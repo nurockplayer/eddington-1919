@@ -13,10 +13,35 @@ const TRANSLATED := false
 
 ## The locale in use; `_static_init` picks it before any scene reads a string.
 static var language := ""
+## The dev-only pseudo Translation, kept so the suites can remove it again.
+static var pseudo_translation: Translation = null
 
 
 static func _static_init() -> void:
 	apply(_startup_locale())
+	if not OS.has_feature("template") and OS.has_environment("EDD_PSEUDO_JSON"):
+		_load_pseudo(OS.get_environment("EDD_PSEUDO_JSON"))
+
+
+## A generated catalogue whose every msgid is ASCII: any CJK left on screen is a
+## leak. The server locale changes, `language` does not, so fonts and language
+## logic keep acting as `en`. Exported templates never see EDD_PSEUDO_JSON.
+static func _load_pseudo(path: String) -> void:
+	var text := FileAccess.get_file_as_string(path)
+	var data = JSON.parse_string(text) if not text.is_empty() else null
+	if not data is Dictionary:
+		push_warning("pseudo catalogue not readable: " + path)
+		return
+	var translation := Translation.new()
+	translation.locale = "en_XA"
+	for msgid in data:
+		var value := str(data[msgid])
+		translation.add_message(msgid, value)
+		# L.tn asks for both forms; the pseudo text is the same at any count.
+		translation.add_plural_message(msgid, PackedStringArray([value, value]))
+	TranslationServer.add_translation(translation)
+	TranslationServer.set_locale("en_XA")
+	pseudo_translation = translation
 
 
 static func t(s: String) -> String:

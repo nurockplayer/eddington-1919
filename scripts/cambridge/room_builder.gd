@@ -401,7 +401,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	for i in range(3):
 		w.box(Vector3(0.38, 0.035, 0.28), Vector3(1.13, 0.81 + i * 0.035, -0.20), Color(0.45, 0.38, 0.29), null, false)
 	var kit_ledger := w.box(Vector3(0.4, 0.06, 0.3), Vector3(1.14, 0.89, 0.20), Color(0.28, 0.30, 0.26), null, false)
-	var ledger_hotspot := w.hotspot(Vector3(0.48, 0.2, 0.36), Vector3(1.14, 0.94, 0.20), "kit_ledger", L.t("查看 %s 的工作簿") % Cast.KIT)
+	var ledger_hotspot := w.hotspot(Vector3(0.48, 0.2, 0.36), Vector3(1.14, 0.94, 0.20), "kit_ledger", L.t("查看 %s 的工作簿") % L.t(Cast.KIT))
 	out.targets["kit_ledger"] = ledger_hotspot.position
 	if departure:
 		var plate_label := Label3D.new()

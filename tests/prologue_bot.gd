@@ -33,6 +33,7 @@ var _walking := false
 var _coda_capture_seen: Dictionary = {}
 var _coda_fade_capture_started := false
 var _coda_checks := {"workbook": false, "loupe": false, "kit_close": false, "lamp_out": false, "complete": false}
+var _leak_watch: Node = null
 
 
 func _ready() -> void:
@@ -46,6 +47,9 @@ func _ready() -> void:
 	if shots_dir != "":
 		DirAccess.make_dir_recursive_absolute(shots_dir)
 		DirAccess.remove_absolute(shots_dir.path_join("result_" + scenario + ".json"))
+	if OS.has_environment("EDD_PSEUDO_JSON"):
+		_leak_watch = load("res://tests/leak_watch.gd").new()
+		add_child(_leak_watch)
 	_run.call_deferred()
 
 
@@ -134,7 +138,7 @@ func _on_dialogue_entry(speaker: String) -> void:
 		return
 	if main.get_script().resource_path.ends_with("cambridge/departure_director.gd") and main._pending == "promise":
 		var current_entry: Dictionary = main.ui._seq[main.ui._seq_i]
-		if str(current_entry.get("t", "")).contains("翻開工作簿"):
+		if str(current_entry.get("key", "")) == "workbook":
 			_capture_workbook()
 	var label := ""
 	if speaker == Cast.KIT and main.world.kit.visible:
@@ -425,7 +429,7 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 				_choice_shots[choice_label] = true
 				await _wait_for_camera_settle()
 				await shot("choice_" + choice_label)
-			var optional_details: bool = entry.choices == ["（點頭，記下重點）", "（聽他說完細節）"]
+			var optional_details: bool = entry.choices == [L.t("（點頭，記下重點）"), L.t("（聽他說完細節）")]
 			var choice: int = 0 if optional_details else (int(choices[index]) if index < choices.size() else default_choice)
 			if not optional_details:
 				index += 1
@@ -796,7 +800,7 @@ func _continue_honest_to_ending() -> void:
 	await shot("ending")
 	# Exercise the expandable historical record through its visible button.
 	for b in main.ui.ending_panel.find_children("*", "Button", true, false):
-		if b.text == "歷史上發生了什麼":
+		if b.text == L.t("歷史上發生了什麼"):
 			await click_button(b)
 			await frames(8)
 			await shot("ending_history")
@@ -849,7 +853,7 @@ func _epilogue_route() -> bool:
 		return false
 	await click_button(main.chart.choices[1])
 	await frames(5)
-	if not main.chart.question.text.begins_with("對，範圍就是這樣讀的。"):
+	if not main.chart.question.text.begins_with(L.t("對，範圍就是這樣讀的。").get_slice("%s", 0)):
 		failures.append("epilogue Sobral reading did not answer the truth")
 	await shot("epilogue_chart_reading")
 	await click_button(main.chart.button)
@@ -902,9 +906,9 @@ func _epilogue_route() -> bool:
 			failures.append("epilogue notebook answer was not stored: %d" % reason)
 	if not Story.epilogue_done:
 		failures.append("epilogue completion flag missing")
-	if not main.ui.ending_review.text.contains("筆記本最後一句"):
+	if not main.ui.ending_review.text.contains(L.t("· 筆記本最後一句：%s。").get_slice("%s", 0)):
 		failures.append("ending omitted the notebook answer")
-	if not main.ui.ending_review.text.contains("Sobral 天體照相儀那組"):
+	if not main.ui.ending_review.text.contains(L.t("· Sobral 天體照相儀那組：%s。").get_slice("%s", 0)):
 		failures.append("ending omitted the astrographic weighting")
 	if main.ui.ending_plate.texture == null:
 		failures.append("ending lost the stored plate")
@@ -916,7 +920,7 @@ func _epilogue_route() -> bool:
 func _epilogue_chart_has(label: String, no_bar: bool) -> bool:
 	var found := false
 	for row in main.chart.rows:
-		if str(row.get("label", "")) == label:
+		if str(row.get("label", "")) == L.t(label):
 			found = true
 	if not found:
 		return false
@@ -1099,6 +1103,8 @@ func _departure_run() -> void:
 func _finish() -> void:
 	if _done: return
 	_done = true
+	if _leak_watch != null:
+		_leak_watch.finish()
 	if is_instance_valid(_continuation_route):
 		_stuck_events += int(_continuation_route.stuck)
 	var score_failures: Array[String] = []

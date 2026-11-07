@@ -182,10 +182,10 @@ func _sync_player() -> void:
 	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	if beat == Beat.INVESTIGATE:
-		var task := L.t("核對 14 號星場的抄錄圖，交給 %s") % Cast.MENTOR
+		var task := L.t("核對 14 號星場的抄錄圖，交給 %s") % L.t(Cast.MENTOR)
 		if aligned and not kit_checked:
-			task = L.t("對上了。請 %s 自己再對一次，再寫進筆記本。") % Cast.KIT
-		ui.set_objectives(L.t("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]") % [task, Cast.KIT, Prompts.key("toggle_log")])
+			task = L.t("對上了。請 %s 自己再對一次，再寫進筆記本。") % L.t(Cast.KIT)
+		ui.set_objectives(L.t("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]") % [task, L.t(Cast.KIT), Prompts.key("toggle_log")])
 	elif beat == Beat.ORRERY:
 		ui.set_objectives(L.t("[b]劍橋・1917[/b]\n查看太陽系儀"))
 	elif beat == Beat.TRIAL_TASK:
@@ -224,7 +224,7 @@ func _process(delta: float) -> void:
 			relevant = target.get_meta("interact_id") == "cabinet"
 		elif relevant and beat == Beat.ORRERY:
 			relevant = target.get_meta("interact_id") == "orrery"
-		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), str(target.get_meta("prompt"))] if relevant else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), L.t(str(target.get_meta("prompt")))] if relevant else "")
 	else:
 		ui.set_prompt("")
 
