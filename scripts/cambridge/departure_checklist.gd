@@ -125,10 +125,10 @@ func _build() -> void:
 	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	page.add_theme_constant_override("separation", 8)
 	_scroll.add_child(page)
-	var title := _label("畢宿星團比較星清單 · 最後一頁", 26)
+	var title := _label(L.t("畢宿星團比較星清單 · 最後一頁"), 26)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page.add_child(title)
-	var legend := _label("藍墨水：Kit 抄的清單　　褐墨水：你的字　　聽 Kit 念出底片上的數值，和清單比對：相符按 ✓，不符按 ×。", 18)
+	var legend := _label(L.t("藍墨水：Kit 抄的清單　　褐墨水：你的字　　聽 Kit 念出底片上的數值，和清單比對：相符按 ✓，不符按 ×。"), 18)
 	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page.add_child(legend)
 	for i in entries.size():
@@ -177,7 +177,7 @@ func _build() -> void:
 			value.add_child(_smudge)
 			_layout_smudge(hand)
 			value.theme_changed.connect(_layout_smudge.bind(hand))
-		var plate_line := _label("Kit 念出：……", 18)
+		var plate_line := _label(L.t("Kit 念出：……"), 18)
 		column.add_child(plate_line)
 		plate_lines.append(plate_line)
 		var buttons: Array = []
@@ -188,7 +188,7 @@ func _build() -> void:
 			row.add_child(button)
 			buttons.append(button)
 		row_buttons.append(buttons)
-	continue_btn = _button("收好清單")
+	continue_btn = _button(L.t("收好清單"))
 	continue_btn.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	continue_btn.offset_left = -120
 	continue_btn.offset_right = 120
@@ -204,7 +204,7 @@ func _build() -> void:
 
 func _layout_smudge(hand: Font) -> void:
 	var px := Settings.fs(25)
-	var prefix_width := hand.get_string_size("x 41.27　y ", HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	var prefix_width := hand.get_string_size(L.t("x 41.27　y "), HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
 	var number_width := hand.get_string_size("16.83", HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
 	_smudge.position = Vector2(prefix_width - 4, 1)
 	_smudge.size = Vector2(number_width + 8, roundi(px * 1.2))
@@ -212,7 +212,7 @@ func _layout_smudge(hand: Font) -> void:
 
 func begin_read() -> void:
 	ready_to_mark = false
-	plate_lines[active_index].text = "Kit 念出：" + str(entries[active_index].plate)
+	plate_lines[active_index].text = L.t("Kit 念出：") + str(entries[active_index].plate)
 	_scroll.ensure_control_visible(_rows[active_index])
 
 
@@ -232,7 +232,7 @@ func _mark(index: int, correct: bool) -> void:
 	ready_to_mark = false
 	for button in row_buttons[index]:
 		button.disabled = true
-	row_buttons[index][0 if correct else 1].text += " 已記"
+	row_buttons[index][0 if correct else 1].text += L.t(" 已記")
 	active_index += 1
 	if active_index == entries.size():
 		completed.emit(evaluate_marks(entries, marks))
@@ -245,9 +245,9 @@ func show_correction(fix: int) -> void:
 	for i in entries.size():
 		if not entries[i].get("slip", false):
 			continue
-		values[i].text = "x 41.27　y [s]18.63[/s]　16.83　" + Cast.YOU_INITIALS if fix == 0 else "x 41.27　y 16.83"
+		values[i].text = L.t("x 41.27　y [s]18.63[/s]　16.83　") + Cast.YOU_INITIALS if fix == 0 else L.t("x 41.27　y 16.83")
 		_smudge.visible = fix == 1
-		plate_lines[i].text = "劃線、改正、簽名（" + Cast.YOU_INITIALS + "：你的縮寫）" if fix == 0 else "擦改的墨跡還留在紙上"
+		plate_lines[i].text = L.t("劃線、改正、簽名（") + Cast.YOU_INITIALS + L.t("：你的縮寫）") if fix == 0 else L.t("擦改的墨跡還留在紙上")
 		_scroll.ensure_control_visible(_rows[i])
 	continue_btn.show()
 	continue_btn.disabled = true

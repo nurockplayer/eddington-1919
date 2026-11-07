@@ -41,7 +41,7 @@ func _ready() -> void:
 	add_child(_leaf)
 	var date := Label3D.new()
 	date.name = "WorkbookDate"
-	date.text = "1919 年 5 月 29 日"
+	date.text = L.t("1919 年 5 月 29 日")
 	date.font = Fonts.cjk()
 	date.font_size = 38
 	date.pixel_size = 0.0013

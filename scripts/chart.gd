@@ -61,7 +61,7 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
 	var top := 30.0
 	var bottom := h - 46.0
-	for ref in [[0.0, "無偏折 0″", Color(0.6, 0.6, 0.6)], [0.87, "牛頓式 0.87″", Color(0.55, 0.75, 0.95)], [1.75, "愛因斯坦 1.75″", Color(0.98, 0.72, 0.4)]]:
+	for ref in [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
 		draw_string(font, Vector2(x - 40, bottom + 22.0 * Settings.text_scale), ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
@@ -69,10 +69,10 @@ func _draw() -> void:
 		var x := _x(t, w)
 		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
 	if not revealed:
-		draw_string(font, Vector2(70, h * 0.45), "先選片，再量測。數值會在量測後顯示。", HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
+		draw_string(font, Vector2(70, h * 0.45), L.t("先選片，再量測。數值會在量測後顯示。"), HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
 		return
 	if rows.is_empty():
-		draw_string(font, Vector2(70, h * 0.45), "沒有可量測的底片。", HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.9, 0.55, 0.5))
+		draw_string(font, Vector2(70, h * 0.45), L.t("沒有可量測的底片。"), HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.9, 0.55, 0.5))
 		return
 	var n := rows.size() + 1
 	var step := minf(34.0, (bottom - top - 20.0) / n)
@@ -123,5 +123,5 @@ func _draw() -> void:
 		draw_line(Vector2(x0, y), Vector2(x1, y), c, 4.0)
 		var cx := _x(combined.value, w)
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), "合併", HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
+		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), L.t("合併"), HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
 		draw_string(font, Vector2(cx + 14, y - 10.0 * Settings.text_scale), "%.2f″ ± %.2f″" % [combined.value, combined.sigma], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(16), c)

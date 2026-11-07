@@ -83,8 +83,8 @@ func _ready() -> void:
 	_speaker_fill.light_specular = 0.0
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
-	_set_prompt_meta("letter", "讀 Dyson 的信")
-	_set_prompt_meta("orrery", "看太陽系儀")
+	_set_prompt_meta("letter", L.t("讀 Dyson 的信"))
+	_set_prompt_meta("orrery", L.t("看太陽系儀"))
 	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
@@ -125,9 +125,9 @@ func _sync_player() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	var objective := ""
 	match beat:
-		Beat.LETTER: objective = "讀桌上 Dyson 的信。"
-		Beat.ORRERY: objective = "太陽系儀還在架上。"
-	ui.set_objectives("[b]劍橋・1919 年 10 月[/b]\n" + objective if objective != "" else "")
+		Beat.LETTER: objective = L.t("讀桌上 Dyson 的信。")
+		Beat.ORRERY: objective = L.t("太陽系儀還在架上。")
+	ui.set_objectives(L.t("[b]劍橋・1919 年 10 月[/b]\n") + objective if objective != "" else "")
 
 
 func _process(delta: float) -> void:
@@ -145,7 +145,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt(L.t("［") + Prompts.key("interact") + L.t("］") + str(target.get_meta("prompt")) if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -172,7 +172,7 @@ func _interact(id: String) -> void:
 			_say(Content.orrery_talk(Content.suspect_text(Story.mercury_suspect), int(Story.orrery.get("mercury", -1))), "orrery_talk")
 		"mentor":
 			# The objective already says where to go; Ashby repeats it without new prose.
-			ui.show_toast("太陽系儀還在架上。", 3.0)
+			ui.show_toast(L.t("太陽系儀還在架上。"), 3.0)
 	_sync_player()
 
 
