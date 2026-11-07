@@ -54,6 +54,8 @@ func _text_of(node: Node) -> String:
 		return (node as LineEdit).text
 	if node is TextEdit:
 		return (node as TextEdit).text
+	if node.has_method("drawn_texts"):
+		return "\n".join(node.drawn_texts())
 	return ""
 
 

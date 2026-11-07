@@ -27,6 +27,10 @@ func _button(panel: Control, text: String) -> Button:
 func _run() -> void:
 	var text := Credits.text()
 	check(text.contains(str(ProjectSettings.get_setting("application/config/version"))), "credits contain project version")
+	# The header uses an L.t literal so the pseudo gate can reach it; this keeps
+	# that copy and project.godot's name from drifting apart.
+	if L.current() == "zh_TW":
+		check(text.contains(str(ProjectSettings.get_setting("application/config/name"))), "credits show the project name")
 	check(text.contains(Credits.AUTHOR), "credits contain Owner-editable author")
 	check(text.contains("以 Godot Engine 製作"), "credits name the engine")
 	check(text.contains("史實與虛構") and text.contains(Credits.DISCLAIMER), "credits contain historical disclaimer")

@@ -8,7 +8,7 @@ const DISCLAIMER := "Dyson、Eddington、Cottingham 與 1919 年的日食遠征�
 static func text() -> String:
 	var lines := PackedStringArray([
 		L.t("[center][b]製作名單[/b]\n%s · v%s[/center]") % [
-			str(ProjectSettings.get_setting("application/config/name")).replace("[", "[lb]"),
+			L.t("雲層之後 · Eddington 1919").replace("[", "[lb]"),
 			str(ProjectSettings.get_setting("application/config/version")).replace("[", "[lb]")],
 		L.t("[b]製作[/b]\n%s\n以 Godot Engine 製作") % AUTHOR,
 		L.t("[b]史實與虛構[/b]\n%s") % L.t(DISCLAIMER),
