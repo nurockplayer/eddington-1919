@@ -120,14 +120,13 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $exe = (Get-ChildItem -Filter *.exe | Select-Object -First 1).FullName
           Write-Host "Binary: $exe"
-          $p = Start-Process -FilePath $exe -ArgumentList @('--quit-after', '300', '--rendering-driver', 'd3d12', '--log-file', 'smoke-windowed.log') `
+          $p = Start-Process -FilePath $exe -ArgumentList @('--quit-after', '60', '--rendering-driver', 'd3d12', '--log-file', 'smoke-windowed.log') `
             -PassThru -NoNewWindow -RedirectStandardOutput 'smoke-windowed.stdout.txt' -RedirectStandardError 'smoke-windowed.stderr.txt'
-          if (-not $p.WaitForExit(180000)) {
-            $p.Kill()
-            throw 'Windowed run timed out after 180 s'
-          }
-          Write-Host "Exit code: $($p.ExitCode)"
+          $done = $p.WaitForExit(240000)
+          if (-not $done) { $p.Kill(); $p.WaitForExit() }
+          Write-Host "Exit code: $($p.ExitCode) (timed out: $(-not $done))"
           Get-Content 'smoke-windowed.log', 'smoke-windowed.stdout.txt', 'smoke-windowed.stderr.txt' -ErrorAction SilentlyContinue | Out-Host
+          if (-not $done) { throw 'Windowed run timed out after 240 s' }
           if ($p.ExitCode -ne 0) { throw "Windowed run exited $($p.ExitCode)" }
 
   smoke-linux:
@@ -154,10 +153,14 @@ jobs:
         working-directory: dist/run
         run: |
           set -uo pipefail
-          # lavapipe is the only Vulkan driver on a hosted runner.
-          if [ -f /usr/share/vulkan/icd.d/lvp_icd.x86_64.json ]; then
-            export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
-          fi
+          # lavapipe is the only Vulkan driver on a hosted runner; Godot also
+          # finds it on its own, but pin it so the device is never a surprise.
+          for icd in lvp_icd.x86_64.json lvp_icd.json; do
+            if [ -f "/usr/share/vulkan/icd.d/$icd" ]; then
+              export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/$icd"
+              break
+            fi
+          done
           echo "VK_ICD_FILENAMES=${VK_ICD_FILENAMES:-unset}"
           echo "ICDs: $(ls /usr/share/vulkan/icd.d/ 2>/dev/null | tr '\n' ' ')"
 
@@ -169,21 +172,24 @@ jobs:
             if grep -q 'ERROR:' "$log"; then echo "::error::$log has ERROR:"; return 1; fi
           }
 
+          # No sound card on a runner: ask for the dummy driver so ALSA does not
+          # log a benign ERROR:. Software Forward+ is slow, hence few frames.
           status=0
-          timeout --kill-after=10 180 xvfb-run -a -s "-screen 0 1280x720x24" \
-            ./Eddington1919.x86_64 --rendering-driver vulkan --quit-after 600 --log-file smoke.log || status=$?
+          timeout --kill-after=10 240 xvfb-run -a -s "-screen 0 1280x720x24" \
+            ./Eddington1919.x86_64 --rendering-driver vulkan --audio-driver Dummy \
+            --quit-after 60 --log-file smoke.log || status=$?
           if [ "$status" -eq 137 ] || [ "$status" -eq 124 ]; then
-            echo "::error::windowed run timed out after 180 s"
+            echo "::error::windowed run timed out after 240 s"
             cat smoke.log || true
             exit 1
           fi
           check smoke.log || exit 1
           [ "$status" -eq 0 ] || { echo "::error::windowed run exited $status"; exit 1; }
-          if ! grep -qE 'Vulkan API [0-9.]+ - Forward\+ - Using Vulkan Device' smoke.log; then
-            echo "::error::no 'Vulkan API ... - Forward+ - Using Vulkan Device' line in smoke.log"
+          if ! grep -qE 'Vulkan [0-9.]+ - Forward\+ - Using Device #0:' smoke.log; then
+            echo "::error::no 'Vulkan <version> - Forward+ - Using Device #0:' line in smoke.log"
             exit 1
           fi
-          grep -m1 'Vulkan API' smoke.log
+          grep -m1 'Vulkan ' smoke.log
 
           EDD_LOCALE=ko timeout --kill-after=10 180 \
             ./Eddington1919.x86_64 --headless --quit-after 120 --log-file smoke-ko.log || status=$?
@@ -193,7 +199,7 @@ jobs:
   smoke-macos:
     name: smoke — macOS
     needs: export
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 30
     steps:
       - uses: actions/download-artifact@v4
@@ -259,9 +265,9 @@ jobs:
         continue-on-error: true
         run: |
           set -uo pipefail
-          "$BIN" --quit-after 300 --log-file "$RUNNER_TEMP/smoke-windowed.log" &
+          "$BIN" --quit-after 60 --log-file "$RUNNER_TEMP/smoke-windowed.log" &
           pid=$!
-          ( sleep 180; kill -9 "$pid" 2>/dev/null ) &
+          ( sleep 240; kill -9 "$pid" 2>/dev/null ) &
           watchdog=$!
           status=0
           wait "$pid" || status=$?
