@@ -656,6 +656,11 @@ def pseudo_hashes(msgids: list[str]) -> dict[str, str]:
     return out
 
 
+def _pseudo_words(length: int) -> str:
+    """``length`` characters broken into words, so text wraps as English does."""
+    return ("xxxxx " * (length // 6 + 1))[:length]
+
+
 def pseudo_text(msgid: str, tag: str) -> str:
     """The msgid with each CJK run as ``x`` per character plus a hash, tags and specs kept."""
     protected = sorted([(match.start(), match.end()) for match in SPEC_RE.finditer(msgid)]
@@ -669,7 +674,7 @@ def pseudo_text(msgid: str, tag: str) -> str:
     def flush() -> None:
         nonlocal run, hashed
         if run:
-            out.append("x" * (3 * run) + tag)
+            out.append(_pseudo_words(3 * run) + tag)
             hashed = True
             run = 0
 

@@ -72,6 +72,7 @@ var prologue_btn: Button
 var continue_btn: Button
 var start_btn: Button
 var title_note: Label
+var _title_row: HFlowContainer
 var log_panel: PanelContainer
 var log_text: RichTextLabel
 var log_scroll: ScrollContainer
@@ -136,7 +137,7 @@ var loupe_btn: Button
 var blink_btn: Button
 var blink_label: Label
 var mic_btn: Button
-var mic_row: HBoxContainer
+var mic_row: HFlowContainer
 var mic_record_btn: Button
 var mic_readout: Label
 var mic_note: Label
@@ -163,6 +164,7 @@ var measure_btn: Button
 var reselect_btn: Button
 var report_btn: Button
 var chart: Control
+var _viewer_right: VBoxContainer
 var viewer_rule: RichTextLabel
 var viewer_note: RichTextLabel
 var viewer_sfx_log: Array[String] = []
@@ -689,7 +691,12 @@ func set_clock(text: String) -> void:
 
 func _build_viewer(root: Control) -> void:
 	viewer = PanelContainer.new()
-	viewer.add_theme_stylebox_override("panel", _panel_style(Color(0.05, 0.045, 0.04, 1.0)))
+	var viewer_style := _panel_style(Color(0.05, 0.045, 0.04, 1.0))
+	# Two of the sixteen bottom margin pixels go back to the content: the left
+	# column needs 870 px of the 900 at text scale 1.2 with the longest language,
+	# and the columns are laid out from the top, so nothing else moves.
+	viewer_style.content_margin_bottom = 14.0
+	viewer.add_theme_stylebox_override("panel", viewer_style)
 	viewer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	viewer.visible = false
 	root.add_child(viewer)
@@ -760,7 +767,9 @@ func _build_viewer(root: Control) -> void:
 			_viewer_sound("mark")
 			plate_toggled.emit(_viewer_sel, on)
 	)
-	var plate_controls := HBoxContainer.new()
+	# A flow row, not a box: longer text in another language wraps onto a second
+	# line instead of widening the middle column past the viewport.
+	var plate_controls := HFlowContainer.new()
 	mid.add_child(plate_controls)
 	plate_controls.add_child(include_box)
 	loupe_btn = _button(L.t("放大鏡 ×2"))
@@ -783,7 +792,9 @@ func _build_viewer(root: Control) -> void:
 	mic_btn.tooltip_text = L.t("顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。")
 	mic_btn.toggled.connect(_set_micrometer)
 	mic_bar.add_child(mic_btn)
-	mic_row = HBoxContainer.new()
+	# A flow row as well: the readout label grows with a longer language, and a box
+	# would widen the middle column instead of dropping it under the record button.
+	mic_row = HFlowContainer.new()
 	mic_row.visible = false
 	mic_bar.add_child(mic_row)
 	mic_record_btn = _button(L.t("記下讀數"))
@@ -798,11 +809,15 @@ func _build_viewer(root: Control) -> void:
 	mid.add_child(mic_note)
 	# Right: chart + actions.
 	var right := VBoxContainer.new()
+	_viewer_right = right
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.add_theme_constant_override("separation", 10)
 	h.add_child(right)
-	right.add_child(_label(L.t("星光偏折（太陽邊緣，角秒）"), 22, ACCENT))
+	var deflection_header := _label(L.t("星光偏折（太陽邊緣，角秒）"), 22, ACCENT)
+	deflection_header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	right.add_child(deflection_header)
 	viewer_rule = _rich(15)
+	viewer_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	viewer_rule.visible = false
 	right.add_child(viewer_rule)
 	chart = preload("res://scripts/chart.gd").new()
@@ -831,6 +846,11 @@ func _build_viewer(root: Control) -> void:
 	var close := _button(L.t("離開桌子"))
 	close.pressed.connect(func(): viewer_closed.emit())
 	btns.add_child(close)
+	# Wrap and share the column width: a long label must not widen the grid and
+	# push the column past the viewport.
+	for b: Button in [measure_btn, reselect_btn, report_btn, close]:
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var model_note := _label(L.t("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"), 15, DIM)
 	model_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(model_note)
@@ -848,6 +868,43 @@ func _layout_viewer() -> void:
 	plate_stage.custom_minimum_size = Vector2(470.0 + extra, 460.0 + extra)
 	big_plate.custom_minimum_size = Vector2.ONE * (460.0 + extra)
 	chart.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
+	_fit_chart_height()
+	_fit_chart_width()
+
+
+## The chart is the one control in its column that can give way: when the labels
+## above and below it grow with a longer language, the chart gets shorter rather
+## than pushing the column past the bottom of the screen.
+func _fit_chart_height() -> void:
+	if _viewer_right == null:
+		return
+	var room := get_viewport().get_visible_rect().size.y - 30.0
+	var labels := 0.0
+	var shown := 0
+	for c: Control in _viewer_right.get_children():
+		if c == chart or not c.visible:
+			continue
+		labels += c.get_combined_minimum_size().y
+		shown += 1
+	labels += 10.0 * maxi(shown, 1)
+	chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, maxf(280.0, room - labels))
+
+
+## The same for width: the thumbnails and the plate columns keep their size, and
+## the chart takes up the slack when the two columns beside it grow.
+func _fit_chart_width() -> void:
+	if _viewer_right == null or chart == null:
+		return
+	var row := _viewer_right.get_parent() as HBoxContainer
+	var others := 0.0
+	var columns := 0
+	for c: Control in row.get_children():
+		if c != _viewer_right:
+			others += c.get_combined_minimum_size().x
+			columns += 1
+	others += row.get_theme_constant("separation") * maxi(columns, 1)
+	var room := get_viewport().get_visible_rect().size.x - 32.0 - others
+	chart.custom_minimum_size.x = minf(chart.custom_minimum_size.x, maxf(480.0, room))
 
 
 func _build_reference_plates() -> void:
@@ -1305,8 +1362,6 @@ func set_viewer_locked(locked: bool) -> void:
 
 func set_viewer_report(reporting: bool) -> void:
 	_viewer_reporting = reporting
-	# Leave room for the five-reason dialogue at 1600×900 with large text.
-	_layout_viewer()
 	if reporting:
 		_set_loupe(false)
 	viewer_rule.visible = reporting and viewer_rule.text != ""
@@ -1323,6 +1378,9 @@ func set_viewer_report(reporting: bool) -> void:
 		_set_micrometer(false)
 	mic_row.visible = micrometer_on
 	mic_note.visible = micrometer_on
+	# Leave room for the five-reason dialogue at 1600×900 with large text, once
+	# the rule above has taken its place in the column.
+	_layout_viewer()
 	reference_btn.set_pressed_no_signal(false)
 	reference_panel.hide()
 	set_viewer_locked(true if reporting else _viewer_locked)
@@ -1392,10 +1450,16 @@ func _build_title(root: Control) -> void:
 	title_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_note.custom_minimum_size.x = 920
 	v.add_child(title_note)
-	var hb := HBoxContainer.new()
-	hb.alignment = BoxContainer.ALIGNMENT_CENTER
-	hb.add_theme_constant_override("separation", 20)
+	# A flow row, not a box: the buttons move to a second row when a longer
+	# language cannot fit them across, and stay on one row in zh-TW.
+	var hb := HFlowContainer.new()
+	hb.alignment = FlowContainer.ALIGNMENT_CENTER
+	# A flow reads h_separation/v_separation, not the box's separation: 20 on both
+	# axes keeps the single row exactly where the box had it.
+	hb.add_theme_constant_override("h_separation", 20)
+	hb.add_theme_constant_override("v_separation", 20)
 	v.add_child(hb)
+	_title_row = hb
 	var chapter := Checkpoint.peek()
 	if chapter != "":
 		continue_btn = _button(L.t(Checkpoint.label(chapter)))
@@ -1418,6 +1482,10 @@ func _build_title(root: Control) -> void:
 	var q := _button(L.t("　離開　"))
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	_fit_title_row()
+	get_viewport().size_changed.connect(_fit_title_row)
+	for b: Control in hb.get_children():
+		b.minimum_size_changed.connect(_fit_title_row)
 	var version := _label("v" + str(ProjectSettings.get_setting("application/config/version")), 15, Color("8f8676"))
 	version.name = "Version"
 	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -1426,6 +1494,27 @@ func _build_title(root: Control) -> void:
 	version.position -= version.get_minimum_size() + Vector2(24, 18)
 	version.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	(continue_btn if continue_btn != null else prologue_btn).grab_focus()
+
+
+## As wide as the buttons on one line, up to the room this row has on screen: one
+## row whenever they fit, as the box it replaced did; the flow wraps only when a
+## language cannot fit.
+func _fit_title_row() -> void:
+	if _title_row == null:
+		return
+	var one_line := 0.0
+	var shown := 0
+	for b: Control in _title_row.get_children():
+		if not b.visible:
+			continue
+		one_line += b.get_combined_minimum_size().x
+		shown += 1
+	one_line += 20.0 * maxi(shown - 1, 0)
+	# The title block is anchored at the centre with a fixed -460 offset (see
+	# _build_title), so the row can grow right only to the viewport's edge.
+	var screen := get_viewport().get_visible_rect().size.x
+	var room := screen - (screen * 0.5 - 460.0) - 8.0
+	_title_row.custom_minimum_size.x = minf(ceilf(one_line), room)
 
 
 func hide_title() -> void:

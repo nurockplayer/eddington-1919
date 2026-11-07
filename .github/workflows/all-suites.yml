@@ -37,6 +37,15 @@ jobs:
           rm "$zip" SHA512-SUMS.txt
       - name: Pseudo-locale leak gate
         run: E2E_PSEUDO=1 ./tools/e2e_headless.sh
+      # Every layout budget holds for the longer pseudo text too, so a language
+      # with longer words cannot push a control off screen unnoticed.
+      - name: Layout bounds under the pseudo catalogue
+        run: |
+          mkdir -p .godot
+          python3 -I tools/i18n.py pseudo .godot/pseudo.json
+          EDD_SETTINGS_PATH="$PWD/.godot/test-settings.cfg" EDD_LOCALE=en \
+            EDD_PSEUDO_JSON="$PWD/.godot/pseudo.json" \
+            godot --headless --path . --script res://tests/test_layout_bounds.gd
 
   suites:
     runs-on: ubuntu-24.04
