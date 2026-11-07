@@ -695,3 +695,14 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#265:** `leak-gate` passed on b556855, `suites` still running. `lw-pr-265` holds the gate and reuses the worker's oracle approve (blocker 0, major 1: the log panel is opened with no history in it). On merge, #263 and #264 close. Revert-checks passed on all three paths: chart, pause caption, a bare `draw_string` literal.
 - **Test: rerun:** works on dot with a bare command (`check: 0 problem(s)`). Editing the brief mid-run does not reach it: the rerun used the line from dispatch, so the layout run may still show 127. Only new briefs get the fix.
 - **`test_layout_bounds` got SIGTERM (exit 143)** at about 7 minutes in a batch of eight suites inside one `orb-test --host` run in ds-1. Not rerun as it was. Look at how long it takes alone when layout's event arrives, and at its time in CI.
+
+### #265 merged; layout at the gate; English draft running (edd-lead) | 2026-11-07 15:3x JST
+
+- **Merged:** #265 (47ba236), closing #263 and #264.
+- **#267, layout, merged** (17f44a9). Oracle major in #268: the chart's fit is not recomputed when text size changes while the viewer is open; a one-line `_layout_viewer()` in `_cycle_text_size` should do it, not done. zh-TW against `main`, probed on 2026-11-07 15:30 JST: title identical in all 8 combinations; viewer has the 4 accepted buttons plus columns 2 px taller.
+- **English translation started before Monday,** because `.po` entries survive later text edits. Pilot of 110 entries: Sol beats DeepSeek on dialogue and physics terms (`pilot-en-{ds,sol}.json`). But `quota-advisor status` shows Codex weekly at 100.0% with the window 50% gone, and Claude weekly 92% with 87% gone. So:
+  - **Draft running:** `lw-en-full-20261107-153313` (`ds-edd-2`, ds-2, branch `l10n/en`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/en-full.md`), using Sol's pilot as the model.
+  - **Next:** after the Codex week resets, a Sol polish pass on dialogue, starting with the worker's list of least-sure entries. Then back-translation and physics check through oracle-ego, ja and ko, a blind cold read, `--require-translated` in CI, `L.TRANSLATED = true`.
+- **Three stale wrappers still queued on dot:** `lw-layout-long-text-fu1`, `lw-pilot-en-ds`, `lw-pilot-en-sol`. The work is done; each waits to rerun its `Test:` line. Stopping them was refused by the permission classifier, so they were left alone. The pilots' lines name a KIOXIA path dot cannot see, so they will fail and may resume their worker once: ignore that output and do not act on it. `lw-pilot-en-sol`'s resume would spend Codex quota. Ack their events with no further work.
+- **`Test:` rerun on dot queued for about an hour on 2026-11-07,** holding a finished run's event that long. Keep `Test:` lines bare, repo-relative, and quick.
+- **Monday look adds:** `EDD_LOCALE=en` with real English, if the draft has landed.
