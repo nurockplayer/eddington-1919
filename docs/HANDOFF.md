@@ -785,3 +785,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **`ko-check` failed on 2026-11-07 22:32 JST, exit 8:** the page showed ChatGPT's message stream error (`訊息串流錯誤`, with a retry button) and no reply, then stalled for 12 minutes. Run dir: `~/.local/state/oracle-ego/runs/20261107-220742-6363-ko-check`. Event acked. Nothing was applied, so ko has no oracle check yet.
 - **Possible cause, not tested:** `ja-check` lost its connection in the same period, while both were running at once on bundles of about 210 KB.
 - **Next:** `ko-check-2` is not dispatched. Wait for the `ja-check-2` event, then run the ko check alone from `main` with the same prompt (the arguments are in `~/.local/state/job-run/lw-ko-check-20261107-220742/cmd`). If `ja-check-2` fails too, leave both for later. This blocks nothing, since `L.TRANSLATED` is false.
+
+### ja and ko oracle checks both parked (edd-lead) | 2026-11-07 23:0x JST
+
+- **`ja-check-2` failed on 2026-11-07 23:01 JST, exit 8,** after running alone: `連線已中斷，正在等待完整回覆`, with no usable reply. Run dir: `~/.local/state/oracle-ego/runs/20261107-222857-15764-ja-check-2`. Event acked. This weakens the 22:4x section's idea that running both at once was the cause. ChatGPT ran code and searched the web (`已搜尋 32 個網站`) for about 30 minutes before the connection dropped, so run length or file size may be the cause; neither is tested.
+- **State:** nothing is running. ja and ko have no oracle check yet, and nothing was applied. `ko-check-2` is not dispatched. This blocks nothing, since `L.TRANSLATED` is false.
+- **Next, after the Claude weekly reset (`quota-advisor status`):** one language at a time, in slices of about 300 entries, each with the same prompt and its own `--file`. Do not rerun the whole file. Add to the prompt: do not search the web. Slices are untested; check one before sending the rest.
+- **The PR-review fixes in the 22:2x section are still not in.** They do not depend on the checks; put them in the same PR as the check results, or alone if the checks stay down.
