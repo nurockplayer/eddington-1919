@@ -682,3 +682,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Next after layout:** nothing in the release order can start until Monday 2026-11-09 09:00 JST: `look_kit.sh`, art stack #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1, then translation. Refresh `look/monday` first: it is still `main` at ec304b7 with `art/faces` and lacks today's font, l10n and layout changes. After the art stack merges, rerun `tools/i18n.py wrap` and `extract`.
 - **Waiting on the Owner (iMessage 2026-11-07 08:34 JST):** Steam Direct fee and paperwork; 1–2 newcomers for 0.4.6; credits name, now `nurockplayer` in the game.
 - **Heartbeat:** one-shot due 2026-11-07 13:03 JST; crons are session-only, recreate after a restart.
+
+### Leak gate on menus dispatched (edd-lead) | 2026-11-07 13:0x JST
+
+- **Running:** `lw-layout-long-text-20261107-123953` (unchanged, see above); `lw-leak-gate-menus-20261107-130247` (`ds-edd-1`, ds-1, branch `test/leak-gate-menus`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/leak-gate-menus.md`): chart text and a walk of the menus under pseudo, for #263 and #264.
+- **On its event:** read the panel list in the PR body. What sits under "Not covered" is mine to decide. Then `lead-wait pr <n>`. Merge order with layout does not matter; the files do not overlap.
+- **`orb-test exit 127` explained:** `proof-pack` reruns a `Test:` line as `orb-test -- sh -c "<line>"`, so an `orb-test` inside the line runs inside the container. Godot suites cannot be rerun this way unless the container has `godot`; a probe for that was still queued at this writing. The layout brief's line will show the same 127: that is the wrapper, not a failing test, so read the worker's own runs and CI. This brief's line is only `python3 -I tools/i18n.py check`.
