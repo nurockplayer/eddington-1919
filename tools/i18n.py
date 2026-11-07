@@ -512,6 +512,22 @@ def replace_msgstr(block: str, value: object) -> str:
     return "\n".join(lines[:start] + new + lines[end:])
 
 
+def clear_fuzzy(block: str) -> str:
+    """Drop only the fuzzy flag: gettext loaders ignore a fuzzy entry, so an updated
+    entry that kept it would pass ``apply`` and still show the source string."""
+    lines = []
+    for line in block.split("\n"):
+        if line.startswith("#,"):
+            flags = [flag.strip() for flag in line[2:].split(",")]
+            if "fuzzy" in flags:
+                flags.remove("fuzzy")
+                if not flags:
+                    continue
+                line = "#, " + ", ".join(flags)
+        lines.append(line)
+    return "\n".join(lines)
+
+
 def apply_entries(path: Path, updates: dict[str, object]) -> int:
     """Rewrite only the updated entries in place.
 
@@ -539,7 +555,7 @@ def apply_entries(path: Path, updates: dict[str, object]) -> int:
         return problems
     for msgid, value in updates.items():
         index = table[msgid][0]
-        blocks[index] = replace_msgstr(blocks[index], value)
+        blocks[index] = replace_msgstr(clear_fuzzy(blocks[index]), value)
     path.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
     return 0
 
@@ -623,8 +639,10 @@ TAG_RE = re.compile(r"\[(/?)([A-Za-z][A-Za-z0-9]*)(?:=[^\]]*)?\]")
 IGNORED_TAGS = {"lb", "rb"}
 
 
-def placeholders(text: str) -> Counter[str]:
-    return Counter(match.group(0) for match in SPEC_RE.finditer(text))
+def placeholders(text: str) -> list[str]:
+    """In order: callers pass their arguments in the msgid's order, and GDScript's
+    ``%`` has no positional form, so a translation cannot move them."""
+    return [match.group(0) for match in SPEC_RE.finditer(text)]
 
 
 def tag_problems(msgid: str, msgstr: str) -> list[str]:
