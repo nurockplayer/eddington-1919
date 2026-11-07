@@ -588,16 +588,16 @@ msgid "……兩年了，你還在問。快去。"
 msgstr "…Two years, and you still ask. Go on."
 
 msgid "……別讓我想像那個畫面。"
-msgstr "If you'd fit."
+msgstr "…Don't make me picture it."
 
 msgid "……嗯。我也是。"
-msgstr "…Mm. Nor did it to me."
+msgstr "…Mm. Me too."
 
 msgid "……好。我寫。"
-msgstr "Here? (laughs) Nothing here will change."
+msgstr "…All right. I'll write."
 
 msgid "……好了。比我一個人快一倍。"
-msgstr "(with Kit, you put the plates back into the wooden frame, one slot at a time, neither of you speaking.)"
+msgstr "…There. Twice as fast as doing it alone."
 
 msgid "……好吧，喝得慣。快去。"
 msgstr "…All right, I do. Off you go."
@@ -1359,7 +1359,7 @@ msgid "合併"
 msgstr "Combined"
 
 msgid "同一個想法，說中兩件不相干的事"
-msgstr "Mercury is no longer the exception"
+msgstr "One idea, right about two unrelated things"
 
 msgid "同一具望遠鏡——這點我同意。換了鏡頭，就等於換了一把尺。"
 msgstr "The same telescope—that I agree with. A different lens is a different ruler."
@@ -1512,7 +1512,7 @@ msgid "如果要改，我希望是被一張乾淨的底片說服——而不是�
 msgstr "If I am to change, I want to be persuaded by a clean plate—not by a good story. And so should you."
 
 msgid "如果釘得進去的話。"
-msgstr "…Don't make me picture it."
+msgstr "If you'd fit."
 
 msgid "字是反的——那整張圖大概也是反的。把描圖紙翻過來試試。"
 msgstr "The writing's back to front—so the whole tracing probably is too. Try turning the tracing paper over."
@@ -2093,7 +2093,7 @@ msgid "星點清楚：小而圓"
 msgstr "Sharp star images: small and round"
 
 msgid "是啊。"
-msgstr "No. It doesn't."
+msgstr "It was."
 
 msgid "是啊。年鑑上那一行，可以闔上了。"
 msgstr "Yes. That line in the almanac can be closed."
@@ -2249,7 +2249,7 @@ msgid "比對片：用同一具望遠鏡，在夜裡拍同一片星場（太陽�
 msgstr "A comparison plate: the same telescope, photographing the same field at night (when the Sun is elsewhere)"
 
 msgid "水星也不再是例外了"
-msgstr "One idea, right about two unrelated things"
+msgstr "Mercury is no longer the exception"
 
 msgid "水星和光指向同一邊"
 msgstr "Mercury and the light point the same way"
@@ -2831,7 +2831,7 @@ msgid "這種時候談一個柏林來的理論，在某些人聽來就像通敵�
 msgstr "To talk of a theory from Berlin at such a time sounds to some like dealing with the enemy. I don't see it that way—a theory has no nationality. But neither does it become true because it is beautiful."
 
 msgid "這裡？（笑）這裡什麼都不會變。"
-msgstr "…All right. I'll write."
+msgstr "Here? (laughs) Nothing here will change."
 
 msgid "過早的宣告"
 msgstr "A Declaration Too Early"
@@ -3203,7 +3203,7 @@ msgid "（可是你把雲記下來了。他說過：無論看見什麼。）"
 msgstr "(But you wrote the cloud down. He said: whatever you see.)"
 
 msgid "（和 Kit 一起把底片收進木框，一格一格，誰也沒說話。）"
-msgstr "…There. Twice as fast as doing it alone."
+msgstr "(With Kit, you put the plates back into the wooden frame, one slot at a time, neither of you speaking.)"
 
 msgid "（回去以後把它寫清楚——在他問之前。）"
 msgstr "(Write it plainly when you are back—before he asks.)"
