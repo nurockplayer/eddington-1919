@@ -23,6 +23,12 @@ window/size/viewport_height=900
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://locale/en.po", "res://locale/ja.po", "res://locale/ko.po")
+locale/fallback="zh_TW"
+locale/include_text_server_data=true
+
 [physics]
 
 common/physics_ticks_per_second=60

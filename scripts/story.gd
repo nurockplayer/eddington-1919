@@ -1,6 +1,9 @@
 extends Node
 ## Session continuity and completed experiment snapshots. No scene references.
 
+## Loads the translation helper at startup; its `_static_init` picks the locale.
+const L := preload("res://scripts/l10n.gd")
+
 var runs: Array[Dictionary] = []
 
 var from_prologue := false

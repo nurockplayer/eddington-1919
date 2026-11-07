@@ -1,0 +1,15 @@
+# Japanese translations. The zh-TW source text is the msgid.
+msgid ""
+msgstr ""
+"Project-Id-Version: Eddington 1919\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "設定"
+msgstr "設定"
+
+msgid "語言：%s"
+msgstr "言語：%s"
