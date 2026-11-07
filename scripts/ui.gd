@@ -760,7 +760,9 @@ func _build_viewer(root: Control) -> void:
 			_viewer_sound("mark")
 			plate_toggled.emit(_viewer_sel, on)
 	)
-	var plate_controls := HBoxContainer.new()
+	# A flow row, not a box: longer text in another language wraps onto a second
+	# line instead of widening the middle column past the viewport.
+	var plate_controls := HFlowContainer.new()
 	mid.add_child(plate_controls)
 	plate_controls.add_child(include_box)
 	loupe_btn = _button(L.t("放大鏡 ×2"))
@@ -801,8 +803,11 @@ func _build_viewer(root: Control) -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.add_theme_constant_override("separation", 10)
 	h.add_child(right)
-	right.add_child(_label(L.t("星光偏折（太陽邊緣，角秒）"), 22, ACCENT))
+	var deflection_header := _label(L.t("星光偏折（太陽邊緣，角秒）"), 22, ACCENT)
+	deflection_header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	right.add_child(deflection_header)
 	viewer_rule = _rich(15)
+	viewer_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	viewer_rule.visible = false
 	right.add_child(viewer_rule)
 	chart = preload("res://scripts/chart.gd").new()
@@ -831,6 +836,11 @@ func _build_viewer(root: Control) -> void:
 	var close := _button(L.t("離開桌子"))
 	close.pressed.connect(func(): viewer_closed.emit())
 	btns.add_child(close)
+	# Wrap and share the column width: a long label must not widen the grid and
+	# push the column past the viewport.
+	for b: Button in [measure_btn, reselect_btn, report_btn, close]:
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var model_note := _label(L.t("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"), 15, DIM)
 	model_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(model_note)
@@ -1392,8 +1402,10 @@ func _build_title(root: Control) -> void:
 	title_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_note.custom_minimum_size.x = 920
 	v.add_child(title_note)
-	var hb := HBoxContainer.new()
-	hb.alignment = BoxContainer.ALIGNMENT_CENTER
+	# A flow row, not a box: the buttons move to a second row when a longer
+	# language cannot fit them across, and stay on one row in zh-TW.
+	var hb := HFlowContainer.new()
+	hb.alignment = FlowContainer.ALIGNMENT_CENTER
 	hb.add_theme_constant_override("separation", 20)
 	v.add_child(hb)
 	var chapter := Checkpoint.peek()
