@@ -762,3 +762,12 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Claude weekly 97% with the window 90% gone at 2026-11-07 21:27 JST; Codex weekly 100%.** Keep lead turns few until the reset. Sol polish waits for Codex.
 - **Not yet:** blind cold read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order unchanged.
 
+### ja and ko drafts merged; checks running (edd-lead) | 2026-11-07 22:2x JST
+
+- **Merged:** #276 ja (cd9de3e), #277 ko (947db5a). Worker-reported: layout under each locale 0 failures in 8462 checks, honest route to ENDING with `failures=[]`, font coverage 0 problems. `L.TRANSLATED` is still false.
+- **Running:** `lw-ja-check-20261107-220812`, `lw-ko-check-20261107-220742`: oracle meaning and history checks, prompt at `/Volumes/KIOXIA/eddington-1919-cache/director/l10n-check-prompt.txt`.
+- **On each event:** confirm it read every entry, judge each row against the code as with English, apply through `tools/i18n.py apply`, run `test_layout_bounds` and the honest route under that locale, then `lead-wait pr <n>`.
+- **Must also go in, from the PR reviews:** ko: the winding instruction says press where the default is hold, which can leave a player stuck; `同天區` is `같은 하늘 영역`, two places. ja: `沒事。` is not `いいえ。`; `底片ホルダー` is `乾板ホルダー`.
+- **Open:** `好。` needs `L.tc` for Korean speech levels (Eddington against Ashby).
+- **Not read by a native speaker yet:** the ja and ko worker lists of least-sure entries are in the #276 and #277 bodies.
+
