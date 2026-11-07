@@ -3097,7 +3097,7 @@ msgid "黃銅做的小太陽系，發條帶著行星各走各的路；一本舊�
 msgstr "A little solar system in brass, its clockwork carrying each planet along its own path; an old almanac lies beside it.\nWork it out by Newton's gravity: what the almanac predicted, set against what the telescope later saw."
 
 msgid "點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。"
-msgstr "Click to view; tick the plates you want to measure.\nDecide by the quality of the star images first, then press 'Measure'."
+msgstr "Click to view; tick the plates to measure.\nChoose by star image quality, then press 'Measure'."
 
 msgid "（%s）"
 msgstr "(%s)"
