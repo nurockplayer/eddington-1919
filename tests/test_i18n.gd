@@ -110,6 +110,33 @@ func record_reason_check() -> void:
 	L.apply("zh_TW")
 
 
+## The dev pseudo locale: L.t and L.tn reach the ASCII catalogue, and the game's
+## own language stays en so fonts and language logic do not change.
+func pseudo_checks() -> void:
+	var path := ProjectSettings.globalize_path("res://.godot/test-pseudo.json")
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify({
+		"設定": "xxxxxxaaaa",
+		"Eddington：「還有 %d 張底片。」": "Eddington:\"xxxxxxbbbb %d xxxxxxxxxbbbb.\"",
+	}))
+	file.close()
+	var before := L.current()
+	L._load_pseudo(path)
+	check(TranslationServer.get_locale() == "en_XA", "the pseudo locale is active")
+	check(L.current() == before, "the pseudo locale leaves L.language alone")
+	check(L.t("設定") == "xxxxxxaaaa", "L.t returns the pseudo text, got " + L.t("設定"))
+	var plural := "Eddington：「還有 %d 張底片。」"
+	var expected := "Eddington:\"xxxxxxbbbb %d xxxxxxxxxbbbb.\""
+	check(L.tn(plural, 1) == expected, "L.tn returns the pseudo text at 1, got " + L.tn(plural, 1))
+	check(L.tn(plural, 3) == expected, "L.tn returns the pseudo text at 3, got " + L.tn(plural, 3))
+	check(L.t("沒有這一句") == "沒有這一句", "an unknown string returns itself under the pseudo locale")
+	TranslationServer.remove_translation(L.pseudo_translation)
+	L.pseudo_translation = null
+	L.apply(before)
+	DirAccess.remove_absolute(path)
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -151,5 +178,6 @@ func _run() -> void:
 	hold_line_checks()
 	await reload_check()
 	await record_reason_check()
+	pseudo_checks()
 	print("test_i18n: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

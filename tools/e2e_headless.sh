@@ -28,6 +28,21 @@ tmp=$(mktemp -d "$PWD/.godot/e2e_headless.XXXXXX") || exit 1
 trap 'rm -rf "$tmp"' EXIT
 export EDD_SETTINGS_PATH="${EDD_SETTINGS_PATH:-$tmp/settings.cfg}"
 
+# E2E_PSEUDO=1 runs every route against a generated ASCII pseudo catalogue, so any
+# CJK left on screen is a string L.t never saw. Each route must report
+# `[LEAK] total 0`; a route without that line fails too.
+pseudo=0
+if [[ ${E2E_PSEUDO:-0} == 1 ]]; then
+  pseudo=1
+  if ! python3 -I tools/i18n.py pseudo "$tmp/pseudo.json" >"$tmp/pseudo.log" 2>&1; then
+    echo "e2e: pseudo catalogue failed; see below" >&2
+    cat "$tmp/pseudo.log" >&2
+    exit 1
+  fi
+  export EDD_LOCALE=en
+  export EDD_PSEUDO_JSON="$tmp/pseudo.json"
+fi
+
 # route|cap_seconds|expected_terminal_phase|godot user args
 # Prologue tidy/accuse end at PREP by contract (their 1919 receipt); honest runs
 # the whole cross-era route to ENDING. E2E_CAP_SCALE scales caps (default 1),
@@ -68,7 +83,7 @@ for entry in "${ROUTES[@]}"; do
   wall=$(sed -nE 's/^real ([0-9]+\.[0-9]+)$/\1/p' "$log" | tail -1)
   wall=${wall:-?}
 
-  ending="-" evidence="-" score="-" stuck="-" cues="-" seed="-" phase="-" result_ok=0
+  ending="-" evidence="-" score="-" stuck="-" cues="-" seed="-" phase="-" leaks="-" result_ok=0
 
   if [[ $label == autoplay* ]]; then
     line=$(grep -E '^\[BOT [a-z]+\] DONE ending=' "$log" | tail -1)
@@ -116,6 +131,12 @@ for entry in "${ROUTES[@]}"; do
   grep -q 'TIMEOUT waiting for phase' "$log" && ok=0
   [[ $cues == FAIL ]] && ok=0
   [[ $stuck =~ ^[0-9]+$ ]] && (( stuck > 0 )) && ok=0
+  if (( pseudo == 1 )); then
+    leaks=$(grep -E '^\[LEAK\] total [0-9]+$' "$log" | tail -1 | awk '{print $NF}')
+    if [[ ! $leaks =~ ^[0-9]+$ ]] || (( leaks > 0 )); then
+      ok=0
+    fi
+  fi
   if [[ $label == autoplay* ]]; then
     [[ $ending == "-" || -z $ending ]] && ok=0
     [[ $score =~ ^-?[0-9]+$ ]] && (( score >= 0 )) || ok=0
@@ -124,16 +145,20 @@ for entry in "${ROUTES[@]}"; do
     failures=$((failures + 1))
     echo "route $label failed (exit $code, phase $phase, expected $expected):" >&2
     tail -n 15 "$log" >&2
+    if (( pseudo == 1 )) && [[ $leaks != 0 ]]; then
+      echo "leaks in $label:" >&2
+      grep '^\[LEAK\] ' "$log" | grep -v ' total ' | tail -n 20 >&2
+    fi
   fi
 
-  rows+=("$(printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %7ss %3s' \
-    "$label" "$seed" "$ending" "$evidence" "$score" "$stuck" "$cues" "$wall" "$code")")
+  rows+=("$(printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %-6s %7ss %3s' \
+    "$label" "$seed" "$ending" "$evidence" "$score" "$stuck" "$cues" "$leaks" "$wall" "$code")")
 done
 
-printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %8s %3s\n' \
-  route seed ending evidence score stuck cues wall exit
-printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %8s %3s\n' \
-  ---------------- ------ ------------------------------ ---------- ----- ----- ----- -------- ---
+printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %-6s %8s %3s\n' \
+  route seed ending evidence score stuck cues leaks wall exit
+printf '%-16s %-6s %-30s %-10s %-5s %-5s %-5s %-6s %8s %3s\n' \
+  ---------------- ------ ------------------------------ ---------- ----- ----- ----- ------ -------- ---
 for row in "${rows[@]}"; do
   printf '%s\n' "$row"
 done

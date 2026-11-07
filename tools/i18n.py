@@ -2,12 +2,14 @@
 """Localization helper for Eddington 1919.
 
 A small GDScript tokenizer (strings and ``#`` comments, no regex-only parsing)
-drives three subcommands:
+drives four subcommands:
 
   wrap     rewrite each player-facing CJK string literal as ``L.t("...")``
   extract  write locale/messages.pot and merge it into locale/{en,ja,ko}.po
   check    fail on an unwrapped CJK literal; --require-translated adds the
            translation and placeholder/BBCode gates
+  pseudo   write an ASCII pseudo catalogue (EDD_PSEUDO_JSON) so any CJK left
+           on screen is a real leak
 
 Stdlib only. The zh-TW source text is the msgid.
 """
@@ -16,6 +18,8 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import hashlib
+import json
 import re
 import sys
 from collections import Counter
@@ -611,6 +615,111 @@ def _translated_problems(locale: str, msgid: str, msgstr: str) -> int:
     return problems
 
 
+# --- pseudo ---------------------------------------------------------------
+
+# Full-width ASCII (U+FF01–U+FF5E) folds to its ASCII counterpart.
+PSEUDO_PUNCT: dict[str, str] = {chr(cp): chr(cp - 0xFEE0) for cp in range(0xFF01, 0xFF5F)}
+PSEUDO_PUNCT.update({
+    "　": " ", "、": ",", "。": ".", "〃": '"',
+    "〈": "<", "〉": ">", "《": '"', "》": '"',
+    "「": '"', "」": '"', "『": "'", "』": "'",
+    "【": "[", "】": "]", "〔": "[", "〕": "]",
+    "〖": "[", "〗": "]", "〘": "[", "〙": "]",
+    "〚": "[", "〛": "]", "〜": "~", "〝": '"',
+    "〞": '"', "〟": '"', "・": " ",
+    "｟": "(", "｠": ")", "｡": ".", "｢": '"',
+    "｣": '"', "､": ",", "･": " ",
+})
+
+
+def _cjk_punctuation(ch: str) -> bool:
+    """CJK punctuation and full-width forms, as opposed to letters and ideographs."""
+    cp = ord(ch)
+    return (0x3000 <= cp <= 0x303F or cp in (0x30A0, 0x30FB)
+            or 0xFF00 <= cp <= 0xFFEF)
+
+
+def pseudo_hashes(msgids: list[str]) -> dict[str, str]:
+    """A stable 4-hex hash per msgid, salted until no two msgids share one."""
+    used: dict[str, str] = {}
+    out: dict[str, str] = {}
+    for msgid in sorted(msgids):
+        salt = 0
+        while True:
+            seed = msgid if salt == 0 else "%s\x00%d" % (msgid, salt)
+            candidate = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:4]
+            if candidate not in used:
+                break
+            salt += 1
+        used[candidate] = msgid
+        out[msgid] = candidate
+    return out
+
+
+def pseudo_text(msgid: str, tag: str) -> str:
+    """The msgid with each CJK run as ``x`` per character plus a hash, tags and specs kept."""
+    protected = sorted([(match.start(), match.end()) for match in SPEC_RE.finditer(msgid)]
+                       + [(match.start(), match.end()) for match in TAG_RE.finditer(msgid)])
+    out: list[str] = []
+    run = 0
+    hashed = False
+    i, n = 0, len(msgid)
+    span = 0
+
+    def flush() -> None:
+        nonlocal run, hashed
+        if run:
+            out.append("x" * (3 * run) + tag)
+            hashed = True
+            run = 0
+
+    while i < n:
+        while span < len(protected) and protected[span][1] <= i:
+            span += 1
+        if span < len(protected) and protected[span][0] == i:
+            flush()
+            out.append(msgid[i:protected[span][1]])
+            i = protected[span][1]
+            span += 1
+            continue
+        ch = msgid[i]
+        if ch == "\n" or not CJK_RE.match(ch):
+            flush()
+            out.append(ch)
+        elif ch in PSEUDO_PUNCT:
+            flush()
+            out.append(PSEUDO_PUNCT[ch])
+        elif _cjk_punctuation(ch):
+            flush()
+            out.append(" ")
+        else:
+            run += 1
+        i += 1
+    flush()
+    text = "".join(out)
+    if not hashed:
+        text += tag
+    return text
+
+
+def command_pseudo(args: argparse.Namespace) -> int:
+    found = collect_msgids()
+    hashes = pseudo_hashes(list(found))
+    data = {msgid: pseudo_text(msgid, hashes[msgid]) for msgid in sorted(found)}
+    problems = sorted(msgid for msgid, value in data.items() if has_cjk(value))
+    if problems:
+        for msgid in problems:
+            print("PSEUDO CJK LEFT: " + msgid.replace("\n", "\\n"))
+        print("pseudo: %d msgid(s) still carry CJK, nothing written" % len(problems))
+        return 1
+    path = Path(args.out)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=0, sort_keys=True) + "\n",
+                    encoding="utf-8")
+    print("pseudo: %d msgids -> %s" % (len(data), args.out))
+    return 0
+
+
 def command_check(args: argparse.Namespace) -> int:
     failures = 0
     for path in script_paths():
@@ -663,11 +772,15 @@ def main(argv: list[str]) -> int:
     check = sub.add_parser("check", help="gate unwrapped literals and translations")
     check.add_argument("--require-translated", action="store_true",
                        help="also require a translated msgstr in en, ja and ko")
+    pseudo = sub.add_parser("pseudo", help="write an ASCII pseudo catalogue")
+    pseudo.add_argument("out")
     args = parser.parse_args(argv)
     if args.command == "wrap":
         return command_wrap(args)
     if args.command == "extract":
         return command_extract(args)
+    if args.command == "pseudo":
+        return command_pseudo(args)
     return command_check(args)
 
 
