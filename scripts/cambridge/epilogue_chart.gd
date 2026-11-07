@@ -118,15 +118,15 @@ func _refresh() -> void:
 	notes = []
 	var c: Dictionary = run.get("combined", {})
 	if int(c.get("n", 0)) > 0:
-		rows.append({"label": "你的底片（示意模擬）", "value": float(c.value), "sigma": float(c.sigma)})
+		rows.append({"label": L.t("你的底片（示意模擬）"), "value": float(c.value), "sigma": float(c.sigma)})
 	else:
-		notes.append("你的底片：沒有數值。")
+		notes.append(L.t("你的底片：沒有數值。"))
 	if step >= 1:
-		rows.append({"label": "Sobral 4 吋", "value": 1.98, "sigma": 0.18})
-		notes.append("Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差")
+		rows.append({"label": L.t("Sobral 4 吋"), "value": 1.98, "sigma": 0.18})
+		notes.append(L.t("Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差"))
 	if step >= 2:
-		rows.append({"label": "Sobral 天體照相儀", "value": 0.93, "sigma": 0.0, "weak": true, "no_bar": true})
-		notes.append("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差")
+		rows.append({"label": L.t("Sobral 天體照相儀"), "value": 0.93, "sigma": 0.0, "weak": true, "no_bar": true})
+		notes.append(L.t("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差"))
 	chart.set_data(rows, {}, true)
 	for child in _note_box.get_children():
 		_note_box.remove_child(child)
@@ -142,13 +142,13 @@ func _refresh() -> void:
 		question.visible = true
 		_choice_box.visible = true
 		if read_answer < 0:
-			question.text = "Sobral 4 吋那一點：細線（兩倍誤差）裡容得下哪一個？"
+			question.text = L.t("Sobral 4 吋那一點：細線（兩倍誤差）裡容得下哪一個？")
 		button.visible = read_answer >= 0
 		return
 	question.visible = false
 	_choice_box.visible = false
 	button.visible = true
-	button.text = ["抄上 Sobral 4 吋", "抄上 Sobral 天體照相儀", "抄好了"][step]
+	button.text = [L.t("抄上 Sobral 4 吋"), L.t("抄上 Sobral 天體照相儀"), L.t("抄好了")][step]
 
 
 func _press() -> void:
@@ -175,8 +175,8 @@ func _read(index: int) -> void:
 		b.disabled = true
 	var text := MainContent.interval_feedback(read_answer, SOBRAL_TRUTH)
 	if CambridgeContentEpilogue.ledger_case(run) == "conceded":
-		text += "\n（和你的底片放在一起看——兩套儀器、隔一個大西洋。）"
+		text += L.t("\n（和你的底片放在一起看——兩套儀器、隔一個大西洋。）")
 	question.text = text
-	button.text = "好"
+	button.text = L.t("好")
 	button.visible = true
 	button.grab_focus()

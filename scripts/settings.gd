@@ -173,7 +173,7 @@ static func toggle_hold_toggle(path := settings_path()) -> Error:
 
 ## 「按住 E 上發條」 or 「按一下 E 開始上發條」; the trailing space belongs to the verb that follows.
 static func hold_phrase(key: String) -> String:
-	return ("按一下 %s 開始" if hold_toggle else "按住 %s ") % key
+	return (L.t("按一下 %s 開始") if hold_toggle else L.t("按住 %s ")) % key
 
 
 ## The language button reloads the scene right after; write only this key so an

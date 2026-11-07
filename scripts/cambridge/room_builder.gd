@@ -389,23 +389,23 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	underlight.omni_range = 0.8
 	underlight.shadow_enabled = false
 	lightbox.add_child(underlight)
-	var lightbox_hotspot := w.hotspot(Vector3(0.88, 0.25, 0.65), lightbox.transform * Vector3(0, 0.13, 0), "lightbox", "查看底片")
+	var lightbox_hotspot := w.hotspot(Vector3(0.88, 0.25, 0.65), lightbox.transform * Vector3(0, 0.13, 0), "lightbox", L.t("查看底片"))
 	lightbox_hotspot.rotation = lightbox.rotation
 	out.targets["lightbox"] = lightbox_hotspot.global_position if root.is_inside_tree() else lightbox_hotspot.position
 
 	# Player notebook and Kit's independent plate stack and ledger.
 	var notebook := w.box(Vector3(0.38, 0.055, 0.28), Vector3(0.72, 0.825, 0.22), Color(0.37, 0.24, 0.15), null, false)
 	w.box(Vector3(0.34, 0.012, 0.24), Vector3(0.72, 0.86, 0.22), Color(0.78, 0.73, 0.62), null, false)
-	var notebook_hotspot := w.hotspot(Vector3(0.44, 0.18, 0.34), Vector3(0.72, 0.9, 0.22), "notebook", "查看筆記本")
+	var notebook_hotspot := w.hotspot(Vector3(0.44, 0.18, 0.34), Vector3(0.72, 0.9, 0.22), "notebook", L.t("查看筆記本"))
 	out.targets["notebook"] = notebook_hotspot.position
 	for i in range(3):
 		w.box(Vector3(0.38, 0.035, 0.28), Vector3(1.13, 0.81 + i * 0.035, -0.20), Color(0.45, 0.38, 0.29), null, false)
 	var kit_ledger := w.box(Vector3(0.4, 0.06, 0.3), Vector3(1.14, 0.89, 0.20), Color(0.28, 0.30, 0.26), null, false)
-	var ledger_hotspot := w.hotspot(Vector3(0.48, 0.2, 0.36), Vector3(1.14, 0.94, 0.20), "kit_ledger", "查看 %s 的工作簿" % Cast.KIT)
+	var ledger_hotspot := w.hotspot(Vector3(0.48, 0.2, 0.36), Vector3(1.14, 0.94, 0.20), "kit_ledger", L.t("查看 %s 的工作簿") % Cast.KIT)
 	out.targets["kit_ledger"] = ledger_hotspot.position
 	if departure:
 		var plate_label := Label3D.new()
-		plate_label.text = "KIT 的變星底片"
+		plate_label.text = L.t("KIT 的變星底片")
 		plate_label.font = preload("res://scripts/fonts.gd").cjk()
 		plate_label.font_size = 24
 		plate_label.pixel_size = 0.0025
@@ -446,13 +446,13 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		# Issue #37 loop 1: Newton's clockwork, and the small number it cannot fit.
 		# It stands 0.2 m back on the top board, above eye height: the box reaches out past
 		# the board's front edge (x 3.31) and below it, so a ray from the floor finds it first.
-		var orrery_hotspot := w.hotspot(Vector3(0.36, 0.34, 0.34), out.orrery.position + Vector3(-0.17, 0.0, 0.03), "orrery", "查看太陽系儀")
+		var orrery_hotspot := w.hotspot(Vector3(0.36, 0.34, 0.34), out.orrery.position + Vector3(-0.17, 0.0, 0.03), "orrery", L.t("查看太陽系儀"))
 		out.targets["orrery"] = orrery_hotspot.position
 		# Music round 2 (proposal): the side-table gramophone at the east wall.
-		var gramophone_hotspot := w.hotspot(Vector3(0.6, 0.5, 0.6), out.gramophone.position + Vector3(0, 0.9, 0), "gramophone", "查看留聲機")
+		var gramophone_hotspot := w.hotspot(Vector3(0.6, 0.5, 0.6), out.gramophone.position + Vector3(0, 0.9, 0), "gramophone", L.t("查看留聲機"))
 		out.targets["gramophone"] = gramophone_hotspot.position
 	var logbook := w.box(Vector3(0.42, 0.09, 0.31), Vector3(3.38, 1.42, -1.38), Color(0.37, 0.27, 0.18), null, false)
-	var log_hotspot := w.hotspot(Vector3(0.55, 0.3, 0.4), Vector3(3.28, 1.46, -1.34), "logbook", "查看 1915 年觀測日誌")
+	var log_hotspot := w.hotspot(Vector3(0.55, 0.3, 0.4), Vector3(3.28, 1.46, -1.34), "logbook", L.t("查看 1915 年觀測日誌"))
 	out.targets["logbook"] = log_hotspot.position
 
 	# Plate cabinet against west wall, with shallow visible drawer fronts.
@@ -460,7 +460,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	for y in [0.24, 0.57, 0.90, 1.23, 1.56]:
 		w.box(Vector3(0.045, 0.025, 0.91), Vector3(-3.43, y, -0.9), wood, null, false)
 		w.cyl(0.025, 0.09, Vector3(-3.39, y, -0.9), brass, null, false, Vector3(0, 0, deg_to_rad(90)))
-	var cabinet_hotspot := w.hotspot(Vector3(0.8, 1.6, 1.1), Vector3(-3.1, 0.9, -0.9), "cabinet", "查看底片櫃")
+	var cabinet_hotspot := w.hotspot(Vector3(0.8, 1.6, 1.1), Vector3(-3.1, 0.9, -0.9), "cabinet", L.t("查看底片櫃"))
 	out.targets["cabinet"] = cabinet_hotspot.position
 
 	# Empty copyist desk and chair, with an unsigned folded letter.
@@ -469,7 +469,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	if not departure:
 		folded_letter.position.y = 0.815
 		(folded_letter as MeshInstance3D).material_override = w.evidence_mat(Color(0.91, 0.90, 0.85))
-	var letter_hotspot := w.hotspot(Vector3(0.4, 0.18, 0.3), Vector3(-2.47, 0.86, -0.02), "letter", "查看摺起的信")
+	var letter_hotspot := w.hotspot(Vector3(0.4, 0.18, 0.3), Vector3(-2.47, 0.86, -0.02), "letter", L.t("查看摺起的信"))
 	out.letter_prop = folded_letter
 	out.letter_hotspot = letter_hotspot
 	out.targets["letter"] = letter_hotspot.position
@@ -483,7 +483,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	# M1's broad empty-desk hotspot overlaps Kit's departure staging point.
 	# Keep the desk and chair geometry, but remove this obsolete interaction volume in 1919.
 	if not departure:
-		var empty_hotspot := w.hotspot(Vector3(1.7, 1.7, 1.0), Vector3(-2.55, 0.9, 0.62), "empty_desk", "查看空桌")
+		var empty_hotspot := w.hotspot(Vector3(1.7, 1.7, 1.0), Vector3(-2.55, 0.9, 0.62), "empty_desk", L.t("查看空桌"))
 		out.targets["empty_desk"] = empty_hotspot.position
 
 	# Fireplace and low coal fire, opposite the window. Fire has no dynamic particles.
@@ -510,7 +510,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	root.add_child(fire_light)
 	out.fire_light = fire_light
 	out.ember_mat = ember_mat
-	var fire_hotspot := w.hotspot(Vector3(0.6, 0.8, 0.9), Vector3(3.45, 0.58, 1.35), "fire", "查看爐火")
+	var fire_hotspot := w.hotspot(Vector3(0.6, 0.8, 0.9), Vector3(3.45, 0.58, 1.35), "fire", L.t("查看爐火"))
 	out.targets["fire"] = fire_hotspot.position
 
 	# Regulator clock on the west wall.
@@ -525,7 +525,7 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 	w.box(Vector3(0.008, PENDULUM_ROD, 0.012), Vector3(0, -PENDULUM_ROD * 0.5, 0), brass, pendulum, false)
 	w.cyl(0.055, 0.02, Vector3(0, -PENDULUM_ROD, 0), brass, pendulum, false, Vector3(0, 0, deg_to_rad(90)))
 	out.pendulum = pendulum
-	var clock_hotspot := w.hotspot(Vector3(0.85, 1.35, 0.7), Vector3(-3.55, 2.3, -2.05), "clock", "查看調節鐘")
+	var clock_hotspot := w.hotspot(Vector3(0.85, 1.35, 0.7), Vector3(-3.55, 2.3, -2.05), "clock", L.t("查看調節鐘"))
 	out.targets["clock"] = clock_hotspot.position
 
 	# Kit waits at the far end of the table and is reachable from either side.
@@ -575,11 +575,11 @@ static func build(root: Node3D, departure := false) -> Dictionary:
 		workbook.name = "DepartureWorkbook"
 		root.add_child(workbook)
 		out.workbook = workbook
-		var workbook_hotspot := w.hotspot(Vector3(0.58, 0.25, 0.43), Vector3(-1.20, 0.91, 0.40), "workbook", "查看工作簿")
+		var workbook_hotspot := w.hotspot(Vector3(0.58, 0.25, 0.43), Vector3(-1.20, 0.91, 0.40), "workbook", L.t("查看工作簿"))
 		out.targets["workbook"] = workbook_hotspot.position
 
 	# Target dictionary coordinates are fixed in room space and suitable for the player's 3.2 m ray.
-	var window_hotspot := w.hotspot(Vector3(3.9, 2.15, 0.3), Vector3(0.55, 2.05, -2.25), "window", "查看窗外的路燈" if departure else "查看雨中的窗")
+	var window_hotspot := w.hotspot(Vector3(3.9, 2.15, 0.3), Vector3(0.55, 2.05, -2.25), "window", L.t("查看窗外的路燈") if departure else L.t("查看雨中的窗"))
 	out.targets["window"] = window_hotspot.position
 	out.targets["kit"] = kit.position + Vector3(0, 1.1, 0)
 	out.targets["lightbox"] = lightbox.transform * Vector3(0, 0.13, 0)

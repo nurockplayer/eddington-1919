@@ -448,7 +448,7 @@ func _shelter_and_instrument() -> Dictionary:
 		# Production model (art/assets.toml: coelostat). Colliders stay simple boxes.
 		collider(Vector3(1.0, 1.06, 1.0), Vector3(0, 0.53, -6.6))
 		# The drive housing stays solid AND interactable, like the old primitive box.
-		drive = interactable(collider(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6)), "drive", "時鐘驅動")
+		drive = interactable(collider(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6)), "drive", L.t("時鐘驅動"))
 	else:
 		var brick := P("brick")
 		box(Vector3(1.0, 1.05, 1.0), Vector3(0, 0.525, -6.6), brick)
@@ -460,7 +460,7 @@ func _shelter_and_instrument() -> Dictionary:
 		drive = box(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6), P("teak_dark"))
 		box(Vector3(0.05, 0.05, 0.2), Vector3(0.86, 0.95, -6.6), P("brass"), null, false)
 		cyl(0.05, 0.6, Vector3(0.6, 0.45, -6.6), P("iron"))  # weight chain housing
-		interactable(drive, "drive", "時鐘驅動")
+		interactable(drive, "drive", L.t("時鐘驅動"))
 	out.drive_pos = Vector3(0.62, 0.92, -6.6)
 	# Horizontal tube (lens near the coelostat, plate end toward the shelter front).
 	var carrier: Node3D
@@ -477,7 +477,7 @@ func _shelter_and_instrument() -> Dictionary:
 			box(Vector3(0.7, 1.12, 0.12), Vector3(0, 0.56, z), wood)
 		carrier = box(Vector3(0.6, 0.6, 0.18), Vector3(0, 1.35, -1.92), P("teak_dark"))
 	# Plate carrier at the eye end.
-	interactable(carrier, "station", "底片架")
+	interactable(carrier, "station", L.t("底片架"))
 	out.station_look = Vector3(0, 1.35, -1.92)
 	out.station_pos = Vector3(0.0, 0.0, -0.9)
 	# Rack where delivered plate holders accumulate.
@@ -494,10 +494,10 @@ func _shelter_and_instrument() -> Dictionary:
 		for dz in [-0.3, 0.3]:
 			box(Vector3(0.06, 0.8, 0.06), Vector3(-1.9 + dx, 0.4, -3.4 + dz), wood, null, false)
 	var plan := box(Vector3(0.34, 0.03, 0.26), Vector3(-2.2, 0.845, -3.35), P("canvas"))
-	interactable(plan, "plan", "曝光計畫")
+	interactable(plan, "plan", L.t("曝光計畫"))
 	var chrono := box(Vector3(0.22, 0.12, 0.22), Vector3(-1.65, 0.89, -3.45), Color(0.33, 0.22, 0.12))
 	cyl(0.08, 0.02, Vector3(-1.65, 0.96, -3.45), Color(0.92, 0.9, 0.82))
-	interactable(chrono, "chronometer", "天文鐘")
+	interactable(chrono, "chronometer", L.t("天文鐘"))
 	var metro := MeshInstance3D.new()
 	var pr := PrismMesh.new()
 	pr.size = Vector3(0.12, 0.24, 0.1)
@@ -527,7 +527,7 @@ func _darkroom() -> Dictionary:
 	var shelf_wood := P("teak_dark")
 	box(Vector3(0.5, 0.05, 1.6), c + Vector3(1.65, 1.0, -0.6), shelf_wood)
 	var pbox := box(Vector3(0.36, 0.3, 0.5), c + Vector3(1.65, 1.18, -0.75), Color(0.22, 0.16, 0.1))
-	interactable(pbox, "plate_box", "底片匣箱")
+	interactable(pbox, "plate_box", L.t("底片匣箱"))
 	out.plate_box_pos = c + Vector3(1.65, 1.18, -0.75)
 	# Developing bench with trays.
 	box(Vector3(1.4, 0.06, 0.6), c + Vector3(0.2, 0.85, -1.3), shelf_wood)
@@ -537,7 +537,7 @@ func _darkroom() -> Dictionary:
 	var mtable := box(Vector3(1.2, 0.06, 0.8), c + Vector3(0.6, 0.82, 1.1), shelf_wood)
 	var sheet := box(Vector3(0.5, 0.02, 0.4), c + Vector3(0.6, 0.86, 1.1), Color(0.85, 0.85, 0.8), null, false)
 	(sheet as MeshInstance3D).material_override = evidence_mat(Color(0.85, 0.85, 0.8))  # measuring sheet = evidence
-	interactable(mtable, "measure", "測量桌")
+	interactable(mtable, "measure", L.t("測量桌"))
 	out.measure_pos = c + Vector3(0.6, 0.82, 1.1)
 	var lamp := OmniLight3D.new()
 	lamp.position = c + Vector3(0.9, 1.5, 1.0)
@@ -784,7 +784,7 @@ func _props() -> void:
 	root.add_child(label)
 	# Comparison-plate case from Oxford.
 	var case_node := box(Vector3(0.4, 0.22, 0.32), Vector3(-2.65, 0.95, -3.45), Color(0.15, 0.18, 0.22))
-	interactable(case_node, "oxford_case", "牛津比對底片盒")
+	interactable(case_node, "oxford_case", L.t("牛津比對底片盒"))
 
 
 func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> Node3D:

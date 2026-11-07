@@ -39,7 +39,7 @@ func setup(muted: Color) -> void:
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(image)
 	disclosure = Label.new()
-	disclosure.text = "重建肖像，非歷史照片"
+	disclosure.text = L.t("重建肖像，非歷史照片")
 	disclosure.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Settings.track_font(disclosure, 18)
 	disclosure.add_theme_color_override("font_color", muted)

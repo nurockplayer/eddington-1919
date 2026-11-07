@@ -40,6 +40,12 @@ const SAVED := [
 ]
 
 
+func _ready() -> void:
+	# Root auto-translate stays off: an unwrapped string shows itself instead of
+	# being translated quietly (docs/design/LOCALIZATION.md).
+	get_tree().root.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+
+
 func to_save() -> Dictionary:
 	var data := {}
 	for key in SAVED:

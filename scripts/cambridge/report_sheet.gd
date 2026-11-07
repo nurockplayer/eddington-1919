@@ -90,7 +90,7 @@ func _build() -> void:
 	page.add_theme_constant_override("separation", 16)
 	scroll.add_child(page)
 	var title := Label.new()
-	title.text = "核對紀錄"
+	title.text = L.t("核對紀錄")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Settings.track_font(title, 30)
 	title.add_theme_color_override("font_color", INK)
@@ -108,14 +108,14 @@ func _build() -> void:
 	actions.offset_bottom = -12
 	actions.add_theme_constant_override("separation", 18)
 	close_btn = Button.new()
-	close_btn.text = "關閉"
+	close_btn.text = L.t("關閉")
 	_style_button(close_btn)
 	close_btn.pressed.connect(func():
 		visible = false
 		closed.emit())
 	actions.add_child(close_btn)
 	submit_btn = Button.new()
-	submit_btn.text = "交給 %s" % Cast.MENTOR
+	submit_btn.text = L.t("交給 %s") % Cast.MENTOR
 	_style_button(submit_btn)
 	submit_btn.pressed.connect(_submit)
 	actions.add_child(submit_btn)
@@ -130,14 +130,14 @@ func _add_row(page: VBoxContainer, row: Dictionary) -> void:
 	var available := available_options(row, _state)
 	if row.id == "residual" and available.is_empty():
 		var missing := Label.new()
-		missing.text = "（沒有發現）"
+		missing.text = L.t("（沒有發現）")
 		missing.add_theme_color_override("font_color", Color(0.35, 0.30, 0.24))
 		page.add_child(missing)
 		selected["residual"] = "not_found"
 		return
 	if row.id == "kit_credited" and available.is_empty():
 		var unchecked := Label.new()
-		unchecked.text = "（還沒有人獨立複核）"
+		unchecked.text = L.t("（還沒有人獨立複核）")
 		unchecked.add_theme_color_override("font_color", Color(0.35, 0.30, 0.24))
 		page.add_child(unchecked)
 		return
@@ -183,7 +183,7 @@ func _select_option(row_id: String, option_id: String, button: Button) -> void:
 
 func _refresh_option(_row_id: String, button: Button, is_selected: bool) -> void:
 	var original := str(button.get_meta("original_text", button.text))
-	button.text = original if button is CheckBox else ("✓  " if is_selected else "　　") + original
+	button.text = original if button is CheckBox else ("✓  " if is_selected else L.t("　　")) + original
 	var normal := _choice_style(false)
 	var pressed := _choice_style(true)
 	button.add_theme_stylebox_override("normal", normal)

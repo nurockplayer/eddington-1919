@@ -1,0 +1,4391 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Eddington 1919\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: scripts/ending.gd:78
+msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:288 scripts/cambridge/director.gd:616
+msgid "\n\n（"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:64
+msgid "\n1919 年你改成：%s。"
+msgstr ""
+
+#: scripts/main.gd:1265
+msgid "\nCottingham 只能自己趕著上發條，來不及對時。"
+msgstr ""
+
+#: scripts/ending.gd:73
+msgid "\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]"
+msgstr ""
+
+#: scripts/ending.gd:77
+msgid "\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]"
+msgstr ""
+
+#: scripts/main.gd:1593
+msgid "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]"
+msgstr ""
+
+#: scripts/main.gd:1213
+msgid "\n你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。"
+msgstr ""
+
+#: scripts/ui.gd:2009
+msgid "\n全食時：空白鍵（或 RB／X）喊開始與停。"
+msgstr ""
+
+#: scripts/main.gd:1391
+msgid "\n快門還開著——最後那張底片曝到了陽光。"
+msgstr ""
+
+#: scripts/ui.gd:1286
+msgid "\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。"
+msgstr ""
+
+#: scripts/main.gd:1267
+msgid "\n發條上滿了，但走速沒有校過。"
+msgstr ""
+
+#: scripts/main.gd:1606
+msgid "\n第%d號還沒讀數，不會算進去。"
+msgstr ""
+
+#: scripts/main.gd:1597
+msgid "\n第一次量：%.2f″ ± %.2f″"
+msgstr ""
+
+#: scripts/main.gd:1599
+msgid "\n第一次量：沒有量出任何數值。"
+msgstr ""
+
+#: scripts/main.gd:1594
+msgid "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:178
+msgid "\n（和你的底片放在一起看——兩套儀器、隔一個大西洋。）"
+msgstr ""
+
+#: scripts/ui.gd:1215
+msgid " ✓讀"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:233
+msgid " 已記"
+msgstr ""
+
+#: scripts/main.gd:874
+msgid " 開始］"
+msgstr ""
+
+#: scripts/content.gd:311
+msgid "%.2f″ ± %.2f″（量 %d 張）"
+msgstr ""
+
+#: scripts/main.gd:1675
+msgid "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″"
+msgstr ""
+
+#: scripts/main.gd:1146
+msgid "%s 協助 Cottingham 上發條"
+msgstr ""
+
+#: scripts/main.gd:1144
+msgid "%s 向 Eddington 報到"
+msgstr ""
+
+#: scripts/content.gd:201
+msgid "%s 和 %s"
+msgstr ""
+
+#: scripts/main.gd:1145
+msgid "%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）"
+msgstr ""
+
+#: scripts/main.gd:1147
+msgid "%s 用天文鐘替他校走速"
+msgstr ""
+
+#: scripts/content.gd:202
+msgid "%s、%s 和 %s"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:49
+msgid "%s。%s。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:247
+msgid "%s。還有你。——14 號？讓我看看。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:25
+msgid "%s九點前要 14 號星場的抄錄圖。說是「核對一下就好」。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:311
+msgid "%s也對過一次吧？我看見紙上有兩種鉛筆的痕跡。寫上去。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:427
+msgid "%s大概跟你說過 Dyson 的那篇短文了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:106
+msgid "%s的帳簿"
+msgstr ""
+
+#: scripts/judgment.gd:19
+msgid "%s（%s）"
+msgstr ""
+
+#: scripts/ui.gd:568
+msgid "%s：%s"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:144
+msgid "+0.5°　E"
+msgstr ""
+
+#: scripts/content.gd:212
+msgid "0.87″ 和 1.75″ 都不在範圍裡"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:359
+msgid "0.87。牛頓式的算法給的就是這個。寫下來，比記在心裡好。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:356 scripts/content.gd:160
+msgid "0.87：牛頓式的一半"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:360
+msgid "1.75。愛因斯坦的全部。好——日食那天，我們看看底片怎麼說。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:356 scripts/content.gd:160
+msgid "1.75：愛因斯坦的全部"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:180
+msgid "11 月 6 日，倫敦開會。"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:115
+msgid "14 號星場　／　玻璃與描圖紙"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:329
+msgid "17 個點重合了，還有 1 個沒有對上。也看看角落的編號，和鉛筆畫的箭頭。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:137
+msgid "1846 年：Le Verrier 只用紙筆，算出一顆沒人見過的行星該在哪裡。Galle 當晚去找——離算出的位置不到一度。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:142
+msgid "1910 年：哈雷彗星回來了。七十多年前就照牛頓的算法排好日子——Cowell 和 Crommelin 在彗星被望遠鏡再看見之前算的近日點（彗星最靠近太陽的那一刻），只早了不到三天。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:107
+msgid "1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。消息傳到劍橋時，我想：先知道答案再去算，誰都算得對。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:88 scripts/cambridge/content_1917.gd:89
+msgid "1915 年觀測日誌"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:625
+msgid "1917 年 11 月 10 日，聯合常設日食委員會決定：如果可能，派隊到巴西的 Sobral 和非洲西岸外海的普林西比島。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:130 scripts/cambridge/content_epilogue.gd:65
+msgid "1917 年的帳本"
+msgstr ""
+
+#: scripts/content.gd:70
+msgid "1917 年的筆記"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:627
+msgid "1918 年 11 月，停戰。"
+msgstr ""
+
+#: scripts/content.gd:76
+msgid "1919 年 1 月，用[b]同一具望遠鏡[/b]在牛津夜空拍下的同一片星場（金牛座畢宿星團一帶）。日食這天，太陽正好在這片星前面。"
+msgstr ""
+
+#: scripts/ending.gd:75
+msgid "1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:161
+msgid "1919 年 3 月 8 日，兩支日食隊從利物浦搭船出發。"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:166 scripts/cambridge/departure_props.gd:44
+msgid "1919 年 5 月 29 日"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:164 scripts/main.gd:190
+msgid "1919 年 5 月 29 日・普林西比"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:334 scripts/cambridge/content_1917.gd:338
+msgid "1919 年 5 月 29 日有一次日全食。那天，太陽會停在金牛座一片星場的前面——那裡的亮星，多得不尋常。"
+msgstr ""
+
+#: scripts/ending.gd:76
+msgid "1979 年，有人重新量了 Sobral 的底片（Harvey）：4 吋 1.90″ ± 0.11″，天體照相儀 1.55″ ± 0.34″——支持了當年團隊對那組 0.93″ 的疑慮。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:148
+msgid "43 角秒很小：一度是 3600 角秒，它還不到一度的八十分之一。可是一百多年的紀錄量下來，這個差比量測誤差大得多，而且每個世紀都往同一邊多走，不會抵消。"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "A 鍵"
+msgstr ""
+
+#: scripts/cambridge/cast.gd:11
+msgid "Ashby 先生"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:121
+msgid "Ashby 先生在走廊等你。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:60
+msgid "Ashby 先生寫的：0.87。\n你寫的：%s（%s）。"
+msgstr ""
+
+#: scripts/main.gd:1454 scripts/main.gd:961
+msgid "Ashby 先生給的放大鏡。"
+msgstr ""
+
+#: scripts/content.gd:18
+msgid "Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:184
+msgid "Cottingham 看過的那幾張，都在雲後面；其餘的，我說不上來。」"
+msgstr ""
+
+#: scripts/content.gd:240
+msgid "Cottingham：「一半在雲裡，一半透了光。」"
+msgstr ""
+
+#: scripts/content.gd:266
+msgid "Cottingham：「二十秒了——驅動沒對過時，再久星像會拖長。」"
+msgstr ""
+
+#: scripts/content.gd:265
+msgid "Cottingham：「二十秒了。」"
+msgstr ""
+
+#: scripts/content.gd:244
+msgid "Cottingham：「太短了，大概什麼都沒留下。」"
+msgstr ""
+
+#: scripts/main.gd:932
+msgid "Cottingham：「好，接著去天文鐘那裡。」"
+msgstr ""
+
+#: scripts/content.gd:242
+msgid "Cottingham：「整段幾乎都在雲後面。」"
+msgstr ""
+
+#: scripts/content.gd:238
+msgid "Cottingham：「這幾秒雲很薄，我看得見日冕的邊。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:505
+msgid "Dyson 先生正有這個打算。一處下雨，另一處也許是晴天。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:30
+msgid "Dyson 的信（推測重建，非原文）"
+msgstr ""
+
+#: scripts/credits.gd:5
+msgid "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構（姓名暫定），場景為推測重建。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:398
+msgid "Eddington 前幾天問我，這棟樓裡誰的紀錄最乾淨。"
+msgstr ""
+
+#: scripts/main.gd:1326
+msgid "Eddington 抬頭看了一眼：「雲還是很厚……繼續。」"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:275
+msgid "Eddington 用手蓋住了這一格。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:606
+msgid "Eddington 的清單。（把茶杯推過來，已經涼了）恭喜。真的。"
+msgstr ""
+
+#: scripts/main.gd:1207 scripts/main.gd:1286
+msgid "Eddington 還在換片……"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:136
+msgid "Eddington 那個箱子，我後來又想了一次。這回在一面牆上開個小洞，讓一道光照進去。"
+msgstr ""
+
+#: scripts/main.gd:1213
+msgid "Eddington："
+msgstr ""
+
+#: scripts/content.gd:270
+msgid "Eddington：「最後一張了。」"
+msgstr ""
+
+#: scripts/content.gd:280
+msgid "Eddington：「看太陽周圍那一小片，不是整片天。那裡變薄了就喊。」"
+msgstr ""
+
+#: scripts/content.gd:275
+msgid "Eddington：「還有 %d 張底片。」"
+msgstr ""
+
+#: scripts/main.gd:1188
+msgid "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:22
+msgid "Greenwich 來信了。Dyson 寫的，在桌上。你先看。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:386
+msgid "Hall 試過：指數不是 2，是 2.00000016。水星對了——可是別的行星也得跟著對，這才是難處。"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:408
+msgid "KIT 的變星底片"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:213
+msgid "Kit 念出："
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:178
+msgid "Kit 念出：……"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "LB／RB"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:382
+msgid "Le Verrier 也這麼想。日食的時候大家都在找它——1878 年有人說看見了，沒人能再看見一次。"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:143
+msgid "Q　−0.5°"
+msgstr ""
+
+#: scripts/prompts.gd:9
+msgid "Q／E"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "RB／X 鍵"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:384
+msgid "Seeliger 想過：太陽附近也許有一層看不見的物質，像黃道光的塵。聽起來很合理——可是沒有人能證明它多到足以拉住水星。"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:125
+msgid "Sobral 4 吋"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:145
+msgid "Sobral 4 吋那一點：細線（兩倍誤差）裡容得下哪一個？"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:126
+msgid "Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:128
+msgid "Sobral 天體照相儀"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:129
+msgid "Sobral 天體照相儀：約 0.93″，沒有可靠的誤差"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:148
+msgid "Sobral 的 4 吋鏡頭"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:30
+msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
+msgstr ""
+
+#: scripts/ui.gd:2033
+msgid "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停"
+msgstr ""
+
+#: scripts/ending.gd:42
+msgid "[b]Eddington 的回應[/b]"
+msgstr ""
+
+#: scripts/credits.gd:16
+msgid "[b]Godot 第三方元件[/b]"
+msgstr ""
+
+#: scripts/credits.gd:24
+msgid "[b]Godot 第三方授權全文[/b]"
+msgstr ""
+
+#: scripts/ending.gd:46
+msgid "[b]你留下的證據[/b]"
+msgstr ""
+
+#: scripts/main.gd:1343
+msgid "[b]全食[/b]　[font_size=%d][color=#e88]%d[/color][/font_size] 秒"
+msgstr ""
+
+#: scripts/main.gd:1345
+msgid "[b]全食[/b]　剩餘 %d 秒（共 302）"
+msgstr ""
+
+#: scripts/cambridge/director.gd:188
+msgid "[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]"
+msgstr ""
+
+#: scripts/cambridge/director.gd:190
+msgid "[b]劍橋・1917[/b]\n查看太陽系儀"
+msgstr ""
+
+#: scripts/cambridge/epilogue_director.gd:130
+msgid "[b]劍橋・1919 年 10 月[/b]\n"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:122
+msgid "[b]劍橋・1919 年 3 月[/b]\n"
+msgstr ""
+
+#: scripts/credits.gd:14
+msgid "[b]史實與虛構[/b]\n"
+msgstr ""
+
+#: scripts/main.gd:1166
+msgid "[b]夜晚・暗房[/b]\n"
+msgstr ""
+
+#: scripts/main.gd:1158
+msgid "[b]夜晚・暗房[/b]\n□ "
+msgstr ""
+
+#: scripts/main.gd:1162
+msgid "[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n"
+msgstr ""
+
+#: scripts/main.gd:1164
+msgid "[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷"
+msgstr ""
+
+#: scripts/content.gd:337
+msgid "[b]本子上的兩次試驗｜上回 → 這回[/b]\n[font_size=%d]%s[/font_size]"
+msgstr ""
+
+#: scripts/main.gd:1143
+msgid "[b]準備（全食之前）[/b]"
+msgstr ""
+
+#: scripts/ui.gd:1247
+msgid "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
+msgstr ""
+
+#: scripts/ui.gd:1257
+msgid "[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）"
+msgstr ""
+
+#: scripts/credits.gd:15
+msgid "[b]第三方素材與授權[/b]\n"
+msgstr ""
+
+#: scripts/credits.gd:13
+msgid "[b]製作[/b]\n%s\n以 Godot Engine 製作"
+msgstr ""
+
+#: scripts/ui.gd:1379
+msgid "[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
+msgstr ""
+
+#: scripts/credits.gd:10
+msgid "[center][b]製作名單[/b]\n%s · v%s[/center]"
+msgstr ""
+
+#: scripts/main.gd:1338
+msgid "[color=#9c9]底片就緒[/color]"
+msgstr ""
+
+#: scripts/main.gd:1143
+msgid "[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]"
+msgstr ""
+
+#: scripts/main.gd:1148
+msgid "[color=#a99]可選：讀曝光計畫、看牛津比對底片[/color]"
+msgstr ""
+
+#: scripts/main.gd:1336
+msgid "[color=#aaa]Eddington 換片中…[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:120
+msgid "[color=#b8ad98]你又放了一次。[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:122
+msgid "[color=#b8ad98]你抬起唱針。房間裡又只剩下雨聲。[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:117
+msgid "[color=#b8ad98]你放下唱針。[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:103
+msgid "[color=#b8ad98]兩年前你在這一行旁邊寫的是：%s。[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:152
+msgid "[color=#b8ad98]這台小機器的軌道是齒輪定死的，演不出那 43 角秒。[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:476
+msgid "[color=#b8ad98]點選卡片放進計畫；再點一次可以拿回來。%s和 Eddington 會說出他們的想法。[/color]"
+msgstr ""
+
+#: scripts/main.gd:1150
+msgid "[color=#db8]準備好了就告訴 Eddington，或等倒數結束[/color]"
+msgstr ""
+
+#: scripts/ui.gd:1283
+msgid "[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]"
+msgstr ""
+
+#: scripts/ui.gd:1268
+msgid "[color=#e88]幾乎沒有曝光。[/color]"
+msgstr ""
+
+#: scripts/main.gd:1340
+msgid "[color=#e88]底片用完了[/color]"
+msgstr ""
+
+#: scripts/ui.gd:1266
+msgid "[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]"
+msgstr ""
+
+#: scripts/main.gd:1334
+msgid "[color=#fd8]● 曝光中 %.1f 秒[/color]"
+msgstr ""
+
+#: scripts/ui.gd:1274
+msgid "[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]"
+msgstr ""
+
+#: scripts/ui.gd:1281
+msgid "[color=#fd8]這張還沒讀數——用測微器對好參考星再記下，才會算進結果。[/color]"
+msgstr ""
+
+#: scripts/ending.gd:38
+msgid "[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:39
+msgid "x 38.42　y 12.07"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:40
+msgid "x 40.15　y 19.88"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:205
+msgid "x 41.27　y "
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:41 scripts/cambridge/departure_checklist.gd:246
+msgid "x 41.27　y 16.83"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:41
+msgid "x 41.27　y 18.63"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:246
+msgid "x 41.27　y [s]18.63[/s]　16.83　"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:42
+msgid "x 44.90　y 21.35"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:43
+msgid "x 47.06　y 15.52"
+msgstr ""
+
+#: scripts/ending.gd:66
+msgid "· 1919 年 10 月你寫的：%s。"
+msgstr ""
+
+#: scripts/ending.gd:63
+msgid "· Ashby 先生寫的：0.87。"
+msgstr ""
+
+#: scripts/ending.gd:71
+msgid "· Sobral 天體照相儀那組：%s。"
+msgstr ""
+
+#: scripts/ending.gd:49
+msgid "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。"
+msgstr ""
+
+#: scripts/content.gd:58
+msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
+msgstr ""
+
+#: scripts/ending.gd:47
+msgid "· 拍了 %d 張底片（底片匣一共 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。"
+msgstr ""
+
+#: scripts/ending.gd:57
+msgid "· 時鐘驅動：%s。"
+msgstr ""
+
+#: scripts/ending.gd:51
+msgid "· 沒有量出任何數值。"
+msgstr ""
+
+#: scripts/ending.gd:54
+msgid "· 第一次量：%.2f″ ± %.2f″"
+msgstr ""
+
+#: scripts/ending.gd:56
+msgid "· 第一次量：沒有量出任何數值。"
+msgstr ""
+
+#: scripts/ending.gd:69
+msgid "· 筆記本最後一句：%s。"
+msgstr ""
+
+#: scripts/ending.gd:61
+msgid "· 量之前你寫的：%s（%s）。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:40
+msgid "……一顆都對不上？這不是差一點，是完全不像。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:392
+msgid "……不知道。除非先把這些都排除掉。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:69
+msgid "……乾淨多了。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:107
+msgid "……你的鉛筆。記得帶。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:608
+msgid "……你還記得我們小時候畫的那張星圖嗎？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:449
+msgid "……光看箱子裡面，分不出來。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:29
+msgid "……兩年了，你還在問。快去。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:86
+msgid "……別讓我想像那個畫面。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:614
+msgid "……嗯。我也是。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:98
+msgid "……好。我寫。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:85
+msgid "……好了。比我一個人快一倍。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:30
+msgid "……好吧，喝得慣。快去。"
+msgstr ""
+
+#: scripts/content.gd:83
+msgid "……我們一張也沒有拍。雲和時間都沒有等我們。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:424 scripts/cambridge/content_1917.gd:425
+msgid "……找另一張同一片天的底片。"
+msgstr ""
+
+#: scripts/judgment.gd:190
+msgid "……是的。很遺憾，但這是真的。至少我們沒有讓雲替我們說謊。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:253
+msgid "……沒有。只是對不上。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:306
+msgid "……這裡還有一點沒對上，你沒看見？（用鉛筆輕輕圈起來）沒關係。現在看見了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:395
+msgid "……（看了你一眼）這句話留著。過幾天，也許有人會想聽。"
+msgstr ""
+
+#: scripts/ui.gd:1590 scripts/ui.gd:1633
+msgid "↑↓ 或右搖桿：捲動"
+msgstr ""
+
+#: scripts/main.gd:1160
+msgid "□ 到測量桌：先寫下選片規則，再量底片"
+msgstr ""
+
+#: scripts/main.gd:1160
+msgid "□ 在測量桌上檢視並量測底片"
+msgstr ""
+
+#: scripts/cambridge/director.gd:71
+msgid "▼ 底片櫃"
+msgstr ""
+
+#: scripts/cambridge/plan_board.gd:168 scripts/cambridge/report_sheet.gd:186
+msgid "　　"
+msgstr ""
+
+#: scripts/ui.gd:1420
+msgid "　離開　"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:547 scripts/judgment.gd:303
+msgid "、"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:116
+msgid "〈Keep the Home-Fires Burning〉。開戰頭幾個月寫的歌，到現在英國還有很多人在唱：把家裡的爐火燒著，等孩子們回家。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:88
+msgid "「3 月 9 日。14 號底片，御夫座一帶，曝光 20 分鐘，天清。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:26
+msgid "「你省下來的？那你呢？」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:195
+msgid "「你說，要我自己抬頭看。我看了。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:82
+msgid "「你連推車都叫好了，那我呢？也要釘進箱子裡？」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:128
+msgid "「先生，這太貴重了。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:96
+msgid "「全食只有五分鐘，我會在換底片。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:264
+msgid "「原因還沒查明。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:28
+msgid "「四十張？今晚？」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:301
+msgid "「大概」不能拿來刪東西。把它寫回去，打個問號。問號不丟人。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:26
+msgid "「好。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:82
+msgid "「我來收拾。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:199
+msgid "「我抬頭看了很久。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:128
+msgid "「我會帶著。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:146
+msgid "「所以要用太陽。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:197
+msgid "「換底片的空檔，我還是抬頭看了一眼。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:273
+msgid "「放斜了約 3 度。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:176
+msgid "「早上下大雨。全食的時候，雲在太陽前面走。"
+msgstr ""
+
+#: scripts/judgment.gd:160
+msgid "「有希望」——是的。它說了我們看到的，也沒有說得比看到的更多。"
+msgstr ""
+
+#: scripts/judgment.gd:169
+msgid "「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。"
+msgstr ""
+
+#: scripts/judgment.gd:167
+msgid "「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"
+msgstr ""
+
+#: scripts/judgment.gd:164
+msgid "「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:295
+msgid "「未解決：需要另一張同天區的底片。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:26
+msgid "「核對一下就好。」這句話我已經聽了三年。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:561
+msgid "「盡量」是個誠實的詞。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:270
+msgid "「翻了面。」對，是翻了面。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:251
+msgid "「草率，或是憑空編造。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:361
+msgid "「說不準」也是一種誠實。可是到時候，你得說出為什麼還說不準。"
+msgstr ""
+
+#: scripts/judgment.gd:155
+msgid "「證實」？我們手上的星像撐不起這兩個字。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:96
+msgid "「那你也得告訴我，這裡有什麼變了。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:28
+msgid "「那你的糖呢？」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:82
+msgid "「那再坐一下。」"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:146
+msgid "「那就只是想像。」"
+msgstr ""
+
+#: scripts/judgment.gd:246
+msgid "『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。"
+msgstr ""
+
+#: scripts/ui.gd:411 scripts/ui.gd:681
+msgid "・"
+msgstr ""
+
+#: scripts/credits.gd:41
+msgid "・ "
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:456
+msgid "一個小箱子、一枝鉛筆。我教了三十年的潮汐，可不在小箱子裡。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:111
+msgid "一個是事後的解釋，一個是事先的下注——現在指著同一邊。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:344
+msgid "一半、全部，或是零。差別有多大？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:115
+msgid "一台桌上型留聲機。唱盤旁放著一張蟲膠唱片，黑色標籤上印著金字，是美國 Victor 公司的。\n信封還夾在一旁——一位美國同行隨信寄來的，說「給雨天的劍橋」。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:94
+msgid "一封從倫敦寄來的公事信：「本坊目前全力承接軍需光學件，貴台委託之鏡片恐須延至明年。」\n信紙邊上有人用鉛筆寫了一個字：「又」。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:79
+msgid "一張底片判斷不了。要另一張同一片天的底片才知道。"
+msgstr ""
+
+#: scripts/cambridge/cast.gd:16
+msgid "一枚黃銅放大鏡"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:46
+msgid "一樣重，平均下來約 1.46″。可是這兩組自己就差了一倍，平均只是把分歧藏起來。再說，一架比例尺可能變了的鏡頭，憑什麼和沒變的一樣重？"
+msgstr ""
+
+#: scripts/content.gd:190
+msgid "三個都在裡面。"
+msgstr ""
+
+#: scripts/content.gd:188
+msgid "三個都容不下——先懷疑儀器。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:405
+msgid "三天後"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:562
+msgid "三週。睡覺也是科學工作的一部分。"
+msgstr ""
+
+#: scripts/content.gd:133
+msgid "上一回寫的是：%s。這回仍請在量之前決定。"
+msgstr ""
+
+#: scripts/content.gd:64
+msgid "上一回的曝光"
+msgstr ""
+
+#: scripts/ui.gd:1764 scripts/ui.gd:1767
+msgid "上下反轉：開"
+msgstr ""
+
+#: scripts/ui.gd:1764 scripts/ui.gd:1767
+msgid "上下反轉：關"
+msgstr ""
+
+#: scripts/content.gd:29 scripts/ending.gd:57
+msgid "上了發條並校過走速"
+msgstr ""
+
+#: scripts/content.gd:29 scripts/ending.gd:57
+msgid "上了發條但沒校走速"
+msgstr ""
+
+#: scripts/main.gd:703
+msgid "上午的雷雨在十一點半左右停了。日偏食已經開始，太陽在雲後時隱時現。\n找 Eddington 報到——他在望遠鏡旁。"
+msgstr ""
+
+#: scripts/content.gd:333
+msgid "上回：%s → 這回：%s %s"
+msgstr ""
+
+#: scripts/main.gd:904
+msgid "上發條"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:510
+msgid "下一次這麼好的機會，要等很多年。"
+msgstr ""
+
+#: scripts/main.gd:804
+msgid "下午 %d:%02d　·　全食倒數 %d:%02d（時間壓縮）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:123
+msgid "下次劃一條線，簽上名字。不是因為規定——是因為改過的地方，也是紀錄。"
+msgstr ""
+
+#: scripts/judgment.gd:320
+msgid "不完整的判斷"
+msgstr ""
+
+#: scripts/content.gd:156
+msgid "不改。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:95
+msgid "不是底片上的。是你自己抬頭看到的。"
+msgstr ""
+
+#: scripts/content.gd:144
+msgid "不用先寫，看片子的時候自然知道。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:396
+msgid "不用急著回答。你今晚已經回答了一半。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:421
+msgid "不知道。一張底片分不出來。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:299
+msgid "不確定。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:50
+msgid "不行。不提，就是替讀的人決定他不必知道。丟不丟是一回事，藏起來是另一回事。"
+msgstr ""
+
+#: scripts/ui.gd:1730
+msgid "主音量"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:511
+msgid "也可能等到沒有船、沒有人。準備可以——別把準備當成結論。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:388
+msgid "也許。可是一個小數字，還不夠讓我拆掉整棟房子。要拆，得有第二個、第三個，而且每一個都乾淨。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:452
+msgid "也許。可是放在地上的箱子裡，鉛筆也是這樣掉。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:451
+msgid "也許。可是箱子要是在太空裡被越拉越快地往上拉，地板會迎上來接住鉛筆——裡面看起來一模一樣。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:50
+msgid "交上去了？……比我想的快。先生看紙的時候，眉毛會先動。你等著看。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:414
+msgid "交上差異和我試過的對齊方式，寫「原因未明」。"
+msgstr ""
+
+#: scripts/cambridge/report_sheet.gd:118
+msgid "交給 %s"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:599
+msgid "今天你在那張紙上，把這兩件事分開寫了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:31
+msgid "今晚十張，明晚十張。等戰爭結束，大概就量完了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:584
+msgid "他喜歡你。他不會說出來——那個人連喜歡什麼都要先量一量。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:341
+msgid "他的理論說：星光從太陽旁邊經過時，會被拉彎一點點。我們從地上看，那顆星就像被往外推開了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:339
+msgid "他說，這是檢驗一個理論的好機會。一位在柏林工作的物理學家，愛因斯坦。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:368
+msgid "他還提到一件事：上一次拿日食底片來比，底片因為用了平面鏡反射，整張是反的，得翻過來、膜面對膜面才比得了。"
+msgstr ""
+
+#: scripts/ui.gd:795
+msgid "位移為示意放大；真實的位移比一個星點還小得多。"
+msgstr ""
+
+#: scripts/ui.gd:1759 scripts/ui.gd:1762
+msgid "低"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:460
+msgid "低一點"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:145
+msgid "低多少？一個房間那麼寬，比一個原子還小得多。誰也看不見。"
+msgstr ""
+
+#: scripts/cambridge/cast.gd:7 scripts/content.gd:9
+msgid "你"
+msgstr ""
+
+#: scripts/main.gd:797
+msgid "你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:432
+msgid "你不信什麼？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:601
+msgid "你今天也那樣寫了。……我不怪你。對不上的時候，人總想找個人來怪。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:603
+msgid "你今天差一點也那樣寫了。可是你回頭去看了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:58
+msgid "你仔細看過抄錄圖角落那個「14」嗎？我總覺得那兩個數字……有點彆扭。"
+msgstr ""
+
+#: scripts/content.gd:14
+msgid "你來了。雨總算停了——十點多那場雷雨，是我們上島以來最大的一場。"
+msgstr ""
+
+#: scripts/main.gd:1204
+msgid "你停得晚，雲回來了：星像會被霧蓋掉一半。"
+msgstr ""
+
+#: scripts/content.gd:44
+msgid "你先在驅動箱上[b]%s上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
+msgstr ""
+
+#: scripts/judgment.gd:298
+msgid "你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:59
+msgid "你先看到了。十八點六三，十六點八三——兩個數字換了位置。"
+msgstr ""
+
+#: scripts/judgment.gd:208
+msgid "你分得出哪些偏差是我們自己帶進去的。Cottingham 會記得這句。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:298
+msgid "你刪掉的這一點——你確定它是墨漬？"
+msgstr ""
+
+#: scripts/content.gd:70
+msgid "你在 1917 年參與擬定的原則："
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:172
+msgid "你在 1917 年寫了 1.75，今天這一行不是。寫清楚，是什麼讓你改的。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:174
+msgid "你在 1917 年寫了 1.75，量之前又改了。所以你改變想法，不只這一次。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:175
+msgid "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:105
+msgid "你在 1917 年最懷疑的是：%s。"
+msgstr ""
+
+#: scripts/main.gd:1200
+msgid "你在薄的那段裡開、在變厚前停：那張會是清楚的。"
+msgstr ""
+
+#: scripts/main.gd:1202
+msgid "你在雲變薄前就開了：那張會起霧。"
+msgstr ""
+
+#: scripts/judgment.gd:259
+msgid "你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"
+msgstr ""
+
+#: scripts/main.gd:1608
+msgid "你寫下的規則："
+msgstr ""
+
+#: scripts/content.gd:192
+msgid "你寫的是「說不準」。現在，你的底片能說準一點了嗎？"
+msgstr ""
+
+#: scripts/main.gd:936
+msgid "你對著天文鐘一秒一秒報數。Cottingham：「慢了一點……好，對上了。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:284
+msgid "你怎麼知道是底片翻了面，而不是星自己跑了？"
+msgstr ""
+
+#: scripts/content.gd:194
+msgid "你押的是 %s。你的底片——兩倍誤差之內——%s。%s"
+msgstr ""
+
+#: scripts/judgment.gd:206
+msgid "你按星點數判斷，而不是按心情。"
+msgstr ""
+
+#: scripts/main.gd:1629
+msgid "你改了選片。寫下來：為什麼？"
+msgstr ""
+
+#: scripts/judgment.gd:264
+msgid "你改了選片，也寫下了原因：第 %s 號是因為星像品質。兩次結果都留著，誰都能對照。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:127
+msgid "你會說你用不上。普林西比有 Eddington 的儀器。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:169
+msgid "你沒有帶回數值。你要寫底片，就寫明白：改變你的是拍它們的那幾分鐘，不是數字。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:91
+msgid "你沒有帶回數值，我也不替你猜。Sobral 的小鏡頭有，而它容不下 0.87。只靠一個地方、一套儀器，我還不想寫下結論。"
+msgstr ""
+
+#: scripts/judgment.gd:242
+msgid "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:171
+msgid "你留在年鑑上的記號：\n・海王星：%s\n・哈雷彗星：%s\n・水星的 43 角秒：%s\n\n你當時最懷疑的是：%s\n[color=#b8ad98]這台小機器的軌道是齒輪定死的，演不出那 43 角秒。[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:124
+msgid "你的工作筆記"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:88
+msgid "你的底片站在我的 0.87 這邊。我不會假裝沒看見。可是 Sobral 的小鏡頭不站——兩地不一致，總得有一邊要解釋。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:165
+msgid "你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:167
+msgid "你的底片還分不出 0.87 和 1.75，剛才我們都看見了。讓你改變想法的，也許不是那個數字，是你親手量過它。那就照這樣寫。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:90
+msgid "你的底片還分不出來。Sobral 的可以。一地分得出，一地還不能——所以我還不想只聽一邊，也不能假裝沒聽見。"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:121
+msgid "你的底片（示意模擬）"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:123
+msgid "你的底片：沒有數值。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:626
+msgid "你的清單交了出去。後來又交了兩份。"
+msgstr ""
+
+#: scripts/judgment.gd:228
+msgid "你的理由和你寫下的電報不太對得上。"
+msgstr ""
+
+#: scripts/judgment.gd:202
+msgid "你的理由站在底片上，這很好。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:24
+msgid "你的茶。最後一點糖我放進去了——別問我從哪裡弄來的。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:24
+msgid "你的茶。糖還是配給的——這一點是我省下來的，不要浪費。"
+msgstr ""
+
+#: scripts/judgment.gd:266
+msgid "你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。"
+msgstr ""
+
+#: scripts/main.gd:742
+msgid "你繞回了觀測站。"
+msgstr ""
+
+#: scripts/judgment.gd:204
+msgid "你記得我們只是其中一站。Dyson 會比較兩地的結果。"
+msgstr ""
+
+#: scripts/judgment.gd:211
+msgid "你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:633
+msgid "你那張畢宿星團的清單在箱子裡。每一顆星都核對過——今天就靠它們了。"
+msgstr ""
+
+#: scripts/judgment.gd:240
+msgid "你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號也被你選進來了——再拿起來看看，它的星像合不合那一行。"
+msgstr ""
+
+#: scripts/judgment.gd:225
+msgid "你量的這幾張星像沒有拖長——偏差不是走速帶進來的。別替不合期望的結果先找好理由。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:543
+msgid "你願意簽的，比你願意相信的多。"
+msgstr ""
+
+#: scripts/ui.gd:598
+msgid "你："
+msgstr ""
+
+#: scripts/main.gd:1280
+msgid "你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。\n%s"
+msgstr ""
+
+#: scripts/main.gd:1294
+msgid "你：「開始！」　Cottingham 移開遮光板。"
+msgstr ""
+
+#: scripts/main.gd:1196
+msgid "你：『開始！』　Cottingham 移開遮光板（空的）。再按一次喊『停』。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:228
+msgid "保留原圖，旁邊附上更正與理由"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:94
+msgid "信"
+msgstr ""
+
+#: scripts/ui.gd:768
+msgid "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:413
+msgid "假如你當時沒找到那個反過來的「14」——你會交什麼？"
+msgstr ""
+
+#: scripts/content.gd:143
+msgid "先全部量，看了數字再決定留哪些。"
+msgstr ""
+
+#: scripts/main.gd:986
+msgid "先到測量桌看看底片吧。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:414
+msgid "先去問抄錄的人。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:538
+msgid "先寫好的規則"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:495
+msgid "先寫規則，再看結果。不然人總會替自己喜歡的數字找理由。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:38
+msgid "先放一邊，但寫明原因（星像糊、比例尺可能變了）"
+msgstr ""
+
+#: scripts/ending.gd:92
+msgid "先放一邊，寫明了原因"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:586
+msgid "先生……您真的不信嗎？"
+msgstr ""
+
+#: scripts/content.gd:206
+msgid "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？"
+msgstr ""
+
+#: scripts/content.gd:32
+msgid "先空拍一次，練練喊開始和停？"
+msgstr ""
+
+#: scripts/content_coda.gd:104
+msgid "先說不確定：數字很小，範圍很寬。"
+msgstr ""
+
+#: scripts/content_coda.gd:104
+msgid "先說天空：雲在最後才薄下去。"
+msgstr ""
+
+#: scripts/content_coda.gd:105
+msgid "先說那張星圖。"
+msgstr ""
+
+#: scripts/content_coda.gd:105
+msgid "先說錯誤：我今天也犯了一個錯。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:574
+msgid "先跳過這顆，等量多幾張再說。"
+msgstr ""
+
+#: scripts/chart.gd:72
+msgid "先選片，再量測。數值會在量測後顯示。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:274
+msgid "光轉三度，對得上嗎？角落那個「14」，你仔細看過了嗎？"
+msgstr ""
+
+#: scripts/judgment.gd:15
+msgid "全是雲，無結果"
+msgstr ""
+
+#: scripts/ui.gd:1746 scripts/ui.gd:1818 scripts/ui.gd:1847 scripts/ui.gd:1878
+msgid "全螢幕：開"
+msgstr ""
+
+#: scripts/ui.gd:1746 scripts/ui.gd:1818 scripts/ui.gd:1847 scripts/ui.gd:1878
+msgid "全螢幕：關"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:308
+msgid "兩個人各自對過。%s，謝謝。"
+msgstr ""
+
+#: scripts/content.gd:206
+msgid "兩個都不在裡面"
+msgstr ""
+
+#: scripts/content.gd:206
+msgid "兩個都容得下（0.87″ 和 1.75″）"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:148
+msgid "兩地一起"
+msgstr ""
+
+#: scripts/ui.gd:1381
+msgid "兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:71
+msgid "兩年，一千多行，錯一行。我量變星的時候，一個晚上就不只錯一行了。"
+msgstr ""
+
+#: scripts/judgment.gd:289
+msgid "兩張"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:506
+msgid "兩處量出同一個數字，我才會開始坐不住。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:558
+msgid "兩週。"
+msgstr ""
+
+#: scripts/main.gd:1584
+msgid "共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。"
+msgstr ""
+
+#: scripts/main.gd:1589
+msgid "共 %d 張：星像清楚 %d、可量但有瑕疵 %d、星不足五顆 %d。\n已勾選 %d 張。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:259
+msgid "再去看一次吧。看看角落那個「14」。我在這裡等。"
+msgstr ""
+
+#: scripts/ui.gd:1787
+msgid "再按一次：回到標題"
+msgstr ""
+
+#: scripts/ui.gd:1796
+msgid "再按一次：從頭開始"
+msgstr ""
+
+#: scripts/ui.gd:1805
+msgid "再按一次：離開（進度不會保留）"
+msgstr ""
+
+#: scripts/content.gd:213
+msgid "再看一次：%s。\n看圖上的細線：兩條預測線，哪一條落在細線裡面？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:150
+msgid "再看一眼：43 角秒不是零。對得上，是指算出來的歲差和看到的一模一樣——這裡還差著那一點。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:139
+msgid "再看一眼：不到一度，在 1846 年的望遠鏡裡就是『就在那裡』。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:101
+msgid "再看一眼：年鑑上剩下的是 43 角秒，他算出來的也是。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:144
+msgid "再看一眼：早了不到三天，在七十多年的等待裡，那幾乎就是準時。"
+msgstr ""
+
+#: scripts/main.gd:1155
+msgid "再讀工作簿最後一頁"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:635
+msgid "別忘了遠處的星。今天，它們和太陽旁邊的星一樣重要。"
+msgstr ""
+
+#: scripts/content.gd:287
+msgid "到了晚上，把兩回的做法和數字並排看看。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:94
+msgid "到了那邊，記得告訴我天空是什麼樣子。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:149
+msgid "到今天為止，是。所以你要去量。"
+msgstr ""
+
+#: scripts/cambridge/director.gd:192
+msgid "到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:66
+msgid "劃一條線，旁邊寫正確的數字，簽上縮寫。"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:248
+msgid "劃線、改正、簽名（"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:19
+msgid "劍橋天文台・1917 年 10 月\n（重建場景）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:17
+msgid "劍橋天文台・1919 年 3 月，出發前一晚\n（重建場景）"
+msgstr ""
+
+#: scripts/ui.gd:1375
+msgid "劍橋，1917 → 普林西比，1919"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:17
+msgid "劍橋，1919 年 10 月\n\n（推測重建）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:496
+msgid "包括我。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:197
+msgid "十七個點重合了。還有一個沒對上。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:227
+msgid "原來那張抄錄圖"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:224
+msgid "原因還沒查明"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:288
+msgid "原圖留著，更正寫在旁邊。很好。三十年後有人翻到這張紙，能看見錯在哪裡，也能看見是誰、怎麼改的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:69
+msgid "去寫吧，筆記本在桌上。我在量我的變星——它一個月會暗下去一次，我想知道它是不是每次都一樣準時。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:153
+msgid "去看看吧。無論你看見什麼，都把它記下來。"
+msgstr ""
+
+#: scripts/ui.gd:705
+msgid "參考底片"
+msgstr ""
+
+#: scripts/content.gd:206
+msgid "只容得下 0.87″"
+msgstr ""
+
+#: scripts/content.gd:206
+msgid "只容得下 1.75″"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:513
+msgid "只拍太陽旁邊那幾顆星：偏折最大，最好量"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:364 scripts/content.gd:162 scripts/content.gd:171
+msgid "只是猜"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:69
+msgid "只是，到了那邊，如果有人問這個數字是從哪裡來的——你記得是你改的。紙不記得。"
+msgstr ""
+
+#: scripts/judgment.gd:292
+msgid "只有一張好片——一張底片只能提出問題，還不能回答。"
+msgstr ""
+
+#: scripts/judgment.gd:244
+msgid "只有拖長或起霧的底片可用。你照規則量了它們，也該把這份不確定寫進電報。"
+msgstr ""
+
+#: scripts/ui.gd:1409
+msgid "只玩尾章：普林西比，1919"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:52
+msgid "可以。Greenwich 也還在比校驗片。只是十一月不會等你——到時候要有一句話交代。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:439
+msgid "可是不信以前，得先弄懂他在說什麼。陪我想一件事。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:613
+msgid "可是今晚看你對那張圖的時候，我覺得好像也沒有那麼久。"
+msgstr ""
+
+#: scripts/judgment.gd:213
+msgid "可是你的底片上明明有五顆以上的星。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:110
+msgid "可是光彎多少，是在任何人量之前就寫下的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:557
+msgid "可是如果有，這張清單會在箱子裡。三週，夠嗎？"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:152
+msgid "可是我希望你帶回來的，是一張讓我不得不信、或者讓他不得不放棄的底片。哪一種都好——只要是乾淨的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:467
+msgid "可是箱子只說會彎，沒說彎多少。一半，牛頓式的算法也算得出來；多出來的另一半，是愛因斯坦後來加上的——太陽旁邊的空間本身也彎了，光走過去多偏一倍。牛頓的算法裡沒有這一項。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:271
+msgid "可是翻過來以後，它還是歪的吧？差一點，全都朝同一個方向。你沒覺得奇怪嗎？"
+msgstr ""
+
+#: scripts/content.gd:31
+msgid "可用底片 %d 張%s。時鐘驅動：%s。"
+msgstr ""
+
+#: scripts/main.gd:1021
+msgid "可用底片：%d 張。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:421
+msgid "可能只是藥膜的瑕疵。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:421
+msgid "可能是很暗的星。"
+msgstr ""
+
+#: scripts/ui.gd:1259
+msgid "可辨識的星點：%d 顆"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:287 scripts/cambridge/director.gd:615
+msgid "史實"
+msgstr ""
+
+#: scripts/chart.gd:126
+msgid "合併"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:112
+msgid "同一個想法，說中兩件不相干的事"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:486
+msgid "同一具望遠鏡——這點我同意。換了鏡頭，就等於換了一把尺。"
+msgstr ""
+
+#: scripts/content.gd:286
+msgid "同一片雲。"
+msgstr ""
+
+#: scripts/ui.gd:1563
+msgid "同一片雲：換個做法，再量一次"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:89
+msgid "同一行的邊上有鉛筆字：「已抄錄，見星圖櫃。」筆跡和抄錄圖上的一樣。\n[color=#b8ad98]——是同一張底片、同一片天。[/color]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:106
+msgid "同一顆變星，一行一行的亮度估計，字跡工整得近乎固執。\n最新一頁的角落，畫著一個很小的問號。"
+msgstr ""
+
+#: scripts/ui.gd:828
+msgid "向 Eddington 報告 →"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:460
+msgid "和出發時一樣高"
+msgstr ""
+
+#: scripts/content.gd:42
+msgid "啊，你來得正好。這場雨把什麼都弄濕了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:418
+msgid "問人是對的。可是人不一定都在。紙會在。"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:593
+msgid "單憑這張底片，仍無法判定。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:122
+msgid "嗯。這種事，不常有。"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:273 scripts/cambridge/box_sketch.gd:372
+msgid "回到桌邊"
+msgstr ""
+
+#: scripts/ui.gd:1782 scripts/ui.gd:1887
+msgid "回到標題"
+msgstr ""
+
+#: scripts/ui.gd:1519 scripts/ui.gd:1666 scripts/ui.gd:1680
+msgid "回顧證據與評語"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:169
+msgid "固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:253
+msgid "圖跟底片完全不同。不是編的，是什麼？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:355
+msgid "在你的筆記本上寫一個數字。不是答案——是你現在猜的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:352
+msgid "在太陽的邊上，最多 1.75 角秒。大約是三公里外，一枚硬幣的寬度。"
+msgstr ""
+
+#: scripts/main.gd:1155 scripts/main.gd:1465
+msgid "在工作簿記下你看到的天空"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:291
+msgid "在我這裡。我……沒捨得丟。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:146
+msgid "在筆記本最後寫一句：哪一個證據最讓你改變想法？"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:275
+msgid "地面"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:35
+msgid "外面蓋住了。再鬆手一次。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:78
+msgid "多出來那一點，我也找不到對應的星。底片上那裡只有一點點白——可能是很暗的星，也可能只是藥膜的瑕疵。"
+msgstr ""
+
+#: scripts/ui.gd:1081
+msgid "夜裡的位置"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:538
+msgid "夜裡的比對片"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:558
+msgid "夠。"
+msgstr ""
+
+#: scripts/ui.gd:244
+msgid "大"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:299
+msgid "大概是。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:102 scripts/world_builder.gd:500
+msgid "天文鐘"
+msgstr ""
+
+#: scripts/main.gd:1028
+msgid "天文鐘的滴答聲在潮濕的空氣裡顯得很響。"
+msgstr ""
+
+#: scripts/content.gd:286
+msgid "天空換了；差異也可能來自雲況。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:37
+msgid "天體照相儀那組，你怎麼算？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:491
+msgid "太陽旁邊的星被往外推，遠處的星幾乎不動。兩種動法不一樣，才分得開。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:133 scripts/cambridge/content_1917.gd:139 scripts/cambridge/content_1917.gd:144 scripts/cambridge/content_1917.gd:150 scripts/cambridge/content_1917.gd:152 scripts/cambridge/content_1917.gd:159 scripts/cambridge/content_1917.gd:171 scripts/cambridge/content_epilogue.gd:101 scripts/cambridge/content_epilogue.gd:103 scripts/cambridge/content_epilogue.gd:105
+msgid "太陽系儀"
+msgstr ""
+
+#: scripts/cambridge/epilogue_director.gd:129 scripts/cambridge/epilogue_director.gd:175
+msgid "太陽系儀還在架上。"
+msgstr ""
+
+#: scripts/main.gd:1330
+msgid "太陽西緣開始發亮——第三接觸快到了！"
+msgstr ""
+
+#: scripts/content.gd:15
+msgid "太陽躲在雲後面，月亮已經吃掉大半。全食只有 [b]302 秒[/b]。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:162
+msgid "太陽附近有看不見的物質（Seeliger）"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:180
+msgid "好"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:560 scripts/cambridge/content_departure.gd:130
+msgid "好。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:48
+msgid "好。寫明白：星像糊，比例尺可能變了——讓後人可以不同意。Greenwich 那邊也是這麼做的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:317
+msgid "好。我照你寫的轉出去——連同我在旁邊寫的這幾行。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:416
+msgid "好。那樣的話，下一個人至少知道從哪裡接著查。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:260
+msgid "好。（回到看片台和筆記本）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:329
+msgid "好了。說點比 14 號更麻煩的事。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:159
+msgid "如果你是 1917 年的天文學家，你會先懷疑什麼？"
+msgstr ""
+
+#: scripts/content.gd:21
+msgid "如果星光經過太陽時會彎曲，太陽旁的星看起來就會被往外推一點點。把今天的底片和一月在牛津拍的同一片星場比較，就能量出推了多少。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:616
+msgid "如果真的有遠征……"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:589
+msgid "如果要改，我希望是被一張乾淨的底片說服——而不是被一個好故事。你也一樣。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:86
+msgid "如果釘得進去的話。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:62
+msgid "字是反的——那整張圖大概也是反的。把描圖紙翻過來試試。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:206
+msgid "字是反的。如果整張描圖紙也是反的呢？試試［翻面］，再用 %s 慢慢轉。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:516
+msgid "它們最重要，可是不能只有它們。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:256
+msgid "完全不同，也可能只是用錯了方法。我年輕時把整張星圖倒過來讀過一次——沒有人說我編造，只說我是個笨蛋。這個詞比較公道。"
+msgstr ""
+
+#: scripts/cambridge/plan_board.gd:130
+msgid "完成計畫"
+msgstr ""
+
+#: scripts/judgment.gd:156
+msgid "完整的量測要回國後才做得完，比例尺和校驗片都還得一張張比；Sobral 的結果我們也還不知道。電報發出去就收不回來了。"
+msgstr ""
+
+#: scripts/content.gd:43
+msgid "定天鏡靠這具重錘時鐘轉動，跟著太陽走。發條得上滿，走速還要對著天文鐘校一次——不然曝光一長，星像就拖成短線。"
+msgstr ""
+
+#: scripts/content.gd:193
+msgid "容不下它"
+msgstr ""
+
+#: scripts/content.gd:190
+msgid "容得下 %s，容不下 %s。"
+msgstr ""
+
+#: scripts/content.gd:193
+msgid "容得下它"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:304
+msgid "寫「未解決」吧。等第二張底片。它要是真的在那裡，它會等你。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:234
+msgid "寫上「可能是新天體」"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:138
+msgid "寫下來，比記在心裡好。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:424 scripts/cambridge/content_1917.gd:425
+msgid "對。一張底片只能提出問題。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:283
+msgid "對。北在哪裡，要問底片自己，不能問紙的邊。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:453
+msgid "對。只看箱子裡面，分不出來。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:394
+msgid "對。所以我不急著相信。這不是固執——這就是你今晚做的事。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:278
+msgid "對。數字不會自己變成鏡像。那是抄錄方法留下的指紋。"
+msgstr ""
+
+#: scripts/judgment.gd:180
+msgid "對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:148
+msgid "對。要一個重得多的東西——太陽。讓星光擦著它的邊走過去。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:463
+msgid "對。要是不低，只看這道光，就分得出兩個箱子了。"
+msgstr ""
+
+#: scripts/judgment.gd:182
+msgid "對。誤差範圍同時容得下兩種答案。我們照實說。"
+msgstr ""
+
+#: scripts/judgment.gd:177
+msgid "對。這幾張偏向較小的偏折，可是片子少、誤差大，還不能說什麼。我們照實說。"
+msgstr ""
+
+#: scripts/cambridge/director.gd:187
+msgid "對上了。請 %s 自己再對一次，再寫進筆記本。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:281
+msgid "對上了，只說明這樣對得上。要說明為什麼，得在底片和紙上找到它留下的痕跡。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:75
+msgid "對上了？先別告訴我怎麼對的。讓我從頭自己對一次——兩個人各自對出同一個結果，比一個人對兩次可靠。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:138 scripts/cambridge/content_1917.gd:143 scripts/cambridge/content_1917.gd:149 scripts/cambridge/content_1917.gd:180 scripts/cambridge/content_epilogue.gd:100 scripts/cambridge/content_epilogue.gd:103
+msgid "對不上"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:255
+msgid "對不上，是一件觀測上的事實。編造，是一句關於人的指控。不要把這兩件事寫在同一行。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:138 scripts/cambridge/content_1917.gd:143 scripts/cambridge/content_1917.gd:149 scripts/cambridge/content_1917.gd:178 scripts/cambridge/content_epilogue.gd:100 scripts/cambridge/content_epilogue.gd:103
+msgid "對得上"
+msgstr ""
+
+#: scripts/ui.gd:1906 scripts/ui.gd:2037
+msgid "對話紀錄　［%s 關閉］"
+msgstr ""
+
+#: scripts/content.gd:211
+msgid "對，範圍就是這樣讀的。"
+msgstr ""
+
+#: scripts/ui.gd:244
+msgid "小"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:547
+msgid "少了%s。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:508
+msgid "就算戰爭還沒結束，也照計畫準備"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:316
+msgid "就這樣交。"
+msgstr ""
+
+#: scripts/content.gd:77
+msgid "島上要再過好幾個月才能在夜裡看到這片星，所以比對片必須事先拍好。之後要把日食底片和它疊在一起比較星的位置。"
+msgstr ""
+
+#: scripts/content_coda.gd:25
+msgid "工作簿"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:162
+msgid "工作簿最後一頁還是空的。你把它放在箱子的最上層。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:220
+msgid "差異的原因"
+msgstr ""
+
+#: scripts/ui.gd:703
+msgid "已沖洗的底片"
+msgstr ""
+
+#: scripts/ui.gd:1279
+msgid "已記下讀數：%.2f 格。"
+msgstr ""
+
+#: scripts/main.gd:1268
+msgid "帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［"
+msgstr ""
+
+#: scripts/judgment.gd:162
+msgid "希望什麼呢？我們沒有一張量得出結果的底片。這兩個字會讓倫敦誤會。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:158
+msgid "帳上你改了，這裡寫沒有。兩句都留著，讓後人來問你。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:130
+msgid "帳本翻到新的一行，Ashby 先生把筆推過來。\n1919 年 10 月，你寫："
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:353
+msgid "平常太陽亮得什麼都看不見。只有日全食，月亮把它遮住，星才會出來。拍下那一刻太陽旁邊的星，再和夜裡拍的同一片星比——就知道它們有沒有被推開。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:137
+msgid "年鑑・1846"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:142
+msgid "年鑑・1910"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:147 scripts/cambridge/content_1917.gd:148
+msgid "年鑑・水星"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:99
+msgid "年鑑・水星（1919 年 10 月補記）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:282
+msgid "底片上畫的北向箭頭是斜的。"
+msgstr ""
+
+#: scripts/world_builder.gd:530
+msgid "底片匣箱"
+msgstr ""
+
+#: scripts/main.gd:912
+msgid "底片匣都拿完了"
+msgstr ""
+
+#: scripts/judgment.gd:23
+msgid "底片少、誤差大；需要 Sobral 的結果與回國後的完整量測。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:27
+msgid "底片已經擺在看片台上，抄錄圖也在旁邊。我這邊還有四十張變星底片要量——你負責星星，我負責……也是星星。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:186
+msgid "底片拍了 %d 張，我不知道上面會留下什麼。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:223
+msgid "底片放斜了約 3 度"
+msgstr ""
+
+#: scripts/world_builder.gd:480
+msgid "底片架"
+msgstr ""
+
+#: scripts/main.gd:917
+msgid "底片架：可用底片 %d 張"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:104
+msgid "底片櫃"
+msgstr ""
+
+#: scripts/main.gd:1305
+msgid "底片用完了。［%s］等待第三接觸"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:162
+msgid "引力隨距離減弱的規則，差了一丁點（Hall）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:345
+msgid "很大吧？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:266
+msgid "很少有人敢這樣交卷。你找到了怎麼對齊，卻不肯假裝知道為什麼——這很好。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:268
+msgid "很少有人敢這樣交卷，這很好。可是你連怎麼對上都還沒試出來吧？「不知道」要在查過以後才值錢。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:364 scripts/content.gd:162 scripts/content.gd:171
+msgid "很確定"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:196
+msgid "從箱外看"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:196
+msgid "從箱裡看"
+msgstr ""
+
+#: scripts/ui.gd:1792 scripts/ui.gd:1885
+msgid "從頭開始"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:592
+msgid "微弱斑點：恆星？乳劑瑕疵？"
+msgstr ""
+
+#: scripts/cambridge/plan_board.gd:88
+msgid "怎樣的日食觀測，才算公平的比較？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:475
+msgid "怎樣的日食觀測，才算公平的比較？挑三到四件最要緊的事。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:65
+msgid "怎麼改？"
+msgstr ""
+
+#: scripts/chart.gd:64
+msgid "愛因斯坦 1.75″"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:455
+msgid "愛因斯坦的理論就從這裡開始：既然分不出來，就把它們當成同一件事——至少在一個小箱子裡。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:335
+msgid "愛因斯坦的理論說：星光從太陽旁邊經過時，會被拉彎一點點，從地上看，那顆星就像被往外推開了。照牛頓式算法，光也會彎，但只有他說的一半；也有人說，根本不會彎。"
+msgstr ""
+
+#: scripts/content.gd:22
+msgid "愛因斯坦的理論預測，太陽邊緣的偏折是 1.75 角秒（大約是三公里外，一枚硬幣的寬度）；照另一種算法只有一半，0.87；也可能根本不動。[b]我們是來量的，不是來證明的。[/b]"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:575
+msgid "應該是舊底片量錯了，照星表寫。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:309
+msgid "應該的。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:124
+msgid "應該的。下一次日食，還會有人去量。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:188
+msgid "我一張底片也沒有拍成。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:433
+msgid "我不信一張在雲底下、在熱帶、在戰時拍的底片，能乾淨到讓我改掉牛頓。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:42
+msgid "我不是說抄錄的人亂畫。那是個來幫忙的學生，1915 年春天就從軍去了。那年走的人，都走得很急。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:434
+msgid "我也不信。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:431
+msgid "我也不信。可是不信以前，得先弄懂他在說什麼。陪我想一件事。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:423
+msgid "我也不知道。我們兩個不知道得一模一樣，這讓我很放心。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:529
+msgid "我也覺得少了什麼。換一張吧。"
+msgstr ""
+
+#: scripts/content_coda.gd:118
+msgid "我今天也犯了一個錯，回去再慢慢告訴你。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:589
+msgid "我信了牛頓三十年。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:521
+msgid "我們兩個難得完全同意。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:611
+msgid "我們可能真的畫錯了。可是畫錯，跟說謊，不是一回事。"
+msgstr ""
+
+#: scripts/content.gd:218
+msgid "我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:109
+msgid "我們找過的那些說法——看不見的行星、太陽旁的物質、改一點引力的規則——都只為了水星，沒有一個能讓星光彎得像愛因斯坦說的那麼多。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:182
+msgid "我們拍的每一張，都在雲後面。」"
+msgstr ""
+
+#: scripts/judgment.gd:153
+msgid "我和你一樣懷著希望。可是一夜、幾張底片、在帳篷裡量的數字——這還不是證明。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:30
+msgid "我喝不慣甜的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:367
+msgid "我寫 0.87。光如果真的有重量，牛頓式就該是這樣。日食那天，我們兩個都翻回這一頁。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:86
+msgid "我寫的是 0.87。你的底片和 Sobral 的小鏡頭，都容不下它。……在這件事上，我錯了。"
+msgstr ""
+
+#: scripts/content.gd:17
+msgid "我已經裝好四個底片匣。暗房裡還有八個——能搬多少就搬多少，放到望遠鏡旁的架子上。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:260
+msgid "我想照這樣交。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:554
+msgid "我想請你做一件事。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:548
+msgid "我把它補在最下面，你不介意吧？——這張紙還會改很多次。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:370
+msgid "我教了三十年牛頓。潮汐、行星、彗星回來的日子——它從來沒讓我失望過。要我為了一張日食底片改掉這些，那張底片得比這張桌上任何東西都乾淨。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:531
+msgid "我替你拿。（把卡片翻過去）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:399
+msgid "我會把你這張紙轉給他。照原樣轉——寫錯的、劃掉的，全部。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:586
+msgid "我會的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:607
+msgid "我的變星今天又暗了一次，早了四分鐘。沒有人在等這四分鐘——可是我會把它寫下來。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:558
+msgid "我盡量。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:581
+msgid "我看到你寫了『對不上』。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:588
+msgid "我知道。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:126
+msgid "我第一份量底片的工作，帶我的人給我的。用了三十年，鏡片我自己磨過一次。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:148
+msgid "我自己的底片"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:585
+msgid "我要說的只有一句：做他的清單，就像做我的一樣。哪顆星對不上，就寫它對不上。不管那對誰有利。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:29
+msgid "我說過了，我喝不慣甜的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:409
+msgid "我讀了三遍。不是因為難懂——是因為很少有人把「不知道」寫得這麼清楚。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:409
+msgid "我讀了兩遍。寫得很清楚。"
+msgstr ""
+
+#: scripts/content.gd:16
+msgid "我負責換底片，Cottingham 拿遮光板控制曝光。[b]你替我們看雲[/b]：雲變薄就喊「開始」，雲變厚、或全食快結束時喊「停」。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:151
+msgid "我還是不信。你知道的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:54
+msgid "我還是覺得先查日誌，就在架子上。要是連編號都不一樣，我們就不用傷腦筋了。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:148
+msgid "我還沒有改變想法"
+msgstr ""
+
+#: scripts/content_coda.gd:118
+msgid "我還記得小時候那張星圖。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:81
+msgid "所以……今晚沒有別的事了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:457
+msgid "所以不能只靠想。在一個越拉越快的箱子裡，一道光從左牆橫著射向右牆，到對面時會落得低一點——因為地板一直往上追它。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:469
+msgid "所以我想先把「乾淨」這兩個字，寫成一張清單。（把一張白紙放到桌子中間）你們兩位幫我寫。"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:128
+msgid "找出描圖與底片之間的差異。"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:151
+msgid "抄上 Sobral 4 吋"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:151
+msgid "抄上 Sobral 天體照相儀"
+msgstr ""
+
+#: scripts/cambridge/epilogue_chart.gd:151
+msgid "抄好了"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:277
+msgid "抄錄圖上的編號是反的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:187
+msgid "抄錄圖畫在描圖紙上。拖動它疊到底片上，看看星點能不能重合。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:191
+msgid "抄錄圖角落的「14」是反的，像在鏡子裡看到的。那個編號是用鉛筆寫在底片藥膜面上的——抄錄的人，是隔著玻璃那一面描的嗎？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:222
+msgid "抄錄時底片翻了面（鏡像）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:221
+msgid "抄錄時底片翻了面，又放斜了約 3 度"
+msgstr ""
+
+#: scripts/cambridge/cast.gd:13
+msgid "抄錄的人"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:225
+msgid "抄錄的人草率，或是憑空編造"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:31
+msgid "把它們抄到你的圖上。一筆一筆來。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:280
+msgid "把它翻過來，十七個點都對上了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:98
+msgid "把底片夾上去，轉動螺旋，一次讀一顆星的位置。讀數比肉眼能分辨的細得多。\n今晚用不到它——今晚只需要看片台和眼睛。"
+msgstr ""
+
+#: scripts/content.gd:254
+msgid "拍攝時：Cottingham 說一半在雲裡。"
+msgstr ""
+
+#: scripts/content.gd:256
+msgid "拍攝時：Cottingham 說幾乎整段都在雲後。"
+msgstr ""
+
+#: scripts/content.gd:252
+msgid "拍攝時：Cottingham 說雲很薄，看得見日冕。"
+msgstr ""
+
+#: scripts/content.gd:258
+msgid "拍攝時：曝光太短。"
+msgstr ""
+
+#: scripts/ui.gd:859
+msgid "拖長：每顆星都拉成同方向的短線（時鐘走速不準）"
+msgstr ""
+
+#: scripts/main.gd:913
+msgid "拿底片匣（手上 %d，箱裡還有 %d）"
+msgstr ""
+
+#: scripts/main.gd:1157
+msgid "拿起 Ashby 先生給的放大鏡"
+msgstr ""
+
+#: scripts/settings.gd:176
+msgid "按一下 %s 開始"
+msgstr ""
+
+#: scripts/settings.gd:176
+msgid "按住 %s "
+msgstr ""
+
+#: scripts/main.gd:1434
+msgid "接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"
+msgstr ""
+
+#: scripts/content.gd:85
+msgid "接下來的六個晚上，我們每晚沖兩張。"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:273 scripts/cambridge/box_sketch.gd:372
+msgid "換一格"
+msgstr ""
+
+#: scripts/ui.gd:1779 scripts/ui.gd:1993
+msgid "操作說明"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:66
+msgid "擦掉，直接寫上正確的數字。"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:248
+msgid "擦改的墨跡還留在紙上"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:189
+msgid "收好清單"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:280
+msgid "收起來"
+msgstr ""
+
+#: scripts/ui.gd:875
+msgid "收起參考"
+msgstr ""
+
+#: scripts/ui.gd:1680
+msgid "收起回顧"
+msgstr ""
+
+#: scripts/ui.gd:1685
+msgid "收起歷史"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:316
+msgid "改。（回到看片台和筆記本）"
+msgstr ""
+
+#: scripts/content.gd:330
+msgid "改了"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:140
+msgid "改了。寫下來，比記在心裡好。"
+msgstr ""
+
+#: scripts/content.gd:156
+msgid "改：0.87"
+msgstr ""
+
+#: scripts/content.gd:156
+msgid "改：1.75"
+msgstr ""
+
+#: scripts/content.gd:156
+msgid "改：說不準"
+msgstr ""
+
+#: scripts/content.gd:156
+msgid "改：零"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:162
+msgid "放大未重合點"
+msgstr ""
+
+#: scripts/ui.gd:766
+msgid "放大鏡 ×2"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:199
+msgid "放大鏡下，底片上那個位置只有一點極淡的白。可能是一顆很暗的星，也可能是藥膜上的瑕疵——光憑這一張，分不出來。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:39
+msgid "整組丟掉，不用提"
+msgstr ""
+
+#: scripts/ending.gd:92
+msgid "整組丟掉，沒有提"
+msgstr ""
+
+#: scripts/content_coda.gd:116
+msgid "數字很小，範圍很寬，我還不能說得更確定。"
+msgstr ""
+
+#: scripts/judgment.gd:226
+msgid "數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。"
+msgstr ""
+
+#: scripts/ui.gd:244
+msgid "文字大小："
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:303
+msgid "新天體。（笑了一下，不是嘲笑）一張底片、一個白點、一個晚上。如果我每次這樣想都寫下來，皇家天文學會早就把我請出去了。"
+msgstr ""
+
+#: scripts/ui.gd:1569
+msgid "新的天空：換一種雲況"
+msgstr ""
+
+#: scripts/judgment.gd:198
+msgid "日冕很美，我也看了一眼。但美不是量測——量測在底片上。"
+msgstr ""
+
+#: scripts/judgment.gd:24
+msgid "日冕那麼清楚——我們一定成功了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:57
+msgid "日誌說是同一張？那就怪了。"
+msgstr ""
+
+#: scripts/judgment.gd:14
+msgid "日食極佳，愛因斯坦得證"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:468
+msgid "日食那天，我們就去量：零、一半，還是全部。"
+msgstr ""
+
+#: scripts/content.gd:19
+msgid "明白了。"
+msgstr ""
+
+#: scripts/main.gd:1630
+msgid "星像品質：它拖長、起霧或星不夠"
+msgstr ""
+
+#: scripts/judgment.gd:96
+msgid "星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。"
+msgstr ""
+
+#: scripts/judgment.gd:26
+msgid "星像拖長了——走速沒校過。數值偏低，可能是儀器，不是星。"
+msgstr ""
+
+#: scripts/ui.gd:1272
+msgid "星像清楚。"
+msgstr ""
+
+#: scripts/judgment.gd:223
+msgid "星像確實拖長了——可是拖長只會把數字拉低，這個結果並沒有偏低。"
+msgstr ""
+
+#: scripts/ui.gd:804
+msgid "星光偏折（太陽邊緣，角秒）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:581
+msgid "星表也是人量的。"
+msgstr ""
+
+#: scripts/content.gd:142
+msgid "星點不足五顆的不量；星像拖長或被雲霧蓋住的，不和清楚的平均。"
+msgstr ""
+
+#: scripts/ui.gd:859
+msgid "星點清楚：小而圓"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:613
+msgid "是啊。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:120
+msgid "是啊。年鑑上那一行，可以闔上了。"
+msgstr ""
+
+#: scripts/content.gd:225
+msgid "時鐘走得很穩。謝謝你那天替我報秒。"
+msgstr ""
+
+#: scripts/world_builder.gd:451 scripts/world_builder.gd:463
+msgid "時鐘驅動"
+msgstr ""
+
+#: scripts/main.gd:904
+msgid "時鐘驅動：發條已上滿"
+msgstr ""
+
+#: scripts/ending.gd:74
+msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
+msgstr ""
+
+#: scripts/ui.gd:1711 scripts/ui.gd:1854
+msgid "暫停"
+msgstr ""
+
+#: scripts/content.gd:32
+msgid "曝光的要領再說一次？"
+msgstr ""
+
+#: scripts/world_builder.gd:497
+msgid "曝光計畫"
+msgstr ""
+
+#: scripts/content.gd:58
+msgid "曝光計畫（筆記，遊戲內重建）"
+msgstr ""
+
+#: scripts/main.gd:907
+msgid "替 Cottingham 報秒、校走速"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:25
+msgid "最後一頁。我念底片上量到的數，你對清單。對完這頁，箱子就可以釘起來了。"
+msgstr ""
+
+#: scripts/content.gd:35
+msgid "最要緊的是：[b]第三接觸之前一定要喊停[/b]。陽光一回來，那張底片就毀了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:41
+msgid "會不會根本不是同一片天？拿錯了底片，或是記錯了日子。架上有那年的觀測日誌，查一下編號。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:180
+msgid "有一陣，雲裂開一半，透出一點光。」"
+msgstr ""
+
+#: scripts/ui.gd:1380
+msgid "有人會說，對不上的東西就是假的。\n"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:424 scripts/cambridge/content_1917.gd:425
+msgid "有可能。你打算怎麼確定？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:363 scripts/content.gd:161
+msgid "有多確定？"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:178
+msgid "有幾秒，雲薄到看得見日冕——像有人在霧後面點了一盞燈。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:364 scripts/content.gd:162 scripts/content.gd:171
+msgid "有點把握"
+msgstr ""
+
+#: scripts/content.gd:293
+msgid "未寫規則"
+msgstr ""
+
+#: scripts/ending.gd:32
+msgid "本子上：%.2f″ ± %.2f″（示意模擬）"
+msgstr ""
+
+#: scripts/ending.gd:32
+msgid "本子上：沒有量出任何數值。"
+msgstr ""
+
+#: scripts/content.gd:285
+msgid "本子翻到新的一頁：第 %d 次試驗。上一回的記錄留在旁邊。"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:404
+msgid "查看 %s 的工作簿"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:455
+msgid "查看 1915 年觀測日誌"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:449
+msgid "查看太陽系儀"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:578
+msgid "查看工作簿"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:392
+msgid "查看底片"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:463
+msgid "查看底片櫃"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:472
+msgid "查看摺起的信"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:513
+msgid "查看爐火"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:452
+msgid "查看留聲機"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:486
+msgid "查看空桌"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:582
+msgid "查看窗外的路燈"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:399
+msgid "查看筆記本"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:528
+msgid "查看調節鐘"
+msgstr ""
+
+#: scripts/cambridge/room_builder.gd:582
+msgid "查看雨中的窗"
+msgstr ""
+
+#: scripts/cambridge/director.gd:185
+msgid "核對 14 號星場的抄錄圖，交給 %s"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:212
+msgid "核對完了。關上看片台，到筆記本上寫下結果。"
+msgstr ""
+
+#: scripts/cambridge/report_sheet.gd:93
+msgid "核對紀錄"
+msgstr ""
+
+#: scripts/content.gd:219
+msgid "根據什麼？"
+msgstr ""
+
+#: scripts/ui.gd:1759 scripts/ui.gd:1762 scripts/ui.gd:244
+msgid "標準"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:333
+msgid "標籤倒了過來；先看看底片與描圖紙的方向。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:232
+msgid "標記「未解決：需要另一張同天區的底片」"
+msgstr ""
+
+#: scripts/ui.gd:1526 scripts/ui.gd:1670 scripts/ui.gd:1685
+msgid "歷史上發生了什麼"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:163
+msgid "歷史上，普林西比的觀測者是 Eddington 與 Cottingham 兩人。你和他們同行——這是虛構的。"
+msgstr ""
+
+#: scripts/ui.gd:773
+msgid "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
+msgstr ""
+
+#: scripts/content.gd:125
+msgid "比例和方向，先用遠處的星校正過——1917 年你寫進了計畫。"
+msgstr ""
+
+#: scripts/content.gd:126
+msgid "比例和方向，先用遠處的星校正過——那一條是 Eddington 補上的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:541
+msgid "比對片、遠處的星、先寫好的規則。（把紙推到%s面前）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:483
+msgid "比對片：用同一具望遠鏡，在夜裡拍同一片星場（太陽不在的時候）"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:112
+msgid "水星也不再是例外了"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:148
+msgid "水星和光指向同一邊"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:147
+msgid "水星：把其他行星的拉扯全算進去，它的近日點（軌道上最靠近太陽的那一點）每一百年還多走了大約 43 角秒。不是整個進動——是算完之後剩下的那一點。"
+msgstr ""
+
+#: scripts/content.gd:32
+msgid "沒事。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:231
+msgid "沒對上的那一點"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:141
+msgid "沒改。那也寫下來——連日期一起。"
+msgstr ""
+
+#: scripts/judgment.gd:248
+msgid "沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。"
+msgstr ""
+
+#: scripts/chart.gd:75
+msgid "沒有可量測的底片。"
+msgstr ""
+
+#: scripts/content.gd:113
+msgid "沒有它，這些星就沒有「原來的位置」可以比。"
+msgstr ""
+
+#: scripts/content.gd:167 scripts/content.gd:171
+msgid "沒有寫"
+msgstr ""
+
+#: scripts/judgment.gd:186
+msgid "沒有結果？你手上就有星點清楚的底片。雲很厚，但不是什麼都沒留下。"
+msgstr ""
+
+#: scripts/judgment.gd:188
+msgid "沒有結果？你手上還有可量的底片，只是星像拖長或被雲霧蓋住；不是什麼都沒留下。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:485
+msgid "沒有這張，日食底片上的星就沒有「原來的位置」可以比。"
+msgstr ""
+
+#: scripts/content.gd:311
+msgid "沒有量出數值。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:503
+msgid "派兩支隊伍到不同的地方，互相檢驗"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:389
+msgid "海王星、哈雷——它在別的地方都對。所以水星才讓人睡不好。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:104
+msgid "淺淺的抽屜，一格一張底片。每一張都有編號、日期和墨水寫的備註。\n這裡沒有一張底片被丟掉過。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:62
+msgid "清單上寫的是十八點六三。兩個數字換了位置。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:117
+msgid "清單我看過了。最後一頁也看了。"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:120
+msgid "清單收好了。和 Kit 說說話。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:571
+msgid "清單標著第一顆星的位置。舊底片上的星，卻離那個位置約 0.3 角秒——大約是日食那天要量的 1.75 角秒的六分之一。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:605
+msgid "清單？"
+msgstr ""
+
+#: scripts/ui.gd:1769 scripts/ui.gd:1772
+msgid "減少晃動：開"
+msgstr ""
+
+#: scripts/ui.gd:1769 scripts/ui.gd:1772
+msgid "減少晃動：關"
+msgstr ""
+
+#: scripts/ui.gd:781
+msgid "測微器"
+msgstr ""
+
+#: scripts/world_builder.gd:540
+msgid "測量桌"
+msgstr ""
+
+#: scripts/main.gd:923
+msgid "測量桌——今晚才會用到"
+msgstr ""
+
+#: scripts/main.gd:1030
+msgid "測量桌。今晚，底片會在這裡被逐張比對。"
+msgstr ""
+
+#: scripts/content.gd:19
+msgid "為什麼要拍太陽旁邊的星？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:209
+msgid "為什麼要轉？底片上鉛筆畫的北向箭頭，和玻璃邊緣平行嗎？"
+msgstr ""
+
+#: scripts/content.gd:306
+msgid "無"
+msgstr ""
+
+#: scripts/chart.gd:64
+msgid "無偏折 0″"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:573
+msgid "照實寫：這顆對不上，差約 0.3 角秒。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:99
+msgid "照愛因斯坦 1915 年的算法，水星的近日點每一百年要多走約 43 角秒——正好是年鑑上算完其他行星之後，剩下的那一點。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:342
+msgid "照我們熟悉的牛頓式算法，光如果也受引力影響，也會彎——但只有一半。也有人說，根本不會彎。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:414
+msgid "照最像的那樣對齊，交上去。"
+msgstr ""
+
+#: scripts/ending.gd:92
+msgid "照樣一樣重地算"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:38
+msgid "照樣算，一樣重"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:500
+msgid "熱帶的白天和夜晚差很多，鏡子和鏡筒都會變形。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:100
+msgid "爐火"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:100
+msgid "爐火很小。煤也得省著用。"
+msgstr ""
+
+#: scripts/content.gd:76 scripts/content.gd:77 scripts/main.gd:1739
+msgid "牛津比對底片"
+msgstr ""
+
+#: scripts/world_builder.gd:787
+msgid "牛津比對底片盒"
+msgstr ""
+
+#: scripts/ui.gd:1128
+msgid "牛津比對片"
+msgstr ""
+
+#: scripts/ui.gd:939
+msgid "牛津（無日）"
+msgstr ""
+
+#: scripts/chart.gd:64
+msgid "牛頓式 0.87″"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:163
+msgid "牛頓的理論本身"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:417
+msgid "猜沒有錯。只是要寫明是猜。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:391
+msgid "現在你告訴我。（拿起你的紙）如果日食那張底片上的星「移動」了——我們怎麼知道，那不是有人把底片放反、放斜了？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:392
+msgid "用離太陽很遠的星來檢查？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:488
+msgid "用離太陽很遠的星當基準，校正底片的比例和方向"
+msgstr ""
+
+#: scripts/ending.gd:57
+msgid "由 Cottingham 匆忙處理"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:115 scripts/cambridge/content_1917.gd:116 scripts/cambridge/content_1917.gd:117 scripts/cambridge/content_1917.gd:120 scripts/cambridge/content_1917.gd:122
+msgid "留聲機"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:128
+msgid "畢宿星團比較星清單 · 最後一頁"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:555
+msgid "畢宿星團那一帶，夠亮、能在日冕旁邊拍得到的星——從星表裡挑出來，列一張清單。每一顆，都找一張舊底片核對位置。"
+msgstr ""
+
+#: scripts/ui.gd:265
+msgid "畫質：低"
+msgstr ""
+
+#: scripts/ui.gd:265
+msgid "畫質：標準"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:233
+msgid "當成墨漬，刪掉"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:189
+msgid "疊上去……一顆都對不上。"
+msgstr ""
+
+#: scripts/main.gd:932
+msgid "發條上滿了。"
+msgstr ""
+
+#: scripts/content.gd:227
+msgid "發條是滿的，可惜沒來得及對時——長一點的曝光，星像都有點拖。"
+msgstr ""
+
+#: scripts/content.gd:49
+msgid "發條滿了。現在到天文鐘那裡替我報秒，我來調走速。"
+msgstr ""
+
+#: scripts/main.gd:1058
+msgid "目標已更新。"
+msgstr ""
+
+#: scripts/cambridge/epilogue_director.gd:87
+msgid "看太陽系儀"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:377
+msgid "看完了？水星例外。那 43 角秒，算了快六十年，還沒有一個說法讓我服氣。"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:162
+msgid "看標籤"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:52
+msgid "看片台在桌子中間。把抄錄圖疊到底片上，就知道對不對得上。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:207
+msgid "看看抄錄圖角落的編號，再看看底片上用鉛筆寫的那個。"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:162
+msgid "看箭頭"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:37
+msgid "示意圖，不按比例。"
+msgstr ""
+
+#: scripts/ui.gd:874
+msgid "示意圖，不是你的底片。"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:38
+msgid "示意圖：落差放大了許多。真的箱子裡，比一個原子還小。"
+msgstr ""
+
+#: scripts/ui.gd:834
+msgid "示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:92
+msgid "空桌子"
+msgstr ""
+
+#: scripts/prompts.gd:9
+msgid "空白鍵"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:96
+msgid "窗"
+msgstr ""
+
+#: scripts/main.gd:794
+msgid "窗口過去了，你沒有開：那一段就沒有底片。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:23
+msgid "窗簾拆了。整整四年，我第一次在這個房間看見外面的路燈。"
+msgstr ""
+
+#: scripts/ui.gd:1215
+msgid "第 %d 號%s%s"
+msgstr ""
+
+#: scripts/main.gd:1745
+msgid "第 %d 號底片"
+msgstr ""
+
+#: scripts/ui.gd:939
+msgid "第 %d 號（全食）・位移已放大（示意）"
+msgstr ""
+
+#: scripts/judgment.gd:256
+msgid "第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。"
+msgstr ""
+
+#: scripts/judgment.gd:290
+msgid "第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。"
+msgstr ""
+
+#: scripts/judgment.gd:252
+msgid "第 %s 號底片的星像很清楚，你沒有量它。若它的數字不合我們的期望，那更應該量。"
+msgstr ""
+
+#: scripts/judgment.gd:254
+msgid "第 %s 號的星像拖長了或被雲霧蓋住。和好片一起平均，會把誤差帶進結論。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:39
+msgid "第 21 號"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:40
+msgid "第 22 號"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:41
+msgid "第 23 號"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:120
+msgid "第 23 號劃了一條線，旁邊簽了名。兩年前你還不會這樣做。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:122
+msgid "第 23 號擦過。紙面上看得出來。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:42
+msgid "第 24 號"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:43
+msgid "第 25 號"
+msgstr ""
+
+#: scripts/main.gd:1581
+msgid "第%d號"
+msgstr ""
+
+#: scripts/ui.gd:1392
+msgid "第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。"
+msgstr ""
+
+#: scripts/main.gd:1630
+msgid "第一次的數字不合我的預期"
+msgstr ""
+
+#: scripts/ending.gd:34
+msgid "第一次量：%.2f″ ± %.2f″"
+msgstr ""
+
+#: scripts/ending.gd:34
+msgid "第一次量：沒有量出任何數值。"
+msgstr ""
+
+#: scripts/main.gd:1391
+msgid "第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:146
+msgid "筆記本"
+msgstr ""
+
+#: scripts/content.gd:112
+msgid "等一下——比對片還在箱子裡。1917 年的板上漏了它，是我補上的；今晚由你去拿。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:124
+msgid "等核對完，就在這裡寫下結果。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:61
+msgid "等等。第 23 號，再念一次：十六點八三。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:617
+msgid "算了。先做清單。畢宿星團不會自己排好隊。"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:34
+msgid "箱子在空無一物的太空裡，被繩子越拉越快地往上拉。再鬆手一次。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:449
+msgid "箱子在空無一物的太空裡，被越拉越快地往上拉。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:449
+msgid "箱子放在地上。"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:33
+msgid "箱子放在地上。鬆手，看鉛筆怎麼掉。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:80
+msgid "箱子明天早上六點來搬。我叫了推車。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:466
+msgid "箱子裡分不出加速和引力，所以在引力裡，光也該彎。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:144
+msgid "箱子越走越快，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"
+msgstr ""
+
+#: scripts/content.gd:212
+msgid "範圍只容得下 0.87″"
+msgstr ""
+
+#: scripts/content.gd:212
+msgid "範圍只容得下 1.75″"
+msgstr ""
+
+#: scripts/content.gd:212
+msgid "範圍同時容得下 0.87″ 和 1.75″"
+msgstr ""
+
+#: scripts/ui.gd:754
+msgid "納入量測"
+msgstr ""
+
+#: scripts/main.gd:1114
+msgid "給 Kit："
+msgstr ""
+
+#: scripts/ui.gd:1714 scripts/ui.gd:1855
+msgid "繼續"
+msgstr ""
+
+#: scripts/checkpoint.gd:18
+msgid "繼續：1919 年 10 月"
+msgstr ""
+
+#: scripts/checkpoint.gd:16
+msgid "繼續：出發前夜"
+msgstr ""
+
+#: scripts/checkpoint.gd:17
+msgid "繼續：普林西比"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:195
+msgid "翻過來了。大部分的點靠近了，可是差異箭頭全都朝同一個方向繞。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:63
+msgid "翻過來以後，要是那些差異箭頭都朝同一個方向繞，就是整張紙被輕輕轉了一下。"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:142
+msgid "翻面"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:331
+msgid "翻面後，整片星場仍沿同一方向錯開。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:77
+msgid "翻面，再轉三度多一點。我也是這樣。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:276
+msgid "翻面，還轉了三度。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:369
+msgid "聽起來耳熟嗎？"
+msgstr ""
+
+#: scripts/judgment.gd:321
+msgid "與證據相左"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:131
+msgid "藍墨水：Kit 抄的清單　　褐墨水：你的字　　聽 Kit 念出底片上的數值，和清單比對：相符按 ✓，不符按 ×。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:193
+msgid "藥膜面上有一支鉛筆畫的北向箭頭——和玻璃邊緣不平行，斜了三度左右。抄錄圖上的北，卻是貼著紙邊畫的。"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:287 scripts/cambridge/director.gd:615
+msgid "虛構"
+msgstr ""
+
+#: scripts/judgment.gd:310
+msgid "被丟下的星光"
+msgstr ""
+
+#: scripts/ui.gd:1412 scripts/ui.gd:1572
+msgid "製作名單"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:236
+msgid "複核"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:315
+msgid "要改，現在還來得及。"
+msgstr ""
+
+#: scripts/ui.gd:1759 scripts/ui.gd:1762
+msgid "視角靈敏度："
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:498
+msgid "記下每張底片的狀況：雲、曝光秒數、溫度、時鐘驅動"
+msgstr ""
+
+#: scripts/ui.gd:789
+msgid "記下讀數"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:609
+msgid "記得。他們說我們是編的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:80
+msgid "記得寫上是兩個人各自對的。不是為了我——是為了下一個看這張紙的人。"
+msgstr ""
+
+#: scripts/ui.gd:1416 scripts/ui.gd:1838
+msgid "設定"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:237
+msgid "註明：%s 獨立複核過一次"
+msgstr ""
+
+#: scripts/ui.gd:256
+msgid "語言：%s"
+msgstr ""
+
+#: scripts/judgment.gd:316
+msgid "誠實的不確定"
+msgstr ""
+
+#: scripts/content.gd:322
+msgid "誤差與上回相同；量值照實並列。"
+msgstr ""
+
+#: scripts/main.gd:1630
+msgid "說不上來"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:131 scripts/content.gd:167
+msgid "說不準"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:356 scripts/content.gd:160
+msgid "說不準，寫不出來"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:428
+msgid "說了。也說了我不信。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:351
+msgid "說來有趣——愛因斯坦自己 1911 年算出來的，也只有一半。是他後來的新理論，才把它加倍。"
+msgstr ""
+
+#: scripts/judgment.gd:175
+msgid "說得誠實。雲擋住了大部分星光，我們不假裝。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:324
+msgid "說麻煩事之前——你先去看看書架上那台太陽系儀。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:411
+msgid "請坐。我是 Eddington。%s說，這是你寫的。"
+msgstr ""
+
+#: scripts/judgment.gd:173
+msgid "謹慎沒有錯。只是——我們的好底片確實指向較大的偏折，不必把它說得比實際更弱。"
+msgstr ""
+
+#: scripts/cambridge/epilogue_director.gd:86
+msgid "讀 Dyson 的信"
+msgstr ""
+
+#: scripts/ui.gd:1277
+msgid "讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]"
+msgstr ""
+
+#: scripts/ui.gd:1028
+msgid "讀數：%.2f 格"
+msgstr ""
+
+#: scripts/ui.gd:792
+msgid "讀數：0.00 格"
+msgstr ""
+
+#: scripts/cambridge/epilogue_director.gd:128
+msgid "讀桌上 Dyson 的信。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:39
+msgid "讓我看看。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:131
+msgid "貴重的是用它看見的東西。這個只是黃銅。"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:119
+msgid "走到看片台，核對最後一頁。"
+msgstr ""
+
+#: scripts/content.gd:53
+msgid "走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。"
+msgstr ""
+
+#: scripts/judgment.gd:217
+msgid "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
+msgstr ""
+
+#: scripts/judgment.gd:218
+msgid "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
+msgstr ""
+
+#: scripts/content.gd:96
+msgid "走速：早上已對著天文鐘校過。"
+msgstr ""
+
+#: scripts/content.gd:97
+msgid "走速：沒有校過——曝光越久，星像拖得越長。"
+msgstr ""
+
+#: scripts/content.gd:306
+msgid "起/曝（約秒）：%s；選片：%s；可用 %d 張"
+msgstr ""
+
+#: scripts/ui.gd:859
+msgid "起霧：雲光蓋住，星點淡、數得到的少"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:187
+msgid "越拉越快"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:581
+msgid "跳過也是一種選擇——但要寫下你跳過了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:66
+msgid "轉一點就對上了。可是為什麼要轉？底片的藥膜面上應該有鉛筆記號，告訴我們北邊在哪裡。"
+msgstr ""
+
+#: scripts/ui.gd:1628 scripts/ui.gd:1839 scripts/ui.gd:1998
+msgid "返回"
+msgstr ""
+
+#: scripts/ui.gd:1920 scripts/ui.gd:2039
+msgid "返回　%s"
+msgstr ""
+
+#: scripts/judgment.gd:289
+msgid "這 %d 張"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:531
+msgid "這一條……我們拿下來吧。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:529
+msgid "這一條我不能簽。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:532
+msgid "這一條，我們再想想。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:556
+msgid "這不是遠征隊的名額。我還不知道會不會有遠征，更不知道誰會去。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:102
+msgid "這個房間裡最準的東西。它從不爭辯，只是一秒一秒地走。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:544
+msgid "這兩件事本來就不一樣。"
+msgstr ""
+
+#: scripts/content.gd:324
+msgid "這回的誤差較大；把不確定也記下來。"
+msgstr ""
+
+#: scripts/content.gd:320
+msgid "這回的誤差較小；仍要看選片與儀器。"
+msgstr ""
+
+#: scripts/content.gd:286
+msgid "這回，你想改哪一步？先記住自己的打算。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:490
+msgid "這就是你的 14 號。底片可能放斜、可能縮放——遠處的星不該移動，就拿它們來量這些。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:92
+msgid "這張桌子空著，椅子推得整整齊齊。戰爭開始以後，天文台少了好幾個人。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:546
+msgid "這是一個好的開始。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:252
+msgid "這是很重的兩個詞。你有什麼證據，說他編造？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:296
+msgid "這是整張紙上我最喜歡的一行。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:246
+msgid "這種天氣，連貓都不出門。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:340
+msgid "這種時候談一個柏林來的理論，在某些人聽來就像通敵。我不這麼想——理論沒有國籍。可是它也不會因為漂亮，就變成真的。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:98
+msgid "這裡？（笑）這裡什麼都不會變。"
+msgstr ""
+
+#: scripts/judgment.gd:308
+msgid "過早的宣告"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:538
+msgid "遠處的星"
+msgstr ""
+
+#: scripts/content.gd:329
+msgid "選片規則改了：『%s』→『%s』。兩回依據不同。"
+msgstr ""
+
+#: scripts/content.gd:327
+msgid "選片規則：『%s』→『%s』。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:39 scripts/ending.gd:92
+msgid "還不能決定，先重量一次"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:68
+msgid "還剩一個點沒著落。點它一下，用放大鏡看看底片上那個位置。"
+msgstr ""
+
+#: scripts/content.gd:155
+msgid "還是不改？"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:105
+msgid "還有——"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:211
+msgid "還有一個點沒對上。點它一下。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:161
+msgid "還有一顆沒找到的行星（Vulcan）"
+msgstr ""
+
+#: scripts/content.gd:32
+msgid "還有什麼事嗎？"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:109
+msgid "還有你的鉛筆。上次你借走我三枝。"
+msgstr ""
+
+#: scripts/content.gd:19
+msgid "還有問題嗎？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:501
+msgid "還有時鐘驅動。追不上太陽，星就拖成一條線。你們需要一個真正懂鐘的人。"
+msgstr ""
+
+#: scripts/content.gd:29
+msgid "還沒上發條"
+msgstr ""
+
+#: scripts/judgment.gd:221
+msgid "還沒有量出任何數字，談不上偏低，也就輪不到儀器來解釋。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:112
+msgid "還要更多證據"
+msgstr ""
+
+#: scripts/judgment.gd:296
+msgid "那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:417
+msgid "那下一個人就分不清，哪些是你找到的、哪些是你猜的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:462
+msgid "那你只要看光落在哪，就分得出自己是在地上，還是在太空裡被拉著走。可是我們剛才說過——分不出來。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:515
+msgid "那你拿什麼檢查底片有沒有放斜？只有它們，你就分不清是星動了，還是底片動了。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:420
+msgid "那多出來的一點，你覺得是什麼？"
+msgstr ""
+
+#: scripts/content.gd:228
+msgid "那天我一個人趕著上發條，沒時間對時。下次我們先把這件事做完。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:99
+msgid "那就在五分鐘之前，或是之後。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:159
+msgid "那就寫下來。沒有改變，也是一筆紀錄。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:292
+msgid "那就把兩張釘在一起。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:176
+msgid "那就這麼寫。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:520
+msgid "那我們量到的，就只是自己的希望。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:261
+msgid "那我收下。但我會在旁邊寫一行：「說抄錄者草率或編造——本紙沒有證據。」"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:459
+msgid "那放在地上的箱子呢？同一道光橫著射過去，到對面牆上會打在哪？"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:609
+msgid "那是很久以前的事了。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:99
+msgid "那裡的天空也有晚上。我會問你。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:102
+msgid "那裡看到的，記在這裡。回來的時候，我要看。"
+msgstr ""
+
+#: scripts/content.gd:86
+msgid "都在測量桌上了。[b]先按星像好壞挑片，再量[/b]。量完了，再告訴我你怎麼想。"
+msgstr ""
+
+#: scripts/cambridge/dialogue_portrait.gd:42
+msgid "重建肖像，非歷史照片"
+msgstr ""
+
+#: scripts/ui.gd:822
+msgid "重新選片"
+msgstr ""
+
+#: scripts/ui.gd:1544
+msgid "重玩從 1919 年 5 月 29 日的準備開始；上一回的紀錄會留著，結尾會和這一回並排比較。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:229
+msgid "重畫一張乾淨的，舊的作廢"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:290
+msgid "重畫了？乾淨的圖很好看。可是下一個人只看得到你的答案，看不到你怎麼得到它。原來那張呢？"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:145
+msgid "重設"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:493
+msgid "量之前先寫下：什麼樣的底片不能用"
+msgstr ""
+
+#: scripts/content.gd:141
+msgid "量之前，先在記錄本上寫一句：哪些底片不納入？"
+msgstr ""
+
+#: scripts/content.gd:159
+msgid "量之前，先在記錄本上寫下：你猜會看到哪一個？"
+msgstr ""
+
+#: scripts/content.gd:154
+msgid "量之前，翻回 1917 年那一頁。你寫的是 %s（%s）。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:518
+msgid "量完之後，只留下和預測相符的底片"
+msgstr ""
+
+#: scripts/judgment.gd:91
+msgid "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。"
+msgstr ""
+
+#: scripts/judgment.gd:92
+msgid "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。"
+msgstr ""
+
+#: scripts/judgment.gd:22
+msgid "量得的偏折較接近 1.75″，而且有足夠星點的底片支持。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:98
+msgid "量測儀"
+msgstr ""
+
+#: scripts/ui.gd:816
+msgid "量測所選底片"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:161
+msgid "量錯了，或算漏了什麼"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:380
+msgid "量錯了，或算漏了什麼。很有可能。六十年來，每一張水星底片都有人重新量過，每一顆行星的質量也重新算過。可是那個數字還在。"
+msgstr ""
+
+#: scripts/ui.gd:1774 scripts/ui.gd:1777
+msgid "長按互動：按一下"
+msgstr ""
+
+#: scripts/ui.gd:1774 scripts/ui.gd:1777
+msgid "長按互動：按住"
+msgstr ""
+
+#: scripts/ui.gd:771
+msgid "閃爍比對"
+msgstr ""
+
+#: scripts/content.gd:32
+msgid "開始——就位等待全食。"
+msgstr ""
+
+#: scripts/ui.gd:1406
+msgid "開始遊戲：序章・劍橋，1917"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:448
+msgid "關緊的箱子，沒有窗，外面被我蓋住了。鉛筆還是掉到地板上。你在哪裡？"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:146 scripts/cambridge/report_sheet.gd:111
+msgid "關閉"
+msgstr ""
+
+#: scripts/judgment.gd:15
+msgid "隔著雲，星少，未定"
+msgstr ""
+
+#: scripts/judgment.gd:14
+msgid "隔著雲，有希望"
+msgstr ""
+
+#: scripts/ui.gd:1576
+msgid "離開"
+msgstr ""
+
+#: scripts/ui.gd:831
+msgid "離開桌子"
+msgstr ""
+
+#: scripts/ui.gd:1801 scripts/ui.gd:1886
+msgid "離開遊戲"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:96
+msgid "雨打在玻璃上。簾子拉下了一半——戰時有燈火的規定，天黑以後，燈光不能明晃晃地透出窗外。"
+msgstr ""
+
+#: scripts/content_coda.gd:114
+msgid "雲在最後才薄下去，我一直看著。"
+msgstr ""
+
+#: scripts/judgment.gd:25
+msgid "雲太厚，底片上沒有足夠的星點可以量。"
+msgstr ""
+
+#: scripts/ui.gd:1372
+msgid "雲層之後"
+msgstr ""
+
+#: scripts/judgment.gd:314
+msgid "雲層之後的希望"
+msgstr ""
+
+#: scripts/judgment.gd:318
+msgid "雲沒有讓步"
+msgstr ""
+
+#: scripts/content.gd:34
+msgid "雲薄的時候，幾秒就能留下星像；厚雲下開再久也只是一片霧。換片要四秒左右。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:131 scripts/content.gd:167 scripts/content.gd:179
+msgid "零"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:358
+msgid "零。也是一個可以寫下來的數字。到時候，底片會替你檢查它。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:356 scripts/content.gd:160
+msgid "零：光不會被拉彎"
+msgstr ""
+
+#: scripts/content.gd:330
+msgid "電報的理由%s：『%s』→『%s』。"
+msgstr ""
+
+#: scripts/ui.gd:1730
+msgid "音效"
+msgstr ""
+
+#: scripts/ui.gd:1730
+msgid "音樂"
+msgstr ""
+
+#: scripts/ui.gd:1722 scripts/ui.gd:1725
+msgid "音樂：開"
+msgstr ""
+
+#: scripts/ui.gd:1722 scripts/ui.gd:1725
+msgid "音樂：關"
+msgstr ""
+
+#: scripts/ui.gd:783
+msgid "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
+msgstr ""
+
+#: scripts/main.gd:1014
+msgid "驅動箱就在我旁邊——%s上發條。"
+msgstr ""
+
+#: scripts/ui.gd:1759 scripts/ui.gd:1762
+msgid "高"
+msgstr ""
+
+#: scripts/cambridge/box_sketch.gd:203
+msgid "鬆手"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:133
+msgid "黃銅做的小太陽系，發條帶著行星各走各的路；一本舊年鑑就擱在旁邊。\n照牛頓的引力算，記在年鑑上的預測，和後來望遠鏡裡看到的——對一對。"
+msgstr ""
+
+#: scripts/ui.gd:704
+msgid "點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。"
+msgstr ""
+
+#: scripts/ending.gd:35
+msgid "（%s）"
+msgstr ""
+
+#: scripts/content_coda.gd:65
+msgid "（14 號底片上那一點極淡的白。兩年了，還是沒有人知道它是什麼。）"
+msgstr ""
+
+#: scripts/content.gd:136
+msgid "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：交上差異，寫「原因未明」。）"
+msgstr ""
+
+#: scripts/content.gd:138
+msgid "（1917 年 Eddington 問你，沒找到原因會交什麼。你說：照最像的那樣對齊，交上去。他說，猜沒有錯，只是要寫明是猜。）"
+msgstr ""
+
+#: scripts/content.gd:107
+msgid "（1917 年的計畫板上漏了它，是 Eddington 補在最下面的。）"
+msgstr ""
+
+#: scripts/content.gd:106
+msgid "（1917 年的計畫板上，這張比對片是你放上去的。）"
+msgstr ""
+
+#: scripts/content_coda.gd:16
+msgid "（Eddington 把電報稿折好，收進外套口袋，出去找送電報的人。）"
+msgstr ""
+
+#: scripts/content_coda.gd:66
+msgid "（Eddington 那個關緊的箱子。從裡面分不出來——所以才要到這裡，看太陽旁邊的星。）"
+msgstr ""
+
+#: scripts/content_coda.gd:93
+msgid "（Kit 一定會先問天空，再問底片。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:106
+msgid "（Kit 停了很久。）"
+msgstr ""
+
+#: scripts/content_coda.gd:91
+msgid "（也許。）"
+msgstr ""
+
+#: scripts/content_coda.gd:70
+msgid "（今晚什麼也沒量到。沒有數字，也是一筆紀錄。）"
+msgstr ""
+
+#: scripts/content_coda.gd:68
+msgid "（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）"
+msgstr ""
+
+#: scripts/content_coda.gd:46
+msgid "（他不會因為這樣就相信。可是他會一頁一頁讀下去。這就夠了。）"
+msgstr ""
+
+#: scripts/content_coda.gd:36
+msgid "（他在 1917 年那頁寫的是 0.87。我的底片，要寄給他看。）"
+msgstr ""
+
+#: scripts/content_coda.gd:52
+msgid "（他會在旁邊畫一個問號。問號不丟人。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:429
+msgid "（他看向桌上的紙。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:330
+msgid "（他翻開期刊。）"
+msgstr ""
+
+#: scripts/content_coda.gd:23
+msgid "（你又讀了一遍工作簿最後一頁。字比你記得的還要歪。）"
+msgstr ""
+
+#: scripts/content_coda.gd:107
+msgid "（你吹熄了燈。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:570
+msgid "（你從櫃子取出畢宿星團的舊底片，攤開 Eddington 的清單。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:191
+msgid "（你想了很久，只寫了幾行。）"
+msgstr ""
+
+#: scripts/content.gd:140
+msgid "（你想起 1917 年計畫板上那張卡：量之前，先寫下什麼樣的底片不能用。）"
+msgstr ""
+
+#: scripts/content_coda.gd:55
+msgid "（你想起他說的：要被一張乾淨的底片說服，而不是被一個好故事。）"
+msgstr ""
+
+#: scripts/content.gd:28
+msgid "（你手上的 %d 張會交給 Cottingham）"
+msgstr ""
+
+#: scripts/content.gd:118
+msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）"
+msgstr ""
+
+#: scripts/content_coda.gd:37
+msgid "（你拿起 %s的放大鏡。）"
+msgstr ""
+
+#: scripts/judgment.gd:192
+msgid "（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:79
+msgid "（你的鉛筆削好了，排在清單旁邊。不是你削的。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:64
+msgid "（兩年前在這張桌子上，你在報告裡寫過：對不上的地方，要寫它對不上。）"
+msgstr ""
+
+#: scripts/content_coda.gd:96
+msgid "（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。她大概已經記了一整頁。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:57
+msgid "（又念了一次）……那一行是對的。眼睛累了。沒關係，就是要這樣一行一行對。"
+msgstr ""
+
+#: scripts/content_coda.gd:43
+msgid "（可是你把雲記下來了。他說過：無論看見什麼。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:85
+msgid "（和 Kit 一起把底片收進木框，一格一格，誰也沒說話。）"
+msgstr ""
+
+#: scripts/content_coda.gd:49
+msgid "（回去以後把它寫清楚——在他問之前。）"
+msgstr ""
+
+#: scripts/credits.gd:4
+msgid "（姓名待 Owner 確認）"
+msgstr ""
+
+#: scripts/content_coda.gd:84
+msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事——今晚的電報，和底片上的不一樣。）"
+msgstr ""
+
+#: scripts/content_coda.gd:82
+msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事——可是今晚的電報，寫得比底片上的多。）"
+msgstr ""
+
+#: scripts/content_coda.gd:86
+msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事。今晚的電報，只寫了底片上有的。）"
+msgstr ""
+
+#: scripts/content_coda.gd:78
+msgid "（工作簿後面還有很多空白頁。回去的路還很長。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:190
+msgid "（工作簿最後一頁。日期是 Kit 的字：1919 年 5 月 29 日。）"
+msgstr ""
+
+#: scripts/content_coda.gd:45
+msgid "（底片、數字、電報——每一步都寫在紙上了，連那幾張不能用的也是。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:258
+msgid "（很輕地）……我們小時候畫的那張星圖，也被人這樣說過。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:125
+msgid "（從口袋裡拿出一個布包）這個給你。%s。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:562
+msgid "（從房間另一頭）……兩週？"
+msgstr ""
+
+#: scripts/content_coda.gd:98
+msgid "（我跟 Kit 說過，全食那五分鐘我會在換底片。她會想知道，那五分鐘裡底片上留下了什麼。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:333 scripts/cambridge/content_1917.gd:337
+msgid "（把一本濕了邊的期刊放在桌上）皇家天文學會的月報。今年春天，皇家天文學家 Dyson 寫了一篇短文。"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:84
+msgid "（把椅子拉近看片台。沒有說話。燈光底下，兩個人的影子落在同一張底片上。）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:63
+msgid "（把清單轉過來給你看）……是你的字。"
+msgstr ""
+
+#: scripts/content_coda.gd:39
+msgid "（放大鏡底下有星點——是你沒有拿去量的那幾張。）"
+msgstr ""
+
+#: scripts/content_coda.gd:42
+msgid "（放大鏡底下沒有可以量的東西——只有雲留下的一片灰。）"
+msgstr ""
+
+#: scripts/content_coda.gd:90
+msgid "（有些話，也許可以等到見了面再說。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:392
+msgid "（沉默）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:170 scripts/cambridge/content_1917.gd:181
+msgid "（沒有留下）"
+msgstr ""
+
+#: scripts/cambridge/report_sheet.gd:133
+msgid "（沒有發現）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:68
+msgid "（看你簽名）好。以後拿到這張紙的人，看得出這裡改過，也看得出是誰改的。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:609
+msgid "（看著看片台，沒有說話）"
+msgstr ""
+
+#: scripts/cambridge/content_departure.gd:101
+msgid "（翻開工作簿，最後面有一頁是空的。上面已經寫好了日期：1919 年 5 月 29 日。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:331 scripts/cambridge/content_1917.gd:430
+msgid "（聽他說完細節）"
+msgstr ""
+
+#: scripts/content_coda.gd:103
+msgid "（見到 Kit，第一句話要說什麼？）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:542
+msgid "（讀了很久）……這張紙，我願意簽。"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:418
+msgid "（輕聲）……他在法國。"
+msgstr ""
+
+#: scripts/content_coda.gd:56
+msgid "（這一次，你差一點就成了那個好故事。）"
+msgstr ""
+
+#: scripts/content_coda.gd:48
+msgid "（選片那一頁還有一行說不清楚：為什麼留這張、丟那張。）"
+msgstr ""
+
+#: scripts/cambridge/report_sheet.gd:140
+msgid "（還沒有人獨立複核）"
+msgstr ""
+
+#: scripts/content_coda.gd:88
+msgid "（那天晚上 Kit 問起那張星圖，你沒有回答。見了面，也許可以從那張圖說起。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:583
+msgid "（雨停了。Eddington 的腳步聲消失在走廊盡頭。）"
+msgstr ""
+
+#: scripts/content_coda.gd:17
+msgid "（雨早就停了。屋外的蟲聲很響，暗房裡只剩下你和桌上的燈。）"
+msgstr ""
+
+#: scripts/content_coda.gd:40
+msgid "（雲很厚，可是不是什麼都沒留下。回去以後，先把它們量完。）"
+msgstr ""
+
+#: scripts/content_coda.gd:51
+msgid "（電報寫得太小心，或是太寬鬆——你自己也說不準。）"
+msgstr ""
+
+#: scripts/content_coda.gd:54
+msgid "（電報已經發出去了，收不回來。）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:331 scripts/cambridge/content_1917.gd:430
+msgid "（點頭，記下重點）"
+msgstr ""
+
+#: scripts/cambridge/content_1917.gd:28
+msgid "（點點頭，走向看片台）"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:288 scripts/cambridge/director.gd:616
+msgid "）"
+msgstr ""
+
+#: scripts/cambridge/departure_checklist.gd:248
+msgid "：你的縮寫）"
+msgstr ""
+
+#: scripts/content.gd:70
+msgid "；"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:140 scripts/cambridge/director.gd:227 scripts/cambridge/epilogue_director.gd:148 scripts/main.gd:883 scripts/main.gd:885 scripts/main.gd:888 scripts/main.gd:892 scripts/main.gd:894 scripts/main.gd:896 scripts/main.gd:898 scripts/main.gd:902 scripts/main.gd:908 scripts/main.gd:916 scripts/main.gd:919 scripts/main.gd:921
+msgid "［"
+msgstr ""
+
+#: scripts/ui.gd:2040
+msgid "［%s／%s］開始・停"
+msgstr ""
+
+#: scripts/cambridge/director.gd:207 scripts/ui.gd:2044
+msgid "［%s］繼續"
+msgstr ""
+
+#: scripts/main.gd:1269 scripts/main.gd:1305
+msgid "［%s］開始／停"
+msgstr ""
+
+#: scripts/ui.gd:2042 scripts/ui.gd:582
+msgid "［1–%d 或點擊］選擇"
+msgstr ""
+
+#: scripts/ui.gd:2044 scripts/ui.gd:517 scripts/ui.gd:582
+msgid "［E／空白鍵／點擊］繼續"
+msgstr ""
+
+#: scripts/main.gd:874
+msgid "［按 "
+msgstr ""
+
+#: scripts/main.gd:874
+msgid "［按住 "
+msgstr ""
+
+#: scripts/ui.gd:2042
+msgid "［方向鍵／A 鍵］選擇"
+msgstr ""
+
+#: scripts/ui.gd:380
+msgid "［空白鍵／E／左鍵］開始・停"
+msgstr ""
+
+#: scripts/cambridge/departure_director.gd:140 scripts/cambridge/director.gd:227 scripts/cambridge/epilogue_director.gd:148 scripts/main.gd:874
+msgid "］"
+msgstr ""
+
+#: scripts/main.gd:888
+msgid "］Ashby 先生給的放大鏡。"
+msgstr ""
+
+#: scripts/main.gd:883
+msgid "］再讀工作簿最後一頁。"
+msgstr ""
+
+#: scripts/main.gd:902
+msgid "］和 %s 說話"
+msgstr ""
+
+#: scripts/main.gd:896
+msgid "］和 Eddington 說話"
+msgstr ""
+
+#: scripts/main.gd:1268
+msgid "］喊「開始」，雲厚或快結束時再按一次喊「停」。"
+msgstr ""
+
+#: scripts/main.gd:883 scripts/main.gd:898
+msgid "］在工作簿記下你看到的天空。"
+msgstr ""
+
+#: scripts/main.gd:916
+msgid "］把 %d 個底片匣放上架子"
+msgstr ""
+
+#: scripts/main.gd:885
+msgid "］拿起 Ashby 先生給的放大鏡。"
+msgstr ""
+
+#: scripts/main.gd:892
+msgid "］檢視底片"
+msgstr ""
+
+#: scripts/main.gd:908
+msgid "］看天文鐘"
+msgstr ""
+
+#: scripts/main.gd:894 scripts/main.gd:921
+msgid "］看牛津比對底片"
+msgstr ""
+
+#: scripts/main.gd:919
+msgid "］讀曝光計畫"
+msgstr ""

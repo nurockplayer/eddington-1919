@@ -33,5 +33,7 @@ jobs:
           ln -s "$HOME/godot/Godot_v4.7.2-stable_linux.x86_64" "$HOME/godot/godot"
           echo "$HOME/godot" >> "$GITHUB_PATH"
           rm "$zip" SHA512-SUMS.txt
+      - name: Localization gate
+        run: python3 -I tools/i18n.py check
       - name: Run all suites
         run: ./tools/all_suites.sh
