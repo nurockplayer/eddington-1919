@@ -248,7 +248,7 @@ msgid "Cottingham：「這幾秒雲很薄，我看得見日冕的邊。」"
 msgstr "Cottingham: 'The cloud was thin for those seconds; I could see the edge of the corona.'"
 
 msgid "Dyson 先生正有這個打算。一處下雨，另一處也許是晴天。"
-msgstr "Mr Dyson intends exactly that. If it rains at one, it may be clear at the other."
+msgstr "Sir Frank intends exactly that. If it rains at one, it may be clear at the other."
 
 msgid "Dyson 的信（推測重建，非原文）"
 msgstr "Dyson's letter (speculative reconstruction, not a quotation)"
@@ -2378,7 +2378,7 @@ msgid "牛津比對底片盒"
 msgstr "Oxford comparison-plate case"
 
 msgid "牛津比對片"
-msgstr "Oxford comparison plate"
+msgstr "Oxford plate"
 
 msgid "牛津（無日）"
 msgstr "Oxford (no sun)"
@@ -2594,7 +2594,7 @@ msgid "範圍同時容得下 0.87″ 和 1.75″"
 msgstr "The range holds both 0.87″ and 1.75″"
 
 msgid "納入量測"
-msgstr "Include in measurement"
+msgstr "Include"
 
 msgid "給 Kit："
 msgstr ""
@@ -2744,7 +2744,7 @@ msgid "走到看片台，核對最後一頁。"
 msgstr "Go to the light box and check the last page."
 
 msgid "走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。"
-msgstr "The rate is set. During totality you watch the cloud, I take the shutter, and Mr Eddington changes the plates. Three people, just enough."
+msgstr "The rate is set. During totality you watch the cloud, I take the shutter, and Professor Eddington changes the plates. Three people, just enough."
 
 msgid "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
 msgstr "The drive rate was checked. The star images are trailed anyway: the exposure was too long, not the drive unchecked."
