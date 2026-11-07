@@ -54,7 +54,7 @@
 ## M1 劍橋序章（1917）
 
 依據 [M1 規格](design/M1_CAMBRIDGE_PROLOGUE.md)（含「Fact-check applied」一節）。台詞由 Game Director 撰寫於 `scripts/cambridge/content_1917.gd`；
-人物名 Kit、Ashby 先生為**暫定名**，只在 `cast.gd` 定義。遊戲中每段蒙太奇字幕都標明（史實）或（虛構）。
+人物名 Kit、Ashby 先生只在 `cast.gd` 定義。遊戲中每段蒙太奇字幕都標明（史實）或（虛構）。
 
 | 內容 | 標記 | 依據／說明 |
 |---|---|---|
