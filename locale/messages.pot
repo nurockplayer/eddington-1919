@@ -315,7 +315,7 @@ msgid "Dyson 的信（推測重建，非原文）"
 msgstr ""
 
 #: scripts/credits.gd:5
-msgid "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構（姓名暫定），場景為推測重建。"
+msgid "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構，場景為推測重建。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:398
@@ -4132,10 +4132,6 @@ msgstr ""
 
 #: scripts/content_coda.gd:49
 msgid "（回去以後把它寫清楚——在他問之前。）"
-msgstr ""
-
-#: scripts/credits.gd:4
-msgid "（姓名待 Owner 確認）"
 msgstr ""
 
 #: scripts/content_coda.gd:84

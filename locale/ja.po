@@ -239,7 +239,7 @@ msgstr ""
 msgid "Dyson 的信（推測重建，非原文）"
 msgstr ""
 
-msgid "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構（姓名暫定），場景為推測重建。"
+msgid "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構，場景為推測重建。"
 msgstr ""
 
 msgid "Eddington 前幾天問我，這棟樓裡誰的紀錄最乾淨。"
@@ -3102,9 +3102,6 @@ msgid "（和 Kit 一起把底片收進木框，一格一格，誰也沒說話�
 msgstr ""
 
 msgid "（回去以後把它寫清楚——在他問之前。）"
-msgstr ""
-
-msgid "（姓名待 Owner 確認）"
 msgstr ""
 
 msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事——今晚的電報，和底片上的不一樣。）"
