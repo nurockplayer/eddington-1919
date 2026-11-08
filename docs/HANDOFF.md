@@ -836,3 +836,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Merged:** #281 ko check fixes (8b29b7f). Gate review oracle approve 0/0/0 on 5936b98. **Checks overridden:** `suites` failed at `Install Godot 4.7.2`, curl 504 from the github.com godot-builds release download on all three attempts (2026-11-08 18:20–18:21 JST); the reason is in the PR comment. If the next PR hits the same 504, the download is still down: rerun later before overriding again.
 - **State:** en, ja and ko each have an oracle meaning check applied. `L.TRANSLATED` is still false. Nothing is running.
 - **Next:** #280 (ja/ko Eddington register pass; 歲差 and 0.87 in the zh-TW source). Then native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. ds-1 and ds-2 sit on merged branches; start each new branch from `origin/main`.
+
+### #280 register pass dispatched (edd-lead) | 2026-11-08 19:0x JST
+
+- **Inbox:** edd-art's notice of the Monday look split (Owner OK 2026-11-08 18:5x JST) acked; details in `.claude/lead-handoff/art.md`, section Monday. After look-kit: `lead-inbox add edd-art look look-kit done "<dir>"` and `herdr pane send-text w7:pB`.
+- **Decided for #280:** ja Eddington goes to 丁寧語 throughout (40 of 84 lines were です/ます; LOCALIZATION.md already says 丁寧語 for the cast; this replaces the #279 "keeps なさい and plain form" holding position). ko Eddington goes to 해요체 (38 of 84 were 하십시오체). Kit untouched. zh-TW: 歲差 → 近日點進動 (content_1917.gd:150, en "perihelion advance"); 0.87 choice → `0.87：照牛頓的算法，只有一半`.
+- **Running:** `lw-register-pass-20261108-190550`: `ds-exec ds-edd-1` (ds-1, branch `l10n/register-pass`), brief `/Volumes/KIOXIA/eddington-1919-cache/director/register-pass.md`, input `l10n-slices/register-lines.json` (157 E/K lines). It applies, tests ja/ko layout and honest route, opens the PR and runs its own oracle review.
+- **On its event:** read the report, write `l10n-slices/register-scope.md` (rules above as accepted; Kit lines out of scope), then `lead-wait pr <n> --scope` it. If `suites` fails again at `Install Godot` with a 504, rerun later before overriding.
+- **Then:** native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order as above.
