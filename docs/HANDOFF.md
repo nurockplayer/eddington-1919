@@ -830,3 +830,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-pr-281-20261108-181857` with `--scope l10n-slices/ko-scope.md`. On the event: if merged, en, ja and ko all have an oracle check.
 - **Host:** the worker found the OrbStack VM stopped at 16:46 JST and ran `orb start`; at 18:0x JST `orb-test --status` showed docker not answering again. Light runs used `--host` or dot. Not investigated.
 - **Next:** #280 (Eddington register pass ja/ko; 歲差 and 0.87 in the source). Then native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title.
+
+### #281 merged; en, ja and ko all oracle-checked (edd-lead) | 2026-11-08 18:2x JST
+
+- **Merged:** #281 ko check fixes (8b29b7f). Gate review oracle approve 0/0/0 on 5936b98. **Checks overridden:** `suites` failed at `Install Godot 4.7.2`, curl 504 from the github.com godot-builds release download on all three attempts (2026-11-08 18:20–18:21 JST); the reason is in the PR comment. If the next PR hits the same 504, the download is still down: rerun later before overriding again.
+- **State:** en, ja and ko each have an oracle meaning check applied. `L.TRANSLATED` is still false. Nothing is running.
+- **Next:** #280 (ja/ko Eddington register pass; 歲差 and 0.87 in the zh-TW source). Then native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. ds-1 and ds-2 sit on merged branches; start each new branch from `origin/main`.
