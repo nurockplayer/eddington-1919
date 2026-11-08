@@ -413,7 +413,7 @@ msgid "[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷"
 msgstr "[b]밤 · 암실[/b]\n□ 에딩턴에게 당신의 판단을 보고한다"
 
 msgid "[b]本子上的兩次試驗｜上回 → 這回[/b]\n[font_size=%d]%s[/font_size]"
-msgstr "[b]공책에 기록된 두 차례 시험 \\| 지난번 → 이번[/b]\n[font_size=%d]%s[/font_size]"
+msgstr "[b]공책에 기록된 두 차례 시험 | 지난번 → 이번[/b]\n[font_size=%d]%s[/font_size]"
 
 msgid "[b]準備（全食之前）[/b]"
 msgstr "[b]준비(개기일식 전)[/b]"
