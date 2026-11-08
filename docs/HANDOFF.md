@@ -890,3 +890,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#288** (`l10n/translated`, lead): `L.TRANSLATED = true`. test_i18n 1141/0; layout zh_TW 8618/0, en 8462/0. **Running:** `lw-pr-288-20261109-023537`.
 - **Monday look 2026-11-09 adds:** the language button on the title row (all four captions), the window title in en and ja, a cold start with a saved language.
 - **Still open:** a native read of ja and ko before the Steam release (no reader yet).
+
+### #288 merged; store page copy in four languages running (edd-lead) | 2026-11-09 02:5x JST
+
+- **Merged:** #288 `L.TRANSLATED = true`. en, ja and ko now reach players (saved or OS language, title-row language button). Localization is done except a native read of ja and ko before launch.
+- **Cleanup:** l10n branches deleted locally; ds-1 and ds-2 detached at origin/main.
+- **Running:** `lw-store-l10n-20261109-025117`: `cx-exec` (Codex reported available by quota-advisor at 02:5x JST; terra) in ds-1, branch `docs/store-page-l10n`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/store-page-l10n.md`: STORE_PAGE.md sections 2, 3, 4, 7 in en/ja/ko, B3 marked decided. On its event: `lead-wait pr <n>`.
+- **Monday 2026-11-09 09:00 JST:** look kit and hand tests as above, plus the language button, window title and saved-language cold start.
