@@ -858,3 +858,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#283** (`ci/require-translated`, lead, one line in `.github/workflows/all-suites.yml`): the localization gate now runs `check --require-translated`. Passes on main locally. **Running:** `lw-pr-283-20261108-221939`.
 - **ds-1** detached at origin/main, `l10n/register-pass` deleted locally (merged).
 - **Still open:** native read of ja and ko (needs a human reader; not started), `L.TRANSLATED = true` (`scripts/l10n.gd:12`, turns on the language button and OS-locale pick), window title per locale (`project.godot` `config/name` is zh-TW only; the Titles table in LOCALIZATION.md lists each). Monday 2026-11-09 09:00 JST order as above.
+
+### #283 merged; #284 window title at review (edd-lead) | 2026-11-08 22:4x JST
+
+- **Merged:** #283, CI localization gate now runs `check --require-translated`.
+- **#284** (`l10n/window-title`, lead): `L.apply` sets the window title from `L.t("雲層之後 · Eddington 1919")`, deferred, skipped headless. Headless start shows no script errors; not yet seen in a window. **Running:** `lw-pr-284-*`. **Monday look:** add a title-bar check with `EDD_LOCALE=en` and `ja` to the hand tests.
+- **Still open:** native read of ja and ko (needs a human reader), `L.TRANSLATED = true`.
