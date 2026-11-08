@@ -1,6 +1,6 @@
 # Steam 商店頁草稿（B5）
 
-Owner 編輯稿；最終商店頁、圖像與發布由 Owner 決定。B3 尚未決定英文支援；B6 內容與 AI 申報仍須 Owner 確認。
+Owner 編輯稿；最終商店頁、圖像與發布由 Owner 決定。B3 已決定四種語言於發售時支援（Owner 2026-11-07）；B6 內容與 AI 申報仍須 Owner 確認。
 以下依本分支已合併版本撰寫；不承諾發售日、價格或未實作的 Steam 功能。
 
 ## 1. 工作標題
@@ -13,9 +13,17 @@ Owner 編輯稿；最終商店頁、圖像與發布由 Owner 決定。B3 尚未�
 
 從劍橋的看片台，到普林西比雲下的日全食：親自喊出曝光的開始與停止，在暗房讀取底片，守住量測前寫下的規則。面對不完美的證據，你會在一封短電報裡說多少？
 
-### English — draft, only if B3 adds English
+### English
 
 From Cambridge's light box to a clouded eclipse on Príncipe: call each exposure, read plates in the darkroom, and keep the rule you wrote before measuring. With imperfect evidence, how much will you say in one short telegram?
+
+### 日本語
+
+ケンブリッジの乾板観察台から、プリンシペ島の雲の下の皆既日食へ。露出の開始と停止を告げ、暗室で乾板を読み、測定前に決めた規則を守る。不完全な証拠を前に、短い電報に何を書くか。
+
+### 한국어
+
+케임브리지의 건판 관찰대에서 프린시페의 구름 아래 개기일식까지. 노출의 시작과 정지를 외치고, 암실에서 건판을 읽고, 측정 전에 정한 규칙을 지킵니다. 불완전한 증거를 앞에 두고 짧은 전보에 무엇을 담을까요?
 
 ## 3. 關於此遊戲 / About this game
 
@@ -37,7 +45,7 @@ From Cambridge's light box to a clouded eclipse on Príncipe: call each exposure
 
 虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。
 
-### English — draft, only if B3 adds English
+### English
 
 How much certainty fits inside a telegram? Eddington 1919 is a narrative adventure about observation, judgment, and the words you choose. As a fictional young assistant, you travel from a Cambridge light box to an eclipse expedition on Príncipe. Your task is to make a modest claim that your evidence can carry.
 
@@ -55,6 +63,42 @@ The 1919 results were debated. On Príncipe, the clouds thinned only in the last
 
 Fiction and illustration: the player character, all dialogue, the episode in which the clock drive needs help, cloud details, plate images, and all numbers. Settings are conjectural reconstructions; no on-site photographs of the Príncipe station are known, and the original plates have been lost.
 
+### 日本語
+
+一通の電報に、どれほどの確信を込められるだろうか。『Eddington 1919：雲の向こう』は、観察と判断、言葉選びを描く物語アドベンチャー。架空の若い助手として、ケンブリッジの乾板観察台からプリンシペ島の日食観測へ向かい、手元の証拠に見合う言葉を残す。
+
+1917年のケンブリッジで、Kit とアシュビー先生とともに鏡像や回転を見分け、星図を照合し、なお合わない残差に向き合う。独立した確認を受け、報告を書き、公平な観測を計画する。対話と仕事の中で、「わからない」ことも真剣に記録する。
+
+棚のオーラリーでニュートンの予測を確かめると、海王星とハレー彗星は合うが、水星の近日点移動には1世紀あたり43秒角が残る。何を先に疑うか決め、光がどれほど曲がると予測するか、どれほど確信があるかを帳簿に書く。アシュビー先生も自分の数字を書く。エディントン教授のスケッチでは、地上の箱で鉛筆を放し、宇宙で上向きに加速する箱でも放す。外を覆えば区別できるだろうか。出発前に同じ箱をもう一度描く。今度は中に光がある。
+
+1919年のプリンシペ島では乾板を準備し、時計駆動を手伝う。皆既中は雲を見て露出の開始と停止を告げ、コッティンガムが遮光板を操作する。雲の切れ間は思い通りにはならない。露出を終えたら、乾板を替えて再び待つかも判断する。逃した光は後から言葉で取り戻せない。
+
+夜の暗室では、測定結果を見る前に乾板選別の規則を書く。虫めがねと参照乾板で星像、流れ、かぶりを見分け、オックスフォードの比較用乾板とブリンク比較して星の見かけの移動を見る（移動は拡大した示意）。採用する乾板を決め、一枚ずつ測微計を基準星に合わせて自分で読み取る。測定前に1917年の帳簿が戻り、予測を守るか変えるか選ぶ。合成値と誤差区間を読み、電報と理由を選ぶ。結果を見てから選び直しても、最初の結果は残る。
+
+1919年10月、物語はケンブリッジの書斎に戻る（再構成した場面）。ダイソン卿の手紙はソブラルの二組の数値を伝える。4インチ望遠鏡は完全な光の偏向を支持し、天体写真儀の結果は一致しない。自分の結果の隣に書き写し、問題のある乾板にどれだけの重みを置くか決める。アシュビー先生は1917年の帳簿を開き、自分の数字に向き合う。ソブラルの誤差の2倍の範囲をグラフから自分で読み、水星の43秒角は年鑑に戻る。帳簿の新しいページに、今の考えを書く。
+
+この物語は控えめな主張を不完全な証拠の隣に置く。1919年の結果は論争を呼んだ。プリンシペ島では皆既の最後の3分の1まで雲が目立って薄くならず、測定に使えた乾板は2枚だけだった。当時の報告が最も重視したのはソブラルの4インチ望遠鏡だった。ゲームは判断の過程をたどり、歴史的背景と創作を区別する。
+
+虚構と示意：プレイヤーキャラクター、すべての対話、時計駆動に助けが必要なエピソード、雲の詳細、乾板の画像、すべての数値。場面は推測に基づく再構成であり、プリンシペ観測所の現地写真は知られておらず、原本の乾板も失われている。
+
+### 한국어
+
+전보 한 통에 얼마나 확신을 담을 수 있을까요? 《Eddington 1919: 구름 너머》는 관찰과 판단, 말의 선택을 다루는 이야기 중심 어드벤처입니다. 가상의 젊은 조수가 되어 케임브리지의 건판 관찰대에서 프린시페의 일식 관측으로 향하고, 가진 증거에 걸맞은 말을 남깁니다.
+
+1917년 케임브리지에서 Kit, 애슈비 선생님과 함께 거울상과 회전을 구별하고 성도를 대조하며, 여전히 맞지 않는 잔차를 마주합니다. 독립적인 검토를 받고 보고서를 쓰며 공정한 관측을 계획합니다. 대화와 작업 속에서 ‘모른다’는 사실도 진지하게 기록합니다.
+
+책장의 오러리로 뉴턴의 예측을 확인하면 해왕성과 핼리 혜성은 맞지만 수성의 근일점 이동에는 세기당 43초각이 남습니다. 무엇부터 의심할지 정하고 빛이 얼마나 휘어질 것으로 예측하는지, 얼마나 확신하는지 장부에 적습니다. 애슈비 선생님도 자신의 숫자를 적습니다. 에딩턴 교수님이 건네는 스케치에서는 땅 위의 상자에서 연필을 놓고, 우주에서 위로 점점 빨리 끌어올리는 상자에서도 놓습니다. 바깥을 가리면 둘을 구별할 수 있을까요? 출발 전 같은 상자를 다시 그립니다. 이번에는 그 안에 빛이 있습니다.
+
+1919년 프린시페에서는 건판을 준비하고 시계 구동 장치를 돕습니다. 개기일식 동안 구름을 보며 노출의 시작과 정지를 외치면 코팅엄이 차광판을 다룹니다. 구름 틈은 기대대로 움직이지 않습니다. 노출을 마친 뒤 건판을 바꾸고 다시 기다릴지도 판단합니다. 놓친 빛은 나중에 말로 되찾을 수 없습니다.
+
+밤에 암실로 돌아와 측정 결과를 보기 전에 건판 선택 규칙을 적습니다. 확대경과 참조 건판으로 별상, 흐른 자국과 안개를 구별하고, 옥스퍼드 비교 건판과 블링크 비교로 별의 겉보기 이동을 살핍니다(이동은 확대해 표현했습니다). 쓸 건판을 고르고 각 건판의 기준성에 측미계를 직접 맞춰 읽습니다. 측정 전 1917년 장부가 돌아오면 예측을 유지하거나 바꿉니다. 합친 수치와 오차 구간을 읽은 뒤 전보와 이유를 고릅니다. 결과를 보고 다시 선택해도 처음 결과는 남습니다.
+
+1919년 10월 이야기는 케임브리지의 서재로 돌아옵니다(재구성한 장면). 다이슨 경의 편지는 소브랄의 두 수치 집합을 전합니다. 4인치 망원경은 완전한 빛의 편향을 지지하지만 천체사진기의 결과는 일치하지 않습니다. 이를 자신의 결과 옆에 옮겨 적고 문제가 있는 건판에 얼마나 무게를 둘지 정합니다. 애슈비 선생님은 1917년 장부를 펼쳐 자신의 숫자와 마주합니다. 소브랄의 오차의 2배 범위를 그래프에서 직접 읽고, 수성의 43초각은 연감으로 돌아갑니다. 장부의 새 페이지에 지금의 생각을 적습니다.
+
+이 이야기는 절제된 주장을 불완전한 증거 곁에 놓습니다. 1919년의 결과는 논쟁을 불렀습니다. 프린시페에서는 개기일식의 마지막 3분의 1에 이르러서야 구름이 눈에 띄게 얇아졌고 측정에 쓸 수 있는 건판은 두 장뿐이었습니다. 당시 보고서는 소브랄의 4인치 망원경에 가장 크게 의존했습니다. 게임은 판단 과정을 따라가며 역사적 배경과 극적 창작을 구분합니다.
+
+허구와 모의: 플레이어 캐릭터, 모든 대사, 시계 구동 장치에 도움이 필요한 상황, 구름의 세부, 건판 이미지와 모든 수치. 장면은 추측에 따른 재구성입니다. 프린시페 관측소의 알려진 현장 사진은 없으며 원본 건판도 소실됐습니다.
+
 ### 編輯依據（不上架）
 
 - 上述繁中最後一段逐字取自 `scripts/main.gd` 的 `_show_ending` 虛構聲明，僅移除 BBCode。
@@ -64,7 +108,9 @@ Fiction and illustration: the player character, all dialogue, the episode in whi
 
 ## 4. 遊戲特色 / Features
 
-| 繁體中文（zh-TW） | English — draft, only if B3 adds English | 已合併依據（不上架） |
+### English
+
+| 繁體中文（zh-TW） | English | 已合併依據（不上架） |
 |---|---|---|
 | 在劍橋與 Kit、Ashby 先生核對星圖，為公平的觀測寫下計畫。 | Compare plates with Kit and Mr Ashby in Cambridge, and plan a fair observation. | HANDOFF：M1／M2、#94、#102 |
 | 全食前先對著雲練習快門口令，再在全食時看雲縫、喊出曝光開始與停止。 | Practise reading the cloud and calling the shutter, then call exposures through the gaps during totality. | HANDOFF：Wave 1、#107、#132、#158 |
@@ -77,6 +123,34 @@ Fiction and illustration: the player character, all dialogue, the episode in whi
 | 1919 年 10 月回到劍橋：Sobral 的數字到了，你自己讀出範圍，在帳本新的一頁寫下現在的看法；Ashby 先生也要面對當年的數字。 | October 1919, back in Cambridge: the Sobral numbers arrive, you read the range yourself and write a new ledger line, and Mr Ashby faces the figure he wrote. | #215、#243 |
 | 判讀誤差區間，選擇電報與理由，最後看見自己寄出的那封電報。 | Read the uncertainty interval, choose your words and reason, and end on your telegram. | HANDOFF：#88、#98、#109；#130、#134 |
 | 每章開始前自動存檔，可從標題畫面繼續；支援遊戲手把操作，並提供文字大小、畫質與音量設定。 | Saves automatically at the start of each chapter, with Continue on the title screen. Gamepad controls, adjustable text size, graphics quality, and volume settings. | RELEASE_READINESS：A5–A7、A12；#115、#120、#122–#126 |
+
+### 日本語
+
+- ケンブリッジで Kit とアシュビー先生と星図を照合し、公平な観測を計画する。
+- 皆既前に雲を見ながら遮光板の合図を練習し、皆既中は雲の切れ間を見て露出の開始と停止を告げる。
+- 日食乾板と比較用乾板をブリンク比較し、星の見かけの移動を見る（移動は拡大した示意）。
+- 虫めがねと参照乾板で星像、流れ、かぶりを見分ける。
+- 測定前に乾板選別の規則を書き、後から変更した場合は理由と最初の結果を残す。
+- ニュートンの予測を確かめ、水星の近日点移動の43秒角を見つけ、光の湾曲の予測を帳簿に記す。
+- 箱の実験を自分で進める。鉛筆を放し、外を覆い、同じ箱の中で光がどう進むかを見る（すべて示意図）。
+- 測微計を基準星に自分で合わせ、読み取った数値から結果を得る。
+- 1919年10月のケンブリッジでソブラルの数値を受け取り、範囲を自分で読み、帳簿の新しいページに考えを書く。アシュビー先生も当時の数字に向き合う。
+- 誤差区間を読み、電報と理由を選び、最後に自分が送った電報を見る。
+- 各章の開始前に自動保存し、タイトル画面から続きから遊べる。ゲームパッド操作、文字サイズ、画質、音量の設定に対応。
+
+### 한국어
+
+- 케임브리지에서 Kit, 애슈비 선생님과 성도를 대조하고 공정한 관측을 계획합니다.
+- 개기일식 전에 구름을 보며 차광판 신호를 연습하고, 개기일식 중 구름 틈을 보며 노출의 시작과 정지를 외칩니다.
+- 일식 건판과 비교 건판을 블링크 비교해 별의 겉보기 이동을 살핍니다(이동은 확대해 표현했습니다).
+- 확대경과 참조 건판으로 별상, 흐른 자국과 안개를 구별합니다.
+- 측정 전에 건판 선택 규칙을 적고, 나중에 바꾸면 이유와 처음 결과를 남깁니다.
+- 뉴턴의 예측을 확인하고 수성의 근일점 이동에서 43초각을 찾은 뒤, 빛의 휘어짐에 대한 예측을 장부에 적습니다.
+- 상자 실험을 직접 진행합니다. 연필을 놓고 바깥을 가린 뒤 같은 상자 안에서 빛이 어떻게 움직이는지 봅니다(모두 모식도입니다).
+- 측미계를 기준성에 직접 맞추고 읽은 값으로 결과를 얻습니다.
+- 1919년 10월 케임브리지에서 소브랄의 수치를 받아 범위를 직접 읽고 장부의 새 페이지에 생각을 적습니다. 애슈비 선생님도 당시의 숫자와 마주합니다.
+- 오차 구간을 읽고 전보와 이유를 고른 뒤 마지막에 자신이 보낸 전보를 봅니다.
+- 각 장이 시작되기 전에 자동 저장하며 타이틀 화면에서 이어 할 수 있습니다. 게임패드 조작과 글자 크기, 화질, 음량 설정을 지원합니다.
 
 編輯提醒：雲是可見的程序雲場，細節屬虛構；不用「真實天氣」描述。手把功能已實作；實體手把／Steam Deck 的封裝版人工驗收仍待 B10／A11，不宣稱 Deck 認證。
 
@@ -112,6 +186,10 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 > 本遊戲的部分內容由 AI 代理在人工指導下協助製作，包括人物肖像、故事文本、角色對話、翻譯，以及以程式碼生成並使用 CC0 取樣音源渲染的音樂與音效。對話肖像是重建圖像，不是歷史照片。遊戲執行期間不會即時生成 AI 內容。
 
 > Some content in this game was created with the assistance of AI agents under human direction, including character portraits, story text, dialogue, localization, and music and sound effects generated through code and rendered using CC0 sample libraries. The portraits are reconstructions, not historical photographs. The game does not generate AI content at runtime.
+
+> 本ゲームの一部は、人間の指導のもとAIエージェントの支援を受けて制作されました。人物の肖像、物語のテキスト、対話、翻訳、コードで生成しCC0のサンプル音源を使ってレンダリングした音楽と効果音が含まれます。対話用の肖像は再構成した画像であり、歴史的な写真ではありません。ゲームの実行中にAIコンテンツがリアルタイム生成されることはありません。
+
+> 이 게임의 일부 콘텐츠는 사람의 지휘 아래 AI 에이전트의 도움을 받아 제작됐습니다. 여기에는 인물 초상화, 이야기 텍스트, 대사, 번역, 코드로 생성하고 CC0 샘플 음원을 사용해 렌더링한 음악과 효과음이 포함됩니다. 대화 초상화는 재구성한 이미지이며 역사 사진이 아닙니다. 게임 실행 중 AI 콘텐츠가 실시간으로 생성되지는 않습니다.
 
 依據：Steam 內容問卷涵蓋「content that ships with your game, and is consumed by players... artwork, sound, narrative, localization」（`partner.steamgames.com/doc/gettingstarted/contentsurvey`）。文本由 AI 代理起草是 edd-lead 2026-11-07 08:5x JST 確認的製作事實，舊稿只寫肖像並不完整。送出前由 Owner 確認並申報。
 
