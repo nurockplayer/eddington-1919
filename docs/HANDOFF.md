@@ -815,3 +815,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **ko slice 3** done 2026-11-08 16:29 JST, 300/300; judged in `ko-3-judged.md`.
 - **Running:** `lw-ko-check-s4-20261108-163005` (slice 4, the last). On its event: copy the run's `answer.md` to `l10n-slices/ko-4-answer.md`, judge it, then the ko PR below.
 - **After slice 4:** build the ko apply JSON (`parse.py`, as `build_ja.py`), branch from `origin/main`, `tools/i18n.py apply`, i18n check, ko layout and honest route, `lead-wait pr <n>` with a `ko-scope.md`.
+
+### ko checked in slices; ko fix PR running (edd-lead) | 2026-11-08 16:4x JST
+
+- **ko slices** all read in full (300, 300, 300, 180; 2026-11-08 16:03–16:37 JST). Judgements in `l10n-slices/ko-{1..4}-judged.md`; `build_ko.py` built `ko-apply.json`, 90 rows (5 rejected), placeholders checked. Both #277 review items are in (hold, not press; 같은 하늘 영역).
+- **Running:** `lw-ko-check-fix-20261108-163837`: `ds-exec ds-edd-2` (ds-2, branch `l10n/ko-check` from origin/main), brief `/Volumes/KIOXIA/eddington-1919-cache/director/ko-check-fix.md`. It applies the JSON, runs the i18n check, ko layout and honest route, opens the PR and runs one oracle review of it.
+- **On its event:** read the report, then `lead-wait pr <n> --scope /Volumes/KIOXIA/eddington-1919-cache/director/l10n-slices/ko-scope.md`.
+- **Follow-up:** #280: whole-voice register pass for Eddington in ja and ko, plus the 歲差 and 0.87 source wording.
+- **After ko merges:** en, ja and ko all have an oracle check. Still not done: native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title.
