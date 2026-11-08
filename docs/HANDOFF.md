@@ -877,3 +877,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Rules decided:** `/Volumes/KIOXIA/eddington-1919-cache/director/blind-fix-rules.md` (ja whole cast 丁寧語, ko Ashby 저; terms follow the zh-TW source; ko 星點 never 별점; weight 가중치/重み; ko 353/203 rejected, addressed to Ashby).
 - **Running:** `lw-blind-ja-20261108-225622` (ds-edd-1, `l10n/blind-ja`) and `lw-blind-ko-20261108-225622` (ds-edd-2, `l10n/blind-ko`), briefs `director/blind-fix-{ja,ko}.md`; each judges rows against the msgid, applies, tests, opens a PR and runs its own oracle review. Told to finish before 2026-11-09 09:00 JST.
 - **On each event:** spot-check the judged file and diff, write a scope file from the rules file, `lead-wait pr <n> --scope`. After both merge: `L.TRANSLATED = true` PR.
+
+### #286 ja blind-read fixes merged (edd-lead) | 2026-11-08 23:4x JST
+
+- **Merged:** #286 (ja, 219 lines: whole cast 丁寧語, calques, term drift). Round 1 oracle blockers (Halley "seventy years before", 標準誤差 not 標準偏差, room width not height) fixed by the lead in 3e178f3; round 2 approve; all checks passed.
+- **Rule corrected:** `blind-fix-rules.md` statistics line now says follow the msgid (標準誤差 / 표준오차). The ko worker started on the old rule: check that line in its PR.
+- **Running:** `lw-blind-ko-20261108-225622` (ds-edd-2). After ko merges: `L.TRANSLATED = true` PR.
