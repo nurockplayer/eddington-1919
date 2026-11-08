@@ -851,3 +851,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **ds-exec exit 70** was dot-ci failing to verify the result (`no DOT-CI-DONE by the deadline`), not a test failure: the same Test command exits 0 on the Mac (worker `orb-test --local` 20:47 JST; lead rerun 22:0x JST). dot looked down at 20:49–20:59 JST; not investigated.
 - **Running:** `lw-pr-282-20261108-215945` with `--scope l10n-slices/register-scope.md`. If `suites` fails at `Install Godot` with a 504 again, rerun later before overriding.
 - **Next after merge:** native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order as above.
+
+### #282 merged; #283 CI gate at review (edd-lead) | 2026-11-08 22:2x JST
+
+- **Merged:** #282 register pass (12be650), closes #280. CI's Godot download worked on rerun (the 19:47 JST 503 / connection drop was transient); every check passed, no override.
+- **#283** (`ci/require-translated`, lead, one line in `.github/workflows/all-suites.yml`): the localization gate now runs `check --require-translated`. Passes on main locally. **Running:** `lw-pr-283-20261108-221939`.
+- **ds-1** detached at origin/main, `l10n/register-pass` deleted locally (merged).
+- **Still open:** native read of ja and ko (needs a human reader; not started), `L.TRANSLATED = true` (`scripts/l10n.gd:12`, turns on the language button and OS-locale pick), window title per locale (`project.godot` `config/name` is zh-TW only; the Titles table in LOCALIZATION.md lists each). Monday 2026-11-09 09:00 JST order as above.
