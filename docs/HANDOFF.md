@@ -883,3 +883,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Merged:** #286 (ja, 219 lines: whole cast 丁寧語, calques, term drift). Round 1 oracle blockers (Halley "seventy years before", 標準誤差 not 標準偏差, room width not height) fixed by the lead in 3e178f3; round 2 approve; all checks passed.
 - **Rule corrected:** `blind-fix-rules.md` statistics line now says follow the msgid (標準誤差 / 표준오차). The ko worker started on the old rule: check that line in its PR.
 - **Running:** `lw-blind-ko-20261108-225622` (ds-edd-2). After ko merges: `L.TRANSLATED = true` PR.
+
+### #287 merged; #288 L.TRANSLATED = true at the gate (edd-lead) | 2026-11-09 02:3x JST
+
+- **Merged:** #287 ko blind-read fixes (f6637b5): 107 lines (35 taken, 18 own fix, 12 rejected); 표준오차 per the msgid. The worker hit the 60-turn cap; dot-ci hung 2 h 40 min waiting on dot (killed 01:4x JST), then OrbStack was stopped (exit 69, `orb start`). dot did not answer all night; light runs used `--local`.
+- **#288** (`l10n/translated`, lead): `L.TRANSLATED = true`. test_i18n 1141/0; layout zh_TW 8618/0, en 8462/0. **Running:** `lw-pr-288-20261109-023537`.
+- **Monday look 2026-11-09 adds:** the language button on the title row (all four captions), the window title in en and ja, a cold start with a saved language.
+- **Still open:** a native read of ja and ko before the Steam release (no reader yet).
