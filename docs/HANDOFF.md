@@ -806,3 +806,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Decided:** Eddington keeps なさい and plain form. Only mixed politeness within one line, よかろう, 君 and meaning changes were fixed. A whole-voice register pass for ja is a follow-up, not done.
 - **Next:** ko slices 1–4, one at a time, prompts `l10n-slices/prompt-ko-{1..4}.txt`. Start after the #279 review leaves oracle free. The ko PR-review items from the 22:2x section (press against hold; 같은 하늘 영역) go into the ko PR. Also check `0.87: 뉴턴식의 절반` (same ambiguity as ja; en says "half, on the Newtonian calculation").
 - **Tools:** `l10n-slices/parse.py` turns answers into rows, `build_ja.py` builds the `apply` JSON (a JSON array of `{msgid, msgstr}`).
+
+### #279 merged; ko slices running (edd-lead) | 2026-11-08 16:1x JST
+
+- **Merged:** #279 (ca1afab), the ja check fixes.
+- **ko slice 1** done 2026-11-08 16:10 JST, read 300/300; judged in `l10n-slices/ko-1-judged.md` (answer `ko-1-answer.md`). Nothing applied yet: apply all ko slices in one PR, as with ja.
+- **Running:** `lw-ko-check-s2-20261108-161101` (slice 2). On its event: copy the run's `answer.md` to `l10n-slices/ko-2-answer.md`, dispatch slice 3 the same way (`lead-wait run ko-check-s3 -- oracle-ego --slug ko-check-s3 --timeout-min 45 -p "$(cat prompt-ko-3.txt)" --file ko-3of4.po --file docs/design/LOCALIZATION.md`), then judge slice 2.
+- **After slice 4:** build the ko apply JSON (`parse.py`, as `build_ja.py`), branch from `origin/main`, `tools/i18n.py apply`, i18n check, ko layout and honest route, `lead-wait pr <n>` with a `ko-scope.md`.
