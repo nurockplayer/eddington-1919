@@ -798,3 +798,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Claude weekly 2% at 2026-11-08 15:17 JST** (reset). Codex weekly still 100.0%, window 65% gone. Heartbeat back to every 45 minutes; one-shot due 2026-11-08 16:03 JST.
 - **Slices:** `/Volumes/KIOXIA/eddington-1919-cache/director/l10n-slices/`, `{ja,ko}-{1..4}of4.po`, 300 live entries each (1,080 live per language by this split; the header is kept in each). Prompt per slice: `prompt-ja-1.txt`, the old prompt plus "do not search the web and do not run code".
 - **Running:** `lw-ja-check-s1-20261108-151739` (ja slice 1 only). On its event: if it read all 300, judge each row against the code, keep the result in `l10n-slices/`, then run the next slice, one at a time. If slice 1 fails the same way, the size is not the cause; stop and look at oracle itself.
+
+### ja checked in slices; #279 at the gate (edd-lead) | 2026-11-08 15:5x JST
+
+- **Slices work:** ja's four slices each finished in 6–8 minutes (2026-11-08 15:17–15:45 JST), and every slice was read in full: 300, 300, 300 and 180 entries.
+- **#279** (`l10n/ja-check`, ds-1): 75 rows applied, plus a sweep of 停, 底片 and 偏り. The `--scope` file is `l10n-slices/ja-scope.md`. Judgements are in `l10n-slices/ja-{1..4}-judged.md`; slice 4 and the register choice are recorded in the scope file and the PR body. Tests: i18n check 0 problems, ja layout 0 failures in 8462 checks, ja honest route `failures=[]`. **Running:** `lw-pr-279-20261108-155501`.
+- **Decided:** Eddington keeps なさい and plain form. Only mixed politeness within one line, よかろう, 君 and meaning changes were fixed. A whole-voice register pass for ja is a follow-up, not done.
+- **Next:** ko slices 1–4, one at a time, prompts `l10n-slices/prompt-ko-{1..4}.txt`. Start after the #279 review leaves oracle free. The ko PR-review items from the 22:2x section (press against hold; 같은 하늘 영역) go into the ko PR. Also check `0.87: 뉴턴식의 절반` (same ambiguity as ja; en says "half, on the Newtonian calculation").
+- **Tools:** `l10n-slices/parse.py` turns answers into rows, `build_ja.py` builds the `apply` JSON (a JSON array of `{msgid, msgstr}`).
