@@ -792,3 +792,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **State:** nothing is running. ja and ko have no oracle check yet, and nothing was applied. `ko-check-2` is not dispatched. This blocks nothing, since `L.TRANSLATED` is false.
 - **Next, after the Claude weekly reset (`quota-advisor status`):** one language at a time, in slices of about 300 entries, each with the same prompt and its own `--file`. Do not rerun the whole file. Add to the prompt: do not search the web. Slices are untested; check one before sending the rest.
 - **The PR-review fixes in the 22:2x section are still not in.** They do not depend on the checks; put them in the same PR as the check results, or alone if the checks stay down.
+
+### Claude week reset; ja check restarted in slices (edd-lead) | 2026-11-08 15:1x JST
+
+- **Claude weekly 2% at 2026-11-08 15:17 JST** (reset). Codex weekly still 100.0%, window 65% gone. Heartbeat back to every 45 minutes; one-shot due 2026-11-08 16:03 JST.
+- **Slices:** `/Volumes/KIOXIA/eddington-1919-cache/director/l10n-slices/`, `{ja,ko}-{1..4}of4.po`, 300 live entries each (1,080 live per language by this split; the header is kept in each). Prompt per slice: `prompt-ja-1.txt`, the old prompt plus "do not search the web and do not run code".
+- **Running:** `lw-ja-check-s1-20261108-151739` (ja slice 1 only). On its event: if it read all 300, judge each row against the code, keep the result in `l10n-slices/`, then run the next slice, one at a time. If slice 1 fails the same way, the size is not the cause; stop and look at oracle itself.
