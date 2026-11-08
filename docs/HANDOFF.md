@@ -844,3 +844,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lw-register-pass-20261108-190550`: `ds-exec ds-edd-1` (ds-1, branch `l10n/register-pass`), brief `/Volumes/KIOXIA/eddington-1919-cache/director/register-pass.md`, input `l10n-slices/register-lines.json` (157 E/K lines). It applies, tests ja/ko layout and honest route, opens the PR and runs its own oracle review.
 - **On its event:** read the report, write `l10n-slices/register-scope.md` (rules above as accepted; Kit lines out of scope), then `lead-wait pr <n> --scope` it. If `suites` fails again at `Install Godot` with a 504, rerun later before overriding.
 - **Then:** native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order as above.
+
+### #282 (register pass) at the gate (edd-lead) | 2026-11-08 22:0x JST
+
+- **#282** (`l10n/register-pass`, ds-1, 0107a60, `Closes #280`): ja 48 and ko 47 Eddington lines moved to 丁寧語 / 해요체; Kit untouched; 歲差 → 近日點進動 and the 0.87 choice reworded in the zh-TW source, translations carried over. Worker tests 2026-11-08 19:25–19:46 JST: ja and ko layout 8462 checks 0 failures each; ja and ko honest route seed 77 `failures=[]`. Worker oracle review approve 0/0/0.
+- **ds-exec exit 70** was dot-ci failing to verify the result (`no DOT-CI-DONE by the deadline`), not a test failure: the same Test command exits 0 on the Mac (worker `orb-test --local` 20:47 JST; lead rerun 22:0x JST). dot looked down at 20:49–20:59 JST; not investigated.
+- **Running:** `lw-pr-282-20261108-215945` with `--scope l10n-slices/register-scope.md`. If `suites` fails at `Install Godot` with a 504 again, rerun later before overriding.
+- **Next after merge:** native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order as above.
