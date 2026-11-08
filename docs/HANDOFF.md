@@ -897,3 +897,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Cleanup:** l10n branches deleted locally; ds-1 and ds-2 detached at origin/main.
 - **Running:** `lw-store-l10n-20261109-025117`: `cx-exec` (Codex reported available by quota-advisor at 02:5x JST; terra) in ds-1, branch `docs/store-page-l10n`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/store-page-l10n.md`: STORE_PAGE.md sections 2, 3, 4, 7 in en/ja/ko, B3 marked decided. On its event: `lead-wait pr <n>`.
 - **Monday 2026-11-09 09:00 JST:** look kit and hand tests as above, plus the language button, window title and saved-language cold start.
+
+### #289 store page copy merged-armed; nothing running (edd-lead) | 2026-11-09 02:5x JST
+
+- **#289** STORE_PAGE.md in en/ja/ko (sections 2, 3, 4, 7; B3 recorded as decided): oracle approve 0/0/0, merge armed (docs only). Short descriptions: zh-TW 74, en 225, ja 87, ko 116 characters. Store copy register: ja plain descriptive, ko 합니다체.
+- **State:** nothing of edd-lead's is running. Localization done except a native read of ja and ko before launch.
+- **Next: Monday 2026-11-09 09:00 JST** (windowed window opens): refresh `look/monday`, `look_kit.sh` via `orb-test --heavy --host`, hand tests (繼續 per chapter, fonts, title row incl. the new language button in all four captions, `EDD_LOCALE=en`/`ja` window title, saved-language cold start, Cmd-Tab, 2560x1080), then `lead-inbox add edd-art look look-kit done "<dir>"` + `herdr pane send-text w7:pB`; gate #229 → #231 → #232 → #234 on art-verdict events; store reshoot (now four languages), 0.4.6.
+- **Hosts:** dot did not answer 2026-11-08 20:49 JST – 2026-11-09 02:xx JST (dot-ci hung 2 h 40 min once); OrbStack stopped twice. Use `--local` for light runs if dot is still down.
