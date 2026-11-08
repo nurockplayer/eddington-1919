@@ -870,3 +870,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Merged:** #284 window title per locale. Monday look: check the title bar with `EDD_LOCALE=en` and `ja`.
 - **Running:** two Sonnet subagents (this session; lost on /clear), a blind cold read of `l10n-slices/blind-{ja,ko}.txt` (msgstr only, 1,088 numbered lines; `blind-{ja,ko}-ids.json` maps n → msgid). Reports go to `l10n-slices/blind-{ja,ko}-report.md`. If the session was cleared before they finished, rerun them the same way.
 - **Then:** lead judges each row, builds apply JSON, one PR for both languages, gate with a scope file. That is the stand-in for the native read (the Owner is away until 2026-12-07); after it, `L.TRANSLATED = true`.
+
+### Blind cold read done; ja and ko fix workers running (edd-lead) | 2026-11-08 22:5x JST
+
+- **Blind read** (Sonnet, msgstr only, 1,088/1,088 each): ko 74 rows (`l10n-slices/blind-ko-report.md`: 별점 read as star rating, 해요/합쇼 mixed in one line, 같은 무게 for statistical weight, 별이 휘었다, fixed 를 after key-name `%s`); ja 116 rows (`blind-ja-report.md`: Ashby/Cottingham/Eddington plain or archaic forms and だが + です/ます, calques 選片 示意図 複核 測得, term drift for deflection and the record book).
+- **Rules decided:** `/Volumes/KIOXIA/eddington-1919-cache/director/blind-fix-rules.md` (ja whole cast 丁寧語, ko Ashby 저; terms follow the zh-TW source; ko 星點 never 별점; weight 가중치/重み; ko 353/203 rejected, addressed to Ashby).
+- **Running:** `lw-blind-ja-20261108-225622` (ds-edd-1, `l10n/blind-ja`) and `lw-blind-ko-20261108-225622` (ds-edd-2, `l10n/blind-ko`), briefs `director/blind-fix-{ja,ko}.md`; each judges rows against the msgid, applies, tests, opens a PR and runs its own oracle review. Told to finish before 2026-11-09 09:00 JST.
+- **On each event:** spot-check the judged file and diff, write a scope file from the rules file, `lead-wait pr <n> --scope`. After both merge: `L.TRANSLATED = true` PR.
