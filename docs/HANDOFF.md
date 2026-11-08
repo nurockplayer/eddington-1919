@@ -811,5 +811,6 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 
 - **Merged:** #279 (ca1afab), the ja check fixes.
 - **ko slice 1** done 2026-11-08 16:10 JST, read 300/300; judged in `l10n-slices/ko-1-judged.md` (answer `ko-1-answer.md`). Nothing applied yet: apply all ko slices in one PR, as with ja.
-- **Running:** `lw-ko-check-s2-20261108-161101` (slice 2). On its event: copy the run's `answer.md` to `l10n-slices/ko-2-answer.md`, dispatch slice 3 the same way (`lead-wait run ko-check-s3 -- oracle-ego --slug ko-check-s3 --timeout-min 45 -p "$(cat prompt-ko-3.txt)" --file ko-3of4.po --file docs/design/LOCALIZATION.md`), then judge slice 2.
+- **ko slice 2** done 2026-11-08 16:22 JST, 300/300; judged in `ko-2-judged.md` (27 of 39 rows are Eddington register; a register sweep goes in the ko PR; 歲差 SOURCE is a follow-up).
+- **Running:** `lw-ko-check-s3-20261108-162255` (slice 3). On its event: copy the run's `answer.md` to `l10n-slices/ko-3-answer.md`, dispatch slice 4 the same way (`lead-wait run ko-check-s4 -- oracle-ego --slug ko-check-s4 --timeout-min 45 -p "$(cat prompt-ko-4.txt)" --file ko-4of4.po --file docs/design/LOCALIZATION.md`), then judge slice 3.
 - **After slice 4:** build the ko apply JSON (`parse.py`, as `build_ja.py`), branch from `origin/main`, `tools/i18n.py apply`, i18n check, ko layout and honest route, `lead-wait pr <n>` with a `ko-scope.md`.
