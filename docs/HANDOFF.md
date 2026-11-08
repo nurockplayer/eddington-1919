@@ -823,3 +823,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **On its event:** read the report, then `lead-wait pr <n> --scope /Volumes/KIOXIA/eddington-1919-cache/director/l10n-slices/ko-scope.md`.
 - **Follow-up:** #280: whole-voice register pass for Eddington in ja and ko, plus the 歲差 and 0.87 source wording.
 - **After ko merges:** en, ja and ko all have an oracle check. Still not done: native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title.
+
+### ko fix PR #281 at the gate (edd-lead) | 2026-11-08 18:2x JST
+
+- **#281** (`l10n/ko-check`, ds-2): 90 rows applied. Worker tests 2026-11-08 16:46–18:01 JST: ko layout 8462 checks 0 failures; ko honest route seed 77 `failures=[]`; i18n check `--require-translated --locales ko` 0 problems; `test_i18n_po.py` passed. Worker oracle review approved, its one minor (`\|` at `locale/ko.po:416`, an escape copied from the oracle table) fixed by the lead in 5936b98.
+- **Running:** `lw-pr-281-20261108-181857` with `--scope l10n-slices/ko-scope.md`. On the event: if merged, en, ja and ko all have an oracle check.
+- **Host:** the worker found the OrbStack VM stopped at 16:46 JST and ran `orb start`; at 18:0x JST `orb-test --status` showed docker not answering again. Light runs used `--host` or dot. Not investigated.
+- **Next:** #280 (Eddington register pass ja/ko; 歲差 and 0.87 in the source). Then native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title.
