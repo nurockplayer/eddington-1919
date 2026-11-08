@@ -68,6 +68,10 @@ static func resolve(os_locale: String) -> String:
 static func apply(locale: String) -> void:
 	language = locale
 	TranslationServer.set_locale(locale)
+	# project.godot's config/name is the zh-TW title; the window follows the locale.
+	# Deferred, so the engine's own startup title cannot land after this one.
+	if DisplayServer.get_name() != "headless":
+		DisplayServer.window_set_title.call_deferred(L.t("雲層之後 · Eddington 1919"))
 
 
 static func current() -> String:
