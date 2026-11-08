@@ -7,9 +7,10 @@ const Checkpoint := preload("res://scripts/checkpoint.gd")
 
 const LOCALES := ["zh_TW", "en", "ja", "ko"]
 const NAMES := {"zh_TW": "繁體中文", "en": "English", "ja": "日本語", "ko": "한국어"}
-## Turn on once en, ja and ko are fully translated. Until then a release stays on the
-## source text with no language button; EDD_LOCALE still reaches the other locales.
-const TRANSLATED := false
+## en, ja and ko are fully translated (oracle meaning checks, blind reads #286/#287), so a
+## release picks the saved or OS language and shows the language button. Set false to ship
+## on the source text only; EDD_LOCALE still reaches the other locales.
+const TRANSLATED := true
 
 ## The locale in use; `_static_init` picks it before any scene reads a string.
 static var language := ""
