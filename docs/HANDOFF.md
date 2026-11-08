@@ -864,3 +864,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Merged:** #283, CI localization gate now runs `check --require-translated`.
 - **#284** (`l10n/window-title`, lead): `L.apply` sets the window title from `L.t("雲層之後 · Eddington 1919")`, deferred, skipped headless. Headless start shows no script errors; not yet seen in a window. **Running:** `lw-pr-284-*`. **Monday look:** add a title-bar check with `EDD_LOCALE=en` and `ja` to the hand tests.
 - **Still open:** native read of ja and ko (needs a human reader), `L.TRANSLATED = true`.
+
+### #284 merged; blind cold read of ja and ko running (edd-lead) | 2026-11-08 22:5x JST
+
+- **Merged:** #284 window title per locale. Monday look: check the title bar with `EDD_LOCALE=en` and `ja`.
+- **Running:** two Sonnet subagents (this session; lost on /clear), a blind cold read of `l10n-slices/blind-{ja,ko}.txt` (msgstr only, 1,088 numbered lines; `blind-{ja,ko}-ids.json` maps n → msgid). Reports go to `l10n-slices/blind-{ja,ko}-report.md`. If the session was cleared before they finished, rerun them the same way.
+- **Then:** lead judges each row, builds apply JSON, one PR for both languages, gate with a scope file. That is the stand-in for the native read (the Owner is away until 2026-12-07); after it, `L.TRANSLATED = true`.
