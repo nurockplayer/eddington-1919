@@ -139,7 +139,7 @@ msgstr "Neither 0.87″ nor 1.75″ is inside the range"
 msgid "0.87。牛頓式的算法給的就是這個。寫下來，比記在心裡好。"
 msgstr "0.87. That is what the Newtonian calculation gives. Better written down than kept in the head."
 
-msgid "0.87：牛頓式的一半"
+msgid "0.87：照牛頓的算法，只有一半"
 msgstr "0.87: half, on the Newtonian calculation"
 
 msgid "1.75。愛因斯坦的全部。好——日食那天，我們看看底片怎麼說。"
@@ -1211,8 +1211,8 @@ msgstr "Press again: quit (progress will not be kept)"
 msgid "再看一次：%s。\n看圖上的細線：兩條預測線，哪一條落在細線裡面？"
 msgstr "Look again: %s.\nLook at the fine lines: of the two prediction lines, which falls inside them?"
 
-msgid "再看一眼：43 角秒不是零。對得上，是指算出來的歲差和看到的一模一樣——這裡還差著那一點。"
-msgstr "Look again: 43 arcseconds is not zero. To agree would mean the calculated precession matched what is seen exactly—and here that little difference remains."
+msgid "再看一眼：43 角秒不是零。對得上，是指算出來的近日點進動和看到的一模一樣——這裡還差著那一點。"
+msgstr "Look again: 43 arcseconds is not zero. To agree would mean the calculated perihelion advance matched what is seen exactly—and here that little difference remains."
 
 msgid "再看一眼：不到一度，在 1846 年的望遠鏡裡就是『就在那裡』。"
 msgstr "Look again: less than a degree, through a telescope in 1846, means 'just there'."

@@ -49,8 +49,8 @@ No unwrapped CJK literal outside an allowlist; every msgid present in en, ja, ko
 The source avoids gendered pronouns for the player and Kit; keep that in every language. The cast is British, 1917–1919.
 
 - **English:** restrained British English (en_GB spelling), no mock-Victorian. "Mr Ashby", "Professor Eddington". Avoid pronouns for Kit and the player; singular "they" when unavoidable. Keep the dry jokes dry.
-- **日本語:** readable 丁寧語, not period pastiche. アシュビー先生, エディントン教授. Drop subjects where natural. Kit and the player use 私 or no pronoun, never 僕 or 俺; no gendered sentence endings.
-- **한국어:** 해요체 in conversation; 하십시오체 when addressing Eddington formally. 애슈비 선생님, 에딩턴 교수님. No 그／그녀 and no gendered kinship titles for Kit or the player.
+- **日本語:** readable 丁寧語, not period pastiche. アシュビー先生, エディントン教授. Drop subjects where natural. Kit and the player use 私 or no pronoun, never 僕 or 俺; no gendered sentence endings. Eddington follows the same 丁寧語; his lines were swept in #280.
+- **한국어:** 해요체 in conversation; 하십시오체 when addressing Eddington formally. 애슈비 선생님, 에딩턴 교수님. No 그／그녀 and no gendered kinship titles for Kit or the player. Eddington follows the same 해요체; his lines were swept in #280.
 
 ## Titles
 
