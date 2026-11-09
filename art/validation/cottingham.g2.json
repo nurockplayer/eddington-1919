@@ -4,13 +4,14 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 14953,
+      "value": 14829,
       "max": 16000,
       "ok": true
     },
     "materials": {
       "value": [
         "E1919_eye_dark",
+        "E1919_eye_white",
         "E1919_felt",
         "E1919_hair_greying",
         "E1919_leather",
@@ -176,11 +177,11 @@
           ],
           "ok": false
         },
-        "cottingham_moustache": {
+        "cottingham_irises": {
           "origin": [
-            0.0,
-            -0.146,
-            1.574
+            -0.032,
+            -0.143,
+            1.628
           ],
           "expected": [
             0.0,
@@ -193,6 +194,24 @@
             1.0
           ],
           "ok": false
+        },
+        "cottingham_moustache": {
+          "origin": [
+            -0.0,
+            0.0,
+            -0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
         }
       },
       "ok": true,
@@ -215,6 +234,7 @@
         "cottingham_shoes",
         "cottingham_suit",
         "cottingham_hat",
+        "cottingham_irises",
         "cottingham_moustache"
       ],
       "ok": true

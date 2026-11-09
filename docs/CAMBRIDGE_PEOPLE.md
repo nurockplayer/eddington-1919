@@ -93,8 +93,8 @@ must judge the actual screenshots before visual acceptance is claimed.
 
 Completed through `orb-test`:
 
-- `ashby.g2.json`: PASS, 13,800 triangles, eight materials, no textures.
-- `eddington_cambridge.g2.json`: PASS, 13,776 triangles, eight materials, no textures.
+- `ashby.g2.json`: PASS, 14,355 triangles, nine materials, no textures.
+- `eddington_cambridge.g2.json`: PASS, 14,575 triangles, nine materials, no textures.
 - `test_portrait.gd`: **65 checks, zero failures**, including explicit logical
   viewport dimensions, mood fallback/selection, disclosure, actual hand poses,
   paused animation, collision visibility, tags and 55°/72° FOV restoration.
