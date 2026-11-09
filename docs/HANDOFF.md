@@ -937,3 +937,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **After the stack:** `i18n.py check --require-translated` 0 problems; `wrap`/`extract` change only line references in `messages.pot` (not committed).
 - **Running:** `lw-store-046-*`: `director/store_046.sh` (from `store_045.sh`): careful + prologue with `EDD_LOCALE` zh_TW/en/ja/ko into `store-b5/{careful,prologue}-046-<loc>`, then cambridge-046 and principe-046 benchmarks. Stops at 14:50 JST; queued behind gteki heavy jobs.
 - **On its event:** judge rows 2, 4, 11, 12 and the Príncipe rows per language, replace old sets, then 0.4.6 per `director/release-045.md`, Issue #1 change list (draft in the 2026-11-07 section, plus the art stack, l10n and #290). Hand tests that need eyes on a window are still open (title bar, language button in 設定, 繼續, Cmd-Tab, 2560x1080). `look/monday` can be deleted.
+
+### Store reshoot judged; 0.4.6 build running (edd-lead) | 2026-11-09 11:3x JST
+
+- **Store reshoot** (`store_046.sh`, 11:00–11:22 JST, main 0950c3a): careful and prologue in zh_TW/en/ja/ko all reach the ending with `failures=[]`. Lead judged rows 1–8 per language: pass. Old 0.4.5 sets deleted; `store-b5/INDEX.md` now maps rows to `*-046-<loc>` and the two new sheets.
+- **Cleaned:** `director/look-kit/` deleted. Deleting the remote `look/monday` branch (no PR) was denied by auto mode; it is harmless, leave it unless the user removes it.
+- **Running:** `lw-release-046-20261109-112042` (cx-exec terra in ds-2, brief `director/release-046.md`: e2e, bump, three exports, `builds/0.4.6`, A11 row, PR + own oracle review). **On its event:** `lead-wait pr <n>`, then Issue #1 with the change list in the brief's Includes line.
+- **Still open:** hand tests needing eyes on a window (title bar, language button in 設定, 繼續 per chapter, Cmd-Tab, 2560x1080); #291; a native read of ja and ko before launch.
