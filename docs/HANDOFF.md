@@ -916,3 +916,11 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **look kit** 09:09 JST: 1080 and 720 runs, 123 shots each, ENDING favors_e, `failures=[]`. Lead pre-read: Kit, Ashby, Eddington, box_light, ticks OK (white mark at Kit's mouth is the crosshair). The language button lives in 設定 on the title screen, not on the title row; check it in the hand test.
 - **Sent:** `lead-inbox add edd-art look look-kit done` (ev-20261109-091015-58ca) + send-text to w7:pB. Event acked.
 - **Next:** on art-verdict, `lead-wait pr 229 --reason …` (head a9b6120, base main), then #231 → #232 → #234. Hand tests still to do while the window is open (until 14:55 JST).
+
+### #229 merged; #231 at the gate (edd-lead) | 2026-11-09 09:5x JST
+
+- **edd-art's Claude has exited** (w7:pB is a bare shell); the lead judged the look itself (pass) and acked the edd-art event.
+- **Merged:** #229 Kit (oracle approve, squash).
+- **#231** retargeted to main; the squash left it CONFLICTING. A force push was denied by the auto-mode classifier, so main was merged into `art/ashby-departure` with the tree set to the clean rebase of its 7 commits (2014c1b, 12 files vs main). **Running:** `lw-pr-231-20261109-095218`. If the old false-positive blocker on `tests/test_portrait.gd:128` returns and CI passes, `review-gate 231 --override-blockers "<reason>"`.
+- **Running:** `lw-hand-title-20261109-094841` (`director/hand_title.sh`: window title with `EDD_LOCALE=en`/`ja`, saved ko/zh_TW cold start).
+- **Then:** #232 and #234 the same way (retarget, merge main, tree = rebase onto main), each after the previous merges. Hand tests left: 繼續 per chapter, fonts, language button in 設定, Cmd-Tab, 2560x1080.
