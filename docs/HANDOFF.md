@@ -963,3 +963,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Antigravity run** (`AGY_PURPOSE=visual-review` is required; brief `director/hand-tests-046.md`, 7 cases): all 7 blocked. `screencapture` is denied by TCC (no Screen Recording) and System Events cannot click or type (no Accessibility). osascript failed the same way at 09:56 JST. No agent on this Mac can do windowed hand tests until the Owner grants those permissions; don't retry.
 - **Covered so far:** saved and OS language rule order by #290 + #294 (unit tests); title translations exist in all `.po`; the look kit's game-rendered shots. The 7 cases are listed as "not yet checked by eye" in the Issue #1 0.4.6 comment, so the Owner's A11 playtest covers them.
 - **Nothing of edd-lead's is running.** Remaining work needs the Owner (Issue #1: A11 playtest, native ja/ko reader, newcomer session, B-rows) or is open polish.
+
+### Trailer capture: 1080 found, bot dwell running (edd-lead) | 2026-11-09 13:3x JST
+
+- **#295 merged:** STORE_PAGE §9 records the first `--write-movie` trial (works; 1600x900; bot too fast; audio quiet).
+- **1080:** the 1920 window is clamped on the 1728-pt Retina screen. An `override.cfg` in the throwaway capture tree (viewport 1920x1080, stretch mode `viewport`, scale 1.2, window override 1280x720) records 1920x1080 (`director/movie_test.sh`). Under it the prologue bot's real click on 開始遊戲 misses (`click_at()` maps with `get_stretch_transform()` only), so the run ends at 1.4 s.
+- **Running:** `lw-bot-dwell-20261109-131358` (cx-exec terra, ds-2, branch `tools/bot-dwell`, brief `director/bot-dwell.md`): `--bot-dwell=<s>` holds each line/choice/title. **On its event:** resume the same session with `director/bot-dwell-fu1.md` (click mapping for both stretch modes), then `lead-wait pr <n>`, then a windowed capture with `--bot-dwell=2` and `--quit-after` sized to the shot (windowed hours only).
+- Trial clips deleted.
