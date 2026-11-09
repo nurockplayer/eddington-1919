@@ -930,3 +930,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **`hand_title.sh` failed** (exit 143): osascript/System Events cannot read the Godot window (AppleEvent timed out, connection invalid; likely no Accessibility permission). Not retried.
 - **Covered instead:** the window-title msgid has en/ja/ko translations in `locale/*.po`; **#290** (`test/saved-locale`) adds `saved_locale_checks()` to `tests/test_i18n.gd` (1151/0). **Running:** `lw-pr-290-20261109-095749`.
 - **Still needs eyes on a window** (no scripted way here): the title-bar text, the language button in 設定 (four captions), 繼續 per chapter, Cmd-Tab, 2560x1080. Leave for a human session or a Codex computer-use run; not a blocker for the art stack.
+
+### Art stack merged; store reshoot in four languages queued (edd-lead) | 2026-11-09 10:4x JST
+
+- **Merged:** #229 Kit, #231 departure Ashby, #232 Eddington fronts, #234 faces (each retargeted to main and brought up with a main merge whose tree equals a clean rebase; force push is denied by auto mode). #231–#234 diffs were over oracle's 1 MB limit, so codex reviewed them (approve). **#290** saved-locale test merged; follow-up **#291** (`_startup_locale` on a player launch).
+- **After the stack:** `i18n.py check --require-translated` 0 problems; `wrap`/`extract` change only line references in `messages.pot` (not committed).
+- **Running:** `lw-store-046-*`: `director/store_046.sh` (from `store_045.sh`): careful + prologue with `EDD_LOCALE` zh_TW/en/ja/ko into `store-b5/{careful,prologue}-046-<loc>`, then cambridge-046 and principe-046 benchmarks. Stops at 14:50 JST; queued behind gteki heavy jobs.
+- **On its event:** judge rows 2, 4, 11, 12 and the Príncipe rows per language, replace old sets, then 0.4.6 per `director/release-045.md`, Issue #1 change list (draft in the 2026-11-07 section, plus the art stack, l10n and #290). Hand tests that need eyes on a window are still open (title bar, language button in 設定, 繼續, Cmd-Tab, 2560x1080). `look/monday` can be deleted.
