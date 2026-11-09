@@ -1,0 +1,224 @@
+{
+  "asset": "ashby_standing",
+  "file": "assets/models/ashby_standing.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 14479,
+      "max": 16000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_eye_dark",
+        "E1919_hair_dark",
+        "E1919_hair_grey",
+        "E1919_leather",
+        "E1919_linen",
+        "E1919_skin",
+        "E1919_wool_umber",
+        "E1919_wool_waistcoat"
+      ],
+      "max": 10,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.541,
+        0.344,
+        1.773
+      ],
+      "target": [
+        0.55,
+        0.38,
+        1.74
+      ],
+      "tolerance": 0.2,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.001,
+        -0.048,
+        -0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "ashby_standing_body": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_standing_eyebrows": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_standing_eyes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_standing_hair": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_standing_shoes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_standing_suit": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_standing_waistcoat_v_front": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_standing_moustache": {
+          "origin": [
+            0.0,
+            -0.147,
+            1.591
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        }
+      },
+      "ok": true,
+      "skipped": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "ashby_standing_body",
+        "ashby_standing_eyebrows",
+        "ashby_standing_eyes",
+        "ashby_standing_hair",
+        "ashby_standing_shoes",
+        "ashby_standing_suit",
+        "ashby_standing_waistcoat_v_front",
+        "ashby_standing_moustache"
+      ],
+      "ok": true
+    }
+  }
+}

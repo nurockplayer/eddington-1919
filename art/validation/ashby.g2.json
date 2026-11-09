@@ -4,7 +4,7 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 14152,
+      "value": 14479,
       "max": 16000,
       "ok": true
     },
@@ -123,24 +123,6 @@
           ],
           "ok": true
         },
-        "ashby_shirt_front": {
-          "origin": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "expected": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ],
-          "ok": true
-        },
         "ashby_shoes": {
           "origin": [
             0.0,
@@ -160,6 +142,24 @@
           "ok": true
         },
         "ashby_suit": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ashby_waistcoat_v_front": {
           "origin": [
             0.0,
             0.0,
@@ -213,9 +213,9 @@
         "ashby_eyebrows",
         "ashby_eyes",
         "ashby_hair",
-        "ashby_shirt_front",
         "ashby_shoes",
         "ashby_suit",
+        "ashby_waistcoat_v_front",
         "ashby_moustache"
       ],
       "ok": true

@@ -15,7 +15,7 @@ All third-party content in `assets/models/eddington.glb` and `assets/models/cott
 
 ## Cambridge exports (2026-10-26 JST)
 
-`ashby.glb` and `eddington_cambridge.glb` reuse the same checked CC0 base,
+`ashby.glb`, `ashby_standing.glb` and `eddington_cambridge.glb` reuse the same checked CC0 base,
 `game_engine` rig, `male1591` proxy, `short02` hair, `eyebrow004` (Ashby) /
 `eyebrow010` (Eddington), `low-poly` eyes, `male_elegantsuit01` and `shoes02`.
 `kit.glb` uses the same inputs with `short01` hair and `eyebrow005`. Its iris discs are repo-authored geometry, released under CC0.

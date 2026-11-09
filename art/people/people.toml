@@ -101,7 +101,7 @@ macro = { gender = 1.0, weight = 0.46, muscle = 0.36, proportions = 0.5, race = 
 export = "assets/models/ashby.glb"
 breath_deg = 0.0
 moustache = true # Repo-authored geometry; no unlicensed community hair asset.
-formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", shirt_front = true }
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
 pose = { kind = "desk", head_deg = 5.0, stoop_deg = 12.0 }
 [person.ashby.assets]
 body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
@@ -120,6 +120,34 @@ shoes = "leather"
 [person.ashby.decimate]
 suit = 0.4
 hair = 0.6
+
+# Same fictional Ashby, arms down for the departure.
+[person.ashby_standing]
+age_years = 60
+height_m = 1.74
+macro = { gender = 1.0, weight = 0.46, muscle = 0.36, proportions = 0.5, race = { caucasian = 1.0, asian = 0.0, african = 0.0 } }
+export = "assets/models/ashby_standing.glb"
+breath_deg = 1.2
+moustache = true # Repo-authored geometry; no unlicensed community hair asset.
+formal = { collar = "linen", waistcoat = "wool_waistcoat", tie = "hair_dark", waistcoat_v = true }
+[person.ashby_standing.assets]
+body = ["proxymeshes/male1591/male1591.proxy", "Proxymeshes"]
+hair = ["hair/short02/short02.mhclo", "Hair"]
+eyebrows = ["eyebrows/eyebrow004/eyebrow004.mhclo", "Eyebrows"]
+eyes = ["eyes/low-poly/low-poly.mhclo", "Eyes"]
+suit = ["clothes/male_elegantsuit01/male_elegantsuit01.mhclo", "Clothes"]
+shoes = ["clothes/shoes02/shoes02.mhclo", "Clothes"]
+[person.ashby_standing.materials]
+body = "skin"
+hair = "hair_grey"
+eyebrows = "hair_grey"
+eyes = "eye_dark"
+suit = "wool_umber"
+shoes = "leather"
+[person.ashby_standing.decimate]
+suit = 0.4
+hair = 0.6
+
 
 # Kit is fictional; all appearance features are invented.
 [person.kit]
