@@ -203,7 +203,7 @@ func tap(code: Key) -> void:
 
 
 func click_at(pos: Vector2) -> void:
-	pos = get_viewport().get_stretch_transform() * pos
+	pos = get_viewport().get_screen_transform() * pos
 	var motion := InputEventMouseMotion.new()
 	motion.position = pos
 	motion.global_position = pos
