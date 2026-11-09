@@ -904,3 +904,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **State:** nothing of edd-lead's is running. Localization done except a native read of ja and ko before launch.
 - **Next: Monday 2026-11-09 09:00 JST** (windowed window opens): refresh `look/monday`, `look_kit.sh` via `orb-test --heavy --host`, hand tests (繼續 per chapter, fonts, title row incl. the new language button in all four captions, `EDD_LOCALE=en`/`ja` window title, saved-language cold start, Cmd-Tab, 2560x1080), then `lead-inbox add edd-art look look-kit done "<dir>"` + `herdr pane send-text w7:pB`; gate #229 → #231 → #232 → #234 on art-verdict events; store reshoot (now four languages), 0.4.6.
 - **Hosts:** dot did not answer 2026-11-08 20:49 JST – 2026-11-09 02:xx JST (dot-ci hung 2 h 40 min once); OrbStack stopped twice. Use `--local` for light runs if dot is still down.
+
+### Monday look started (edd-lead) | 2026-11-09 09:0x JST
+
+- **look/monday** refreshed: dd3db89 = ea42674 (`main` ec304b7 + `art/faces`) merged with `main` b26276a (l10n, fonts, layout, store copy), no conflicts, force-pushed.
+- **Running:** `lw-look-kit-20261109-090239` (`orb-test --heavy --host -- bash director/look_kit.sh`, ticket #805, queued behind a gteki heavy job from 04:32 JST). The script exits 3 if it starts after 14:55 JST.
+- **On its event:** judge `director/look-kit/{1080,720}` (list in the 09:00 sections above), then the hand tests (繼續 per chapter, fonts, language button four captions, `EDD_LOCALE=en`/`ja` window title, saved-language cold start, Cmd-Tab, 2560x1080), `lead-inbox add edd-art look look-kit done "<dir>"` + `herdr pane send-text w7:pB`, then #229 → #231 → #232 → #234.
