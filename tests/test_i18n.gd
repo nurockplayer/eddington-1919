@@ -124,24 +124,24 @@ func record_reason_check() -> void:
 	L.apply("zh_TW")
 
 
-## A saved language survives a cold start: _startup_locale reads it before Settings loads.
-## Suites start under --script, so this reads the file the way a player launch does.
+## The saved language reads back the way _startup_locale reads it before Settings loads.
+## Suites start under --script, which skips the saved choice, so this calls the reader
+## directly, on a scratch file: the env path points away from any real settings file.
 func saved_locale_checks() -> void:
-	var path := Settings.settings_path()
-	var had := FileAccess.file_exists(path)
-	var before := FileAccess.get_file_as_string(path) if had else ""
+	var env_before := OS.get_environment("EDD_SETTINGS_PATH")
+	var path := ProjectSettings.globalize_path("user://test-i18n-saved-locale.cfg")
+	OS.set_environment("EDD_SETTINGS_PATH", path)
 	var language := Settings.language
 	for pair in [["ko", "ko"], ["ja", "ja"], ["en", "en"], ["zh_TW", "zh_TW"], ["xx", ""]]:
 		Settings.language = pair[0]
 		check(Settings.save_language() == OK, "language %s saved" % pair[0])
 		check(L._saved_locale() == pair[1], "saved %s reads back as '%s', got '%s'" % [pair[0], pair[1], L._saved_locale()])
 	Settings.language = language
-	if had:
-		var file := FileAccess.open(path, FileAccess.WRITE)
-		file.store_string(before)
-		file.close()
+	DirAccess.remove_absolute(path)
+	if env_before.is_empty():
+		OS.unset_environment("EDD_SETTINGS_PATH")
 	else:
-		DirAccess.remove_absolute(path)
+		OS.set_environment("EDD_SETTINGS_PATH", env_before)
 
 
 ## The dev pseudo locale: L.t and L.tn reach the ASCII catalogue, and the game's
