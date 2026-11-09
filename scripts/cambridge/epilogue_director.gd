@@ -83,8 +83,8 @@ func _ready() -> void:
 	_speaker_fill.light_specular = 0.0
 	_speaker_fill.light_energy = 0.0
 	add_child(_speaker_fill)
-	_set_prompt_meta("letter", "讀 Dyson 的信")
-	_set_prompt_meta("orrery", "看太陽系儀")
+	_set_prompt_meta("letter", L.t("讀 Dyson 的信"))
+	_set_prompt_meta("orrery", L.t("看太陽系儀"))
 	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
@@ -125,9 +125,9 @@ func _sync_player() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	var objective := ""
 	match beat:
-		Beat.LETTER: objective = "讀桌上 Dyson 的信。"
-		Beat.ORRERY: objective = "太陽系儀還在架上。"
-	ui.set_objectives("[b]劍橋・1919 年 10 月[/b]\n" + objective if objective != "" else "")
+		Beat.LETTER: objective = L.t("讀桌上 Dyson 的信。")
+		Beat.ORRERY: objective = L.t("太陽系儀還在架上。")
+	ui.set_objectives(L.t("[b]劍橋・1919 年 10 月[/b]\n%s") % objective if objective != "" else "")
 
 
 func _process(delta: float) -> void:
@@ -145,7 +145,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), L.t(str(target.get_meta("prompt")))] if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -169,14 +169,15 @@ func _interact(id: String) -> void:
 		"orrery":
 			_orrery_camera = Room.StarDecor.orrery_closeup(self, world.orrery)
 			beat = Beat.ORRERY_TALK
-			_say(Content.orrery_talk(Content.suspect_text(Story.mercury_suspect)), "orrery_talk")
+			_say(Content.orrery_talk(Content.suspect_text(Story.mercury_suspect), int(Story.orrery.get("mercury", -1))), "orrery_talk")
 		"mentor":
 			# The objective already says where to go; Ashby repeats it without new prose.
-			ui.show_toast("太陽系儀還在架上。", 3.0)
+			ui.show_toast(L.t("太陽系儀還在架上。"), 3.0)
 	_sync_player()
 
 
 func _chart_completed() -> void:
+	_store("sobral_read", chart.read_answer)
 	chart.hide()
 	beat = Beat.WEIGHT
 	_say(Content.weight(), "weight")
@@ -222,14 +223,19 @@ func _dialogue_done(results: Dictionary) -> void:
 		"click_reply":
 			Room.StarDecor.end_orrery_closeup(_orrery_camera, player.camera)
 			_orrery_camera = null
-			_say(Content.final_reason(), "final_reason")
+			_say(Content.october_bet(), "october_bet")
+			return
+		"october_bet":
+			var pick := int(results.get("bet_oct", 3))
+			_store("bet_oct", pick)
+			_say(Content.october_bet_reply(pick, Story.bet) + Content.final_reason(), "final_reason")
 			return
 		"final_reason":
 			var choice := int(results.get("final_reason", -1))
 			_store("final_reason", choice)
-			var choices: Array = Content.final_reason()[0].choices
-			_store("final_reason_text", str(choices[choice]) if choice >= 0 and choice < choices.size() else "")
-			_say(Content.final_reply(choice) + Content.close(), "close")
+			var sources: Array = Content.final_reason()[0].get("sources", [])
+			_store("final_reason_text", str(sources[choice]) if choice >= 0 and choice < sources.size() else "")
+			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet) + Content.close(), "close")
 			return
 		"close":
 			_end_epilogue()
@@ -244,6 +250,7 @@ func _end_epilogue() -> void:
 	await ui.fade_to(1.0, 1.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
 	score.play("coda_resolution", 0.6)
+	Checkpoint.clear()
 	var ending: Dictionary = Ending.build(Story.runs.back(), Ending.story_view(Story))
 	ui.show_ending(ending.title, ending.body, ending.history, ending.review, ending.telegram,
 		Story.ending_plate, Story.ending_plate_caption)
@@ -265,7 +272,7 @@ func _restart(same_sky: bool) -> void:
 		return
 	get_tree().paused = false
 	if not Story.runs.is_empty():
-		for key in ["astro_weight", "click", "final_reason"]:
+		for key in ["astro_weight", "click", "final_reason", "bet_oct", "sobral_read"]:
 			Story.runs.back().erase(key)
 	get_tree().reload_current_scene()
 

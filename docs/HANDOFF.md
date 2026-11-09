@@ -399,3 +399,520 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Running:** `lead-wait run kit-mpfb`, Codex Terra in worktree ds-1, brief `kit-mpfb.md` on KIOXIA `director/`, branch `art/kit-mpfb`.
 - **On its event:** read the final report. Windowed look at Kit, close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `m2_speaker_promise_kit`, `honest_beat_orrery` (Mon–Fri 09–15 JST; otherwise Monday 2026-11-09). Copy `director/store_045.sh` for the prologue run. Oracle approve and the lead's look are separate gates. Then `lead-wait pr <n>`, reshoot store row 2, add the arc rows, and consider a 0.4.6 for the Owner (Issue #1 now says 0.4.5; tell the Owner if Kit lands before they play).
 
+### Kit PR state (edd-lead) | 2026-11-06 14:45 JST
+
+- **PR #229** (`art/kit-mpfb`, head ff3bcec): oracle approve on the head, 1 major (tests do not prove Kit's idle plays or the mesh faces the player: follow-up issue, not a hold). Revert-check passed, e2e 6/6, portrait 69/0, prologue 395/0. test_departure failed once (montage caption, 4 s wall-clock) under load, then passed 3/3 on the branch and 3/3 on main: treated as a load flake, cause not established.
+- **Running:** `lw-look-kit-20261106-144457`, ticket #613 behind two gteki jobs. `director/look_kit.sh` shoots the prologue honest route to `director/look-kit/`. It exits 3 without running if it starts after 14:55 JST: then rerun it Monday 2026-11-09 from 09:00 JST with `lead-wait run look-kit -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_kit.sh`.
+- **On its event:** judge close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `honest_m2_speaker_promise_kit`, `honest_beat_orrery`, and whether the head and shirt front hold up beside Ashby. Pass → `review-gate 229`; delete `director/look-kit/`. Fail → resume the worker with one change, new review.
+
+### Kit look round 1 (edd-lead) | 2026-11-06 14:5x JST
+
+- Windowed look on ff3bcec, stills judged and deleted. Pass: head shape, hair, spectacles, facing the player (answers the facing half of oracle's major). Fail: reads as a white suit with black braces, dark torn V strips on the chest, eyes as black slits with an angry brow.
+- **Running:** `lead-wait run kit-mpfb-fu2`, brief `director/kit-mpfb-fu2.md` (coat and pullover colours, dark trousers, softer brows, sclera and iris; Kit only). The worker renders to `director/kit-r2/` for the lead.
+- **On its event:** judge `director/kit-r2/`. Next windowed look: Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`; then final-head tests and `lead-wait pr 229` (a push needs a new review). Delete `kit-r2/` and `look-kit/` afterwards.
+
+### Kit look round 2 (edd-lead) | 2026-11-06 15:3x JST
+
+- Blender renders at f5b14ca judged and deleted. Pass: eyes, coat colour. Fail: the split paints the jacket skirt dark, the chest is still ragged, and the brow and hair read as an angry 40-year-old.
+- **Running:** `lead-wait run kit-mpfb-fu3`, brief `director/kit-mpfb-fu3.md`: split at the jacket hem, a clean pullover V (Kit only), and a hair × brow sheet at `director/kit-r3/sheet.jpg`. The lead picks one combination.
+- **On its event:** judge the sheet and `kit_chest.png`, then tell the worker the combination (same session, one small follow-up). Windowed look Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`, then final-head tests, then `lead-wait pr 229` with `--reason`. If this round's chest fails too, consider a plain closed coat instead of more layers.
+
+### Kit look round 3 (edd-lead) | 2026-11-06 15:5x JST
+
+- Renders at cfaa7cc judged and deleted. Pass: clean chest, coat colour to the hem, dark trousers. Picked hair `short01` + `eyebrow005` (softest, youngest; `short03` covers an eye). Left: pale band with a jagged edge below the hem (split at 0.73 m, hem near 0.81 m); the V's flat top reads as a bib.
+- **Running:** `lead-wait run kit-mpfb-fu5`, brief `director/kit-mpfb-fu5.md`, renders to `director/kit-r4/`. If those pass, windowed look Monday 2026-11-09 from 09:00 JST with `director/look_kit.sh`, then e2e on the final head and `lead-wait pr 229 --reason "<art rounds>"` (from the 4th reviewed head `--reason` is required). Delete `kit-r4/` and `look-kit/` after judging.
+
+### Kit look round 4 + store shots (edd-lead) | 2026-11-06 16:0x JST
+
+- **PR #229 head 53db2e9:** Blender renders judged and deleted, all pass (young friendly face with `short01` + `eyebrow005`, clean chest, split at 0.814 m hidden at the hem). 14,881 triangles. G2 pass, portrait 69/0, prologue 395/0, other four GLB hashes unchanged. `kit_e2e.sh` running on this head (`lead-wait run kit-e2e`).
+- **Do not run `lead-wait pr 229` yet: it would merge before the in-game look.** The worker's post-run review exited 91 (fourth head needs `--reason`), so head 53db2e9 has no review.
+- **Monday 2026-11-09 from 09:00 JST:** `lead-wait run look-kit -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_kit.sh`. Judge close crops of `honest_close_kit`, `honest_speaker_investigate_kit`, `honest_m2_speaker_promise_kit`, `honest_beat_orrery`, `honest_speaker_coda_kit`, in the room's warm light; delete `director/look-kit/`. Pass → `lead-wait pr 229 --reason "fourth head after art rounds: check the Kit-only pullover and split changes in build_person.py leave the other people unchanged"`. Oracle's major (no test that Kit's idle plays) → follow-up issue.
+- **PR #230** (`test/store-arc-shots`, lead's own, worktree ds-2): bet and micrometer store shots, benchmark name tags hidden, store rows 10–13. `lead-wait pr 230` running.
+- **Monday, after #229 and #230 merge:** reshoot `store-b5` (`director/store_045.sh`), judge row 2 (Kit), row 4 (no tag), rows 11–12. Then a new build for the Owner, since Kit is the most visible change: update Issue #1.
+
+### Kit e2e passed; departure Ashby found (edd-lead) | 2026-11-06 16:0x JST
+
+- **PR #229:** e2e 6/6 and test_departure 251/0 on 53db2e9. The lead added a test commit on top: Kit's arms-down pose and looping idle (portrait 72/0), which answers oracle's major, so no follow-up issue is needed for it. No revert-check on that test. The final head still has no review.
+- **PR #230 merged** (316e529, oracle approve, 0 findings). Store rows 10–13 and new bot shots are in main; the stills come with the next windowed run.
+- **Found:** Ashby is still the primitive figure at the departure (`honest_m2_speaker_farewell_mentor.png`), though MPFB in 1917 and the epilogue. Sent out: `lead-wait run ashby-dep`, Codex in worktree ds-2, brief `director/ashby-departure.md`, branch `art/ashby-departure` on top of `art/kit-mpfb`, PR base `art/kit-mpfb`, renders in `director/ashby-r1/`.
+- `director/look_kit.sh` now shoots `origin/art/ashby-departure` (Kit and Ashby together); **that branch must exist before Monday's look**. Otherwise point the script back at `art/kit-mpfb`. Check `honest_m2_speaker_farewell_mentor` and the journal too.
+- **Merge order after the look:** #229 first (`lead-wait pr 229 --reason …`), retarget the Ashby PR to main, then `lead-wait pr <n>`.
+
+### Before /clear (edd-lead) | 2026-11-06 16:2x JST
+
+- **Running:** `lw-ashby-dep-20261106-160639` (Codex, ds-2, brief `director/ashby-departure.md`). No unacked inbox events at this time. Open non-draft PR: #229, head a9b6120, not reviewed, must wait for Monday's look.
+- **On the Ashby event:** read `~/.local/state/cx-exec/ds-2-*.final.md`; a run with `PENDING job … wait limit` is not finished. Judge `director/ashby-r1/` (front, side), and check that the journal is at his hand and not floating. Then delete `ashby-r1/`.
+- **Monday 2026-11-09 from 09:00 JST, in order:** `look_kit.sh` → judge Kit + Ashby close crops → `lead-wait pr 229 --reason …` → retarget the Ashby PR to main → `lead-wait pr <n>` → `store_045.sh` (it writes `*-045` sets; replace the old ones after judging; rows 2, 4, 11, 12) → version bump and build 0.4.6 as in `director/release-045.md` → Issue #1.
+- **Heartbeat:** session-only one-shot cron; re-arm after /clear, 45 min after the turn ends, with the same prompt (Owner 2026-11-04 heartbeat text; goal Steam release).
+
+
+### Ashby round 1 judged (edd-lead) | 2026-11-06 16:4x JST
+
+- **PR #231** head 2e3f0d0: oracle approve, 1 minor (the journal does not follow the hand's breathing: let go). Blender renders judged and deleted. Pass: head, build, suit. Fail: flecks through the shirt, a broken tie, a flat-ended waistcoat bib. The same `shirt_front()` still builds the desk Ashby and Eddington, so check Eddington's chest in Monday's crops; his GLB is untouched here.
+- **Running:** `lead-wait run ashby-chest`, same Codex session in ds-2, brief `director/ashby-chest.md`: new `waistcoat_v_front()` for both Ashby GLBs, journal outside the hand. Renders to `director/ashby-r2/`.
+- **On its event:** judge `ashby-r2/` (three stills), then delete it. The journal itself is only visible in Monday's look. The Monday order above stands. `look_kit.sh` shoots the tip of `art/ashby-departure`, so this round is included.
+
+### Ashby round 2 judged (edd-lead) | 2026-11-06 16:5x JST
+
+- **PR #231 head af1bc93:** Blender renders judged and deleted. Pass: clean chest, continuous tie, the V closes to a point, on both the standing and desk GLBs. 14,479 triangles each, G2 pass, other GLB hashes unchanged, portrait 78/0, departure 251/0, journal outside the hand.
+- **Not yet proven:** `test_prologue` and `e2e_headless` exited 124 at the worker's 90 s and 180 s caps. Earlier rounds used far longer caps, and the host load was 16, but the cause is not established. Running: `lw-ashby-r2-tests-20261106-165450`, `director/ashby_r2_tests.sh`, caps 900 s and 1800 s.
+- **On its event:** both pass → correct the PR body's results table and render line. A real failure or a repeat timeout → investigate before Monday.
+- **Monday's look, also judge:** Ashby's moustache (two end caps read as flat discs in a close render) and his dark slit eyes, at the game's real camera distance. `moustache()` is shared with Eddington, so a change there moves his GLB.
+
+### #231 tests pass; Eddington's chest found (edd-lead) | 2026-11-06 17:0x JST
+
+- **PR #231 af1bc93:** rerun passed: prologue 395/0 in 93 s (the worker's cap was 90 s), e2e 6/6 in 125 s (its cap was 180 s at load ~16; that timeout was not reproduced). PR body corrected. No review yet on this head; that comes after Monday's look.
+- **Found:** close Blender renders of the current GLBs show both Eddingtons broken: `eddington_cambridge` has flecks and a bib, `eddington` (Príncipe) has a shredded tie. These stills were not checked in game.
+- **Running:** `lead-wait run edd-chest`, Codex in ds-2, brief `director/eddington-chest.md`, branch `art/eddington-chest` on `art/ashby-departure`, base `art/ashby-departure`. It stops without pushing if the rebuild of the 2026-10-20 `eddington.glb` changes more than the chest. Renders: `director/edd-r1/`.
+- **On its event:** judge `edd-r1/` (chest and full, both models), then delete it. Check the old-versus-new comparison. If it passes, point `director/look_kit.sh` at `origin/art/eddington-chest` for Monday. Merge order: #229 → #231 → this PR, retargeting each to main. Rows 5–9 of the store shots may show the new Príncipe Eddington, so the reshoot covers them.
+
+### #232 judged; faces sent out (edd-lead) | 2026-11-06 17:2x JST
+
+- **PR #232** (`art/eddington-chest`, head 636163f, base `art/ashby-departure`): oracle approve, 0 findings. Renders judged and deleted: clean chest and tie on both Eddingtons. Rebuilt Príncipe GLB: same `idle`, 53 bones, 8 materials, same hat and glasses, +679 triangles. G2 pass; portrait, departure, prologue exit 0; e2e 6/6. `director/look_kit.sh` now shoots `origin/art/eddington-chest`. Merging #232 removes `shirt_front()`: #224 is moot then; check the rest of #225.
+- **Correction:** the 16:5x section said `moustache()` is shared with Eddington. It is not: he is clean-shaven. Only Ashby and Cottingham use it.
+- **Running:** `lead-wait run faces`, Codex in ds-2, brief `director/faces.md`, branch `art/faces` on `art/eddington-chest`, base `art/eddington-chest`: fitted moustache, and sclera and iris on all five. Renders: `director/faces-r1/`.
+- **On its event:** judge `faces-r1/`, delete it. If it passes, point `look_kit.sh` at `origin/art/faces`. Merge order: #229 → #231 → #232 → faces. If it fails after one follow-up, drop it from Monday's stack: #232 must not wait on it.
+- **Next if idle (real defects, read the code first):** #213 (Ashby speaks in the orrery correction before he has entered), #204 (hold not cancelled on pause, gamepad A that closes the pause menu counts as an interaction), #214 (micrometer with the loupe already on; test that cannot catch hidden values).
+- **#203 still open:** closing it as a duplicate of #204 was denied by the permission check (2026-11-06 17:2x JST). It stays open; the Owner can close it by hand.
+
+### Follow-up issues checked (edd-lead) | 2026-11-06 17:2x JST
+
+- This corrects the "Next if idle" line above. **#204** is already closed. **#213:** the orrery corrections now use the speaker 太陽系儀, not Ashby, so the defect is gone from the code; the issue is still open. **#203** stays open only because closing it was denied.
+- **PR #233** (`test/judgment-readings`, lead's own, temp worktree `/private/tmp/edd-read-test`): covers the second item of #214, test-only. `test_sim` 241/0; each of the two reverts fails exactly one new check. `lead-wait pr 233` running. Once its state is MERGED, remove that worktree and branch.
+- **#214 first item (loupe with the micrometer):** `_set_micrometer` now calls `_show_loupe(loupe_start)`, which looks like a fix, but no caller or test was checked. Next if idle: check it with a test through the real input path.
+
+### #233 merged; #214 settled (edd-lead) | 2026-11-06 17:2x JST
+
+- **PR #233 merged** (ddbffec, oracle approve, 0 findings). Temp worktree and branch removed.
+- **#214 first item is already fixed:** `_set_micrometer` recentres an open loupe on `loupe_start` (`scripts/ui.gd:979`), set by `scripts/main.gd:1549`, and `tests/test_micrometer.gd` section 7 checks it. So nothing is left to do on #213, #214 or #203, and #224 goes when #232 merges. They are still open, because closing #203 was denied (2026-11-06 17:2x JST); no other close was tried.
+- **Still running:** `lead-wait run faces`. The Monday order stands: look → #229 → #231 → #232 → faces → store reshoot → 0.4.6 → Issue #1.
+
+### Faces: blocker being fixed (edd-lead) | 2026-11-06 17:3x JST
+
+- **PR #234** (`art/faces`, base `art/eddington-chest`): oracle blocker on 6c93726: the moustache was sampled on the posed body and then moved by the head pose again, which displaces it on the seated Ashby. Fix `408eb33` is local and not yet pushed. `faces-r1/` was deleted unjudged, since it predates the fix.
+- **Running:** `lead-wait run faces-fu1` (`director/faces_fu1.sh`): waits for job `faces-rest-build`, then resumes the same session with `director/faces-fu1.md` (commit, tests, a numeric check on the seated moustache, renders to `director/faces-r2/`, push).
+- **On its event:** a run ending in `PENDING job` is not finished. Judge `faces-r2/`, delete it. Pass → point `director/look_kit.sh` at `origin/art/faces`. Fail after one follow-up → drop #234 from Monday's stack.
+
+### Faces judged; the art stack is ready for Monday (edd-lead) | 2026-11-06 17:5x JST
+
+- **PR #234** head 5b724d0: oracle approve, 0 findings. Five people rebuilt, G2 pass, tests exit 0, e2e 6/6, seated moustache 0.0019 m from the skin. Face crops judged and deleted, all pass: the moustaches read as moustaches and the eyes have whites and irises. Check in game whether Eddington's eyes stare behind the glasses. `director/look_kit.sh` now shoots `origin/art/faces`.
+- **Nothing is running.** Stack, each based on the one before: #229 (a9b6120, no review yet) → #231 (af1bc93, no review on this head) → #232 (636163f, approve) → #234 (5b724d0, approve).
+- **Monday 2026-11-09 from 09:00 JST:** `lead-wait run look-kit -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/look_kit.sh`. Judge Kit, Ashby, Eddington and the journal in close crops. Then `lead-wait pr 229 --reason "…"`, retarget #231 to main and `lead-wait pr 231`, then the same for #232 and #234 (retargeting may need a new review). Then `store_045.sh` (rows 2, 4, 11, 12; the Príncipe rows now show the new Eddington and Cottingham), bump and build 0.4.6 as in `director/release-045.md`, update Issue #1. Close #203, #213, #214, #224 if allowed.
+
+### #225 checked; still waiting for Monday (edd-lead) | 2026-11-06 18:0x JST
+
+- **#225:** its only item is the same shirt-front gate as #224, and `shirt_front` no longer exists on `origin/art/faces`. Both issues are moot once #232 merges; add #225 to the close list.
+- **Inbox:** the two `PENDING job` events (`ashby-r2-renders`, `faces-rest-build`) were acked. Their jobs were followed up and judged in the sections above.
+- **Next:** unchanged. The Monday 2026-11-09 09:00 JST look kit, then the merge stack. Move E waits for the blind newcomer session, which needs a real person (Issue #1).
+
+### Pre-reviews done; arc clarity #235 (edd-lead) | 2026-11-06 19:2x JST
+
+- **#229 a9b6120:** round 4 oracle approve, 0 findings, no gate run. `lead-wait pr 229` reuses it. The rendered collar was not reviewed: judge it in Monday's look.
+- **#231 af1bc93:** oracle blocker on `tests/test_portrait.gd:128` (journal assertion must fail) is a false positive: job `ashby-r2-tests` ran it, `78 portrait checks, 0 failures`. PR comment posted. After Monday's look use `review-gate 231 --override-blockers "<reason>"`, unless a rerun on the final head fails. Oracle's minor: the journal does not follow the breathing hand; judge drift in game.
+- **#235 (9195f69):** text from a Sonnet cold read of the arc, plus a Sonnet fact-check with one oracle-ego run. It explains the second half of the deflection, gives Mercury a scale, says why the Newtonian alternatives don't reach the light result, and adds choice `box_light`, a cheap version of the box contradiction. Oracle approve; prologue 397/0, orrery 81/0, epilogue 89/0, departure 251/0, e2e 6/6. Add to Monday's look: the long 「箱子只說會彎」 page, the two Mercury pages, and the `box_light` choice. Not checked: whether the six ObjectDB leaks at the epilogue suite's exit predate #235.
+- **Not adopted from the cold read, still open:** `final_reason` is never checked against the player's bet or plates; `click` is stored but `ending.gd` never reads it; `trial_note` option 「照星表寫」 costs nothing. Next if idle: decide these one at a time, read the code first.
+- **Move E:** still waits for the blind newcomer session; the cold read is a proxy, not that session. It judged that the box needs doing by hand; `box_light` tests a cheap answer first.
+- **Close list when allowed:** #203, #213, #214; #224 and #225 once #232 merges.
+
+### Cold-read leftovers decided (edd-lead) | 2026-11-06 19:3x JST
+
+- **`click`:** no change. Every option already has its own reply, so the answer is heard; the ending does not need it.
+- **`trial_note`:** no change. Ashby's next line answers it directly (「哪顆星對不上，就寫它對不上」).
+- **`final_reason`:** `lead-wait run final-reply`, Codex luna in ds-2 (quota-advisor had named deepseek; the lead dispatched in the same call without reading it, and stopping the run was denied by the permission check at 2026-11-06 19:3x JST, so it runs on), brief `director/final-reply.md`, branch `narrative/final-reply`. Ashby answers "my own plates" when those plates decided nothing, and tells a player who bet 1.75 in 1917 that what changed was the reason for believing it. It also reports whether the epilogue suite's ObjectDB leak predates #235. On its event: read the text diff, then `lead-wait pr <n>`.
+
+### Notebook answer merged (edd-lead) | 2026-11-06 20:0x JST
+
+- **#236 merged-armed** (head 4c124cb, oracle approve): Ashby answers the `final_reason` choice from the run and the 1917 bet. Oracle caught that a bet changed away from 1.75 needed its own line; the lead reworded it because a bet can change to 說不準. `test_epilogue` 138/0. E2E 6/6 was on 6adbcb1; the last commit changed one line and its test string. Add the reply lines to Monday's look.
+- **ObjectDB:** #236's baseline on `origin/main` (with #235) reported 0, so the six seen in the #235 run did not recur. No pre-#235 comparison was run.
+- **Lead slip:** after a push, `lead-wait pr` can read the old head and reuse its bundle. The gate then fails with "no review for head". Rerun once the head shows.
+- **Next if idle:** #237 (test-only, PR open 2026-11-06 20:2x JST), then nothing left from the cold read. Monday 2026-11-09 09:00 JST is still next: look kit, stack, store reshoot, 0.4.6.
+
+### Monkey pass after the arc (edd-lead) | 2026-11-06 22:5x JST
+
+- **#238 merged** (a80fa11), #237 closed. **#239 merged** (6ad1278): bot only. Seeds 1111, 1114, 1117 failed on honest-route answers while monkey mode can pick others. Seed 1108 was not a trap: the bot only walks straight, and with sidesteps it left (3.933, -5.383) in 2 and reached ENDING. Follow-up #240: a long mid-walk dialogue barely consumes the waypoint timeout (tool only).
+- **Monkey pass 1** (45fa897, seeds 1106–1117): 8/8 Príncipe routes passed; the 4 prologue failures are the ones above.
+- **Running:** `lw-monkey2-20261106-223303`, 12 routes, seeds from 2000, on 6ad1278, in ds-2. On its event: a stall or a missing ENDING gets a replay with that seed; do not widen timeouts. A real trap would show as STUCK after SIDESTEP lines.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST look kit, then the stack, store reshoot, 0.4.6.
+
+### Monkey pass 2: bot routing out (edd-lead) | 2026-11-06 23:3x JST
+
+- **Monkey pass 2** (6ad1278, seeds 2000–2011): 10/12 passed. 2005 (`M2_KIT`) and 2011 (epilogue) stuck against the central table, since `_in_cambridge_room()` matches only `cambridge/director.gd` and the table routing never ran in those rooms. That no player is trapped there is read from the code, not yet shown: the two replays must reach ENDING.
+- **Running:** `lw-monkey-bot2-20261106-230656`, DeepSeek `ds-edd-2` (worktree ds-2), brief `director/monkey-bot2.md`, branch `test/monkey-bot2`, closes #240. No unacked inbox events at this writing.
+- **On its event:**
+  1. Read the report and the diff. A run ending in `PENDING job` or `WAIT:` is not finished.
+  2. If the PR is a draft, `gh pr ready` it. Wait until GitHub shows the new head, then `lead-wait pr <n>`.
+  3. After MERGED, delete the branch and run `lead-wait --role edd-lead run monkey3 -- orb-test --host -- bash -c 'godot --headless --path . --import >/dev/null 2>&1; ./tools/monkey_headless.sh 12 3000 mixed'` from ds-2 detached at `origin/main`, with `EDD_SETTINGS_PATH=/Volumes/KIOXIA/eddington/tmp-settings-monkey.cfg`.
+  4. If 2005 or 2011 still fails after sidesteps and routing, treat it as a possible geometry bug: replay it, do not widen budgets.
+- **Dispatch rule learned:** read `quota-advisor` before dispatching (19:32 JST slip). It has named deepseek since then.
+- **Heartbeat:** one-shot due 2026-11-07 00:14 JST; crons are session-only, recreate after a restart.
+- **Next after that:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`; the look now also covers #235's long pages and `box_light`, and #236's replies. Then #229 → #231 (override the false-positive blocker, see 19:2x section) → #232 → #234, store reshoot, 0.4.6, Issue #1. Close #203, #213, #214, then #224 and #225 once #232 merges, if allowed.
+
+### Monkey pass 3 green; move E out (edd-lead) | 2026-11-07 00:3x JST
+
+- **#241 merged** (1380124, oracle approve, 0 findings), #240 closed by hand, branch deleted. **Monkey pass 3** (1380124, seeds 3000–3011): 12/12 reached ENDING, stuck 0. Seeds 2005 and 2011 also reach ENDING, so the table failures were the bot, not a geometry trap.
+- **#203, #213, #214 closed** (Owner authorized 2026-11-07 00:3x JST). #224 and #225 still go when #232 merges.
+- **Move E decided:** built now instead of waiting for the blind session. The Owner is away until 2026-12-07, the cold read judged the box needs doing by hand, and the session can still reject it. This reverses "Move E waits" in the 19:2x section.
+- **Running:** `lead-wait run arc-e`, DeepSeek `ds-edd-2` (worktree ds-2), brief `director/arc-e-box.md` on KIOXIA, branch `feat/arc-e-box`. On its event: read the report and diff; a run ending in `PENDING job` or `WAIT:` is not finished; then `lead-wait pr <n>`.
+- **Monday look gets one more item:** the box sketch, both modes, at 1080 and at 720/1.2: do the falling ticks read as "the same", and does the light read as an illustration. Add its store shot only if it looks good.
+- **Next after that:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1.
+
+### Move E merged (edd-lead) | 2026-11-07 01:2x JST
+
+- **#242 merged** (08b0e6a, oracle approve on the second round; first round caught the pencil tip crossing the floor line). `test_prologue` 411/0, `test_box_sketch` 78/0, e2e 6/6, monkey `2 3100 prologue` 2/2 at about 320 s. Not looked at windowed yet: the Monday look decides whether the ticks read as "the same", the light as an illustration, and whether the outside view clips. Known minor: `frame_btns` is not cleared when "light" is reopened; the flow never reopens it.
+- **Running:** `lw-monkey4`, 12 routes, seeds from 4000, on 08b0e6a in ds-2 (detached). On its event: a stall or a missing ENDING gets a replay with that seed; do not widen timeouts.
+- **Running:** a Fable read-only design critique of the finished arc (subagent). On its report: decide item by item, then brief; nothing is adopted automatically.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, with the box sketch added, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1.
+
+### Epilogue payoff merged; oracle down (edd-lead) | 2026-11-07 02:4x JST
+
+- **Monkey pass 4** (08b0e6a, seeds 4000–4011): 12/12 reached ENDING, stuck 0.
+- **Fable critique** of the finished arc (2026-11-07 01:2x JST): three gaps at the payoff, all adopted with changes. **#243 merged** (ba05ba8; codex approve because oracle failed): the player writes a new ledger line `bet_oct` in October and the ending lists it; the player reads Sobral's 2σ range in the chart (`sobral_read`, any answer progresses); Mercury returns in the almanac with the player's 1917 mark; the "inconclusive" Ashby line no longer overclaims. `test_epilogue` 230/0, `test_layout_bounds` 4780/0, e2e 6/6, monkey 1/1. Fable's ideas not taken: shortening Ashby's Mercury lines. The "two instruments, one Atlantic" line appears only in the `conceded` case.
+- **#245 merged** (f86984a, codex approve, 0 findings): Codex's major on #243, a 1.75 player who changes in October was told the number stayed. Branch deleted.
+- **Oracle is down:** ChatGPT logged out in ego-lite (2026-11-07 02:30 JST); `owner-notify --key ego-lite-chatgpt-login` sent. `lead-wait pr` falls back to codex by itself. Do not brief workers to rerun an oracle review until it is back: they report exit 5 and stop.
+- **Monday look adds:** the Sobral question inside the chart (default label colour, four buttons, at 1080 and 720/1.2), the October ledger line, the almanac note.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Note that 0.4.6 also needs a change list for Issue #1 covering moves E and the payoff.
+
+### All suites running (edd-lead) | 2026-11-07 03:0x JST
+
+- **Running:** `lw-all-suites-20261107-024337`, in ds-2 detached at f86984a: `director/all_suites.sh` on KIOXIA runs all 52 `tests/test_*.gd` one at a time, 15-minute cap each, one result line per suite. The repo has no GitHub Actions, and tonight's PRs ran only related suites plus e2e. No unacked inbox events at this writing.
+- **On its event:** read the job log `~/.local/state/job-run/lw-all-suites-20261107-024337/log` (the event text is cut short). A failure: read the cause first. Test assuming the old flow → small fix. Real bug → fix or brief it. Do not widen a budget. A suite that hits the cap or times out on load: rerun that one alone before judging.
+- **After that:** no design item is open. Monday 2026-11-09 09:00 JST `look_kit.sh` plus the additions above, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Heartbeat: one-shot due 2026-11-07 03:19 JST; crons are session-only, recreate after a restart.
+
+### All suites done; CI added (edd-lead) | 2026-11-07 04:2x JST
+
+- **All suites** (f86984a, finished 2026-11-07 03:30 JST): 51 of 52 passed. `test_kit_recall` had failed since #108 (2026-11-03) because it never set `_grade`; the real flow sets it in `_after_judgment`, so the game was not affected. **#246 merged** (0ed0249), 29/0.
+- **#247 merged** (a4dcb9b): `.github/workflows/all-suites.yml` runs `tools/all_suites.sh` on PRs and pushes to `main`; docs-only changes skip it. About 12 minutes on Ubuntu 24.04, Godot 4.7.2 with the SHA-512 checked. Run 42274095515 on 4d2a9cf: 52/52 on Linux. Run 42279284992 on `main` a4dcb9b was still running at this writing; check it.
+- **What this changes for leads:** `review-gate` now returns 3 while the check runs, so `lead-wait pr` takes about 20 minutes (seen on #247). A failed `suites` holds the merge. `director/all_suites.sh` on KIOXIA is superseded by the repo script.
+- **Open PRs #229, #231, #232, #234** have no `suites` run until their next push, and they were cut before these merges. Rebase each before its gate.
+- **Store draft** (`docs/store/STORE_PAGE.md`): about text and features now cover the box sketch (#242) and the October payoff (#243). Row 14, a box sketch shot, stays a candidate until the windowed look.
+- **Oracle still down** (ChatGPT logged out in ego-lite, 2026-11-07 02:30 JST, Owner notified); reviews go to codex by themselves.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh` with the additions above, then #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1.
+
+### Monday look prepared (edd-lead) | 2026-11-07 05:3x JST
+
+- **#248 merged** (f15a17d): a gamepad gets through the box sketch on A and the d-pad alone, no game change needed. `test_layout_bounds` now covers its four stages at every size and text scale; that found the 越拉越快 label's rect 40 px past the viewport, text still inside, fixed in one line. The Sobral answers have no gamepad test, but the code moves focus to them and back; not run.
+- **Look kit changed:** `director/look_kit.sh` used `origin/art/faces`, which lacks the box sketch and the October payoff. It now uses the branch `look/monday` (a964797: `main` f15a17d with `art/faces` merged, no conflicts, no PR) and runs the honest route twice, 1920x1080 at text 1.0 into `look-kit/1080`, then 1280x720 at text 1.2 into `look-kit/720`. Not run yet: its window guard allows Mon–Fri 09:00–14:55 JST.
+- **Art stack on Linux:** run 42287429153 on a964797 passed all suites, so the stack breaks no suite against current `main`. This says nothing about how it looks.
+- **Monday 2026-11-09 09:00 JST:** run `look_kit.sh` through `orb-test --heavy --host` (crons are session-only; the heartbeat has to catch it). Judge: Kit, departure Ashby and her journal drift, chest, faces; #235's long pages and `box_light`; #236's replies; box sketch ticks and light, both sizes; the Sobral question; October ledger line; almanac note. After that delete `look/monday`, then #229 → #231 → #232 → #234 (rebase each; #231 keeps the override reason from the 19:2x section), store reshoot, 0.4.6.
+- **0.4.6 change list for Issue #1 (draft, add the art stack if it merges):** #235 the long box explanation, Mercury's scale and `box_light`; #236 Ashby answers your notebook choice; #242 the box by hand, in 1917 and at departure; #243 and #245 the October payoff: your new ledger line, reading Sobral's range, Mercury in the almanac; #248 a label bounds fix.
+
+### Chapter checkpoints merged (edd-lead) | 2026-11-07 07:2x JST
+
+- **#249 merged** (6b3dae5): Ashby reacts 「消息傳到劍橋時」, not in November 1915. From a Sonnet fact check of #242, #243 and #245 (2026-11-07 05:46 JST), which found no definite error. Left as they are: 「正好」 for Mercury's residual, because the sentence says 約 43; Sobral's 1.98″ in an October scene, because the scene and letter are labelled 推測重建.
+- **#250 merged** (ec304b7): one automatic checkpoint per chapter (出發前夜, 普林西比, 1919 年 10 月) and a 繼續 button first on the title row. **This decides B7** under the Owner's 2026-11-06 mandate; recorded in `docs/RELEASE_READINESS.md`, and the Owner can still change it. Worker: DeepSeek `ds-edd-2`, brief `director/checkpoint.md`. Lead fix: a 1919-only ending keeps the story's checkpoint. Codex blockers fixed: bots and suites never read or delete a player's file, and forced suites use `checkpoint.test.save`. `test_checkpoint` 102/0, `test_layout_bounds` 5548/0, `suites` passed on the head before merge.
+- **E2E on `main`** (2026-11-07 07:25 JST, ec304b7): see the job log `~/.local/state/job-run/lw-e2e-main-20261107-072232/log`. Bots do not write checkpoints, so this shows the routes still pass, not that continuing works.
+- **Known behaviour:** starting a new game keeps the old checkpoint until the new run reaches its first chapter end. Continuing restarts the chapter with a new Príncipe sky.
+- **Look branch refreshed:** `look/monday` is now ea42674 (`main` ec304b7 with `art/faces`), force-pushed, no PR.
+- **Monday look adds, by hand and not by bot, since bots skip checkpoints:** quit in each chapter, relaunch, press 繼續. The real plate must survive the PNG round trip at the epilogue's ending, and the title row must read well at 720/1.2.
+- **Next:** unchanged. Monday 2026-11-09 09:00 JST `look_kit.sh`, then #229 → #231 → #232 → #234, store reshoot, 0.4.6 (add #249 and #250 to the change list), Issue #1.
+
+
+### Idle until Monday's window (edd-lead) | 2026-11-07 08:1x JST
+
+- **Store draft:** `docs/store/STORE_PAGE.md` section 9 has a 70-second trailer shot list (c79fa30). Not shot; B5 is the Owner's. `--write-movie` with a bot route is suggested there but untried: test a short clip in the Monday window.
+- **Cross-scene state read:** statics outside `Story` hold settings, replay flags, input device and audio caches, so a relaunch at their defaults should not affect 繼續. Read from code only; the Monday hand test decides.
+- **Nothing running, no unacked events.** Next item is still Monday 2026-11-09 09:00 JST `look_kit.sh`. Before that, the heartbeat can take polish; no design item is open.
+
+### Steam plan set; four languages (edd-lead) | 2026-11-07 08:5x JST
+
+- **Owner 2026-11-07:** you lead with top authority, goal is a Steam-ready game. Decided: zh-TW, en, ja, ko all at launch; gramophone stays; Windows performance is not a concern if Mac and Linux are fine. The plan and every B row: `docs/RELEASE_READINESS.md` section D.
+- **Owner asked (iMessage 2026-11-07 08:34 JST, key `steam-onboarding`):** pay Steam Direct and start the paperwork; 1–2 newcomers for 0.4.6; the credits name, default `nurockplayer`. Nothing else waits on this except App ID work.
+- **Oracle is back** (rounds at 08:31 and 08:52 JST). Answers: `~/.local/state/oracle-ego/runs/*steam-gap-q{1,2}/answer.md`.
+- **Running (2026-11-07 08:56 JST):** `lw-release-config` (`ds-edd-1`, brief `director/release-config.md`, branch `chore/release-config`); `lw-i18n-foundation` (`ds-edd-2`, brief `director/i18n-foundation.md`, branch `feat/i18n-foundation`); `lw-steam-gap-q3` (oracle: Godot traps, glossary, register, titles). On a worker's event: read the report and diff, then `lead-wait pr <n>`.
+- **Next briefs, not written yet:** packaged-launch CI on Windows, macOS, Linux (after release-config, in ds-1); wrap strings, extraction and gates (after i18n-foundation, re-runnable codemod so it can run again after the art stack merges); translation after Monday's text look.
+- **Monday 2026-11-09 09:00 JST:** unchanged, `look_kit.sh` then the art stack, store reshoot, 0.4.6. Also check Cmd-Tab with the mouse captured, and a 2560x1080 window.
+
+### Foundation merged; wrap running (edd-lead) | 2026-11-07 09:3x JST
+
+- **#252 merged** (079a8ba, 2026-11-07 09:33 JST; oracle approve, `suites` passed). `L.t`, locale pick, JP and KR fonts, language button. `L.TRANSLATED` is `false`: players stay on zh-TW with no button until en, ja and ko are complete, so Monday's 0.4.6 is unaffected. `EDD_LOCALE` still reaches the others. **Turn it on when translation lands.**
+- **Running:**
+  - `lw-release-config-20261107-085618`: `ds-edd-1`, PR #253, waiting on its own oracle review job `review-pr253`.
+  - `lw-i18n-wrap-20261107-093347`: `ds-edd-2`, brief `director/i18n-wrap.md`, branch `feat/i18n-wrap`, `DS_MAX_TURNS=90`.
+  - No unacked inbox events at this writing.
+- **On release-config's event:** read the report and diff. Add to #253 or a follow-up: `scripts/credits.gd:4` `AUTHOR` still shows 「（姓名待 Owner 確認）」 to players; set `nurockplayer` unless the Owner answered otherwise. Then `lead-wait pr 253`. After it merges, dispatch `director/package-smoke.md` in ds-1 (`ds-edd-1`, brief is written).
+- **On wrap's event:** read the skipped list and diff, `lead-wait pr <n>`. zh-TW output must not have changed. A PR with a run still in `WAIT:` is not finished.
+- **Next briefs, not written yet:**
+  1. Fragments to whole sentences: `scripts/main.gd:874–921` (`"［" + Prompts.key("interact") + "］…"`), `_hold_prefix`, `Settings.hold_phrase` (`content.gd:44`, `main.gd:1014`), directors' `set_prompt`, `"[b]…[/b]\n□ " + objective`, plurals via `L.tn` (`%d 張`), `ui.gd:242,1744` option lists.
+  2. Leak gate: a bot route under `EDD_LOCALE=en` fails on visible CJK. Bots match zh text (`tests/autoplay_bot.gd:344,706`, `tests/prologue_bot.gd:137,799,905,907`): compare to `L.t(...)`. `test_layout_bounds` in all four locales.
+  3. Translation after Monday's text look: en first (strong model, `docs/design/LOCALIZATION.md`), ja and ko from zh with en as reference; then independent back-translation and physics check through oracle-ego; a blind cold read; `check --require-translated` in CI; `L.TRANSLATED = true`; title strings per locale.
+- **After an App ID exists:** depots and `app_build` VDF (Windows `.exe`, macOS `.app`, Linux `.x86_64`), Auto-Cloud on `checkpoint.save` (root WinAppDataRoaming, subdir `Eddington1919`; overrides MacAppSupport, LinuxXdgDataHome), Steam Playtest, real macOS install check with `xattr`. Oracle's flow is in `~/.local/state/oracle-ego/runs/*steam-gap-q2/answer.md` section I. Godot's overrides for the paths have not been checked against Steam.
+- **Idea, untried:** xvfb plus lavapipe on a runner may render real frames without touching the Owner's screen. `package-smoke` will show whether Vulkan comes up. If so, store shots and looks may not need the Mon–Fri window.
+- **Oracle:** back up; one `review` submit failed at 2026-11-07 09:15 JST (exit 5) and fell to codex, later runs worked.
+- **Waiting on the Owner (iMessage 2026-11-07 08:34 JST):** Steam Direct fee and paperwork; 1–2 newcomers for 0.4.6; credits name.
+- **Heartbeat:** one-shot due 2026-11-07 09:47 JST; crons are session-only, recreate after a restart.
+- **Monday 2026-11-09 09:00 JST:** unchanged, `look_kit.sh`, art stack #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1. Rerun `tools/i18n.py wrap` and `extract` after the art stack merges, in case it added strings. Also check Cmd-Tab with the mouse captured, and a 2560x1080 window.
+
+### #253 back in review (edd-lead) | 2026-11-07 09:5x JST
+
+- **Decided:** the worker's question on #253 (oracle blocker: moving `user://` loses old settings and checkpoints). Accepted with no migration: only testers have old files, and no distributed build has a checkpoint. Reasons: `/Volumes/KIOXIA/eddington-1919-cache/director/scope-253.md`.
+- **Lead fixes on #253 (82fe587):** `Credits.AUTHOR` is `nurockplayer`, which the Owner can still change. `tools/monkey_headless.sh` now reads `custom_user_dir_name`; the old path would have left the real settings unprotected. No monkey run on this head yet.
+- **Running:** `lw-pr-253-20261107-095016` (review and gate), `lw-i18n-wrap-20261107-093347`.
+- **On #253 merging:** ask `quota-advisor`, then dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/package-smoke.md` in ds-1.
+- **Heartbeat:** one-shot due 2026-11-07 10:37 JST.
+
+### Font moved to bundled; #254 and #255 in review (edd-lead) | 2026-11-07 11:0x JST
+
+- **Merged:** #253 (de7204a), #256 (d40187a; oracle exit 8, codex approve). A monkey run on de7204a reached ENDING with stuck 0.
+- **#256 decision:** zh-TW uses the bundled Noto Sans TC on every OS instead of PingFang. Reason: on the hosted macOS runner PingFang resolved to an empty path, with about 50,000 font errors in one headless run. Whether a real Mac can hit this is unknown. **Mac players now see a different face in all UI text, and nobody has looked at it yet.**
+- **Running:** `lw-pr-254-20261107-104935` (wrap, head 090d12d, scope `scope-254.md`); `lw-package-smoke-fu1-20261107-105857` (ds-edd-1 removes the macOS allow-list from #255 and adds `assets/**`).
+- **On #254 merging:** ask `quota-advisor`, then dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/i18n-sentences.md` in ds-2. It also fixes `reason_text`, saved in translated form (oracle major on #254). Then write the leak gate brief.
+- **On package-smoke-fu1:** read the run, then `lead-wait pr 255`. A red macOS job means real font errors: read them, do not allow-list. On the previous head the best-effort windowed runs passed on software renderers: Windows D3D12 on WARP, macOS Metal on a paravirtual device.
+- **Briefs need a `Test:` line:** i18n-wrap and package-smoke had none, so nothing reran their tests.
+- **Fresh `.godot`:** the main checkout's class cache was from 2026-11-04 and failed on `Checkpoint`. It is re-imported now; import again after long gaps.
+- **Monday look adds:** Noto TC in body text, `[b]` bold, dialogue and the 3D labels, on the Mac at 1080 and 720/1.2. If it looks worse than PingFang, the options are a heavier bundled weight or PingFang first with a check that the path resolves.
+- **Heartbeat:** one-shot due 2026-11-07 11:29 JST.
+
+### Packaged launch in CI (edd-lead) | 2026-11-07 11:1x JST
+
+- **#254 merged** (c344bac), **#255 merged** (d90b2ff). `package-smoke` now starts the exported game on Windows, macOS and Linux on PRs that touch packaging, `assets/**` or `locale/**`. It uses software renderers, so it shows launch only.
+- **lavapipe works:** Forward+ renders on an `ubuntu-24.04` runner at 260–283 ms per frame. So the "real frames without the Owner's screen" idea is possible for store shots; untried, and its look on a software renderer is not judged.
+- **Running:** `lw-i18n-sentences-20261107-110435` (ds-edd-2).
+- **Next, on sentences merging:** dispatch `/Volumes/KIOXIA/eddington-1919-cache/director/i18n-leak-gate.md` in ds-2 (brief written, not dispatched). It uses a pseudo locale, so leaks show before translation.
+- **Then:** translation after Monday's text look. The new issue on `package-smoke`'s ko run goes with it: the run does not prove the locale was selected.
+
+### Wrap, sentences and leak gate merged; layout running (edd-lead) | 2026-11-07 12:4x JST
+
+- **Merged:** #259 (0e34bee: whole sentences, `L.tn`), #262 (9641edd: pseudo catalogue, `tests/leak_watch.gd`, CI job `leak-gate`). Under pseudo, all 6 routes show 0 leaks. Three routes leaked on the first run (`Ashby 先生` in 6–7 places), so the watcher does catch them.
+- **Running:** `lw-layout-long-text-20261107-123953` (`ds-edd-2`, ds-2, branch `fix/layout-long-text`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/layout-long-text.md`). No unacked events at this writing. The branch's first commit is mine: pseudo text breaks into words.
+- **Why:** word pseudo on 2026-11-07 12:38 JST gave 406 failures in `test_layout_bounds`, from the title row (up to 632 px), the plate viewer's right column (150 px), one `RichTextLabel` (11 px), and tests that compare Chinese.
+- **On its event:** read the report. **zh-TW must be unchanged at scale 1.0**: check the rects it reports against `main`. It may end on `DECISION:` if pseudo cannot reach 0 without a zh-TW change. Then `lead-wait pr <n>`.
+- **Monday look adds:** the title row and viewer buttons, in zh-TW and with `EDD_LOCALE=en`; no one will have seen this change in a window.
+- **Issues:** #258 (the `ko` smoke does not prove the locale), #260 (saved runs keep formatted text; accepted for launch), #263 (leak gate misses `draw_string` and screens no bot opens; close before `L.TRANSLATED`).
+- **Open question, cheap:** `ds-exec` reported `Test: could not run (orb-test exit 127)` on the leak-gate brief; not looked into. Its `Test:` line used `VAR=1 VAR2=x orb-test`. The new brief uses `orb-test --host -- env VAR=x …`; see whether that one runs.
+- **Next after layout:** nothing in the release order can start until Monday 2026-11-09 09:00 JST: `look_kit.sh`, art stack #229 → #231 → #232 → #234, store reshoot, 0.4.6, Issue #1, then translation. Refresh `look/monday` first: it is still `main` at ec304b7 with `art/faces` and lacks today's font, l10n and layout changes. After the art stack merges, rerun `tools/i18n.py wrap` and `extract`.
+- **Waiting on the Owner (iMessage 2026-11-07 08:34 JST):** Steam Direct fee and paperwork; 1–2 newcomers for 0.4.6; credits name, now `nurockplayer` in the game.
+- **Heartbeat:** one-shot due 2026-11-07 13:03 JST; crons are session-only, recreate after a restart.
+
+### Leak gate on menus dispatched (edd-lead) | 2026-11-07 13:0x JST
+
+- **Running:** `lw-layout-long-text-20261107-123953` (unchanged, see above); `lw-leak-gate-menus-20261107-130247` (`ds-edd-1`, ds-1, branch `test/leak-gate-menus`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/leak-gate-menus.md`): chart text and a walk of the menus under pseudo, for #263 and #264.
+- **On its event:** read the panel list in the PR body. What sits under "Not covered" is mine to decide. Then `lead-wait pr <n>`. Merge order with layout does not matter; the files do not overlap.
+- **`orb-test exit 127` explained:** `proof-pack` reruns a `Test:` line as `orb-test -- sh -c "<line>"`, on dot, where `godot` and `python3` exist and `orb-test` does not. So a `Test:` line is the bare command with no `orb-test` inside. Both running briefs were corrected on 2026-11-07 13:0x JST; `proof-pack` reads the brief at the end of a run, so this first rerun on dot is also the first test of the fix.
+- **Later, for translation:** the OS window title and the macOS app name come from `config/name` in `project.godot`, which stays Chinese under every locale. The leak gate cannot see it. Decide `config/name_localized` or a `DisplayServer.window_set_title` call when `L.TRANSLATED` turns on. Credits now carries the name as a `L.t` literal, with a check against `config/name` (#265).
+
+### #265 at the gate (edd-lead) | 2026-11-07 14:0x JST
+
+- **#265:** `leak-gate` passed on b556855, `suites` still running. `lw-pr-265` holds the gate and reuses the worker's oracle approve (blocker 0, major 1: the log panel is opened with no history in it). On merge, #263 and #264 close. Revert-checks passed on all three paths: chart, pause caption, a bare `draw_string` literal.
+- **Test: rerun:** works on dot with a bare command (`check: 0 problem(s)`). Editing the brief mid-run does not reach it: the rerun used the line from dispatch, so the layout run may still show 127. Only new briefs get the fix.
+- **`test_layout_bounds` got SIGTERM (exit 143)** at about 7 minutes in a batch of eight suites inside one `orb-test --host` run in ds-1. Not rerun as it was. Look at how long it takes alone when layout's event arrives, and at its time in CI.
+
+### #265 merged; layout at the gate; English draft running (edd-lead) | 2026-11-07 15:3x JST
+
+- **Merged:** #265 (47ba236), closing #263 and #264.
+- **#267, layout, merged** (17f44a9). Oracle major in #268: the chart's fit is not recomputed when text size changes while the viewer is open; a one-line `_layout_viewer()` in `_cycle_text_size` should do it, not done. zh-TW against `main`, probed on 2026-11-07 15:30 JST: title identical in all 8 combinations; viewer has the 4 accepted buttons plus columns 2 px taller.
+- **English translation started before Monday,** because `.po` entries survive later text edits. Pilot of 110 entries: Sol beats DeepSeek on dialogue and physics terms (`pilot-en-{ds,sol}.json`). But `quota-advisor status` shows Codex weekly at 100.0% with the window 50% gone, and Claude weekly 92% with 87% gone. So:
+  - **Draft running:** `lw-en-full-20261107-153313` (`ds-edd-2`, ds-2, branch `l10n/en`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/en-full.md`), using Sol's pilot as the model.
+  - **Next:** after the Codex week resets, a Sol polish pass on dialogue, starting with the worker's list of least-sure entries. Then back-translation and physics check through oracle-ego, ja and ko, a blind cold read, `--require-translated` in CI, `L.TRANSLATED = true`.
+- **Three stale wrappers still queued on dot:** `lw-layout-long-text-fu1`, `lw-pilot-en-ds`, `lw-pilot-en-sol`. The work is done; each waits to rerun its `Test:` line. Stopping them was refused by the permission classifier, so they were left alone. The pilots' lines name a KIOXIA path dot cannot see, so they will fail and may resume their worker once: ignore that output and do not act on it. `lw-pilot-en-sol`'s resume would spend Codex quota. Ack their events with no further work.
+- **`Test:` rerun on dot queued for about an hour on 2026-11-07,** holding a finished run's event that long. Keep `Test:` lines bare, repo-relative, and quick.
+- **Monday look adds:** `EDD_LOCALE=en` with real English, if the draft has landed.
+
+### English draft fully translated; layout under English open (edd-lead) | 2026-11-07 17:3x JST
+
+- **Running:** `lw-en-full-fu2-20261107-162926` (`ds-edd-2`, ds-2, branch `l10n/en`, session `05062edd-5ab2-424e-91ca-8455d309b27c`, briefs `en-full.md` and `en-full-fu2.md` in `/Volumes/KIOXIA/eddington-1919-cache/director/`). No unacked events at this writing. `check --require-translated --locales en` reports 0 problems. No PR yet.
+- **`test_layout_bounds` under `EDD_LOCALE=en`: 210 failures** (`.godot/layout-en.log` in ds-2, 2026-11-07 17:05 JST, before the worker merged `origin/main`). 60 look like tests comparing text (title buttons, tail warning, checkpoint, PREP objectives, twelve plates); 94 + 15 under a `PanelContainer`; 36 under a `VBoxContainer`, screen not identified yet; 4 `checkpoint title button fits: Quit`; 1 micrometer toggle. The worker should end on `DECISION:`. Layout changes are the lead's call: read the log, separate test comparisons from real overflow, and check whether any overflow is really the English being long.
+- **Fix before `lead-wait pr`, once the worker has stopped:** `Mr Dyson` (1) → `Sir Frank`, knighted 1915; `Mr Eddington` (1) → `Professor Eddington`. `Mr Ashby` stays. Add these to the Glossary in `docs/design/LOCALIZATION.md`. Polish list so far: "it may not move at all" needs "the light" as its subject.
+- **#268:** one line, `_layout_viewer()` in `_cycle_text_size`. Do it with the next layout change, or before `L.TRANSLATED`.
+- **After the PR:** Sol polish once Codex's week resets (weekly 100.0% at 2026-11-07 15:32 JST), oracle back-translation and physics check, ja and ko, blind cold read, `--require-translated` in CI, `L.TRANSLATED = true`, window title (see above).
+- **Heartbeat:** one-shot due 2026-11-07 17:52 JST; crons are session-only, recreate after a restart.
+
+### English layout diagnosed; next brief ready (edd-lead) | 2026-11-07 17:5x JST
+
+- **Running:** `lw-en-full-fu2-20261107-162926` (`ds-edd-2`, ds-2, `l10n/en`). Its last session write was 2026-11-07 17:26 JST. It is blocked on `godot --headless ... --prologue-autoplay=honest --seed=77` (pid 21999), started without `--fixed-fps`, so the route runs in real time at about 2% CPU. It may be slow rather than hung. Stopping that process was refused by the permission classifier on 2026-11-07 17:5x JST and has not been retried; the Owner can stop it or allow it.
+- **`test_layout_bounds` under `EDD_LOCALE=en` after the merge of `main`: 40 failures, down from 210** (`.godot/layout-en-2.log` in ds-2). All are in the plate viewer at scale 1.2. Causes as read from the code, not yet tested: the left column hint has no autowrap (458 → 580 px wide), and `Include in measurement` probably takes a second flow row (26 px over at 720/1.2 with the micrometer on).
+- **On its event:** `ds-exec --resume 05062edd-5ab2-424e-91ca-8455d309b27c ds-edd-2 /Volumes/KIOXIA/eddington-1919-cache/director/en-full-fu3.md` through `lead-wait run`. The brief carries both layout fixes, `Oxford plate`, #268, `Sir Frank` and `Professor Eddington`, and the glossary. Then `lead-wait pr <n>`. It is not dispatched yet.
+
+### #269 English draft at the gate; viewer layout next (edd-lead) | 2026-11-07 19:2x JST
+
+- **Corrects the 17:5x section:** pid 21999 ended with exit 143; its stop source was not traced. The autoplay never ran because the worker put the bot's arguments before `--`, not because `--fixed-fps` was missing. With the correct form the honest route under `EDD_LOCALE=en` reached ENDING in about 32 seconds (2026-11-07 18:45–18:46 JST, `failures=[]`).
+- **Merged:** #269 (4e3e85f, 2026-11-07 19:24 JST), the full English draft: oracle approve, blocker 0, major 2 (#270, #271), CI green.
+- **Decided:** merge the text first; `L.TRANSLATED` is still false, so no player sees it. The 40 viewer overflows and the forms of address go in a separate small PR instead of a new review of the full draft.
+- **Running:** `lead-wait run en-viewer` (`ds-edd-2`, ds-2, new session, branch `fix/en-viewer-layout`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/en-full-fu3.md`). On its event: `lead-wait pr <n>`. It covers the left column autowrap, `Include`, `Oxford plate`, #268, `Sir Frank`, `Professor Eddington` and the glossary. **Until it merges, `Mr Dyson` and `Mr Eddington` are still on `main` in `locale/en.po`.**
+- **Later:** #270 and #271 (tools), then the Sol polish, starting from the 12 least-sure entries in the #269 body.
+
+### #273 English viewer: last 32 px (edd-lead) | 2026-11-07 20:0x JST
+
+- **#273** (`fix/en-viewer-layout`, 4b8abce): width overflow is gone, the left column is 458 px under both en and zh-TW. zh-TW suite: 0 failures. Under `EDD_LOCALE=en`: 36 failures, all height, at scale 1.2 (left column 902 px, 870 available; zh-TW 843).
+- **Decided:** English text only. The hint becomes two lines; a note is shortened only if that is not enough. No zh-TW or viewer code change.
+- **Running:** `lead-wait run en-viewer-fu1` (`ds-edd-2`, session `1605611c-7a5f-4b2c-a10f-cb96dc1173ce`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/en-viewer-fu1.md`). On its event: `lead-wait pr 273`.
+- **For ja and ko:** the viewer's left column has nothing that gives way, so a longer language can overflow at scale 1.2 again. Run `test_layout_bounds` under each locale early. If text cuts lose meaning, the options are a scrolling note or a smaller thumbnail grid on short windows (the grid changes zh-TW).
+- **Unresolved, not looked into:** the worker reports that `orb-test`'s container route failed with `docker ps` timing out, once hung for 5 minutes, and that it ran `tools/i18n.py check` on the host instead (text check only).
+
+### #273 back at c6c4b04 (edd-lead) | 2026-11-07 20:2x JST
+
+- **Leak gate failed on 11e235f, from my decision to wrap the hint:** the pseudo catalogue wrapped to three lines, 32 px over at scale 1.2 (36 failures). The worker ran only en and zh-TW, not pseudo. I removed the wrap in c6c4b04. The short English hint fits two lines by itself, and pseudo goes back to what `main` does.
+- **Running:** `lw-en-layout-real-20261107-202228` (`test_layout_bounds` under real `EDD_LOCALE=en` in ds-2 at c6c4b04). CI runs pseudo and zh-TW but not real English, so this run is the only proof for English.
+- **On its event, if 0 failures, and with CI green:** `lead-wait pr 273`. If not 0: the left column needs something that gives way.
+- **Corrects the 20:0x section's reading:** with no wrap, a language whose hint line is wider than 458 px widens the left column again. Only pseudo catches that.
+
+### #273 merged; #274 at the gate (edd-lead) | 2026-11-07 20:4x JST
+
+- **Merged:** #273 (1be7702, 2026-11-07 20:36 JST). Real `EDD_LOCALE=en` layout at c6c4b04: 0 failures in 8462 checks. `Sir Frank`, `Professor Eddington` and the glossary are in; #268 was already closed.
+- **Running:** `lw-pr-274-20261107-204240`. #274 (`fix/i18n-po-order`, worktree ds-2) closes #270 and #271. Placeholders must stay in order with no tolerance: GDScript's `%` has no positional form. **ja and ko word order will hit this:** where a sentence cannot keep the order, the source moves to a named `.format()`.
+- **Test evidence on #274:** revert-check stopped at the order assert, so the fuzzy cases were not separately shown to fail on the old code.
+- **Host note:** `orb-test --` on a light check waited over 5 minutes on 2026-11-07 20:3x JST, so I stopped it and used `orb-test --host --`. `docker ps` also still fails on the Mac: `VM left running: docker ps failed`.
+- **Next on the English line:** the oracle back-translation and physics check does not need Codex, and could run before the Sol polish. Not started. Sol polish waits for the Codex week to reset.
+
+### English checked; ja and ko drafts running (edd-lead) | 2026-11-07 21:3x JST
+
+- **Merged:** #274 (dcf6255), closing #270 and #271; #275 (cc9fd5a), oracle's physics and meaning check of all 1,143 English entries. 19 entries changed: `twice the error`, not `two-sigma`; `wound`, not `spring`; `panel`; the ledger entry for plate 23; `usable plates`. Not taken: `拖長只會把數字拉低`, true in the game's model (`scripts/eclipse_sim.gd:271`).
+- **Left in the zh-TW source:** `content.gd:43` says both `重錘時鐘` and `發條`. `發條` runs through about ten strings and the winding interaction.
+- **Running:** `lead-wait run ja-full` (`ds-edd-1`, ds-1, branch `l10n/ja`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/ja-full.md`), `lead-wait run ko-full` (`ds-edd-2`, ds-2, branch `l10n/ko`, `ko-full.md`). First drafts with no model translation behind them, so their quality is unknown.
+- **On each event:** read the report, decide any `DECISION:` (layout, fonts), then `lead-wait pr <n>`. Then run the same oracle check as English before relying on them.
+- **Claude weekly 97% with the window 90% gone at 2026-11-07 21:27 JST; Codex weekly 100%.** Keep lead turns few until the reset. Sol polish waits for Codex.
+- **Not yet:** blind cold read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order unchanged.
+
+### ja and ko drafts merged; checks running (edd-lead) | 2026-11-07 22:2x JST
+
+- **Merged:** #276 ja (cd9de3e), #277 ko (947db5a). Worker-reported: layout under each locale 0 failures in 8462 checks, honest route to ENDING with `failures=[]`, font coverage 0 problems. `L.TRANSLATED` is still false.
+- **Running:** `lw-ja-check-20261107-220812`, `lw-ko-check-20261107-220742`: oracle meaning and history checks, prompt at `/Volumes/KIOXIA/eddington-1919-cache/director/l10n-check-prompt.txt`.
+- **On each event:** confirm it read every entry, judge each row against the code as with English, apply through `tools/i18n.py apply`, run `test_layout_bounds` and the honest route under that locale, then `lead-wait pr <n>`.
+- **Must also go in, from the PR reviews:** ko: the winding instruction says press where the default is hold, which can leave a player stuck; `同天區` is `같은 하늘 영역`, two places. ja: `沒事。` is not `いいえ。`; `底片ホルダー` is `乾板ホルダー`.
+- **Open:** `好。` needs `L.tc` for Korean speech levels (Eddington against Ashby).
+- **Not read by a native speaker yet:** the ja and ko worker lists of least-sure entries are in the #276 and #277 bodies.
+
+### State at the context clear (edd-lead) | 2026-11-07 22:3x JST
+
+- **Running:** `lw-ko-check-20261107-220742`; `lw-ja-check-2-20261107-222857`. No unacked events at this writing.
+- **`ja-check` failed twice on 2026-11-07 22:28 JST, both exit 8:** the ChatGPT page lost its connection and left no answer, then `--resume` found the page closed. `ja-check-2` is a fresh run from `main`. If it fails too, do not retry at once: leave the ja check for later. It blocks nothing, since `L.TRANSLATED` is false.
+- **Next on each event:** the steps in the 22:2x section above: confirm it read every entry, judge each row against the code, `tools/i18n.py apply`, `test_layout_bounds` and the honest route under that locale, `lead-wait pr <n>`. Answers may come as a download the run did not capture; the prompt asks for the reply text.
+- **Worktrees:** ds-1 is on `l10n/ja` and ds-2 on `l10n/ko`, both merged. Start each fix branch from `origin/main`.
+- **Claude weekly 97% with the window 90% gone at 2026-11-07 21:27 JST; Codex weekly 100%.** Keep lead turns few. Heartbeat one-shot due 2026-11-07 23:13 JST, session-only, so it may be lost with this context; recreate if gone.
+
+
+### ko-check failed; run the checks one at a time (edd-lead) | 2026-11-07 22:4x JST
+
+- **`ko-check` failed on 2026-11-07 22:32 JST, exit 8:** the page showed ChatGPT's message stream error (`訊息串流錯誤`, with a retry button) and no reply, then stalled for 12 minutes. Run dir: `~/.local/state/oracle-ego/runs/20261107-220742-6363-ko-check`. Event acked. Nothing was applied, so ko has no oracle check yet.
+- **Possible cause, not tested:** `ja-check` lost its connection in the same period, while both were running at once on bundles of about 210 KB.
+- **Next:** `ko-check-2` is not dispatched. Wait for the `ja-check-2` event, then run the ko check alone from `main` with the same prompt (the arguments are in `~/.local/state/job-run/lw-ko-check-20261107-220742/cmd`). If `ja-check-2` fails too, leave both for later. This blocks nothing, since `L.TRANSLATED` is false.
+
+### ja and ko oracle checks both parked (edd-lead) | 2026-11-07 23:0x JST
+
+- **`ja-check-2` failed on 2026-11-07 23:01 JST, exit 8,** after running alone: `連線已中斷，正在等待完整回覆`, with no usable reply. Run dir: `~/.local/state/oracle-ego/runs/20261107-222857-15764-ja-check-2`. Event acked. This weakens the 22:4x section's idea that running both at once was the cause. ChatGPT ran code and searched the web (`已搜尋 32 個網站`) for about 30 minutes before the connection dropped, so run length or file size may be the cause; neither is tested.
+- **State:** nothing is running. ja and ko have no oracle check yet, and nothing was applied. `ko-check-2` is not dispatched. This blocks nothing, since `L.TRANSLATED` is false.
+- **Next, after the Claude weekly reset (`quota-advisor status`):** one language at a time, in slices of about 300 entries, each with the same prompt and its own `--file`. Do not rerun the whole file. Add to the prompt: do not search the web. Slices are untested; check one before sending the rest.
+- **The PR-review fixes in the 22:2x section are still not in.** They do not depend on the checks; put them in the same PR as the check results, or alone if the checks stay down.
+
+### Claude week reset; ja check restarted in slices (edd-lead) | 2026-11-08 15:1x JST
+
+- **Claude weekly 2% at 2026-11-08 15:17 JST** (reset). Codex weekly still 100.0%, window 65% gone. Heartbeat back to every 45 minutes; one-shot due 2026-11-08 16:03 JST.
+- **Slices:** `/Volumes/KIOXIA/eddington-1919-cache/director/l10n-slices/`, `{ja,ko}-{1..4}of4.po`, 300 live entries each (1,080 live per language by this split; the header is kept in each). Prompt per slice: `prompt-ja-1.txt`, the old prompt plus "do not search the web and do not run code".
+- **Running:** `lw-ja-check-s1-20261108-151739` (ja slice 1 only). On its event: if it read all 300, judge each row against the code, keep the result in `l10n-slices/`, then run the next slice, one at a time. If slice 1 fails the same way, the size is not the cause; stop and look at oracle itself.
+
+### ja checked in slices; #279 at the gate (edd-lead) | 2026-11-08 15:5x JST
+
+- **Slices work:** ja's four slices each finished in 6–8 minutes (2026-11-08 15:17–15:45 JST), and every slice was read in full: 300, 300, 300 and 180 entries.
+- **#279** (`l10n/ja-check`, ds-1): 75 rows applied, plus a sweep of 停, 底片 and 偏り. The `--scope` file is `l10n-slices/ja-scope.md`. Judgements are in `l10n-slices/ja-{1..4}-judged.md`; slice 4 and the register choice are recorded in the scope file and the PR body. Tests: i18n check 0 problems, ja layout 0 failures in 8462 checks, ja honest route `failures=[]`. **Running:** `lw-pr-279-20261108-155501`.
+- **Decided:** Eddington keeps なさい and plain form. Only mixed politeness within one line, よかろう, 君 and meaning changes were fixed. A whole-voice register pass for ja is a follow-up, not done.
+- **Next:** ko slices 1–4, one at a time, prompts `l10n-slices/prompt-ko-{1..4}.txt`. Start after the #279 review leaves oracle free. The ko PR-review items from the 22:2x section (press against hold; 같은 하늘 영역) go into the ko PR. Also check `0.87: 뉴턴식의 절반` (same ambiguity as ja; en says "half, on the Newtonian calculation").
+- **Tools:** `l10n-slices/parse.py` turns answers into rows, `build_ja.py` builds the `apply` JSON (a JSON array of `{msgid, msgstr}`).
+
+### #279 merged; ko slices running (edd-lead) | 2026-11-08 16:1x JST
+
+- **Merged:** #279 (ca1afab), the ja check fixes.
+- **ko slice 1** done 2026-11-08 16:10 JST, read 300/300; judged in `l10n-slices/ko-1-judged.md` (answer `ko-1-answer.md`). Nothing applied yet: apply all ko slices in one PR, as with ja.
+- **ko slice 2** done 2026-11-08 16:22 JST, 300/300; judged in `ko-2-judged.md` (27 of 39 rows are Eddington register; a register sweep goes in the ko PR; 歲差 SOURCE is a follow-up).
+- **ko slice 3** done 2026-11-08 16:29 JST, 300/300; judged in `ko-3-judged.md`.
+- **Running:** `lw-ko-check-s4-20261108-163005` (slice 4, the last). On its event: copy the run's `answer.md` to `l10n-slices/ko-4-answer.md`, judge it, then the ko PR below.
+- **After slice 4:** build the ko apply JSON (`parse.py`, as `build_ja.py`), branch from `origin/main`, `tools/i18n.py apply`, i18n check, ko layout and honest route, `lead-wait pr <n>` with a `ko-scope.md`.
+
+### ko checked in slices; ko fix PR running (edd-lead) | 2026-11-08 16:4x JST
+
+- **ko slices** all read in full (300, 300, 300, 180; 2026-11-08 16:03–16:37 JST). Judgements in `l10n-slices/ko-{1..4}-judged.md`; `build_ko.py` built `ko-apply.json`, 90 rows (5 rejected), placeholders checked. Both #277 review items are in (hold, not press; 같은 하늘 영역).
+- **Running:** `lw-ko-check-fix-20261108-163837`: `ds-exec ds-edd-2` (ds-2, branch `l10n/ko-check` from origin/main), brief `/Volumes/KIOXIA/eddington-1919-cache/director/ko-check-fix.md`. It applies the JSON, runs the i18n check, ko layout and honest route, opens the PR and runs one oracle review of it.
+- **On its event:** read the report, then `lead-wait pr <n> --scope /Volumes/KIOXIA/eddington-1919-cache/director/l10n-slices/ko-scope.md`.
+- **Follow-up:** #280: whole-voice register pass for Eddington in ja and ko, plus the 歲差 and 0.87 source wording.
+- **After ko merges:** en, ja and ko all have an oracle check. Still not done: native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title.
+
+### ko fix PR #281 at the gate (edd-lead) | 2026-11-08 18:2x JST
+
+- **#281** (`l10n/ko-check`, ds-2): 90 rows applied. Worker tests 2026-11-08 16:46–18:01 JST: ko layout 8462 checks 0 failures; ko honest route seed 77 `failures=[]`; i18n check `--require-translated --locales ko` 0 problems; `test_i18n_po.py` passed. Worker oracle review approved, its one minor (`\|` at `locale/ko.po:416`, an escape copied from the oracle table) fixed by the lead in 5936b98.
+- **Running:** `lw-pr-281-20261108-181857` with `--scope l10n-slices/ko-scope.md`. On the event: if merged, en, ja and ko all have an oracle check.
+- **Host:** the worker found the OrbStack VM stopped at 16:46 JST and ran `orb start`; at 18:0x JST `orb-test --status` showed docker not answering again. Light runs used `--host` or dot. Not investigated.
+- **Next:** #280 (Eddington register pass ja/ko; 歲差 and 0.87 in the source). Then native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title.
+
+### #281 merged; en, ja and ko all oracle-checked (edd-lead) | 2026-11-08 18:2x JST
+
+- **Merged:** #281 ko check fixes (8b29b7f). Gate review oracle approve 0/0/0 on 5936b98. **Checks overridden:** `suites` failed at `Install Godot 4.7.2`, curl 504 from the github.com godot-builds release download on all three attempts (2026-11-08 18:20–18:21 JST); the reason is in the PR comment. If the next PR hits the same 504, the download is still down: rerun later before overriding again.
+- **State:** en, ja and ko each have an oracle meaning check applied. `L.TRANSLATED` is still false. Nothing is running.
+- **Next:** #280 (ja/ko Eddington register pass; 歲差 and 0.87 in the zh-TW source). Then native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. ds-1 and ds-2 sit on merged branches; start each new branch from `origin/main`.
+
+### #280 register pass dispatched (edd-lead) | 2026-11-08 19:0x JST
+
+- **Inbox:** edd-art's notice of the Monday look split (Owner OK 2026-11-08 18:5x JST) acked; details in `.claude/lead-handoff/art.md`, section Monday. After look-kit: `lead-inbox add edd-art look look-kit done "<dir>"` and `herdr pane send-text w7:pB`.
+- **Decided for #280:** ja Eddington goes to 丁寧語 throughout (40 of 84 lines were です/ます; LOCALIZATION.md already says 丁寧語 for the cast; this replaces the #279 "keeps なさい and plain form" holding position). ko Eddington goes to 해요체 (38 of 84 were 하십시오체). Kit untouched. zh-TW: 歲差 → 近日點進動 (content_1917.gd:150, en "perihelion advance"); 0.87 choice → `0.87：照牛頓的算法，只有一半`.
+- **Running:** `lw-register-pass-20261108-190550`: `ds-exec ds-edd-1` (ds-1, branch `l10n/register-pass`), brief `/Volumes/KIOXIA/eddington-1919-cache/director/register-pass.md`, input `l10n-slices/register-lines.json` (157 E/K lines). It applies, tests ja/ko layout and honest route, opens the PR and runs its own oracle review.
+- **On its event:** read the report, write `l10n-slices/register-scope.md` (rules above as accepted; Kit lines out of scope), then `lead-wait pr <n> --scope` it. If `suites` fails again at `Install Godot` with a 504, rerun later before overriding.
+- **Then:** native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order as above.
+
+### #282 (register pass) at the gate (edd-lead) | 2026-11-08 22:0x JST
+
+- **#282** (`l10n/register-pass`, ds-1, 0107a60, `Closes #280`): ja 48 and ko 47 Eddington lines moved to 丁寧語 / 해요체; Kit untouched; 歲差 → 近日點進動 and the 0.87 choice reworded in the zh-TW source, translations carried over. Worker tests 2026-11-08 19:25–19:46 JST: ja and ko layout 8462 checks 0 failures each; ja and ko honest route seed 77 `failures=[]`. Worker oracle review approve 0/0/0.
+- **ds-exec exit 70** was dot-ci failing to verify the result (`no DOT-CI-DONE by the deadline`), not a test failure: the same Test command exits 0 on the Mac (worker `orb-test --local` 20:47 JST; lead rerun 22:0x JST). dot looked down at 20:49–20:59 JST; not investigated.
+- **Running:** `lw-pr-282-20261108-215945` with `--scope l10n-slices/register-scope.md`. If `suites` fails at `Install Godot` with a 504 again, rerun later before overriding.
+- **Next after merge:** native read, `--require-translated` in CI, `L.TRANSLATED = true`, window title. Monday 2026-11-09 09:00 JST order as above.
+
+### #282 merged; #283 CI gate at review (edd-lead) | 2026-11-08 22:2x JST
+
+- **Merged:** #282 register pass (12be650), closes #280. CI's Godot download worked on rerun (the 19:47 JST 503 / connection drop was transient); every check passed, no override.
+- **#283** (`ci/require-translated`, lead, one line in `.github/workflows/all-suites.yml`): the localization gate now runs `check --require-translated`. Passes on main locally. **Running:** `lw-pr-283-20261108-221939`.
+- **ds-1** detached at origin/main, `l10n/register-pass` deleted locally (merged).
+- **Still open:** native read of ja and ko (needs a human reader; not started), `L.TRANSLATED = true` (`scripts/l10n.gd:12`, turns on the language button and OS-locale pick), window title per locale (`project.godot` `config/name` is zh-TW only; the Titles table in LOCALIZATION.md lists each). Monday 2026-11-09 09:00 JST order as above.
+
+### #283 merged; #284 window title at review (edd-lead) | 2026-11-08 22:4x JST
+
+- **Merged:** #283, CI localization gate now runs `check --require-translated`.
+- **#284** (`l10n/window-title`, lead): `L.apply` sets the window title from `L.t("雲層之後 · Eddington 1919")`, deferred, skipped headless. Headless start shows no script errors; not yet seen in a window. **Running:** `lw-pr-284-*`. **Monday look:** add a title-bar check with `EDD_LOCALE=en` and `ja` to the hand tests.
+- **Still open:** native read of ja and ko (needs a human reader), `L.TRANSLATED = true`.
+
+### #284 merged; blind cold read of ja and ko running (edd-lead) | 2026-11-08 22:5x JST
+
+- **Merged:** #284 window title per locale. Monday look: check the title bar with `EDD_LOCALE=en` and `ja`.
+- **Running:** two Sonnet subagents (this session; lost on /clear), a blind cold read of `l10n-slices/blind-{ja,ko}.txt` (msgstr only, 1,088 numbered lines; `blind-{ja,ko}-ids.json` maps n → msgid). Reports go to `l10n-slices/blind-{ja,ko}-report.md`. If the session was cleared before they finished, rerun them the same way.
+- **Then:** lead judges each row, builds apply JSON, one PR for both languages, gate with a scope file. That is the stand-in for the native read (the Owner is away until 2026-12-07); after it, `L.TRANSLATED = true`.
+
+### Blind cold read done; ja and ko fix workers running (edd-lead) | 2026-11-08 22:5x JST
+
+- **Blind read** (Sonnet, msgstr only, 1,088/1,088 each): ko 74 rows (`l10n-slices/blind-ko-report.md`: 별점 read as star rating, 해요/합쇼 mixed in one line, 같은 무게 for statistical weight, 별이 휘었다, fixed 를 after key-name `%s`); ja 116 rows (`blind-ja-report.md`: Ashby/Cottingham/Eddington plain or archaic forms and だが + です/ます, calques 選片 示意図 複核 測得, term drift for deflection and the record book).
+- **Rules decided:** `/Volumes/KIOXIA/eddington-1919-cache/director/blind-fix-rules.md` (ja whole cast 丁寧語, ko Ashby 저; terms follow the zh-TW source; ko 星點 never 별점; weight 가중치/重み; ko 353/203 rejected, addressed to Ashby).
+- **Running:** `lw-blind-ja-20261108-225622` (ds-edd-1, `l10n/blind-ja`) and `lw-blind-ko-20261108-225622` (ds-edd-2, `l10n/blind-ko`), briefs `director/blind-fix-{ja,ko}.md`; each judges rows against the msgid, applies, tests, opens a PR and runs its own oracle review. Told to finish before 2026-11-09 09:00 JST.
+- **On each event:** spot-check the judged file and diff, write a scope file from the rules file, `lead-wait pr <n> --scope`. After both merge: `L.TRANSLATED = true` PR.
+
+### #286 ja blind-read fixes merged (edd-lead) | 2026-11-08 23:4x JST
+
+- **Merged:** #286 (ja, 219 lines: whole cast 丁寧語, calques, term drift). Round 1 oracle blockers (Halley "seventy years before", 標準誤差 not 標準偏差, room width not height) fixed by the lead in 3e178f3; round 2 approve; all checks passed.
+- **Rule corrected:** `blind-fix-rules.md` statistics line now says follow the msgid (標準誤差 / 표준오차). The ko worker started on the old rule: check that line in its PR.
+- **Running:** `lw-blind-ko-20261108-225622` (ds-edd-2). After ko merges: `L.TRANSLATED = true` PR.
+
+### #287 merged; #288 L.TRANSLATED = true at the gate (edd-lead) | 2026-11-09 02:3x JST
+
+- **Merged:** #287 ko blind-read fixes (f6637b5): 107 lines (35 taken, 18 own fix, 12 rejected); 표준오차 per the msgid. The worker hit the 60-turn cap; dot-ci hung 2 h 40 min waiting on dot (killed 01:4x JST), then OrbStack was stopped (exit 69, `orb start`). dot did not answer all night; light runs used `--local`.
+- **#288** (`l10n/translated`, lead): `L.TRANSLATED = true`. test_i18n 1141/0; layout zh_TW 8618/0, en 8462/0. **Running:** `lw-pr-288-20261109-023537`.
+- **Monday look 2026-11-09 adds:** the language button on the title row (all four captions), the window title in en and ja, a cold start with a saved language.
+- **Still open:** a native read of ja and ko before the Steam release (no reader yet).
+
+### #288 merged; store page copy in four languages running (edd-lead) | 2026-11-09 02:5x JST
+
+- **Merged:** #288 `L.TRANSLATED = true`. en, ja and ko now reach players (saved or OS language, title-row language button). Localization is done except a native read of ja and ko before launch.
+- **Cleanup:** l10n branches deleted locally; ds-1 and ds-2 detached at origin/main.
+- **Running:** `lw-store-l10n-20261109-025117`: `cx-exec` (Codex reported available by quota-advisor at 02:5x JST; terra) in ds-1, branch `docs/store-page-l10n`, brief `/Volumes/KIOXIA/eddington-1919-cache/director/store-page-l10n.md`: STORE_PAGE.md sections 2, 3, 4, 7 in en/ja/ko, B3 marked decided. On its event: `lead-wait pr <n>`.
+- **Monday 2026-11-09 09:00 JST:** look kit and hand tests as above, plus the language button, window title and saved-language cold start.
+
+### #289 store page copy merged-armed; nothing running (edd-lead) | 2026-11-09 02:5x JST
+
+- **#289** STORE_PAGE.md in en/ja/ko (sections 2, 3, 4, 7; B3 recorded as decided): oracle approve 0/0/0, merge armed (docs only). Short descriptions: zh-TW 74, en 225, ja 87, ko 116 characters. Store copy register: ja plain descriptive, ko 합니다체.
+- **State:** nothing of edd-lead's is running. Localization done except a native read of ja and ko before launch.
+- **Next: Monday 2026-11-09 09:00 JST** (windowed window opens): refresh `look/monday`, `look_kit.sh` via `orb-test --heavy --host`, hand tests (繼續 per chapter, fonts, title row incl. the new language button in all four captions, `EDD_LOCALE=en`/`ja` window title, saved-language cold start, Cmd-Tab, 2560x1080), then `lead-inbox add edd-art look look-kit done "<dir>"` + `herdr pane send-text w7:pB`; gate #229 → #231 → #232 → #234 on art-verdict events; store reshoot (now four languages), 0.4.6.
+- **Hosts:** dot did not answer 2026-11-08 20:49 JST – 2026-11-09 02:xx JST (dot-ci hung 2 h 40 min once); OrbStack stopped twice. Use `--local` for light runs if dot is still down.
+
+### Monday look started (edd-lead) | 2026-11-09 09:0x JST
+
+- **look/monday** refreshed: dd3db89 = ea42674 (`main` ec304b7 + `art/faces`) merged with `main` b26276a (l10n, fonts, layout, store copy), no conflicts, force-pushed.
+- **Running:** `lw-look-kit-20261109-090239` (`orb-test --heavy --host -- bash director/look_kit.sh`, ticket #805, queued behind a gteki heavy job from 04:32 JST). The script exits 3 if it starts after 14:55 JST.
+- **On its event:** judge `director/look-kit/{1080,720}` (list in the 09:00 sections above), then the hand tests (繼續 per chapter, fonts, language button four captions, `EDD_LOCALE=en`/`ja` window title, saved-language cold start, Cmd-Tab, 2560x1080), `lead-inbox add edd-art look look-kit done "<dir>"` + `herdr pane send-text w7:pB`, then #229 → #231 → #232 → #234.
+
+### Look kit done; edd-art judging (edd-lead) | 2026-11-09 09:1x JST
+
+- **look kit** 09:09 JST: 1080 and 720 runs, 123 shots each, ENDING favors_e, `failures=[]`. Lead pre-read: Kit, Ashby, Eddington, box_light, ticks OK (white mark at Kit's mouth is the crosshair). The language button lives in 設定 on the title screen, not on the title row; check it in the hand test.
+- **Sent:** `lead-inbox add edd-art look look-kit done` (ev-20261109-091015-58ca) + send-text to w7:pB. Event acked.
+- **Next:** on art-verdict, `lead-wait pr 229 --reason …` (head a9b6120, base main), then #231 → #232 → #234. Hand tests still to do while the window is open (until 14:55 JST).

@@ -20,6 +20,7 @@ var main
 var scenario := "careful"
 var shots_dir := ""
 var store_shots := false
+var store_mic_shot_done := false
 var log_lines: Array[String] = []
 var stuck := 0
 var _phase_event := ""
@@ -30,6 +31,7 @@ var disruptions: Array[String] = []
 var _disrupting := false
 var _settings_existed := false
 var _settings_bytes := PackedByteArray()
+var _leak_watch: Node = null
 
 
 
@@ -44,6 +46,9 @@ func _ready() -> void:
 		tree_exiting.connect(_restore_monkey_settings)
 	if continuation_helper:
 		return
+	if OS.has_environment("EDD_PSEUDO_JSON"):
+		_leak_watch = load("res://tests/leak_watch.gd").new()
+		add_child(_leak_watch)
 	var args: Dictionary = main._user_args()
 	store_shots = scenario == "careful" and args.has("store-shots")
 	Engine.time_scale = float(args.get("speed", "1"))
@@ -146,16 +151,34 @@ func walk(points: Array) -> void:
 	for target in points:
 		var t2 := Vector2(target.x, target.z)
 		var timeout := 12.0
+		var blocked := 0
+		var sidesteps := 0
 		while timeout > 0.0:
 			var here := Vector2(p.global_position.x, p.global_position.z)
 			var d := here.distance_to(t2)
 			if d < 0.35:
 				break
 			if real_input_only:
+				if main.ui.dialog_active():
+					# A notice can open mid-walk; a player reads it and walks on.
+					var talk_start := Time.get_ticks_msec()
+					await talk()
+					# Keep the schedule honest: an endless dialogue still ends STUCK.
+					timeout -= (Time.get_ticks_msec() - talk_start) / 1000.0
+					continue
+				var before: Vector3 = p.global_position
 				await look(Vector3(target.x, p.camera.global_position.y, target.z))
 				_key(KEY_W, true)
 				await _frames(2)
 				_key(KEY_W, false)
+				blocked = blocked + 1 if p.global_position.distance_to(before) < 0.002 else 0
+				if blocked >= 30:
+					# Off the authored line against a prop: step away as a player would.
+					blocked = 0
+					var step: Key = [KEY_S, KEY_D, KEY_A][sidesteps % 3]
+					sidesteps += 1
+					_log("SIDESTEP %d near %s heading to %s" % [sidesteps, p.global_position, target])
+					await _hold(step, 0.6)
 			else:
 				var to: Vector2 = t2 - here
 				p.yaw = atan2(-to.x, -to.y)
@@ -219,6 +242,8 @@ func talk(choices: Array = [], random_choices := true) -> void:
 				await shot("store_a_rule")
 			elif store_shots and e.get("key", "") == "reason" and e.choices.size() == 5:
 				await shot("store_e_five_reasons")
+			elif store_shots and e.get("key", "") == "bet":
+				await shot("store_h_bet")
 			var pick: int = choices[ci] if ci < choices.size() else 0
 			if e.get("key", "") == "kit_first":
 				pick = 0
@@ -320,7 +345,7 @@ func _run() -> void:
 	if store_shots:
 		await shot("store_f_ending_telegram")
 	for b in main.ui.ending_panel.find_children("*", "Button", true, false):
-		if b.text == "歷史上發生了什麼":
+		if b.text == L.t("歷史上發生了什麼"):
 			await _click(b.get_global_rect().get_center())
 			await _frames(8)
 			await shot("10b_ending_history")
@@ -495,6 +520,9 @@ func _night() -> void:
 			if scenario == "rushed":
 				px += 1.5
 			main.ui.set_micrometer_reading(px)
+			if store_shots and not store_mic_shot_done:
+				store_mic_shot_done = true
+				await shot("store_i_micrometer")
 			await _click(main.ui.mic_record_btn.get_global_rect().get_center())
 			await _frames(1)
 		await _click(main.ui.mic_btn.get_global_rect().get_center())
@@ -540,6 +568,8 @@ func _night() -> void:
 
 
 func _finish() -> void:
+	if _leak_watch != null:
+		_leak_watch.finish()
 	var score_failures: Array[String] = []
 	if scenario == "careful":
 		score_failures = ScorePlayer.run_failures(false)
@@ -578,7 +608,7 @@ func _finish() -> void:
 		# Press 「新的天空」 on the ending screen; the restarted scene continues in _run().
 		var btns: Array = main.ui.ending_panel.find_children("*", "Button", true, false)
 		for b in btns:
-			if b.text.begins_with("新的天空"):
+			if b.text == L.t("新的天空：換一種雲況"):
 				# Press and release without awaiting: the scene (and this bot) is freed on reload.
 				var pos: Vector2 = get_viewport().get_final_transform() * b.get_global_rect().get_center()
 				for pressed in [true, false]:
@@ -679,7 +709,7 @@ func monkey_step(context: String, walking := false) -> void:
 				await _hold({KEY_W: KEY_S, KEY_S: KEY_W, KEY_A: KEY_D, KEY_D: KEY_A}[direction], seconds)
 			"reopen":
 				for button in main.ui.viewer.find_children("*", "Button", true, false):
-					if button.text == "離開桌子":
+					if button.text == L.t("離開桌子"):
 						await _click(button.get_global_rect().get_center())
 						break
 				await interact(main.world.measure_pos)

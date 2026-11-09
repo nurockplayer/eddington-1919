@@ -12,6 +12,7 @@ const UI := preload("res://scripts/ui.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 const Content := preload("res://scripts/cambridge/content_departure.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
+const BoxSketch := preload("res://scripts/cambridge/box_sketch.gd")
 
 enum Beat { OPENING, CHECKLIST, CHECKING, KIT, PROMISE, FAREWELL, MONTAGE, DONE }
 var beat := Beat.OPENING
@@ -19,6 +20,7 @@ var world: Dictionary
 var player
 var ui
 var checklist
+var box_sketch
 var _pending := ""
 var _busy := true
 var _clock_t := 0.0
@@ -76,6 +78,11 @@ func _ready() -> void:
 	checklist.row_requested.connect(_read_row)
 	checklist.completed.connect(_checked)
 	checklist.closed.connect(func(): beat = Beat.KIT; _sync_player())
+	box_sketch = BoxSketch.new()
+	box_sketch.theme = ui.theme_res
+	layer.add_child(box_sketch)
+	box_sketch.hide()
+	box_sketch.finished.connect(func(): _say(Content.mentor_farewell_after(), "gift"))
 	_speaker_fill = OmniLight3D.new()
 	_speaker_fill.name = "DepartureDialogueBounce"
 	_speaker_fill.light_color = Color(1.0, 0.86, 0.69)
@@ -96,22 +103,23 @@ func _ready() -> void:
 
 
 func _free() -> bool:
-	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not checklist.visible
+	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not checklist.visible and not box_sketch.visible
 
 
 func _sync_player() -> void:
 	var free := _free()
 	checklist.input_blocked = get_tree().paused or _busy or ui.log_open() or ui.dialog_active()
+	box_sketch.input_blocked = get_tree().paused or ui.log_open()
 	player.can_move = free and beat in [Beat.CHECKLIST, Beat.KIT, Beat.FAREWELL]
 	player.can_look = free
-	ui.hud.visible = not checklist.visible and not ui.log_open() and not ui.dialog_active() and not _busy
+	ui.hud.visible = not checklist.visible and not box_sketch.visible and not ui.log_open() and not ui.dialog_active() and not _busy
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	var objective := ""
 	match beat:
-		Beat.CHECKLIST: objective = "走到看片台，核對最後一頁。"
-		Beat.KIT: objective = "清單收好了。和 Kit 說說話。"
-		Beat.FAREWELL: objective = "Ashby 先生在走廊等你。"
-	ui.set_objectives("[b]劍橋・1919 年 3 月[/b]\n" + objective if objective != "" else "")
+		Beat.CHECKLIST: objective = L.t("走到看片台，核對最後一頁。")
+		Beat.KIT: objective = L.t("清單收好了。和 Kit 說說話。")
+		Beat.FAREWELL: objective = L.t("Ashby 先生在走廊等你。")
+	ui.set_objectives(L.t("[b]劍橋・1919 年 3 月[/b]\n%s") % objective if objective != "" else "")
 
 
 func _process(delta: float) -> void:
@@ -129,7 +137,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), L.t(str(target.get_meta("prompt")))] if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -152,10 +160,10 @@ func _interact(id: String) -> void:
 			beat = Beat.CHECKING
 			checklist.open()
 		"kit": _say(Content.before_closing(), "bond")
-		"mentor": _say(Content.mentor_farewell(Story.slip_fix), "gift")
+		"mentor": _say(Content.mentor_farewell(Story.slip_fix), "farewell")
 		"workbook":
 			_frame_point(world.targets.workbook)
-			ui.show_toast("1919 年 5 月 29 日", 4.0)
+			ui.show_toast(L.t("1919 年 5 月 29 日"), 4.0)
 	_sync_player()
 
 
@@ -199,6 +207,11 @@ func _dialogue_done(results: Dictionary) -> void:
 		"promise":
 			Story.sky_promise = int(results.get("promise", -1))
 			beat = Beat.FAREWELL
+		"farewell":
+			# Conversion arc move E: the light in the box is played before Ashby's rest.
+			box_sketch.open("light")
+			_sync_player()
+			return
 		"gift":
 			keepsake.show()
 			_busy = true
@@ -212,7 +225,7 @@ func _dialogue_done(results: Dictionary) -> void:
 func _frame_speaker(speaker: String) -> void:
 	# The authored workbook gesture gets a prop shot, then conversation returns to Kit.
 	var entry: Dictionary = ui._seq[ui._seq_i]
-	if _pending == "promise" and str(entry.get("t", "")).contains("翻開工作簿"):
+	if _pending == "promise" and str(entry.get("key", "")) == "workbook":
 		world.workbook.open_workbook()
 		_last_speaker = ""
 		_frame_point(world.targets.workbook)
@@ -254,7 +267,7 @@ func _build_keepsake() -> void:
 	icon.custom_minimum_size = Vector2(42, 40)
 	keepsake.add_child(icon)
 	var label := Label.new()
-	label.text = Cast.MENTOR_GIFT
+	label.text = L.t(Cast.MENTOR_GIFT)
 	Settings.track_font(label, 20)
 	label.add_theme_color_override("font_color", UI.PAPER)
 	keepsake.add_child(label)
@@ -271,11 +284,11 @@ func _montage() -> void:
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	keepsake.hide()
 	for entry in Content.montage():
-		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
-		await ui.show_caption(str(entry.t) + "\n\n（" + tag + "）", 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+		await ui.show_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t), 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	Story.departure_done = true
 	Story.from_prologue = true
 	beat = Beat.DONE
+	Checkpoint.save("principe")
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 

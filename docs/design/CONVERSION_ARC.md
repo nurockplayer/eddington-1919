@@ -32,9 +32,9 @@ Weak: the Newton-versus-light content is *told*.
 | B | **Newton earns trust; Mercury is felt** | The orrery is on the main path. The player checks three Newtonian predictions against the record (Neptune found on paper, Halley's 1910 return, Mercury's perihelion) and finds the one misfit: 43″/century. They choose what to suspect (a measurement slip / an unseen planet "Vulcan" / the theory itself); Ashby treats all three as reasonable. Humility beat: Einstein's own 1911 figure was the half value. | "Newton is old" → "an excellent theory with one honest residual" | Why would a careful astronomer still trust Newton in 1917? | low–med |
 | C | **The player reads the shift** | In the darkroom, for each included plate, the player sets a micrometer crosshair on one marked star (eclipse plate vs. the Oxford/night plate, exaggeration labelled) and the plate's value comes from *their* setting, with its own scatter. A careless setting widens σ. | "the game tells me the number" → "this number is mine" | Where did your number come from? | med–high |
 | D | **October 1919: Sobral arrives; Ashby revises (or doesn't)** | A short epilogue back in the 1917 study, set in Cambridge in early October 1919 (RECONSTRUCTION, anchored on Eddington's 3 October 1919 reply to Dyson, MS.RGO.8/150). The room and the orrery are unchanged; the player's understanding has changed (Outer Wilds). Dyson's letter from Greenwich is on the desk: the Sobral 4-inch plates favour the full deflection, and the astrographic plates disagree (≈0.93″) with focus and scale trouble. The player plots both beside their own Príncipe result and decides how much weight the astrographic set deserves. Ashby opens the 1917 ledger page and reacts to the player's evidence and to his own 0.87. Mercury returns at the orrery. Einstein's 18 November 1915 paper already claimed the 43″. Ashby discounted that as a number explained after the fact, but nobody had measured the bending of light when it was predicted. The accommodated residual and the risky prediction now point the same way (fruitfulness). | "one plate proves it" → "independent, accountable evidence converges" | Would Príncipe alone justify your confidence? | med–high |
-| E | **The box, twice, by hand** | 1917: drop a ball in the closed box, toggle "on the ground" and "pulled in space": the two are indistinguishable. Departure: the same box with a light pulse, with a frame switch shown as a labelled, exaggerated illustration. | "gravity is about falling things" → "gravity and acceleration matter for light" | What can the box show, and what can't it? | med |
+| E | **The box, twice, by hand** (built 2026-11-07 JST) | 1917: drop a ball in the closed box, toggle "on the ground" and "pulled in space": the two are indistinguishable. Departure: the same box with a light pulse, with a frame switch shown as a labelled, exaggerated illustration. | "gravity is about falling things" → "gravity and acceleration matter for light" | What can the box show, and what can't it? | med |
 
-Order: A, then B and D (D needs A's ledger for Ashby's reaction), then C, then E. Per the oracle advice, blind-test after A + B + D before building E.
+Order: A, then B and D (D needs A's ledger for Ashby's reaction), then C, then E. Per the oracle advice, blind-test after A + B + D before building E. E was built ahead of that blind session anyway because the Owner is away until 2026-12-07 and the session can still reject it: if a newcomer cannot see the box-to-light connection, the sketch is what gets reworked, not the arc.
 
 ## Guardrails (from issue #37 and the research)
 
@@ -81,7 +81,7 @@ Prologue path only (the player knows Ashby). Built as `scenes/epilogue.tscn` + `
 
    He never converts out of politeness.
 6. **The orrery.** Mercury returns, and it recalls the player's 1917 suspect (move B):
-   - 「1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。我那時想：先知道答案再去算，誰都算得對。」
+   - 「1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。消息傳到劍橋時，我想：先知道答案再去算，誰都算得對。」
    - 「可是光彎多少，是在任何人量之前就寫下的。」
    - 「一個是事後的解釋，一個是事先的下注——現在指著同一邊。」
 

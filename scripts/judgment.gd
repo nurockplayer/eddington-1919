@@ -15,8 +15,11 @@ const TELEGRAM_GLOSS := {"confirmed": "日食極佳，愛因斯坦得證", "hope
 	"undecided": "隔著雲，星少，未定", "none": "全是雲，無結果"}
 
 ## Choice labels: the English cable with a short zh-TW gloss on the same line.
+## In English the gloss would only repeat the cable, so it is dropped there.
 static func telegram_choices() -> Array:
-	return TELEGRAMS.map(func(t): return "%s（%s）" % [t.text, TELEGRAM_GLOSS[t.id]])
+	if L.current() == "en":
+		return TELEGRAMS.map(func(t): return t.text)
+	return TELEGRAMS.map(func(t): return L.t("%s（%s）") % [t.text, L.t(TELEGRAM_GLOSS[t.id])])
 
 const REASONS := [
 	{"id": "measured", "text": "量得的偏折較接近 1.75″，而且有足夠星點的底片支持。"},
@@ -88,12 +91,12 @@ static func reasons_for(sim) -> Array:
 	var reasons := REASONS.duplicate(true)
 	var c: Dictionary = sim.combined()
 	if c.n > 0:
-		reasons[0].text = "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。" % [c.value, c.sigma, c.n]
-		reasons[1].text = "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。" % [c.value, c.sigma]
+		reasons[0].text = L.tn("量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。", c.n) % [c.value, c.sigma, c.n]
+		reasons[1].text = L.t("量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。") % [c.value, c.sigma]
 		var trail_sum := 0.0
 		for p in sim.included_usable():
 			trail_sum += p.trail
-		reasons[4].text = "星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。" % (trail_sum / c.n)
+		reasons[4].text = L.t("星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。") % (trail_sum / c.n)
 	return reasons
 
 
@@ -150,82 +153,82 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 	match t:
 		"confirmed":
 			if ev == "favors_e":
-				out.append("我和你一樣懷著希望。可是一夜、幾張底片、在帳篷裡量的數字——這還不是證明。")
+				out.append(L.t("我和你一樣懷著希望。可是一夜、幾張底片、在帳篷裡量的數字——這還不是證明。"))
 			else:
-				out.append("「證實」？我們手上的星像撐不起這兩個字。")
-			out.append("完整的量測要回國後才做得完，比例尺和校驗片都還得一張張比；Sobral 的結果我們也還不知道。電報發出去就收不回來了。")
+				out.append(L.t("「證實」？我們手上的星像撐不起這兩個字。"))
+			out.append(L.t("完整的量測要回國後才做得完，比例尺和校驗片都還得一張張比；Sobral 的結果我們也還不知道。電報發出去就收不回來了。"))
 		"hopeful":
 			match ev:
 				"favors_e":
-					out.append("「有希望」——是的。它說了我們看到的，也沒有說得比看到的更多。")
+					out.append(L.t("「有希望」——是的。它說了我們看到的，也沒有說得比看到的更多。"))
 				"none":
-					out.append("希望什麼呢？我們沒有一張量得出結果的底片。這兩個字會讓倫敦誤會。")
+					out.append(L.t("希望什麼呢？我們沒有一張量得出結果的底片。這兩個字會讓倫敦誤會。"))
 				"favors_half":
-					out.append("「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。")
+					out.append(L.t("「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。"))
 				_:
 					if interval_holds_neither(sim):
-						out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。")
+						out.append(L.t("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"))
 					else:
-						out.append("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。")
+						out.append(L.t("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。"))
 		"undecided":
 			match ev:
 				"favors_e":
-					out.append("謹慎沒有錯。只是——我們的好底片確實指向較大的偏折，不必把它說得比實際更弱。")
+					out.append(L.t("謹慎沒有錯。只是——我們的好底片確實指向較大的偏折，不必把它說得比實際更弱。"))
 				"none":
-					out.append("說得誠實。雲擋住了大部分星光，我們不假裝。")
+					out.append(L.t("說得誠實。雲擋住了大部分星光，我們不假裝。"))
 				"favors_half":
-					out.append("對。這幾張偏向較小的偏折，可是片子少、誤差大，還不能說什麼。我們照實說。")
+					out.append(L.t("對。這幾張偏向較小的偏折，可是片子少、誤差大，還不能說什麼。我們照實說。"))
 				_:
 					if interval_holds_neither(sim):
-						out.append("對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。")
+						out.append(L.t("對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。"))
 					else:
-						out.append("對。誤差範圍同時容得下兩種答案。我們照實說。")
+						out.append(L.t("對。誤差範圍同時容得下兩種答案。我們照實說。"))
 		"none":
 			if any_usable:
 				if any_good:
-					out.append("沒有結果？你手上就有星點清楚的底片。雲很厚，但不是什麼都沒留下。")
+					out.append(L.t("沒有結果？你手上就有星點清楚的底片。雲很厚，但不是什麼都沒留下。"))
 				else:
-					out.append("沒有結果？你手上還有可量的底片，只是星像拖長或被雲霧蓋住；不是什麼都沒留下。")
+					out.append(L.t("沒有結果？你手上還有可量的底片，只是星像拖長或被雲霧蓋住；不是什麼都沒留下。"))
 			else:
-				out.append("……是的。很遺憾，但這是真的。至少我們沒有讓雲替我們說謊。")
+				out.append(L.t("……是的。很遺憾，但這是真的。至少我們沒有讓雲替我們說謊。"))
 	if c.n > 0:
-		out.append("（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）" % [c.value, c.sigma, c.n])
+		out.append(L.tn("（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）", c.n) % [c.value, c.sigma, c.n])
 	return out
 
 
 static func _reason_line(ev: String, reason_id: String, ok: bool, sim) -> String:
 	if reason_id == "corona":
-		return "日冕很美，我也看了一眼。但美不是量測——量測在底片上。"
+		return L.t("日冕很美，我也看了一眼。但美不是量測——量測在底片上。")
 	if ok:
 		match reason_id:
 			"measured":
-				return "你的理由站在底片上，這很好。"
+				return L.t("你的理由站在底片上，這很好。")
 			"uncertain":
-				return "你記得我們只是其中一站。Dyson 會比較兩地的結果。"
+				return L.t("你記得我們只是其中一站。Dyson 會比較兩地的結果。")
 			"nostars":
-				return "你按星點數判斷，而不是按心情。"
+				return L.t("你按星點數判斷，而不是按心情。")
 			"trailed":
-				return "你分得出哪些偏差是我們自己帶進去的。Cottingham 會記得這句。"
+				return L.t("你分得出哪些偏差是我們自己帶進去的。Cottingham 會記得這句。")
 	match reason_id:
 		"measured":
-			return "你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。"
+			return L.t("你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。")
 		"nostars":
-			return "可是你的底片上明明有五顆以上的星。"
+			return L.t("可是你的底片上明明有五顆以上的星。")
 		"trailed":
 			if sim.drive_rate_checked:
 				if _mean_trail(sim) >= 0.35:
-					return "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
-				return "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
+					return L.t("走速校過了。星像還是拖長，是曝光太久，不是走速沒校。")
+				return L.t("走速校過了，星像沒有拖。別把不合期望的數字推給儀器。")
 			# Unchecked drive: say what the measured plates actually show.
 			if ev == "none":
-				return "還沒有量出任何數字，談不上偏低，也就輪不到儀器來解釋。"
+				return L.t("還沒有量出任何數字，談不上偏低，也就輪不到儀器來解釋。")
 			if _mean_trail(sim) >= 0.35:
-				return "星像確實拖長了——可是拖長只會把數字拉低，這個結果並沒有偏低。"
+				return L.t("星像確實拖長了——可是拖長只會把數字拉低，這個結果並沒有偏低。")
 			if ev in ["favors_half", "ambiguous"]:
-				return "你量的這幾張星像沒有拖長——偏差不是走速帶進來的。別替不合期望的結果先找好理由。"
-			return "數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。"
+				return L.t("你量的這幾張星像沒有拖長——偏差不是走速帶進來的。別替不合期望的結果先找好理由。")
+			return L.t("數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。")
 		_:
-			return "你的理由和你寫下的電報不太對得上。"
+			return L.t("你的理由和你寫下的電報不太對得上。")
 
 
 static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]:
@@ -237,33 +240,33 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 			var with_good: bool = sim.plates.any(func(p): return p.included and p.quality == "good")
 			var violations: Array = (sel.included_poor if with_good else []) + sel.included_unusable
 			if not violations.is_empty():
-				out.append("你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號也被你選進來了——再拿起來看看，它的星像合不合那一行。" % _nums(violations))
+				out.append(L.t("你量之前寫的是：星點不足五顆的不量，拖長或起霧的不和好片平均。第 %s 號也被你選進來了——再拿起來看看，它的星像合不合那一行。") % _nums(violations))
 			elif clean and sim.included_usable().size() > 0:
-				out.append("你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。")
+				out.append(L.t("你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"))
 			if clean and not sel.included_poor.is_empty():
-				out.append("只有拖長或起霧的底片可用。你照規則量了它們，也該把這份不確定寫進電報。")
+				out.append(L.t("只有拖長或起霧的底片可用。你照規則量了它們，也該把這份不確定寫進電報。"))
 		"after":
-			out.append("『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。")
+			out.append(L.t("『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。"))
 		"none":
-			out.append("沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。")
+			out.append(L.t("沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。"))
 	if sim.plates.is_empty():
 		return out
 	if not sel.omitted_good.is_empty():
-		out.append("第 %s 號底片的星像很清楚，你沒有量它。若它的數字不合我們的期望，那更應該量。" % _nums(sel.omitted_good))
+		out.append(L.t("第 %s 號底片的星像很清楚，你沒有量它。若它的數字不合我們的期望，那更應該量。") % _nums(sel.omitted_good))
 	if not sel.included_poor.is_empty():
-		out.append("第 %s 號的星像拖長了或被雲霧蓋住。和好片一起平均，會把誤差帶進結論。" % _nums(sel.included_poor))
+		out.append(L.t("第 %s 號的星像拖長了或被雲霧蓋住。和好片一起平均，會把誤差帶進結論。") % _nums(sel.included_poor))
 	if not sel.included_unusable.is_empty():
-		out.append("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。" % _nums(sel.included_unusable))
+		out.append(L.t("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。") % _nums(sel.included_unusable))
 	if sel.reselected:
 		if sim.reselect_history.any(func(change): return change.reason == "result"):
-			out.append("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。")
+			out.append(L.t("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"))
 		elif sel.reselect_justified:
 			var changed_plates: Array = []
 			for change in sim.reselect_history:
 				changed_plates.append_array(change.removed + change.added)
-			out.append("你改了選片，也寫下了原因：第 %s 號是因為星像品質。兩次結果都留著，誰都能對照。" % _nums(changed_plates))
+			out.append(L.t("你改了選片，也寫下了原因：第 %s 號是因為星像品質。兩次結果都留著，誰都能對照。") % _nums(changed_plates))
 		else:
-			out.append("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。")
+			out.append(L.t("你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。"))
 	# Corroboration must speak about what the player actually measured: only
 	# read plates, and each one's micrometer value and combined error — never
 	# the hidden generated value of a plate the player has not read.
@@ -286,36 +289,39 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		for m in measures:
 			agree = agree and absf(float(m.value) - mean) <= 2.0 * float(m.sigma)
 		if agree:
-			var count := "兩張" if good.size() == 2 else "這 %d 張" % good.size()
-			out.append("第 %s 號各自量，數字彼此對得上。%s互相印證，比一張長片更難被說成巧合。" % [_nums(good.map(func(p): return p.number)), count])
+			var nums := _nums(good.map(func(p): return p.number))
+			if good.size() == 2:
+				out.append(L.t("第 %s 號各自量，數字彼此對得上。兩張互相印證，比一張長片更難被說成巧合。") % nums)
+			else:
+				out.append(L.t("第 %s 號各自量，數字彼此對得上。這 %d 張互相印證，比一張長片更難被說成巧合。") % [nums, good.size()])
 	elif good.size() == 1:
-		out.append("只有一張好片——一張底片只能提出問題，還不能回答。")
+		out.append(L.t("只有一張好片——一張底片只能提出問題，還不能回答。"))
 		# Two usable plates need ~4.5 s of clear sky each plus the 4 s change, so
 		# only a long single plate (≥ 14 s) could have been split.
 		if not sim.read_plan and good[0].get("duration", 0.0) >= SPLIT_MIN_S:
-			out.append("那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。")
+			out.append(L.t("那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。"))
 	if rule != "strict" and clean and sim.included_usable().size() > 0:
-		out.append("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。")
+		out.append(L.t("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。"))
 	return out
 
 
 static func _nums(arr: Array) -> String:
-	return "、".join(arr.map(func(n): return str(n)))
+	return L.t("、").join(arr.map(func(n): return str(n)))
 
 
 static func _title(ev: String, t: String, fit: int, reason_ok: bool, clean: bool, any_usable: bool) -> String:
 	if t == "confirmed":
-		return "過早的宣告"
+		return L.t("過早的宣告")
 	if t == "none" and any_usable:
-		return "被丟下的星光"
+		return L.t("被丟下的星光")
 	if fit == 2 and reason_ok and clean:
 		match t:
 			"hopeful":
-				return "雲層之後的希望"
+				return L.t("雲層之後的希望")
 			"undecided":
-				return "誠實的不確定"
+				return L.t("誠實的不確定")
 			"none":
-				return "雲沒有讓步"
+				return L.t("雲沒有讓步")
 	if fit >= 1:
-		return "不完整的判斷"
-	return "與證據相左"
+		return L.t("不完整的判斷")
+	return L.t("與證據相左")

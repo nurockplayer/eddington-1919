@@ -2,6 +2,7 @@ extends CanvasLayer
 
 const Prompts := preload("res://scripts/prompts.gd")
 const Fonts := preload("res://scripts/fonts.gd")
+const L := preload("res://scripts/l10n.gd")
 const Credits := preload("res://scripts/credits.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Settings := preload("res://scripts/settings.gd")
@@ -16,6 +17,7 @@ var music_ready_usec := 0
 signal dialogue_done(results: Dictionary)
 signal dialogue_entry(speaker: String)
 signal prologue_pressed
+signal continue_pressed
 signal log_toggled(open: bool)
 signal pause_toggled(paused: bool)
 signal start_pressed
@@ -66,8 +68,11 @@ var caption: Label
 var title_panel: Control
 var title_controls: Label
 var prologue_btn: Button
+## Only built when a chapter checkpoint exists, so the row keeps its usual buttons.
+var continue_btn: Button
 var start_btn: Button
 var title_note: Label
+var _title_row: HFlowContainer
 var log_panel: PanelContainer
 var log_text: RichTextLabel
 var log_scroll: ScrollContainer
@@ -109,6 +114,7 @@ var _title_focus_modes: Array[int] = []
 var fullscreen_button: Button
 var text_size_button: Button
 var quality_button: Button
+var language_button: Button
 var hold_button: Button
 var restart_button: Button
 var quit_button: Button
@@ -131,7 +137,7 @@ var loupe_btn: Button
 var blink_btn: Button
 var blink_label: Label
 var mic_btn: Button
-var mic_row: HBoxContainer
+var mic_row: HFlowContainer
 var mic_record_btn: Button
 var mic_readout: Label
 var mic_note: Label
@@ -158,6 +164,7 @@ var measure_btn: Button
 var reselect_btn: Button
 var report_btn: Button
 var chart: Control
+var _viewer_right: VBoxContainer
 var viewer_rule: RichTextLabel
 var viewer_note: RichTextLabel
 var viewer_sfx_log: Array[String] = []
@@ -236,7 +243,7 @@ func _panel_style(bg: Color, border := Color(0, 0, 0, 0)) -> StyleBoxFlat:
 
 
 func _text_size_caption() -> String:
-	return "文字大小：" + ["小", "標準", "大"][Settings.TEXT_SCALES.find(Settings.text_scale)]
+	return L.t("文字大小：%s") % [L.t("小"), L.t("標準"), L.t("大")][Settings.TEXT_SCALES.find(Settings.text_scale)]
 
 
 func _cycle_text_size() -> void:
@@ -244,11 +251,21 @@ func _cycle_text_size() -> void:
 	theme_res.default_font_size = Settings.fs(21)
 	Settings.refresh_fonts(get_tree())
 	chart.refresh_fonts()
+	_layout_viewer()
 	text_size_button.text = _text_size_caption()
 
 
+func _language_caption() -> String:
+	return L.t("語言：%s") % L.NAMES[L.current()]
+
+
+func _cycle_language() -> void:
+	L.cycle()
+	get_tree().reload_current_scene()
+
+
 func _quality_caption() -> String:
-	return "畫質：低" if Settings.quality == "low" else "畫質：標準"
+	return L.t("畫質：低") if Settings.quality == "low" else L.t("畫質：標準")
 
 
 func _cycle_quality() -> void:
@@ -363,7 +380,7 @@ func _build_hud(root: Control) -> void:
 	tot_strip = Strip.new()
 	tot_strip.custom_minimum_size = Vector2(394, 32)
 	tot_box.add_child(tot_strip)
-	tot_hint = _label("［空白鍵／E／左鍵］開始・停", 16, DIM)
+	tot_hint = _label(L.t("［空白鍵／E／左鍵］開始・停"), 16, DIM)
 	tot_box.add_child(tot_hint)
 	# In the panel's VBox so the (variable-height) header can never overlap it.
 	callout = _label("", 19, PAPER)
@@ -394,7 +411,7 @@ func show_toast(text: String, seconds := 4.0) -> void:
 	toast.text = text
 	toast.modulate.a = 1.0
 	_toast_t = seconds
-	_append_history("・" + text)
+	_append_history(L.t("・") + text)
 
 
 ## Toasts vanish on a timer; the log is where a slow reader reads them again.
@@ -500,7 +517,7 @@ func _build_dialog(root: Control) -> void:
 	choice_box = VBoxContainer.new()
 	choice_box.add_theme_constant_override("separation", 6)
 	v.add_child(choice_box)
-	hint_label = _label("［E／空白鍵／點擊］繼續", 16, DIM)
+	hint_label = _label(L.t("［E／空白鍵／點擊］繼續"), 16, DIM)
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	v.add_child(hint_label)
 	dialogue_portrait = DialoguePortrait.new()
@@ -551,10 +568,10 @@ func play(seq: Array) -> void:
 
 func _show_entry() -> void:
 	var e: Dictionary = _seq[_seq_i]
-	history.append("%s：%s" % [e.get("s", ""), e.get("t", "")])
+	history.append(L.t("%s：%s") % [L.t(str(e.get("s", ""))), e.get("t", "")])
 	if history.size() > 60:
 		history.pop_front()
-	speaker_label.text = e.get("s", "")
+	speaker_label.text = L.t(str(e.get("s", "")))
 	text_label.text = e.get("t", "")
 	if cambridge_portraits:
 		_layout_dialogue_portrait()
@@ -565,7 +582,7 @@ func _show_entry() -> void:
 		b.queue_free()
 	_choice_buttons.clear()
 	var choices: Array = e.get("choices", [])
-	hint_label.text = "［1–%d 或點擊］選擇" % choices.size() if choices.size() > 0 else "［E／空白鍵／點擊］繼續"
+	hint_label.text = L.t("［1–%d 或點擊］選擇") % choices.size() if choices.size() > 0 else L.t("［E／空白鍵／點擊］繼續")
 	for i in choices.size():
 		var b := _button("%d.  %s" % [i + 1, choices[i]])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -581,7 +598,7 @@ func _show_entry() -> void:
 
 func _choose(i: int) -> void:
 	var e: Dictionary = _seq[_seq_i]
-	history.append("你：" + str(e.choices[i]))
+	history.append(L.t("你：%s") % str(e.choices[i]))
 	if history.size() > 60:
 		history.pop_front()
 	_results[e.get("key", str(_seq_i))] = i
@@ -664,7 +681,7 @@ func set_callout(text: String, seconds := 3.5) -> void:
 	callout.modulate.a = 1.0 if text != "" else 0.0
 	_callout_t = seconds if text != "" else 0.0
 	if text != "":
-		_append_history("・" + text)
+		_append_history(L.t("・") + text)
 
 
 func set_clock(text: String) -> void:
@@ -675,7 +692,12 @@ func set_clock(text: String) -> void:
 
 func _build_viewer(root: Control) -> void:
 	viewer = PanelContainer.new()
-	viewer.add_theme_stylebox_override("panel", _panel_style(Color(0.05, 0.045, 0.04, 1.0)))
+	var viewer_style := _panel_style(Color(0.05, 0.045, 0.04, 1.0))
+	# Two of the sixteen bottom margin pixels go back to the content: the left
+	# column needs 870 px of the 900 at text scale 1.2 with the longest language,
+	# and the columns are laid out from the top, so nothing else moves.
+	viewer_style.content_margin_bottom = 14.0
+	viewer.add_theme_stylebox_override("panel", viewer_style)
 	viewer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	viewer.visible = false
 	root.add_child(viewer)
@@ -686,9 +708,9 @@ func _build_viewer(root: Control) -> void:
 	var left := VBoxContainer.new()
 	left.custom_minimum_size = Vector2(458, 0)
 	h.add_child(left)
-	left.add_child(_label("已沖洗的底片", 24, ACCENT))
-	left.add_child(_label("點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。", 16, DIM))
-	reference_btn = _button("參考底片")
+	left.add_child(_label(L.t("已沖洗的底片"), 24, ACCENT))
+	left.add_child(_label(L.t("點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。"), 16, DIM))
+	reference_btn = _button(L.t("參考底片"))
 	reference_btn.toggle_mode = true
 	left.add_child(reference_btn)
 	reference_panel = PanelContainer.new()
@@ -737,7 +759,7 @@ func _build_viewer(root: Control) -> void:
 	plate_info = _rich(18)
 	mid.add_child(plate_info)
 	include_box = CheckBox.new()
-	include_box.text = "納入量測"
+	include_box.text = L.t("納入量測")
 	Settings.track_font(include_box, 20)
 	include_box.add_theme_color_override("font_color", PAPER)
 	include_box.focus_mode = Control.FOCUS_ALL
@@ -746,17 +768,19 @@ func _build_viewer(root: Control) -> void:
 			_viewer_sound("mark")
 			plate_toggled.emit(_viewer_sel, on)
 	)
-	var plate_controls := HBoxContainer.new()
+	# A flow row, not a box: longer text in another language wraps onto a second
+	# line instead of widening the middle column past the viewport.
+	var plate_controls := HFlowContainer.new()
 	mid.add_child(plate_controls)
 	plate_controls.add_child(include_box)
-	loupe_btn = _button("放大鏡 ×2")
+	loupe_btn = _button(L.t("放大鏡 ×2"))
 	loupe_btn.toggle_mode = true
-	loupe_btn.tooltip_text = "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
+	loupe_btn.tooltip_text = L.t("借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。")
 	loupe_btn.toggled.connect(_set_loupe)
 	plate_controls.add_child(loupe_btn)
-	blink_btn = _button("閃爍比對")
+	blink_btn = _button(L.t("閃爍比對"))
 	blink_btn.toggle_mode = true
-	blink_btn.tooltip_text = "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
+	blink_btn.tooltip_text = L.t("每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。")
 	blink_btn.toggled.connect(_set_blink)
 	plate_controls.add_child(blink_btn)
 	# The micrometer sits on its own row under the loupe/blink buttons: a fourth
@@ -764,31 +788,37 @@ func _build_viewer(root: Control) -> void:
 	# and pushed the chart past the viewport's right edge.
 	var mic_bar := HBoxContainer.new()
 	mid.add_child(mic_bar)
-	mic_btn = _button("測微器")
+	mic_btn = _button(L.t("測微器"))
 	mic_btn.toggle_mode = true
-	mic_btn.tooltip_text = "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
+	mic_btn.tooltip_text = L.t("顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。")
 	mic_btn.toggled.connect(_set_micrometer)
 	mic_bar.add_child(mic_btn)
-	mic_row = HBoxContainer.new()
+	# A flow row as well: the readout label grows with a longer language, and a box
+	# would widen the middle column instead of dropping it under the record button.
+	mic_row = HFlowContainer.new()
 	mic_row.visible = false
 	mic_bar.add_child(mic_row)
-	mic_record_btn = _button("記下讀數")
+	mic_record_btn = _button(L.t("記下讀數"))
 	mic_record_btn.pressed.connect(_record_micrometer)
 	mic_row.add_child(mic_record_btn)
-	mic_readout = _label("讀數：0.00 格", 16, ACCENT)
+	mic_readout = _label(L.t("讀數：0.00 格"), 16, ACCENT)
 	mic_readout.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	mic_row.add_child(mic_readout)
-	mic_note = _label("位移為示意放大；真實的位移比一個星點還小得多。", 14, DIM)
+	mic_note = _label(L.t("位移為示意放大；真實的位移比一個星點還小得多。"), 14, DIM)
 	mic_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mic_note.visible = false
 	mid.add_child(mic_note)
 	# Right: chart + actions.
 	var right := VBoxContainer.new()
+	_viewer_right = right
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.add_theme_constant_override("separation", 10)
 	h.add_child(right)
-	right.add_child(_label("星光偏折（太陽邊緣，角秒）", 22, ACCENT))
+	var deflection_header := _label(L.t("星光偏折（太陽邊緣，角秒）"), 22, ACCENT)
+	deflection_header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	right.add_child(deflection_header)
 	viewer_rule = _rich(15)
+	viewer_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	viewer_rule.visible = false
 	right.add_child(viewer_rule)
 	chart = preload("res://scripts/chart.gd").new()
@@ -799,25 +829,30 @@ func _build_viewer(root: Control) -> void:
 	btns.add_theme_constant_override("h_separation", 10)
 	btns.add_theme_constant_override("v_separation", 10)
 	right.add_child(btns)
-	measure_btn = _button("量測所選底片")
+	measure_btn = _button(L.t("量測所選底片"))
 	measure_btn.pressed.connect(func():
 		_viewer_sound("measure")
 		measure_pressed.emit()
 	)
 	btns.add_child(measure_btn)
-	reselect_btn = _button("重新選片")
+	reselect_btn = _button(L.t("重新選片"))
 	reselect_btn.pressed.connect(func():
 		_viewer_sound("mark")
 		reselect_pressed.emit()
 	)
 	btns.add_child(reselect_btn)
-	report_btn = _button("向 Eddington 報告 →")
+	report_btn = _button(L.t("向 Eddington 報告 →"))
 	report_btn.pressed.connect(func(): report_pressed.emit())
 	btns.add_child(report_btn)
-	var close := _button("離開桌子")
+	var close := _button(L.t("離開桌子"))
 	close.pressed.connect(func(): viewer_closed.emit())
 	btns.add_child(close)
-	var model_note := _label("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。", 15, DIM)
+	# Wrap and share the column width: a long label must not widen the grid and
+	# push the column past the viewport.
+	for b: Button in [measure_btn, reselect_btn, report_btn, close]:
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var model_note := _label(L.t("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"), 15, DIM)
 	model_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(model_note)
 	viewer.resized.connect(_layout_viewer)
@@ -834,6 +869,43 @@ func _layout_viewer() -> void:
 	plate_stage.custom_minimum_size = Vector2(470.0 + extra, 460.0 + extra)
 	big_plate.custom_minimum_size = Vector2.ONE * (460.0 + extra)
 	chart.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
+	_fit_chart_height()
+	_fit_chart_width()
+
+
+## The chart is the one control in its column that can give way: when the labels
+## above and below it grow with a longer language, the chart gets shorter rather
+## than pushing the column past the bottom of the screen.
+func _fit_chart_height() -> void:
+	if _viewer_right == null:
+		return
+	var room := get_viewport().get_visible_rect().size.y - 30.0
+	var labels := 0.0
+	var shown := 0
+	for c: Control in _viewer_right.get_children():
+		if c == chart or not c.visible:
+			continue
+		labels += c.get_combined_minimum_size().y
+		shown += 1
+	labels += 10.0 * maxi(shown, 1)
+	chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, maxf(280.0, room - labels))
+
+
+## The same for width: the thumbnails and the plate columns keep their size, and
+## the chart takes up the slack when the two columns beside it grow.
+func _fit_chart_width() -> void:
+	if _viewer_right == null or chart == null:
+		return
+	var row := _viewer_right.get_parent() as HBoxContainer
+	var others := 0.0
+	var columns := 0
+	for c: Control in row.get_children():
+		if c != _viewer_right:
+			others += c.get_combined_minimum_size().x
+			columns += 1
+	others += row.get_theme_constant("separation") * maxi(columns, 1)
+	var room := get_viewport().get_visible_rect().size.x - 32.0 - others
+	chart.custom_minimum_size.x = minf(chart.custom_minimum_size.x, maxf(480.0, room))
 
 
 func _build_reference_plates() -> void:
@@ -842,7 +914,7 @@ func _build_reference_plates() -> void:
 	var examples := HBoxContainer.new()
 	examples.add_theme_constant_override("separation", 4)
 	card.add_child(examples)
-	var captions := ["星點清楚：小而圓", "拖長：每顆星都拉成同方向的短線（時鐘走速不準）", "起霧：雲光蓋住，星點淡、數得到的少"]
+	var captions := [L.t("星點清楚：小而圓"), L.t("拖長：每顆星都拉成同方向的短線（時鐘走速不準）"), L.t("起霧：雲光蓋住，星點淡、數得到的少")]
 	var kinds := ["sharp", "trailed", "fogged"]
 	for i in kinds.size():
 		var column := VBoxContainer.new()
@@ -857,8 +929,8 @@ func _build_reference_plates() -> void:
 		var caption_label := _label(captions[i], 15)
 		caption_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		column.add_child(caption_label)
-	card.add_child(_label("示意圖，不是你的底片。", 15, DIM))
-	reference_close_btn = _button("收起參考")
+	card.add_child(_label(L.t("示意圖，不是你的底片。"), 15, DIM))
+	reference_close_btn = _button(L.t("收起參考"))
 	reference_close_btn.pressed.connect(func(): reference_btn.button_pressed = false)
 	card.add_child(reference_close_btn)
 
@@ -922,7 +994,7 @@ func _set_blink(on: bool) -> void:
 
 func _update_blink() -> void:
 	big_plate.texture.atlas = _comparison_texture if _blink_oxford else _plate_texture
-	blink_label.text = "牛津（無日）" if _blink_oxford else "第 %d 號（全食）・位移已放大（示意）" % _viewer_plates[_viewer_sel].number
+	blink_label.text = L.t("牛津（無日）") if _blink_oxford else L.t("第 %d 號（全食）・位移已放大（示意）") % _viewer_plates[_viewer_sel].number
 
 
 # ------------------------------------------------------- Micrometer (arc C)
@@ -1011,7 +1083,7 @@ func _sync_micrometer_controls() -> void:
 
 
 func _update_micrometer() -> void:
-	mic_readout.text = "讀數：%.2f 格" % micrometer_px
+	mic_readout.text = L.t("讀數：%.2f 格") % micrometer_px
 	mic_overlay.queue_redraw()
 
 
@@ -1064,7 +1136,7 @@ func _draw_micrometer() -> void:
 	mic_overlay.draw_line(cross - across * 9.0, cross + across * 9.0, ACCENT, 1.5)
 	mic_overlay.draw_line(cross - along * 9.0, cross + along * 9.0, ACCENT, 1.5)
 	var label_pos := night - along * 34.0 + across * 12.0
-	mic_overlay.draw_string(font, label_pos, "夜裡的位置", HORIZONTAL_ALIGNMENT_LEFT, -1,
+	mic_overlay.draw_string(font, label_pos, L.t("夜裡的位置"), HORIZONTAL_ALIGNMENT_LEFT, -1,
 		Settings.fs(13), Color(0.74, 0.84, 0.96, 0.9))
 
 
@@ -1111,7 +1183,7 @@ func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, lock
 	_viewer_plates = plates
 	for c in thumbs.get_children():
 		c.queue_free()
-	var comp := _thumb(comparison_tex, "牛津比對片")
+	var comp := _thumb(comparison_tex, L.t("牛津比對片"))
 	comp.pressed.connect(_select_plate.bind(-2, comparison_tex))
 	thumbs.add_child(comp)
 	for i in plates.size():
@@ -1198,7 +1270,7 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 
 func _thumb_text(i: int) -> String:
 	var p: Dictionary = _viewer_plates[i]
-	return "第 %d 號%s%s" % [p.number, " ✓" if p.included else "", " ✓讀" if p.get("read", false) else ""]
+	return L.t("第 %d 號%s%s") % [p.number, " ✓" if p.included else "", L.t(" ✓讀") if p.get("read", false) else ""]
 
 
 func refresh_thumbs() -> void:
@@ -1230,7 +1302,7 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 			loupe_btn.set_pressed_no_signal(true)
 			_set_loupe(true)
 	if i == -2:
-		plate_info.text = "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
+		plate_info.text = L.t("[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。")
 		if comparison_recall != "":
 			plate_info.text += "\n[i]%s[/i]" % comparison_recall
 		include_box.visible = false
@@ -1240,36 +1312,36 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	include_box.set_pressed_no_signal(p.included)
 	include_box.disabled = _viewer_locked
 	var lines := []
-	lines.append("[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）" % [p.number, p.duration, int(p.start)])
+	lines.append(L.t("[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）") % [p.number, p.duration, int(p.start)])
 	if not p.sunlit and p.duration >= 0.5 and p.has("stars"):
-		var stars_line := "可辨識的星點：%d 顆" % p.stars
+		var stars_line := L.t("可辨識的星點：%d 顆") % p.stars
 		lines.append("[color=#e88]%s[/color]" % stars_line if p.stars < 5 else stars_line)
 	if not p.sunlit and p.get("sky_read", "") != "":
 		lines.append(Content.totality_read_night(p.sky_read))
 	if not p.sunlit and p.duration >= 0.5 and drive_note != "":
 		lines.append(drive_note)
 	if p.sunlit:
-		lines.append("[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]")
+		lines.append(L.t("[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]"))
 	if p.duration < 0.5:
-		lines.append("[color=#e88]幾乎沒有曝光。[/color]")
+		lines.append(L.t("[color=#e88]幾乎沒有曝光。[/color]"))
 	if _viewer_locked:
 		match p.get("quality", ""):
 			"good":
-				lines.append("星像清楚。")
+				lines.append(L.t("星像清楚。"))
 			"poor":
-				lines.append("[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]")
+				lines.append(L.t("[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]"))
 	if _viewer_locked and p.included and p.usable and p.get("read", false) and measurement_of.is_valid():
 		var m: Dictionary = measurement_of.call(p)
-		lines.append("讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]" % [p.reading, m.value, m.sigma])
+		lines.append(L.t("讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]") % [p.reading, m.value, m.sigma])
 	elif _viewer_locked and p.included and p.usable and p.get("read", false):
-		lines.append("已記下讀數：%.2f 格。" % p.reading)
+		lines.append(L.t("已記下讀數：%.2f 格。") % p.reading)
 	elif _viewer_locked and p.included and p.usable:
-		lines.append("[color=#fd8]這張還沒讀數——用測微器對好參考星再記下，才會算進結果。[/color]")
+		lines.append(L.t("[color=#fd8]這張還沒讀數——用測微器對好參考星再記下，才會算進結果。[/color]"))
 	elif _viewer_locked and p.included and not p.usable:
-		lines.append("[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]")
+		lines.append(L.t("[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]"))
 	plate_info.text = "\n".join(lines)
 	if not blink_btn.disabled and not _blink_hint_shown:
-		plate_info.text += "\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。"
+		plate_info.text += L.t("\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。")
 		_blink_hint_shown = true
 
 
@@ -1291,8 +1363,6 @@ func set_viewer_locked(locked: bool) -> void:
 
 func set_viewer_report(reporting: bool) -> void:
 	_viewer_reporting = reporting
-	# Leave room for the five-reason dialogue at 1600×900 with large text.
-	_layout_viewer()
 	if reporting:
 		_set_loupe(false)
 	viewer_rule.visible = reporting and viewer_rule.text != ""
@@ -1309,6 +1379,9 @@ func set_viewer_report(reporting: bool) -> void:
 		_set_micrometer(false)
 	mic_row.visible = micrometer_on
 	mic_note.visible = micrometer_on
+	# Leave room for the five-reason dialogue at 1600×900 with large text, once
+	# the rule above has taken its place in the column.
+	_layout_viewer()
 	reference_btn.set_pressed_no_signal(false)
 	reference_panel.hide()
 	set_viewer_locked(true if reporting else _viewer_locked)
@@ -1355,19 +1428,17 @@ func _build_title(root: Control) -> void:
 	v.custom_minimum_size = Vector2(920, 0)
 	v.add_theme_constant_override("separation", 14)
 	title_panel.add_child(v)
-	var t := _label("雲層之後", 64, PAPER)
+	var t := _label(L.t("雲層之後"), 64, PAPER)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(t)
-	var st := _label("劍橋，1917 → 普林西比，1919", 26, ACCENT)
+	var st := _label(L.t("劍橋，1917 → 普林西比，1919"), 26, ACCENT)
 	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(st)
 	var body := _rich(19)
-	body.text = ("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n"
-		+ "有人會說，對不上的東西就是假的。\n"
-		+ "兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n")
+	body.text = L.t("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n")
 	v.add_child(body)
 	var disclaimer := _rich(15)
-	disclaimer.text = "[color=#8f8676]" + Credits.DISCLAIMER + "[/color]"
+	disclaimer.text = "[color=#8f8676]" + L.t(Credits.DISCLAIMER) + "[/color]"
 	v.add_child(disclaimer)
 	title_controls = _label("", 18, DIM)
 	title_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1375,32 +1446,47 @@ func _build_title(root: Control) -> void:
 	# Steam Deck starts on the pad, so the first hints must already name its buttons.
 	Prompts.joypad = not Input.get_connected_joypads().is_empty()
 	_refresh_hints()
-	title_note = _label("第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。", 15, Color("8f8676"))
+	title_note = _label(L.t("第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。"), 15, Color("8f8676"))
 	title_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_note.custom_minimum_size.x = 920
 	v.add_child(title_note)
-	var hb := HBoxContainer.new()
-	hb.alignment = BoxContainer.ALIGNMENT_CENTER
-	hb.add_theme_constant_override("separation", 20)
+	# A flow row, not a box: the buttons move to a second row when a longer
+	# language cannot fit them across, and stay on one row in zh-TW.
+	var hb := HFlowContainer.new()
+	hb.alignment = FlowContainer.ALIGNMENT_CENTER
+	# A flow reads h_separation/v_separation, not the box's separation: 20 on both
+	# axes keeps the single row exactly where the box had it.
+	hb.add_theme_constant_override("h_separation", 20)
+	hb.add_theme_constant_override("v_separation", 20)
 	v.add_child(hb)
-	prologue_btn = _button("開始遊戲：序章・劍橋，1917")
+	_title_row = hb
+	var chapter := Checkpoint.peek()
+	if chapter != "":
+		continue_btn = _button(L.t(Checkpoint.label(chapter)))
+		continue_btn.pressed.connect(func(): continue_pressed.emit())
+		hb.add_child(continue_btn)
+	prologue_btn = _button(L.t("開始遊戲：序章・劍橋，1917"))
 	prologue_btn.pressed.connect(func(): prologue_pressed.emit())
 	hb.add_child(prologue_btn)
-	start_btn = _button("只玩尾章：普林西比，1919")
+	start_btn = _button(L.t("只玩尾章：普林西比，1919"))
 	start_btn.pressed.connect(func(): start_pressed.emit())
 	hb.add_child(start_btn)
-	var credits := _button("製作名單")
+	var credits := _button(L.t("製作名單"))
 	credits.focus_mode = Control.FOCUS_ALL
 	credits.pressed.connect(_open_credits)
 	hb.add_child(credits)
-	_settings_button = _button("設定")
+	_settings_button = _button(L.t("設定"))
 	_settings_button.focus_mode = Control.FOCUS_ALL
 	_settings_button.pressed.connect(open_settings)
 	hb.add_child(_settings_button)
-	var q := _button("　離開　")
+	var q := _button(L.t("　離開　"))
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
+	_fit_title_row()
+	get_viewport().size_changed.connect(_fit_title_row)
+	for b: Control in hb.get_children():
+		b.minimum_size_changed.connect(_fit_title_row)
 	var version := _label("v" + str(ProjectSettings.get_setting("application/config/version")), 15, Color("8f8676"))
 	version.name = "Version"
 	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -1408,7 +1494,28 @@ func _build_title(root: Control) -> void:
 	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	version.position -= version.get_minimum_size() + Vector2(24, 18)
 	version.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	prologue_btn.grab_focus()
+	(continue_btn if continue_btn != null else prologue_btn).grab_focus()
+
+
+## As wide as the buttons on one line, up to the room this row has on screen: one
+## row whenever they fit, as the box it replaced did; the flow wraps only when a
+## language cannot fit.
+func _fit_title_row() -> void:
+	if _title_row == null:
+		return
+	var one_line := 0.0
+	var shown := 0
+	for b: Control in _title_row.get_children():
+		if not b.visible:
+			continue
+		one_line += b.get_combined_minimum_size().x
+		shown += 1
+	one_line += 20.0 * maxi(shown - 1, 0)
+	# The title block is anchored at the centre with a fixed -460 offset (see
+	# _build_title), so the row can grow right only to the viewport's edge.
+	var screen := get_viewport().get_visible_rect().size.x
+	var room := screen - (screen * 0.5 - 460.0) - 8.0
+	_title_row.custom_minimum_size.x = minf(ceilf(one_line), room)
 
 
 func hide_title() -> void:
@@ -1497,14 +1604,14 @@ func _build_ending(root: Control) -> void:
 	ending_text = _rich(19)
 	ending_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_child(ending_text)
-	ending_review_toggle = _button("回顧證據與評語")
+	ending_review_toggle = _button(L.t("回顧證據與評語"))
 	ending_review_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	ending_review_toggle.pressed.connect(_toggle_ending_review)
 	ending_review = _rich(19)
 	ending_review.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ending_review.visible = false
 	v.add_child(ending_review)
-	ending_history_toggle = _button("歷史上發生了什麼")
+	ending_history_toggle = _button(L.t("歷史上發生了什麼"))
 	ending_history_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	ending_history_toggle.pressed.connect(_toggle_ending_history)
 	ending_history = _rich(17)
@@ -1522,7 +1629,7 @@ func _build_ending(root: Control) -> void:
 	hb.add_theme_constant_override("h_separation", 8)
 	hb.add_theme_constant_override("v_separation", 12)
 	ending_panel.add_child(hb)
-	var replay_hint := _label("重玩從 1919 年 5 月 29 日的準備開始；上一回的紀錄會留著，結尾會和這一回並排比較。", 16, DIM)
+	var replay_hint := _label(L.t("重玩從 1919 年 5 月 29 日的準備開始；上一回的紀錄會留著，結尾會和這一回並排比較。"), 16, DIM)
 	replay_hint.name = "EndingReplayHint"
 	replay_hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	replay_hint.offset_left = 20
@@ -1541,20 +1648,20 @@ func _build_ending(root: Control) -> void:
 	hb.minimum_size_changed.connect(place_row)
 	replay_hint.minimum_size_changed.connect(place_row)
 	hb.resized.connect(place_row)
-	var same := _button("同一片雲：換個做法，再量一次")
+	var same := _button(L.t("同一片雲：換個做法，再量一次"))
 	ending_replay = same
 	same.pressed.connect(func(): restart_pressed.emit(true))
 	hb.add_child(same)
 	hb.add_child(ending_review_toggle)
 	hb.add_child(ending_history_toggle)
-	var fresh := _button("新的天空：換一種雲況")
+	var fresh := _button(L.t("新的天空：換一種雲況"))
 	fresh.pressed.connect(func(): restart_pressed.emit(false))
 	hb.add_child(fresh)
-	var credits := _button("製作名單")
+	var credits := _button(L.t("製作名單"))
 	credits.focus_mode = Control.FOCUS_ALL
 	credits.pressed.connect(_open_credits)
 	hb.add_child(credits)
-	var q := _button("離開")
+	var q := _button(L.t("離開"))
 	q.pressed.connect(func(): quit_pressed.emit())
 	hb.add_child(q)
 	# Right/left traverse visual reading order even across a wrapped line.
@@ -1568,7 +1675,7 @@ func _build_ending(root: Control) -> void:
 			b.focus_previous = b.focus_neighbor_left
 			b.focus_next = b.focus_neighbor_right
 	)
-	var hint := _label("↑↓ 或右搖桿：捲動", 16, DIM)
+	var hint := _label(L.t("↑↓ 或右搖桿：捲動"), 16, DIM)
 	hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	hint.position = Vector2(-220, -32)
 	hint.size = Vector2(440, 24)
@@ -1606,12 +1713,12 @@ func _build_credits(root: Control) -> void:
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.text = Credits.text()
 	scroll.add_child(content)
-	var back := _button("返回")
+	var back := _button(L.t("返回"))
 	back.focus_mode = Control.FOCUS_ALL
 	back.add_theme_stylebox_override("focus", back.get_theme_stylebox("hover"))
 	back.pressed.connect(_close_credits)
 	v.add_child(back)
-	var hint := _label("↑↓ 或右搖桿：捲動", 16, DIM)
+	var hint := _label(L.t("↑↓ 或右搖桿：捲動"), 16, DIM)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(hint)
 
@@ -1644,11 +1751,11 @@ func show_ending(title: String, bb: String, history_bb := "", review_bb := "", t
 	ending_review.text = review_bb
 	ending_review.visible = false
 	ending_review_toggle.visible = not review_bb.is_empty()
-	ending_review_toggle.text = "回顧證據與評語"
+	ending_review_toggle.text = L.t("回顧證據與評語")
 	ending_history.text = history_bb
 	ending_history.visible = false
 	ending_history_toggle.visible = not history_bb.is_empty()
-	ending_history_toggle.text = "歷史上發生了什麼"
+	ending_history_toggle.text = L.t("歷史上發生了什麼")
 	ending_panel.visible = true
 	ending_replay.grab_focus()
 	ending_scroll.scroll_vertical = 0
@@ -1658,12 +1765,12 @@ func show_ending(title: String, bb: String, history_bb := "", review_bb := "", t
 
 func _toggle_ending_review() -> void:
 	ending_review.visible = not ending_review.visible
-	ending_review_toggle.text = "收起回顧" if ending_review.visible else "回顧證據與評語"
+	ending_review_toggle.text = L.t("收起回顧") if ending_review.visible else L.t("回顧證據與評語")
 
 
 func _toggle_ending_history() -> void:
 	ending_history.visible = not ending_history.visible
-	ending_history_toggle.text = "收起歷史" if ending_history.visible else "歷史上發生了什麼"
+	ending_history_toggle.text = L.t("收起歷史") if ending_history.visible else L.t("歷史上發生了什麼")
 
 
 func _build_pause(root: Control) -> void:
@@ -1689,10 +1796,10 @@ func _build_pause(root: Control) -> void:
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_theme_constant_override("separation", 4)
 	scroll.add_child(v)
-	_pause_heading = _label("暫停", 36)
+	_pause_heading = _label(L.t("暫停"), 36)
 	_pause_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(_pause_heading)
-	var r := _button("繼續")
+	var r := _button(L.t("繼續"))
 	_resume_button = r
 	r.pressed.connect(func():
 		if _settings_only:
@@ -1700,15 +1807,15 @@ func _build_pause(root: Control) -> void:
 		else:
 			toggle_pause())
 	v.add_child(r)
-	music_button = _button("音樂：開" if ScorePlayer.music_enabled() else "音樂：關")
+	music_button = _button(L.t("音樂：開") if ScorePlayer.music_enabled() else L.t("音樂：關"))
 	music_button.pressed.connect(func():
 		ScorePlayer.set_music_enabled(not ScorePlayer.music_enabled())
-		music_button.text = "音樂：開" if ScorePlayer.music_enabled() else "音樂：關"
+		music_button.text = L.t("音樂：開") if ScorePlayer.music_enabled() else L.t("音樂：關")
 		_sync_music_row())
 	v.add_child(music_button)
 	for bus in ["Master", "Music", "SFX"]:
 		var row := HBoxContainer.new()
-		var label := _label({"Master": "主音量", "Music": "音樂", "SFX": "音效"}[bus], 20)
+		var label := _label({"Master": L.t("主音量"), "Music": L.t("音樂"), "SFX": L.t("音效")}[bus], 20)
 		label.custom_minimum_size.x = 80
 		row.add_child(label)
 		var slider := HSlider.new()
@@ -1724,7 +1831,7 @@ func _build_pause(root: Control) -> void:
 			music_row = row
 			music_slider = slider
 	_sync_music_row()
-	fullscreen_button = _button("全螢幕：開" if Settings.fullscreen else "全螢幕：關")
+	fullscreen_button = _button(L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關"))
 	fullscreen_button.pressed.connect(_toggle_fullscreen)
 	v.add_child(fullscreen_button)
 	text_size_button = _button(_text_size_caption())
@@ -1733,66 +1840,70 @@ func _build_pause(root: Control) -> void:
 	quality_button = _button(_quality_caption())
 	quality_button.pressed.connect(_cycle_quality)
 	v.add_child(quality_button)
-	var look := _button("視角靈敏度：" + ["低", "標準", "高"][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
+	# Dialogue is built when a scene starts, so a language change reloads the title.
+	language_button = _button(_language_caption())
+	language_button.pressed.connect(_cycle_language)
+	v.add_child(language_button)
+	var look := _button(L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	look.pressed.connect(func():
 		Settings.cycle_look_speed()
-		look.text = "視角靈敏度：" + ["低", "標準", "高"][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
+		look.text = L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	v.add_child(look)
-	var invert := _button("上下反轉：開" if Settings.invert_y else "上下反轉：關")
+	var invert := _button(L.t("上下反轉：開") if Settings.invert_y else L.t("上下反轉：關"))
 	invert.pressed.connect(func():
 		Settings.toggle_invert_y()
-		invert.text = "上下反轉：開" if Settings.invert_y else "上下反轉：關")
+		invert.text = L.t("上下反轉：開") if Settings.invert_y else L.t("上下反轉：關"))
 	v.add_child(invert)
-	var motion := _button("減少晃動：開" if Settings.reduced_motion else "減少晃動：關")
+	var motion := _button(L.t("減少晃動：開") if Settings.reduced_motion else L.t("減少晃動：關"))
 	motion.pressed.connect(func():
 		Settings.toggle_reduced_motion()
-		motion.text = "減少晃動：開" if Settings.reduced_motion else "減少晃動：關")
+		motion.text = L.t("減少晃動：開") if Settings.reduced_motion else L.t("減少晃動：關"))
 	v.add_child(motion)
-	hold_button = _button("長按互動：按一下" if Settings.hold_toggle else "長按互動：按住")
+	hold_button = _button(L.t("長按互動：按一下") if Settings.hold_toggle else L.t("長按互動：按住"))
 	hold_button.pressed.connect(func():
 		Settings.toggle_hold_toggle()
-		hold_button.text = "長按互動：按一下" if Settings.hold_toggle else "長按互動：按住")
+		hold_button.text = L.t("長按互動：按一下") if Settings.hold_toggle else L.t("長按互動：按住"))
 	v.add_child(hold_button)
-	var help := _button("操作說明")
+	var help := _button(L.t("操作說明"))
 	help.pressed.connect(_open_help)
 	v.add_child(help)
-	_pause_title_btn = _button("回到標題")
+	_pause_title_btn = _button(L.t("回到標題"))
 	var pause_title := _pause_title_btn
 	pause_title.pressed.connect(func():
 		if not _title_armed:
 			_title_armed = true
-			pause_title.text = "再按一次：回到標題"
+			pause_title.text = L.t("再按一次：回到標題")
 			return
 		_return_to_title())
 	v.add_child(pause_title)
 	# Restart and quit throw away the run, and there is no save: ask twice.
-	restart_button = _button("從頭開始")
+	restart_button = _button(L.t("從頭開始"))
 	restart_button.pressed.connect(func():
 		if not _restart_armed:
 			_restart_armed = true
-			restart_button.text = "再按一次：從頭開始"
+			restart_button.text = L.t("再按一次：從頭開始")
 			return
 		get_tree().paused = false
 		restart_pressed.emit(true))
 	v.add_child(restart_button)
-	quit_button = _button("離開遊戲")
+	quit_button = _button(L.t("離開遊戲"))
 	quit_button.pressed.connect(func():
 		if not _quit_armed:
 			_quit_armed = true
-			quit_button.text = "再按一次：離開（進度不會保留）"
+			quit_button.text = L.t("再按一次：離開（進度不會保留）")
 			return
 		quit_pressed.emit())
 	v.add_child(quit_button)
-	for button in [r, music_button, fullscreen_button, look, invert, motion, hold_button, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, language_button, look, invert, motion, hold_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
-	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, look, invert, motion, hold_button, help, pause_title, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
 func _toggle_fullscreen() -> void:
 	Settings.toggle_fullscreen()
-	fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
+	fullscreen_button.text = L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關")
 
 
 # A muted bus makes its slider dead weight; dim it instead of leaving it live.
@@ -1812,23 +1923,24 @@ func open_settings() -> void:
 	for button in prologue_btn.get_parent().get_children():
 		_title_focus_modes.append(button.focus_mode)
 		button.focus_mode = Control.FOCUS_NONE
-	_pause_heading.text = "設定"
-	_resume_button.text = "返回"
+	_pause_heading.text = L.t("設定")
+	_resume_button.text = L.t("返回")
 	_pause_title_btn.hide()
 	restart_button.hide()
 	quit_button.hide()
 	pause_panel.show()
 	quality_button.text = _quality_caption()
+	language_button.visible = L.TRANSLATED and title_panel.visible
 	Settings.sync_fullscreen()
-	fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
+	fullscreen_button.text = L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_resume_button.grab_focus()
 
 
 func close_settings() -> void:
 	pause_panel.hide()
-	_pause_heading.text = "暫停"
-	_resume_button.text = "繼續"
+	_pause_heading.text = L.t("暫停")
+	_resume_button.text = L.t("繼續")
 	_pause_title_btn.show()
 	restart_button.show()
 	quit_button.show()
@@ -1849,17 +1961,18 @@ func toggle_pause() -> void:
 	pause_panel.visible = p
 	if p:
 		quality_button.text = _quality_caption()
+		language_button.visible = L.TRANSLATED and title_panel.visible
 		Settings.sync_fullscreen()
-		fullscreen_button.text = "全螢幕：開" if Settings.fullscreen else "全螢幕：關"
+		fullscreen_button.text = L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關")
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	else:
 		_restart_armed = false
 		_quit_armed = false
 		_title_armed = false
-		restart_button.text = "從頭開始"
-		quit_button.text = "離開遊戲"
-		_pause_title_btn.text = "回到標題"
+		restart_button.text = L.t("從頭開始")
+		quit_button.text = L.t("離開遊戲")
+		_pause_title_btn.text = L.t("回到標題")
 		_restore_focus(_pause_focus)
 	# Only the chapter knows every form and scripted input lock it owns.
 	pause_toggled.emit(p)
@@ -1878,7 +1991,7 @@ func _build_log(root: Control) -> void:
 	root.add_child(log_panel)
 	var v := VBoxContainer.new()
 	log_panel.add_child(v)
-	log_title = _label("對話紀錄　［%s 關閉］" % Prompts.key("toggle_log"), 28, ACCENT)
+	log_title = _label(L.t("對話紀錄　［%s 關閉］") % Prompts.key("toggle_log"), 28, ACCENT)
 	v.add_child(log_title)
 	log_scroll = ScrollContainer.new()
 	log_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1892,7 +2005,7 @@ func _build_log(root: Control) -> void:
 	log_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_text.add_theme_color_override("default_color", PAPER)
 	log_scroll.add_child(log_text)
-	log_back = _button("返回　%s" % Prompts.key("toggle_log"))
+	log_back = _button(L.t("返回　%s") % Prompts.key("toggle_log"))
 	log_back.pressed.connect(toggle_log)
 	v.add_child(log_back)
 
@@ -1965,12 +2078,12 @@ func _build_help(root: Control) -> void:
 	v.offset_bottom = -40
 	v.add_theme_constant_override("separation", 16)
 	help_panel.add_child(v)
-	v.add_child(_label("操作說明", 28, ACCENT))
+	v.add_child(_label(L.t("操作說明"), 28, ACCENT))
 	help_content = _rich(18)
 	help_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	help_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(help_content)
-	var back := _button("返回")
+	var back := _button(L.t("返回"))
 	back.focus_mode = Control.FOCUS_ALL
 	back.add_theme_stylebox_override("focus", back.get_theme_stylebox("hover"))
 	back.pressed.connect(_close_help)
@@ -1981,7 +2094,7 @@ func _help_text() -> String:
 	var text: String = title_controls.text
 	# The opener line is already part of the live control text unless a future layout drops it.
 	if not text.contains(Prompts.key("shutter")):
-		text += "\n全食時：空白鍵（或 RB／X）喊開始與停。"
+		text += L.t("\n全食時：空白鍵（或 RB／X）喊開始與停。")
 	return text
 
 
@@ -2005,18 +2118,18 @@ func _return_to_title() -> void:
 
 func _refresh_hints() -> void:
 	if title_controls:
-		title_controls.text = "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停" % [Prompts.key("interact"), Prompts.key("toggle_log"), Prompts.key("shutter"), Prompts.key("pause")]
+		title_controls.text = L.t("WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停") % [Prompts.key("interact"), Prompts.key("toggle_log"), Prompts.key("shutter"), Prompts.key("pause")]
 	if help_panel and help_panel.visible:
 		help_content.text = _help_text()
 	if log_title:
-		log_title.text = "對話紀錄　［%s 關閉］" % Prompts.key("toggle_log")
+		log_title.text = L.t("對話紀錄　［%s 關閉］") % Prompts.key("toggle_log")
 	if log_back:
-		log_back.text = "返回　%s" % Prompts.key("toggle_log")
-	tot_hint.text = "［%s／%s］開始・停" % [Prompts.key("shutter"), Prompts.key("interact")]
+		log_back.text = L.t("返回　%s") % Prompts.key("toggle_log")
+	tot_hint.text = L.t("［%s／%s］開始・停") % [Prompts.key("shutter"), Prompts.key("interact")]
 	if not _choice_buttons.is_empty():
-		hint_label.text = "［方向鍵／A 鍵］選擇" if Prompts.joypad else "［1–%d 或點擊］選擇" % _choice_buttons.size()
+		hint_label.text = L.t("［方向鍵／A 鍵］選擇") if Prompts.joypad else L.t("［1–%d 或點擊］選擇") % _choice_buttons.size()
 	else:
-		hint_label.text = "［%s］繼續" % Prompts.key("interact") if Prompts.joypad else "［E／空白鍵／點擊］繼續"
+		hint_label.text = L.t("［%s］繼續") % Prompts.key("interact") if Prompts.joypad else L.t("［E／空白鍵／點擊］繼續")
 
 
 func blocks_world_input() -> bool:
