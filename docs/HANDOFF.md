@@ -944,3 +944,10 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Cleaned:** `director/look-kit/` deleted. Deleting the remote `look/monday` branch (no PR) was denied by auto mode; it is harmless, leave it unless the user removes it.
 - **Running:** `lw-release-046-20261109-112042` (cx-exec terra in ds-2, brief `director/release-046.md`: e2e, bump, three exports, `builds/0.4.6`, A11 row, PR + own oracle review). **On its event:** `lead-wait pr <n>`, then Issue #1 with the change list in the brief's Includes line.
 - **Still open:** hand tests needing eyes on a window (title bar, language button in 設定, 繼續 per chapter, Cmd-Tab, 2560x1080); #291; a native read of ja and ko before launch.
+
+### 0.4.6 released to KIOXIA; Issue #1 updated (edd-lead) | 2026-11-09 11:4x JST
+
+- **#293 merged:** 0.4.6 (bump 9932c92). E2E 6/6, release export 55/0, three packages checked, oracle approve 0/0/0. Builds in `/Volumes/KIOXIA/eddington/builds/0.4.6/` (hashes re-checked by the lead). A cx-exec run that ends `PENDING job` is not done: the Linux export finished in a resumed run.
+- **Issue #1:** 0.4.6 playtest comment posted (languages, art stack, story, store; asks: A11 playtest incl. en/ja, a native ja/ko reader, the newcomer session and B-rows).
+- **Nothing of edd-lead's is running.** ds-2 detached at origin/main.
+- **Next (no Owner input needed):** #291 (`_startup_locale` seam so a test runs the rule order without `--script`); hand tests that need eyes on a window (title bar per language, language button captions, 繼續 per chapter, Cmd-Tab, 2560x1080) — consider a Codex computer-use run inside the windowed hours (Mon–Fri 09–15 JST); the remote `look/monday` branch is left (delete was denied).
