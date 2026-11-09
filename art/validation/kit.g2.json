@@ -1,0 +1,245 @@
+{
+  "asset": "kit",
+  "file": "assets/models/kit.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 14881,
+      "max": 16000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_eye_dark",
+        "E1919_eye_white",
+        "E1919_felt",
+        "E1919_hair_brown",
+        "E1919_iron",
+        "E1919_leather",
+        "E1919_linen",
+        "E1919_linen_coat",
+        "E1919_skin",
+        "E1919_wool_pullover"
+      ],
+      "max": 10,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.514,
+        0.334,
+        1.709
+      ],
+      "target": [
+        0.55,
+        0.38,
+        1.68
+      ],
+      "tolerance": 0.2,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.001,
+        -0.05,
+        -0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "kit_body": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "kit_eyebrows": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "kit_eyes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "kit_hair": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "kit_pullover_front": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "kit_shoes": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "kit_suit": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "kit_glasses": {
+          "origin": [
+            -0.032,
+            -0.146,
+            1.583
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        },
+        "kit_irises": {
+          "origin": [
+            -0.032,
+            -0.139,
+            1.583
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": false
+        }
+      },
+      "ok": true,
+      "skipped": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "kit_body",
+        "kit_eyebrows",
+        "kit_eyes",
+        "kit_hair",
+        "kit_pullover_front",
+        "kit_shoes",
+        "kit_suit",
+        "kit_glasses",
+        "kit_irises"
+      ],
+      "ok": true
+    }
+  }
+}
