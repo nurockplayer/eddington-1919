@@ -924,3 +924,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#231** retargeted to main; the squash left it CONFLICTING. A force push was denied by the auto-mode classifier, so main was merged into `art/ashby-departure` with the tree set to the clean rebase of its 7 commits (2014c1b, 12 files vs main). **Running:** `lw-pr-231-20261109-095218`. If the old false-positive blocker on `tests/test_portrait.gd:128` returns and CI passes, `review-gate 231 --override-blockers "<reason>"`.
 - **Running:** `lw-hand-title-20261109-094841` (`director/hand_title.sh`: window title with `EDD_LOCALE=en`/`ja`, saved ko/zh_TW cold start).
 - **Then:** #232 and #234 the same way (retarget, merge main, tree = rebase onto main), each after the previous merges. Hand tests left: 繼續 per chapter, fonts, language button in 設定, Cmd-Tab, 2560x1080.
+
+### Hand-title script failed; #290 covers the saved language (edd-lead) | 2026-11-09 10:0x JST
+
+- **`hand_title.sh` failed** (exit 143): osascript/System Events cannot read the Godot window (AppleEvent timed out, connection invalid; likely no Accessibility permission). Not retried.
+- **Covered instead:** the window-title msgid has en/ja/ko translations in `locale/*.po`; **#290** (`test/saved-locale`) adds `saved_locale_checks()` to `tests/test_i18n.gd` (1151/0). **Running:** `lw-pr-290-20261109-095749`.
+- **Still needs eyes on a window** (no scripted way here): the title-bar text, the language button in 設定 (four captions), 繼續 per chapter, Cmd-Tab, 2560x1080. Leave for a human session or a Codex computer-use run; not a blocker for the art stack.
