@@ -8,6 +8,8 @@ var main
 var monkey: Node
 var scenario := "honest"
 var shots_dir := ""
+# Seconds to hold each dialogue line, choice and title before input; 0 keeps normal pace.
+var dwell := 0.0
 var failures: Array[String] = []
 var screenshots: Array[String] = []
 var beats: Array[String] = []
@@ -408,6 +410,11 @@ func interact(id: String) -> void:
 	await tap(KEY_E)
 
 
+func _dwell() -> void:
+	if dwell > 0.0:
+		await frames(int(round(dwell * 60.0)))
+
+
 func talk(choices: Array = [], default_choice := 0) -> void:
 	var guard := 90
 	var index := 0
@@ -435,8 +442,10 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 				index += 1
 			if monkey:
 				choice = monkey.monkey_choice(entry, choice)
+			await _dwell()
 			await tap(KEY_1 + choice)
 		else:
+			await _dwell()
 			await tap(KEY_E)
 		await frames(3)
 	if guard == 0:
@@ -463,8 +472,10 @@ func talk_keys(choices_by_key: Dictionary, default_choice := 0) -> void:
 				await shot("choice_" + choice_label)
 			if monkey:
 				choice = monkey.monkey_choice(entry, choice)
+			await _dwell()
 			await tap(KEY_1 + choice)
 		else:
+			await _dwell()
 			await tap(KEY_E)
 		await frames(3)
 	if guard == 0:
@@ -503,6 +514,7 @@ func _run() -> void:
 		_finish()
 		return
 	await shot("00_title")
+	await _dwell()
 	await click_button(main.ui.prologue_btn)
 	while not get_tree().current_scene.get_script().resource_path.ends_with("cambridge/director.gd"):
 		await frames()
@@ -513,6 +525,7 @@ func _run() -> void:
 	await tap(KEY_TAB)
 	if not main.ui.log_open(): failures.append("Tab did not open log")
 	await shot("01b_log")
+	await _dwell()
 	await tap(KEY_TAB)
 	await talk()
 	if scenario == "honest":
