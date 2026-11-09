@@ -64,7 +64,18 @@ static func violations(paths: PackedStringArray) -> PackedStringArray:
 	for required in ["res://THIRD_PARTY_NOTICES.md", "res://assets/fonts/OFL.txt"]:
 		if not paths.has(required):
 			errors.append("Release PCK lacks " + required)
+	for locale in ["en", "ja", "ko"]:
+		if not _has_translation(paths, locale):
+			errors.append("Release PCK lacks locale/" + locale + ".po")
 	return errors
+
+
+## A .po file packs as its source path or through an import/remap, so match either.
+static func _has_translation(paths: PackedStringArray, locale: String) -> bool:
+	for path in paths:
+		if path.contains("locale/" + locale + ".po") or path.contains("imported/" + locale + ".po"):
+			return true
+	return false
 
 
 func _initialize() -> void:

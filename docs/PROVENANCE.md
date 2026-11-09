@@ -54,7 +54,7 @@
 ## M1 劍橋序章（1917）
 
 依據 [M1 規格](design/M1_CAMBRIDGE_PROLOGUE.md)（含「Fact-check applied」一節）。台詞由 Game Director 撰寫於 `scripts/cambridge/content_1917.gd`；
-人物名 Kit、Ashby 先生為**暫定名**，只在 `cast.gd` 定義。遊戲中每段蒙太奇字幕都標明（史實）或（虛構）。
+人物名 Kit、Ashby 先生只在 `cast.gd` 定義。遊戲中每段蒙太奇字幕都標明（史實）或（虛構）。
 
 | 內容 | 標記 | 依據／說明 |
 |---|---|---|
@@ -84,9 +84,18 @@
 | 1859 年後以 Vulcan（水星內側行星）解釋水星異常；日食搜尋，1878 年 Watson 與 Swift 的目擊未被獨立確認 | HISTORICAL_RECORD | 查核第 4 條。到 1917 年 Vulcan 仍未確認，但仍是可提出的假設。 |
 | Seeliger 提出太陽附近、與黃道光有關的物質可能擾動水星 | HISTORICAL_RECORD | 查核第 12 條。這是提案，不是觀測確立的解。 |
 | Hall 1894 年考慮重力隨距離以 r⁻²·⁰⁰⁰⁰⁰⁰¹⁶ 衰減，可重現水星的異常，但其他行星的運動仍需檢查 | HISTORICAL_RECORD | 查核第 12 條。 |
+| 水星的 43″ 每世紀累積、方向一致；一百多年的凌日紀錄下，殘差遠大於量測誤差 | HISTORICAL_RECORD | Le Verrier 1859 用 1697–1848 年的凌日觸點；Newcomb 得 43.4″ ± 2.1″（G. E. Smith 2014，表 10.3）。#235 查核（Sonnet + oracle-ego，2026-11-06 19:00 JST）。 |
+| 全偏折多出來的一半來自空間彎曲；0.87″ 稱為牛頓式的值 | HISTORICAL_RECORD | Eddington《Space, Time and Gravitation》（1920）106–109 頁，他也說這個切分是人為的；de Sitter 1916 MNRAS 第一篇；Dyson、Eddington、Davidson 1920，291–292 頁。Dyson 1917 年短文是否用「牛頓式」一詞未確認。同一次查核。 |
+| Ashby：那些說法都只為了水星，沒有一個能讓星光彎得像愛因斯坦說的那麼多 | FICTION | 是 Ashby 的判斷，不是史實主張。查核時未找到 1919 年前有人從 Vulcan、Hall 或 Seeliger 的說法算出光線偏折，但這是沒找到，不是定論。Dyson 等 1920，292–293 頁排除了日冕折射。 |
 | 愛因斯坦 1911 年預測光掠過太陽偏折約 0.83″（約為 1915 年 1.75″ 的一半）；1915 年的新理論才把它加倍 | HISTORICAL_RECORD | 查核第 5 條。遊戲不主張牛頓本人算出 0.87″（查核第 6 條：Soldner 1801 年的牛頓式計算，1919 年報告以 0.87″ 表述牛頓式替代值）。 |
 | 太陽系儀核對、年鑑上的三個記號、五個「先懷疑什麼」選項與 Ashby 的逐項回答 | FICTION | 選項本身是 1917 年可合理提出的假設（見上）；玩家留下的記號與 Ashby 的對話是虛構。 |
 | 「這台小機器的軌道是齒輪定死的，演不出那 43 角秒」 | FICTION／示意 | 對模型能力的誠實說明，不是史料。 |
+
+## 轉化弧 E：箱子草圖（2026-11-07 JST）
+
+| 內容 | 標記 | 依據／說明 |
+|---|---|---|
+| 箱子草圖的三格掉落（箱子在地上、被繩子越拉越快往上、外面用手蓋住）與出發前的「從箱外看／從箱裡看」光線 | FICTION／示意，圖上標示 | 兩段都是讓玩家自己按的示意圖，不是史料或重現的實驗：每一格都寫「示意圖，不按比例」，光的那張另寫落差被放大許多；箱子本身不給任何數字，也不推出 1.75″。加速度、落下時間與時間刻度是為了看得出來而選的，不是量測值。等價原理與光在加速箱中的彎曲屬愛因斯坦的論證（遊戲裡的說法見 `docs/design/CONVERSION_ARC.md` 的 move E）。 |
 
 ## M2 出發前一晚（1919 年 3 月）
 
@@ -109,6 +118,7 @@
 |---|---|---|
 | Dyson 的信：Sobral 底片在 Greenwich 量完，4 吋 1.98″ ± 0.12″、天體照相儀約 0.93″，星像模糊、焦距與比例尺可能變了 | **RECONSTRUCTION**（信件本文）／HISTORICAL_RECORD（三個數字與未採用的技術理由） | 一封 Dyson 寄到劍橋、附上 Sobral 量測值的信在史料上是合理的：Eddington 1919 年 10 月 3 日回信（MS.RGO.8/150）就是在答覆 Dyson 的信與量測值，並提到 4 吋鏡頭給出完整偏折。**但這封信的本文不是史料，遊戲台詞不是任何文件的引文**；Dyson 前一封信的確切到達日期也未有紀錄，畫面只寫「1919 年 10 月」。數字見上表 1919-11-06 一列；天體照相儀未採用是報告寫明的技術理由（Dyson, Eddington & Davidson 1920，pp. 327–331；Kennefick 2009）。查核第 10 條。 |
 | 1979 年重新量測 Sobral 底片：4 吋 1.90″ ± 0.11″、天體照相儀 1.55″ ± 0.34″，支持當年團隊對 0.93″ 的疑慮 | HISTORICAL_RECORD | Harvey（1979）的重新量測，經 Kennefick 2009 *Testing relativity from the 1919 eclipse—a question of bias* 轉述；查核第 8 條。遊戲不在畫面裡主張新量測就是定論，只說明它支持當年的技術疑慮。 |
+| 1919 年 10 月玩家在帳本上親手寫下的新一行、圖上「Sobral 4 吋那一點」的判讀問題，與年鑑上的水星補記 | FICTION | 帳本翻頁、判讀問題的問法與年鑑補記的措辭都是虛構；Ashby 只作證，不改玩家的答案。水星一則的內容（愛因斯坦 1915 年的算法、43″ 是「算完其他行星之後剩下的」）是 HISTORICAL_RECORD，見查核第 3 條。圖上兩倍誤差範圍 1.62–2.34″ 由 1919 年報告的 1.98″ ± 0.12″ 機率誤差換算（σ ≈ 0.18″），不是新量測。 |
 | Ashby 先生在尾聲的全部對白、「1917 年的帳本」頁、筆記本最後一句與選項 | FICTION | Ashby 先生與這本筆記都是虛構（見 M1 各列）。他對四個可能結果的回應是戲劇化的虛構對話，只表達有紀錄的立場（Sobral 4 吋支持完整偏折、天體照相儀不可靠），不新增真實人物的私人評論。Dyson 的信與太陽系儀台詞中的「1915 年 11 月」「43 角秒」見上表與查核第 3、5 條。 |
 
 ## App icon (A9)
@@ -126,20 +136,32 @@ dark centre and bright bead, then removes it.
 ## Fonts
 
 The Traditional Chinese UI uses the existing system-font preference order
-(PingFang TC first) and a bundled Noto Sans TC Regular fallback, licensed under
-the SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
+(PingFang TC first) with bundled Noto Sans TC, JP and KR fallbacks; English,
+Japanese and Korean use the bundled faces only, so layout gates see the same
+glyphs on every OS. All three faces are licensed under the SIL Open Font
+License 1.1 (`assets/fonts/OFL.txt`).
 
 - Official release: [Noto Sans CJK 2.004](https://github.com/notofonts/noto-cjk/releases/tag/Sans2.004).
 - Font download: https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/TC/NotoSansTC-Regular.otf
 - Bundled path: `assets/fonts/NotoSansTC-Regular.otf`; upstream version 2.004,
   unchanged official static TC regional subset, 5,683,368 bytes (below 10 MB).
 - Font SHA-256: `5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537`.
+- Font download (Japanese): https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/JP/NotoSansJP-Regular.otf
+- Bundled path: `assets/fonts/NotoSansJP-Regular.otf`; upstream version 2.004,
+  unchanged official static JP regional subset, 4,533,028 bytes.
+- Font SHA-256: `dff723ba59d57d136764a04b9b2d03205544f7cd785a711442d6d2d085ac5073`.
+- Font download (Korean): https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/KR/NotoSansKR-Regular.otf
+- Bundled path: `assets/fonts/NotoSansKR-Regular.otf`; upstream version 2.004,
+  unchanged official static KR regional subset, 4,644,748 bytes.
+- Font SHA-256: `69975a0ac8472717870aefeab0a4d52739308d90856b9955313b2ad5e0148d68`.
 - Licence download: https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/LICENSE
 - Licence SHA-256: `6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2`.
 
 No game-specific subsetting was needed. `tests/test_fonts.gd` checks the bundled
-FontFile directly for every non-ASCII character in `scripts/**/*.gd`, so new
-text outside its coverage fails even on machines with Chinese system fonts.
+FontFiles directly for every non-ASCII character in `scripts/**/*.gd`, so new
+text outside their combined coverage fails even on machines with Chinese system
+fonts; `tests/test_i18n.gd` checks that each locale's font can draw 한, の and 繁
+through its fallbacks.
 
 ## Score (M4)
 

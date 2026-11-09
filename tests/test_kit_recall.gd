@@ -46,6 +46,7 @@ func _case(kit_choice: int, telegram: int, has: Array, lacks: Array) -> void:
 	story.kit_choice = kit_choice
 	story.bond_tone = "warm"
 	game._telegram = telegram
+	game._grade = {"title": "測試", "fit": 2, "clean": true, "lines": []}
 	game._pending = "coda_loupe"
 	game._on_dialogue_done({})
 	var text := ""

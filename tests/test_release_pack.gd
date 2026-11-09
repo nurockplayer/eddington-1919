@@ -27,14 +27,17 @@ func _initialize() -> void:
 		"res://THIRD_PARTY_NOTICES.md",
 		"res://assets/fonts/OFL.txt",
 		"res://assets/sample.txt",
+		"res://locale/en.po",
+		"res://locale/ja.po",
+		"res://locale/ko.po",
 	])
 	for path in expected:
 		check(packer.add_file(path, source) == OK, "pack " + path)
-	check(packer.flush() == OK, "flush three-file PCK")
+	check(packer.flush() == OK, "flush six-file PCK")
 	var paths := PackCheck.read_paths(pack_path)
 	paths.sort()
 	expected.sort()
-	check(paths == expected, "direct parser lists exactly the three packed files")
+	check(paths == expected, "direct parser lists exactly the six packed files")
 	# Reuse the real pack's table and payloads to exercise both earlier headers.
 	var packed := FileAccess.get_file_as_bytes(pack_path)
 	var directory_offset := packed.decode_u64(32)
@@ -62,7 +65,8 @@ func _initialize() -> void:
 		var bad := paths.duplicate()
 		bad.append(forbidden)
 		check(PackCheck.violations(bad).size() == 1, "reject " + forbidden)
-	for required in ["res://THIRD_PARTY_NOTICES.md", "res://assets/fonts/OFL.txt"]:
+	for required in ["res://THIRD_PARTY_NOTICES.md", "res://assets/fonts/OFL.txt",
+			"res://locale/en.po", "res://locale/ja.po", "res://locale/ko.po"]:
 		var missing := paths.duplicate()
 		if missing.has(required):
 			missing.remove_at(missing.find(required))

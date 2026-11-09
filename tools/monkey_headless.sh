@@ -12,11 +12,12 @@ first=$((10#$first))
 mkdir -p .monkey-logs
 scratch=$(mktemp -d "$PWD/.monkey-logs/settings.XXXXXX") || exit 1
 # Preserve the real settings file even when the cap terminates Godot mid-menu.
-app=$(sed -n 's/^config\/name="\(.*\)"$/\1/p' project.godot)
+app=$(sed -n 's/^config\/custom_user_dir_name="\(.*\)"$/\1/p' project.godot)
+[[ -n $app ]] || exit 1
 if [[ $(uname) == Darwin ]]; then
-  settings="$HOME/Library/Application Support/Godot/app_userdata/$app/settings.cfg"
+  settings="$HOME/Library/Application Support/$app/settings.cfg"
 else
-  settings="${XDG_DATA_HOME:-$HOME/.local/share}/godot/app_userdata/$app/settings.cfg"
+  settings="${XDG_DATA_HOME:-$HOME/.local/share}/$app/settings.cfg"
 fi
 had_settings=0
 if [[ -f $settings ]]; then cp "$settings" "$scratch/settings.cfg" || exit 1; had_settings=1; fi

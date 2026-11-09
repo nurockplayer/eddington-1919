@@ -1,0 +1,282 @@
+name: package-smoke
+
+# Starts the exported release package on Windows, macOS and Linux after changes
+# that affect packaging. Hosted runners have no real GPU (Linux uses lavapipe),
+# so this proves the shipped game boots, logs cleanly and loads a non-default
+# locale. It says nothing about frame rate or GPU performance.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - assets/**
+      - export_presets.cfg
+      - project.godot
+      - tools/export_release.sh
+      - tools/check_release_pack.gd
+      - tools/release_zip.py
+      - locale/**
+      - .github/workflows/package-smoke.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  export:
+    name: export release packages
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Godot 4.7.2 and export templates
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable
+          zip=Godot_v4.7.2-stable_linux.x86_64.zip
+          tpz=Godot_v4.7.2-stable_export_templates.tpz
+          curl -fsSL -O "$base/$zip"
+          curl -fsSL -O "$base/$tpz"
+          curl -fsSL -o SHA512-SUMS.txt "$base/SHA512-SUMS.txt"
+          grep " $zip\$" SHA512-SUMS.txt | sha512sum -c -
+          grep " $tpz\$" SHA512-SUMS.txt | sha512sum -c -
+          unzip -q "$zip" -d "$HOME/godot"
+          ln -s "$HOME/godot/Godot_v4.7.2-stable_linux.x86_64" "$HOME/godot/godot"
+          echo "$HOME/godot" >> "$GITHUB_PATH"
+          # The .tpz is a zip whose templates/ folder holds the 4.7.2.stable set.
+          unzip -q "$tpz" -d "$HOME/templates"
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          mv "$HOME"/templates/templates/* "$HOME/.local/share/godot/export_templates/4.7.2.stable/"
+          rm -rf "$zip" "$tpz" SHA512-SUMS.txt "$HOME/templates"
+      - name: Import project
+        run: godot --headless --path . --import
+      - name: Export Windows, Linux and macOS
+        run: |
+          ./tools/export_release.sh windows
+          ./tools/export_release.sh linux
+          ./tools/export_release.sh macos
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-zips
+          path: build/*.zip
+          retention-days: 1
+          if-no-files-found: error
+
+  smoke-windows:
+    name: smoke — Windows
+    needs: export
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-zips
+          path: dist
+      - name: Unzip
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist\run | Out-Null
+          Expand-Archive -LiteralPath (Get-ChildItem dist\*-Windows.zip).FullName -DestinationPath dist\run -Force
+          Get-ChildItem dist\run | Format-Table Name, Length
+      - name: Smoke — headless and ko locale
+        shell: pwsh
+        working-directory: dist\run
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          function Invoke-Smoke([string]$Label, [string[]]$GodotArgs, [string]$Log) {
+            Write-Host "=== $Label ==="
+            $exe = (Get-ChildItem -Filter *.exe | Select-Object -First 1).FullName
+            Write-Host "Binary: $exe"
+            $p = Start-Process -FilePath $exe -ArgumentList $GodotArgs -PassThru -NoNewWindow `
+              -RedirectStandardOutput "$Log.stdout.txt" -RedirectStandardError "$Log.stderr.txt"
+            if (-not $p.WaitForExit(180000)) {
+              $p.Kill()
+              throw "$Label timed out after 180 s"
+            }
+            Write-Host "Exit code: $($p.ExitCode)"
+            Get-Content $Log, "$Log.stdout.txt", "$Log.stderr.txt" -ErrorAction SilentlyContinue | Out-Host
+            if ($p.ExitCode -ne 0) { throw "$Label exited $($p.ExitCode)" }
+            if (-not (Test-Path $Log)) { throw "$Label wrote no log file $Log" }
+            $bad = Select-String -Path $Log -Pattern 'SCRIPT ERROR', 'ERROR:'
+            if ($bad) {
+              $bad | ForEach-Object { Write-Host $_ }
+              throw "$Log reports errors"
+            }
+          }
+
+          Invoke-Smoke 'headless' @('--headless', '--quit-after', '300', '--log-file', 'smoke.log') 'smoke.log'
+
+          $env:EDD_LOCALE = 'ko'
+          Invoke-Smoke 'ko locale, headless' @('--headless', '--quit-after', '120', '--log-file', 'smoke-ko.log') 'smoke-ko.log'
+          Remove-Item Env:EDD_LOCALE
+      # Best effort: a hosted runner may have no usable GPU or desktop, so a
+      # failure here says something about the runner, not the package.
+      - name: Best effort — windowed on d3d12
+        continue-on-error: true
+        shell: pwsh
+        working-directory: dist\run
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = (Get-ChildItem -Filter *.exe | Select-Object -First 1).FullName
+          Write-Host "Binary: $exe"
+          $p = Start-Process -FilePath $exe -ArgumentList @('--quit-after', '60', '--rendering-driver', 'd3d12', '--log-file', 'smoke-windowed.log') `
+            -PassThru -NoNewWindow -RedirectStandardOutput 'smoke-windowed.stdout.txt' -RedirectStandardError 'smoke-windowed.stderr.txt'
+          $done = $p.WaitForExit(240000)
+          if (-not $done) { $p.Kill(); $p.WaitForExit() }
+          Write-Host "Exit code: $($p.ExitCode) (timed out: $(-not $done))"
+          Get-Content 'smoke-windowed.log', 'smoke-windowed.stdout.txt', 'smoke-windowed.stderr.txt' -ErrorAction SilentlyContinue | Out-Host
+          if (-not $done) { throw 'Windowed run timed out after 240 s' }
+          if ($p.ExitCode -ne 0) { throw "Windowed run exited $($p.ExitCode)" }
+
+  smoke-linux:
+    name: smoke — Linux
+    needs: export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-zips
+          path: dist
+      - name: Install Xvfb and a software Vulkan driver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb mesa-vulkan-drivers libgl1 libasound2t64
+      - name: Unzip
+        run: |
+          mkdir -p dist/run
+          unzip -q dist/*-Linux.zip -d dist/run
+          chmod +x dist/run/Eddington1919.x86_64
+          ls -l dist/run
+      - name: Smoke — Vulkan on lavapipe under Xvfb, and ko locale
+        working-directory: dist/run
+        run: |
+          set -uo pipefail
+          # lavapipe is the only Vulkan driver on a hosted runner; Godot also
+          # finds it on its own, but pin it so the device is never a surprise.
+          for icd in lvp_icd.x86_64.json lvp_icd.json; do
+            if [ -f "/usr/share/vulkan/icd.d/$icd" ]; then
+              export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/$icd"
+              break
+            fi
+          done
+          echo "VK_ICD_FILENAMES=${VK_ICD_FILENAMES:-unset}"
+          echo "ICDs: $(ls /usr/share/vulkan/icd.d/ 2>/dev/null | tr '\n' ' ')"
+
+          check() {
+            local log=$1
+            [ -f "$log" ] || { echo "::error::no log file $log"; return 1; }
+            cat "$log"
+            if grep -q 'SCRIPT ERROR' "$log"; then echo "::error::$log has SCRIPT ERROR"; return 1; fi
+            if grep -q 'ERROR:' "$log"; then echo "::error::$log has ERROR:"; return 1; fi
+          }
+
+          # No sound card on a runner: ask for the dummy driver so ALSA does not
+          # log a benign ERROR:. Software Forward+ is slow, hence few frames.
+          status=0
+          timeout --kill-after=10 240 xvfb-run -a -s "-screen 0 1280x720x24" \
+            ./Eddington1919.x86_64 --rendering-driver vulkan --audio-driver Dummy \
+            --quit-after 60 --log-file smoke.log || status=$?
+          if [ "$status" -eq 137 ] || [ "$status" -eq 124 ]; then
+            echo "::error::windowed run timed out after 240 s"
+            cat smoke.log || true
+            exit 1
+          fi
+          check smoke.log || exit 1
+          [ "$status" -eq 0 ] || { echo "::error::windowed run exited $status"; exit 1; }
+          if ! grep -qE 'Vulkan [0-9.]+ - Forward\+ - Using Device #0:' smoke.log; then
+            echo "::error::no 'Vulkan <version> - Forward+ - Using Device #0:' line in smoke.log"
+            exit 1
+          fi
+          grep -m1 'Vulkan ' smoke.log
+
+          EDD_LOCALE=ko timeout --kill-after=10 180 \
+            ./Eddington1919.x86_64 --headless --quit-after 120 --log-file smoke-ko.log || status=$?
+          [ "$status" -eq 0 ] || { echo "::error::ko locale run exited $status"; cat smoke-ko.log || true; exit 1; }
+          check smoke-ko.log
+
+  smoke-macos:
+    name: smoke — macOS
+    needs: export
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-zips
+          path: dist
+      - name: Unzip
+        run: |
+          mkdir -p dist/run
+          unzip -q dist/*-macOS.zip -d dist/run
+          app=$(find dist/run -maxdepth 2 -name '*.app' -print -quit)
+          [ -n "$app" ] || { echo '::error::no .app in the macOS ZIP'; exit 1; }
+          echo "APP=$PWD/$app" >> "$GITHUB_ENV"
+          bin=$(find "$app/Contents/MacOS" -maxdepth 1 -type f -print -quit)
+          [ -n "$bin" ] || { echo '::error::no binary in Contents/MacOS'; exit 1; }
+          chmod +x "$bin"
+          echo "BIN=$PWD/$bin" >> "$GITHUB_ENV"
+          ls -l "$app/Contents/MacOS"
+      - name: Codesign check (informational)
+        run: |
+          if codesign -v "$APP"; then echo 'codesign: valid'; else echo "codesign: invalid or unsigned (exit $?)"; fi
+          codesign -dv "$APP" 2>&1 || true
+      - name: Smoke — headless and ko locale
+        run: |
+          set -uo pipefail
+
+          # macOS runners have no `timeout`; kill the run ourselves at 180 s.
+          run_capped() {
+            local limit=$1; shift
+            "$@" &
+            local pid=$!
+            ( sleep "$limit"; kill -9 "$pid" 2>/dev/null ) &
+            local watchdog=$!
+            local status=0
+            wait "$pid" || status=$?
+            kill "$watchdog" 2>/dev/null || true
+            wait "$watchdog" 2>/dev/null || true
+            return "$status"
+          }
+
+          check() {
+            local log=$1
+            [ -f "$log" ] || { echo "::error::no log file $log"; return 1; }
+            tail -n 200 "$log"
+            echo "$log: $(wc -l < "$log" | tr -d ' ') lines"
+            if grep -q 'SCRIPT ERROR' "$log"; then echo "::error::$log has SCRIPT ERROR"; return 1; fi
+            if grep -q 'ERROR:' "$log"; then echo "::error::$log has ERROR:"; return 1; fi
+          }
+
+          status=0
+          run_capped 180 "$BIN" --headless --quit-after 300 --log-file "$RUNNER_TEMP/smoke.log" || status=$?
+          echo "headless exit code: $status"
+          if [ "$status" -eq 137 ]; then echo "::error::headless run timed out after 180 s"; tail -n 50 "$RUNNER_TEMP/smoke.log" || true; exit 1; fi
+          [ "$status" -eq 0 ] || { echo "::error::headless run exited $status"; tail -n 50 "$RUNNER_TEMP/smoke.log" || true; exit 1; }
+          check "$RUNNER_TEMP/smoke.log" || exit 1
+
+          status=0
+          export EDD_LOCALE=ko
+          run_capped 180 "$BIN" --headless --quit-after 120 --log-file "$RUNNER_TEMP/smoke-ko.log" || status=$?
+          unset EDD_LOCALE
+          echo "ko locale exit code: $status"
+          [ "$status" -eq 0 ] || { echo "::error::ko locale run exited $status"; tail -n 50 "$RUNNER_TEMP/smoke-ko.log" || true; exit 1; }
+          check "$RUNNER_TEMP/smoke-ko.log"
+      # Best effort: the runner may have no window server session.
+      - name: Best effort — windowed
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          "$BIN" --quit-after 60 --log-file "$RUNNER_TEMP/smoke-windowed.log" &
+          pid=$!
+          ( sleep 240; kill -9 "$pid" 2>/dev/null ) &
+          watchdog=$!
+          status=0
+          wait "$pid" || status=$?
+          kill "$watchdog" 2>/dev/null || true
+          wait "$watchdog" 2>/dev/null || true
+          tail -n 200 "$RUNNER_TEMP/smoke-windowed.log" || true
+          echo "Exit code: $status"
+          [ "$status" -eq 0 ] || exit 1
