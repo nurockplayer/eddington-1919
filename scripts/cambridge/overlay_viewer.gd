@@ -112,7 +112,7 @@ func _build_ui() -> void:
 	_root_panel.add_theme_stylebox_override("panel", panel_style)
 	_root_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_root_panel)
-	var title := _label("14 號星場　／　玻璃與描圖紙", 28, PAPER_LIGHT)
+	var title := _label(L.t("14 號星場　／　玻璃與描圖紙"), 28, PAPER_LIGHT)
 	title.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	title.position = Vector2(-360, 22)
 	title.size = Vector2(720, 42)
@@ -125,7 +125,7 @@ func _build_ui() -> void:
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_subtitle)
 	refresh_prompts()
-	_status_label = _label("找出描圖與底片之間的差異。", 20, PAPER_LIGHT)
+	_status_label = _label(L.t("找出描圖與底片之間的差異。"), 20, PAPER_LIGHT)
 	_status_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_status_label.position = Vector2(-500, -123)
 	_status_label.size = Vector2(1000, 34)
@@ -139,11 +139,11 @@ func _build_ui() -> void:
 	row.add_theme_constant_override("separation", 12)
 	add_child(row)
 	buttons = {
-		"flip": _button("翻面"),
-		"left": _button("Q　−0.5°"),
-		"right": _button("+0.5°　E"),
-		"reset": _button("重設"),
-		"close": _button("關閉"),
+		"flip": _button(L.t("翻面")),
+		"left": _button(L.t("Q　−0.5°")),
+		"right": _button(L.t("+0.5°　E")),
+		"reset": _button(L.t("重設")),
+		"close": _button(L.t("關閉")),
 	}
 	buttons.flip.pressed.connect(_toggle_flip)
 	buttons.left.pressed.connect(_rotate.bind(-0.5))
@@ -159,14 +159,14 @@ func _build_ui() -> void:
 	details.add_theme_constant_override("separation", 12)
 	add_child(details)
 	for id in ["label_mirrored", "arrow_tilted", "residual"]:
-		var inspect := _button({"label_mirrored": "看標籤", "arrow_tilted": "看箭頭", "residual": "放大未重合點"}[id])
+		var inspect := _button({"label_mirrored": L.t("看標籤"), "arrow_tilted": L.t("看箭頭"), "residual": L.t("放大未重合點")}[id])
 		inspect.pressed.connect(func(): _try_detail_click(_detail_local_position(id)))
 		details.add_child(inspect)
 
 
 func refresh_prompts() -> void:
 	if _subtitle:
-		_subtitle.text = "固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉" % Prompts.key("rotate")
+		_subtitle.text = L.t("固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉") % Prompts.key("rotate")
 
 
 func _label(text: String, size: int, color: Color) -> Label:
@@ -326,11 +326,11 @@ func _update_alignment() -> void:
 			sound.emit("settle")
 	if is_instance_valid(_status_label):
 		if aligned:
-			_status_label.text = "17 個點重合了，還有 1 個沒有對上。也看看角落的編號，和鉛筆畫的箭頭。"
+			_status_label.text = L.t("17 個點重合了，還有 1 個沒有對上。也看看角落的編號，和鉛筆畫的箭頭。")
 		elif flipped:
-			_status_label.text = "翻面後，整片星場仍沿同一方向錯開。"
+			_status_label.text = L.t("翻面後，整片星場仍沿同一方向錯開。")
 		else:
-			_status_label.text = "標籤倒了過來；先看看底片與描圖紙的方向。"
+			_status_label.text = L.t("標籤倒了過來；先看看底片與描圖紙的方向。")
 
 
 func _try_detail_click(mouse: Vector2) -> bool:
@@ -589,8 +589,8 @@ func _draw_loupe() -> void:
 	draw_rect(loupe, Color(0.83, 0.82, 0.77), true)
 	draw_circle(loupe.get_center(), 4.0, Color(0.76, 0.745, 0.69, 0.82))
 	draw_circle(loupe.get_center(), 2.1, Color(0.92, 0.90, 0.83, 0.91))
-	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 25), "微弱斑點：恆星？乳劑瑕疵？", HORIZONTAL_ALIGNMENT_LEFT, 224, 14, Color(0.12, 0.12, 0.11, 0.9))
-	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 46), "單憑這張底片，仍無法判定。", HORIZONTAL_ALIGNMENT_LEFT, 224, 13, Color(0.12, 0.12, 0.11, 0.78))
+	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 25), L.t("微弱斑點：恆星？乳劑瑕疵？"), HORIZONTAL_ALIGNMENT_LEFT, 224, 14, Color(0.12, 0.12, 0.11, 0.9))
+	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 46), L.t("單憑這張底片，仍無法判定。"), HORIZONTAL_ALIGNMENT_LEFT, 224, 13, Color(0.12, 0.12, 0.11, 0.78))
 
 
 func _draw_arrow(from: Vector2, to: Vector2, color: Color, width: float) -> void:

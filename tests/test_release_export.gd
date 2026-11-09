@@ -17,6 +17,11 @@ func _initialize() -> void:
 	var version := str(project.get_value("application", "config/version", ""))
 	check(version == "0.4.5", "project defines release version")
 	check(project.get_value("application", "config/icon", "") == "res://icon.svg", "project defines SVG icon")
+	check(bool(project.get_value("internationalization", "locale/include_text_server_data", false)),
+		"release keeps ICU break data for CJK line breaking")
+	var translations: PackedStringArray = project.get_value("internationalization", "locale/translations", PackedStringArray())
+	for locale in ["en", "ja", "ko"]:
+		check(translations.has("res://locale/%s.po" % locale), "project loads locale/%s.po" % locale)
 	_test_icon()
 	_test_committed_icon()
 	var config := ConfigFile.new()

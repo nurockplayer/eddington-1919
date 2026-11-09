@@ -29,9 +29,11 @@ var _speaker_scene_id := 0
 var _departure_handled := false
 var _speaker_shots: Dictionary = {}
 var _choice_shots: Dictionary = {}
+var _walking := false
 var _coda_capture_seen: Dictionary = {}
 var _coda_fade_capture_started := false
 var _coda_checks := {"workbook": false, "loupe": false, "kit_close": false, "lamp_out": false, "complete": false}
+var _leak_watch: Node = null
 
 
 func _ready() -> void:
@@ -45,6 +47,9 @@ func _ready() -> void:
 	if shots_dir != "":
 		DirAccess.make_dir_recursive_absolute(shots_dir)
 		DirAccess.remove_absolute(shots_dir.path_join("result_" + scenario + ".json"))
+	if OS.has_environment("EDD_PSEUDO_JSON"):
+		_leak_watch = load("res://tests/leak_watch.gd").new()
+		add_child(_leak_watch)
 	_run.call_deferred()
 
 
@@ -108,7 +113,10 @@ func _beat_shot(name_: String) -> void:
 		var wait_left := 18.0
 		while wait_left > 0.0 and is_instance_valid(main) and not main.ui.dialog_active():
 			await get_tree().process_frame
-			wait_left -= get_process_delta_time()
+			# A planned walk to the beat's actor is not a stuck dialogue: the bot has
+			# not had its chance to interact yet, so only count time spent standing.
+			if not _walking:
+				wait_left -= get_process_delta_time()
 		if not is_instance_valid(main) or not main.ui.dialog_active():
 			failures.append("beat shot did not reach visible dialogue: " + name_)
 			_capturing -= 1
@@ -130,7 +138,7 @@ func _on_dialogue_entry(speaker: String) -> void:
 		return
 	if main.get_script().resource_path.ends_with("cambridge/departure_director.gd") and main._pending == "promise":
 		var current_entry: Dictionary = main.ui._seq[main.ui._seq_i]
-		if str(current_entry.get("t", "")).contains("翻開工作簿"):
+		if str(current_entry.get("key", "")) == "workbook":
 			_capture_workbook()
 	var label := ""
 	if speaker == Cast.KIT and main.world.kit.visible:
@@ -278,6 +286,7 @@ func look(target: Vector3) -> void:
 
 
 func walk(target: Vector3) -> void:
+	_walking = true
 	await _monkey_step("walk", true)
 	if monkey:
 		print("[PROLOGUE monkey] WALK target=%s from=%s elapsed_s=%.2f" % [target, main.player.global_position, _elapsed])
@@ -290,15 +299,18 @@ func walk(target: Vector3) -> void:
 			await _walk_to(Vector3(0, 0, 2.35))
 		# A disruption can leave the straight line crossing the central table; the east
 		# lane x=2.1 is the only way round, the west side is closed by the desk.
-		if _in_cambridge_room() and _table_blocks(main.player.global_position, target):
+		if _in_study_room() and _table_blocks(main.player.global_position, target):
 			var north: bool = main.player.global_position.z > 0.0
-			var lane_z := 2.35 if north else -1.5
+			# A shipping crate at (2.55, 2.05) covers the (2.1, 2.35) point at departure;
+			# z=1.25 is clear of it (crate z 1.66..2.44).
+			var north_z := 1.25 if _in_departure_room() else 2.35
+			var lane_z := north_z if north else -1.5
 			# From the west side, pull back to the open half before crossing.
 			if _table_blocks(main.player.global_position, Vector3(2.1, 0, lane_z)):
 				await _walk_to(Vector3(0, 0, lane_z))
 			await _walk_to(Vector3(2.1, 0, lane_z))
 			if (north and target.z < -0.725) or (not north and target.z > 0.725):
-				await _walk_to(Vector3(2.1, 0, -1.5 if north else 2.35))
+				await _walk_to(Vector3(2.1, 0, -1.5 if north else north_z))
 		# A disruption can leave us east of Kit: his 1.8 m capsule at (2.7, 0.85) plus
 		# the player's 0.3 m radius closes a 0.55 m disc (x 2.15..3.25, z 0.30..1.40)
 		# across the straight line back to the x=2.1 lane. Step clear of it along our
@@ -320,10 +332,21 @@ func walk(target: Vector3) -> void:
 			print("[PROLOGUE monkey] STUCK target=%s at=%s can_move=%s busy=%s dialog=%s log=%s paused=%s" % [target, main.player.global_position, main.player.can_move, main.get("_busy"), main.ui.dialog_active(), main.ui.log_open(), get_tree().paused])
 	if monkey:
 		print("[PROLOGUE monkey] WALK done target=%s at=%s reached=%s elapsed_s=%.2f" % [target, main.player.global_position, reached, _elapsed])
+	_walking = false
 
 
 func _in_cambridge_room() -> bool:
 	return is_instance_valid(main) and main.get_script() != null and main.get_script().resource_path.ends_with("cambridge/director.gd")
+
+
+## The study room as built in all three scenes: the central table is the same.
+func _in_study_room() -> bool:
+	return is_instance_valid(main) and main.get_script() != null and main.get_script().resource_path.contains("/cambridge/")
+
+
+## Departure uses the study room with shipping crates at the entrance.
+func _in_departure_room() -> bool:
+	return is_instance_valid(main) and main.get_script() != null and main.get_script().resource_path.ends_with("cambridge/departure_director.gd")
 
 
 func _table_blocks(from: Vector3, to: Vector3) -> bool:
@@ -406,7 +429,7 @@ func talk(choices: Array = [], default_choice := 0) -> void:
 				_choice_shots[choice_label] = true
 				await _wait_for_camera_settle()
 				await shot("choice_" + choice_label)
-			var optional_details: bool = entry.choices == ["（點頭，記下重點）", "（聽他說完細節）"]
+			var optional_details: bool = entry.choices == [L.t("（點頭，記下重點）"), L.t("（聽他說完細節）")]
 			var choice: int = 0 if optional_details else (int(choices[index]) if index < choices.size() else default_choice)
 			if not optional_details:
 				index += 1
@@ -562,6 +585,12 @@ func _run() -> void:
 	await shot("08_report")
 	await click_button(sheet.submit_btn)
 	while not main.plan_board.visible:
+		if main.box_sketch.visible:
+			# Conversion arc move E: the box is played with real button presses.
+			await shot("bookkeeping_box_" + str(main.box_sketch.mode))
+			await _box_sketch_run()
+			await frames(3)
+			continue
 		if main.ui.dialog_active():
 			await shot("dialogue_" + str(main._pending))
 			if main._pending == "mentor_review":
@@ -771,7 +800,7 @@ func _continue_honest_to_ending() -> void:
 	await shot("ending")
 	# Exercise the expandable historical record through its visible button.
 	for b in main.ui.ending_panel.find_children("*", "Button", true, false):
-		if b.text == "歷史上發生了什麼":
+		if b.text == L.t("歷史上發生了什麼"):
 			await click_button(b)
 			await frames(8)
 			await shot("ending_history")
@@ -818,6 +847,19 @@ func _epilogue_route() -> bool:
 		return false
 	await shot("epilogue_chart_rows")
 	await click_button(main.chart.button)
+	await frames(5)
+	if main.chart.step != 3 or not main.chart.question.visible:
+		failures.append("epilogue chart did not ask the Sobral reading")
+		return false
+	await click_button(main.chart.choices[1])
+	await frames(5)
+	if not main.chart.question.text.begins_with(L.t("對，範圍就是這樣讀的。").get_slice("%s", 0)):
+		failures.append("epilogue Sobral reading did not answer the truth")
+	await shot("epilogue_chart_reading")
+	await click_button(main.chart.button)
+	var read := int(Story.runs.back().get("sobral_read", -1))
+	if read < 0 or read > 3:
+		failures.append("epilogue Sobral reading was not stored: %d" % read)
 	await talk_keys({"astro_weight": 1})
 	if main.ui.dialog_active():
 		await talk_keys({})
@@ -833,7 +875,7 @@ func _epilogue_route() -> bool:
 	await walk(Vector3(2.1, 0, 2.35))
 	await walk(Vector3(2.6, 0, -1.5))
 	await interact("orrery")
-	await talk_keys({"click": 1, "final_reason": 2})
+	await talk_keys({"click": 1, "final_reason": 2, "mercury_1919": 0, "bet_oct": 2})
 	if main.ui.dialog_active():
 		await talk_keys({})
 	guard = 20.0
@@ -844,17 +886,29 @@ func _epilogue_route() -> bool:
 		failures.append("epilogue did not reach the ending")
 		return false
 	var back: Dictionary = Story.runs.back()
-	if int(back.get("astro_weight", -1)) != 1:
-		failures.append("epilogue astrographic weighting was not stored")
-	if int(back.get("click", -1)) != 1:
-		failures.append("epilogue orrery answer was not stored")
-	if int(back.get("final_reason", -1)) != 2:
-		failures.append("epilogue notebook answer was not stored")
+	var astro := int(back.get("astro_weight", -1))
+	var click := int(back.get("click", -1))
+	var reason := int(back.get("final_reason", -1))
+	if monkey:
+		# Monkey mode mashing E may pick another offered answer; require a valid one.
+		if astro < 0 or astro > 3:
+			failures.append("epilogue astrographic weighting was not stored: %d" % astro)
+		if click < 0 or click > 2:
+			failures.append("epilogue orrery answer was not stored: %d" % click)
+		if reason < 0 or reason > 4:
+			failures.append("epilogue notebook answer was not stored: %d" % reason)
+	else:
+		if astro != 1:
+			failures.append("epilogue astrographic weighting was not stored: %d" % astro)
+		if click != 1:
+			failures.append("epilogue orrery answer was not stored: %d" % click)
+		if reason != 2:
+			failures.append("epilogue notebook answer was not stored: %d" % reason)
 	if not Story.epilogue_done:
 		failures.append("epilogue completion flag missing")
-	if not main.ui.ending_review.text.contains("筆記本最後一句"):
+	if not main.ui.ending_review.text.contains(L.t("· 筆記本最後一句：%s。").get_slice("%s", 0)):
 		failures.append("ending omitted the notebook answer")
-	if not main.ui.ending_review.text.contains("Sobral 天體照相儀那組"):
+	if not main.ui.ending_review.text.contains(L.t("· Sobral 天體照相儀那組：%s。").get_slice("%s", 0)):
 		failures.append("ending omitted the astrographic weighting")
 	if main.ui.ending_plate.texture == null:
 		failures.append("ending lost the stored plate")
@@ -866,7 +920,7 @@ func _epilogue_route() -> bool:
 func _epilogue_chart_has(label: String, no_bar: bool) -> bool:
 	var found := false
 	for row in main.chart.rows:
-		if str(row.get("label", "")) == label:
+		if str(row.get("label", "")) == L.t(label):
 			found = true
 	if not found:
 		return false
@@ -908,6 +962,40 @@ func _capture_coda_lamp_out() -> void:
 	if is_instance_valid(main) and main.phase == main.Phase.CODA:
 		_coda_capture_seen["coda_lamp_out"] = true
 		await shot("coda_lamp_out")
+
+
+## Conversion arc move E. The sketch only advances through its own buttons and its
+## own animation clock, so every stage waits for the real fall or light to finish.
+func _box_sketch_run() -> void:
+	var sketch = main.box_sketch
+	if sketch.mode == "drop":
+		for stage in 3:
+			await _box_wait(sketch, func(): return not sketch.release_btn.disabled, "stage %d release is ready" % stage)
+			await shot("box_drop_%d" % stage)
+			await click_button(sketch.release_btn)
+			await _box_wait(sketch, func(): return not sketch.next_btn.disabled, "stage %d fall ends" % stage)
+			await shot("box_drop_%d_ticks" % stage)
+			await click_button(sketch.next_btn)
+		return
+	for index in 2:
+		var view_name: String = "outside" if index == 0 else "inside"
+		if sketch.view != view_name:
+			await click_button(sketch.frame_btns[index])
+		await click_button(sketch.release_btn)
+		await _box_wait(sketch, func(): return not sketch.release_btn.disabled, "light lands %s" % view_name)
+		await shot("box_light_" + view_name)
+	await _box_wait(sketch, func(): return not sketch.next_btn.disabled, "both light views are played")
+	await click_button(sketch.next_btn)
+
+
+func _box_wait(sketch, cond: Callable, what: String) -> void:
+	var wait_left := 8.0
+	while is_instance_valid(sketch) and sketch.visible and not cond.call() and wait_left > 0.0:
+		await frames(2)
+		wait_left -= get_process_delta_time()
+	if not cond.call():
+		failures.append("box sketch: " + what)
+		_finish()
 
 
 func _departure_run() -> void:
@@ -987,6 +1075,19 @@ func _departure_run() -> void:
 		_finish()
 		return
 	await talk_keys({"gift": 0})
+	# Conversion arc move E: Ashby hands the light in the box to the sketch before he
+	# goes on, so the farewell's tail is played and then spoken.
+	var box_wait := 10.0
+	while is_instance_valid(main.box_sketch) and not main.box_sketch.visible and box_wait > 0.0:
+		await frames()
+		box_wait -= get_process_delta_time()
+	if not is_instance_valid(main.box_sketch) or not main.box_sketch.visible:
+		failures.append("Ashby's farewell did not open the box sketch")
+		_finish()
+		return
+	await shot("m2_box_light")
+	await _box_sketch_run()
+	await talk_keys({"light_box": 1 if scenario == "tidy" else 0})
 	var gift_wait := 3.0
 	while not main.keepsake.visible and gift_wait > 0.0:
 		await frames()
@@ -1002,6 +1103,8 @@ func _departure_run() -> void:
 func _finish() -> void:
 	if _done: return
 	_done = true
+	if _leak_watch != null:
+		_leak_watch.finish()
 	if is_instance_valid(_continuation_route):
 		_stuck_events += int(_continuation_route.stuck)
 	var score_failures: Array[String] = []

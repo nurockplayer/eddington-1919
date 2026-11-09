@@ -15,6 +15,7 @@ const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Board := preload("res://scripts/cambridge/plan_board.gd")
+const BoxSketch := preload("res://scripts/cambridge/box_sketch.gd")
 
 static var bench_cambridge_out := ""
 
@@ -26,6 +27,7 @@ var ui
 var overlay
 var report_sheet
 var plan_board
+var box_sketch
 var aligned := false
 var residual_found := false
 var kit_checked := false
@@ -66,7 +68,7 @@ func _ready() -> void:
 	Story.reset()
 	world = Room.build(self)
 	_trial_marker = Label3D.new()
-	_trial_marker.text = "▼ 底片櫃"
+	_trial_marker.text = L.t("▼ 底片櫃")
 	_trial_marker.font = preload("res://scripts/fonts.gd").cjk()
 	_trial_marker.font_size = 30
 	_trial_marker.pixel_size = 0.003
@@ -119,7 +121,8 @@ func _ready() -> void:
 	overlay.ui = ui
 	report_sheet = Report.new()
 	plan_board = Board.new()
-	for modal in [overlay, report_sheet, plan_board]:
+	box_sketch = BoxSketch.new()
+	for modal in [overlay, report_sheet, plan_board, box_sketch]:
 		modal.theme = ui.theme_res
 		layer.add_child(modal)
 		modal.hide()
@@ -137,6 +140,7 @@ func _ready() -> void:
 	plan_board.reaction.connect(func(seq): plan_board.hide(); _say(seq, "board_reaction"))
 	plan_board.blocked.connect(func(card): plan_board.hide(); _say(C17.plan_blocked(card), "board_reaction"))
 	plan_board.finished.connect(_finish_plan)
+	box_sketch.finished.connect(_box_finished)
 	Settings.apply_quality(get_tree())
 	_build_audio()
 	ui.fade.color.a = 1.0
@@ -167,24 +171,25 @@ func state() -> Dictionary:
 
 
 func _free() -> bool:
-	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not overlay.visible and not report_sheet.visible and not plan_board.visible
+	return not get_tree().paused and not _busy and not ui.dialog_active() and not ui.log_open() and not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible
 
 
 func _sync_player() -> void:
 	var free := _free()
+	box_sketch.input_blocked = get_tree().paused or ui.log_open()
 	player.can_move = free and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK, Beat.ORRERY]
 	player.can_look = free
-	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not ui.log_open()
+	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	if beat == Beat.INVESTIGATE:
-		var task := "核對 14 號星場的抄錄圖，交給 %s" % Cast.MENTOR
+		var task := L.t("核對 14 號星場的抄錄圖，交給 %s") % L.t(Cast.MENTOR)
 		if aligned and not kit_checked:
-			task = "對上了。請 %s 自己再對一次，再寫進筆記本。" % Cast.KIT
-		ui.set_objectives("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]" % [task, Cast.KIT, Prompts.key("toggle_log")])
+			task = L.t("對上了。請 %s 自己再對一次，再寫進筆記本。") % L.t(Cast.KIT)
+		ui.set_objectives(L.t("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]") % [task, L.t(Cast.KIT), Prompts.key("toggle_log")])
 	elif beat == Beat.ORRERY:
-		ui.set_objectives("[b]劍橋・1917[/b]\n查看太陽系儀")
+		ui.set_objectives(L.t("[b]劍橋・1917[/b]\n查看太陽系儀"))
 	elif beat == Beat.TRIAL_TASK:
-		ui.set_objectives("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。")
+		ui.set_objectives(L.t("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。"))
 	else:
 		ui.set_objectives("")
 	_trial_marker.visible = beat == Beat.TRIAL_TASK and free
@@ -199,7 +204,7 @@ func _on_prompts_changed() -> void:
 func _process(delta: float) -> void:
 	if _caption_elapsed >= 0.0 and not ui.log_open():
 		_caption_elapsed += delta
-		_caption_prompt.text = "［%s］繼續" % Prompts.key("interact")
+		_caption_prompt.text = L.t("［%s］繼續") % Prompts.key("interact")
 	_light_t += delta
 	# Slow overlapping waves: a quiet coal fire, without particles or shadow redraw.
 	var flicker := 1.0 + 0.055 * sin(_light_t * 2.3) + 0.025 * sin(_light_t * 5.7)
@@ -219,7 +224,7 @@ func _process(delta: float) -> void:
 			relevant = target.get_meta("interact_id") == "cabinet"
 		elif relevant and beat == Beat.ORRERY:
 			relevant = target.get_meta("interact_id") == "orrery"
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if relevant else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), L.t(str(target.get_meta("prompt")))] if relevant else "")
 	else:
 		ui.set_prompt("")
 
@@ -469,6 +474,13 @@ func _dialogue_done(results: Dictionary) -> void:
 			return
 		"exam":
 			Story.exam = results.duplicate()
+			# Conversion arc move E: the box is played, not read. The rest of the exam
+			# follows the sketch in "exam_box".
+			box_sketch.open("drop")
+			_sync_player()
+			return
+		"exam_box":
+			Story.exam.merge(results, true)
 			beat = Beat.PLAN
 			_say(C17.plan_intro(), "plan_intro")
 			return
@@ -546,6 +558,10 @@ func _interlude() -> void:
 	_say(C17.eddington_exam(Story.report, state()), "exam")
 
 
+func _box_finished() -> void:
+	_say(C17.eddington_box(), "exam_box")
+
+
 func _finish_plan(ids: Array) -> void:
 	Story.plan = ids.duplicate()
 	plan_board.hide()
@@ -596,10 +612,10 @@ func _montage() -> void:
 	_sync_player()
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	for entry in C17.montage():
-		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
-		await _montage_caption(str(entry.t) + "\n\n（" + tag + "）")
+		await _montage_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t))
 	Story.prologue_done = true
 	beat = Beat.DONE
+	Checkpoint.save("departure")
 	get_tree().change_scene_to_file("res://scenes/departure.tscn")
 
 

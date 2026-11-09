@@ -41,12 +41,49 @@ func _test_director_keeps_exam(story: Node) -> void:
 	while chapter._pending != "opening" and Time.get_ticks_msec() < deadline:
 		await process_frame
 	check(chapter._pending == "opening", "Cambridge reaches the opening dialogue within 12 s")
+	# Conversion arc move E: drain the opening so the exam starts from an idle ui.
+	var opening_guard := 60
+	while chapter.ui.dialog_active() and opening_guard > 0:
+		opening_guard -= 1
+		if not chapter.ui._choice_buttons.is_empty():
+			chapter.ui._choose(0)
+		else:
+			chapter.ui._advance()
+		await process_frame
+	check(not chapter.ui.dialog_active(), "the opening dialogue reaches its end")
 	chapter._pending = "exam"
 	chapter._dialogue_done({"q1": 1, "q2": 0, "box": 2})
 	check(story.exam.get("q1", -1) == 1 and story.exam.get("box", -1) == 2, "the exam answers are kept in Story")
+	# Conversion arc move E: the box is played before the exam's second half.
+	check(chapter.box_sketch.visible and not chapter.ui.dialog_active(), "the exam opens the box sketch instead of speaking straight on")
+	await _play_box(chapter)
+	check(chapter._pending == "exam_box" and chapter.ui.dialog_active(), "the played box brings Eddington back")
+	var guard := 40
+	while chapter._pending == "exam_box" and chapter.ui.dialog_active() and guard > 0:
+		guard -= 1
+		if not chapter.ui._choice_buttons.is_empty():
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+		await process_frame
+	check(story.exam.get("box_light", -1) == 1, "the box's light answer joins the exam in Story")
 	check(chapter._pending == "plan_intro", "the exam still leads to the plan board")
 	chapter.free()
 	await process_frame
+
+
+## Three real 鬆手 presses with a 換一格 after each, waiting for each fall's own end.
+func _play_box(chapter) -> void:
+	var sketch = chapter.box_sketch
+	for stage in 3:
+		sketch.release_btn.pressed.emit()
+		var deadline := Time.get_ticks_msec() + 5000
+		while sketch.next_btn.disabled and Time.get_ticks_msec() < deadline:
+			await process_frame
+		check(not sketch.next_btn.disabled, "box stage %d fall finishes" % stage)
+		sketch.next_btn.pressed.emit()
+		await process_frame
+	check(not sketch.visible, "the box sketch closes after its third cell")
 
 
 func _test_rule_recall(story: Node, played: bool, q1: int, has: Array, lacks: Array) -> void:

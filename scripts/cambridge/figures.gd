@@ -178,7 +178,7 @@ static func _add_spectacles(body: Node3D) -> void:
 static func _add_name_tag(body: Node3D, display_name: String, w) -> void:
 	var tag := Label3D.new()
 	tag.set_meta("cambridge_name_tag", true)
-	tag.text = display_name
+	tag.text = L.t(display_name)
 	tag.font_size = 30
 	tag.pixel_size = 0.0007
 	tag.fixed_size = true

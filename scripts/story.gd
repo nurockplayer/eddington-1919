@@ -1,6 +1,9 @@
 extends Node
 ## Session continuity and completed experiment snapshots. No scene references.
 
+## Loads the translation helper at startup; its `_static_init` picks the locale.
+const L := preload("res://scripts/l10n.gd")
+
 var runs: Array[Dictionary] = []
 
 var from_prologue := false
@@ -27,6 +30,48 @@ var departure_done := false
 var epilogue_done := false
 var ending_plate: Texture2D = null
 var ending_plate_caption := ""
+
+## Chapter checkpoints write these fields; the plate travels as PNG bytes instead.
+const SAVED := [
+	"runs", "from_prologue", "prologue_done", "clues", "report", "plan",
+	"kit_choice", "kit_first", "trial_note", "exam", "bet", "bet_1917",
+	"orrery", "mercury_suspect", "sky_promise", "bond_tone", "slip_fix",
+	"departure_done", "epilogue_done", "ending_plate_caption",
+]
+
+
+func _ready() -> void:
+	# Root auto-translate stays off: an unwrapped string shows itself instead of
+	# being translated quietly (docs/design/LOCALIZATION.md).
+	get_tree().root.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+
+
+func to_save() -> Dictionary:
+	var data := {}
+	for key in SAVED:
+		var value = get(key)
+		if value is Array or value is Dictionary:
+			value = value.duplicate(true)
+		data[key] = value
+	var image: Image = ending_plate.get_image() if ending_plate != null else null
+	data["ending_plate_png"] = image.save_png_to_buffer() if image != null else PackedByteArray()
+	return data
+
+
+func from_save(data: Dictionary) -> void:
+	reset()
+	for key in SAVED:
+		if not data.has(key):
+			continue
+		if key == "runs":
+			runs.assign(data[key])
+		else:
+			set(key, data[key])
+	var png = data.get("ending_plate_png", PackedByteArray())
+	if png is PackedByteArray and not png.is_empty():
+		var image := Image.new()
+		if image.load_png_from_buffer(png) == OK:
+			ending_plate = ImageTexture.create_from_image(image)
 
 
 func reset(keep_runs := false) -> void:

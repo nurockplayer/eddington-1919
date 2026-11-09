@@ -1,8 +1,10 @@
 extends SceneTree
-## Check the shipped face directly so installed system fonts cannot hide gaps.
+## Check the shipped faces directly so installed system fonts cannot hide gaps.
 
 const Fonts := preload("res://scripts/fonts.gd")
 const Bundled := preload("res://assets/fonts/NotoSansTC-Regular.otf")
+const BundledJP := preload("res://assets/fonts/NotoSansJP-Regular.otf")
+const BundledKR := preload("res://assets/fonts/NotoSansKR-Regular.otf")
 
 var checks := 0
 var failures := 0
@@ -17,19 +19,29 @@ func check(condition: bool, message: String) -> void:
 
 
 func _initialize() -> void:
+	# Suites start in zh-TW, which uses the bundled TC face on every OS.
 	var font := Fonts.cjk()
-	check(font is SystemFont, "CJK helper keeps system font selection")
-	check((font as SystemFont).font_names[0] == "PingFang TC", "PingFang stays first")
-	check(font.fallbacks.size() == 1 and font.fallbacks[0] == Bundled, "helper has the bundled fallback")
-	check(Bundled is FontFile, "bundled face loads as a FontFile")
+	check(not (font is SystemFont), "zh-TW uses no system font")
+	check(font is FontVariation and font.base_font == Bundled, "zh-TW sets TC first")
+	check(font.fallbacks.size() == 2 and font.fallbacks[0] == BundledJP and font.fallbacks[1] == BundledKR, "zh-TW also carries JP and KR fallbacks")
+	check(Bundled is FontFile and BundledJP is FontFile and BundledKR is FontFile, "bundled faces load as FontFile")
 	for character in ["食", "偏"]:
 		check(font.has_char(character.unicode_at(0)), "helper covers " + character)
 		check(Bundled.has_char(character.unicode_at(0)), "bundled face covers " + character)
+	var english := Fonts.for_locale("en")
+	check(not (english is SystemFont), "English uses the bundled faces only")
+	check(english is FontVariation and english.base_font == Bundled, "English sets TC first")
+	for character in ["한", "の"]:
+		check(english.has_char(character.unicode_at(0)), "English fallbacks cover " + character)
 	_check_scripts("res://scripts")
 	check(not checked_chars.is_empty(), "scanned non-ASCII script characters")
 	print("%d script characters checked" % checked_chars.size())
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
+
+
+func _covered(codepoint: int) -> bool:
+	return Bundled.has_char(codepoint) or BundledJP.has_char(codepoint) or BundledKR.has_char(codepoint)
 
 
 func _check_scripts(path: String) -> void:
@@ -53,4 +65,4 @@ func _check_scripts(path: String) -> void:
 			if codepoint < 128 or checked_chars.has(codepoint):
 				continue
 			checked_chars[codepoint] = true
-			check(Bundled.has_char(codepoint), "bundled face missing U+%04X (%s) in %s" % [codepoint, String.chr(codepoint), script_path])
+			check(_covered(codepoint), "no bundled face has U+%04X (%s) in %s" % [codepoint, String.chr(codepoint), script_path])

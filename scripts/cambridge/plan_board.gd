@@ -85,7 +85,7 @@ func _build() -> void:
 	layout.add_theme_constant_override("separation", 16)
 	add_child(layout)
 	var title := Label.new()
-	title.text = "怎樣的日食觀測，才算公平的比較？"
+	title.text = L.t("怎樣的日食觀測，才算公平的比較？")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Settings.track_font(title, 28)
 	title.add_theme_color_override("font_color", INK)
@@ -127,7 +127,7 @@ func _build() -> void:
 		grid.add_child(button)
 		card_buttons[card.id] = button
 	finish_btn = Button.new()
-	finish_btn.text = "完成計畫"
+	finish_btn.text = L.t("完成計畫")
 	_style_card_button(finish_btn, false)
 	finish_btn.disabled = true
 	finish_btn.pressed.connect(_finish)
@@ -165,7 +165,7 @@ func _update_slots(slots: Array[Label]) -> void:
 func _style_card_button(button: Button, is_selected: bool) -> void:
 	var original := str(button.get_meta("original_text", button.text))
 	if button.has_meta("original_text"):
-		button.text = ("✓  " if is_selected else "　　") + original
+		button.text = ("✓  " if is_selected else L.t("　　")) + original
 	button.add_theme_color_override("font_color", INK)
 	button.add_theme_color_override("font_hover_color", INK)
 	button.add_theme_color_override("font_pressed_color", INK)
