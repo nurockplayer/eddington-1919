@@ -116,10 +116,10 @@ func _sync_player() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	var objective := ""
 	match beat:
-		Beat.CHECKLIST: objective = "走到看片台，核對最後一頁。"
-		Beat.KIT: objective = "清單收好了。和 Kit 說說話。"
-		Beat.FAREWELL: objective = "Ashby 先生在走廊等你。"
-	ui.set_objectives("[b]劍橋・1919 年 3 月[/b]\n" + objective if objective != "" else "")
+		Beat.CHECKLIST: objective = L.t("走到看片台，核對最後一頁。")
+		Beat.KIT: objective = L.t("清單收好了。和 Kit 說說話。")
+		Beat.FAREWELL: objective = L.t("Ashby 先生在走廊等你。")
+	ui.set_objectives(L.t("[b]劍橋・1919 年 3 月[/b]\n%s") % objective if objective != "" else "")
 
 
 func _process(delta: float) -> void:
@@ -137,7 +137,7 @@ func _process(delta: float) -> void:
 		var target: Node = player.aimed_interactable()
 		var id := str(target.get_meta("interact_id")) if target else ""
 		var available := _available(id)
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if available else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), L.t(str(target.get_meta("prompt")))] if available else "")
 	else:
 		ui.set_prompt("")
 
@@ -163,7 +163,7 @@ func _interact(id: String) -> void:
 		"mentor": _say(Content.mentor_farewell(Story.slip_fix), "farewell")
 		"workbook":
 			_frame_point(world.targets.workbook)
-			ui.show_toast("1919 年 5 月 29 日", 4.0)
+			ui.show_toast(L.t("1919 年 5 月 29 日"), 4.0)
 	_sync_player()
 
 
@@ -225,7 +225,7 @@ func _dialogue_done(results: Dictionary) -> void:
 func _frame_speaker(speaker: String) -> void:
 	# The authored workbook gesture gets a prop shot, then conversation returns to Kit.
 	var entry: Dictionary = ui._seq[ui._seq_i]
-	if _pending == "promise" and str(entry.get("t", "")).contains("翻開工作簿"):
+	if _pending == "promise" and str(entry.get("key", "")) == "workbook":
 		world.workbook.open_workbook()
 		_last_speaker = ""
 		_frame_point(world.targets.workbook)
@@ -267,7 +267,7 @@ func _build_keepsake() -> void:
 	icon.custom_minimum_size = Vector2(42, 40)
 	keepsake.add_child(icon)
 	var label := Label.new()
-	label.text = Cast.MENTOR_GIFT
+	label.text = L.t(Cast.MENTOR_GIFT)
 	Settings.track_font(label, 20)
 	label.add_theme_color_override("font_color", UI.PAPER)
 	keepsake.add_child(label)
@@ -284,8 +284,7 @@ func _montage() -> void:
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	keepsake.hide()
 	for entry in Content.montage():
-		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
-		await ui.show_caption(str(entry.t) + "\n\n（" + tag + "）", 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+		await ui.show_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t), 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	Story.departure_done = true
 	Story.from_prologue = true
 	beat = Beat.DONE

@@ -17,6 +17,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The same routes against a generated ASCII pseudo catalogue: any CJK on screen
+  # is a string that never reached L.t, and fails the route.
+  leak-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Godot 4.7.2
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable
+          zip=Godot_v4.7.2-stable_linux.x86_64.zip
+          curl -fsSL -o "$zip" "$base/$zip"
+          curl -fsSL -o SHA512-SUMS.txt "$base/SHA512-SUMS.txt"
+          grep " $zip\$" SHA512-SUMS.txt | sha512sum -c -
+          unzip -q "$zip" -d "$HOME/godot"
+          ln -s "$HOME/godot/Godot_v4.7.2-stable_linux.x86_64" "$HOME/godot/godot"
+          echo "$HOME/godot" >> "$GITHUB_PATH"
+          rm "$zip" SHA512-SUMS.txt
+      - name: Pseudo-locale leak gate
+        run: E2E_PSEUDO=1 ./tools/e2e_headless.sh
+      # Every layout budget holds for the longer pseudo text too, so a language
+      # with longer words cannot push a control off screen unnoticed.
+      - name: Layout bounds under the pseudo catalogue
+        run: |
+          mkdir -p .godot
+          python3 -I tools/i18n.py pseudo .godot/pseudo.json
+          EDD_SETTINGS_PATH="$PWD/.godot/test-settings.cfg" EDD_LOCALE=en \
+            EDD_PSEUDO_JSON="$PWD/.godot/pseudo.json" \
+            godot --headless --path . --script res://tests/test_layout_bounds.gd
+
   suites:
     runs-on: ubuntu-24.04
     timeout-minutes: 150
@@ -33,5 +63,7 @@ jobs:
           ln -s "$HOME/godot/Godot_v4.7.2-stable_linux.x86_64" "$HOME/godot/godot"
           echo "$HOME/godot" >> "$GITHUB_PATH"
           rm "$zip" SHA512-SUMS.txt
+      - name: Localization gate
+        run: python3 -I tools/i18n.py check --require-translated && python3 tools/test_i18n_po.py
       - name: Run all suites
         run: ./tools/all_suites.sh

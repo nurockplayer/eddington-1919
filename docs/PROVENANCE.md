@@ -54,7 +54,7 @@
 ## M1 劍橋序章（1917）
 
 依據 [M1 規格](design/M1_CAMBRIDGE_PROLOGUE.md)（含「Fact-check applied」一節）。台詞由 Game Director 撰寫於 `scripts/cambridge/content_1917.gd`；
-人物名 Kit、Ashby 先生為**暫定名**，只在 `cast.gd` 定義。遊戲中每段蒙太奇字幕都標明（史實）或（虛構）。
+人物名 Kit、Ashby 先生只在 `cast.gd` 定義。遊戲中每段蒙太奇字幕都標明（史實）或（虛構）。
 
 | 內容 | 標記 | 依據／說明 |
 |---|---|---|
@@ -136,20 +136,32 @@ dark centre and bright bead, then removes it.
 ## Fonts
 
 The Traditional Chinese UI uses the existing system-font preference order
-(PingFang TC first) and a bundled Noto Sans TC Regular fallback, licensed under
-the SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
+(PingFang TC first) with bundled Noto Sans TC, JP and KR fallbacks; English,
+Japanese and Korean use the bundled faces only, so layout gates see the same
+glyphs on every OS. All three faces are licensed under the SIL Open Font
+License 1.1 (`assets/fonts/OFL.txt`).
 
 - Official release: [Noto Sans CJK 2.004](https://github.com/notofonts/noto-cjk/releases/tag/Sans2.004).
 - Font download: https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/TC/NotoSansTC-Regular.otf
 - Bundled path: `assets/fonts/NotoSansTC-Regular.otf`; upstream version 2.004,
   unchanged official static TC regional subset, 5,683,368 bytes (below 10 MB).
 - Font SHA-256: `5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537`.
+- Font download (Japanese): https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/JP/NotoSansJP-Regular.otf
+- Bundled path: `assets/fonts/NotoSansJP-Regular.otf`; upstream version 2.004,
+  unchanged official static JP regional subset, 4,533,028 bytes.
+- Font SHA-256: `dff723ba59d57d136764a04b9b2d03205544f7cd785a711442d6d2d085ac5073`.
+- Font download (Korean): https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/KR/NotoSansKR-Regular.otf
+- Bundled path: `assets/fonts/NotoSansKR-Regular.otf`; upstream version 2.004,
+  unchanged official static KR regional subset, 4,644,748 bytes.
+- Font SHA-256: `69975a0ac8472717870aefeab0a4d52739308d90856b9955313b2ad5e0148d68`.
 - Licence download: https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/LICENSE
 - Licence SHA-256: `6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2`.
 
 No game-specific subsetting was needed. `tests/test_fonts.gd` checks the bundled
-FontFile directly for every non-ASCII character in `scripts/**/*.gd`, so new
-text outside its coverage fails even on machines with Chinese system fonts.
+FontFiles directly for every non-ASCII character in `scripts/**/*.gd`, so new
+text outside their combined coverage fails even on machines with Chinese system
+fonts; `tests/test_i18n.gd` checks that each locale's font can draw 한, の and 繁
+through its fallbacks.
 
 ## Score (M4)
 

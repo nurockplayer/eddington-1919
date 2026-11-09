@@ -184,7 +184,7 @@ func _build() -> void:
 	_inset_label = _label("", 18)
 	_inset_label.visible = false
 	_canvas.add_child(_inset_label)
-	_arrow_label = _label("越拉越快", 17, HORIZONTAL_ALIGNMENT_LEFT)
+	_arrow_label = _label(L.t("越拉越快"), 17, HORIZONTAL_ALIGNMENT_LEFT)
 	_arrow_label.visible = false
 	_canvas.add_child(_arrow_label)
 	_buttons = HBoxContainer.new()
@@ -193,14 +193,14 @@ func _build() -> void:
 	_canvas.add_child(_buttons)
 	if mode == "light":
 		for i in 2:
-			var frame := _button("從箱外看" if i == 0 else "從箱裡看")
+			var frame := _button(L.t("從箱外看") if i == 0 else L.t("從箱裡看"))
 			frame.toggle_mode = true
 			frame.pressed.connect(_frame.bind(i))
 			_buttons.add_child(frame)
 			frame_btns.append(frame)
 	else:
 		frame_btns.clear()
-	release_btn = _button("鬆手")
+	release_btn = _button(L.t("鬆手"))
 	release_btn.pressed.connect(_release)
 	_buttons.add_child(release_btn)
 	next_btn = _button("")
@@ -268,16 +268,16 @@ func _refresh_stage() -> void:
 	next_btn.disabled = true
 	release_btn.disabled = false
 	if mode == "drop":
-		_prompt.text = DROP_PROMPTS[stage]
-		_note.text = DROP_NOTE
-		next_btn.text = "回到桌邊" if stage == 2 else "換一格"
+		_prompt.text = L.t(DROP_PROMPTS[stage])
+		_note.text = L.t(DROP_NOTE)
+		next_btn.text = L.t("回到桌邊") if stage == 2 else L.t("換一格")
 		_inset_label.visible = stage != 1
-		_inset_label.text = "地面" if stage == 0 else "Eddington 用手蓋住了這一格。"
+		_inset_label.text = L.t("地面") if stage == 0 else L.t("Eddington 用手蓋住了這一格。")
 		_arrow_label.visible = stage == 1
 	else:
 		_prompt.text = ""
-		_note.text = LIGHT_NOTE
-		next_btn.text = "收起來"
+		_note.text = L.t(LIGHT_NOTE)
+		next_btn.text = L.t("收起來")
 		_sync_frame_buttons()
 	_layout()
 	_canvas.queue_redraw()
@@ -369,7 +369,7 @@ func _process(delta: float) -> void:
 
 func _fall_end() -> void:
 	release_btn.disabled = true
-	next_btn.text = "回到桌邊" if stage == 2 else "換一格"
+	next_btn.text = L.t("回到桌邊") if stage == 2 else L.t("換一格")
 	next_btn.disabled = false
 	next_btn.grab_focus()
 	_canvas.queue_redraw()

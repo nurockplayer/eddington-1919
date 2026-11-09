@@ -12,14 +12,17 @@ const Content1917 := preload("res://scripts/cambridge/content_1917.gd")
 const A := CAST.MENTOR
 const YOU := CAST.YOU
 
+## The notebook answer, kept as source text so a stored copy stays translatable.
+const FINAL_REASON_CHOICES := ["我自己的底片", "Sobral 的 4 吋鏡頭", "兩地一起", "水星和光指向同一邊", "我還沒有改變想法"]
+
 
 static func intro_caption() -> String:
-	return "劍橋，1919 年 10 月\n\n（推測重建）"
+	return L.t("劍橋，1919 年 10 月\n\n（推測重建）")
 
 
 static func opening() -> Array:
 	return [
-		{"s": A, "t": "Greenwich 來信了。Dyson 寫的，在桌上。你先看。"},
+		{"s": A, "t": L.t("Greenwich 來信了。Dyson 寫的，在桌上。你先看。")},
 	]
 
 
@@ -27,29 +30,29 @@ static func opening() -> Array:
 ## is not a quotation, and the arrival day is not established.
 static func letter() -> Array:
 	return [
-		{"s": "Dyson 的信（推測重建，非原文）", "t": "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"},
-		{"s": A, "t": "把它們抄到你的圖上。一筆一筆來。"},
+		{"s": L.t("Dyson 的信（推測重建，非原文）"), "t": L.t("Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。")},
+		{"s": A, "t": L.t("把它們抄到你的圖上。一筆一筆來。")},
 	]
 
 
 static func weight() -> Array:
 	return [
-		{"s": A, "t": "天體照相儀那組，你怎麼算？", "key": "astro_weight",
-			"choices": ["照樣算，一樣重", "先放一邊，但寫明原因（星像糊、比例尺可能變了）",
-				"整組丟掉，不用提", "還不能決定，先重量一次"]},
+		{"s": A, "t": L.t("天體照相儀那組，你怎麼算？"), "key": "astro_weight",
+			"choices": [L.t("照樣算，一樣重"), L.t("先放一邊，但寫明原因（星像糊、比例尺可能變了）"),
+				L.t("整組丟掉，不用提"), L.t("還不能決定，先重量一次")]},
 	]
 
 
 static func weight_reply(choice: int) -> Array:
 	match choice:
 		0:
-			return [{"s": A, "t": "一樣重，平均下來約 1.46″。可是這兩組自己就差了一倍，平均只是把分歧藏起來。再說，一架比例尺可能變了的鏡頭，憑什麼和沒變的一樣重？"}]
+			return [{"s": A, "t": L.t("一樣重，平均下來約 1.46″。可是這兩組自己就差了一倍，平均只是把分歧藏起來。再說，一架比例尺可能變了的鏡頭，憑什麼和沒變的一樣重？")}]
 		1:
-			return [{"s": A, "t": "好。寫明白：星像糊，比例尺可能變了——讓後人可以不同意。Greenwich 那邊也是這麼做的。"}]
+			return [{"s": A, "t": L.t("好。寫明白：星像糊，比例尺可能變了——讓後人可以不同意。Greenwich 那邊也是這麼做的。")}]
 		2:
-			return [{"s": A, "t": "不行。不提，就是替讀的人決定他不必知道。丟不丟是一回事，藏起來是另一回事。"}]
+			return [{"s": A, "t": L.t("不行。不提，就是替讀的人決定他不必知道。丟不丟是一回事，藏起來是另一回事。")}]
 		3:
-			return [{"s": A, "t": "可以。Greenwich 也還在比校驗片。只是十一月不會等你——到時候要有一句話交代。"}]
+			return [{"s": A, "t": L.t("可以。Greenwich 也還在比校驗片。只是十一月不會等你——到時候要有一句話交代。")}]
 	return []
 
 
@@ -57,12 +60,12 @@ static func weight_reply(choice: int) -> Array:
 static func ledger(run: Dictionary, bet_1917: Dictionary, bet_now: Dictionary) -> Array:
 	var seq: Array = []
 	if not bet_1917.is_empty():
-		var page := "Ashby 先生寫的：0.87。\n你寫的：%s（%s）。" % [
+		var page := L.t("Ashby 先生寫的：0.87。\n你寫的：%s（%s）。") % [
 			Content.bet_pick_text(int(bet_1917.get("pick", -1))),
 			Content.bet_sure_text(int(bet_1917.get("sure", -1)))]
 		if int(bet_now.get("pick", -1)) != int(bet_1917.get("pick", -1)):
-			page += "\n1919 年你改成：%s。" % Content.bet_pick_text(int(bet_now.get("pick", -1)))
-		seq.append({"s": "1917 年的帳本", "t": page})
+			page += L.t("\n1919 年你改成：%s。") % Content.bet_pick_text(int(bet_now.get("pick", -1)))
+		seq.append({"s": L.t("1917 年的帳本"), "t": page})
 	seq.append({"s": A, "t": _case_line(run)})
 	return seq
 
@@ -83,12 +86,12 @@ static func ledger_case(run: Dictionary) -> String:
 static func _case_line(run: Dictionary) -> String:
 	match ledger_case(run):
 		"conceded":
-			return "我寫的是 0.87。你的底片和 Sobral 的小鏡頭，都容不下它。……在這件事上，我錯了。"
+			return L.t("我寫的是 0.87。你的底片和 Sobral 的小鏡頭，都容不下它。……在這件事上，我錯了。")
 		"own_low":
-			return "你的底片站在我的 0.87 這邊。我不會假裝沒看見。可是 Sobral 的小鏡頭不站——兩地不一致，總得有一邊要解釋。"
+			return L.t("你的底片站在我的 0.87 這邊。我不會假裝沒看見。可是 Sobral 的小鏡頭不站——兩地不一致，總得有一邊要解釋。")
 		"inconclusive":
-			return "你的底片還分不出來。Sobral 的可以。一地分得出，一地還不能——所以我還不想只聽一邊，也不能假裝沒聽見。"
-	return "你沒有帶回數值，我也不替你猜。Sobral 的小鏡頭有，而它容不下 0.87。只靠一個地方、一套儀器，我還不想寫下結論。"
+			return L.t("你的底片還分不出來。Sobral 的可以。一地分得出，一地還不能——所以我還不想只聽一邊，也不能假裝沒聽見。")
+	return L.t("你沒有帶回數值，我也不替你猜。Sobral 的小鏡頭有，而它容不下 0.87。只靠一個地方、一套儀器，我還不想寫下結論。")
 
 
 ## suspect_text: the player's 1917 suspect, or "" if they left none.
@@ -96,20 +99,20 @@ static func _case_line(run: Dictionary) -> String:
 static func orrery_talk(suspect_text: String, mercury_mark := -1) -> Array:
 	var seq: Array = []
 	# HISTORICAL_RECORD (factcheck claim 3 and Ashby's line below): Einstein's 1915 result; 43″ is the residual. FICTION: the player's note.
-	seq.append({"s": "年鑑・水星（1919 年 10 月補記）", "t": "照愛因斯坦 1915 年的算法，水星的近日點每一百年要多走約 43 角秒——正好是年鑑上算完其他行星之後，剩下的那一點。",
-		"key": "mercury_1919", "choices": ["對得上", "對不上"],
-		"then": [[], [{"s": "太陽系儀", "t": "再看一眼：年鑑上剩下的是 43 角秒，他算出來的也是。"}]]})
+	seq.append({"s": L.t("年鑑・水星（1919 年 10 月補記）"), "t": L.t("照愛因斯坦 1915 年的算法，水星的近日點每一百年要多走約 43 角秒——正好是年鑑上算完其他行星之後，剩下的那一點。"),
+		"key": "mercury_1919", "choices": [L.t("對得上"), L.t("對不上")],
+		"then": [[], [{"s": L.t("太陽系儀"), "t": L.t("再看一眼：年鑑上剩下的是 43 角秒，他算出來的也是。")}]]})
 	if mercury_mark == 0 or mercury_mark == 1:
-		seq.append({"s": "太陽系儀", "t": "[color=#b8ad98]兩年前你在這一行旁邊寫的是：%s。[/color]" % ["對得上", "對不上"][mercury_mark]})
+		seq.append({"s": L.t("太陽系儀"), "t": L.t("[color=#b8ad98]兩年前你在這一行旁邊寫的是：%s。[/color]") % [L.t("對得上"), L.t("對不上")][mercury_mark]})
 	if suspect_text != "":
-		seq.append({"s": "太陽系儀", "t": "你在 1917 年最懷疑的是：%s。" % suspect_text})
+		seq.append({"s": L.t("太陽系儀"), "t": L.t("你在 1917 年最懷疑的是：%s。") % suspect_text})
 	seq.append_array([
-		{"s": A, "t": "1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。消息傳到劍橋時，我想：先知道答案再去算，誰都算得對。"},
+		{"s": A, "t": L.t("1915 年 11 月，愛因斯坦說他的理論算得出水星那 43 角秒。消息傳到劍橋時，我想：先知道答案再去算，誰都算得對。")},
 		# HISTORICAL_RECORD: Vulcan, Seeliger, Hall (factcheck claim 12). FICTION: Ashby's judgement.
-		{"s": A, "t": "我們找過的那些說法——看不見的行星、太陽旁的物質、改一點引力的規則——都只為了水星，沒有一個能讓星光彎得像愛因斯坦說的那麼多。"},
-		{"s": A, "t": "可是光彎多少，是在任何人量之前就寫下的。"},
-		{"s": A, "t": "一個是事後的解釋，一個是事先的下注——現在指著同一邊。",
-			"key": "click", "choices": ["水星也不再是例外了", "同一個想法，說中兩件不相干的事", "還要更多證據"]},
+		{"s": A, "t": L.t("我們找過的那些說法——看不見的行星、太陽旁的物質、改一點引力的規則——都只為了水星，沒有一個能讓星光彎得像愛因斯坦說的那麼多。")},
+		{"s": A, "t": L.t("可是光彎多少，是在任何人量之前就寫下的。")},
+		{"s": A, "t": L.t("一個是事後的解釋，一個是事先的下注——現在指著同一邊。"),
+			"key": "click", "choices": [L.t("水星也不再是例外了"), L.t("同一個想法，說中兩件不相干的事"), L.t("還要更多證據")]},
 	])
 	return seq
 
@@ -117,35 +120,36 @@ static func orrery_talk(suspect_text: String, mercury_mark := -1) -> Array:
 static func click_reply(choice: int) -> Array:
 	match choice:
 		0:
-			return [{"s": A, "t": "是啊。年鑑上那一行，可以闔上了。"}]
+			return [{"s": A, "t": L.t("是啊。年鑑上那一行，可以闔上了。")}]
 		1:
-			return [{"s": A, "t": "嗯。這種事，不常有。"}]
+			return [{"s": A, "t": L.t("嗯。這種事，不常有。")}]
 		2:
-			return [{"s": A, "t": "應該的。下一次日食，還會有人去量。"}]
+			return [{"s": A, "t": L.t("應該的。下一次日食，還會有人去量。")}]
 	return []
 
 
 ## FICTION: the player's own revision goes in the ledger; Ashby only witnesses it.
 static func october_bet() -> Array:
-	return [{"s": "1917 年的帳本", "t": "帳本翻到新的一行，Ashby 先生把筆推過來。\n1919 年 10 月，你寫：",
-		"key": "bet_oct", "choices": ["零", "0.87", "1.75", "說不準"]}]
+	return [{"s": L.t("1917 年的帳本"), "t": L.t("帳本翻到新的一行，Ashby 先生把筆推過來。\n1919 年 10 月，你寫："),
+		"key": "bet_oct", "choices": [L.t("零"), "0.87", "1.75", L.t("說不準")]}]
 
 
 ## FICTION. The pick is never corrected; Ashby only notices whether this page differs
 ## from the one the player wrote before measuring.
 static func october_bet_reply(pick: int, bet_now: Dictionary) -> Array:
 	if bet_now.is_empty():
-		return [{"s": A, "t": "寫下來，比記在心裡好。"}]
+		return [{"s": A, "t": L.t("寫下來，比記在心裡好。")}]
 	if pick != int(bet_now.get("pick", -1)):
-		return [{"s": A, "t": "改了。寫下來，比記在心裡好。"}]
-	return [{"s": A, "t": "沒改。那也寫下來——連日期一起。"}]
+		return [{"s": A, "t": L.t("改了。寫下來，比記在心裡好。")}]
+	return [{"s": A, "t": L.t("沒改。那也寫下來——連日期一起。")}]
 
 
 static func final_reason() -> Array:
 	return [
-		{"s": "筆記本", "t": "在筆記本最後寫一句：哪一個證據最讓你改變想法？",
+		{"s": L.t("筆記本"), "t": L.t("在筆記本最後寫一句：哪一個證據最讓你改變想法？"),
 			"key": "final_reason",
-			"choices": ["我自己的底片", "Sobral 的 4 吋鏡頭", "兩地一起", "水星和光指向同一邊", "我還沒有改變想法"]},
+			"choices": FINAL_REASON_CHOICES.map(func(c): return L.t(c)),
+			"sources": FINAL_REASON_CHOICES},
 	]
 
 
@@ -155,29 +159,29 @@ static func final_reply(choice: int, run := {}, bet_1917 := {}, bet_now := {}) -
 	if choice == 4:
 		# FICTION: the ledger and the notebook disagree; both pages stay.
 		if run.has("bet_oct") and int(run.bet_oct) != int(bet_now.get("pick", -1)) and not bet_now.is_empty():
-			return [{"s": A, "t": "帳上你改了，這裡寫沒有。兩句都留著，讓後人來問你。"}]
-		return [{"s": A, "t": "那就寫下來。沒有改變，也是一筆紀錄。"}]
+			return [{"s": A, "t": L.t("帳上你改了，這裡寫沒有。兩句都留著，讓後人來問你。")}]
+		return [{"s": A, "t": L.t("那就寫下來。沒有改變，也是一筆紀錄。")}]
 	if choice < 0:
 		return []
 	if choice == 0:
 		match ledger_case(run):
 			"own_low":
-				return [{"s": A, "t": "你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。"}]
+				return [{"s": A, "t": L.t("你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。")}]
 			"inconclusive":
-				return [{"s": A, "t": "你的底片還分不出 0.87 和 1.75，剛才我們都看見了。讓你改變想法的，也許不是那個數字，是你親手量過它。那就照這樣寫。"}]
+				return [{"s": A, "t": L.t("你的底片還分不出 0.87 和 1.75，剛才我們都看見了。讓你改變想法的，也許不是那個數字，是你親手量過它。那就照這樣寫。")}]
 			"no_value":
-				return [{"s": A, "t": "你沒有帶回數值。你要寫底片，就寫明白：改變你的是拍它們的那幾分鐘，不是數字。"}]
+				return [{"s": A, "t": L.t("你沒有帶回數值。你要寫底片，就寫明白：改變你的是拍它們的那幾分鐘，不是數字。")}]
 	if int(bet_1917.get("pick", -1)) == 2:
 		if run.has("bet_oct") and int(run.bet_oct) != 2:
-			return [{"s": A, "t": "你在 1917 年寫了 1.75，今天這一行不是。寫清楚，是什麼讓你改的。"}]
+			return [{"s": A, "t": L.t("你在 1917 年寫了 1.75，今天這一行不是。寫清楚，是什麼讓你改的。")}]
 		if int(bet_now.get("pick", -1)) != 2:
-			return [{"s": A, "t": "你在 1917 年寫了 1.75，量之前又改了。所以你改變想法，不只這一次。"}]
-		return [{"s": A, "t": "你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。"}]
-	return [{"s": A, "t": "那就這麼寫。"}]
+			return [{"s": A, "t": L.t("你在 1917 年寫了 1.75，量之前又改了。所以你改變想法，不只這一次。")}]
+		return [{"s": A, "t": L.t("你在 1917 年就寫了 1.75。那你改變的不是數字——是你憑什麼相信它。")}]
+	return [{"s": A, "t": L.t("那就這麼寫。")}]
 
 
 static func close() -> Array:
-	return [{"s": A, "t": "11 月 6 日，倫敦開會。"}]
+	return [{"s": A, "t": L.t("11 月 6 日，倫敦開會。")}]
 
 
 ## The 1917 suspect text for a stored index; "" if the player left none.

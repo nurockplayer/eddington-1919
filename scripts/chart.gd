@@ -14,6 +14,7 @@ var _drawn_hollow := 0
 var _drawn_filled := 0
 var _drawn_markers: Array = []  # per row, in draw order: "filled" or "hollow"
 var _drawn_bars: Array = []     # per row: "bar" or "none"
+var _drawn_texts: Array = []    # every string drawn this frame
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
@@ -36,6 +37,12 @@ func drawn() -> Dictionary:
 		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate()}
 
 
+## Every string the last _draw() painted. draw_string output is not a node
+## property, so the leak watcher reads this to see the chart's text.
+func drawn_texts() -> Array:
+	return _drawn_texts.duplicate()
+
+
 ## Weak plates are marked by shape, not only colour: hollow ring vs filled dot.
 func marker_filled(row: Dictionary) -> bool:
 	return not row.get("weak", false)
@@ -55,24 +62,30 @@ func _draw() -> void:
 	_drawn_filled = 0
 	_drawn_markers.clear()
 	_drawn_bars.clear()
+	_drawn_texts.clear()
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
 	var top := 30.0
 	var bottom := h - 46.0
-	for ref in [[0.0, "無偏折 0″", Color(0.6, 0.6, 0.6)], [0.87, "牛頓式 0.87″", Color(0.55, 0.75, 0.95)], [1.75, "愛因斯坦 1.75″", Color(0.98, 0.72, 0.4)]]:
+	for ref in [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
+		_drawn_texts.append(ref[1])
 		draw_string(font, Vector2(x - 40, bottom + 22.0 * Settings.text_scale), ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
 	for t in range(0, int(X_MAX) + 1):
 		var x := _x(t, w)
 		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
 	if not revealed:
-		draw_string(font, Vector2(70, h * 0.45), "先選片，再量測。數值會在量測後顯示。", HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
+		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
+		_drawn_texts.append(unmeasured)
+		draw_string(font, Vector2(70, h * 0.45), unmeasured, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
 		return
 	if rows.is_empty():
-		draw_string(font, Vector2(70, h * 0.45), "沒有可量測的底片。", HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.9, 0.55, 0.5))
+		var empty_hint := L.t("沒有可量測的底片。")
+		_drawn_texts.append(empty_hint)
+		draw_string(font, Vector2(70, h * 0.45), empty_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.9, 0.55, 0.5))
 		return
 	var n := rows.size() + 1
 	var step := minf(34.0, (bottom - top - 20.0) / n)
@@ -107,6 +120,7 @@ func _draw() -> void:
 			_drawn_hollow += 1
 			_drawn_markers.append("hollow")
 		_drawn_label_px = _label_px
+		_drawn_texts.append(r.label)
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	if combined.get("n", 0) > 0:
 		var y := top + 16.0 + rows.size() * step + 10.0
@@ -123,5 +137,9 @@ func _draw() -> void:
 		draw_line(Vector2(x0, y), Vector2(x1, y), c, 4.0)
 		var cx := _x(combined.value, w)
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), "合併", HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
-		draw_string(font, Vector2(cx + 14, y - 10.0 * Settings.text_scale), "%.2f″ ± %.2f″" % [combined.value, combined.sigma], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(16), c)
+		var combined_label := L.t("合併")
+		_drawn_texts.append(combined_label)
+		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
+		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
+		_drawn_texts.append(combined_value)
+		draw_string(font, Vector2(cx + 14, y - 10.0 * Settings.text_scale), combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(16), c)

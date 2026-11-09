@@ -1,6 +1,9 @@
 extends Node
 ## Session continuity and completed experiment snapshots. No scene references.
 
+## Loads the translation helper at startup; its `_static_init` picks the locale.
+const L := preload("res://scripts/l10n.gd")
+
 var runs: Array[Dictionary] = []
 
 var from_prologue := false
@@ -35,6 +38,12 @@ const SAVED := [
 	"orrery", "mercury_suspect", "sky_promise", "bond_tone", "slip_fix",
 	"departure_done", "epilogue_done", "ending_plate_caption",
 ]
+
+
+func _ready() -> void:
+	# Root auto-translate stays off: an unwrapped string shows itself instead of
+	# being translated quietly (docs/design/LOCALIZATION.md).
+	get_tree().root.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 
 
 func to_save() -> Dictionary:

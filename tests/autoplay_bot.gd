@@ -31,6 +31,7 @@ var disruptions: Array[String] = []
 var _disrupting := false
 var _settings_existed := false
 var _settings_bytes := PackedByteArray()
+var _leak_watch: Node = null
 
 
 
@@ -45,6 +46,9 @@ func _ready() -> void:
 		tree_exiting.connect(_restore_monkey_settings)
 	if continuation_helper:
 		return
+	if OS.has_environment("EDD_PSEUDO_JSON"):
+		_leak_watch = load("res://tests/leak_watch.gd").new()
+		add_child(_leak_watch)
 	var args: Dictionary = main._user_args()
 	store_shots = scenario == "careful" and args.has("store-shots")
 	Engine.time_scale = float(args.get("speed", "1"))
@@ -341,7 +345,7 @@ func _run() -> void:
 	if store_shots:
 		await shot("store_f_ending_telegram")
 	for b in main.ui.ending_panel.find_children("*", "Button", true, false):
-		if b.text == "歷史上發生了什麼":
+		if b.text == L.t("歷史上發生了什麼"):
 			await _click(b.get_global_rect().get_center())
 			await _frames(8)
 			await shot("10b_ending_history")
@@ -564,6 +568,8 @@ func _night() -> void:
 
 
 func _finish() -> void:
+	if _leak_watch != null:
+		_leak_watch.finish()
 	var score_failures: Array[String] = []
 	if scenario == "careful":
 		score_failures = ScorePlayer.run_failures(false)
@@ -602,7 +608,7 @@ func _finish() -> void:
 		# Press 「新的天空」 on the ending screen; the restarted scene continues in _run().
 		var btns: Array = main.ui.ending_panel.find_children("*", "Button", true, false)
 		for b in btns:
-			if b.text.begins_with("新的天空"):
+			if b.text == L.t("新的天空：換一種雲況"):
 				# Press and release without awaiting: the scene (and this bot) is freed on reload.
 				var pos: Vector2 = get_viewport().get_final_transform() * b.get_global_rect().get_center()
 				for pressed in [true, false]:
@@ -703,7 +709,7 @@ func monkey_step(context: String, walking := false) -> void:
 				await _hold({KEY_W: KEY_S, KEY_S: KEY_W, KEY_A: KEY_D, KEY_D: KEY_A}[direction], seconds)
 			"reopen":
 				for button in main.ui.viewer.find_children("*", "Button", true, false):
-					if button.text == "離開桌子":
+					if button.text == L.t("離開桌子"):
 						await _click(button.get_global_rect().get_center())
 						break
 				await interact(main.world.measure_pos)

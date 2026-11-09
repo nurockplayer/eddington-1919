@@ -68,7 +68,7 @@ func _ready() -> void:
 	Story.reset()
 	world = Room.build(self)
 	_trial_marker = Label3D.new()
-	_trial_marker.text = "▼ 底片櫃"
+	_trial_marker.text = L.t("▼ 底片櫃")
 	_trial_marker.font = preload("res://scripts/fonts.gd").cjk()
 	_trial_marker.font_size = 30
 	_trial_marker.pixel_size = 0.003
@@ -182,14 +182,14 @@ func _sync_player() -> void:
 	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	if beat == Beat.INVESTIGATE:
-		var task := "核對 14 號星場的抄錄圖，交給 %s" % Cast.MENTOR
+		var task := L.t("核對 14 號星場的抄錄圖，交給 %s") % L.t(Cast.MENTOR)
 		if aligned and not kit_checked:
-			task = "對上了。請 %s 自己再對一次，再寫進筆記本。" % Cast.KIT
-		ui.set_objectives("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]" % [task, Cast.KIT, Prompts.key("toggle_log")])
+			task = L.t("對上了。請 %s 自己再對一次，再寫進筆記本。") % L.t(Cast.KIT)
+		ui.set_objectives(L.t("[b]劍橋・1917[/b]\n%s\n[color=#b8ad98]看片台 · 觀測日誌 · %s · 筆記本\n%s 對話紀錄[/color]") % [task, L.t(Cast.KIT), Prompts.key("toggle_log")])
 	elif beat == Beat.ORRERY:
-		ui.set_objectives("[b]劍橋・1917[/b]\n查看太陽系儀")
+		ui.set_objectives(L.t("[b]劍橋・1917[/b]\n查看太陽系儀"))
 	elif beat == Beat.TRIAL_TASK:
-		ui.set_objectives("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。")
+		ui.set_objectives(L.t("到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。"))
 	else:
 		ui.set_objectives("")
 	_trial_marker.visible = beat == Beat.TRIAL_TASK and free
@@ -204,7 +204,7 @@ func _on_prompts_changed() -> void:
 func _process(delta: float) -> void:
 	if _caption_elapsed >= 0.0 and not ui.log_open():
 		_caption_elapsed += delta
-		_caption_prompt.text = "［%s］繼續" % Prompts.key("interact")
+		_caption_prompt.text = L.t("［%s］繼續") % Prompts.key("interact")
 	_light_t += delta
 	# Slow overlapping waves: a quiet coal fire, without particles or shadow redraw.
 	var flicker := 1.0 + 0.055 * sin(_light_t * 2.3) + 0.025 * sin(_light_t * 5.7)
@@ -224,7 +224,7 @@ func _process(delta: float) -> void:
 			relevant = target.get_meta("interact_id") == "cabinet"
 		elif relevant and beat == Beat.ORRERY:
 			relevant = target.get_meta("interact_id") == "orrery"
-		ui.set_prompt("［" + Prompts.key("interact") + "］" + str(target.get_meta("prompt")) if relevant else "")
+		ui.set_prompt(L.t("［%s］%s") % [Prompts.key("interact"), L.t(str(target.get_meta("prompt")))] if relevant else "")
 	else:
 		ui.set_prompt("")
 
@@ -612,8 +612,7 @@ func _montage() -> void:
 	_sync_player()
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	for entry in C17.montage():
-		var tag := "史實" if entry.tag == "HISTORICAL" else "虛構"
-		await _montage_caption(str(entry.t) + "\n\n（" + tag + "）")
+		await _montage_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t))
 	Story.prologue_done = true
 	beat = Beat.DONE
 	Checkpoint.save("departure")
