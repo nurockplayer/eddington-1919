@@ -144,6 +144,53 @@ func saved_locale_checks() -> void:
 		OS.set_environment("EDD_SETTINGS_PATH", env_before)
 
 
+## Startup uses the saved player language after the script and environment overrides.
+func startup_locale_checks() -> void:
+	var env_before := OS.get_environment("EDD_SETTINGS_PATH")
+	var path := ProjectSettings.globalize_path("user://test-i18n-startup-locale.cfg")
+	DirAccess.remove_absolute(path)
+	OS.set_environment("EDD_SETTINGS_PATH", path)
+	var language := Settings.language
+	var empty_args := PackedStringArray()
+	var empty_user_args := PackedStringArray()
+	if L.TRANSLATED:
+		Settings.language = "ko"
+		check(Settings.save_language() == OK, "startup saved ko")
+		check(L._startup_locale(empty_args, empty_user_args, "", "en_US") == "ko",
+			"startup prefers saved ko over en_US")
+		Settings.language = "ja"
+		check(Settings.save_language() == OK, "startup saved ja")
+		check(L._startup_locale(empty_args, empty_user_args, "", "ko_KR") == "ja",
+			"startup prefers saved ja over ko_KR")
+
+	DirAccess.remove_absolute(path)
+	check(L._startup_locale(empty_args, empty_user_args, "", "ja_JP") == "ja",
+		"startup uses ja_JP when no language is saved")
+	check(L._startup_locale(empty_args, empty_user_args, "", "de_DE") == "en",
+		"startup resolves de_DE to en when no language is saved")
+
+	if L.TRANSLATED:
+		Settings.language = "ko"
+		check(Settings.save_language() == OK, "startup saved ko for env precedence")
+		check(L._startup_locale(empty_args, empty_user_args, "en", "ko_KR") == "en",
+			"startup env wins over saved ko")
+		check(L._startup_locale(PackedStringArray(["--script", "x.gd"]), empty_user_args, "", "en_US") == "zh_TW",
+			"startup script launch stays zh-TW")
+		check(L._startup_locale(empty_args, PackedStringArray(["--autoplay=careful"]), "", "en_US") == "zh_TW",
+			"startup autoplay launch stays zh-TW")
+		Settings.language = "xx"
+		check(Settings.save_language() == OK, "startup saved unsupported xx")
+		check(L._startup_locale(empty_args, empty_user_args, "", "ko_KR") == "ko",
+			"startup ignores unsupported saved language and uses ko_KR")
+
+	Settings.language = language
+	DirAccess.remove_absolute(path)
+	if env_before.is_empty():
+		OS.unset_environment("EDD_SETTINGS_PATH")
+	else:
+		OS.set_environment("EDD_SETTINGS_PATH", env_before)
+
+
 ## The dev pseudo locale: L.t and L.tn reach the ASCII catalogue, and the game's
 ## own language stays en so fonts and language logic do not change.
 func pseudo_checks() -> void:
@@ -214,6 +261,7 @@ func _run() -> void:
 	await reload_check()
 	await record_reason_check()
 	saved_locale_checks()
+	startup_locale_checks()
 	pseudo_checks()
 	print("test_i18n: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

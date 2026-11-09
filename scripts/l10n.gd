@@ -88,25 +88,25 @@ static func cycle() -> String:
 
 ## Env override, then the suites and bots (zh-TW text is what they assert), then the
 ## saved choice, then the OS locale.
-static func _startup_locale() -> String:
-	var env := OS.get_environment("EDD_LOCALE")
+static func _startup_locale(args: PackedStringArray = OS.get_cmdline_args(), user_args: PackedStringArray = OS.get_cmdline_user_args(), env_locale: String = OS.get_environment("EDD_LOCALE"), os_locale: String = OS.get_locale()) -> String:
+	var env := env_locale
 	if not env.is_empty():
 		return resolve(env)
-	if _script_or_bot():
+	if _script_or_bot(args, user_args):
 		return "zh_TW"
 	if not TRANSLATED:
 		return "zh_TW"
 	var saved := _saved_locale()
 	if not saved.is_empty():
 		return saved
-	return resolve(OS.get_locale())
+	return resolve(os_locale)
 
 
-static func _script_or_bot() -> bool:
-	if OS.get_cmdline_args().has("--script"):
+static func _script_or_bot(args: PackedStringArray, user_args: PackedStringArray) -> bool:
+	if args.has("--script"):
 		return true
 	var flags := {}
-	for argument in OS.get_cmdline_user_args():
+	for argument in user_args:
 		flags[argument.trim_prefix("--").split("=", true, 1)[0]] = true
 	for flag in Checkpoint.BOT_ARGS:
 		if flags.has(flag):
