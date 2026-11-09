@@ -256,4 +256,4 @@ edd-lead 2026-11-07 草稿；尚未拍攝，是否製作與最終剪輯由 Owner
 - 不用歷史錄音 `gramophone_home_fires_1915.ogg`：地區權利還在 B8。上列配樂的來源見 `docs/audio/SOURCES.md`。
 - 片中人物的 AI 輔助肖像屬於第 7 節的揭露範圍，Owner 申報時一併考慮。
 
-拍攝方式（尚未試過）：Godot 的 `--write-movie` 搭配 `--fixed-fps 60` 和 bot 路線可以逐格輸出影像與聲音，不必螢幕錄影。它屬於視窗執行，受週一至週五 09:00–15:00 JST 的規則限制；bot 走的路線與速度不一定適合直接剪用，要先拍一段短片測試。
+拍攝方式（2026-11-09 13:09 JST 試過一次，edd-lead）：在 main 3c0e1ff 用 `godot --path . --fixed-fps 60 --resolution 1920x1080 --write-movie <out>.avi --quit-after 720 -- --prologue-autoplay=honest --seed=7` 拍 12 秒，腳本 `director/movie_test.sh`。結果：MJPEG 60 fps 加 48 kHz 立體聲 PCM，12 秒約 50 MB，畫面逐格乾淨，沒有掉格。要注意三點：一、輸出是 1600x900，也就是 `project.godot` 的 viewport 大小，`--resolution` 沒有生效；Steam 建議 1920x1080，正式拍之前要先找出放大輸出的方法（例如拍攝時暫時調高 viewport 大小）。二、bot 節奏很快，12 秒內就走完標題字卡、Kit 的對話和核對紀錄，對話停留太短，不能直接剪用；要剪用的鏡頭需要放慢 bot，或另寫一條拍攝專用的路線。三、聲音平均 -43 dB、峰值 -16 dB，剪輯時要拉高音量。它屬於視窗執行，受週一至週五 09:00–15:00 JST 的規則限制。
