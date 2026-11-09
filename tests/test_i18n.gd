@@ -124,6 +124,26 @@ func record_reason_check() -> void:
 	L.apply("zh_TW")
 
 
+## A saved language survives a cold start: _startup_locale reads it before Settings loads.
+## Suites start under --script, so this reads the file the way a player launch does.
+func saved_locale_checks() -> void:
+	var path := Settings.settings_path()
+	var had := FileAccess.file_exists(path)
+	var before := FileAccess.get_file_as_string(path) if had else ""
+	var language := Settings.language
+	for pair in [["ko", "ko"], ["ja", "ja"], ["en", "en"], ["zh_TW", "zh_TW"], ["xx", ""]]:
+		Settings.language = pair[0]
+		check(Settings.save_language() == OK, "language %s saved" % pair[0])
+		check(L._saved_locale() == pair[1], "saved %s reads back as '%s', got '%s'" % [pair[0], pair[1], L._saved_locale()])
+	Settings.language = language
+	if had:
+		var file := FileAccess.open(path, FileAccess.WRITE)
+		file.store_string(before)
+		file.close()
+	else:
+		DirAccess.remove_absolute(path)
+
+
 ## The dev pseudo locale: L.t and L.tn reach the ASCII catalogue, and the game's
 ## own language stays en so fonts and language logic do not change.
 func pseudo_checks() -> void:
@@ -193,6 +213,7 @@ func _run() -> void:
 	hold_line_checks()
 	await reload_check()
 	await record_reason_check()
+	saved_locale_checks()
 	pseudo_checks()
 	print("test_i18n: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
