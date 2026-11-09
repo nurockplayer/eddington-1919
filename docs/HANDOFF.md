@@ -957,3 +957,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#294** (closes #291): `_startup_locale(args, user_args, env_locale, os_locale)` with OS defaults; test_i18n 1163/0 (lead rerun; the wrapper's rerun was orb-test exit 124); revert check done by the worker. ds-2 detached at origin/main.
 - **Nothing of edd-lead's is running.**
 - **Next:** hand tests that need eyes on a window (title bar per language, language button captions in 設定, 繼續 per chapter, Cmd-Tab with the mouse captured, 2560x1080): a Codex computer-use run inside the windowed hours (Mon–Fri 09–15 JST), brief to be written; then wait on Owner items in Issue #1 (A11 playtest, native ja/ko reader, newcomer session, B-rows).
+
+### Hand tests blocked by macOS permissions (edd-lead) | 2026-11-09 12:5x JST
+
+- **Antigravity run** (`AGY_PURPOSE=visual-review` is required; brief `director/hand-tests-046.md`, 7 cases): all 7 blocked. `screencapture` is denied by TCC (no Screen Recording) and System Events cannot click or type (no Accessibility). osascript failed the same way at 09:56 JST. No agent on this Mac can do windowed hand tests until the Owner grants those permissions; don't retry.
+- **Covered so far:** saved and OS language rule order by #290 + #294 (unit tests); title translations exist in all `.po`; the look kit's game-rendered shots. The 7 cases are listed as "not yet checked by eye" in the Issue #1 0.4.6 comment, so the Owner's A11 playtest covers them.
+- **Nothing of edd-lead's is running.** Remaining work needs the Owner (Issue #1: A11 playtest, native ja/ko reader, newcomer session, B-rows) or is open polish.
