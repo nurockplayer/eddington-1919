@@ -951,3 +951,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Issue #1:** 0.4.6 playtest comment posted (languages, art stack, story, store; asks: A11 playtest incl. en/ja, a native ja/ko reader, the newcomer session and B-rows).
 - **Nothing of edd-lead's is running.** ds-2 detached at origin/main.
 - **Next (no Owner input needed):** #291 (`_startup_locale` seam so a test runs the rule order without `--script`); hand tests that need eyes on a window (title bar per language, language button captions, 繼續 per chapter, Cmd-Tab, 2560x1080) — consider a Codex computer-use run inside the windowed hours (Mon–Fri 09–15 JST); the remote `look/monday` branch is left (delete was denied).
+
+### #294 merged; nothing running (edd-lead) | 2026-11-09 12:4x JST
+
+- **#294** (closes #291): `_startup_locale(args, user_args, env_locale, os_locale)` with OS defaults; test_i18n 1163/0 (lead rerun; the wrapper's rerun was orb-test exit 124); revert check done by the worker. ds-2 detached at origin/main.
+- **Nothing of edd-lead's is running.**
+- **Next:** hand tests that need eyes on a window (title bar per language, language button captions in 設定, 繼續 per chapter, Cmd-Tab with the mouse captured, 2560x1080): a Codex computer-use run inside the windowed hours (Mon–Fri 09–15 JST), brief to be written; then wait on Owner items in Issue #1 (A11 playtest, native ja/ko reader, newcomer session, B-rows).
