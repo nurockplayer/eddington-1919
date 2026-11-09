@@ -910,3 +910,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **look/monday** refreshed: dd3db89 = ea42674 (`main` ec304b7 + `art/faces`) merged with `main` b26276a (l10n, fonts, layout, store copy), no conflicts, force-pushed.
 - **Running:** `lw-look-kit-20261109-090239` (`orb-test --heavy --host -- bash director/look_kit.sh`, ticket #805, queued behind a gteki heavy job from 04:32 JST). The script exits 3 if it starts after 14:55 JST.
 - **On its event:** judge `director/look-kit/{1080,720}` (list in the 09:00 sections above), then the hand tests (繼續 per chapter, fonts, language button four captions, `EDD_LOCALE=en`/`ja` window title, saved-language cold start, Cmd-Tab, 2560x1080), `lead-inbox add edd-art look look-kit done "<dir>"` + `herdr pane send-text w7:pB`, then #229 → #231 → #232 → #234.
+
+### Look kit done; edd-art judging (edd-lead) | 2026-11-09 09:1x JST
+
+- **look kit** 09:09 JST: 1080 and 720 runs, 123 shots each, ENDING favors_e, `failures=[]`. Lead pre-read: Kit, Ashby, Eddington, box_light, ticks OK (white mark at Kit's mouth is the crosshair). The language button lives in 設定 on the title screen, not on the title row; check it in the hand test.
+- **Sent:** `lead-inbox add edd-art look look-kit done` (ev-20261109-091015-58ca) + send-text to w7:pB. Event acked.
+- **Next:** on art-verdict, `lead-wait pr 229 --reason …` (head a9b6120, base main), then #231 → #232 → #234. Hand tests still to do while the window is open (until 14:55 JST).
