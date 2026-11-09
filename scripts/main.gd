@@ -195,6 +195,7 @@ func _ready() -> void:
 			runner.main = self
 			runner.scenario = args["prologue-autoplay"]
 			runner.shots_dir = args.get("shots", "")
+			runner.dwell = float(args.get("bot-dwell", "0"))
 			get_tree().root.add_child.call_deferred(runner)
 	if args.has("benchmark"):
 		# DirAccess.make_dir_recursive_absolute() needs an absolute path: resolve
