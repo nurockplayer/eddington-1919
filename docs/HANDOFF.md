@@ -976,3 +976,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#296** (`tools/bot-dwell`, aa5924c): `--bot-dwell=<s>` holds each line/choice/title (60 frames per second under `--fixed-fps 60`); `click_at()` maps with `get_screen_transform()`. Normal settings: honest headless `failures=[]`; with `--bot-dwell=2` 58 s. Under the viewport-stretch override the bot's movement and aim still fail, so **decided: capture at 1600x900 with normal settings and upscale to 1080 in the edit**; no more work on the override. **Running:** `lw-pr-296-20261109-155108`.
 - **dot is still down:** the worker's verify rerun hung 1 h 45 min in `dot-ci` (killed 15:5x JST; orb-test fell back to the Mac). Expect this on every light run until dot is back.
 - **Next windowed capture, 2026-11-10 from 09:00 JST:** `mkdir -p /Volumes/KIOXIA/eddington/trailer-test` then `lead-wait run movie-dwell -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_test.sh` (FRAMES=2400, DWELL=2 defaults; needs #296 merged). Judge whether dialogue shots are cuttable; delete the clip after.
+
+### #296 merged; nothing running (edd-lead) | 2026-11-09 16:3x JST
+
+- **#296 merged** (5eb1a0a). The old wrapper's verify ended orb-test exit 127 after its dot-ci was killed: not a test result; CI and the gate passed. ds-2 detached at origin/main, `tools/bot-dwell` deleted.
+- **Nothing of edd-lead's is running.**
+- **Next: 2026-11-10 from 09:00 JST:** `mkdir -p /Volumes/KIOXIA/eddington/trailer-test`, then `lead-wait run movie-dwell -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_test.sh` (40 s, dwell 2 s, 1600x900); judge cuttability, delete the clip. Owner items wait in Issue #1 (A11 playtest, native ja/ko reader, newcomer session, B-rows; hand tests need Screen Recording / Accessibility).
