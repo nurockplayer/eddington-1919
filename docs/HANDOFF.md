@@ -982,3 +982,8 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **#296 merged** (5eb1a0a). The old wrapper's verify ended orb-test exit 127 after its dot-ci was killed: not a test result; CI and the gate passed. ds-2 detached at origin/main, `tools/bot-dwell` deleted.
 - **Nothing of edd-lead's is running.**
 - **Next: 2026-11-10 from 09:00 JST:** `mkdir -p /Volumes/KIOXIA/eddington/trailer-test`, then `lead-wait run movie-dwell -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_test.sh` (40 s, dwell 2 s, 1600x900); judge cuttability, delete the clip. Owner items wait in Issue #1 (A11 playtest, native ja/ko reader, newcomer session, B-rows; hand tests need Screen Recording / Accessibility).
+
+### Trailer recapture queued (edd-lead) | 2026-11-10 09:0x JST
+
+- **Running:** `lw-movie-dwell-20261110-090316` (orb-test heavy ticket #868, behind gteki #864–#867): `director/movie_test.sh` on origin/main, prologue honest, `--bot-dwell=2`, 2400 frames, 1600x900 into `/Volumes/KIOXIA/eddington/trailer-test/`. The script exits 3 if it starts after 14:50 JST; then requeue on the next weekday 09:00 JST.
+- **On its event:** judge whether the dialogue shots are cuttable (pull a few frames with ffmpeg, not the whole clip), record the verdict in STORE_PAGE §9, delete the clip.
