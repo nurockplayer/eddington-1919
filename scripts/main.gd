@@ -230,6 +230,7 @@ func _ready() -> void:
 		bot.main = self
 		bot.scenario = args.autoplay
 		bot.shots_dir = args.get("shots", "")
+		bot.dwell = float(args.get("bot-dwell", "0"))
 		add_child(bot)
 
 

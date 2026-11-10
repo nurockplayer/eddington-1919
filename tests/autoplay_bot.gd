@@ -20,6 +20,8 @@ var main
 var scenario := "careful"
 var shots_dir := ""
 var store_shots := false
+# Trailer capture: seconds to hold each line and choice (--bot-dwell, 0 = off).
+var dwell := 0.0
 var store_mic_shot_done := false
 var log_lines: Array[String] = []
 var stuck := 0
@@ -72,6 +74,11 @@ func _log(s: String) -> void:
 
 func _wait(sec: float) -> void:
 	await get_tree().create_timer(sec, true, false, true).timeout
+
+
+func _dwell() -> void:
+	if dwell > 0.0:
+		await _frames(int(round(dwell * 60.0)))
 
 
 func _frames(n := 2) -> void:
@@ -251,9 +258,11 @@ func talk(choices: Array = [], random_choices := true) -> void:
 				pick = monkey_choice(e, pick)
 			ci += 1
 			_log("choose %d: %s" % [pick, e.choices[pick]])
+			await _dwell()
 			await _tap(KEY_1 + pick)
 		else:
 			await _wait(0.15)
+			await _dwell()
 			await _tap(KEY_E)
 		await _frames(2)
 		# The interval hands off synchronously; leave the telegram for the next talk.
