@@ -986,4 +986,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 ### Trailer recapture queued (edd-lead) | 2026-11-10 09:0x JST
 
 - **Running:** `lw-movie-dwell-20261110-090316` (orb-test heavy ticket #868, behind gteki #864–#867): `director/movie_test.sh` on origin/main, prologue honest, `--bot-dwell=2`, 2400 frames, 1600x900 into `/Volumes/KIOXIA/eddington/trailer-test/`. The script exits 3 if it starts after 14:50 JST; then requeue on the next weekday 09:00 JST.
-- **Done 14:09 JST:** dialogue shots cuttable (verdict in STORE_PAGE §9); clip deleted. Next: a careful-route capture (eclipse + check record) with the same script, then a 35–50 s rough cut.
+- **Done 14:09 JST:** dialogue shots cuttable (verdict in STORE_PAGE §9); clip deleted.
+
+### Careful bot gets --bot-dwell (edd-lead) | 2026-11-10 15:0x JST
+
+- `--bot-dwell` only reached `tests/prologue_bot.gd`; the careful autoplay (`tests/autoplay_bot.gd`, `talk()`) ignored it. Lead edit on branch `tools/careful-dwell` (worktree `.claude/worktrees/careful-dwell`, not committed yet): `dwell` var + `_dwell()` before each choice/E tap, `main.gd` passes `bot-dwell` to the autoplay bot.
+- **Running:** `lw-careful-dwell-20261110-150408` (headless careful, seed 7, dwell 0.5, scratchpad script `careful_dwell_check.sh`). **On its event:** if `failures=[]`, commit, PR, `lead-wait pr <n>`; after merge, capture careful from 2026-11-11 09:00 JST: copy `movie_test.sh` to `movie_careful.sh` with `--autoplay=careful --seed=7 --bot-dwell=2`, frames sized to the eclipse + check-record stretch (find the start frame from the dwell log first), then a 35–50 s rough cut.
