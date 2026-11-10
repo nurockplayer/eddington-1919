@@ -986,4 +986,4 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 ### Trailer recapture queued (edd-lead) | 2026-11-10 09:0x JST
 
 - **Running:** `lw-movie-dwell-20261110-090316` (orb-test heavy ticket #868, behind gteki #864–#867): `director/movie_test.sh` on origin/main, prologue honest, `--bot-dwell=2`, 2400 frames, 1600x900 into `/Volumes/KIOXIA/eddington/trailer-test/`. The script exits 3 if it starts after 14:50 JST; then requeue on the next weekday 09:00 JST.
-- **On its event:** judge whether the dialogue shots are cuttable (pull a few frames with ffmpeg, not the whole clip), record the verdict in STORE_PAGE §9, delete the clip.
+- **Done 14:09 JST:** dialogue shots cuttable (verdict in STORE_PAGE §9); clip deleted. Next: a careful-route capture (eclipse + check record) with the same script, then a 35–50 s rough cut.
