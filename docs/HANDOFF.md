@@ -996,6 +996,6 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 
 ### Careful capture queued (edd-lead) | 2026-11-11 10:3x JST
 
-- **Running:** `lw-movie-careful-20261111-103337` (`movie_careful.sh`, heavy --host), queued behind gteki #890–#896 (#894 is a ~6 h bench). The script exits 3 if its turn comes after 14:20 JST; then requeue on the next weekday 09:00 JST.
+- **Not run:** `lw-movie-careful-20261111-103337` waited behind gteki #890–#896 past 14:20 JST; edd-lead cancelled ticket #897 at 15:0x JST (event exit 143 = that cancel). **Next: 2026-11-12 09:00 JST**, requeue the same command (`mkdir -p /Volumes/KIOXIA/eddington/trailer-test` then `lead-wait run movie-careful -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_careful.sh`).
 - **On success:** contact sheet → judge the eclipse + check-record shots → 35–50 s rough cut; delete clips after.
 - Overnight the heavy queue looked stuck (#890 held the lock, empty wait reason, gate shown open); it started at exactly 08:30 JST. Reported to harness-lead (`ev-20261111-074031-7f4a`, `ev-20261111-103403-4430`); nothing for edd-lead to do.
