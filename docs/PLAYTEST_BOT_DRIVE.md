@@ -6,7 +6,8 @@
 A single route is `orb-test --host -- godot --headless --path . --fixed-fps 60 -- <route args>`. The
 `--always-on-top --shots=DIR` runs recorded below are the historical screenshot runs and are
 no longer the default; use them only when someone must look at the screen or capture frames
-(Owner's windowed-run rule in [HANDOFF](HANDOFF.md)).
+(Owner's windowed-run rule, 2026-10-25 and 2026-10-28 JST: windowed Godot only Mon–Fri 09:00–15:00 JST, with
+`--fixed-fps 60`; headless runs at any time).
 `E2E_CAP_SCALE` scales route caps and the `test_score` totality-to-NIGHT handoff budget
 (default `1`); `test_score` warns and uses `1` for an invalid or non-positive value.
 

@@ -46,7 +46,7 @@ godot --path . --always-on-top -- --prologue-autoplay=honest --shots=/tmp/m1-hon
 
 ## 重要入口
 
-- [Game Director Handoff](docs/HANDOFF.md)：接手、里程碑與真正可玩證據的回報約定。
+- [Handoff](docs/HANDOFF.md)：lead 的現況，30 行以內，每輪覆寫。2026-11-12 以前的歷史在 [HANDOFF_ARCHIVE](docs/HANDOFF_ARCHIVE.md)。
 - [1919 歷史背景與查核邊界](docs/HISTORY_1919.md)：用於創作的史料錨點、事實與虛構界線。
 - [決策紀錄](docs/DECISIONS.md)：Owner 已定方向與 Game Director 可自行調整的選擇。
 - [素材溯源](docs/PROVENANCE.md)：遊戲中每項史實、重建與虛構的標記和來源。
