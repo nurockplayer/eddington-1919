@@ -41,6 +41,17 @@ func longest_star_run(image: Image) -> int:
 	return longest
 
 
+func limb_midtones(image: Image) -> int:
+	# Pixels on the Moon's limb that are neither the dark disc nor the bright corona.
+	var count := 0
+	for y in image.get_height():
+		for x in image.get_width():
+			var v := image.get_pixel(x, y).r
+			if absf(Vector2(x, y).distance_to(Vector2(180, 180)) - Render.SUN_PX) < 1.0 and v > 0.2 and v < 0.7:
+				count += 1
+	return count
+
+
 func pad(index: JoyButton) -> void:
 	var event := InputEventJoypadButton.new()
 	event.button_index = index
@@ -82,6 +93,7 @@ func _run() -> void:
 	check(sharp.get_data() != trailed.get_data() and sharp.get_data() != fogged.get_data() and trailed.get_data() != fogged.get_data(), "three distinct examples")
 	check(brightness(fogged) > brightness(sharp), "fog veil raises mean brightness")
 	check(longest_star_run(trailed) > longest_star_run(sharp), "trailing elongates bright row runs")
+	check(limb_midtones(sharp) >= 60, "the Moon's limb is blended over a pixel, not a hard edge")
 	load("res://scripts/main.gd")._ensure_inputs()
 	root.size = Vector2i(1600, 900)
 	var ui := UI.new()

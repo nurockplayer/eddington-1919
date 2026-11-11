@@ -58,10 +58,9 @@ static func render(sim, plate) -> ImageTexture:
 			for x in SIZE:
 				var d := Vector2(x, y).distance_to(c) / SUN_PX
 				var i := y * SIZE + x
-				if d < 1.0:
-					buf[i] = 0.02 + fog * 0.1
-				else:
-					buf[i] += corona * pow(1.0 / d, 2.6)
+				# The limb is blended over one plate pixel: a hard edge shows as stairs in the loupe.
+				var edge := clampf((d - 1.0) * SUN_PX + 0.5, 0.0, 1.0)
+				buf[i] = lerpf(0.02 + fog * 0.1, buf[i] + corona * pow(1.0 / maxf(d, 1.0), 2.6), edge)
 	if not blank:
 		# Stars: brightest first, only those above the plate's limit.
 		for s in stars:
