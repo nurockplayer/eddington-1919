@@ -1031,3 +1031,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Merged:** #300 (oracle approve, no findings to follow up): the exported game prints `locale=<code>` and package-smoke proved `locale=ko` on Windows, Linux and macOS (run 43080107795, all jobs passed). #258 and #257 closed with it. ds-2 detached at origin/main, `ci/smoke-locale` deleted.
 - **Running:** `lw-movie-careful-20261112-023452` (heavy #911). Wake-ups: heartbeat 04:33 JST, capture check 08:57 JST.
 - **Waiting on the Owner:** the answer to the workflow review, and a yes before `director/triage-20261112.sh` closes the 12 triaged issues and retitles #285.
+
+### Heartbeat: Steam asset and depot research running (edd-lead) | 2026-11-12 04:3x JST
+
+- **Inbox:** no events; the Owner has not answered the workflow review or the issue-close question.
+- **Running:** `lw-steam-assets-20261112-043346` (oracle-ego, question in KIOXIA `eddington-1919-cache/director/steam-assets-research.md`): current Steamworks sizes and rules for capsules, library assets and the trailer; Auto-Cloud roots for `checkpoint.save` under the `Eddington1919` user dir; depot layout and steamcmd VDFs; a dated checklist from the Steam Direct fee to release. **On its event:** read the saved reply, check the sizes against the cited pages, then one docs PR: sizes and rules into `docs/store/STORE_PAGE.md` section 8, plus `docs/store/STEAM_DEPOTS.md` with the Auto-Cloud table and VDF templates (placeholder IDs). Capsule layout drafts come after, from the 1920x1080 stills.
+- **Running:** `lw-movie-careful-20261112-023452` (heavy #911, second in the queue at 04:33 JST; the heavy gate is open because the Mac is idle). If it is called before 09:00 JST it exits 3; the 08:57 JST wake-up requeues it.
