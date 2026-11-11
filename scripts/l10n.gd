@@ -20,6 +20,8 @@ static var pseudo_translation: Translation = null
 
 static func _static_init() -> void:
 	apply(_startup_locale())
+	# One line per start, so the package smoke test can tell which locale was picked.
+	print("locale=%s" % language)
 	if not OS.has_feature("template") and OS.has_environment("EDD_PSEUDO_JSON"):
 		_load_pseudo(OS.get_environment("EDD_PSEUDO_JSON"))
 
