@@ -224,7 +224,7 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 | 4 | 雲中的全食（capsule 構圖候選） | 普林西比 benchmark 的 `totality_sky` bookmark，seed 7；需要快門提示則手動進入全食拍攝。 | 日食與雲構成主視覺；capsule 另排暫定標題，保留雲，避免暗示晴空實錄。 |
 | 5 | 暗房前寫下選片規則 | careful 路線加 `--store-shots`；固定截圖 `careful_store_a_rule.png`，在量測前的規則選項停留時拍攝。 | 清楚說明玩法的核心：在數字出現前承諾規則。 |
 | 6 | 暗房底片、參考片與放大鏡 | careful 路線加 `--store-shots`；參考片面板 `careful_store_b_reference_plates.png`，×2 放大鏡 `careful_store_c_loupe_2x.png`。 | 展示玩家實際讀取的星像與工具，不只拍景。 |
-| 7 | 閃爍比對 | careful 路線加 `--store-shots`；同一張選定底片按「閃爍比對」，截圖 `careful_store_g_blink_eclipse.png` 與 `careful_store_g_blink_oxford.png` 成對（商店圖取其一或做成兩格 GIF，待 Owner／lead 挑選）。僅視窗化執行會存圖（headless 不存）。 2026-11-05 已視窗拍攝（KIOXIA `store-b5/careful/`）；lead 判讀：兩格確實不同，適合做兩格 GIF，單張不易看出位移。2026-11-05 13:4x JST 在 #179（檢視器隨 1080p 放大）合併後於 main dbd37b4 重拍第 5–8 列，存於同一資料夾；檢視器現用到畫面約九成高度。 | 這是讀片的「啊哈」時刻：星點真的動了。 |
+| 7 | 閃爍比對 | careful 路線加 `--store-shots`；同一張選定底片按「閃爍比對」，截圖 `careful_store_g_blink_eclipse.png` 與 `careful_store_g_blink_oxford.png` 成對（商店圖取其一或做成兩格 GIF，待 Owner／lead 挑選）。僅視窗化執行會存圖（headless 不存）。 2026-11-05 已視窗拍攝（KIOXIA `store-b5/careful/`）；lead 判讀：兩格確實不同，適合做兩格 GIF，單張不易看出位移。2026-11-05 13:4x JST 在 #179（檢視器隨 1080p 放大）合併後於 main dbd37b4 重拍第 5–8 列，存於同一資料夾；檢視器現用到畫面約九成高度。 2026-11-12 JST：已用 0.4.6 的四語言截圖做成兩格動圖，見本節的「『關於此遊戲』的閃爍比對動圖」。 | 這是讀片的「啊哈」時刻：星點真的動了。 |
 | 8 | 量測後的數值與誤差區間 | 同一路線選片並按「量測」；`--store-shots` 拍攝 `careful_store_d_measured_2sigma.png`（另保留 `careful_09_viewer_measured.png`）。 | 讓玩家知道要判讀有不確定性的結果；畫面數字屬示意模擬。 |
 | 9 | 玩家寄出的短電報 | 同一路線完成區間判讀，選電報與理由到結尾；`--store-shots` 拍攝 `careful_store_f_ending_telegram.png`（另保留 `careful_10_ending.png`）。 | 用玩家自己的措辭收尾，呈現這段體驗最後留下的東西。 |
 | 10 | 太陽系儀：核對牛頓的預測 | 序章 honest 路線；`honest_choice_orrery_orrery_check.png`。 | 先讓玩家信任牛頓，再看見那 43 角秒。 |
@@ -297,6 +297,19 @@ oracle-ego 整理後，由 lead 逐項對照 Steamworks 現行頁面：`partner.
 - 語言後綴用 Steam 的 API language code：`english`、`japanese`、`koreana`、`tchinese`（`/doc/store/localization/languages`）。Store Graphical Assets 頁只寫語言名稱可以當後綴，例子是 `foo_japanese.jpg`；上傳介面認不認 `koreana` 與 `tchinese`，頁面沒有寫，*未驗證*，上傳時逐張確認歸到正確的語言。
 - 量測畫面（`03`、`07`）右下已有「示意模擬資料」的說明文字，符合第 7 節的標示要求。
 - 主視覺（capsule）不在這份清單裡；它等視窗時段的 3840×2160 全食鏡頭。
+
+### 「關於此遊戲」的閃爍比對動圖（edd-lead，2026-11-12 06:5x JST）
+
+「關於此遊戲」暗房那一段提到閃爍比對，靜態截圖看不出星點位移，所以那一段之後放一張兩格動圖，每種語言一張：`blink_english.gif`、`blink_japanese.gif`、`blink_koreana.gif`、`blink_tchinese.gif`。檔案放在 KIOXIA `eddington/store-b5/upload/about/`，不進 repo。
+
+- 規格：682×708，兩格（全食底片、牛津對照片），每格 1.0 秒，無限循環，每張約 0.22 MB。
+- 來源與裁切：`careful-046-<loc>/careful_store_g_blink_eclipse.png` 與 `careful_store_g_blink_oxford.png`（1920×1080，0.4.6，main 0950c3a）。裁出看片器與它下面那一行說明（`682x696+575+3`），下方補 12 px 的面板底色，不縮放。兩格共用一組 256 色，與原圖相比 PSNR 約 43 dB。
+- 速度：遊戲預設每 0.5 秒換一格，開「減少晃動」時每 1.0 秒（`scripts/ui.gd` 的 `blink_interval`）。動圖用 1.0 秒那一檔：商店頁會一直循環播放，看片器在灰與近黑之間切換，慢的比較不刺眼，說明行也來得及讀。
+- 標示：全食那一格的說明行是遊戲字串 `第 %d 號（全食）・位移已放大（示意）` 的各語言譯文，牛津那一格是 `牛津（無日）` 的譯文。四種語言的兩行說明都完整在圖內（lead 2026-11-12 JST 判讀）。「位移已放大」只在全食那一格出現，所以動圖要緊接在寫明位移經過放大的暗房那一段之後，不單獨使用。
+- 看得到什麼：英文那一組量到三顆星在兩格之間移動 8.7、6.1、5.3 px，離太陽中心分別 272、378、435 px，方向都是遠離太陽，離得越遠移得越少。牛津那一格另有兩顆星，在全食那一格看不出來。月面邊緣在放大鏡 ×2 下有階梯狀鋸齒，這是遊戲內底片貼圖的樣子，動圖沒有修。
+- Steam 的規定（`/doc/store/page/description`，2026-11-12 JST 讀）：「關於此遊戲」可以放截圖與循環 GIF；每張圖小於 5 MB，描述裡的截圖與 GIF 合計小於 15 MB；圖中有文字就要每種語言各傳一張；不能有連結、仿 Steam 介面的圖或其他產品的廣告。這四張都符合。
+- *未驗證*：該頁沒有寫圖片在編輯器的哪裡上傳，也沒有寫描述欄的寬度。一個上架中的商店頁（《Disco Elysium》，2026-11-12 JST）的描述圖片網址在該 app 的 `extras/` 底下，檔名是雜湊，格式是 `.avif` 或 `.webp`，可見 Steam 會改名並重新編碼。上傳後要看三件事：動圖仍然循環、說明行讀得出來、每種語言的描述用的是自己那一張。
+- 重做：`bash /Volumes/KIOXIA/eddington-1919-cache/director/about_blink.sh`（需要 ImageMagick；來源截圖要在 KIOXIA `eddington/store-b5/`）。
 
 ## 9. 預告片分鏡草稿（B5，約 70 秒）
 

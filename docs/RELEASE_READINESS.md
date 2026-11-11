@@ -32,7 +32,7 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 | B2 | Platforms: macOS / Windows / Linux-Deck | Windows is most of Steam; Deck needs A6 |
 | B3 | Languages: zh-TW only, or English too | strings are hard-coded in `.gd`; English = extraction + translation project |
 | B4 | Price or free, release date | |
-| B5 | Store page: capsules, screenshots, trailer, description | director can draft from in-game stills; draft: docs/store/STORE_PAGE.md (PR #135) |
+| B5 | Store page: capsules, screenshots, trailer, description | PARTIAL (2026-11-12 JST); everything is in `docs/store/STORE_PAGE.md`. Drafted: short description, About and features in zh-TW, English, Japanese and Korean (sections 2–4). Staged for upload on KIOXIA `eddington/store-b5/upload/`: nine screenshots in four languages (#303, section 8) and the two-frame blink GIF for About in four languages (section 8). Open: the capsules (the title lettering is drafted; the key-art frame waits for a windowed 3840x2160 capture, then the Owner accepts lettering and key art); the trailer (Steam requires one; rules in section 9, capture waits for a windowed slot); the upload itself needs the App ID (B1) |
 | B6 | Content survey + AI disclosure | generated portraits (`art/people/LICENSES.md:26`), sampled music |
 | B7 | Save/continue: chapter select enough, or checkpoints? | one automatic checkpoint per chapter and a title 繼續 button (#250; lead decision 2026-11-07 JST under the Owner's 2026-11-06 mandate, since quitting otherwise lost the whole run). No slots or mid-chapter saves; the Owner can still change this |
 | B8 | Names in credits; territory rights for recorded music | |
@@ -50,7 +50,7 @@ From two oracle-ego rounds plus a read of the Steamworks pages. The Owner's own 
 | B2 | Windows, macOS, Linux native depots. No Deck claim. The 2026-11-07 plan for macOS (check a real Steam install with `xattr` on the .app and a launch on a clean user, pay Apple only if that fails) is on hold. **Open since 2026-11-12 JST:** Valve's platforms page requires new macOS apps to be notarized, which needs the paid Apple Developer Program; options and the lead's recommendation in `docs/store/STEAM_DEPOTS.md` section 5. Until the Owner answers, the store page does not list macOS and no un-notarized macOS build goes to build review | lead; the Apple fee is the Owner's call |
 | B3 | **zh-TW, English, Japanese, Korean, all at launch** | Owner 2026-11-07 |
 | B4 | Rule: Coming Soon up 28 days or more, no launch in the Winter Sale, first Tuesday from 2027-01-12 that qualifies. US$2.99–3.99, picked after a measured playtime. State the length on the store page | proposal; Owner sets at publish |
-| B5 | Capsules: in-game render plus typeset title, no generated art. Trailer 35–50 s from real capture with `--write-movie`; Steam requires one for release | lead |
+| B5 | Capsules: in-game render plus typeset title, no generated art. Trailer 35–50 s from real capture with `--write-movie`; Steam requires one for release. Status: row B5 in section B | lead |
 | B6 | Declare pre-generated AI content: portraits, story text, dialogue, localization, and music and sound (written as code, rendered from CC0 samples). Nothing live-generated. Text in `docs/store/STORE_PAGE.md` section 7 | Owner attests |
 | B7 | Decided, see row B7 above | lead |
 | B8 | **Gramophone recording stays** (Owner 2026-11-07). Credits: `nurockplayer` unless the Owner says otherwise. Steam's legal name is separate | Owner, lead |
