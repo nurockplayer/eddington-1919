@@ -234,6 +234,46 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 
 實際圖片、capsule 尺寸／裁切、商標可讀性、肖像與數字的呈現，均待 Owner／lead 挑選；本文件不代表已完成圖像驗收。
 
+### Steam 圖像資產規格（edd-lead，2026-11-12 04:5x JST）
+
+oracle-ego 整理後，由 lead 逐項對照 Steamworks 現行頁面：`partner.steamgames.com/doc/store/assets`（總表）與其下的 `/standard`、`/libraryassets`、`/community`、`/rules`、`/overrides`。總表註明 2024 年 8 月起改用較大的 capsule 尺寸，舊尺寸不再接受。頁面沒有寫檔案格式的項目，下表寫「未列」，上傳時以 Steamworks 提供的範本為準。
+
+| 資產（Steamworks 名稱） | 尺寸（px） | 格式 | 是否必要 | 內容規則 |
+|---|---|---|---|---|
+| Header Capsule | 920×430 | 未列 | 必要 | 主視覺加可讀的標題字；除遊戲名稱外不放引言或其他文字 |
+| Small Capsule | 462×174 | 未列 | 必要 | Steam 會再縮成 184×69 與 120×45，標題字在最小尺寸仍要可讀，通常要幾乎填滿；畫面不必與其他 capsule 相同 |
+| Main Capsule | 1232×706 | 未列 | 必要 | 同 Header Capsule |
+| Vertical Capsule | 748×896 | 未列 | 必要 | 同 Header Capsule |
+| Screenshots | 至少 1920×1080，16:9 | 未列（在地化範例用 `.jpg`） | 必要，至少 5 張 | 只放實際遊玩畫面；不放概念圖、預渲染劇照、獎項、行銷文字或文字說明；選單只有在屬於玩法特色時才放；頁面說顯示遊戲內 UI 有助玩家理解 |
+| Page Background | 1438×810 | 未列 | 選用 | 低調的環境圖，不與頁面內容搶眼；不上傳時 Steam 用最後一張截圖產生 |
+| Library Capsule | 600×900 | 未列 | 必要 | 必須有標題字，可含副標，不放其他文字 |
+| Library Header | 920×430 | 未列 | 必要 | 標題字可讀，不放其他文字；未設定時用商店的 Header Capsule |
+| Library Hero | 3840×1240 | `.png` | 必要 | 完全不放文字，標題字也不放；重要內容放在中央 860×380 的安全區 |
+| Library Logo | 寬 1280 或高 720，依標題字比例 | 透明底 `.png` | 必要 | 只有標題字，可加標誌；上傳後用預覽工具選位置：左下、置中靠上、正中、置中靠下 |
+| Shortcut Icon | 256×256 或 512×512 | `.ico` 或 `.png` | 必要 | 給 `.png` 時 Steam 產生 `.ico`；macOS 桌面捷徑另需在「Mac Icon」欄位上傳 `.icns`，否則顯示 Steam 預設圖示 |
+| App Icon | 184×184 | `.jpg` | 必要 | 小尺寸仍看得懂的標誌或圖示；可由 Shortcut Icon 產生，但透明處會變成黑色 |
+| Bundle Header | 707×232 | 未列 | 設組合包才需要 | 本作不設組合包 |
+| Event Cover／Event Header | 800×450／寬 1920、高 622 | 未列 | 發公告或活動才需要 | 發售本身不需要 |
+
+所有 capsule 共通的規則（`/rules`，2022-09-01 起生效）：
+
+- 只放遊戲美術、遊戲名稱與正式副標。不放評分、獎項名稱或標誌、折扣文字、要玩家採取行動的文字（例如「加入願望清單」）、其他產品的宣傳，也不放其他雜項文字。
+- 每張 capsule 都要有可讀的名稱或標題字，尺寸正確，畫面符合 PG-13。不符規則的遊戲會被限制曝光，也不能參加官方特賣與活動。
+- 要在 capsule 上寫重大更新這類暫時文字，只能用 Artwork Override，最長 14 天，文字要翻成遊戲支援的全部語言。發售前用不到。
+
+在地化：
+
+- 截圖：把其他語言的版本拖到既有截圖的縮圖上；檔名用語言名當後綴可幫助辨識（例如 `foo_japanese.jpg`）。
+- Capsule：`/overrides` 提到 override 與一般 capsule 一樣支援在地化圖檔，`/doc/store/localization` 寫商店頁的文字、圖像與預告片都能在地化。逐項上傳的操作步驟頁面沒有寫，Library 資產能否分語言也沒有寫；有 App ID 後在後台確認。
+- 截圖預設不標為「適合所有年齡」。發布前至少把 4 張標上，否則首頁滑過標題圖等位置不顯示截圖。
+
+對本作的意義：
+
+- 現有 `store-b5/*-046-*` 截圖都是 1920×1080，符合下限。商店截圖至少 5 張要是有 UI 的實際遊玩畫面，以上表第 5–9、11、12 列為主；benchmark 鏡頭（第 1、3、4 列）隱藏了 UI，適合做 capsule 與背景的底圖，放進截圖區的張數要少。
+- Library Hero 需要 3840×1240 且不能有字，1920×1080 的截圖不夠寬；要在視窗時段用較大的 viewport 另拍一張全食雲景（第 4 列的構圖）。
+- 標題字要另做一張透明底 `.png`（Library Logo），其餘 capsule 用同一組標題字排版。
+- Shortcut Icon 與 App Icon 由 `assets/icon/icon_1024.png` 縮製；App Icon 是 `.jpg`，透明處要先鋪底色。「Mac Icon」欄位用 macOS 匯出包內的 `Contents/Resources/icon.icns`。
+
 ## 9. 預告片分鏡草稿（B5，約 70 秒）
 
 edd-lead 2026-11-07 草稿；尚未拍攝，是否製作與最終剪輯由 Owner 決定。每個鏡頭都用遊戲實際畫面，不做預渲染，也不放遊戲裡沒有的內容。
@@ -259,3 +299,15 @@ edd-lead 2026-11-07 草稿；尚未拍攝，是否製作與最終剪輯由 Owner
 拍攝方式（2026-11-09 13:09 JST 試過一次，edd-lead）：在 main 3c0e1ff 用 `godot --path . --fixed-fps 60 --resolution 1920x1080 --write-movie <out>.avi --quit-after 720 -- --prologue-autoplay=honest --seed=7` 拍 12 秒，腳本 `director/movie_test.sh`。結果：MJPEG 60 fps 加 48 kHz 立體聲 PCM，12 秒約 50 MB，畫面逐格乾淨，沒有掉格。要注意三點：一、輸出是 1600x900，也就是 `project.godot` 的 viewport 大小，`--resolution` 沒有生效；Steam 建議 1920x1080，正式拍之前要先找出放大輸出的方法（例如拍攝時暫時調高 viewport 大小）。二、bot 節奏很快，12 秒內就走完標題字卡、Kit 的對話和核對紀錄，對話停留太短，不能直接剪用；要剪用的鏡頭需要放慢 bot，或另寫一條拍攝專用的路線。三、聲音平均 -43 dB、峰值 -16 dB，剪輯時要拉高音量。它屬於視窗執行，受週一至週五 09:00–15:00 JST 的規則限制。
 
 重拍（2026-11-10 14:08 JST，edd-lead）：`director/movie_test.sh`，main 加 #296 的 `--bot-dwell=2`，一般設定（不加 viewport 覆寫），2400 格。結果：1600x900 MJPEG 60 fps，40 秒，約 177 MB，godot 沒有錯誤。40 秒走到標題、劍橋天文台字卡、Kit 對話與選項、核對紀錄、燈箱比對、1915 觀測日誌。lead 依每 2.5 秒一格的抽格判讀：**對話鏡頭可以剪用**，每句和每組選項都停留 2 秒以上。剪輯注意：一、bot 會開一次「對話紀錄（Tab）」面板，這段要剪掉；二、Kit 走近時的特寫被對話框切到下巴，選前面的中景；三、讀觀測日誌時鏡頭對著空書架，這段只用字幕畫面，或改用拍攝清單的截圖。輸出放大到 1920x1080 在剪輯時做。clip 判讀後已刪除。下一步：拍 careful 路線的日蝕與核對段落（同一腳本，換路線和格數），再剪 35–50 秒的初剪。
+
+Steam 預告片規格（edd-lead，2026-11-12 04:5x JST，對照 `partner.steamgames.com/doc/store/trailer`、`/doc/store/coming_soon`）：
+
+- **預告片是發售的必要項目。** Trailers 頁開頭寫明發售流程中必須上傳預告片；Coming Soon 頁則寫建立頁面時「最好有」遊玩預告片。`docs/RELEASE_READINESS.md` 在 2026-11-07 記下的「沒有找到預告片要求」是讀漏，已更正。
+- 規格：最高 1920×1080；30／29.97 或 60／59.94 fps；位元率 5,000 Kbps 以上；容器 `.mov`、`.wmv` 或 `.mp4`；建議 H.264 加 AAC，其他格式由 Steam 轉檔；16:9 優先，4:3 也收。聲音會轉成立體聲，取樣率用 44.1 或 48 kHz。Valve 提供的 Adobe 預設是 H.264 20 Mbps 加 AAC 192 Kbps。頁面沒有規定長度。
+- 內容：建議第一支預告片以遊玩畫面為主，並保留遊戲內的 HUD。頁面提醒玩家可能不到 10 秒就做決定，也可能靜音觀看。這些是建議，不是審查條件。
+- 排列：前兩支有效的預告片排在截圖之前。Steam 從第一支自動剪出 6 秒的 microtrailer（取六段各 1 秒），不能自訂。
+- 語言：Trailers 分頁的 Advanced Settings 可以指定每支預告片給哪個語言的玩家看；有多個語言版本時，Base 要設成英文版。頁面沒有提字幕檔，畫面文字要直接做進影片。
+- 縮圖由 Steam 自動產生；自訂縮圖必須是影片裡的一格，1920×1080 的 `.jpg` 或 `.png`。
+- 預告片還在轉檔時不能按發售。轉檔失敗最常見的原因是非常見的解析度，其次是不支援的取樣率。
+
+對本作的意義：`--write-movie` 的輸出是 1600×900 MJPEG 加 PCM，剪輯後要轉成 1920×1080、H.264 加 AAC 48 kHz 的 `.mp4`。35–50 秒的遊玩初剪符合上面的建議。畫面文字出幾種語言（只出一版，或英文版當 Base 再加其他語言），等初剪出來後由 lead 決定。
