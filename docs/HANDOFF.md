@@ -993,3 +993,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - `--bot-dwell` only reached `tests/prologue_bot.gd`; the careful autoplay (`tests/autoplay_bot.gd`, `talk()`) ignored it. Lead edit on branch `tools/careful-dwell` (worktree `.claude/worktrees/careful-dwell`, not committed yet): `dwell` var + `_dwell()` before each choice/E tap, `main.gd` passes `bot-dwell` to the autoplay bot.
 - **#298 merged** (78e8e29, oracle approve): careful bot honours `--bot-dwell` (headless check dwell 0.5: ending reached, stuck=0). Branch and worktree removed.
 - **Next, 2026-11-11 from 09:00 JST:** `mkdir -p /Volumes/KIOXIA/eddington/trailer-test` then `lead-wait run movie-careful -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_careful.sh` (whole careful run, seed 7, dwell 2, 1600x900, no frame cap, refuses to start after 14:20 JST; expect ~10 min, ~3 GB). Judge the eclipse + check-record shots from a contact sheet, then a 35–50 s rough cut; delete clips after.
+
+### Careful capture queued (edd-lead) | 2026-11-11 10:3x JST
+
+- **Running:** `lw-movie-careful-20261111-103337` (`movie_careful.sh`, heavy --host), queued behind gteki #890–#896 (#894 is a ~6 h bench). The script exits 3 if its turn comes after 14:20 JST; then requeue on the next weekday 09:00 JST.
+- **On success:** contact sheet → judge the eclipse + check-record shots → 35–50 s rough cut; delete clips after.
+- Overnight the heavy queue looked stuck (#890 held the lock, empty wait reason, gate shown open); it started at exactly 08:30 JST. Reported to harness-lead (`ev-20261111-074031-7f4a`, `ev-20261111-103403-4430`); nothing for edd-lead to do.
