@@ -1204,7 +1204,7 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Waiting on the Owner:** unchanged; the list is in the section above (notarization A/B/C; acceptance of the title lettering and key art once d2 exists; workflow review items 4 and 5; the yes for `director/triage-20261112.sh`; B1 Steam Direct, the two macOS permissions, a blind newcomer session, a native ja/ko reader).
 - **Next headless work before the window:** nothing is listed. No new story or play features before a blind newcomer session.
 
-### Captures queued early, #306 at the gate, trailer tool ready (edd-lead) | 2026-11-12 07:4x JST — read this section first
+### Captures queued early, #306 at the gate, trailer tool ready (edd-lead) | 2026-11-12 07:4x JST
 
 - **Checked at the 07:37 JST heartbeat:** inbox empty; `all-suites` on main 0ce1a58 (#305) is green (run 43109420915).
 - **Queued at 07:40 JST to hold a place before the window** (the heavy queue had four gteki and tachiko-sheet tickets, #913–#917; 2026-11-11 was lost by queueing late): heavy #918 `lw-movie-careful-20261112-074007`, #919 `lw-keyart-20261112-074007`, #920 `lw-store-limb-20261112-074007`, in that order. A ticket called before 09:00 JST exits 3 with nothing run: ack it and requeue the same command once inside the window (commands and what to do on each event: the three numbered steps in the section "Blink GIF staged, #304 merged, limb fix #305 at the gate" above). Never two tickets of one kind.
@@ -1218,3 +1218,14 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
   2. After today's captures are judged: export 0.4.7 (macOS, Windows, Linux) with the package check, so the build the Owner or a newcomer plays has the limb fix (#305). Brief pattern: `director/release-046.md`.
   No new story or play features before a blind newcomer session.
 - **Rule kept from the last section:** no `fix`, `close` or `resolve` directly before `#<n>` in a commit message that reaches main.
+
+### #306 merged, end card drafted; three captures wait in the queue (edd-lead) | 2026-11-12 07:5x JST — read this section first
+
+- **Merged:** #306 (d1a8051, 2026-11-12 07:56 JST; oracle approve, CI green): capture runs print `[BOTF <frame>] <step>`. `chore/bot-frame-log` is deleted locally and on origin, ds-2 is detached at origin/main, event `ev-20261112-075602-0e8d` is acked, the inbox is empty. The movie capture now writes the step frames into `trailer-test/godot.log`.
+- **Queued (heavy, behind #913–#917 of other projects):** #918 `lw-movie-careful-20261112-074007`, #919 `lw-keyart-20261112-074007`, #920 `lw-store-limb-20261112-074007`. A ticket called before 09:00 JST exits 3 with nothing run: ack and requeue the same command inside the window. The commands and what to do on each event are the three numbered steps in the section "Blink GIF staged, #304 merged, limb fix #305 at the gate"; the trailer steps (`trailer_cut.py steps`, `sheet`, `cut`, the draft EDL) are in the section just above this one.
+- **End card draft:** KIOXIA `eddington/store-b5/trailer/card_d1.png` (1920x1080, the stacked lettering at 44% width on near-black; made by `director/trailer_card.py <out.png> [width]`). Use it as `CARD=` for the rough cut. A draft: the lettering is the Owner's to accept.
+- **Slip to know about:** `trailer_card.py` imports `capsule_drafts.py`, whose `main()` ran on import and wrote `capsules-d1/` again at 07:56 JST (15 files, same default source, script as of 05:40 JST). The d1 judgement on record was made on the earlier render. d1 is a layout study that feeds nothing, and `store-b5/upload/` was not touched. `main()` is now behind `if __name__ == "__main__"`.
+- **Wake-ups (session crons):** `afa16fef` heartbeat at 08:33 JST; `3a110db7` capture check at 08:57 JST. Re-arm the heartbeat 45 min after each turn.
+- **Waiting on the Owner:** unchanged; the list is in the section "State at clear" above.
+- **Next headless work (needs neither the Owner nor a window):** after today's captures are judged, export 0.4.7 (macOS, Windows, Linux) with the package check, so the build the Owner or a newcomer plays has the limb fix (#305); brief pattern `director/release-046.md`. Nothing else is listed before the window. No new story or play features before a blind newcomer session.
+- **Rule kept:** no `fix`, `close` or `resolve` directly before `#<n>` in a commit message that reaches main.
