@@ -21,7 +21,10 @@ func _run() -> void:
 	director.player.can_move = false
 	director.player.can_look = false
 	var results := []
-	for b in bookmarks(director.world):
+	var shots := _shots(bookmarks(director.world))
+	if shots.is_empty():
+		return
+	for b in shots:
 		director.player.global_position = b[1]
 		director.player.velocity = Vector3.ZERO
 		await _frames(2)

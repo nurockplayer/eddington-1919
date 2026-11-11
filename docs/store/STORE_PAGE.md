@@ -213,6 +213,7 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 - 劍橋 benchmark：`--benchmark=/Volumes/KIOXIA/eddington/store-b5/cambridge --bench-cambridge --bench-quality=standard`；`tests/benchmark_cambridge.gd` 的 `bookmarks` 使用固定 1917 seed。
 - 實際遊玩參照：`--autoplay=careful --seed=7 --store-shots --shots=/Volumes/KIOXIA/eddington/store-b5/careful`；`tests/autoplay_bot.gd` 有 `careful_08_viewer_before.png`、`careful_09_viewer_measured.png`、`careful_10_ending.png` 等。`--store-shots` 預設關閉，只在 careful 路線額外呼叫既有截圖函式：`careful_store_a_rule.png`（選片規則）、`careful_store_b_reference_plates.png`（參考片面板）、`careful_store_c_loupe_2x.png`（×2 放大鏡）、`careful_store_d_measured_2sigma.png`（量測後 2σ）、`careful_store_e_five_reasons.png`（五個理由）、`careful_store_f_ending_telegram.png`（結尾電報）。參考片與放大鏡拍完即收起，對話依原有選擇繼續，不改其他路線。
 - 序章人物對話：`--prologue-autoplay=honest --shots=/Volumes/KIOXIA/eddington/store-b5/prologue`，既有 `honest_close_kit.png` 與 `honest_speaker_investigate_kit.png` 可供挑選。
+- 主視覺（capsule 與 Library Hero 的底圖）：普林西比 benchmark 加 `--bench-only=totality_sky --bench-cloud-t=<秒> --bench-size=3840x2160`。`--bench-cloud-t` 換掉全食光照用的雲層時間（預設 230，太陽在厚雲後面）；seed 7 太陽位置的雲密度（`eclipse_sim.cloud_over_sun(t)`，0 晴、1 不透光）在 t=122–138 約 0.45–0.60（日冕隔著薄雲），t=206–218 約 0.13、t=262–270 約 0.22（雲隙打開）。`--bench-size` 讓根 viewport 以指定尺寸算圖，視窗只顯示縮小後的畫面，所以存下的圖可以比螢幕大。`--bench-only` 寫錯書籤名稱時不拍任何圖，結束碼 1。用了這三個參數的執行不是 G4 benchmark，數字不與 baseline 比較。
 - Benchmark 隱藏 UI、固定光照與視角；它提供場景構圖，不能代替互動畫面。以上工具在原始碼 checkout 使用，`tests/` 不隨封裝版發行。
 
 | # | 時刻／畫面 | 如何到達 | 為何值得放 |
@@ -270,7 +271,7 @@ oracle-ego 整理後，由 lead 逐項對照 Steamworks 現行頁面：`partner.
 對本作的意義：
 
 - 現有 `store-b5/*-046-*` 截圖都是 1920×1080，符合下限。商店截圖至少 5 張要是有 UI 的實際遊玩畫面，以上表第 5–9、11、12 列為主；benchmark 鏡頭（第 1、3、4 列）隱藏了 UI，適合做 capsule 與背景的底圖，放進截圖區的張數要少。
-- Library Hero 需要 3840×1240 且不能有字，1920×1080 的截圖不夠寬；要在視窗時段用較大的 viewport 另拍一張全食雲景（第 4 列的構圖）。
+- Library Hero 需要 3840×1240 且不能有字，1920×1080 的截圖不夠寬；在視窗時段用上面「主視覺」的參數拍 3840×2160 的全食雲景（第 4 列的構圖），取中段 3840×1240，同一張原圖也供各 capsule 縮製。
 - 標題字要另做一張透明底 `.png`（Library Logo），其餘 capsule 用同一組標題字排版。
 - Shortcut Icon 與 App Icon 由 `assets/icon/icon_1024.png` 縮製；App Icon 是 `.jpg`，透明處要先鋪底色。「Mac Icon」欄位用 macOS 匯出包內的 `Contents/Resources/icon.icns`。
 

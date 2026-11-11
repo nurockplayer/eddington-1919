@@ -58,6 +58,27 @@ func _run() -> void:
 	check(Settings.quality == "low" and is_equal_approx(root.scaling_3d_scale, 0.75), "benchmark applies low quality")
 	check(FileAccess.get_file_as_bytes(Settings.settings_path()) == original if had_settings
 		else not FileAccess.file_exists(Settings.settings_path()), "benchmark leaves settings file unchanged")
+	check(is_equal_approx(Benchmark.cloud_t_arg(PackedStringArray(["--bench-cloud-t=126.5"])), 126.5), "benchmark parses cloud time")
+	check(is_nan(Benchmark.cloud_t_arg(PackedStringArray(["--bench-cloud-t=soon"]))), "benchmark ignores a non-number cloud time")
+	check(Benchmark.size_arg(PackedStringArray(["--bench-size=3840x2160"])) == Vector2i(3840, 2160), "benchmark parses size")
+	check(Benchmark.size_arg(PackedStringArray(["--bench-size=3840"])) == Vector2i.ZERO, "benchmark ignores a malformed size")
+	check(Benchmark.selected(Benchmark.BOOKMARKS, PackedStringArray()).size() == Benchmark.BOOKMARKS.size(), "no --bench-only keeps every bookmark")
+	var picked := Benchmark.selected(Benchmark.BOOKMARKS, Benchmark.only_arg(PackedStringArray(["--bench-only=totality_horizon,totality_sky"])))
+	check(picked.size() == 2 and picked[0][0] == "totality_sky" and picked[1][0] == "totality_horizon", "--bench-only keeps the named bookmarks in bookmark order")
+	check(Benchmark.selected(Benchmark.BOOKMARKS, PackedStringArray(["totality_sky", "typo"])).is_empty(), "an unknown bookmark name selects nothing")
+	bench.apply_capture_args(PackedStringArray([]))
+	check(is_equal_approx(bench.totality_cloud_t, 230.0) and bench.only.is_empty() and not bench.capture_args, "no capture args leaves the benchmark as it was")
+	var scale_mode := root.content_scale_mode
+	var scale_aspect := root.content_scale_aspect
+	var scale_size := root.content_scale_size
+	bench.apply_capture_args(PackedStringArray(["--bench-cloud-t=212", "--bench-only=totality_sky", "--bench-size=3840x2160"]))
+	await process_frame
+	check(is_equal_approx(bench.totality_cloud_t, 212.0) and bench.only == PackedStringArray(["totality_sky"]) and bench.capture_args, "benchmark applies cloud time and bookmark filter")
+	check(Vector2i(root.get_texture().get_size()) == Vector2i(3840, 2160), "benchmark renders the root viewport at --bench-size")
+	root.content_scale_mode = scale_mode
+	root.content_scale_aspect = scale_aspect
+	root.content_scale_size = scale_size
+	await process_frame
 	bench.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	Settings.load_settings(test_path)

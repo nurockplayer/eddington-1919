@@ -18,6 +18,16 @@ const Settings := preload("res://scripts/settings.gd")
 ## render time (RenderingServer.viewport_get_measured_render_time_*), which is
 ## not capped. Report geometry, draw calls and times separately; fewer
 ## primitives is not, by itself, a frame-rate claim (art/PIPELINE.md G4).
+##
+## Key-art capture (store capsules, Library Hero): the same bookmarks, shot at
+## another size or cloud time. These change the picture, so a run that uses
+## them is not a G4 benchmark and its numbers do not compare with a baseline.
+##   --bench-only=name[,name]  shoot only these bookmarks
+##   --bench-cloud-t=<s>       cloud time of the "totality" lighting state (default
+##                             230, thick cloud over the Sun; the density at a time
+##                             is eclipse_sim.cloud_over_sun(t))
+##   --bench-size=WxH          render the root viewport at this size whatever the
+##                             window is (e.g. 3840x2160; the window shows it scaled)
 
 const SETTLE_FRAMES := 20
 const SAMPLE_FRAMES := 180
@@ -39,6 +49,9 @@ const BOOKMARKS := [
 
 var main
 var out_dir := ""
+var totality_cloud_t := 230.0
+var only := PackedStringArray()
+var capture_args := false
 
 
 static func quality_arg(args: PackedStringArray) -> String:
@@ -57,10 +70,75 @@ func apply_quality_arg(args: PackedStringArray) -> void:
 		Settings.apply_quality(get_tree())
 
 
+static func cloud_t_arg(args: PackedStringArray) -> float:
+	for arg in args:
+		if arg.begins_with("--bench-cloud-t="):
+			var value := arg.trim_prefix("--bench-cloud-t=")
+			if value.is_valid_float():
+				return value.to_float()
+	return NAN
+
+
+static func only_arg(args: PackedStringArray) -> PackedStringArray:
+	for arg in args:
+		if arg.begins_with("--bench-only="):
+			return arg.trim_prefix("--bench-only=").split(",", false)
+	return PackedStringArray()
+
+
+static func size_arg(args: PackedStringArray) -> Vector2i:
+	for arg in args:
+		if arg.begins_with("--bench-size="):
+			var parts := arg.trim_prefix("--bench-size=").split("x")
+			if parts.size() == 2 and parts[0].is_valid_int() and parts[1].is_valid_int():
+				var size := Vector2i(parts[0].to_int(), parts[1].to_int())
+				if size.x >= 64 and size.y >= 64 and size.x <= 7680 and size.y <= 4320:
+					return size
+	return Vector2i.ZERO
+
+
+## The bookmarks named in `names`, in bookmark order; all of them when `names`
+## is empty. An unknown name selects nothing, so a typo cannot pass as a short run.
+static func selected(bookmarks: Array, names: PackedStringArray) -> Array:
+	if names.is_empty():
+		return bookmarks
+	var known := bookmarks.map(func(b): return b[0])
+	for wanted in names:
+		if not wanted in known:
+			return []
+	return bookmarks.filter(func(b): return b[0] in names)
+
+
+func apply_capture_args(args: PackedStringArray) -> void:
+	var cloud_t := cloud_t_arg(args)
+	if not is_nan(cloud_t):
+		totality_cloud_t = cloud_t
+	only = only_arg(args)
+	var size := size_arg(args)
+	if size != Vector2i.ZERO:
+		# Viewport stretch sets the root viewport to the base size and scales that
+		# to the window, so the saved image can be larger than the display.
+		var window := get_window()
+		window.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+		window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+		window.content_scale_size = size
+	capture_args = not is_nan(cloud_t) or not only.is_empty() or size != Vector2i.ZERO
+
+
+## The bookmarks this run shoots; quits with exit code 1 when --bench-only names none.
+func _shots(bookmarks: Array) -> Array:
+	var shots := selected(bookmarks, only)
+	if shots.is_empty():
+		push_error("--bench-only names an unknown bookmark: " + ",".join(only))
+		get_tree().quit(1)
+	return shots
+
+
 func _ready() -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
 	apply_quality_arg(OS.get_cmdline_user_args())
+	apply_capture_args(OS.get_cmdline_user_args())
 	# --bench-stress=N renders the 3D scene at N× resolution scale (N² pixels) so the
 	# GPU, not the display refresh, limits the frame: frame time then reflects scene cost.
 	for a in OS.get_cmdline_user_args():
@@ -84,7 +162,7 @@ func _light(state: String) -> void:
 	match state:
 		"prep_early": main._apply_light(0.62, 0.0, -150.0, 0.0)
 		"prep_late": main._apply_light(0.97, 0.38, -10.0, 0.0)
-		"totality": main._apply_light(1.0, 1.0, 230.0, 0.0)
+		"totality": main._apply_light(1.0, 1.0, totality_cloud_t, 0.0)
 		"night": main._apply_light(0.0, 0.0, 400.0, 1.0)
 
 
@@ -131,7 +209,10 @@ func _run() -> void:
 	main.player.can_move = false
 	main.player.can_look = false
 	var results := []
-	for b in BOOKMARKS:
+	var shots := _shots(BOOKMARKS)
+	if shots.is_empty():
+		return
+	for b in shots:
 		_light(b[3])
 		main.player.global_position = b[1]
 		main.player.velocity = Vector3.ZERO
@@ -201,6 +282,9 @@ func _write_summary(results: Array, seed_: int, hidden: Array, chapter := "") ->
 	}
 	if chapter != "":
 		summary["chapter"] = chapter
+	if capture_args:
+		var image := get_viewport().get_texture().get_size()
+		summary["capture"] = {"only": only, "totality_cloud_t": totality_cloud_t, "image": [image.x, image.y]}
 	var f := FileAccess.open(out_dir.path_join("benchmark.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary, "  "))
 	f.close()
