@@ -1051,7 +1051,7 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Done today:** #300 merged (closes #258, #257). main is 20645d1 plus handoff commits.
 - **Rule for the heartbeat:** no new story or play features before a blind newcomer session; with no event and nothing to advance, answer in one line.
 
-### #301 at the gate; Owner asked about notarization (edd-lead) | 2026-11-12 04:5x JST — read this section first
+### #301 at the gate; Owner asked about notarization (edd-lead) | 2026-11-12 04:5x JST
 
 - **Done this turn:** the `steam-assets` event (acked). The oracle reply was checked page by page against the live Steamworks docs (they are public: `curl https://partner.steamgames.com/doc/<path>`), then written up as **#301** (`docs/steam-assets-depots`, worktree ds-2, docs only): asset table and trailer specs in `docs/store/STORE_PAGE.md` sections 8 and 9, new `docs/store/STEAM_DEPOTS.md`, two corrections in `docs/RELEASE_READINESS.md` section D.
 - **What the check changed:**
@@ -1067,6 +1067,25 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Wake-ups (session crons, check with CronList):** `6f323819` heartbeat at 05:21 JST; `3a110db7` capture check at 08:57 JST. Re-arm the heartbeat 45 min after each turn.
 - **Waiting on the Owner (do not act before an answer; answers come as `@edd-lead` in the dot thread or in chat):**
   - macOS notarization: A, B or C.
+  - The workflow review (KIOXIA `eddington-1919-cache/director/workflow-review-20261112.md`): items 4 and 5 wait for a yes.
+  - A yes to run `director/triage-20261112.sh` (closes 12 triaged issues, retitles #285). Do not retry without the Owner's word.
+  - Owner-only: B1 Steam Direct, Screen Recording and Accessibility permissions, a blind newcomer session, a native ja/ko reader.
+- **Next headless work (needs neither the Owner nor a window):** capsule layout drafts from the 1920x1080 stills at the sizes in `STORE_PAGE.md` section 8 (header 920x430, small 462x174, main 1232x706, vertical 748x896, library 600x900), a transparent title logo, and the 512 px and 184 px icons from `assets/icon/icon_1024.png`. Drafts stay on KIOXIA `eddington/store-b5/`; the look is judged by the art seat (vacant, with the Owner) or the lead. No new story or play features before a blind newcomer session.
+
+### #301 round 2 at the gate; interim macOS default changed (edd-lead) | 2026-11-12 05:2x JST — read this section first
+
+- **Handled:** `ev-20261112-045826-15bb` (acked). #301 round 1 (oracle, 2026-11-12 04:58 JST) had 1 blocker: the interim default "until the Owner answers, engineering assumes B" documents sending an un-notarized macOS build to review against Valve's written rule. No Steam fact was wrong. The default was the lead's, so the lead changed it (e0c8c46; `STEAM_DEPOTS.md` section 5, `RELEASE_READINESS.md` B2, PR body):
+  - Until the Owner answers, the store page does not list macOS and no un-notarized macOS build goes to build review.
+  - B happens only if the Owner picks it.
+  - With no answer when the store page is submitted (2026-12-04), the page lists Windows and Linux, as in C.
+  - macOS stays in engineering scope (export, package-smoke, depot and launch option).
+- **Running (events go to `lead-inbox edd-lead`):**
+  - `lw-pr-301-20261112-051857`: round 2 review and gate for head e0c8c46. After it merges: detach ds-2 at origin/main, delete `docs/steam-assets-depots`. On another blocker: change the doc only for a wrong Steam fact (check the page first) or a defect with a concrete failure; a third round with blockers ends the loop (fix a real one, override the rest as follow-ups).
+  - `lw-owner-ask-fix-20261112-051910`: a correction in the Owner's dot thread (text: KIOXIA `eddington-1919-cache/director/owner-ask-20261112-0519.md`). The 04:55 JST message said engineering goes on with B until the answer; the correction gives the default above. Its event only says the post went out; ack it.
+  - `lw-movie-careful-20261112-023452`: heavy ticket #911, first in the queue behind gteki #910 at 05:19 JST, so it will most likely be called before 09:00 JST and exit 3 with nothing run. Ack that event and leave the requeue to the 08:57 JST wake-up (never two tickets at once): `mkdir -p /Volumes/KIOXIA/eddington/trailer-test && lead-wait run movie-careful -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_careful.sh`. On success: contact sheet, judge the eclipse and check-record shots, 35–50 s rough cut, delete the clips.
+- **Wake-ups (session crons, check with CronList):** `f072ec50` heartbeat at 06:05 JST (the 05:21 JST one was deleted this turn); `3a110db7` capture check at 08:57 JST. Re-arm the heartbeat 45 min after each turn.
+- **Waiting on the Owner (do not act before an answer; answers come as `@edd-lead` in the dot thread or in chat):**
+  - macOS notarization: A, B or C (lead recommends A).
   - The workflow review (KIOXIA `eddington-1919-cache/director/workflow-review-20261112.md`): items 4 and 5 wait for a yes.
   - A yes to run `director/triage-20261112.sh` (closes 12 triaged issues, retitles #285). Do not retry without the Owner's word.
   - Owner-only: B1 Steam Direct, Screen Recording and Accessibility permissions, a blind newcomer session, a native ja/ko reader.
