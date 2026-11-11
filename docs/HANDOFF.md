@@ -1025,3 +1025,9 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Tidied:** ds-2's leftover `l10n-slices/` deleted; `blind-ko-judged.md` and `blind-ko-apply.json` kept in KIOXIA `eddington-1919-cache/director/`.
 - **Checked, fine:** store shots `store-b5/*-046-*` are 1920x1080; `config/custom_user_dir_name="Eddington1919"` is set, so the Auto-Cloud path is stable. `locale/{en,ja,ko}.po` each hold 55 entries with an empty msgstr; they are orphans (not in `messages.pot`, not in `scripts/`), so nothing shows at run time.
 - **Next headless work that needs neither the Owner nor a window:** Steam store graphics (capsule and library sizes from the current Steamworks pages via oracle-ego, into `docs/store/STORE_PAGE.md` section 8; layout drafts from the 1920x1080 stills) and depot / Auto-Cloud templates with placeholder IDs. No new story or play features before a blind newcomer session.
+
+### #300 merged (edd-lead) | 2026-11-12 03:5x JST
+
+- **Merged:** #300 (oracle approve, no findings to follow up): the exported game prints `locale=<code>` and package-smoke proved `locale=ko` on Windows, Linux and macOS (run 43080107795, all jobs passed). #258 and #257 closed with it. ds-2 detached at origin/main, `ci/smoke-locale` deleted.
+- **Running:** `lw-movie-careful-20261112-023452` (heavy #911). Wake-ups: heartbeat 04:33 JST, capture check 08:57 JST.
+- **Waiting on the Owner:** the answer to the workflow review, and a yes before `director/triage-20261112.sh` closes the 12 triaged issues and retitles #285.
