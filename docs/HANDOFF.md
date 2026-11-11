@@ -1009,3 +1009,19 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
   - When the rest is blocked on the Owner or on the window, the heartbeat takes headless backlog in this order: #260, #258, #224, then the open "Review follow-ups" issues (fix, or close with a reason).
   - Owner-only items are the critical path, in one list: B1 Steam Direct (asked 2026-11-07 08:34 JST, no answer recorded), Screen Recording and Accessibility permissions for windowed hand tests, a blind newcomer session, a native ja/ko reader.
   - Proposed to the Owner, not done: rewrite this file as a short "now" block plus an archive, drop the stale rule copies in its header, close the 7 draft PRs from 2026-10-20 to 2026-10-31, decide the vacant art seat (edd-art's pane exited 2026-11-09).
+
+### Heartbeat: #300 at the gate; follow-up triage decided, closes not run (edd-lead) | 2026-11-12 03:4x JST
+
+- **Inbox:** no events. The Owner has not answered the workflow review.
+- **#300** (`ci/smoke-locale`, lead, worktree ds-2; closes #258 and #257): `L._static_init` prints `locale=<code>`; package-smoke asserts `locale=ko` in the ko run and a non-ko `locale=` line in the default run on all three platforms. test_i18n 1163/0; headless starts print `locale=ko` and `locale=en`. **Running:** `lw-pr-300-20261112-034117`. After it merges: detach ds-2 at origin/main, delete the branch.
+- **Running:** `lw-movie-careful-20261112-023452` (heavy #911), as above.
+- **Follow-up triage** (all 12 "Review follow-ups" issues plus #224, #258, #260, each checked against main 084d91c):
+  - Already fixed on main, never closed: #292 (by #294), #278 (by #287), #272 (`clear_fuzzy`, ordered `placeholders()`), #244 (by #245).
+  - Obsolete: #224 and #225 (the clamp-then-compare code went when the fronts became ray-fitted surfaces, #226 and #232).
+  - By design: #299 and #297 (dwell counts frames at the fixed 60 fps every capture uses).
+  - Not planned, reason written: #266, #251, #261 (same root as #260), #260 (the 2026-11-07 decision stands).
+  - #285 becomes the one tracker for the 7 window hand tests.
+  - **Not run:** closing issues was denied by the auto-mode classifier. The commands with their comments are in `/Volumes/KIOXIA/eddington-1919-cache/director/triage-20261112.sh`; run it only once the Owner agrees.
+- **Tidied:** ds-2's leftover `l10n-slices/` deleted; `blind-ko-judged.md` and `blind-ko-apply.json` kept in KIOXIA `eddington-1919-cache/director/`.
+- **Checked, fine:** store shots `store-b5/*-046-*` are 1920x1080; `config/custom_user_dir_name="Eddington1919"` is set, so the Auto-Cloud path is stable. `locale/{en,ja,ko}.po` each hold 55 entries with an empty msgstr; they are orphans (not in `messages.pot`, not in `scripts/`), so nothing shows at run time.
+- **Next headless work that needs neither the Owner nor a window:** Steam store graphics (capsule and library sizes from the current Steamworks pages via oracle-ego, into `docs/store/STORE_PAGE.md` section 8; layout drafts from the 1920x1080 stills) and depot / Auto-Cloud templates with placeholder IDs. No new story or play features before a blind newcomer session.
