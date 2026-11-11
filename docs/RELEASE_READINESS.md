@@ -47,7 +47,7 @@ From two oracle-ego rounds plus a read of the Steamworks pages. The Owner's own 
 | B row | Decision | Who |
 |---|---|---|
 | B1 | Steam Direct and paperwork: asked 2026-11-07 08:34 JST | Owner to do |
-| B2 | Windows, macOS, Linux native depots. Check macOS by a real Steam install (`xattr` on the .app, launch on a clean user); pay Apple only if that fails. No Deck claim. **Open since 2026-11-12 JST:** Valve's platforms page requires new macOS apps to be notarized, which needs the paid Apple Developer Program; options and the lead's recommendation in `docs/store/STEAM_DEPOTS.md` section 5 | lead; the Apple fee is the Owner's call |
+| B2 | Windows, macOS, Linux native depots. No Deck claim. The 2026-11-07 plan for macOS (check a real Steam install with `xattr` on the .app and a launch on a clean user, pay Apple only if that fails) is on hold. **Open since 2026-11-12 JST:** Valve's platforms page requires new macOS apps to be notarized, which needs the paid Apple Developer Program; options and the lead's recommendation in `docs/store/STEAM_DEPOTS.md` section 5. Until the Owner answers, the store page does not list macOS and no un-notarized macOS build goes to build review | lead; the Apple fee is the Owner's call |
 | B3 | **zh-TW, English, Japanese, Korean, all at launch** | Owner 2026-11-07 |
 | B4 | Rule: Coming Soon up 28 days or more, no launch in the Winter Sale, first Tuesday from 2027-01-12 that qualifies. US$2.99–3.99, picked after a measured playtime. State the length on the store page | proposal; Owner sets at publish |
 | B5 | Capsules: in-game render plus typeset title, no generated art. Trailer 35–50 s from real capture with `--write-movie`; Steam requires one for release | lead |

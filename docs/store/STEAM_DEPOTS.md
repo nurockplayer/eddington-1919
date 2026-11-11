@@ -136,7 +136,9 @@ Notarization needs a Developer ID certificate, which needs the paid Apple Develo
 | B. Keep the 2026-11-07 plan: test an un-notarized build from a real Steam install, pay only if it fails | Nothing up front | The build goes to review against a written requirement it does not meet; a failure costs a review round (3–5 business days) late in the schedule |
 | C. Launch on Windows and Linux, add macOS later | Nothing | macOS players wait; the store page and depots change again later |
 
-Lead's recommendation: A, decided before the store page lists macOS. Until the Owner answers, engineering assumes B and macOS stays in scope.
+Lead's recommendation: A, decided before the store page lists macOS.
+
+Until the Owner answers, the store page does not list macOS and no un-notarized macOS build is sent to build review. B happens only if the Owner picks it: a build that launches from a local Steam install shows that it runs, not that Valve's rule is met. macOS stays in engineering scope (the export, package-smoke, the depot and launch option in sections 2 and 3), so A adds only the signing step. With no answer when the store page is submitted (2026-12-04 in section 7), the page lists Windows and Linux as in C, and macOS waits for the answer.
 
 If the build is notarized it runs under the hardened runtime, and the page lists two entitlements for the Steam overlay: `com.apple.security.cs.disable-library-validation` and `com.apple.security.cs.allow-dyld-environment-variables`. `com.apple.security.app-sandbox` must stay off: Steam is not compatible with it.
 
