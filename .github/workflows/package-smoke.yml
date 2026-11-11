@@ -111,6 +111,11 @@ jobs:
           $env:EDD_LOCALE = 'ko'
           Invoke-Smoke 'ko locale, headless' @('--headless', '--quit-after', '120', '--log-file', 'smoke-ko.log') 'smoke-ko.log'
           Remove-Item Env:EDD_LOCALE
+
+          # EDD_LOCALE must be what picked Korean: the ko run reports it, the default run does not.
+          if (-not (Select-String -Path smoke-ko.log -Pattern '^locale=ko$' -Quiet)) { throw 'smoke-ko.log has no locale=ko line' }
+          if (-not (Select-String -Path smoke.log -Pattern '^locale=' -Quiet)) { throw 'smoke.log has no locale= line' }
+          if (Select-String -Path smoke.log -Pattern '^locale=ko$' -Quiet) { throw 'the default run reports locale=ko too' }
       # Best effort: a hosted runner may have no usable GPU or desktop, so a
       # failure here says something about the runner, not the package.
       - name: Best effort — windowed on d3d12
@@ -195,7 +200,12 @@ jobs:
           EDD_LOCALE=ko timeout --kill-after=10 180 \
             ./Eddington1919.x86_64 --headless --quit-after 120 --log-file smoke-ko.log || status=$?
           [ "$status" -eq 0 ] || { echo "::error::ko locale run exited $status"; cat smoke-ko.log || true; exit 1; }
-          check smoke-ko.log
+          check smoke-ko.log || exit 1
+
+          # EDD_LOCALE must be what picked Korean: the ko run reports it, the default run does not.
+          grep -qx 'locale=ko' smoke-ko.log || { echo "::error::smoke-ko.log has no locale=ko line"; exit 1; }
+          grep -q '^locale=' smoke.log || { echo "::error::smoke.log has no locale= line"; exit 1; }
+          if grep -qx 'locale=ko' smoke.log; then echo "::error::the default run reports locale=ko too"; exit 1; fi
 
   smoke-macos:
     name: smoke — macOS
@@ -263,7 +273,12 @@ jobs:
           unset EDD_LOCALE
           echo "ko locale exit code: $status"
           [ "$status" -eq 0 ] || { echo "::error::ko locale run exited $status"; tail -n 50 "$RUNNER_TEMP/smoke-ko.log" || true; exit 1; }
-          check "$RUNNER_TEMP/smoke-ko.log"
+          check "$RUNNER_TEMP/smoke-ko.log" || exit 1
+
+          # EDD_LOCALE must be what picked Korean: the ko run reports it, the default run does not.
+          grep -qx 'locale=ko' "$RUNNER_TEMP/smoke-ko.log" || { echo "::error::smoke-ko.log has no locale=ko line"; exit 1; }
+          grep -q '^locale=' "$RUNNER_TEMP/smoke.log" || { echo "::error::smoke.log has no locale= line"; exit 1; }
+          if grep -qx 'locale=ko' "$RUNNER_TEMP/smoke.log"; then echo "::error::the default run reports locale=ko too"; exit 1; fi
       # Best effort: the runner may have no window server session.
       - name: Best effort — windowed
         continue-on-error: true
