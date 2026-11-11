@@ -275,6 +275,29 @@ oracle-ego 整理後，由 lead 逐項對照 Steamworks 現行頁面：`partner.
 - 標題字要另做一張透明底 `.png`（Library Logo），其餘 capsule 用同一組標題字排版。
 - Shortcut Icon 與 App Icon 由 `assets/icon/icon_1024.png` 縮製；App Icon 是 `.jpg`，透明處要先鋪底色。「Mac Icon」欄位用 macOS 匯出包內的 `Contents/Resources/icon.icns`。
 
+### 商店截圖選定（edd-lead，2026-11-12 05:5x JST）
+
+從 0.4.6 的四語言截圖（main 0950c3a，2026-11-09 JST 拍攝）選出 9 張，其中 8 張帶遊戲內 UI。上傳用的副本放在 KIOXIA `eddington/store-b5/upload/`（1920×1080 `.jpg`，同資料夾的 `INDEX.md` 列出來源檔）；圖片不進 repo。
+
+| 順序 | 檔名（不含語言後綴） | 畫面 | 上表列號 | UI |
+|---|---|---|---|---|
+| 1 | `01_eclipse` | 雲隙中的日全食，喊「開始」的那一刻；右下是全食倒數與曝光狀態 | 4 的實際遊玩版（`careful_06b_totality_gap_open.png`） | 有 |
+| 2 | `02_prediction` | 量測之前寫下預測：0、0.87 或 1.75 | 11 | 有 |
+| 3 | `03_measured` | 三張底片的量測值、合併值與誤差區間 | 8 | 有 |
+| 4 | `04_orrery` | 劍橋，1846 年的年鑑與太陽系儀：牛頓的預測對不對得上 | 10 | 有 |
+| 5 | `05_micrometer` | 用測微器親手讀星像位置 | 12 | 有 |
+| 6 | `06_principe` | 普林西比的定天鏡與觀測棚（benchmark 鏡頭，四種語言共用一張） | 3 | 無 |
+| 7 | `07_grounds` | 「根據什麼？」：五個理由選一個 | 無（`careful_store_e_five_reasons.png`） | 有 |
+| 8 | `08_kit` | Kit 的複核與對話 | 2 | 有 |
+| 9 | `09_telegram` | 玩家寄出的短電報 | 9 | 有 |
+
+- 沒有選的：第 5 列（選片規則）與 `02_prediction` 是同一個鏡位，只留一張，玩家寫下的規則在 `07_grounds` 的右上仍看得到。第 6、7 列（參考片、放大鏡、閃爍比對）與 `05_micrometer` 都是讀片畫面，靜態圖幾乎一樣；閃爍比對留給「關於此遊戲」的兩格動圖。第 1 列（看片台）沒有 UI，無 UI 的鏡頭只留一張。
+- 文字檢查：四種語言的文字都在框內，沒有缺字。`03`、`08`、`09` 於 2026-11-09 JST 判讀；`01`、`02`、`04`、`05`、`07` 於 2026-11-12 JST 裁出文字區逐張判讀。
+- 「適合所有年齡」：九張都沒有血腥、暴力或性暗示。上傳後把前四張（`01`–`04`）標上，符合「至少 4 張」。
+- 語言後綴用 Steam 的 API language code：`english`、`japanese`、`koreana`、`tchinese`（`/doc/store/localization/languages`）。Store Graphical Assets 頁只寫語言名稱可以當後綴，例子是 `foo_japanese.jpg`；上傳介面認不認 `koreana` 與 `tchinese`，頁面沒有寫，*未驗證*，上傳時逐張確認歸到正確的語言。
+- 量測畫面（`03`、`07`）右下已有「示意模擬資料」的說明文字，符合第 7 節的標示要求。
+- 主視覺（capsule）不在這份清單裡；它等視窗時段的 3840×2160 全食鏡頭。
+
 ## 9. 預告片分鏡草稿（B5，約 70 秒）
 
 edd-lead 2026-11-07 草稿；尚未拍攝，是否製作與最終剪輯由 Owner 決定。每個鏡頭都用遊戲實際畫面，不做預渲染，也不放遊戲裡沒有的內容。
