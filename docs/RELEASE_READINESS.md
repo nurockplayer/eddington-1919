@@ -42,19 +42,19 @@ Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or
 
 ## D. Release plan (edd-lead, 2026-11-07 08:5x JST)
 
-From two oracle-ego rounds plus a read of the Steamworks pages. The Owner's own calls are marked. Steam facts: US$100 per product, not refundable, recouped after US$1,000 revenue; paperwork 15–30 days; 21 days from fee to release; Coming Soon at least 2 weeks; store and build review 3–5 business days, plan 7; 5 screenshots at 1920x1080 minimum; no trailer requirement found on the pages read.
+From two oracle-ego rounds plus a read of the Steamworks pages. The Owner's own calls are marked. Steam facts: US$100 per product, not refundable, recouped after US$1,000 revenue; paperwork 15–30 days; 21 days from fee to release; Coming Soon at least 2 weeks; store and build review 3–5 business days, plan 7; 5 screenshots at 1920x1080 minimum; a trailer is required for release (Trailers page, read 2026-11-12 JST; the 2026-11-07 note "no trailer requirement found" was a miss). Asset sizes and rules: `docs/store/STORE_PAGE.md` sections 8 and 9. Depots, Auto-Cloud settings, the notarization rule and the dated waits: `docs/store/STEAM_DEPOTS.md`.
 
 | B row | Decision | Who |
 |---|---|---|
 | B1 | Steam Direct and paperwork: asked 2026-11-07 08:34 JST | Owner to do |
-| B2 | Windows, macOS, Linux native depots. Check macOS by a real Steam install (`xattr` on the .app, launch on a clean user); pay Apple only if that fails. No Deck claim | lead |
+| B2 | Windows, macOS, Linux native depots. No Deck claim. The 2026-11-07 plan for macOS (check a real Steam install with `xattr` on the .app and a launch on a clean user, pay Apple only if that fails) is on hold. **Open since 2026-11-12 JST:** Valve's platforms page requires new macOS apps to be notarized, which needs the paid Apple Developer Program; options and the lead's recommendation in `docs/store/STEAM_DEPOTS.md` section 5. Until the Owner answers, the store page does not list macOS and no un-notarized macOS build goes to build review | lead; the Apple fee is the Owner's call |
 | B3 | **zh-TW, English, Japanese, Korean, all at launch** | Owner 2026-11-07 |
 | B4 | Rule: Coming Soon up 28 days or more, no launch in the Winter Sale, first Tuesday from 2027-01-12 that qualifies. US$2.99–3.99, picked after a measured playtime. State the length on the store page | proposal; Owner sets at publish |
-| B5 | Capsules: in-game render plus typeset title, no generated art. Trailer 35–50 s from real capture with `--write-movie` | lead |
+| B5 | Capsules: in-game render plus typeset title, no generated art. Trailer 35–50 s from real capture with `--write-movie`; Steam requires one for release | lead |
 | B6 | Declare pre-generated AI content: portraits, story text, dialogue, localization, and music and sound (written as code, rendered from CC0 samples). Nothing live-generated. Text in `docs/store/STORE_PAGE.md` section 7 | Owner attests |
 | B7 | Decided, see row B7 above | lead |
 | B8 | **Gramophone recording stays** (Owner 2026-11-07). Credits: `nurockplayer` unless the Owner says otherwise. Steam's legal name is separate | Owner, lead |
-| B9 | No achievements. Steam Auto-Cloud on `checkpoint.save` only, no SDK | lead |
+| B9 | No achievements. Steam Auto-Cloud on `checkpoint.save` only, no SDK; settings in `docs/store/STEAM_DEPOTS.md` section 4 | lead |
 | B10 | One blind newcomer session on any platform. Asked of the Owner 2026-11-07 08:34 JST; then Steam Playtest once an App ID exists. Not a gate for engineering work | Owner, then Playtest |
 | B11 | Kit and Ashby keep their names; 「姓名暫定」 removed. The Owner can still change this | lead |
 
