@@ -1143,7 +1143,7 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
   2. `RELEASE_READINESS.md` section B: bring the B5 row up to date with what now exists (screenshots staged, capsule lettering drafted, key art and trailer waiting for the window) in one docs PR, together with any row that #301–#303 made stale.
   No new story or play features before a blind newcomer session.
 
-### State at clear: #301–#303 merged, nothing running (edd-lead) | 2026-11-12 05:5x JST — read this section first
+### State at clear: #301–#303 merged, nothing running (edd-lead) | 2026-11-12 05:5x JST
 
 - **Merged today:** #300 (locale proof in package-smoke), #301 (Steam assets, depots, trailer rules; 5129ac0), #302 (benchmark key-art options; 9b20eb0), #303 (store screenshot set; 3ad199b, oracle approve, no findings). main is 3ad199b plus handoff commits. ds-2 is detached at origin/main; no branch of this session is left, locally or on origin. Inbox empty, `lead-wait list` empty, no eddington ticket in the heavy queue (2026-11-12 05:49 JST).
 - **At the 08:57 JST wake-up (`3a110db7`), queue both, in this order, each only if no ticket of that kind is waiting or running:**
@@ -1166,3 +1166,29 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
   2. `RELEASE_READINESS.md` section B: bring the B5 row up to date (screenshots staged, capsule lettering drafted, key art and trailer waiting for the window) with any other row that #301–#303 made stale, in one docs PR through `lead-wait pr`.
   No new story or play features before a blind newcomer session.
 - **Shell note:** the Bash tool runs zsh, which does not split `$var` into words: a loop that does `set -- $pair` needs `bash <<'EOF' … EOF`. A `magick` call that gets an empty input name waits on stdin for ever.
+
+### Blink GIF staged, #304 merged, limb fix #305 at the gate (edd-lead) | 2026-11-12 06:5x JST — read this section first
+
+- **Merged this turn:** #304 (00435be; docs: the blink GIF for About, B5 status; oracle approve, event acked). `RELEASE_READINESS.md` row B5 is now PARTIAL with what is drafted, staged and open.
+- **Blink GIF for About: done.** `blink_{english,japanese,koreana,tchinese}.gif` on KIOXIA `eddington/store-b5/upload/about/` (682x708, two frames, 1.0 s each, about 0.22 MB each); notes in `STORE_PAGE.md` section 8 and in the upload `INDEX.md`. Steam: each description image under 5 MB, all under 15 MB; where the editor takes the upload is not on the docs page. Build: `bash /Volumes/KIOXIA/eddington-1919-cache/director/about_blink.sh` (`SET=careful-limb` picks the reshoot below).
+- **In flight:** `lw-pr-305-20261112-064902` = `lead-wait pr 305` (fix(plates): blend the Moon's limb over one plate pixel; branch `fix/plate-limb-soft` in worktree ds-2; CI `suites` and `leak-gate` were pending at 06:49 JST). The hard-edged Moon showed as stairs in the plate viewer and in the blink GIF. The lead judged the before/after sheet (KIOXIA `eddington/store-b5/limb-soft/judge_limb.jpg`) and accepted it in a PR comment. On its event: ack; if merged, delete the branch locally and on origin and detach ds-2 at origin/main; a blocker is fixed in ds-2.
+- **At the 08:57 JST wake-up (`3a110db7`), queue in this order, each only if no ticket of that kind is waiting or running:**
+  1. `mkdir -p /Volumes/KIOXIA/eddington/trailer-test && lead-wait run movie-careful -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_careful.sh` (exit 3 = called outside 09:00–14:20 JST, nothing run: requeue once inside the window; never two movie tickets at once). On success: contact sheet, judge the eclipse and check-record shots, 35–50 s rough cut, delete the clips.
+  2. `lead-wait run keyart -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/keyart_046.sh` (exit 3 = outside 09:00–14:50 JST). It shoots `totality_sky` and `totality_horizon` without UI at 3840x2160 for cloud times 122, 130, 138, 204, 212 and 264 (seed 7) into KIOXIA `eddington/store-b5/keyart-046/t<time>/` and makes `sheet_keyart.jpg`. On its event:
+     - The log prints each PNG's size: it must be `3840 2160`. `--bench-size` is proven only headless; if a real window gives another size, open a follow-up issue and fall back to `--resolution`.
+     - Judge `sheet_keyart.jpg`: the frame where the ring shows through cloud and the shelter poles stay out of the middle.
+     - Cut drafts d2: `python3 /Volumes/KIOXIA/eddington-1919-cache/director/capsule_drafts.py /Volumes/KIOXIA/eddington/store-b5/capsules-d2 <chosen totality_sky.png>` (`<x> <y>` after the path overrides the eclipse centre; a 3840-wide source gives the real Library Hero). Judge the three `sheet_*.jpg`. `grade()` was tuned for the dim cloud-time-230 frame: soften it for a frame with the ring.
+  3. Only once #305 is merged: `lead-wait run store-limb -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/store_limb.sh` (exit 3 = outside 09:00–14:50 JST; exit 4 = origin/main has no limb fix). It reshoots the careful store shots in four languages into `eddington/store-b5/careful-limb-<loc>/`. On its event:
+     - `SET=careful-limb bash …/director/about_blink.sh`, then look at one GIF's eclipse frame: the limb is smooth, the caption is in frame.
+     - Compare each chosen careful screenshot's source (upload `INDEX.md` lists them) with its `careful-limb` twin (`magick a b -compose difference -composite -threshold 6% -format '%@' info:`). Where only the plate viewer differs, or nothing does, remake that upload JPG from the new shot (1920x1080, quality 95); a shot that differs elsewhere stays as it is and is looked at first.
+- **Capsules so far:** drafts d1 (KIOXIA `eddington/store-b5/capsules-d1/`) are a layout study only. The lettering passes; the picture fails. Nothing from d1 goes to the store page.
+- **Store screenshots:** nine shots, 33 upload JPGs plus `INDEX.md` on KIOXIA `eddington/store-b5/upload/`. On upload, check that the `koreana` and `tchinese` suffixes land under the right language.
+- **Wake-ups (session crons; check with CronList and re-create if missing):** `679b9e86` heartbeat at 07:37 JST; `3a110db7` capture check at 08:57 JST. Re-arm the heartbeat 45 min after each turn.
+- **Waiting on the Owner (do not act before an answer; answers come as `@edd-lead` in the dot thread or in chat):**
+  - macOS notarization: A, B or C (lead recommends A; asked 2026-11-12 04:55 JST, corrected 05:19 JST). Until then the store page does not list macOS and no un-notarized macOS build goes to build review.
+  - Acceptance of the title lettering and the key art once d2 exists (the art seat is vacant).
+  - The workflow review (KIOXIA `eddington-1919-cache/director/workflow-review-20261112.md`): items 4 and 5 wait for a yes.
+  - A yes to run `director/triage-20261112.sh` (closes 12 triaged issues, retitles #285). Do not retry without the Owner's word.
+  - Owner-only: B1 Steam Direct, Screen Recording and Accessibility permissions, a blind newcomer session, a native ja/ko reader.
+- **Next headless work before the window:** nothing is listed. Both items of the last section are done. After the #305 event there is nothing to push until 08:57 JST unless the Owner answers. No new story or play features before a blind newcomer session.
+- **Shell note:** the Bash tool runs zsh, which does not split `$var` into words: a loop that does `set -- $pair` needs `bash <<'EOF' … EOF`. A `magick` call that gets an empty input name waits on stdin for ever. `magick compare` takes no `-extent`; use `magick a b -metric PSNR -compare -format '%[distortion]' info:` (prints PSNR/100).
