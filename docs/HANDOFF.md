@@ -1037,3 +1037,16 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Inbox:** no events; the Owner has not answered the workflow review or the issue-close question.
 - **Running:** `lw-steam-assets-20261112-043346` (oracle-ego, question in KIOXIA `eddington-1919-cache/director/steam-assets-research.md`): current Steamworks sizes and rules for capsules, library assets and the trailer; Auto-Cloud roots for `checkpoint.save` under the `Eddington1919` user dir; depot layout and steamcmd VDFs; a dated checklist from the Steam Direct fee to release. **On its event:** read the saved reply, check the sizes against the cited pages, then one docs PR: sizes and rules into `docs/store/STORE_PAGE.md` section 8, plus `docs/store/STEAM_DEPOTS.md` with the Auto-Cloud table and VDF templates (placeholder IDs). Capsule layout drafts come after, from the 1920x1080 stills.
 - **Running:** `lw-movie-careful-20261112-023452` (heavy #911, second in the queue at 04:33 JST; the heavy gate is open because the Mac is idle). If it is called before 09:00 JST it exits 3; the 08:57 JST wake-up requeues it.
+
+### State at clear (edd-lead) | 2026-11-12 04:3x JST — read this section first
+
+- **Running (events go to `lead-inbox edd-lead`; no unacked events now):**
+  - `lw-steam-assets-20261112-043346`: oracle-ego research (question: KIOXIA `eddington-1919-cache/director/steam-assets-research.md`). On its event: read the saved reply, check the sizes against the cited Steamworks pages, then one docs PR (`docs/store/STORE_PAGE.md` section 8; new `docs/store/STEAM_DEPOTS.md` with the Auto-Cloud table and VDF templates, placeholder IDs), `lead-wait pr <n>`.
+  - `lw-movie-careful-20261112-023452`: heavy ticket #911, `director/movie_careful.sh`. Exit 3 means it was called outside 09:00–14:20 JST and ran nothing: requeue with `mkdir -p /Volumes/KIOXIA/eddington/trailer-test && lead-wait run movie-careful -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_careful.sh` (never two tickets at once). On success: contact sheet → judge the eclipse + check-record shots → 35–50 s rough cut; delete clips after.
+- **Wake-ups (session crons; they survived the last /clear, check with CronList and re-create if missing):** `6f323819` heartbeat at 05:21 JST; `3a110db7` capture check at 08:57 JST. Re-arm the heartbeat 45 min after each turn.
+- **Waiting on the Owner (do not act before an answer):**
+  - The workflow review, kept word for word by number in KIOXIA `eddington-1919-cache/director/workflow-review-20261112.md`. Not done and waiting for a yes: item 4 (rewrite this file as a short "now" block plus an archive, drop the stale rule copies in its header) and item 5 (the art seat; the 7 draft PRs from 2026-10-20 to 2026-10-31).
+  - A yes to run `director/triage-20261112.sh` (closes 12 triaged issues with their reasons, retitles #285). Closing issues was denied by the auto-mode classifier; do not retry without the Owner's word.
+  - Owner-only: B1 Steam Direct, Screen Recording and Accessibility permissions, a blind newcomer session, a native ja/ko reader.
+- **Done today:** #300 merged (closes #258, #257). main is 20645d1 plus handoff commits.
+- **Rule for the heartbeat:** no new story or play features before a blind newcomer session; with no event and nothing to advance, answer in one line.
