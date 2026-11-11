@@ -68,6 +68,9 @@ func on_phase(p: String) -> void:
 func _log(s: String) -> void:
 	log_lines.append(s)
 	print("[BOT %s] %s" % [scenario, s])
+	if dwell > 0.0:
+		# Trailer capture: the frame of each step, to cut the movie by (frame / 60 = seconds).
+		print("[BOTF %d] %s" % [Engine.get_process_frames(), s])
 
 
 # ------------------------------------------------------------------ primitives
