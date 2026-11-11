@@ -1167,7 +1167,7 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
   No new story or play features before a blind newcomer session.
 - **Shell note:** the Bash tool runs zsh, which does not split `$var` into words: a loop that does `set -- $pair` needs `bash <<'EOF' … EOF`. A `magick` call that gets an empty input name waits on stdin for ever.
 
-### Blink GIF staged, #304 merged, limb fix #305 at the gate (edd-lead) | 2026-11-12 06:5x JST — read this section first
+### Blink GIF staged, #304 merged, limb fix #305 at the gate (edd-lead) | 2026-11-12 06:5x JST
 
 - **Merged this turn:** #304 (00435be; docs: the blink GIF for About, B5 status; oracle approve, event acked). `RELEASE_READINESS.md` row B5 is now PARTIAL with what is drafted, staged and open.
 - **Blink GIF for About: done.** `blink_{english,japanese,koreana,tchinese}.gif` on KIOXIA `eddington/store-b5/upload/about/` (682x708, two frames, 1.0 s each, about 0.22 MB each); notes in `STORE_PAGE.md` section 8 and in the upload `INDEX.md`. Steam: each description image under 5 MB, all under 15 MB; where the editor takes the upload is not on the docs page. Build: `bash /Volumes/KIOXIA/eddington-1919-cache/director/about_blink.sh` (`SET=careful-limb` picks the reshoot below).
@@ -1192,3 +1192,14 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
   - Owner-only: B1 Steam Direct, Screen Recording and Accessibility permissions, a blind newcomer session, a native ja/ko reader.
 - **Next headless work before the window:** nothing is listed. Both items of the last section are done. After the #305 event there is nothing to push until 08:57 JST unless the Owner answers. No new story or play features before a blind newcomer session.
 - **Shell note:** the Bash tool runs zsh, which does not split `$var` into words: a loop that does `set -- $pair` needs `bash <<'EOF' … EOF`. A `magick` call that gets an empty input name waits on stdin for ever. `magick compare` takes no `-extent`; use `magick a b -metric PSNR -compare -format '%[distortion]' info:` (prints PSNR/100).
+
+### #305 merged after an accidental close; nothing running (edd-lead) | 2026-11-12 07:1x JST — read this section first
+
+- **Merged:** #305 (0ce1a58, 2026-11-12 07:09 JST; oracle approve, no findings): the Moon's limb on the plate blends over one plate pixel. `fix/plate-limb-soft` is deleted locally and on origin; ds-2 is detached at origin/main (0ce1a58). Events `ev-20261112-070305-5447` and `ev-20261112-070959-2d48` are acked; the inbox and `lead-wait list` are empty (07:13 JST).
+- **What went wrong on the way:** GitHub closed #305 at 06:50 JST when handoff commit 2637d4d reached main: its message read "limb fix #305 at the gate", and `fix #305` is a closing keyword. The first gate run then ended failed at 07:03 JST ("Auto merge is not allowed for this repository"; the repo has `allow_auto_merge: false` and the PR was closed by then). The lead reopened the PR at 07:09 JST (the PR comment says why) and ran `lead-wait pr 305` again; the gate merged the same reviewed head 414c698.
+- **Rule from this:** a commit message that reaches main never has `fix`, `close` or `resolve` (any form) directly before `#<n>`, unless closing it is meant. Write "#305 (limb fix)".
+- **Check at the 07:37 JST heartbeat (`679b9e86`):** `gh run view 43109420915 --json status,conclusion` (`all-suites` on 0ce1a58, in progress at 07:13 JST). CI on head 414c698 was green before the close (`suites`, `leak-gate`); the rerun that the reopen started was still pending when the gate merged. A red `all-suites` on main is a real bug and comes first: reproduce the failing suite with `orb-test --host -- godot --headless --path . --script res://tests/<suite>.gd`.
+- **At the 08:57 JST wake-up (`3a110db7`):** the three steps of the section above, unchanged (movie-careful, keyart, store-limb, each only if no ticket of that kind is waiting or running). Step 3 is now unblocked: #305 is on main.
+- **Wake-ups (session crons; both in CronList at 07:09 JST, re-create if missing):** `679b9e86` heartbeat at 07:37 JST; `3a110db7` capture check at 08:57 JST. Re-arm the heartbeat 45 min after each turn.
+- **Waiting on the Owner:** unchanged; the list is in the section above (notarization A/B/C; acceptance of the title lettering and key art once d2 exists; workflow review items 4 and 5; the yes for `director/triage-20261112.sh`; B1 Steam Direct, the two macOS permissions, a blind newcomer session, a native ja/ko reader).
+- **Next headless work before the window:** nothing is listed. No new story or play features before a blind newcomer session.
