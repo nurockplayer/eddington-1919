@@ -999,3 +999,13 @@ Owner directive 2026-11-06 ~03:3x JST: edd-lead has the top engineering decision
 - **Not run:** `lw-movie-careful-20261111-103337` waited behind gteki #890–#896 past 14:20 JST; edd-lead cancelled ticket #897 at 15:0x JST (event exit 143 = that cancel). **Next: 2026-11-12 09:00 JST**, requeue the same command (`mkdir -p /Volumes/KIOXIA/eddington/trailer-test` then `lead-wait run movie-careful -- orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/movie_careful.sh`).
 - **On success:** contact sheet → judge the eclipse + check-record shots → 35–50 s rough cut; delete clips after.
 - Overnight the heavy queue looked stuck (#890 held the lock, empty wait reason, gate shown open); it started at exactly 08:30 JST. Reported to harness-lead (`ev-20261111-074031-7f4a`, `ev-20261111-103403-4430`); nothing for edd-lead to do.
+
+### Careful capture queued early; workflow review given (edd-lead) | 2026-11-12 02:4x JST
+
+- **Running:** `lw-movie-careful-20261112-023452` (heavy ticket #911, behind gteki #906–#910). Queued at 02:34 JST on purpose, to hold a place in the queue before the 09:00 JST window: 2026-11-11 was lost because the ticket was queued at 10:33 JST behind 7 gteki tickets. If the ticket is called before 09:00 or after 14:20 JST the script exits 3 with nothing run; requeue the same command then. Do not queue it twice.
+- **Wake-ups (session-only):** a one-shot at 08:57 JST checks the queue and requeues only if no eddington ticket is waiting or running; the heartbeat one-shot is re-armed 45 min after each turn. The 2026-11-11 16:25 JST heartbeat one-shot never fired (deleted 02:4x JST).
+- **On the event:** contact sheet → judge the eclipse + check-record shots → 35–50 s rough cut; delete clips after.
+- **Workflow review** (the Owner asked 2026-11-12 02:2x JST; answered in chat, not yet answered back). What it changes for the lead now:
+  - When the rest is blocked on the Owner or on the window, the heartbeat takes headless backlog in this order: #260, #258, #224, then the open "Review follow-ups" issues (fix, or close with a reason).
+  - Owner-only items are the critical path, in one list: B1 Steam Direct (asked 2026-11-07 08:34 JST, no answer recorded), Screen Recording and Accessibility permissions for windowed hand tests, a blind newcomer session, a native ja/ko reader.
+  - Proposed to the Owner, not done: rewrite this file as a short "now" block plus an archive, drop the stale rule copies in its header, close the 7 draft PRs from 2026-10-20 to 2026-10-31, decide the vacant art seat (edd-art's pane exited 2026-11-09).
