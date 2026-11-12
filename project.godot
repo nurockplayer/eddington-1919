@@ -6,7 +6,7 @@ config_version=5
 [application]
 
 config/name="雲層之後 · Eddington 1919"
-config/version="0.4.6"
+config/version="0.4.7"
 config/icon="res://icon.svg"
 config/description="A short narrative game: from a Cambridge light box in 1917 to the clouded eclipse of 1919, measure the evidence yourself."
 config/use_custom_user_dir=true
