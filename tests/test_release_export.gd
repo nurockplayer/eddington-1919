@@ -15,7 +15,7 @@ func _initialize() -> void:
 	var project := ConfigFile.new()
 	check(project.load("res://project.godot") == OK, "project settings load")
 	var version := str(project.get_value("application", "config/version", ""))
-	check(version == "0.4.6", "project defines release version")
+	check(version == "0.4.7", "project defines release version")
 	check(project.get_value("application", "config/icon", "") == "res://icon.svg", "project defines SVG icon")
 	check(bool(project.get_value("internationalization", "locale/include_text_server_data", false)),
 		"release keeps ICU break data for CJK line breaking")
