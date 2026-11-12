@@ -2,23 +2,14 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-12 13:1x JST.** Release readiness (`docs/RELEASE_READINESS.md`): A 13/14 done; A11 is partial because no human has played the exported build. The B rows wait on the Owner, B1 first. B5 (02956da) is with the Owner for acceptance: the trailer rough cut d3 in four languages, the key art and capsules d2; details in `docs/store/STORE_PAGE.md` sections 8 and 9.
+**Written 2026-11-12 13:3x JST.** **Owner 2026-11-12 13:3x JST: listing work is paused until the game is complete enough** (memory `eddington-store-paused-1112`). Release readiness (`docs/RELEASE_READINESS.md`) stays as it is: A 13/14 done (A11 partial: no human has played the exported build); B rows on hold. Do not resend the B5 acceptance ask or chase notarization / B1.
 
-**In flight:** nothing is running (`lead-wait list` is empty, the inbox is acked). Paths: `director/` = KIOXIA `eddington-1919-cache/director/`, `<b5>` = KIOXIA `eddington/store-b5`.
-- 0.4.7 is merged: PR #307 → 377dde9 (2026-11-12 11:17 JST), reviewed on codex because the oracle run failed (exit 5; noted on the PR). The macOS, Windows and Linux ZIPs and `BUILD.txt` are in KIOXIA `eddington/builds/0.4.7/`; the lead compared their SHA-256 with `BUILD.txt` (equal). The worktree `rel047` and the local branch are removed; the remote branch `release/0.4.7` is kept, as `release/0.4.6` was, so the build commit 9e0059b named in `BUILD.txt` stays reachable.
-- The B5 acceptance ask is NOT in the dot thread: every `oracle-ego --dot` run since 10:12 JST times out on `chatgpt.com/dots` (the newest, a dot-ci of 11:14 JST, has no `answer.md`; harness-lead has `dot-thread-unreachable`, theirs to repair). The ask went to the Owner in chat (10:5x JST, shown again by the watchdog at 11:11 JST) with the three capsule sheets and a 720p preview of the English trailer on the Owner's device. Text: `director/owner-ask-20261112-1050.md`. On each wake-up: if the newest run with `"mode": "dot"` in `meta.json` under `~/.local/state/oracle-ego/runs/` has an `answer.md` and the Owner has not answered in chat, post it once with `lead-wait run owner-b5 -- dot-run --discuss --role edd-lead -f <that file>`; otherwise do not resend.
+**In flight:** nothing (`lead-wait list` empty; inbox acked incl. ev-20261112-130259-11fb, oracle-ego up again 13:05 JST).
+- The Owner asked where to watch the trailer: answered in chat 13:3x JST with the KIOXIA paths and a 720p zh-TW preview sent to the device (scratchpad copy only). Masters: KIOXIA `eddington/store-b5/trailer/careful_{english,japanese,koreana,tchinese}_d3.mp4`, untouched; capsules d2, key art and upload set also kept on KIOXIA `eddington/store-b5/` for later.
+- 0.4.7 builds: KIOXIA `eddington/builds/0.4.7/` (PR #307 → 377dde9). Remote branch `release/0.4.7` kept.
 
-**Judged today, do not redo:**
-- Trailer d3: `<b5>/trailer/careful_{english,japanese,koreana,tchinese}_d3.mp4`, 38.8 s each from one EDL (`director/trailer_careful.edl`); the four captures' step frames equal the first zh_TW capture's. Loudness -21.1 to -21.3 LUFS, true peak -0.5 to -1.4 dBFS, and the title card carries the coda. The lead looked at nine frames each of the English and the zh-TW cut; the Japanese and Korean cuts were not looked at; nobody has heard the sound. The capture AVIs and the silent-card d2 are deleted.
-- Key art = `<b5>/keyart-046/t212/totality_sky.png`; capsules d2 in `<b5>/capsules-d2/`; upload screenshots and blink GIFs in `<b5>/upload/` (`INDEX.md`).
+**PRs:** none open from this session; #15 draft (Asset Factory pilot, paused by the Owner 2026-11-02 JST). Open issues: #1 director handoff, #37 narrative loop, #285 hand tests needing a window.
 
-**PRs:** none open from this session. The Owner closed the six draft PRs on 2026-11-12 13:0x JST with the lead's script (#31, #38, #52, #80, #35, #36; the branches are kept); #15 stays open as a draft (Asset Factory pilot, paused by the Owner 2026-11-02 JST). Issues: the Owner ran the lead's triage script on 2026-11-12 13:1x JST (12 review follow-up issues closed with their reasons; #285 is now the one tracker for hand tests that need a real window).
+**Wake-ups:** none scheduled, none to be made (Owner rule 2026-11-12 02:1x JST).
 
-**Wake-ups:** none scheduled, and none are to be made: the Owner's rule of 2026-11-12 02:1x JST (global CLAUDE.md, "Idle is not a fault") ends self-scheduled heartbeats (the last cron, `6d33d722`, was deleted at 11:14 JST). `lead-wait` events and Owner messages wake the lead.
-
-**Waiting on the Owner** (answers arrive as `@edd-lead` in the dot thread or in chat):
-- macOS notarization: A, B or C (lead recommends A). The Owner asked what notarization is and the lead explained it in chat (2026-11-12 13:0x JST); no pick yet. Until then the store page lists no macOS.
-- B5 acceptance (see In flight): the title lettering, the key art and capsules d2, the trailer, and whether to add the 1917 prologue (lead recommends no). On "add it": one movie ticket for the prologue route (`movie_careful_l10n.sh` is the model; Mon–Fri 09:00–14:20 JST; never two movie tickets at once), extend the EDL, recut the four. Also open: who holds the art seat (workflow review item 5).
-- Owner-only: B1 Steam Direct; Screen Recording and Accessibility permissions; a blind newcomer session, now with the 0.4.7 build (this is what moves A11); a native ja or ko reader.
-
-**Next headless work:** nothing is queued. No new story or play features before a blind newcomer session; with no acceptance row to move, stop and clear.
+**Waiting on the Owner:** what "complete enough" means to them — asked in chat 13:3x JST with the lead's proposal (the Owner plays 0.4.7 once, start → credits, and lists what feels unfinished; that is also the A11 human pass). Until an answer: no new story/play features without that feedback; stop and clear.
