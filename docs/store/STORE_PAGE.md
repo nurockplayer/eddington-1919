@@ -296,20 +296,31 @@ oracle-ego 整理後，由 lead 逐項對照 Steamworks 現行頁面：`partner.
 - 「適合所有年齡」：九張都沒有血腥、暴力或性暗示。上傳後把前四張（`01`–`04`）標上，符合「至少 4 張」。
 - 語言後綴用 Steam 的 API language code：`english`、`japanese`、`koreana`、`tchinese`（`/doc/store/localization/languages`）。Store Graphical Assets 頁只寫語言名稱可以當後綴，例子是 `foo_japanese.jpg`；上傳介面認不認 `koreana` 與 `tchinese`，頁面沒有寫，*未驗證*，上傳時逐張確認歸到正確的語言。
 - 量測畫面（`03`、`07`）右下已有「示意模擬資料」的說明文字，符合第 7 節的標示要求。
-- 主視覺（capsule）不在這份清單裡；它等視窗時段的 3840×2160 全食鏡頭。
+- #305（底片上的月面邊緣）之後重拍（edd-lead，2026-11-12 10:1x JST）：在 main d1a8051 重拍 careful 路線的四種語言，放在 `careful-limb-<loc>`，逐張與 0.4.6 的版本比對像素。`01` 完全相同。`02` 只有暗房裡 Eddington 的站姿差了幾百個像素，畫面上沒有底片，沿用原檔。`03`、`05`、`07`、`09` 只差在底片上的月面邊緣（原本是階梯狀，現在是平滑的），16 個上傳檔已用重拍的版本重做。`04`、`08`（序章）與 `06`（benchmark 鏡頭）沒有底片，不受影響。
+- 主視覺（capsule）不在這份清單裡，見下面「主視覺與 capsule 草稿」。
 
 ### 「關於此遊戲」的閃爍比對動圖（edd-lead，2026-11-12 06:5x JST）
 
 「關於此遊戲」暗房那一段提到閃爍比對，靜態截圖看不出星點位移，所以那一段之後放一張兩格動圖，每種語言一張：`blink_english.gif`、`blink_japanese.gif`、`blink_koreana.gif`、`blink_tchinese.gif`。檔案放在 KIOXIA `eddington/store-b5/upload/about/`，不進 repo。
 
 - 規格：682×708，兩格（全食底片、牛津對照片），每格 1.0 秒，無限循環，每張約 0.22 MB。
-- 來源與裁切：`careful-046-<loc>/careful_store_g_blink_eclipse.png` 與 `careful_store_g_blink_oxford.png`（1920×1080，0.4.6，main 0950c3a）。裁出看片器與它下面那一行說明（`682x696+575+3`），下方補 12 px 的面板底色，不縮放。兩格共用一組 256 色，與原圖相比 PSNR 約 43 dB。
+- 來源與裁切：`careful-limb-<loc>/careful_store_g_blink_eclipse.png` 與 `careful_store_g_blink_oxford.png`（1920×1080，main d1a8051，#305 之後於 2026-11-12 10:1x JST 重拍；第一版用的是 0.4.6 的 `careful-046-<loc>`）。裁出看片器與它下面那一行說明（`682x696+575+3`），下方補 12 px 的面板底色，不縮放。兩格共用一組 256 色，與原圖相比 PSNR 約 43 dB。
 - 速度：遊戲預設每 0.5 秒換一格，開「減少晃動」時每 1.0 秒（`scripts/ui.gd` 的 `blink_interval`）。動圖用 1.0 秒那一檔：商店頁會一直循環播放，看片器在灰與近黑之間切換，慢的比較不刺眼，說明行也來得及讀。
 - 標示：全食那一格的說明行是遊戲字串 `第 %d 號（全食）・位移已放大（示意）` 的各語言譯文，牛津那一格是 `牛津（無日）` 的譯文。四種語言的兩行說明都完整在圖內（lead 2026-11-12 JST 判讀）。「位移已放大」只在全食那一格出現，所以動圖要緊接在寫明位移經過放大的暗房那一段之後，不單獨使用。
-- 看得到什麼：英文那一組量到三顆星在兩格之間移動 8.7、6.1、5.3 px，離太陽中心分別 272、378、435 px，方向都是遠離太陽，離得越遠移得越少。牛津那一格另有兩顆星，在全食那一格看不出來。月面邊緣在放大鏡 ×2 下有階梯狀鋸齒，這是遊戲內底片貼圖的樣子，動圖沒有修。
+- 看得到什麼：英文那一組量到三顆星在兩格之間移動 8.7、6.1、5.3 px，離太陽中心分別 272、378、435 px，方向都是遠離太陽，離得越遠移得越少。牛津那一格另有兩顆星，在全食那一格看不出來。第一版的月面邊緣在放大鏡 ×2 下有階梯狀鋸齒；#305 在遊戲裡修掉了，四張動圖於 2026-11-12 10:2x JST 用重拍的截圖重做，lead 看過英文那一張的兩格，邊緣是平滑的。星點位移的數字是第一版量的，重拍只改了月面邊緣的像素，沒有重量。
 - Steam 的規定（`/doc/store/page/description`，2026-11-12 JST 讀）：「關於此遊戲」可以放截圖與循環 GIF；每張圖小於 5 MB，描述裡的截圖與 GIF 合計小於 15 MB；圖中有文字就要每種語言各傳一張；不能有連結、仿 Steam 介面的圖或其他產品的廣告。這四張都符合。
 - *未驗證*：該頁沒有寫圖片在編輯器的哪裡上傳，也沒有寫描述欄的寬度。一個上架中的商店頁（《Disco Elysium》，2026-11-12 JST）的描述圖片網址在該 app 的 `extras/` 底下，檔名是雜湊，格式是 `.avif` 或 `.webp`，可見 Steam 會改名並重新編碼。上傳後要看三件事：動圖仍然循環、說明行讀得出來、每種語言的描述用的是自己那一張。
-- 重做：`bash /Volumes/KIOXIA/eddington-1919-cache/director/about_blink.sh`（需要 ImageMagick；來源截圖要在 KIOXIA `eddington/store-b5/`）。
+- 重做：`SET=careful-limb bash /Volumes/KIOXIA/eddington-1919-cache/director/about_blink.sh`（需要 ImageMagick；來源截圖要在 KIOXIA `eddington/store-b5/`；不給 `SET` 會用 0.4.6 的 `careful-046`）。
+
+### 主視覺與 capsule 草稿（edd-lead，2026-11-12 10:2x JST）
+
+草稿，還不是驗收過的美術；標題字與主視覺由 Owner 驗收。檔案都在 KIOXIA，不進 repo。
+
+- 主視覺的拍攝：`director/keyart_046.sh`，main d1a8051 的遊戲內容，benchmark 的全食鏡位，seed 7，3840×2160。六個時刻（t122、t130、t138、t204、t212、t264）各拍一張天空與一張地平線，放在 `eddington/store-b5/keyart-046/`，六張都是 3840×2160。
+- 選定 t212 的天空那一張：月面全黑，日冕最亮，環的周圍看得到星點，碎雲貼在環的兩側。沒有選的：t130 與 t264 的月面被薄雲蓋成灰色；t204 的環被一片雲切過；t138 的環大半被遮住；t122 的環太淡。
+- capsule 草稿 d2：`director/capsule_drafts.py <輸出資料夾> <來源圖>`，輸出在 `eddington/store-b5/capsules-d2/`（header、main、small、vertical、library capsule、library hero、兩款 library logo、icon，以及列出每張裁切範圍的 `PROVENANCE.md`）。後製只有一條色調曲線與標題字下方的漸暗；標題字是 Noto Serif CJK TC（SIL OFL 1.1）的拉丁字母。
+- d2 與 d1 的差別：來源從 1920 寬換成 3840 寬的 t212，所以 library hero（3840×1240）是實際尺寸，不再是放大的佔位圖。small capsule 把日食環放在標題字的左邊；d1 把環放在字的正後方，被字蓋住。兩張直式 capsule 裁得比較緊，避開畫面左上角觀測棚橫梁切出的黑色三角。
+- lead 判讀（2026-11-12 JST，看 `sheet_a_wide.jpg`、`sheet_b_tall.jpg`、`sheet_c_hero_logo.jpg`）：標題字在每張上都讀得出來，small capsule 縮到 120×45 時環與字都還分得清楚；library hero 沒有文字，符合規定。header capsule 的單行標題壓在棚架橫梁與棕櫚葉上，可讀，但這一張是最擠的。
 
 ## 9. 預告片分鏡草稿（B5，約 70 秒）
 
@@ -348,3 +359,12 @@ Steam 預告片規格（edd-lead，2026-11-12 04:5x JST，對照 `partner.steamg
 - 預告片還在轉檔時不能按發售。轉檔失敗最常見的原因是非常見的解析度，其次是不支援的取樣率。
 
 對本作的意義：`--write-movie` 的輸出是 1600×900 MJPEG 加 PCM，剪輯後要轉成 1920×1080、H.264 加 AAC 48 kHz 的 `.mp4`。35–50 秒的遊玩初剪符合上面的建議。畫面文字出幾種語言（只出一版，或英文版當 Base 再加其他語言），等初剪出來後由 lead 決定。
+
+careful 路線初剪（edd-lead，2026-11-12 10:1x–10:3x JST）：
+
+- 拍攝：`director/movie_careful.sh`，main d1a8051，`--fixed-fps 60 --autoplay=careful --seed=7 --bot-dwell=2`，bot 預設的 zh_TW。整條 careful 路線 14,996 格（4 分 10 秒，1600×900 MJPEG，1.6 GB），godot 沒有錯誤。`[BOTF]` 的步驟格數與同一個 commit 的 headless 那一次逐行相同，所以剪輯點可以先用 headless 的步驟表決定。
+- 剪輯：`director/trailer_careful.edl`，lead 看抽格判讀後定下 8 個鏡頭，共 34.8 秒，最後接 4 秒標題字卡。依序是：走出底片小屋看到營地；問 Eddington「為什麼要拍太陽旁邊的星？」；替定天鏡的時鐘驅動上發條；「開始——就位等待全食」；雲隙第一次打開；晴空的那一段；暗房裡寫下預測與把握，再量三張底片；電報與寫下的結論。選項由 bot 選定後會亮著停 2 秒，鏡頭從選單出現前開始。沒有用的：bot 檢查暫停選單的那一秒，以及結尾卡（重開之前只出現約 1.5 秒）。
+- 輸出：`eddington/store-b5/trailer/careful_tchinese_d2.mp4`（KIOXIA，不進 repo），`director/trailer_cut.py cut`：1920×1080、60 fps、H.264 High 約 12.6 Mbps、AAC 192 kbps 48 kHz 立體聲、38.8 秒；整體響度 -20.9 LUFS，真峰值 -0.8 dBFS。lead 看過每個剪接點前後的抽格，畫面符合上面的順序。**還沒有人聽過聲音。**
+- 聲音：只用遊戲本身的聲音，和遊玩時一樣（準備階段沒有配樂，全食有三層配樂，寫下結論後進 `coda_resolution`）。試過在整支片下面鋪 `cambridge_rain`，沒有人聽過，而且那是 1917 劍橋的曲子，已捨棄。定剪時標題字卡下面接著放遊戲在那之後的聲音（`CARD_AUDIO_AT=231.0`），讓 coda 延續到字卡。
+- 範圍：這一版只有上表 0:32–1:04 的 1919 段落，沒有劍橋序章，也沒有畫面文字。要不要補序章的鏡頭，等 Owner 看過這一版再決定。
+- 語言（lead 決定）：英文版當 Base，另出日文、韓文、繁體中文，四支用同一份 EDL。英、日、韓的拍攝（`director/movie_careful_l10n.sh`）於 2026-11-12 10:21 JST 開始；拍完比對步驟格數，相同就直接剪。原始的 `.avi` 剪完即刪。
