@@ -360,11 +360,11 @@ Steam 預告片規格（edd-lead，2026-11-12 04:5x JST，對照 `partner.steamg
 
 對本作的意義：`--write-movie` 的輸出是 1600×900 MJPEG 加 PCM，剪輯後要轉成 1920×1080、H.264 加 AAC 48 kHz 的 `.mp4`。35–50 秒的遊玩初剪符合上面的建議。畫面文字出幾種語言（只出一版，或英文版當 Base 再加其他語言），等初剪出來後由 lead 決定。
 
-careful 路線初剪（edd-lead，2026-11-12 10:1x–10:3x JST）：
+careful 路線初剪（edd-lead，2026-11-12 10:1x–10:5x JST）：
 
 - 拍攝：`director/movie_careful.sh`，main d1a8051，`--fixed-fps 60 --autoplay=careful --seed=7 --bot-dwell=2`，bot 預設的 zh_TW。整條 careful 路線 14,996 格（4 分 10 秒，1600×900 MJPEG，1.6 GB），godot 沒有錯誤。`[BOTF]` 的步驟格數與同一個 commit 的 headless 那一次逐行相同，所以剪輯點可以先用 headless 的步驟表決定。
 - 剪輯：`director/trailer_careful.edl`，lead 看抽格判讀後定下 8 個鏡頭，共 34.8 秒，最後接 4 秒標題字卡。依序是：走出底片小屋看到營地；問 Eddington「為什麼要拍太陽旁邊的星？」；替定天鏡的時鐘驅動上發條；「開始——就位等待全食」；雲隙第一次打開；晴空的那一段；暗房裡寫下預測與把握，再量三張底片；電報與寫下的結論。選項由 bot 選定後會亮著停 2 秒，鏡頭從選單出現前開始。沒有用的：bot 檢查暫停選單的那一秒，以及結尾卡（重開之前只出現約 1.5 秒）。
-- 輸出：`eddington/store-b5/trailer/careful_tchinese_d2.mp4`（KIOXIA，不進 repo），`director/trailer_cut.py cut`：1920×1080、60 fps、H.264 High 約 12.6 Mbps、AAC 192 kbps 48 kHz 立體聲、38.8 秒；整體響度 -20.9 LUFS，真峰值 -0.8 dBFS。lead 看過每個剪接點前後的抽格，畫面符合上面的順序。**還沒有人聽過聲音。**
-- 聲音：只用遊戲本身的聲音，和遊玩時一樣（準備階段沒有配樂，全食有三層配樂，寫下結論後進 `coda_resolution`）。試過在整支片下面鋪 `cambridge_rain`，沒有人聽過，而且那是 1917 劍橋的曲子，已捨棄。定剪時標題字卡下面接著放遊戲在那之後的聲音（`CARD_AUDIO_AT=231.0`），讓 coda 延續到字卡。
+- 輸出（d3）：`eddington/store-b5/trailer/`（KIOXIA，不進 repo）下四支，`careful_english_d3.mp4`（Base）、`careful_japanese_d3.mp4`、`careful_koreana_d3.mp4`、`careful_tchinese_d3.mp4`，都用 `director/trailer_cut.py cut` 加 `CARD_AUDIO_AT=231.0 AFADE_S=1.5` 剪出。每支 1920×1080、60 fps、H.264 High 約 12.4 Mbps、AAC 192 kbps 48 kHz 立體聲、38.8 秒。整體響度與真峰值：英文 -21.3 LUFS／-0.5 dBFS，日文 -21.2／-1.4，韓文 -21.3／-0.5，繁中 -21.1／-1.4。字卡那 4 秒四支都有聲音（平均 -25 到 -26 dB）。lead 看過英文版與繁中版各九格（選單與對話是該語言，字卡在最後）；每個剪接點前後的抽格是在 d2 看的，d3 的步驟格數與它相同。日文與韓文版沒有另外看畫面，依據是步驟格數相同，以及拍攝 log 裡的結局標題（`雲の向こうの望み`、`구름 뒤의 희망`）。**還沒有人聽過聲音。** d2（只有繁中，字卡無聲）已刪。
+- 聲音：只用遊戲本身的聲音，和遊玩時一樣（準備階段沒有配樂，全食有三層配樂，寫下結論後進 `coda_resolution`）。試過在整支片下面鋪 `cambridge_rain`，沒有人聽過，而且那是 1917 劍橋的曲子，已捨棄。標題字卡下面接著放遊戲在那之後的聲音（`CARD_AUDIO_AT=231.0`），coda 延續到字卡；全片頭尾的聲音各淡 1.5 秒。
 - 範圍：這一版只有上表 0:32–1:04 的 1919 段落，沒有劍橋序章，也沒有畫面文字。要不要補序章的鏡頭，等 Owner 看過這一版再決定。
-- 語言（lead 決定）：英文版當 Base，另出日文、韓文、繁體中文，四支用同一份 EDL。英、日、韓的拍攝（`director/movie_careful_l10n.sh`）於 2026-11-12 10:21 JST 開始；拍完比對步驟格數，相同就直接剪。原始的 `.avi` 剪完即刪。
+- 語言（lead 決定）：英文版當 Base，另出日文、韓文、繁體中文，四支用同一份 EDL。英、日、韓於 2026-11-12 10:21–10:37 JST 拍攝，繁中於 10:42–10:48 JST 重拍（`director/movie_careful_l10n.sh`，main 9523008；d1a8051 之後遊戲內容沒有變動）。四次拍攝的 `[BOTF]` 步驟格數都和第一次繁中拍攝逐行相同，所以直接套用 EDL。原始的 `.avi` 剪完已刪。
