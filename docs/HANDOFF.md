@@ -2,14 +2,16 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-12 13:3x JST.** **Owner 2026-11-12 13:3x JST: listing work is paused until the game is complete enough** (memory `eddington-store-paused-1112`). Release readiness (`docs/RELEASE_READINESS.md`) stays as it is: A 13/14 done (A11 partial: no human has played the exported build); B rows on hold. Do not resend the B5 acceptance ask or chase notarization / B1.
+**Written 2026-11-13 02:5x JST.** Listing work paused (Owner 2026-11-12 13:3x JST, memory `eddington-store-paused-1112`). **Owner verdict 2026-11-13 02:4x JST: characters, environments and atmosphere are all crude, the music has severe noise, nothing makes you want to play.** Release readiness is frozen (A 13/14, B on hold).
 
-**In flight:** nothing (`lead-wait list` empty; inbox acked incl. ev-20261112-130259-11fb, oracle-ego up again 13:05 JST).
-- The Owner asked where to watch the trailer: answered in chat 13:3x JST with the KIOXIA paths and a 720p zh-TW preview sent to the device (scratchpad copy only). Masters: KIOXIA `eddington/store-b5/trailer/careful_{english,japanese,koreana,tchinese}_d3.mp4`, untouched; capsules d2, key art and upload set also kept on KIOXIA `eddington/store-b5/` for later.
-- 0.4.7 builds: KIOXIA `eddington/builds/0.4.7/` (PR #307 → 377dde9). Remote branch `release/0.4.7` kept.
+**Audio diagnosis (lead, 2026-11-13 02:4x JST):** the noise is most likely the always-on ambience bed `audio_amb` (`scripts/main.gd` ~598–612): a brown-noise random walk plus single-sample 0.5 impulses (~9 clicks/s at 22050 Hz), looped every 4 s with no seam fix, at volume_db -20 on SFX. Measured in-game RMS: bed ≈ -40 dBFS, while the sampled music plays at -38.5 dB (`Score.SAMPLED_DB`), ≈ -65 dBFS RMS in the first 20 s of `cambridge_rain`, so the bed sits about 25 dB above the music. The four music OGGs themselves are clean (peak -7.6 to -8.8 dBFS, no clipping). Other procedural noise SFX: insects hiss, surf, steps, UI ticks (main.gd 440–600, player.gd 49, ui.gd 1201+). A/B clips sent to the Owner (scratchpad `A_ingame_mix.m4a`, `B_music_only.m4a`); asked whether A is the noise they hear.
 
-**PRs:** none open from this session; #15 draft (Asset Factory pilot, paused by the Owner 2026-11-02 JST). Open issues: #1 director handoff, #37 narrative loop, #285 hand tests needing a window.
+**In flight:** nothing (`lead-wait list` empty, inbox acked).
 
-**Wake-ups:** none scheduled, none to be made (Owner rule 2026-11-12 02:1x JST).
+**Waiting on the Owner (asked in chat 2026-11-13 02:5x JST):**
+1. Is clip A the noise? On yes: one brief: drop the procedural bed and impulses, rebalance music vs SFX, then replace the procedural ambience with CC0 field recordings (provenance in `docs/audio/SOURCES.md`).
+2. Visual direction: (1, lead's pick) one vertical slice, the Príncipe totality, raised to shippable quality before anything else, in a stylised period look (toned photo/print, the same family as the portraits) that the pipeline can do well; art-director seat chosen by audition on that slice; (2) stay realistic, buy assets / Meshy / HG; (3) 2D illustrated with 3D only for the eclipse. Also asked for a reference game for the look (memory: the 10-27 target was Tell Me Why / LiS True Colors).
 
-**Waiting on the Owner:** what "complete enough" means to them — asked in chat 13:3x JST with the lead's proposal (the Owner plays 0.4.7 once, start → credits, and lists what feels unfinished; that is also the A11 human pass). Until an answer: no new story/play features without that feedback; stop and clear.
+**PRs:** none open; #15 draft (paused). Issues: #1, #37, #285. edd-art (w7:pB) idle since 2026-11-08; its handoff `.claude/lead-handoff/art.md`.
+
+**Wake-ups:** none (Owner rule 2026-11-12). Nothing else to do until the Owner answers: stop and clear.
