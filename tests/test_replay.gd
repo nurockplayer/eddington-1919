@@ -53,7 +53,7 @@ func settle_audio() -> void:
 	# Stop real-scene audio and drain it: AudioServer frees its playback
 	# asynchronously, so quitting straight away leaks an AudioStreamWAV pair.
 	if is_instance_valid(current_scene):
-		for key in ["audio_amb", "audio_click", "audio_tick"]:
+		for key in ["audio_click", "audio_tick"]:
 			var player = current_scene.get(key)
 			if is_instance_valid(player):
 				player.stop()

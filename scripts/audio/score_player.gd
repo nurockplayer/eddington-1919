@@ -239,7 +239,7 @@ static func run_failures(include_prologue := false) -> Array[String]:
 		if entry.event == "layer" and entry.cue == "totality_glass":
 			if duck < 0 and entry.db <= SILENCE_DB and is_equal_approx(entry.fade, 0.4):
 				duck = i
-			if duck >= 0 and returned < 0 and is_equal_approx(entry.db, -34.0) and is_equal_approx(entry.fade, 1.2):
+			if duck >= 0 and returned < 0 and is_equal_approx(entry.db, Score.level_db("totality_glass")) and is_equal_approx(entry.fade, 1.2):
 				returned = i
 		if entry.event == "stop" and entry.cue == "totality_drone" and is_equal_approx(entry.fade, 1.5):
 			drone_stop = i

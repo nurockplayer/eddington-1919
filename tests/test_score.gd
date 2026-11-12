@@ -304,9 +304,8 @@ func _check_sampled_cues() -> void:
 			var length := ogg.get_length()
 			check(absf(length - sampled_lengths[cue]) <= 0.05,
 				"%s OGG length %.3f s, expected %.1f s" % [cue, length, sampled_lengths[cue]])
-		var db := Score.level_db(cue)
-		var min_db := -40.5 if cue == "departure_promise" else -40.0
-		check(db >= min_db and db <= -20.0, "%s sampled level %.1f dB is within [%.1f, -20]" % [cue, db, min_db])
+		var effective := Score.SAMPLED_RMS_DB[cue] + Score.level_db(cue)
+		check(effective >= -26.0 and effective <= -22.0, "%s effective RMS %.1f dBFS" % [cue, effective])
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
 		check(not Score.is_sampled(cue), "%s has no sampled OGG" % cue)
 		var stream: AudioStream = Score.stream(cue)

@@ -91,7 +91,6 @@ var env: Environment
 var sun: DirectionalLight3D
 var audio_tick: AudioStreamPlayer
 var audio_click: AudioStreamPlayer
-var audio_amb: AudioStreamPlayer
 var audio_open: AudioStreamPlayer
 var audio_change: AudioStreamPlayer
 var audio_third: AudioStreamPlayer
@@ -455,7 +454,7 @@ func _build_audio() -> void:
 	audio_tick = AudioStreamPlayer.new()
 	audio_tick.bus = "SFX"
 	audio_tick.stream = _wav(tick)
-	audio_tick.volume_db = -8.0
+	audio_tick.volume_db = -11.0
 	add_child(audio_tick)
 	var click := PackedFloat32Array()
 	for i in 2200:
@@ -464,7 +463,7 @@ func _build_audio() -> void:
 	audio_click = AudioStreamPlayer.new()
 	audio_click.bus = "SFX"
 	audio_click.stream = _wav(click)
-	audio_click.volume_db = -4.0
+	audio_click.volume_db = -12.0
 	add_child(audio_click)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 19190529
@@ -519,7 +518,7 @@ func _build_audio() -> void:
 	audio_third = AudioStreamPlayer.new()
 	audio_third.bus = "SFX"
 	audio_third.stream = _wav(third)
-	audio_third.volume_db = -18.0
+	audio_third.volume_db = -3.0
 	add_child(audio_third)
 	var insects := PackedFloat32Array()
 	var periods := [0.5, 0.6, 0.75, 6.0 / 7.0]
@@ -545,7 +544,7 @@ func _build_audio() -> void:
 	audio_insects = AudioStreamPlayer.new()
 	audio_insects.bus = "SFX"
 	audio_insects.stream = _wav(insects, 22050, true)
-	audio_insects.volume_db = -26.0
+	audio_insects.volume_db = -9.2
 	add_child(audio_insects)
 	var surf := PackedFloat32Array()
 	var brown := 0.0
@@ -568,7 +567,7 @@ func _build_audio() -> void:
 	audio_surf = AudioStreamPlayer.new()
 	audio_surf.bus = "SFX"
 	audio_surf.stream = _wav(surf, 22050, true)
-	audio_surf.volume_db = -32.0
+	audio_surf.volume_db = -22.9
 	add_child(audio_surf)
 	audio_surf.play()
 	var birds := PackedFloat32Array()
@@ -592,24 +591,9 @@ func _build_audio() -> void:
 	audio_birds = AudioStreamPlayer.new()
 	audio_birds.bus = "SFX"
 	audio_birds.stream = _wav(birds, 22050, true)
-	audio_birds.volume_db = -28.0
+	audio_birds.volume_db = -23.9
 	add_child(audio_birds)
 	audio_birds.play()
-	# Soft wind / dripping-leaves bed (brown noise loop).
-	var amb := PackedFloat32Array()
-	var b := 0.0
-	for i in 22050 * 4:
-		b = clampf(b + (randf() - 0.5) * 0.06, -1.0, 1.0) * 0.996
-		var drip := 0.0
-		if randf() < 0.0004:
-			drip = 0.5
-		amb.append(b * 0.5 + drip)
-	audio_amb = AudioStreamPlayer.new()
-	audio_amb.bus = "SFX"
-	audio_amb.stream = _wav(amb, 22050, true)
-	audio_amb.volume_db = -20.0
-	add_child(audio_amb)
-	audio_amb.play()
 
 
 func _sfx(name: String) -> void:
@@ -636,7 +620,7 @@ func _start_night_bed() -> void:
 	audio_insects.play()
 	_sfx_log.append("insects")
 	_night_bed_tween = create_tween()
-	_night_bed_tween.tween_property(audio_insects, "volume_db", -26.0, 3.0)
+	_night_bed_tween.tween_property(audio_insects, "volume_db", -9.2, 3.0)
 
 
 func _stop_night_bed() -> void:
@@ -663,7 +647,7 @@ func stop_all_audio() -> void:
 		_birds_tween.kill()
 	if _night_bed_tween and _night_bed_tween.is_valid():
 		_night_bed_tween.kill()
-	for sound in [audio_tick, audio_click, audio_amb, audio_open, audio_change, audio_third, audio_insects, audio_surf, audio_birds]:
+	for sound in [audio_tick, audio_click, audio_open, audio_change, audio_third, audio_insects, audio_surf, audio_birds]:
 		sound.stop()
 
 
@@ -1307,7 +1291,7 @@ func _process_totality(delta: float) -> void:
 	ui.set_prompt((L.t("底片用完了。［%s］等待第三接觸") if plates_left <= 0 and not exposing else L.t("［%s］開始／停")) % Prompts.key("shutter"))
 	if exposing != _score_exposing:
 		_score_exposing = exposing
-		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else -34.0, 0.4 if exposing else 1.2)
+		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else ScorePlayer.Score.level_db("totality_glass"), 0.4 if exposing else 1.2)
 	var dt: float = delta * sim.TIME_SCALE
 	t_game += dt
 	var dens: float = sim.cloud_over_sun(t_game)

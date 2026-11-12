@@ -163,3 +163,22 @@
   - The `cambridge_rain` silence floor drops from 40% to about 20%. Plan A deliberately gives Cambridge more melody.
 - **Supersedes:** D013's "no sample files, no SoundFonts, no downloaded audio" rule. The rest of D013 stands.
 - **Next:** diegetic period gramophone recordings (1915–18, public domain in the US and UK) need an item-level rights check and a fact check before any of them ships.
+
+## D015 — Mix pass: music above SFX (Owner verdict, 2026-11-13)
+- **Why:** Owner heard severe noise over the score; the always-on synthetic wind/drip bed had clicks and masked the music. The bed is removed without a replacement.
+- **Measured levels:** dBFS, stream RMS plus player gain for music and loops; peak plus player gain for one-shots. OGG RMS uses ffmpeg astats overall; generated streams use decoded 16-bit PCM. Totality is the sample-aligned sum of all three layers.
+
+  | Sound | Before | After |
+  | --- | ---: | ---: |
+  | Cambridge rain | -64.40 RMS | -24.00 RMS |
+  | Departure motif | -60.53 RMS | -24.00 RMS |
+  | Departure promise | -62.11 RMS | -24.00 RMS |
+  | Coda | -57.04 RMS | -24.00 RMS |
+  | Totality layers together | -58.58 RMS | -23.98 RMS |
+  | Wind/drip bed | about -40 RMS; ~9 clicks/s | removed |
+  | Insects / surf / birds | -57.82 / -50.10 / -45.06 RMS | -41.02 / -41.00 / -40.96 RMS |
+  | One-shots, steps and viewer | roughly -34.8 to -5.5 peak | roughly -17.7 to -12 peak |
+  | Gramophone | -39.09 RMS | -39.09 RMS |
+
+- **Mix:** Sampled cue offsets change individually because their previous effective RMS range exceeded the new tolerance. Totality layers retain their offsets. The synthesized fallback cues also target -24 dBFS. Positive player gain is used where required; the measured music peaks retain headroom.
+- **Next:** real ambience recordings are a separate change. Human listening in context remains to be done.

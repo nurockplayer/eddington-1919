@@ -42,7 +42,7 @@ func _ready() -> void:
 			_steps[surface].append(_synth_step(surface))
 	_step_player = AudioStreamPlayer.new()
 	_step_player.bus = "SFX"
-	_step_player.volume_db = -24.0
+	_step_player.volume_db = -6.8
 	add_child(_step_player)
 
 
