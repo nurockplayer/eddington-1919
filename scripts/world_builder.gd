@@ -607,6 +607,8 @@ func _plantation_house() -> void:
 	sign.position = c + Vector3(0, 4.4, 4.1)
 	sign.modulate = Color(0.25, 0.2, 0.15)
 	root.add_child(sign)
+	var sundy := hotspot(Vector3(2.0, 2.5, 0.5), c + Vector3(0, 1.5, 5.8), "sundy", L.t("Roça Sundy"))
+	sundy.name = "SundyHotspot"
 
 
 static var _frond_mesh: ArrayMesh

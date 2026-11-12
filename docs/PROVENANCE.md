@@ -8,6 +8,9 @@
 | 遊戲內容 | 標記 | 依據／備註 |
 |---|---|---|
 | 觀測站在 Roça Sundy（Carneiro 的主要莊園）；Atalaya 為經理 | HISTORICAL_RECORD | Lemos 2019 引 1920 報告。遊戲只出現莊園名，沒有出現人物。 |
+| Dyson 的「發瘋、獨自回家」 | HISTORICAL_RECORD（Eddington 1938 年回憶；Chandrasekhar 1976 p. 250）；Cottingham 在營地回憶及其餘對話為 RECONSTRUCTION／FICTION。 |
+| 第三接觸後的對話 | RECONSTRUCTION（Eddington 1919-06-21 家書 EDDN/A/4/9）；雲變薄為 HISTORICAL_RECORD（1920 報告 p. 314），其餘為 FICTION。 |
+| Roça Sundy 主人及人手 | HISTORICAL_RECORD（1920 報告：Carneiro、挑夫及莊園人力）；敘述措辭為 RECONSTRUCTION，未記工人姓名。 |
 | 全食約 302 秒（計算值 2h13m05s–2h18m07s） | HISTORICAL_RECORD | Trinity 檔案館遠征記錄；Eddington 曾寫到節拍器「數出 302 秒的全食」。遊戲內的節拍器即取材於此。 |
 | 上午雷雨約 10:00–11:30；13:30 起偶爾看得到太陽；13:55 起隔著雲幾乎一直看得到日牙 | HISTORICAL_RECORD | Trinity 遠征記錄、Eddington 家書。遊戲開場文字寫「十一點半左右停了」。 |
 | 全食期間雲沒有散，**最後三分之一明顯變薄** | HISTORICAL_RECORD | 遠征記錄寫道 "the cloud must have thinned considerably during the last third of totality"。遊戲裡的雲縫排程依此設計：早期雲縫幾乎無用，最好的雲縫落在 205–260 秒。 |

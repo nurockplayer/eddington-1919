@@ -324,6 +324,9 @@ msgstr "Q/E"
 msgid "RB／X 鍵"
 msgstr "RB/X button"
 
+msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，砌石墩、搭棚子時，莊園的人幫了大半的忙。報告裡沒有他們的名字。"
+msgstr "Roça Sundy. The owner, Jerónimo Carneiro, let the expedition draw freely on the plantation's labour. Carriers brought the crates through the forest, and the plantation's people did most of the work on the stone pier and the huts. Their names are not in the report."
+
 msgid "Seeliger 想過：太陽附近也許有一層看不見的物質，像黃道光的塵。聽起來很合理——可是沒有人能證明它多到足以拉住水星。"
 msgstr "Seeliger considered it: perhaps there is unseen matter near the Sun, like the dust of the zodiacal light. It sounds reasonable—but no one could show there was enough of it to hold Mercury back."
 
@@ -601,6 +604,9 @@ msgstr "…There. Twice as fast as doing it alone."
 
 msgid "……好吧，喝得慣。快去。"
 msgstr "…All right, I do. Off you go."
+
+msgid "……我也是。先把鐘調好。"
+msgstr "…Same here. Let's get the clock right first."
 
 msgid "……我們一張也沒有拍。雲和時間都沒有等我們。"
 msgstr "…We took not one. Neither the cloud nor the time waited for us."
@@ -880,6 +886,9 @@ msgstr "Ten tonight, ten tomorrow. I should be finished by the end of the war."
 
 msgid "他喜歡你。他不會說出來——那個人連喜歡什麼都要先量一量。"
 msgstr "He likes you. He won't say so—that one has to measure even what he likes."
+
+msgid "他是笑著說的。可是他沒說，要是上面什麼都沒有，會怎樣。"
+msgstr "He was laughing when he said it. But he never said what happens if there's nothing on them."
 
 msgid "他的理論說：星光從太陽旁邊經過時，會被拉彎一點點。我們從地上看，那顆星就像被往外推開了。"
 msgstr "His theory says that starlight passing close to the Sun is bent a little. From the Earth, the star appears to be pushed outwards."
@@ -1232,6 +1241,9 @@ msgstr "Look again: less than three days early, after a wait of more than sevent
 msgid "再讀工作簿最後一頁"
 msgstr "Read the last page of the workbook again"
 
+msgid "出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。"
+msgstr "Before we sailed, Dyson told me: if the plates show twice Einstein's figure, Eddington will go mad, and you will have to come home alone."
+
 msgid "別忘了遠處的星。今天，它們和太陽旁邊的星一樣重要。"
 msgstr "Don't forget the distant stars. Today they matter as much as the stars beside the Sun."
 
@@ -1397,6 +1409,9 @@ msgstr "Asking is right. But people aren't always there. Paper will be."
 msgid "單憑這張底片，仍無法判定。"
 msgstr "This plate alone cannot settle it."
 
+msgid "嗯。照實說。Dyson 先生讀得懂一張空白的底片。"
+msgstr "Mm. Say so. Dyson can read a blank plate."
+
 msgid "嗯。這種事，不常有。"
 msgstr "Mm. Such things do not come often."
 
@@ -1510,6 +1525,9 @@ msgstr "If you were an astronomer in 1917, what would you suspect first?"
 
 msgid "如果星光經過太陽時會彎曲，太陽旁的星看起來就會被往外推一點點。把今天的底片和一月在牛津拍的同一片星場比較，就能量出推了多少。"
 msgstr "If starlight bends as it passes the Sun, the stars beside the Sun will appear to be pushed out a little. Compare today's plate with the same field photographed at Oxford in January, and you can measure how far."
+
+msgid "如果真的什麼都沒有呢？"
+msgstr "And if there really is nothing?"
 
 msgid "如果真的有遠征……"
 msgstr "If there really is an expedition—"
@@ -1822,6 +1840,9 @@ msgstr "I wrote 0.87. Your plates and Sobral's small lens both leave no room for
 msgid "我已經裝好四個底片匣。暗房裡還有八個——能搬多少就搬多少，放到望遠鏡旁的架子上。"
 msgstr "I have loaded four plate holders. There are eight more in the darkroom—carry as many as you can and put them on the rack beside the telescope."
 
+msgid "我從早上就盯著那道雲縫。每次我開始相信它，它就合上。"
+msgstr "I've watched that gap in the cloud since morning. Every time I start to believe in it, it closes."
+
 msgid "我想照這樣交。"
 msgstr "I want to hand it in as it is."
 
@@ -1848,6 +1869,9 @@ msgstr "I shall pass your sheet on to him. As it stands—the mistakes, the cros
 
 msgid "我會的。"
 msgstr "I will."
+
+msgid "我沒看到日食。只看了一眼確定開始了，中途又看一眼雲有多厚。其餘的時間都在換底片。"
+msgstr "I didn't see the eclipse. One glance to make sure it had begun, another halfway through to see how much cloud there was. The rest of the time I was changing plates."
 
 msgid "我的變星今天又暗了一次，早了四分鐘。沒有人在等這四分鐘——可是我會把它寫下來。"
 msgstr "My variable star dimmed again today, four minutes early. No one is waiting on those four minutes—but I shall write them down."
@@ -2140,6 +2164,9 @@ msgstr ""
 msgid "最後一頁。我念底片上量到的數，你對清單。對完這頁，箱子就可以釘起來了。"
 msgstr "The last page. I'll read the figures measured from the plates; you check them against the list. Once this page is done, the crate can be nailed shut."
 
+msgid "最後那一段，雲變薄了。"
+msgstr "Near the end, the cloud thinned."
+
 msgid "最要緊的是：[b]第三接觸之前一定要喊停[/b]。陽光一回來，那張底片就毀了。"
 msgstr "The essential thing: [b]call stop before third contact, without fail[/b]. Once the sunlight returns, that plate is ruined."
 
@@ -2292,6 +2319,9 @@ msgstr "Without it, these stars have no 'original position' to be compared with.
 
 msgid "沒有寫"
 msgstr "not written"
+
+msgid "沒有底片，也是一筆紀錄。把雲寫下來。"
+msgstr "No plates is still a record. Write the cloud down."
 
 msgid "沒有結果？你手上就有星點清楚的底片。雲很厚，但不是什麼都沒留下。"
 msgstr "No results? You have plates with clear star images in your hands. The cloud was thick, but it did not leave us with nothing."
@@ -2917,11 +2947,17 @@ msgstr "And that extra point—what do you think it is?"
 msgid "那天我一個人趕著上發條，沒時間對時。下次我們先把這件事做完。"
 msgstr "That day I was hurrying to wind it alone, with no time to check it. Next time we finish that first."
 
+msgid "那就一起回家，照實說。"
+msgstr "Then we go home together and say so."
+
 msgid "那就在五分鐘之前，或是之後。"
 msgstr "Then before the five minutes, or after."
 
 msgid "那就寫下來。沒有改變，也是一筆紀錄。"
 msgstr "Then write it down. No change is a record too."
+
+msgid "那就帶一箱說『什麼都沒有』的底片回去。那也是答案——只是很貴。"
+msgstr "Then we bring home a crate of plates that say 'nothing'. That's an answer too — just an expensive one."
 
 msgid "那就把兩張釘在一起。"
 msgstr "Then pin the two together."
@@ -3205,6 +3241,9 @@ msgstr[1] "(Your combined estimate: %.2f″ ± %.2f″, from %d plates.)"
 msgid "（你的鉛筆削好了，排在清單旁邊。不是你削的。）"
 msgstr "(Your pencil is sharpened and laid beside the list. You didn't sharpen it.)"
 
+msgid "（你看見了。從頭到尾，你都在看天。）"
+msgstr "(You saw it. From start to finish, you were watching the sky.)"
+
 msgid "（兩年前在這張桌子上，你在報告裡寫過：對不上的地方，要寫它對不上。）"
 msgstr "(Two years ago at this table you wrote in a report: where something doesn't match, write that it doesn't match.)"
 
@@ -3282,6 +3321,9 @@ msgstr "(Nothing recorded)"
 
 msgid "（沒有發現）"
 msgstr "(Not found)"
+
+msgid "（沒有說話）"
+msgstr "(Say nothing.)"
 
 msgid "（看你簽名）好。以後拿到這張紙的人，看得出這裡改過，也看得出是誰改的。"
 msgstr "(watches you sign) Good. Whoever holds this sheet later will see it was changed, and see who changed it."
