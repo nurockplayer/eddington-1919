@@ -32,7 +32,7 @@ func _run() -> void:
 	player.position.z = 5.0
 	root.add_child(player)
 	check(player.step_surface == "wood", "Cambridge defaults to wood")
-	check(player._step_player.volume_db == -24.0, "footsteps play quietly at -24 dB")
+	check(is_equal_approx(player._step_player.volume_db, -6.8), "footsteps play at the mixed -6.8 dB")
 	for surface in ["wood", "earth"]:
 		check(player._steps[surface].size() == 3, "%s has three variants" % surface)
 		for stream in player._steps[surface]:
