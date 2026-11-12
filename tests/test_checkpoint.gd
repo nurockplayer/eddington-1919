@@ -75,6 +75,7 @@ func _fill(story) -> void:
 	story.report = {"sigmas": [0.5, 1.25], "verdict": "strict"}
 	story.plan = ["one", 2, 3.5]
 	story.kit_choice = 2
+	story.want = 1
 	story.kit_first = 1
 	story.trial_note = 2
 	story.exam = {"q1": 1, "q2": 0, "box": 2, "box_light": 1}

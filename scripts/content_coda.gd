@@ -93,9 +93,9 @@ static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false,
 		seq.append({"s": YOU, "t": L.t("（Kit 一定會先問天空，再問底片。）")})
 	match sky_promise:
 		0:
-			seq.append({"s": YOU, "t": L.t("（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。她大概已經記了一整頁。）")})
+			seq.append({"s": YOU, "t": L.t("（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。Kit 大概已經記了一整頁。）")})
 		1:
-			seq.append({"s": YOU, "t": L.t("（我跟 Kit 說過，全食那五分鐘我會在換底片。她會想知道，那五分鐘裡底片上留下了什麼。）")})
+			seq.append({"s": YOU, "t": L.t("（我跟 Kit 說過，全食那五分鐘我會在換底片。Kit 會想知道，那五分鐘裡底片上留下了什麼。）")})
 	var no_mistake := not overclaimed and not misread and clean
 	var replies: Array = []
 	for i in 3:
