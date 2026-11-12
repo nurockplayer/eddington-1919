@@ -4,12 +4,27 @@ extends RefCounted
 
 const RATE := 22050
 const SAMPLED_DIR := "res://assets/music/"
-## Level of each sampled cue, matched to its synthesis RMS (see D014).
+# Overall RMS in dBFS measured with ffmpeg astats, 2026-11-13 JST.
+const SAMPLED_RMS_DB := {
+	"cambridge_rain": -25.90,
+	"departure_motif": -22.03,
+	"departure_promise": -21.61,
+	"coda_resolution": -23.04,
+}
 const SAMPLED_DB := {
-	"cambridge_rain": -38.5,
-	"departure_motif": -38.5,
-	"departure_promise": -40.5,
-	"coda_resolution": -34.0,
+	"cambridge_rain": 1.9,
+	"departure_motif": -1.97,
+	"departure_promise": -2.39,
+	"coda_resolution": -0.96,
+}
+const SYNTH_DB := {
+	"cambridge_rain": 7.64,
+	"departure_motif": 3.75,
+	"departure_promise": 7.23,
+	"coda_resolution": 2.04,
+	"totality_drone": 4.6,
+	"totality_glass": 0.6,
+	"totality_edge": 2.6,
 }
 const CUES := [
 	"cambridge_rain",
@@ -53,13 +68,7 @@ static func is_sampled(cue: String) -> bool:
 static func level_db(cue: String) -> float:
 	if SAMPLED_DB.has(cue) and is_sampled(cue):
 		return SAMPLED_DB[cue]
-	match cue:
-		"cambridge_rain", "departure_motif", "totality_drone": return -30.0
-		"totality_glass": return -34.0
-		"totality_edge": return -32.0
-		"departure_promise": return -32.0
-		"coda_resolution": return -28.0
-	return -80.0
+	return SYNTH_DB.get(cue, -80.0)
 
 
 static func stream(cue: String) -> AudioStream:

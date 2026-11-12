@@ -1239,7 +1239,7 @@ func _build_viewer_sfx() -> void:
 		var player := AudioStreamPlayer.new()
 		player.bus = "SFX"
 		player.stream = _wav(samples, rate)
-		player.volume_db = -18.0 if name == "measure" else -20.0
+		player.volume_db = -9.0
 		add_child(player)
 		_viewer_sfx[name] = player
 
