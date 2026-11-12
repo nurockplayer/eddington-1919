@@ -293,7 +293,7 @@ func _test_direct_and_prologue_paths() -> void:
 
 func _test_sky_promise_payoff() -> void:
 	var story = root.get_node("Story")
-	var lines := ["（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。她大概已經記了一整頁。）", "（我跟 Kit 說過，全食那五分鐘我會在換底片。她會想知道，那五分鐘裡底片上留下了什麼。）"]
+	var lines := ["（出發前我要 Kit 告訴我，劍橋這段時間變了什麼。Kit 大概已經記了一整頁。）", "（我跟 Kit 說過，全食那五分鐘我會在換底片。Kit 會想知道，那五分鐘裡底片上留下了什麼。）"]
 	for choice in 2:
 		story.reset()
 		var departure = load("res://scripts/cambridge/departure_director.gd").new()
