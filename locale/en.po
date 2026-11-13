@@ -324,8 +324,8 @@ msgstr "Q/E"
 msgid "RB／X 鍵"
 msgstr "RB/X button"
 
-msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，砌石墩、搭棚子時，莊園的人幫了大半的忙。報告裡沒有他們的名字。"
-msgstr "Roça Sundy. The owner, Jerónimo Carneiro, let the expedition draw freely on the plantation's labour. Carriers brought the crates through the forest, and the plantation's people did most of the work on the stone pier and the huts. Their names are not in the report."
+msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是莊園的工人砌的。報告謝了莊園主人，卻沒有寫下任何一個工人的名字。"
+msgstr "Roça Sundy. The owner, Jerónimo Carneiro, let the expedition draw freely on the estate's workers. Carriers took the crates through the forest, and estate workers built the stone pier for the coelostat. The report thanks the owner, but it does not record a single worker's name."
 
 msgid "Seeliger 想過：太陽附近也許有一層看不見的物質，像黃道光的塵。聽起來很合理——可是沒有人能證明它多到足以拉住水星。"
 msgstr "Seeliger considered it: perhaps there is unseen matter near the Sun, like the dust of the zodiacal light. It sounds reasonable—but no one could show there was enough of it to hold Mercury back."
