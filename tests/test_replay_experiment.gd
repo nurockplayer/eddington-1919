@@ -33,7 +33,7 @@ func dialogue(game, choices := {}) -> void:
 		var entry: Dictionary = game.ui._seq[game.ui._seq_i]
 		if entry.has("choices"):
 			var key: String = entry.get("key", "")
-			var index: int = choices.get(key, 0)
+			var index: int = choices.get(key, 1 if key == "press" else 0)
 			if key == "interval":
 				index = Judgment.interval_truth(game.sim)
 			game.ui._choice_buttons[index].pressed.emit()

@@ -257,9 +257,12 @@ func talk(choices: Array = [], random_choices := true) -> void:
 			var pick: int = choices[ci] if ci < choices.size() else 0
 			if e.get("key", "") == "kit_first":
 				pick = 0
-			if random_choices:
-				pick = monkey_choice(e, pick)
-			ci += 1
+			if e.get("key", "") == "press":
+				pick = 1
+			else:
+				if random_choices:
+					pick = monkey_choice(e, pick)
+				ci += 1
 			_log("choose %d: %s" % [pick, e.choices[pick]])
 			await _dwell()
 			await _tap(KEY_1 + pick)

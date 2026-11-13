@@ -9,6 +9,8 @@
 |---|---|---|
 | 觀測站在 Roça Sundy（Carneiro 的主要莊園）；Atalaya 為經理 | HISTORICAL_RECORD | Lemos 2019 引 1920 報告。遊戲只出現莊園名，沒有出現人物。 |
 | Dyson 的「發瘋、獨自回家」 | HISTORICAL_RECORD（Eddington 1938 年回憶；Chandrasekhar 1976 p. 250）；Cottingham 在營地回憶及其餘對話為 RECONSTRUCTION／FICTION。 |
+| Cottingham 不必獨自回家 | RECONSTRUCTION，未標日期；Douglas 1956 p. 40 的轉述，措辭與日期未核實。見 `docs/research/story_factcheck_2026-11-13.md` §2；其餘對話為 FICTION。 |
+| 電報前追問 Eddington | FICTION；希望與回應為虛構。 |
 | 第三接觸後的對話 | RECONSTRUCTION（Eddington 1919-06-21 家書 EDDN/A/4/9）；雲變薄為 HISTORICAL_RECORD（1920 報告 p. 314），其餘為 FICTION。 |
 | Roça Sundy 主人及人手 | HISTORICAL_RECORD（1920 報告：Carneiro、挑夫及莊園人力）；敘述措辭為 RECONSTRUCTION，未記工人姓名。 |
 | 全食約 302 秒（計算值 2h13m05s–2h18m07s） | HISTORICAL_RECORD | Trinity 檔案館遠征記錄；Eddington 曾寫到節拍器「數出 302 秒的全食」。遊戲內的節拍器即取材於此。 |

@@ -29,12 +29,15 @@ static func workbook_again(kit_line := "") -> Array:
 ## fit: Judgment fit of the telegram (2 best, 1 defensible, 0 wrong). clean: plate selection
 ## was made by image quality before seeing values. measured_any: at least one plate measured.
 ## ashby_bet: Ashby wrote his own 1917 ledger entry (conversion arc move A).
-static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable := false, ashby_bet := false) -> Array:
+static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable := false, ashby_bet := false, pressed := false) -> Array:
 	var seq: Array = []
 	if ashby_bet:
 		# FICTION: the player recalls Ashby's own ledger entry before the loupe.
 		seq.append({"s": YOU, "t": L.t("（他在 1917 年那頁寫的是 0.87。我的底片，要寄給他看。）")})
 	seq.append({"s": "", "t": L.t("（你拿起 %s的放大鏡。）") % L.t(CAST.MENTOR)})
+	if pressed:
+		# FICTION.
+		seq.append({"s": YOU, "t": L.t("（那天晚上你問他，是不是早就認定了。他說是——然後把規則指給你看。）")})
 	if not measured_any and any_usable:
 		seq.append({"s": YOU, "t": L.t("（放大鏡底下有星點——是你沒有拿去量的那幾張。）")})
 		seq.append({"s": YOU, "t": L.t("（雲很厚，可是不是什麼都沒留下。回去以後，先把它們量完。）")})

@@ -942,7 +942,7 @@ func _interact(id: String) -> void:
 			var any_usable: bool = sim.plates.any(func(p): return p.usable)
 			var residual_found: bool = Story.clues.get("residual", false)  # found, whatever the report says
 			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any, any_usable,
-				int(Story.bet.get("ashby", 0)) == 1) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
+				int(Story.bet.get("ashby", 0)) == 1, _pressed_eddington) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
 		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		ui.show_toast(L.t("Ashby 先生給的放大鏡。"), 4.0)
@@ -1080,8 +1080,9 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			var against: Array = []
 			if sim.bet_pick >= 0:
 				against.append({"s": Content.E, "t": Content.bet_vs_plates(sim.bet_pick, Judgment.interval_bounds(sim))})
-			_say([{"s": Content.E, "t": Content.interval_feedback(_interval_answer, Judgment.interval_truth(sim))}] + against + Content.judgment_prompt(tele, rea), "judgment")
+			_say([{"s": Content.E, "t": Content.interval_feedback(_interval_answer, Judgment.interval_truth(sim))}] + against + (Content.press_eddington(sim.bet_pick) if sim.bet_pick >= 0 else []) + Content.judgment_prompt(tele, rea), "judgment")
 		"judgment":
+			_pressed_eddington = int(results.get("press", -1)) == 0
 			_after_judgment(results)
 		"reaction":
 			if _came_from_departure:
@@ -1656,6 +1657,7 @@ func _on_report() -> void:
 
 var _grade: Dictionary
 var _interval_answer := -1
+var _pressed_eddington := false
 var _telegram := 0
 var _reason := 0
 var _reasons: Array = []
@@ -1682,6 +1684,7 @@ func _after_judgment(results: Dictionary) -> void:
 	var seq := []
 	for l in _grade.lines:
 		seq.append({"s": Content.E, "t": l})
+	seq.append_array(Content.go_home_alone(_grade.evidence, _grade.clean))
 	seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
 	_say(seq, "reaction")
 
