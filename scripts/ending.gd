@@ -18,6 +18,7 @@ static func story_view(story) -> Dictionary:
 		"from_prologue": story.from_prologue,
 		"prologue_done": story.prologue_done,
 		"kit_choice": story.kit_choice,
+		"want": story.want,
 		"kit_first": story.kit_first,
 		"bet": story.bet.duplicate(true),
 		"previous_run": previous,

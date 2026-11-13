@@ -508,6 +508,7 @@ func _dialogue_done(results: Dictionary) -> void:
 			return
 		"coda":
 			Story.kit_choice = int(results.get("kit_choice", 0))
+			Story.want = int(results.get("want", -1))
 			_montage()
 			return
 	_sync_player()

@@ -12,6 +12,8 @@ var clues: Dictionary = {}
 var report: Dictionary = {}
 var plan: Array = []
 var kit_choice := -1
+# 0 seen, 1 fears nothing, 2 silent; -1 no prologue
+var want := -1
 var kit_first := -1
 var trial_note := -1
 var exam: Dictionary = {}
@@ -34,7 +36,7 @@ var ending_plate_caption := ""
 ## Chapter checkpoints write these fields; the plate travels as PNG bytes instead.
 const SAVED := [
 	"runs", "from_prologue", "prologue_done", "clues", "report", "plan",
-	"kit_choice", "kit_first", "trial_note", "exam", "bet", "bet_1917",
+	"kit_choice", "want", "kit_first", "trial_note", "exam", "bet", "bet_1917",
 	"orrery", "mercury_suspect", "sky_promise", "bond_tone", "slip_fix",
 	"departure_done", "epilogue_done", "ending_plate_caption",
 ]
@@ -83,6 +85,7 @@ func reset(keep_runs := false) -> void:
 	report.clear()
 	plan.clear()
 	kit_choice = -1
+	want = -1
 	kit_first = -1
 	trial_note = -1
 	exam.clear()

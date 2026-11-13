@@ -591,7 +591,7 @@ static func mentor_after(_report: Dictionary, trial_note: int) -> Array:
 	]
 
 
-## Evening coda with Kit. state.accused_once is set by the director when any submitted sheet
+## FICTION. Evening coda with Kit. state.accused_once is set by the director when any submitted sheet
 ## accused the copyist (even if it was revised afterwards). Key kit_choice is kept by Story.
 static func kit_coda(report: Dictionary, state: Dictionary) -> Array:
 	var accused: bool = state.get("accused_once", false)
@@ -613,8 +613,14 @@ static func kit_coda(report: Dictionary, state: Dictionary) -> Array:
 				[{"s": K, "t": L.t("是啊。")}, {"s": K, "t": L.t("可是今晚看你對那張圖的時候，我覺得好像也沒有那麼久。")}],
 				[{"s": K, "t": L.t("……嗯。我也是。")}],
 			]},
-		{"s": K, "t": L.t("如果真的有遠征……")},
-		{"s": K, "t": L.t("算了。先做清單。畢宿星團不會自己排好隊。")},
+		{"s": K, "t": L.t("如果真的有遠征……"), "key": "want",
+			"choices": [L.t("我會去。我想做一件真的有人會看的事。"), L.t("我會去。可是如果底片上什麼都沒有呢？"), L.t("（沒有回答）")],
+			"then": [
+				[{"s": K, "t": L.t("每天晚上都有人在看你泡的茶。……我懂你的意思。")}],
+				[{"s": K, "t": L.t("那你就回來告訴我，上面什麼都沒有。那也是你親眼看見的東西。")}],
+				[{"s": K, "t": L.t("……算了。")}],
+			]},
+		{"s": K, "t": L.t("先做清單。畢宿星團不會自己排好隊。")},
 	]
 
 
