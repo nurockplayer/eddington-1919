@@ -9,6 +9,7 @@ const CAST = preload("res://scripts/cambridge/cast.gd")
 const Content := preload("res://scripts/content.gd")
 const Content1917 := preload("res://scripts/cambridge/content_1917.gd")
 
+const K := CAST.KIT
 const A := CAST.MENTOR
 const YOU := CAST.YOU
 
@@ -24,6 +25,46 @@ static func opening() -> Array:
 	return [
 		{"s": A, "t": L.t("Greenwich 來信了。Dyson 寫的，在桌上。你先看。")},
 	]
+
+
+## Story audit D6: Kit's October reunion. FICTION throughout; the six-week boat is
+## HISTORICAL_RECORD (story_factcheck §7). kit_line is the stored "給 Kit：…" workbook line.
+static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit_line: String) -> Array:
+	var seq: Array = [
+		{"s": K, "t": L.t("你瘦了。")},
+		{"s": K, "t": L.t("說吧。你決定好要先跟我說的那一句。")},
+	]
+	var said := kit_line.trim_prefix(L.t("給 Kit：%s") % "")
+	seq.append({"s": YOU, "t": said if said != "" else L.t("……我回來了。")})
+	match kit_first:
+		0: seq.append({"s": K, "t": L.t("那我要聽。從雲開始講。")})
+		1: seq.append({"s": K, "t": L.t("範圍很寬，也是一個答案。你以前不會這樣說。")})
+		2: seq.append({"s": K, "t": L.t("那就慢慢告訴我。今天晚上很長。")})
+	seq.append({"s": "", "t": L.t("（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）")})
+	seq.append({"s": K, "t": L.t("這是你自己抬頭看到的。好。")})
+	if sky_promise == 0:
+		seq.append({"s": K, "t": L.t("你要我寫這裡變了什麼。我寫了。")})
+	else:
+		seq.append({"s": K, "t": L.t("你沒要我寫，我還是記下來了。")})
+	seq.append({"s": K, "t": L.t("Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。")})
+	seq.append({"s": K, "t": L.t("那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。")})
+	seq.append({"s": "", "t": L.t("（桌角有一個沒寄出的信封，寫著你的名字。）")})
+	seq.append({"s": K, "t": L.t("那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。")})
+	if bond_tone == "close":
+		seq.append({"s": K, "t": L.t("……裡面寫了什麼，以後再說。不是今晚。")})
+	else:
+		seq.append({"s": K, "t": L.t("反正裡面寫的，剛剛都說了。省一張郵票。")})
+	return seq
+
+
+## Story audit D8: three objects on the desk, no ledger. FICTION.
+static func tableau(run: Dictionary) -> Array:
+	var line := L.t("放著吧。總會有人想看，你是怎麼得到這個數字的。") if ledger_case(run) == "conceded" else L.t("放著吧。總會有人想來爭。")
+	return [{"s": A, "t": line}, {"s": K, "t": L.t("走吧，到外面去。你說過要指給我看的。")}]
+
+
+static func tableau_caption() -> String:
+	return L.t("底片。放大鏡。那一頁。")
 
 
 ## Dyson's letter is a RECONSTRUCTION: the numbers are HISTORICAL_RECORD, the wording

@@ -897,6 +897,8 @@ func _epilogue_route() -> bool:
 		await talk_keys({})
 	guard = 20.0
 	while (main.beat != main.Beat.ENDING or not main.ui.ending_panel.visible) and guard > 0.0:
+		if main.ui.dialog_active():
+			await talk_keys({})
 		await frames(2)
 		guard -= get_process_delta_time()
 	if main.beat != main.Beat.ENDING or not main.ui.ending_panel.visible:
