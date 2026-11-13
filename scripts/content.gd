@@ -249,6 +249,45 @@ static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
 	]
 
 
+## Story audit D4: Cottingham's payoff of Dyson's "go home alone" (cottingham_stakes). Undated on purpose.
+static func go_home_alone(evidence: String, clean: bool) -> Array:
+	match evidence:
+		"favors_e":
+			if clean:
+				# RECONSTRUCTION: Eddington's line as later retold (Douglas 1956); wording and day UNVERIFIED.
+				return [{"s": E, "t": L.t("Cottingham。你不用一個人回家了。")},
+					# FICTION.
+					{"s": C, "t": L.t("……我本來連行李都收好了。")}]
+			# FICTION: the same line, held back by a selection that is not clean.
+			return [{"s": E, "t": L.t("Cottingham，也許你不用一個人回家。可是這一疊底片，我們挑得還不夠乾淨。")},
+				{"s": C, "t": L.t("那回去重挑。我陪你。")}]
+		"ambiguous", "favors_half":
+			# FICTION.
+			return [{"s": E, "t": L.t("Cottingham，你要不要一個人回家，我還說不準。")},
+				{"s": C, "t": L.t("那我等。反正我還有一座鐘要打包。")}]
+	# FICTION: nothing measured.
+	return [{"s": E, "t": L.t("我們一起回家。看見什麼，就說什麼。")}]
+
+
+## Story audit D5: the player may ask whether Eddington decided before sailing. pick: the bet
+## (0 zero, 1 0.87, 2 1.75, 3 說不準). Admits hope, points to what he did about it. FICTION.
+static func press_eddington(pick: int) -> Array:
+	var reply: String = L.t("那你比我誠實。電報照底片寫。")
+	if pick == 2:
+		reply = L.t("那我們是兩個懷著希望的人，中間只有一套底片。電報照底片寫，不照我們寫。")
+	elif pick == 0 or pick == 1:
+		reply = L.t("那今晚我們之中，有一個人會失望。底片不在乎是誰。")
+	return [{"s": E, "t": L.t("電報之前，你還有話要說？"), "key": "press",
+		"choices": [L.t("你在出發前，就認定是 1.75 了，對不對？"), L.t("（什麼都不說）")],
+		"then": [
+			[{"s": E, "t": L.t("是。我希望是。")},
+			# FICTION; basis: the rule is written before measuring (rules_prompt), and the Sobral party was Greenwich staff (Crommelin, Davidson).
+			{"s": E, "t": L.t("所以規則要在你量之前寫好。所以 Sobral 那一地的底片，不經過我的手。")},
+			{"s": E, "t": L.t("換你了。你在本子上押的是什麼？")},
+			{"s": E, "t": reply}],
+			[]]}]
+
+
 static func cottingham_coda(sim) -> String:
 	if sim.drive_rate_checked:
 		return L.t("時鐘走得很穩。謝謝你那天替我報秒。")
