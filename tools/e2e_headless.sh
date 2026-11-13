@@ -74,10 +74,11 @@ for entry in "${ROUTES[@]}"; do
   IFS='|' read -r label cap expected user_args <<<"$entry"
   name=${label// /_}
   log="$tmp/$name.log"
-  # Perl's alarm caps a hung run; Bash's time measures the route itself.
+  # The Mac has no `timeout`; perl's alarm caps a hung run. /usr/bin/time
+  # measures the route itself.
   # shellcheck disable=SC2086
-  { time -p perl -e "alarm $cap; exec @ARGV" \
-    "$GODOT" --headless --path . --fixed-fps "$FPS" -- $user_args; } >"$log" 2>&1
+  /usr/bin/time -p perl -e "alarm $cap; exec @ARGV" \
+    "$GODOT" --headless --path . --fixed-fps "$FPS" -- $user_args >"$log" 2>&1
   code=$?
   wall=$(sed -nE 's/^real ([0-9]+\.[0-9]+)$/\1/p' "$log" | tail -1)
   wall=${wall:-?}
@@ -160,7 +161,7 @@ done
 # skipped walk is a failure: it means the gate would pass without checking them.
 if (( pseudo == 1 )); then
   log="$tmp/menu_leaks.log"
-  perl -e 'alarm 300; exec @ARGV' \
+  /usr/bin/time -p perl -e 'alarm 300; exec @ARGV' \
     "$GODOT" --headless --path . --script res://tests/test_menu_leaks.gd >"$log" 2>&1
   code=$?
   if (( code != 0 )) || ! grep -qE '^\[LEAK\] total 0$' "$log" || grep -q 'menu walk skipped' "$log"; then
