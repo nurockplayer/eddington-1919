@@ -378,6 +378,8 @@ func _test_empty_rack_wait() -> void:
 		# Run beyond contact repeatedly while its authored transition completes.
 		for i in 100:
 			game._process_totality(STEP)
+			if game._pending == "after_totality" and game.ui.dialog_active():
+				game.ui._advance()
 			await create_timer(STEP).timeout
 		check(game.phase == game.Phase.NIGHT and not game._busy, "empty rack reaches the real NIGHT scene")
 		check(night_entries.size() == 1 and game._sfx_log.count("third") == 1, "NIGHT introduction and third contact each run once")

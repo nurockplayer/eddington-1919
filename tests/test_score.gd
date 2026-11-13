@@ -423,11 +423,15 @@ func _check_totality_black_handoff() -> void:
 	var reached_night_elapsed_ms := -1
 	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < transition_deadline:
 		await process_frame
+		if main._pending == "after_totality" and main.ui.dialog_active():
+			main.ui._advance()
 		if main.phase == main.Phase.NIGHT:
 			reached_night_elapsed_ms = Time.get_ticks_msec() - handoff_started
 	var hard_deadline := handoff_started + 3 * handoff_budget_ms
 	while main.phase != main.Phase.NIGHT and Time.get_ticks_msec() < hard_deadline:
 		await process_frame
+		if main._pending == "after_totality" and main.ui.dialog_active():
+			main.ui._advance()
 	var handoff_ms := Time.get_ticks_msec() - handoff_started
 	var budget_measure_ms := reached_night_elapsed_ms if reached_night_elapsed_ms >= 0 else handoff_ms
 	check(reached_night_elapsed_ms >= 0 and reached_night_elapsed_ms <= handoff_budget_ms,

@@ -102,6 +102,8 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 			game._toggle_shutter()
 			shot += 1
 		game._process_totality(0.1 / game.sim.TIME_SCALE)
+	await wait_for(func(): return game._pending == "after_totality" and game.ui.dialog_active(), "third contact closes on the spoken aftermath")
+	await dialogue(game)
 	await wait_for(func(): return game.phase == game.Phase.NIGHT and not game._busy, "third contact develops the real plates and reaches night")
 	await dialogue(game)
 	if game._needs_comparison_fetch():

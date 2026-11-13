@@ -68,6 +68,7 @@ var hold_id := ""
 var _hold_latched := false
 var _interact_needs_release := false
 var met_cottingham := false
+var heard_cottingham_stakes := false
 var plate_textures: Array = []
 var comparison_tex: Texture2D
 var _comparison_fetched := false
@@ -989,15 +990,22 @@ func _interact(id: String) -> void:
 				var plates: int = sim.BASE_PLATES + mini(sim.plates_delivered + sim.plates_carried, sim.MAX_EXTRA_PLATES)
 				_say(Content.eddington_prep(plates, sim.drive_wound, sim.drive_rate_checked, sim.plates_carried), "eddington_prep")
 		"cottingham":
-			if not met_cottingham:
+			if sim.drive_rate_checked:
+				if not heard_cottingham_stakes:
+					heard_cottingham_stakes = true
+					_say(Content.cottingham_stakes(), "")
+				else:
+					_say(Content.cottingham_done(), "")
+			elif not met_cottingham:
 				met_cottingham = true
 				_say(Content.cottingham_first(), "")
-			elif sim.drive_rate_checked:
-				_say(Content.cottingham_done(), "")
 			elif sim.drive_wound:
 				_say(Content.cottingham_after_wind(), "")
 			else:
 				_say([{"s": Content.C, "t": L.t("驅動箱就在我旁邊——按一下 %s 開始上發條。") % Prompts.key("interact") if Settings.hold_toggle else L.t("驅動箱就在我旁邊——按住 %s 上發條。") % Prompts.key("interact")}], "")
+		"sundy":
+			# HISTORICAL_RECORD: host and labour; RECONSTRUCTION: wording.
+			_say([{"s": "", "t": L.t("Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是莊園的工人砌的。報告謝了莊園主人，卻沒有寫下任何一個工人的名字。")}], "")
 		"station":
 			if sim.plates_carried > 0:
 				sim.plates_delivered += sim.plates_carried
@@ -1039,6 +1047,8 @@ func _on_dialogue_done(results: Dictionary) -> void:
 	var purpose := _pending
 	_pending = ""
 	match purpose:
+		"after_totality":
+			_begin_night()
 		"briefing":
 			sim.briefed = true
 			ui.show_toast(L.t("目標已更新。"))
@@ -1384,7 +1394,7 @@ func _end_totality() -> void:
 	await tw.finished
 	sky_mat.set_shader_parameter("third_contact", Vector2.ZERO)
 	await get_tree().create_timer(1.5).timeout
-	_begin_night()
+	_say(Content.after_totality(sim.plates.size()), "after_totality")
 
 
 # ----------------------------------------------------------------------- Night

@@ -725,6 +725,7 @@ func _continue_honest_to_ending() -> void:
 		failures.append("honest 1919 route could not walk to %d waypoint(s)" % route.stuck)
 		return
 	await route._totality()
+	await route._after_totality(20.0)
 	phase_guard = 60.0
 	while (main.phase != main.Phase.NIGHT or main._busy) and phase_guard > 0.0:
 		await frames(2)

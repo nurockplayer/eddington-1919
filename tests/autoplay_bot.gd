@@ -346,6 +346,7 @@ func _run() -> void:
 	await _wait(2.5)
 	await shot("05_totality_start")
 	await _totality()
+	await _after_totality(20.0)
 	await _wait_phase("night", 40.0)
 	await _wait(1.0)
 	await talk()
@@ -404,6 +405,15 @@ func _prep_full() -> void:
 		_disrupting = true
 		await talk([0], false)
 		_disrupting = false
+
+
+## Totality closes on a spoken aftermath; the night begins once it is read.
+func _after_totality(timeout: float) -> void:
+	while timeout > 0.0 and not (main._pending == "after_totality" and main.ui.dialog_active()):
+		await _wait(0.25)
+		timeout -= 0.25
+	if main.ui.dialog_active():
+		await talk()
 
 
 func _wait_phase(p: String, timeout: float) -> void:

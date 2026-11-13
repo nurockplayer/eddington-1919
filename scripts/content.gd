@@ -13,6 +13,8 @@ static func briefing() -> Array:
 	return [
 		{"s": E, "t": L.t("你來了。雨總算停了——十點多那場雷雨，是我們上島以來最大的一場。")},
 		{"s": E, "t": L.t("太陽躲在雲後面，月亮已經吃掉大半。全食只有 [b]302 秒[/b]。")},
+		# FICTION: Eddington watches the gap.
+		{"s": E, "t": L.t("我從早上就盯著那道雲縫。每次我開始相信它，它就合上。")},
 		{"s": E, "t": L.t("我負責換底片，Cottingham 拿遮光板控制曝光。[b]你替我們看雲[/b]：雲變薄就喊「開始」，雲變厚、或全食快結束時喊「停」。")},
 		{"s": E, "t": L.t("我已經裝好四個底片匣。暗房裡還有八個——能搬多少就搬多少，放到望遠鏡旁的架子上。")},
 		{"s": E, "t": L.t("Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。")},
@@ -51,6 +53,33 @@ static func cottingham_after_wind() -> Array:
 
 static func cottingham_done() -> Array:
 	return [{"s": C, "t": L.t("走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。")}]
+
+
+static func cottingham_stakes() -> Array:
+	return [
+		# HISTORICAL_RECORD: Eddington's 1938 recollection; RECONSTRUCTION: Cottingham recalls it here.
+		{"s": C, "t": L.t("出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。")},
+		# FICTION: laughter, the question and the replies.
+		{"s": C, "t": L.t("他是笑著說的。可是他沒說，要是上面什麼都沒有，會怎樣。"), "key": "stakes", "choices": [L.t("那就一起回家，照實說。"), L.t("如果真的什麼都沒有呢？"), L.t("（沒有說話）")],
+			"then": [
+				[{"s": C, "t": L.t("嗯。照實說。Dyson 先生讀得懂一張空白的底片。")}],
+				[{"s": C, "t": L.t("那就帶一箱說『什麼都沒有』的底片回去。那也是答案——只是很貴。")}],
+				[{"s": C, "t": L.t("……我也是。先把鐘調好。")}] ]},
+	] + cottingham_done()
+
+
+static func after_totality(exposed: int) -> Array:
+	# RECONSTRUCTION: paraphrase of Eddington's 21 June 1919 letter, EDDN/A/4/9.
+	var seq: Array = [{"s": E, "t": L.t("我沒看到日食。只看了一眼確定開始了，中途又看一眼雲有多厚。其餘的時間都在換底片。")}]
+	if exposed == 0:
+		# FICTION.
+		seq.append({"s": E, "t": L.t("沒有底片，也是一筆紀錄。把雲寫下來。")})
+	else:
+		# HISTORICAL_RECORD: 1920 report p. 314, cloud thinned in the last third.
+		seq.append({"s": C, "t": L.t("最後那一段，雲變薄了。")})
+	# FICTION: protagonist's thought.
+	seq.append({"s": YOU, "t": L.t("（你看見了。從頭到尾，你都在看天。）")})
+	return seq
 
 
 static func plan_text() -> Array:
