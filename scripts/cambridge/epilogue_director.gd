@@ -39,8 +39,8 @@ func _ready() -> void:
 	world.letter_prop.position = Vector3(-0.6, 0.845, 0.55)
 	world.letter_hotspot.position = Vector3(-0.6, 0.86, 0.55)
 	world.targets.letter = world.letter_hotspot.position
-	# October 1919: Kit has not come back from the observatory; the desk is Ashby's.
-	world.kit.visible = false
+	# October 1919: Kit is back from the observatory (story D6).
+	world.kit.visible = true
 	var kit_shape := world.kit.get_meta("room_collision_shape") as CollisionShape3D
 	if kit_shape:
 		kit_shape.disabled = true
@@ -92,7 +92,7 @@ func _ready() -> void:
 	await ui.fade_to(0.0, 1.1).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	await ui.show_caption(Content.intro_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
-	_say(Content.opening(), "opening")
+	_say(Content.kit_reunion(Story.kit_first, Story.bond_tone, Story.sky_promise, str(Story.runs.back().get("kit_line", "")) if not Story.runs.is_empty() else "") + Content.opening(), "opening")
 
 
 ## Removes an inactive hotspot's collider so it cannot take the interaction ray.
@@ -238,6 +238,14 @@ func _dialogue_done(results: Dictionary) -> void:
 			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet) + Content.close(), "close")
 			return
 		"close":
+			_busy = true
+			_sync_player()
+			_frame_point(world.targets.letter)
+			await ui.show_caption(Content.tableau_caption(), 2.0).finished
+			_busy = false
+			_say(Content.tableau(Story.runs.back()), "tableau")
+			return
+		"tableau":
 			_end_epilogue()
 			return
 	_sync_player()
@@ -288,6 +296,7 @@ func _frame_speaker(speaker: String) -> void:
 	var actor: Node3D
 	match speaker:
 		Cast.MENTOR: actor = world.mentor
+		Cast.KIT: actor = world.kit
 	if not is_instance_valid(actor) or not actor.visible:
 		return
 	if _last_speaker == speaker and _camera_turn and _camera_turn.is_running():

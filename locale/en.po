@@ -360,6 +360,9 @@ msgstr "Sobral's 4-inch lens"
 msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
 msgstr "The Sobral plates have been measured at Greenwich.\n4-inch lens: 1.98″ ± 0.12″.\nAstrographic telescope: about 0.93″; the star images are blurred, and the focal length and plate scale may have changed that day."
 
+msgid "Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。"
+msgstr "The lamps are lit on Trumpington Street again. A first-year who puts sugar in everything sits at that empty desk now."
+
 msgid "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停"
 msgstr "WASD/left stick move · mouse/arrows/right stick look · Shift/L3 run\n%s interact · %s log · %s start/stop · %s pause"
 
@@ -620,6 +623,9 @@ msgstr "…Same here. Let's get the clock right first."
 msgid "……我們一張也沒有拍。雲和時間都沒有等我們。"
 msgstr "…We took not one. Neither the cloud nor the time waited for us."
 
+msgid "……我回來了。"
+msgstr "…I'm home."
+
 msgid "……我本來連行李都收好了。"
 msgstr "…I had already packed my bags."
 
@@ -634,6 +640,9 @@ msgstr "…None. It simply doesn't match."
 
 msgid "……算了。"
 msgstr "…Never mind."
+
+msgid "……裡面寫了什麼，以後再說。不是今晚。"
+msgstr "…What it says can wait. Not tonight."
 
 msgid "……這裡還有一點沒對上，你沒看見？（用鉛筆輕輕圈起來）沒關係。現在看見了。"
 msgstr "…There's still one point here that doesn't match, and you didn't see it? (Draws a light pencil circle round it.) Never mind. You see it now."
@@ -1037,11 +1046,17 @@ msgstr "You brought back no value. If you write the plates, write it plainly: wh
 msgid "你沒有帶回數值，我也不替你猜。Sobral 的小鏡頭有，而它容不下 0.87。只靠一個地方、一套儀器，我還不想寫下結論。"
 msgstr "You brought back no value, and I will not guess one for you. Sobral's small lens has one, and it leaves no room for 0.87. On one site and one instrument alone, I will not write a conclusion."
 
+msgid "你沒要我寫，我還是記下來了。"
+msgstr "You didn't ask me to write, but I kept a record anyway."
+
 msgid "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
 msgstr "You chose the plates by the rule you wrote before measuring. Whether the result matched your hopes or not, no one can say you chose after seeing the numbers."
 
 msgid "你留在年鑑上的記號：\n・海王星：%s\n・哈雷彗星：%s\n・水星的 43 角秒：%s\n\n你當時最懷疑的是：%s\n[color=#b8ad98]這台小機器的軌道是齒輪定死的，演不出那 43 角秒。[/color]"
 msgstr "Your marks in the almanac:\n· Neptune: %s\n· Halley's Comet: %s\n· Mercury's 43 arcseconds: %s\n\nWhat you suspected most at the time: %s\n[color=#b8ad98]This little machine's orbits are fixed by its gears; it cannot show that 43 arcseconds.[/color]"
+
+msgid "你瘦了。"
+msgstr "You've grown thin."
 
 msgid "你的工作筆記"
 msgstr "Your Working Notes"
@@ -1084,6 +1099,9 @@ msgstr "You changed the selection after seeing the values. There may be a reason
 
 msgid "你繞回了觀測站。"
 msgstr "You found your way back to the observatory."
+
+msgid "你要我寫這裡變了什麼。我寫了。"
+msgstr "You asked me to write what changed here. I did."
 
 msgid "你記得我們只是其中一站。Dyson 會比較兩地的結果。"
 msgstr "You remember that we are only one station. Dyson will compare the results from both."
@@ -1318,6 +1336,9 @@ msgstr "Go and look. Whatever you see, write it down."
 
 msgid "參考底片"
 msgstr "Reference plates"
+
+msgid "反正裡面寫的，剛剛都說了。省一張郵票。"
+msgstr "I've said everything in it just now anyway. Saved a stamp."
 
 msgid "只容得下 0.87″"
 msgstr "Only 0.87″ fits"
@@ -1706,6 +1727,9 @@ msgstr "Almanac · Mercury"
 msgid "年鑑・水星（1919 年 10 月補記）"
 msgstr "Almanac · Mercury (note added October 1919)"
 
+msgid "底片。放大鏡。那一頁。"
+msgstr "The plate. The loupe. The page."
+
 msgid "底片上畫的北向箭頭是斜的。"
 msgstr "The north arrow drawn on the plate is askew."
 
@@ -2082,6 +2106,12 @@ msgstr "Loupe ×2"
 
 msgid "放大鏡下，底片上那個位置只有一點極淡的白。可能是一顆很暗的星，也可能是藥膜上的瑕疵——光憑這一張，分不出來。"
 msgstr "Under the magnifying glass there is only the faintest speck of white at that spot on the plate. It may be a very faint star, or a flaw in the emulsion—one plate alone cannot tell."
+
+msgid "放著吧。總會有人想來爭。"
+msgstr "Leave them. Someone will want to argue."
+
+msgid "放著吧。總會有人想看，你是怎麼得到這個數字的。"
+msgstr "Leave them. Someone will want to see how you got that number."
 
 msgid "整組丟掉，不用提"
 msgstr "Drop the whole set, no need to mention it"
@@ -2662,6 +2692,9 @@ msgstr "The range holds only 1.75″"
 msgid "範圍同時容得下 0.87″ 和 1.75″"
 msgstr "The range holds both 0.87″ and 1.75″"
 
+msgid "範圍很寬，也是一個答案。你以前不會這樣說。"
+msgstr "That covers a lot, but it's an answer. You wouldn't have said that before."
+
 msgid "納入量測"
 msgstr "Include"
 
@@ -2776,6 +2809,9 @@ msgstr "Yes. And that I don't believe it."
 msgid "說來有趣——愛因斯坦自己 1911 年算出來的，也只有一半。是他後來的新理論，才把它加倍。"
 msgstr "Curiously enough—Einstein's own calculation in 1911 gave only half. It was his later theory that doubled it."
 
+msgid "說吧。你決定好要先跟我說的那一句。"
+msgstr "Go on. The first thing you decided to tell me."
+
 msgid "說得誠實。雲擋住了大部分星光，我們不假裝。"
 msgstr "That is honest. The cloud kept most of the starlight from us, and we don't pretend otherwise."
 
@@ -2811,6 +2847,9 @@ msgstr "What's valuable is what you see through it. This is only brass."
 
 msgid "走到看片台，核對最後一頁。"
 msgstr "Go to the light box and check the last page."
+
+msgid "走吧，到外面去。你說過要指給我看的。"
+msgstr "Come on, let's go outside. You said you'd show me."
 
 msgid "走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。"
 msgstr "The rate is set. During totality you watch the cloud, I take the shutter, and Professor Eddington changes the plates. Three people, just enough."
@@ -2886,6 +2925,9 @@ msgstr "The desk stands empty, its chair neatly pushed in. The observatory has l
 
 msgid "這是一個好的開始。"
 msgstr "That is a good beginning."
+
+msgid "這是你自己抬頭看到的。好。"
+msgstr "You looked up and saw that for yourself. Good."
 
 msgid "這是很重的兩個詞。你有什麼證據，說他編造？"
 msgstr "Those are two heavy words. What evidence do you have that they invented it?"
@@ -2995,6 +3037,9 @@ msgstr "Then write it down. No change is a record too."
 msgid "那就帶一箱說『什麼都沒有』的底片回去。那也是答案——只是很貴。"
 msgstr "Then we bring home a crate of plates that say 'nothing'. That's an answer too — just an expensive one."
 
+msgid "那就慢慢告訴我。今天晚上很長。"
+msgstr "Then tell me slowly. We have a long evening."
+
 msgid "那就把兩張釘在一起。"
 msgstr "Then pin the two together."
 
@@ -3013,17 +3058,26 @@ msgstr "Then I'll take it. But I shall write a line beside it: 'That the copyist
 msgid "那我等。反正我還有一座鐘要打包。"
 msgstr "Then I'll wait. I have a clock to pack anyway."
 
+msgid "那我要聽。從雲開始講。"
+msgstr "Then I want to hear it. Start with the clouds."
+
 msgid "那放在地上的箱子呢？同一道光橫著射過去，到對面牆上會打在哪？"
 msgstr "And the box on the ground? The same beam crossing it—where does it strike the far wall?"
 
 msgid "那是很久以前的事了。"
 msgstr "That was a long time ago."
 
+msgid "那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。"
+msgstr "That's for you. The boat takes six weeks; you'd be home before it. So I didn't send it."
+
 msgid "那裡的天空也有晚上。我會問你。"
 msgstr "The sky there has nights too. I'll ask you then."
 
 msgid "那裡看到的，記在這裡。回來的時候，我要看。"
 msgstr "What you see there, write it here. When you come back, I want to read it."
+
+msgid "那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。"
+msgstr "I measured that variable star down to the minute. It was never late. I was."
 
 msgid "都在測量桌上了。[b]先按星像好壞挑片，再量[/b]。量完了，再告訴我你怎麼想。"
 msgstr "They are all on the measuring table. [b]Choose the plates by the quality of the star images first, then measure[/b]. When you have measured them, tell me what you think."
@@ -3275,6 +3329,9 @@ msgid_plural "（你手上的 %d 張會交給 Cottingham）"
 msgstr[0] "(you are carrying %d of them for Cottingham)"
 msgstr[1] "(you are carrying %d of them for Cottingham)"
 
+msgid "（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）"
+msgstr "(You hand over the workbook. Kit turns to the last page and studies it for a long time.)"
+
 msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）"
 msgstr "(You carry the box of Oxford comparison plates to the measuring table. A January night sky, the same telescope.)"
 
@@ -3357,6 +3414,9 @@ msgstr "(There is nothing to measure under the glass—only the grey the cloud l
 
 msgid "（有些話，也許可以等到見了面再說。）"
 msgstr "(Some things can perhaps wait until you meet.)"
+
+msgid "（桌角有一個沒寄出的信封，寫著你的名字。）"
+msgstr "(An unsent envelope with your name on it lies at the corner of the desk.)"
 
 msgid "（沉默）"
 msgstr "(Silence)"

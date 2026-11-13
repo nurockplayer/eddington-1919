@@ -27,6 +27,8 @@ func check(ok: bool, message: String) -> void:
 func _run() -> void:
 	var story: Node = root.get_node("Story")
 	story.reset()
+	await _test_reunion(story)
+	story.reset()
 	await _test_restart_clears_run(story)
 	story.reset()
 	await _test_ledger_cases(story)
@@ -49,6 +51,46 @@ func _run() -> void:
 		"Story.reset clears the epilogue state")
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _test_reunion(story: Node) -> void:
+	var replies := ["那我要聽。從雲開始講。", "範圍很寬，也是一個答案。你以前不會這樣說。", "那就慢慢告訴我。今天晚上很長。"]
+	for i in [0, 1, 2, -1]:
+		story.reset()
+		story.kit_first = i
+		story.sky_promise = 0 if i == 0 else 1
+		story.bond_tone = "close" if i == 0 else "warm"
+		var run := _make_run({"n": 0}, {})
+		run.kit_line = "給 Kit：我看見了雲。" if i == 0 else ""
+		story.runs.append(run)
+		var chapter = await _new_epilogue()
+		var seq: Array = chapter.ui._seq
+		var text := _text(chapter)
+		check(chapter.world.kit.visible and (chapter.world.kit.get_meta("room_collision_shape") as CollisionShape3D).disabled, "Kit is visible without a collider")
+		check(text.find("你瘦了。") >= 0 and text.find("Greenwich 來信了") > text.find("你瘦了。"), "Kit speaks before the opening")
+		check(str(seq[2].s) == str(CONTENT.YOU) and str(seq[2].t) == ("我看見了雲。" if i == 0 else "……我回來了。"), "the player delivers the saved line or fallback")
+		for j in 3:
+			check(text.contains(replies[j]) == (i == j), "kit_first %d selects reply %d" % [i, j])
+		check(text.contains("你要我寫這裡變了什麼。我寫了。") == (i == 0), "sky promise selects its reply")
+		check(text.contains("你沒要我寫，我還是記下來了。") == (i != 0), "other sky promise selects its reply")
+		check(text.contains("……裡面寫了什麼，以後再說。不是今晚。") == (i == 0), "close bond selects its envelope line")
+		check(text.contains("反正裡面寫的，剛剛都說了。省一張郵票。") == (i != 0), "warm bond selects its envelope line")
+		_finish(chapter)
+		check(chapter.beat == chapter.Beat.LETTER, "reunion and opening reach LETTER together")
+		chapter.free()
+		await process_frame
+
+
+func _finish_tableau(chapter, conceded: bool) -> void:
+	check(chapter.beat != chapter.Beat.ENDING and chapter._busy, "close locks input before the tableau")
+	var deadline := Time.get_ticks_msec() + 8000
+	while chapter._pending != "tableau" and Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(chapter._pending == "tableau" and chapter.beat != chapter.Beat.ENDING, "tableau plays before ENDING")
+	var text := _text(chapter)
+	check(text.contains("放著吧。總會有人想看，你是怎麼得到這個數字的。" if conceded else "放著吧。總會有人想來爭。"), "tableau reflects the ledger outcome")
+	check(text.contains("走吧，到外面去。你說過要指給我看的。"), "Kit closes the tableau")
+	_finish(chapter)
 
 
 ## A restart inside the epilogue starts the room over: the answer keys it writes go,
@@ -162,6 +204,7 @@ func _test_final_replies(story: Node) -> void:
 			check(seq.size() > 0 and str(seq[0].get("t", "")) == "11 月 6 日，倫敦開會。", "conceded with pick 1 has no Ashby reply")
 		check(str(seq[seq.size() - 1].get("t", "")) == "11 月 6 日，倫敦開會。", "%s includes the epilogue close" % case.case)
 		_finish(chapter)
+		await _finish_tableau(chapter, case.case == "conceded")
 		check(str(story.runs.back().get("final_reason_text", "")) == str(CONTENT.final_reason()[0].choices[case.choice]), "%s stores final_reason_text" % case.case)
 		var deadline := Time.get_ticks_msec() + 8000
 		while chapter.beat != chapter.Beat.ENDING and Time.get_ticks_msec() < deadline:
@@ -297,6 +340,7 @@ func _test_full_flow(story: Node) -> void:
 			chapter.ui._advance()
 	check(root.get_camera_3d() == chapter.player.camera and chapter.find_child("OrreryCloseup", true, false) == null, "final reason restores the player camera")
 	_finish(chapter, {"final_reason": 2})
+	await _finish_tableau(chapter, true)
 	var back: Dictionary = story.runs.back()
 	check(int(back.get("astro_weight", -1)) == 1, "the astrographic weighting is stored on the run")
 	check(int(back.get("click", -1)) == 1, "the orrery answer is stored on the run")
