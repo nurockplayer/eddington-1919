@@ -16,6 +16,7 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func make_game(value: float, dirty := false) -> Node:
+	root.get_node("Story").from_prologue = true
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
