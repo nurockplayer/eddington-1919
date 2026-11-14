@@ -168,15 +168,15 @@ func _light(state: String) -> void:
 		"night": main._apply_light(0.0, 0.0, 400.0, 1.0)
 
 
-func _shot(path: String) -> void:
+func _shot(path: String) -> bool:
 	if DisplayServer.get_name() == "headless":
-		return
+		return false
 	var drawn := [false]
 	RenderingServer.frame_post_draw.connect(func(): drawn[0] = true, CONNECT_ONE_SHOT)
 	var t0 := Time.get_ticks_msec()
 	while not drawn[0] and Time.get_ticks_msec() - t0 < 5000:
 		await get_tree().process_frame
-	get_viewport().get_texture().get_image().save_png(path)
+	return get_viewport().get_texture().get_image().save_png(path) == OK
 
 
 func _avg(a: PackedFloat32Array) -> float:
@@ -216,6 +216,7 @@ func _run() -> void:
 	var shots := _shots(BOOKMARKS)
 	if shots.is_empty():
 		return
+	var run_seed: int = main.sim.run_seed
 	for b in shots:
 		if b[0] == "totality_live":
 			await _setup_totality_live()
@@ -229,9 +230,10 @@ func _run() -> void:
 		await _frames(2)
 		main.player.look_at_point(target)
 		var r := await _sample_bookmark(b[0], b[3])
+		r["seed"] = main.sim.run_seed
 		results.append(r)
 		print("[BENCH] ", JSON.stringify(r))
-	_write_summary(results, main.sim.run_seed, hidden)
+	_write_summary(results, run_seed, hidden)
 
 
 func _setup_totality_live() -> void:
@@ -283,9 +285,9 @@ func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
 		RenderingServer.force_draw(false)
 		forced.append((Time.get_ticks_usec() - f0) / 1000.0)
 	var png := "%s.png" % bookmark
-	await _shot(out_dir.path_join(png))
+	var captured := await _shot(out_dir.path_join(png))
 	var r := {
-		"bookmark": bookmark, "lighting": lighting, "screenshot": png,
+		"bookmark": bookmark, "lighting": lighting, "screenshot": png if captured else "",
 		"frame_ms_avg": _avg(ms),
 		"frame_ms_p95": _p95(ms),
 		"forced_draw_ms_avg": _avg(forced),
@@ -302,7 +304,7 @@ func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
 	return r
 
 
-func _write_summary(results: Array, seed_: int, hidden: Array, chapter := "") -> void:
+func _summary(results: Array, seed_: int, hidden: Array, chapter := "") -> Dictionary:
 	var summary := {
 		"godot": Engine.get_version_info().string,
 		"renderer": RenderingServer.get_video_adapter_name(),
@@ -318,6 +320,11 @@ func _write_summary(results: Array, seed_: int, hidden: Array, chapter := "") ->
 	if capture_args:
 		var image := get_viewport().get_texture().get_size()
 		summary["capture"] = {"only": only, "totality_cloud_t": totality_cloud_t, "image": [image.x, image.y]}
+	return summary
+
+
+func _write_summary(results: Array, seed_: int, hidden: Array, chapter := "") -> void:
+	var summary := _summary(results, seed_, hidden, chapter)
 	var f := FileAccess.open(out_dir.path_join("benchmark.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary, "  "))
 	f.close()
