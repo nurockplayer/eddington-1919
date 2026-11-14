@@ -39,6 +39,6 @@ fi
 # Spread colours outward from opaque pixels, then restore the original alpha.
 magick "$tmp/trim.png" -alpha extract "$tmp/final-alpha.png"
 magick "$tmp/trim.png" -channel A -threshold 99% +channel \
-  -channel RGBA -morphology Distance Voronoi:1,16 +channel \
+  -channel RGBA -morphology Voronoi Euclidean:4,16 +channel \
   "$tmp/final-alpha.png" -alpha off -compose CopyOpacity -composite \
   -depth 8 -strip PNG32:"$out"
