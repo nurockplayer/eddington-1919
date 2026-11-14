@@ -32,7 +32,7 @@ enum CodaStep { OPENING, WORKBOOK, LOUPE, KIT, FADING }
 
 const BED_DIR := "res://assets/sfx/"
 # Overall RMS in dBFS measured with ffmpeg astats, 2026-11-14 JST.
-const BED_RMS_DB := {"birds": -43.28, "surf": -23.85}
+const BED_RMS_DB := {"birds": -29.70, "insects": -34.79, "surf": -23.85}
 
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
 const HOLD := {"drive": 3.0, "chronometer": 4.0, "plate_box": 1.2}
@@ -100,6 +100,7 @@ var audio_open: AudioStreamPlayer
 var audio_change: AudioStreamPlayer
 var audio_third: AudioStreamPlayer
 var audio_insects: AudioStreamPlayer
+var _insects_db := -9.2
 var audio_surf: AudioStreamPlayer
 var audio_birds: AudioStreamPlayer
 var _birds_tween: Tween
@@ -549,7 +550,12 @@ func _build_audio() -> void:
 	audio_insects = AudioStreamPlayer.new()
 	audio_insects.bus = "SFX"
 	audio_insects.stream = _wav(insects, 22050, true)
-	audio_insects.volume_db = -9.2
+	if _bed_sampled("insects"):
+		var stream: AudioStreamOggVorbis = load(BED_DIR + "bed_insects.ogg")
+		stream.loop = true
+		audio_insects.stream = stream
+		_insects_db = _bed_target(insects, -9.2) - BED_RMS_DB["insects"]
+	audio_insects.volume_db = _insects_db
 	add_child(audio_insects)
 	var surf := PackedFloat32Array()
 	var brown := 0.0
@@ -646,7 +652,7 @@ func _start_night_bed() -> void:
 	audio_insects.play()
 	_sfx_log.append("insects")
 	_night_bed_tween = create_tween()
-	_night_bed_tween.tween_property(audio_insects, "volume_db", -9.2, 3.0)
+	_night_bed_tween.tween_property(audio_insects, "volume_db", _insects_db, 3.0)
 
 
 func _stop_night_bed() -> void:
