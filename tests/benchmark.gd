@@ -225,7 +225,7 @@ func _run() -> void:
 		main.player.velocity = Vector3.ZERO
 		var target: Vector3 = b[2]
 		if target == Vector3.INF:
-			target = main.player.camera.global_position + main.sim.sun_dir * 10.0
+			target = main._totality_aim_point()
 		await _frames(2)
 		main.player.look_at_point(target)
 		var r := await _sample_bookmark(b[0], b[3])

@@ -1190,6 +1190,16 @@ func _refresh_objectives() -> void:
 		ui.set_objectives("")
 
 
+func _totality_aim_point() -> Vector3:
+	var vfov := deg_to_rad(player.camera.fov)
+	var size := get_viewport().get_visible_rect().size
+	var hfov := 2.0 * atan(tan(vfov / 2.0) * size.x / size.y)
+	var yaw := atan2(-sim.sun_dir.x, -sim.sun_dir.z) + atan(tan(hfov / 2.0) / 3.0)
+	var pitch := asin(sim.sun_dir.y) - atan(tan(vfov / 2.0) / 3.0)
+	var direction := Vector3(-sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch))
+	return player.camera.global_position + direction * 10.0
+
+
 func _begin_rehearsal() -> void:
 	rehearsing = true
 	_rehearsal_step = 0
@@ -1202,7 +1212,9 @@ func _begin_rehearsal() -> void:
 	player.global_position = world.station_pos + Vector3(0, 0.05, 0)
 	player.velocity = Vector3.ZERO
 	world.roof.visible = false
-	player.look_at_point(player.camera.global_position + sim.sun_dir * 10.0)
+	world.eddington.visible = false
+	world.cottingham.visible = false
+	player.look_at_point(_totality_aim_point())
 	sky_mat.set_shader_parameter("practice_cloud", 0.93)
 	_sync_player_input()
 	ui.set_prompt("")
@@ -1236,6 +1248,8 @@ func _finish_rehearsal(feedback: String) -> void:
 	await get_tree().create_timer(sim.PLATE_CHANGE_S, false).timeout
 	sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	world.roof.visible = _rehearsal_roof_visible
+	world.eddington.visible = true
+	world.cottingham.visible = true
 	player.global_position = _rehearsal_position
 	player.velocity = _rehearsal_velocity
 	player.yaw = _rehearsal_yaw
@@ -1263,11 +1277,13 @@ func _begin_totality() -> void:
 	await ui.fade_to(1.0, 0.7).finished
 	player.global_position = world.station_pos + Vector3(0, 0.05, 0)
 	player.velocity = Vector3.ZERO
-	player.look_at_point(player.camera.global_position + sim.sun_dir * 10.0)
+	player.look_at_point(_totality_aim_point())
 	world.eddington.position = Vector3(-0.75, 0, -1.55)
 	world.eddington.rotation.y = deg_to_rad(-90)
 	world.cottingham.position = Vector3(0.75, 0, -1.3)
 	world.cottingham.rotation.y = deg_to_rad(110)
+	world.eddington.visible = false
+	world.cottingham.visible = false
 	world.roof.visible = false
 	t_game = 0.0
 	_ever_exposed = false
@@ -1432,6 +1448,8 @@ func _begin_night() -> void:
 	audio_birds.stop()
 	_start_night_bed()
 	phase = Phase.NIGHT
+	world.eddington.visible = true
+	world.cottingham.visible = true
 	# Tab can hold the outgoing audio ramp while the authored transition continues.
 	# At the black handoff, cancel any remaining voices; NIGHT is always unscored.
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
