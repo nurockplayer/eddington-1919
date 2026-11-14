@@ -81,3 +81,14 @@ the KIOXIA cache, verifies the MD5 and rebuilds the OGG):
 - `oggenc -q 4 --serial 1915`.
 - SHA-256 of the OGG:
   `b065b69732f9b06ca3532ae290f4e07747ee834e777e7ba7a5cd88b88a077dec`.
+
+## Field recordings
+
+Both recordings were downloaded on 2026-11-14 JST. Each excerpt was mixed to
+mono at 44.1 kHz, with a two-second tail-to-head crossfade and no processing
+gain; playback gain matches the synthesized bed's effective RMS.
+
+| File | Source | Author | Licence | Excerpt (start, source length) | Raw SHA-256 |
+| --- | --- | --- | --- | --- | --- |
+| `assets/sfx/bed_birds.ogg` | https://commons.wikimedia.org/wiki/File:Birds_chirping_in_a_garden.ogg | Akum20 | CC0 1.0 | 60 s, 62 s | `961bd9d5113e8c53814eaf21cf8d4efb0505f1c7d67ec4c85ebf651ce4e67f27` |
+| `assets/sfx/bed_surf.ogg` | https://bigsoundbank.com/small-waves-and-beach-2-s1448.html | Joseph Sardin | CC0 1.0 | 300 s, 42 s | `ae2432cb02c10e1b27c377ad038cde0d6568b3bc6782b44b00b6320cef728472` |
