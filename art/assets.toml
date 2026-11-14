@@ -36,6 +36,97 @@ max_texture_px = 512
 history = "RECONSTRUCTION: generic period wooden packing case; stencil text is added in-engine (Label3D) so it stays editable."
 status = "in-game"
 
+[asset.dr_tray]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_darkroom_props.py"
+export = "assets/models/dr_tray.glb"
+dims_m = [0.34, 0.28, 0.05]
+dims_tolerance = 0.10
+tri_budget = 400
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic 1919 field darkroom tray."
+status = "validated"
+
+[asset.dr_bottle]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_darkroom_props.py"
+export = "assets/models/dr_bottle.glb"
+dims_m = [0.09, 0.09, 0.24]
+dims_tolerance = 0.10
+tri_budget = 500
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic 1919 field darkroom bottle."
+status = "validated"
+
+[asset.dr_plate_holder]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_darkroom_props.py"
+export = "assets/models/dr_plate_holder.glb"
+dims_m = [0.32, 0.27, 0.03]
+dims_tolerance = 0.10
+tri_budget = 300
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic 1919 field darkroom plate holder."
+status = "validated"
+
+[asset.dr_plate_rack]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_darkroom_props.py"
+export = "assets/models/dr_plate_rack.glb"
+dims_m = [0.3, 0.16, 0.23]
+dims_tolerance = 0.10
+tri_budget = 600
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic 1919 field darkroom plate rack."
+status = "validated"
+
+[asset.dr_pail]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_darkroom_props.py"
+export = "assets/models/dr_pail.glb"
+dims_m = [0.28, 0.28, 0.26]
+dims_tolerance = 0.10
+tri_budget = 600
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic 1919 field darkroom pail."
+status = "validated"
+
+[asset.dr_jug]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_darkroom_props.py"
+export = "assets/models/dr_jug.glb"
+dims_m = [0.16, 0.16, 0.24]
+dims_tolerance = 0.10
+tri_budget = 700
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic 1919 field darkroom jug."
+status = "validated"
+
+[asset.dr_plate_box]
+category = "kit_prop"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_darkroom_props.py"
+export = "assets/models/dr_plate_box.glb"
+dims_m = [0.3, 0.24, 0.07]
+dims_tolerance = 0.10
+tri_budget = 150
+max_materials = 3
+max_texture_px = 0
+history = "RECONSTRUCTION: generic 1919 field darkroom plate box."
+status = "validated"
+
 # r04 foliage kit: replaces the 70 default SphereMesh shrubs (G4 attribution run
 # art/validation/g4-r04-noshrubs: they were 55–81% of all primitives per bookmark).
 # Drawn with MultiMeshInstance3D in world_builder.gd, scaled 0.8–1.8 per instance,

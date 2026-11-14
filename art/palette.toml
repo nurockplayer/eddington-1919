@@ -194,3 +194,29 @@ roughness = 0.82
 hex = "#494747"
 role = "structure"
 roughness = 0.82
+
+[swatch.enamel]
+hex = "#C8C5B8"
+role = "structure"
+roughness = 0.35
+
+[swatch.amber_glass]
+hex = "#3A2616"
+role = "structure"
+roughness = 0.12
+
+[swatch.tray_liquid]
+hex = "#1E1A16"
+role = "structure"
+roughness = 0.08
+
+[swatch.plate_dark]
+hex = "#2A2826"
+role = "structure"
+roughness = 0.15
+
+[swatch.zinc]
+hex = "#6E7273"
+role = "structure"
+roughness = 0.5
+metallic = 0.6
