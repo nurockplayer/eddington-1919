@@ -30,6 +30,10 @@ const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 enum Phase { TITLE, PREP, TOTALITY, NIGHT, ENDING, CODA }
 enum CodaStep { OPENING, WORKBOOK, LOUPE, KIT, FADING }
 
+const BED_DIR := "res://assets/sfx/"
+# Overall RMS in dBFS measured with ffmpeg astats, 2026-11-14 JST.
+const BED_RMS_DB := {"birds": -43.28, "surf": -23.85}
+
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
 const HOLD := {"drive": 3.0, "chronometer": 4.0, "plate_box": 1.2}
 
@@ -569,6 +573,11 @@ func _build_audio() -> void:
 	audio_surf.bus = "SFX"
 	audio_surf.stream = _wav(surf, 22050, true)
 	audio_surf.volume_db = -22.9
+	if _bed_sampled("surf"):
+		var stream: AudioStreamOggVorbis = load(BED_DIR + "bed_surf.ogg")
+		stream.loop = true
+		audio_surf.stream = stream
+		audio_surf.volume_db = _bed_target(surf, -22.9) - BED_RMS_DB["surf"]
 	add_child(audio_surf)
 	audio_surf.play()
 	var birds := PackedFloat32Array()
@@ -593,8 +602,24 @@ func _build_audio() -> void:
 	audio_birds.bus = "SFX"
 	audio_birds.stream = _wav(birds, 22050, true)
 	audio_birds.volume_db = -23.9
+	if _bed_sampled("birds"):
+		var stream: AudioStreamOggVorbis = load(BED_DIR + "bed_birds.ogg")
+		stream.loop = true
+		audio_birds.stream = stream
+		audio_birds.volume_db = _bed_target(birds, -23.9) - BED_RMS_DB["birds"]
 	add_child(audio_birds)
 	audio_birds.play()
+
+
+func _bed_sampled(name: String) -> bool:
+	return ResourceLoader.exists(BED_DIR + "bed_" + name + ".ogg")
+
+
+func _bed_target(samples: PackedFloat32Array, volume_db: float) -> float:
+	var sum_sq := 0.0
+	for sample in samples:
+		sum_sq += sample * sample
+	return linear_to_db(sqrt(sum_sq / samples.size())) + volume_db
 
 
 func _sfx(name: String) -> void:

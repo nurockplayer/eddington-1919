@@ -79,7 +79,19 @@ func _run() -> void:
 	check(game.find_child("audio_amb", true, false) == null, "no audio_amb node")
 	for name in ["audio_insects", "audio_surf", "audio_birds"]:
 		var p: AudioStreamPlayer = game.get(name)
-		band(name, metrics(p.stream).x + p.volume_db, -44.0, -38.0)
+		var bed_name: String = name.trim_prefix("audio_")
+		if bed_name in ["surf", "birds"]:
+			check(ResourceLoader.exists(game.BED_DIR + "bed_" + bed_name + ".ogg"), bed_name + ": shipped OGG missing")
+		var measured: float
+		if p.stream is AudioStreamOggVorbis:
+			var was_looping: bool = p.stream.loop
+			p.stream.loop = false
+			measured = ogg_rms_db(p.stream)
+			p.stream.loop = was_looping
+			check(absf(measured - game.BED_RMS_DB[bed_name]) <= 0.75, "%s measured %.2f vs table %.2f" % [bed_name, measured, game.BED_RMS_DB[bed_name]])
+		else:
+			measured = metrics(p.stream).x
+		band(name, measured + p.volume_db, -44.0, -38.0)
 	for name in ["audio_tick", "audio_click", "audio_open", "audio_change", "audio_third"]:
 		var p: AudioStreamPlayer = game.get(name)
 		band(name, metrics(p.stream).y + p.volume_db, -18.0, -10.0)
