@@ -80,7 +80,7 @@ func _run() -> void:
 	for name in ["audio_insects", "audio_surf", "audio_birds"]:
 		var p: AudioStreamPlayer = game.get(name)
 		var bed_name: String = name.trim_prefix("audio_")
-		if bed_name in ["surf", "birds"]:
+		if bed_name in ["surf", "birds", "insects"]:
 			check(ResourceLoader.exists(game.BED_DIR + "bed_" + bed_name + ".ogg"), bed_name + ": shipped OGG missing")
 		var measured: float
 		if p.stream is AudioStreamOggVorbis:
@@ -104,7 +104,15 @@ func _run() -> void:
 		band("viewer " + name, metrics(p.stream).y + p.volume_db, -18.0, -10.0)
 	game._start_night_bed()
 	await create_timer(3.2).timeout
-	band("insects tween", metrics(game.audio_insects.stream).x + game.audio_insects.volume_db, -44.0, -38.0)
+	var insects_rms: float
+	if game.audio_insects.stream is AudioStreamOggVorbis:
+		var was_looping: bool = game.audio_insects.stream.loop
+		game.audio_insects.stream.loop = false
+		insects_rms = ogg_rms_db(game.audio_insects.stream)
+		game.audio_insects.stream.loop = was_looping
+	else:
+		insects_rms = metrics(game.audio_insects.stream).x
+	band("insects tween", insects_rms + game.audio_insects.volume_db, -44.0, -38.0)
 	var allowed := []
 	for property in game.get_property_list():
 		if property.name.begins_with("audio_"):

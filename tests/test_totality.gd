@@ -424,7 +424,7 @@ func _test_sfx_buffers() -> void:
 	for name in ["open", "change", "third", "insects", "surf", "birds"]:
 		var sound: AudioStreamPlayer = game.get("audio_" + name)
 		var wav: AudioStreamWAV
-		if name in ["surf", "birds"] and game._bed_sampled(name):
+		if name in ["insects", "surf", "birds"] and game._bed_sampled(name):
 			check(sound.stream is AudioStreamOggVorbis, "%s uses the sampled OGG" % name)
 			if sound.stream is AudioStreamOggVorbis:
 				check(sound.stream.loop, "%s OGG loops" % name)

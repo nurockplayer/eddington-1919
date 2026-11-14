@@ -84,11 +84,13 @@ the KIOXIA cache, verifies the MD5 and rebuilds the OGG):
 
 ## Field recordings
 
-Both recordings were downloaded on 2026-11-14 JST. Each excerpt was mixed to
+These recordings were downloaded on 2026-11-14 JST. Each excerpt was mixed to
 mono at 44.1 kHz, with a two-second tail-to-head crossfade and no processing
-gain; playback gain matches the synthesized bed's effective RMS.
+gain; playback gain matches the synthesized bed's effective RMS. The bird and
+insect beds use Freesound HQ previews (lossy MP3 sources) of CC0 sounds.
 
 | File | Source | Author | Licence | Excerpt (start, source length) | Raw SHA-256 |
 | --- | --- | --- | --- | --- | --- |
-| `assets/sfx/bed_birds.ogg` | https://commons.wikimedia.org/wiki/File:Birds_chirping_in_a_garden.ogg | Akum20 | CC0 1.0 | 60 s, 62 s | `961bd9d5113e8c53814eaf21cf8d4efb0505f1c7d67ec4c85ebf651ce4e67f27` |
+| `assets/sfx/bed_birds.ogg` | https://freesound.org/people/felix.blume/sounds/868965/ | felix.blume | CC0 1.0 | 60 s, 62 s | `20f899e4fa61e458844acb715afaba8119c28a962d4c52226f296416bb5c1ce9` |
+| `assets/sfx/bed_insects.ogg` | https://freesound.org/people/felix.blume/sounds/669221/ | felix.blume | CC0 1.0 | 60 s, 62 s | `147d3db1aefbe3dc7378a916e2a5e3281ddbd1a5637c6073c6b75841214168d8` |
 | `assets/sfx/bed_surf.ogg` | https://bigsoundbank.com/small-waves-and-beach-2-s1448.html | Joseph Sardin | CC0 1.0 | 300 s, 42 s | `ae2432cb02c10e1b27c377ad038cde0d6568b3bc6782b44b00b6320cef728472` |
