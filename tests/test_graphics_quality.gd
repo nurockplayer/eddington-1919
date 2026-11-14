@@ -4,8 +4,13 @@ const Settings := preload("res://scripts/settings.gd")
 const Benchmark := preload("res://tests/benchmark.gd")
 var test_path := Settings.settings_path() + ".test_graphics_quality"
 class TestBenchmark extends Benchmark:
+	var written_summary: Dictionary
+
 	func _ready() -> void:
 		pass
+
+	func _write_summary(results: Array, seed_: int, hidden: Array, chapter := "") -> void:
+		written_summary = _summary(results, seed_, hidden, chapter)
 
 var checks := 0
 var failures := 0
@@ -106,12 +111,34 @@ func _run() -> void:
 	_check_quality(true)
 	var live := TestBenchmark.new()
 	live.main = game
+	live.out_dir = "user://test_graphics_quality_benchmark"
+	DirAccess.make_dir_recursive_absolute(live.out_dir)
 	root.add_child(live)
 	await live._setup_totality_live()
 	check(game.phase == game.Phase.TOTALITY and game.ui.visible and game.ui.hud.visible, "live benchmark enters totality with HUD")
-	for i in Benchmark.SAMPLE_FRAMES:
-		live._live_frame(i)
+	var sample_start := Time.get_ticks_msec()
+	var r: Dictionary = await live._sample_bookmark("totality_live", "totality")
+	print("live benchmark sample: %d ms" % (Time.get_ticks_msec() - sample_start))
+	check(is_finite(r.frame_ms_avg) and r.frame_ms_avg > 0.0, "live sample records finite positive frame time")
+	check(is_finite(r.forced_draw_ms_avg) and r.forced_draw_ms_avg >= 0.0, "live sample records finite nonnegative forced draw time")
+	check(r.draw_calls >= 0, "live sample records draw calls")
+	if DisplayServer.get_name() == "headless":
+		check(r.screenshot == "", "headless live sample has no screenshot")
 	check(game.sim.plates.size() >= 1 and game.change_left == 0.0 and game.sim.is_exposing(), "live sample completes a plate change and starts the next exposure")
+	var s := live._summary([r], 7, [])
+	check(s.seed == 7 and s.bookmarks.size() == 1, "summary preserves the supplied run seed and bookmark")
+	game.sim = Benchmark.Sim.new(7)
+	game.sky_mat.set_shader_parameter("cloud_tex", ImageTexture.create_from_image(game.sim.cloud_img))
+	live.only = PackedStringArray(["arrival", "totality_live"])
+	await live._run()
+	check(live.written_summary.seed == 7, "benchmark run preserves seed 7 after live totality")
+	var rows: Array = live.written_summary.bookmarks
+	check(rows.size() == 2 and rows[0].seed == 7 and rows[1].seed == 1919, "benchmark tags ordinary and live bookmarks with their own seeds")
+	for row in rows:
+		if row.screenshot != "":
+			DirAccess.remove_absolute(live.out_dir.path_join(row.screenshot))
+	DirAccess.remove_absolute(live.out_dir.path_join("totality_live.png"))
+	DirAccess.remove_absolute(live.out_dir)
 	live.free()
 	check(game.sun.shadow_enabled, "low retains the real sun shadow")
 	check(game.env.glow_enabled and game.env.fog_enabled, "low retains glow and fog")
