@@ -208,6 +208,10 @@ func _visible_sun_obstruction(game: Node) -> String:
 
 
 func _test_rehearsal() -> void:
+	var old_size := root.size
+	var old_scale_size := root.content_scale_size
+	root.size = Vector2i(1280, 720)
+	root.content_scale_size = Vector2i(1280, 720)
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
@@ -297,7 +301,6 @@ func _test_rehearsal() -> void:
 	await create_timer(2.2).timeout
 	check(game.phase == game.Phase.TOTALITY and not game._busy, "choice 0 still begins real totality")
 	check(not game.world.eddington.visible and not game.world.cottingham.visible, "totality hides both characters")
-	root.size = Vector2i(1280, 720)
 	await physics_frame
 	await process_frame
 	var sun_screen: Vector2 = game.player.camera.unproject_position(game.player.camera.global_position + game.sim.sun_dir * 100.0)
@@ -316,6 +319,8 @@ func _test_rehearsal() -> void:
 	game.queue_free()
 	await process_frame
 	Prompts.joypad = false
+	root.size = old_size
+	root.content_scale_size = old_scale_size
 
 
 func _test_ready_status() -> void:
