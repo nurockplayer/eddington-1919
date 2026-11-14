@@ -51,6 +51,7 @@ func check_playing_players(node: Node, allowed: Array) -> void:
 
 func _run() -> void:
 	for cue in Score.SAMPLED_RMS_DB:
+		check(Score.is_sampled(cue), "%s: shipped OGG missing (listed in Score.SAMPLED_RMS_DB)" % cue)
 		if Score.is_sampled(cue):
 			var stream := Score._sampled(cue)
 			stream.loop = false
