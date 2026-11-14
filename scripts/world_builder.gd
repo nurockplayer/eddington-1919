@@ -531,8 +531,33 @@ func _darkroom() -> Dictionary:
 	out.plate_box_pos = c + Vector3(1.65, 1.18, -0.75)
 	# Developing bench with trays.
 	box(Vector3(1.4, 0.06, 0.6), c + Vector3(0.2, 0.85, -1.3), shelf_wood)
-	for dx in [-0.35, 0.15, 0.6]:
-		box(Vector3(0.36, 0.06, 0.3), c + Vector3(dx, 0.9, -1.3), Color(0.75, 0.73, 0.68), null, false)
+	var tray_positions := [-0.28, 0.17, 0.62]
+	var tray_yaws := [4.0, -3.0, 2.0]
+	var fallback_positions := [-0.35, 0.15, 0.6]
+	for i in 3:
+		var tray := model("dr_tray", c + Vector3(tray_positions[i], 0.88, -1.3), tray_yaws[i])
+		if tray:
+			tray.name = "DrTray%d" % i
+			tray.add_to_group("darkroom_props")
+		else:
+			box(Vector3(0.36, 0.06, 0.3), c + Vector3(fallback_positions[i], 0.9, -1.3), Color(0.75, 0.73, 0.68), null, false)
+	var props := [
+		["DrBottle0", "dr_bottle", Vector3(-0.40, 0.88, -1.53), 20.0],
+		["DrBottle1", "dr_bottle", Vector3(-0.05, 0.88, -1.54), 140.0],
+		["DrBottle2", "dr_bottle", Vector3(0.40, 0.88, -1.53), 260.0],
+		["DrBottle3", "dr_bottle", Vector3(1.70, 1.025, -1.22), 80.0],
+		["DrPlateRack", "dr_plate_rack", Vector3(1.66, 1.025, -0.32), 90.0],
+		["DrPlateHolder", "dr_plate_holder", Vector3(1.64, 1.025, 0.03), 90.0],
+		["DrPail", "dr_pail", Vector3(-0.25, 0.04, -1.3), 30.0],
+		["DrJug", "dr_jug", Vector3(0.30, 0.04, -1.35), -40.0],
+		["DrPlateBox0", "dr_plate_box", Vector3(0.72, 0.04, -1.3), 0.0],
+		["DrPlateBox1", "dr_plate_box", Vector3(0.72, 0.11, -1.3), 12.0],
+	]
+	for spec in props:
+		var prop := model(spec[1], c + spec[2], spec[3])
+		if prop:
+			prop.name = spec[0]
+			prop.add_to_group("darkroom_props")
 	# Measuring table (used the night after).
 	var mtable := box(Vector3(1.2, 0.06, 0.8), c + Vector3(0.6, 0.82, 1.1), shelf_wood)
 	var sheet := box(Vector3(0.5, 0.02, 0.4), c + Vector3(0.6, 0.86, 1.1), Color(0.85, 0.85, 0.8), null, false)
