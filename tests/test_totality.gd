@@ -428,7 +428,7 @@ func _test_sfx_buffers() -> void:
 			check(sound.stream is AudioStreamOggVorbis, "%s uses the sampled OGG" % name)
 			if sound.stream is AudioStreamOggVorbis:
 				check(sound.stream.loop, "%s OGG loops" % name)
-				var shipped_peak := ogg_peak(sound.stream)
+				var shipped_peak := ogg_peak(sound.stream, name)
 				check(shipped_peak <= 0.9, "%s shipped OGG peak <= 0.9 (%.3f)" % [name, shipped_peak])
 			wav = game._wav(game._sfx_samples[name], 22050, true)
 		else:
@@ -454,18 +454,22 @@ func _test_sfx_buffers() -> void:
 	game.queue_free()
 	await process_frame
 
-func ogg_peak(stream: AudioStream) -> float:
+func ogg_peak(stream: AudioStream, label: String) -> float:
 	var pb := stream.instantiate_playback()
 	pb.start(0.0)
-	var remaining := int(ceil(stream.get_length() * 44100.0))
+	var rate := AudioServer.get_mix_rate()
+	var remaining := int(ceil(stream.get_length() * rate))
+	var decoded := 0
 	var peak := 0.0
 	while remaining > 0:
 		var block: PackedVector2Array = pb.mix_audio(1.0, mini(4096, remaining))
 		for frame in block:
 			peak = maxf(peak, maxf(absf(frame.x), absf(frame.y)))
+		decoded += block.size()
 		remaining -= block.size()
 		if block.size() < mini(4096, remaining + block.size()):
 			break
+	check(decoded / float(rate) >= stream.get_length() - 0.05, "%s decoded %.2f of %.2f s" % [label, decoded / float(rate), stream.get_length()])
 	return peak
 
 

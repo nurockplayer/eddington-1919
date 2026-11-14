@@ -27,20 +27,26 @@ func band(label: String, value: float, low: float, high: float) -> void:
 	print("mix: %s %.2f dBFS" % [label, value])
 	check(value >= low and value <= high, "%s %.2f outside %.1f to %.1f" % [label, value, low, high])
 
-func ogg_rms_db(stream: AudioStream) -> float:
+func ogg_rms_db(stream: AudioStream, label: String) -> float:
 	var pb := stream.instantiate_playback()
 	pb.start(0.0)
-	var remaining := int(ceil(stream.get_length() * 44100.0))
+	var rate := AudioServer.get_mix_rate()
+	var remaining := int(ceil(stream.get_length() * rate))
 	var sum_sq := 0.0
 	var count := 0
+	var decoded := 0
 	while remaining > 0:
 		var block: PackedVector2Array = pb.mix_audio(1.0, mini(4096, remaining))
 		for frame in block:
 			sum_sq += frame.x * frame.x + frame.y * frame.y
 		count += block.size() * 2
+		decoded += block.size()
 		remaining -= block.size()
 		if block.size() < mini(4096, remaining + block.size()):
 			break
+	check(decoded / float(rate) >= stream.get_length() - 0.05, "%s decoded %.2f of %.2f s" % [label, decoded / float(rate), stream.get_length()])
+	if count == 0:
+		return -INF
 	return linear_to_db(sqrt(sum_sq / count))
 
 func check_playing_players(node: Node, allowed: Array) -> void:
@@ -50,12 +56,13 @@ func check_playing_players(node: Node, allowed: Array) -> void:
 		check_playing_players(child, allowed)
 
 func _run() -> void:
+	print("mix rate: %d Hz" % AudioServer.get_mix_rate())
 	for cue in Score.SAMPLED_RMS_DB:
 		check(Score.is_sampled(cue), "%s: shipped OGG missing (listed in Score.SAMPLED_RMS_DB)" % cue)
 		if Score.is_sampled(cue):
 			var stream := Score._sampled(cue)
 			stream.loop = false
-			var measured := ogg_rms_db(stream)
+			var measured := ogg_rms_db(stream, cue)
 			check(absf(measured - Score.SAMPLED_RMS_DB[cue]) <= 0.75, "%s measured %.2f vs table %.2f" % [cue, measured, Score.SAMPLED_RMS_DB[cue]])
 			band(cue, measured + Score.level_db(cue), -26.0, -22.0)
 		var fallback := Score._wav(Score.render(cue), Score.RATE, Score.is_loop(cue))
@@ -86,7 +93,7 @@ func _run() -> void:
 		if p.stream is AudioStreamOggVorbis:
 			var was_looping: bool = p.stream.loop
 			p.stream.loop = false
-			measured = ogg_rms_db(p.stream)
+			measured = ogg_rms_db(p.stream, bed_name)
 			p.stream.loop = was_looping
 			check(absf(measured - game.BED_RMS_DB[bed_name]) <= 0.75, "%s measured %.2f vs table %.2f" % [bed_name, measured, game.BED_RMS_DB[bed_name]])
 		else:
@@ -108,7 +115,7 @@ func _run() -> void:
 	if game.audio_insects.stream is AudioStreamOggVorbis:
 		var was_looping: bool = game.audio_insects.stream.loop
 		game.audio_insects.stream.loop = false
-		insects_rms = ogg_rms_db(game.audio_insects.stream)
+		insects_rms = ogg_rms_db(game.audio_insects.stream, "insects")
 		game.audio_insects.stream.loop = was_looping
 	else:
 		insects_rms = metrics(game.audio_insects.stream).x
