@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-14 16:45 JST.** Listing work paused (Owner 2026-11-12). **Owner verdict 2026-11-13 02:4x JST: people, places and mood crude; music buried in noise.** Owner then picked plan 1: one vertical slice (Príncipe camp → totality) to shippable quality first; art-director seat by blind audition. **Target look (Owner): Life is Strange: True Colors > Tell Me Why >>>> current build.** Memory `eddington-owner-verdict-1113`. Release readiness frozen (A 13/14, B on hold).
+**Written 2026-11-14 17:02 JST.** Quota pace rule (harness 16:59 JST, lead-board quota-pace-rule): Codex behind → implementation on Sol high, pull open follow-up issues forward. Listing work paused (Owner 2026-11-12). **Owner verdict 2026-11-13 02:4x JST: people, places and mood crude; music buried in noise.** Owner then picked plan 1: one vertical slice (Príncipe camp → totality) to shippable quality first; art-director seat by blind audition. **Target look (Owner): Life is Strange: True Colors > Tell Me Why >>>> current build.** Memory `eddington-owner-verdict-1113`. Release readiness frozen (A 13/14, B on hold).
 
 **In flight:**
 - Audio mix pass #308 merged 2026-11-13 03:28 JST (crackle bed gone, music ≈-24 dBFS). Fresh clip `C_new_mix.m4a` (offline render at in-game gains; headless --write-movie crashes in MoltenVK) sent to the Owner 03:3x JST, copy in KIOXIA `eddington/audio-check-20261113/`. Awaiting the Owner's ear; next audio step = CC0 field-recording ambience (separate brief). Test-coverage follow-up #309.
@@ -16,6 +16,8 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 - Soundscape (sources `~/.local/state/job-run/lw-ambience-sources-2-20261114-141353/log`): step 1 #324 merged 2026-11-14 15:53 JST (Abuja birds + BigSoundBank surf; OGGs sent to the Owner to listen). Freesound: lead chose B (HQ preview MP3, no login; Owner may still pick A). Step 2 #328 merged 2026-11-14 16:24 JST (18b5a78; worktree + branch removed; OGGs sent to the Owner). Later: palm wind 384550, dusk 868748. Decisions on #317.
 - Motion library: answer done (KIOXIA `eddington/briefs/motion-lib-answer-20261114.md`, no URLs); vetted pick forwarded to edd-art inbox ev-20261114-141745-45ed (Quaternius/KinemIQ CC0, CMU 18_08/19_08, 100STYLE BentForward_ID CC BY 4.0, custom crank; AD records URL + licence on download).
 - AD (w7:pB): four asset lines dispatched (p5-tiles, p4-leaves, p7-darkroom draft, p3-ridges draft); #318 windowed matrix queued heavy #1102 behind tachiko-sheet #1101, cutoff 15:15 JST.
+
+**Follow-ups pulled forward (17:01 JST):** `lw-bench-seed-20261114-170139` (Sol high, #325+#326, brief KIOXIA `eddington/briefs/bench-seed.md`), `lw-ogg-peak-20261114-170139` (Luna, #327, `ogg-peak.md`); both normal PRs → `lead-wait pr`. #310 closed (done by #315). #330 waits for #329 merge.
 
 **PRs:** #329 draft (totality staging, with edd-art), #322 draft (dialogue camera, with edd-art), #318 draft (AD); #15 draft (paused). Issues: #1, #37, #285, #317, #325, #330.
 
