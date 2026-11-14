@@ -9,7 +9,7 @@ RUN = ROOT / 'art/runs/p4-leaves'
 IDS = {'coconut_frond', 'coconut_frond_dry', 'cacao_branch', 'banana_leaf',
        'undergrowth', 'forest_edge'}
 KEYS = {'id', 'variant', 'prompt', 'tool_model', 'time', 'retries',
-        'raw_sha256', 'raw_path', 'cut', 'size', 'coverage', 'fringe'}
+        'raw_sha256', 'raw_path', 'cut', 'size', 'coverage', 'fringe', 'chroma'}
 
 
 class ManifestTest(unittest.TestCase):
@@ -21,6 +21,7 @@ class ManifestTest(unittest.TestCase):
         for row in rows:
             with self.subTest(image=(row['id'], row['variant'])):
                 self.assertTrue(KEYS <= row.keys())
+                self.assertGreaterEqual(row['chroma'], 8)
                 path = ROOT / row['cut']
                 self.assertLess(path.stat().st_size, 2_500_000)
                 with path.open('rb') as f:
@@ -30,7 +31,7 @@ class ManifestTest(unittest.TestCase):
                 width, height, depth, colour = struct.unpack('>IIBB', header[16:26])
                 self.assertEqual((depth, colour), (8, 6))
                 if row['id'] == 'forest_edge':
-                    self.assertGreaterEqual(width, 1024)
+                    self.assertEqual(width, 2048)
                 else:
                     self.assertEqual(max(width, height), 1024)
 
