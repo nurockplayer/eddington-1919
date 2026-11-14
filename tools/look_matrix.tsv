@@ -1,0 +1,12 @@
+# variant	extra user args (after --); tuned by the art director
+base	
+nograde	--no-grade
+agx	--look-set=tonemap=agx,agx_contrast=1.4
+white1	--look-set=white=1.0,exposure=0.95
+sat_lo	--look-set=saturation=1.08
+sat_hi	--look-set=saturation=1.30
+key_hi	--look-set=sun_gain=2.6,ambient_gain=0.4
+no_sdfgi	--look-set=sdfgi=0
+no_volfog	--look-set=volumetric_fog=0
+fov72	--look-set=fov=72
+fov55	--look-set=fov=55

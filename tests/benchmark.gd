@@ -5,6 +5,7 @@ const Settings := preload("res://scripts/settings.gd")
 ## real game scene with the game's own lighting code: the camera visits fixed
 ## bookmarks under fixed lighting states, then saves a screenshot and render
 ## stats for each one. Compare two runs with art/pipeline/compare.py.
+## Each bookmark also records image statistics (SLICE_PRINCIPE.md §6 targets: under 3% clipped white and under 3% pure black).
 ##
 ## Run: godot --path . --always-on-top -- --benchmark=art/validation/<label> [--seed=7]
 ## Use a fixed --seed so the cloud field is identical between runs.
@@ -52,6 +53,50 @@ var out_dir := ""
 var totality_cloud_t := 230.0
 var only := PackedStringArray()
 var capture_args := false
+var last_image: Image
+
+
+static func image_stats(img: Image) -> Dictionary:
+	var copy := img.duplicate() as Image
+	copy.convert(Image.FORMAT_RGB8)
+	if copy.get_width() > 320 or copy.get_height() > 180:
+		copy.resize(320, 180, Image.INTERPOLATE_NEAREST)
+	var w := copy.get_width()
+	var h := copy.get_height()
+	var values := PackedFloat64Array()
+	var luma_sum := 0.0
+	var sat_sum := 0.0
+	var low_sum := 0.0
+	var white := 0
+	var black := 0
+	for y in h:
+		for x in w:
+			var c := copy.get_pixel(x, y)
+			var luma := 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b
+			var maximum := maxf(c.r, maxf(c.g, c.b))
+			var minimum := minf(c.r, minf(c.g, c.b))
+			var sat := 0.0 if maximum == 0.0 else (maximum - minimum) / maximum
+			values.append(luma)
+			luma_sum += luma
+			sat_sum += sat
+			if y >= h / 2:
+				low_sum += sat
+			if luma >= 0.98:
+				white += 1
+			if luma <= 0.02:
+				black += 1
+	var n := w * h
+	values.sort()
+	return {
+		"luma_mean": snappedf(luma_sum / n, 0.001),
+		"luma_p05": snappedf(values[int(n * 0.05)], 0.001),
+		"luma_p50": snappedf(values[int(n * 0.5)], 0.001),
+		"luma_p95": snappedf(values[int(n * 0.95)], 0.001),
+		"sat_mean": snappedf(sat_sum / n, 0.001),
+		"sat_low_mean": snappedf(low_sum / (w * (h - h / 2)), 0.001),
+		"clip_white_pct": snappedf(100.0 * white / n, 0.1),
+		"clip_black_pct": snappedf(100.0 * black / n, 0.1),
+	}
 
 
 static func quality_arg(args: PackedStringArray) -> String:
@@ -172,7 +217,8 @@ func _shot(path: String) -> void:
 	var t0 := Time.get_ticks_msec()
 	while not drawn[0] and Time.get_ticks_msec() - t0 < 5000:
 		await get_tree().process_frame
-	get_viewport().get_texture().get_image().save_png(path)
+	last_image = get_viewport().get_texture().get_image()
+	last_image.save_png(path)
 
 
 func _avg(a: PackedFloat32Array) -> float:
@@ -253,6 +299,7 @@ func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
 	await _shot(out_dir.path_join(png))
 	var r := {
 		"bookmark": bookmark, "lighting": lighting, "screenshot": png,
+		"image": image_stats(last_image) if last_image != null else {},
 		"frame_ms_avg": _avg(ms),
 		"frame_ms_p95": _p95(ms),
 		"forced_draw_ms_avg": _avg(forced),
