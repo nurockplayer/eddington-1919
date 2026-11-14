@@ -17,6 +17,7 @@ const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 const Look := preload("res://scripts/look.gd")
+const LookPost := preload("res://scripts/look_post.gd")
 const NightSky := preload("res://scripts/night_sky.gd")
 const Fireflies := preload("res://scripts/fireflies.gd")
 const NightMeteors := preload("res://scripts/night_meteors.gd")
@@ -107,6 +108,7 @@ var _night_bed_stopping := false
 var bot: Node
 var _look_sun := 1.0             # art-look gains (scripts/look.gd); 1.0 with --no-grade
 var _look_ambient := 1.0
+var _look := {}   # Look.principe() values; empty with --no-grade
 var _departure_workbook_seen := false
 var _came_from_departure := false
 var _night_departure_workbook: DepartureWorkbook
@@ -154,6 +156,12 @@ func _ready() -> void:
 	player.step_surface = "earth"
 	player.position = Vector3(2.6, 0.05, 4.2)
 	add_child(player)
+	if not _look.is_empty():
+		player.camera.fov = _look.fov
+		if _look.vignette > 0.0 or _look.grain > 0.0:
+			var post := LookPost.new()
+			post.setup(_look.vignette, _look.grain)
+			add_child(post)
 	player.yaw = deg_to_rad(20)
 	ui = UI.new()
 	add_child(ui)
@@ -341,8 +349,6 @@ func _build_environment() -> void:
 	env.fog_density = 0.0035
 	env.fog_light_color = Color(0.62, 0.65, 0.68)
 	env.fog_sky_affect = 0.0
-	if not _user_args().has("no-grade"):
-		Look.apply_grade(env)
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)
@@ -351,11 +357,18 @@ func _build_environment() -> void:
 	sun.look_at_from_position(Vector3.ZERO, -sim.sun_dir, Vector3.UP)
 	sun.shadow_enabled = true
 	sun.light_color = Color(1.0, 0.96, 0.88)
-	if not _user_args().has("no-grade"):
-		Look.apply_cinematic(env, sun, sky_mat)
-		_look_sun = Look.SUN_GAIN
-		_look_ambient = Look.AMBIENT_GAIN
+	var args := _user_args()
+	if not args.has("no-grade"):
+		var sets := str(args.get("look-set", ""))
+		for bad in Look.override_errors(sets):
+			printerr("LOOK-SET ERROR: ignored ", bad)
+		_look = Look.principe(sets)
+		Look.apply_principe(env, sun, sky_mat, _look)
+		_look_sun = _look.sun_gain
+		_look_ambient = _look.ambient_gain
 	we.set_meta("standard_ssao", env.ssao_enabled)
+	we.set_meta("standard_sdfgi", env.sdfgi_enabled)
+	we.set_meta("standard_volumetric_fog", env.volumetric_fog_enabled)
 	we.add_to_group("quality_env")
 
 
@@ -401,7 +414,8 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	sky_mat.set_shader_parameter("star_vis", clampf((darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night))
 	var dens: float = sim.cloud_over_sun(cloud_t)
 	var vis := _crescent(contact) * (1.0 - darkness)
-	sun.light_energy = (0.15 + 1.4 * vis * (1.0 - dens * 0.85)) * (1.0 - night) * _look_sun
+	var sun_floor := 0.15 if _look.is_empty() else float(_look.sun_floor) * (1.0 - darkness)
+	sun.light_energy = (sun_floor + 1.4 * vis * (1.0 - dens * 0.85)) * (1.0 - night) * _look_sun
 	if darkness > 0.95 or night > 0.5:
 		sun.light_energy = 0.0
 	if world.has("sun_crescents"):

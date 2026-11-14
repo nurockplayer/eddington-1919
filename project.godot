@@ -37,6 +37,8 @@ common/physics_ticks_per_second=60
 
 [rendering]
 
+global_illumination/gi/use_half_resolution=true
+
 rendering_device/driver.windows="vulkan"
 rendering_device/fallback_to_d3d12=true
 rendering_device/fallback_to_opengl3=false
