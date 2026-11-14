@@ -9,6 +9,7 @@ const Prompts := preload("res://scripts/prompts.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const World := preload("res://scripts/world_builder.gd")
 const Player := preload("res://scripts/player.gd")
+const DialogueCamera := preload("res://scripts/dialogue_camera.gd")
 const UI := preload("res://scripts/ui.gd")
 const Content := preload("res://scripts/content.gd")
 const Ending := preload("res://scripts/ending.gd")
@@ -46,6 +47,8 @@ var _run_record_index := -1
 var sim
 var ui
 var player
+var dialogue_camera
+var _dialogue_subject: Node3D
 var world: Dictionary
 var phase := Phase.TITLE
 var prep_left := PREP_S
@@ -155,6 +158,8 @@ func _ready() -> void:
 	player.position = Vector3(2.6, 0.05, 4.2)
 	add_child(player)
 	player.yaw = deg_to_rad(20)
+	dialogue_camera = DialogueCamera.new()
+	add_child(dialogue_camera)
 	ui = UI.new()
 	add_child(ui)
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -928,6 +933,7 @@ func _hold_complete(id: String) -> void:
 
 
 func _interact(id: String) -> void:
+	_dialogue_subject = world.get(id) if phase in [Phase.PREP, Phase.NIGHT] and id in ["eddington", "cottingham"] else null
 	if phase == Phase.CODA:
 		if coda_step == CodaStep.WORKBOOK and id == "departure_workbook":
 			_night_departure_workbook.call("open_workbook")
@@ -1037,11 +1043,16 @@ func _update_rack() -> void:
 
 func _say(seq: Array, purpose: String) -> void:
 	_pending = purpose
+	if _dialogue_subject and phase in [Phase.PREP, Phase.NIGHT] and not dialogue_camera.current:
+		dialogue_camera.other_npc = world.cottingham if _dialogue_subject == world.eddington else world.eddington
+		dialogue_camera.frame(_dialogue_subject, player.camera)
+		dialogue_camera.make_current()
 	ui.play(seq)
 	_sync_player_input()
 
 
 func _on_dialogue_done(results: Dictionary) -> void:
+	var dialogue_phase := phase
 	if phase == Phase.CODA and _camera_turn:
 		_camera_turn.kill()
 	var purpose := _pending
@@ -1110,6 +1121,9 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			var no_mistake: bool = Judgment.TELEGRAMS[_telegram].id != "confirmed" and _grade.fit != 0 and _grade.clean
 			_night_departure_workbook.write_kit_line(L.t("給 Kit：%s") % CodaContent.kit_first_reply(Story.kit_first, no_mistake))
 			_end_coda()
+	if not ui.dialog_active() or phase != dialogue_phase:
+		player.camera.make_current()
+		_dialogue_subject = null
 	_refresh_objectives()
 	_sync_player_input()
 
