@@ -27,9 +27,36 @@ func band(label: String, value: float, low: float, high: float) -> void:
 	print("mix: %s %.2f dBFS" % [label, value])
 	check(value >= low and value <= high, "%s %.2f outside %.1f to %.1f" % [label, value, low, high])
 
+func ogg_rms_db(stream: AudioStream) -> float:
+	var pb := stream.instantiate_playback()
+	pb.start(0.0)
+	var remaining := int(ceil(stream.get_length() * 44100.0))
+	var sum_sq := 0.0
+	var count := 0
+	while remaining > 0:
+		var block: PackedVector2Array = pb.mix_audio(1.0, mini(4096, remaining))
+		for frame in block:
+			sum_sq += frame.x * frame.x + frame.y * frame.y
+		count += block.size() * 2
+		remaining -= block.size()
+		if block.size() < mini(4096, remaining + block.size()):
+			break
+	return linear_to_db(sqrt(sum_sq / count))
+
+func check_playing_players(node: Node, allowed: Array) -> void:
+	if (node is AudioStreamPlayer or node is AudioStreamPlayer2D or node is AudioStreamPlayer3D) and node.playing:
+		check(node in allowed, "unexpected playing audio player: " + str(node.get_path()))
+	for child in node.get_children():
+		check_playing_players(child, allowed)
+
 func _run() -> void:
 	for cue in Score.SAMPLED_RMS_DB:
-		band(cue, Score.SAMPLED_RMS_DB[cue] + Score.level_db(cue), -26.0, -22.0)
+		if Score.is_sampled(cue):
+			var stream := Score._sampled(cue)
+			stream.loop = false
+			var measured := ogg_rms_db(stream)
+			check(absf(measured - Score.SAMPLED_RMS_DB[cue]) <= 0.75, "%s measured %.2f vs table %.2f" % [cue, measured, Score.SAMPLED_RMS_DB[cue]])
+			band(cue, measured + Score.level_db(cue), -26.0, -22.0)
 		var fallback := Score._wav(Score.render(cue), Score.RATE, Score.is_loop(cue))
 		# The synthesized fallback has its own level when the OGG is absent.
 		band(cue + " fallback", metrics(fallback).x + Score.SYNTH_DB[cue], -26.0, -22.0)
@@ -65,6 +92,13 @@ func _run() -> void:
 	game._start_night_bed()
 	await create_timer(3.2).timeout
 	band("insects tween", metrics(game.audio_insects.stream).x + game.audio_insects.volume_db, -44.0, -38.0)
+	var allowed := []
+	for property in game.get_property_list():
+		if property.name.begins_with("audio_"):
+			allowed.append(game.get(property.name))
+	for layer in game.score.layers.values():
+		allowed.append(layer.player)
+	check_playing_players(game, allowed)
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
