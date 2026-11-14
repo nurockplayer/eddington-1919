@@ -119,6 +119,7 @@ Lookdev frames prop-sized rows with fixed cameras. Bigger rows, such as architec
 **G4 passes when:**
 - **Readability:** in every bookmark, the evidence is still the first read (squint test) and interactables are visible.
 - **Performance**, reported as separate metrics and never conflated:
+  - `totality_live` is the gameplay performance case: target 30 fps at 720p on a GTX 1650 class GPU; this Mac provides relative numbers only.
   - draw calls within +20% of the baseline per bookmark
   - **forced-draw** (uncapped render cost) avg ≤ 6 ms and within +25% of the baseline, or the cost justified in the review
   - wall-clock p95 ≤ 12 ms (median over repetitions; any single repetition above it is flagged in the review)

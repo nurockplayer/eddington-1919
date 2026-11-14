@@ -63,6 +63,7 @@ func _run() -> void:
 	check(Benchmark.size_arg(PackedStringArray(["--bench-size=3840x2160"])) == Vector2i(3840, 2160), "benchmark parses size")
 	check(Benchmark.size_arg(PackedStringArray(["--bench-size=3840"])) == Vector2i.ZERO, "benchmark ignores a malformed size")
 	check(Benchmark.selected(Benchmark.BOOKMARKS, PackedStringArray()).size() == Benchmark.BOOKMARKS.size(), "no --bench-only keeps every bookmark")
+	check(Benchmark.BOOKMARKS.back()[0] == "totality_live", "live totality is the last bookmark")
 	var picked := Benchmark.selected(Benchmark.BOOKMARKS, Benchmark.only_arg(PackedStringArray(["--bench-only=totality_horizon,totality_sky"])))
 	check(picked.size() == 2 and picked[0][0] == "totality_sky" and picked[1][0] == "totality_horizon", "--bench-only keeps the named bookmarks in bookmark order")
 	check(Benchmark.selected(Benchmark.BOOKMARKS, PackedStringArray(["totality_sky", "typo"])).is_empty(), "an unknown bookmark name selects nothing")
@@ -103,6 +104,15 @@ func _run() -> void:
 	root.add_child(game)
 	await process_frame
 	_check_quality(true)
+	var live := TestBenchmark.new()
+	live.main = game
+	root.add_child(live)
+	await live._setup_totality_live()
+	check(game.phase == game.Phase.TOTALITY and game.ui.visible and game.ui.hud.visible, "live benchmark enters totality with HUD")
+	for i in Benchmark.SAMPLE_FRAMES:
+		live._live_frame(i)
+	check(game.sim.plates.size() >= 1 and game.change_left == 0.0 and game.sim.is_exposing(), "live sample completes a plate change and starts the next exposure")
+	live.free()
 	check(game.sun.shadow_enabled, "low retains the real sun shadow")
 	check(game.env.glow_enabled and game.env.fog_enabled, "low retains glow and fog")
 	check(not game.world.lamp.shadow_enabled, "low disables the 1919 lamp shadow")

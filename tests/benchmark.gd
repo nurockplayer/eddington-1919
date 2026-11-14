@@ -1,6 +1,7 @@
 extends Node
 const Look := preload("res://scripts/look.gd")
 const Settings := preload("res://scripts/settings.gd")
+const Sim := preload("res://scripts/eclipse_sim.gd")
 ## In-game visual benchmark (gate G4 in art/PIPELINE.md). It runs inside the
 ## real game scene with the game's own lighting code: the camera visits fixed
 ## bookmarks under fixed lighting states, then saves a screenshot and render
@@ -45,6 +46,7 @@ const BOOKMARKS := [
 	# r06: conversation distance to Eddington (faces, clothes, look-at).
 	["eddington_talk", Vector3(-1.1, 0.05, 0.9), Vector3(-1.1, 1.55, -0.9), "prep_early"],
 	["cottingham_talk", Vector3(2.3, 0.05, -4.6), Vector3(1.35, 1.5, -6.1), "prep_early"],
+	["totality_live", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
 ]
 
 var main
@@ -167,6 +169,8 @@ func _light(state: String) -> void:
 
 
 func _shot(path: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
 	var drawn := [false]
 	RenderingServer.frame_post_draw.connect(func(): drawn[0] = true, CONNECT_ONE_SHOT)
 	var t0 := Time.get_ticks_msec()
@@ -213,7 +217,10 @@ func _run() -> void:
 	if shots.is_empty():
 		return
 	for b in shots:
-		_light(b[3])
+		if b[0] == "totality_live":
+			await _setup_totality_live()
+		else:
+			_light(b[3])
 		main.player.global_position = b[1]
 		main.player.velocity = Vector3.ZERO
 		var target: Vector3 = b[2]
@@ -227,6 +234,30 @@ func _run() -> void:
 	_write_summary(results, main.sim.run_seed, hidden)
 
 
+func _setup_totality_live() -> void:
+	# The live case has its own repeatable cloud field, even without --seed.
+	main.sim = Sim.new(1919)
+	main.sky_mat.set_shader_parameter("cloud_tex", ImageTexture.create_from_image(main.sim.cloud_img))
+	main._start_game()
+	main.sim.plates_carried = main.sim.MAX_EXTRA_PLATES
+	main.ui.visible = true
+	await main._begin_totality()
+	main.t_game = totality_cloud_t
+	main.player.can_move = false
+	main.player.can_look = false
+	main.set_process(false)
+	main._toggle_shutter()
+
+
+func _live_frame(i: int) -> void:
+	# Fixed 60 Hz gameplay time makes the same plate change occur even headless.
+	if i == 5:
+		main._toggle_shutter()
+	if i > 5 and main.change_left <= 0.0 and not main.sim.is_exposing():
+		main._toggle_shutter()
+	main._process(1.0 / 60.0)
+
+
 func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
 	await _frames(SETTLE_FRAMES)
 	var ms := PackedFloat32Array()
@@ -236,6 +267,8 @@ func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
 	var t := Time.get_ticks_usec()
 	for i in SAMPLE_FRAMES:
 		await get_tree().process_frame
+		if bookmark == "totality_live":
+			_live_frame(i)
 		var now := Time.get_ticks_usec()
 		ms.append((now - t) / 1000.0)
 		t = now
