@@ -33,6 +33,10 @@ magick "$input" -gravity center -crop 1:1 +repage -resize 1024x1024\! \
   mpr:x -roll +0+512 \
   \( mpr:x \( -size 1024x1024 xc: -fx 'min(1,min(j,h-1-j)/160)' \) -alpha off -compose CopyOpacity -composite \) \
   -compose Over -composite -alpha off -colorspace RGB "$tmp"
+# Feather opposing border pixels together so strong features at the rolled
+# midline do not leave a visible discontinuity at the outermost pixels.
+magick "$tmp" -fx 'u*(1-0.5*max(0,1-min(i,w-1-i)/16))+u.p{w-1-i,j}*0.5*max(0,1-min(i,w-1-i)/16)' \
+  -fx 'u*(1-0.5*max(0,1-min(j,h-1-j)/16))+u.p{i,h-1-j}*0.5*max(0,1-min(j,h-1-j)/16)' "$tmp"
 read -r r g b < <(magick "$tmp" -format '%[fx:mean.r] %[fx:mean.g] %[fx:mean.b]\n' info:)
 read -r tr tg tb < <(magick -size 1x1 "xc:$target" -colorspace RGB -format '%[fx:mean.r] %[fx:mean.g] %[fx:mean.b]\n' info:)
 magick "$tmp" -channel R -evaluate multiply "$(magick xc: -format "%[fx:$tr/$r]" info:)" \
