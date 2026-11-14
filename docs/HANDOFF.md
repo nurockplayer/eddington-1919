@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-14 14:1x JST.** Listing work paused (Owner 2026-11-12). **Owner verdict 2026-11-13 02:4x JST: people, places and mood crude; music buried in noise.** Owner then picked plan 1: one vertical slice (Príncipe camp → totality) to shippable quality first; art-director seat by blind audition. **Target look (Owner): Life is Strange: True Colors > Tell Me Why >>>> current build.** Memory `eddington-owner-verdict-1113`. Release readiness frozen (A 13/14, B on hold).
+**Written 2026-11-14 14:18 JST.** Listing work paused (Owner 2026-11-12). **Owner verdict 2026-11-13 02:4x JST: people, places and mood crude; music buried in noise.** Owner then picked plan 1: one vertical slice (Príncipe camp → totality) to shippable quality first; art-director seat by blind audition. **Target look (Owner): Life is Strange: True Colors > Tell Me Why >>>> current build.** Memory `eddington-owner-verdict-1113`. Release readiness frozen (A 13/14, B on hold).
 
 **In flight:**
 - Audio mix pass #308 merged 2026-11-13 03:28 JST (crackle bed gone, music ≈-24 dBFS). Fresh clip `C_new_mix.m4a` (offline render at in-game gains; headless --write-movie crashes in MoltenVK) sent to the Owner 03:3x JST, copy in KIOXIA `eddington/audio-check-20261113/`. Awaiting the Owner's ear; next audio step = CC0 field-recording ambience (separate brief). Test-coverage follow-up #309.
@@ -10,13 +10,13 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 - **Art director = Fable 5.2 (audition Z), Owner pick 2026-11-14 13:0x JST**, with saturation pushed toward Y (GPT). Mapping now public (X=opus eliminated, Y=gpt, Z=fable). Log + images: `docs/design/SLICE_PRINCIPE.md`, `docs/design/slice_principe/`; seat handoff `.claude/lead-handoff/art.md`; pane edd-art w7:pB started with `claude --model claude-fable-5-2`. First round = plan step 1 (lighting and post). Windowed looks Mon–Fri 09–15 JST only (first: 2026-11-16 09:00 JST). The AD gates its own art PRs after its acceptance comment and reports merges to edd-lead's inbox. Decision on #37. **Owner 2026-11-14: Codex quota ample, use it freely.**
 
 **In flight (lead), 2026-11-14 14:1x JST** (Owner out ≥1 h from 13:59 JST, Mac time granted → windowed looks allowed; decisions #317):
-- #321 (#319 fix): correct revert check passed 14:14 JST (both .ogg + .import moved → FAIL); gate rerun `lead-wait pr 321` 14:1x JST; on merge remove worktree mix-ogg-missing + branch, close #319 and #320; worker's revert check was wrong (renamed only .ogg; .import remap still resolves) → resumed `lw-mix-ogg-missing-f1-20261114-141115` to move both files. If the check still passes, hold the merge.
+- #321 merged 2026-11-14 14:16 JST; worktree + branch removed, #319 and #320 closed.
 - Diagnosis `diag-slice` done (KIOXIA-less report `~/.local/state/cx-exec/diag-slice-20261114-135940.final.md`); lead picked the M option for 1, 2, 4; fence (3) waits for AD vegetation (p4-leaves).
 - Codex Terra, briefs KIOXIA `eddington/briefs/<name>.md`, worktrees `../eddington-1919-wt/<name>`: `totality-staging` (draft PR; NPCs hidden in totality, sun upper-right third), `dialogue-camera` (draft PR; locked Camera3D 2.2 m / 28° / DOF, face ≥120 px), `bench-totality-live` (normal PR; live totality benchmark). Draft ones go to edd-art for art acceptance before the gate.
 - Soundscape: first oracle answer lost its URLs (citation chips) and the Temporary Chat closed, so resume failed (exit 8; ChatGPT itself fine: other reviews running) → re-asked with a plain-URL rule `lw-ambience-sources-2-20261114-141353`. Freesound downloads need an account login (Owner-only) — after the answer, prefer no-login sources; else one owner-notify.
-- Motion library for AD: oracle `lw-motion-lib-20261114-141055` (question KIOXIA `eddington/briefs/motion-lib-q.md`); forward the vetted list to edd-art; asked before the plain-URL rule, so if URLs are missing re-ask with it.
+- Motion library: answer done (KIOXIA `eddington/briefs/motion-lib-answer-20261114.md`, no URLs); vetted pick forwarded to edd-art inbox ev-20261114-141745-45ed (Quaternius/KinemIQ CC0, CMU 18_08/19_08, 100STYLE BentForward_ID CC BY 4.0, custom crank; AD records URL + licence on download).
 - AD (w7:pB): four asset lines dispatched (p5-tiles, p4-leaves, p7-darkroom draft, p3-ridges draft); #318 windowed matrix queued heavy #1102 behind tachiko-sheet #1101, cutoff 15:15 JST.
 
-**PRs:** #321 (gating), #318 draft (AD); #15 draft (paused). Issues: #1, #37, #285, #317, #319, #320.
+**PRs:** #318 draft (AD); #15 draft (paused). Issues: #1, #37, #285, #317.
 
 **Wake-ups:** none (Owner rule 2026-11-12).
