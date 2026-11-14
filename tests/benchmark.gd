@@ -169,6 +169,8 @@ func _light(state: String) -> void:
 
 
 func _shot(path: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
 	var drawn := [false]
 	RenderingServer.frame_post_draw.connect(func(): drawn[0] = true, CONNECT_ONE_SHOT)
 	var t0 := Time.get_ticks_msec()
