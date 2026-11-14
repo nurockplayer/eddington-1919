@@ -1194,8 +1194,12 @@ func _totality_aim_point() -> Vector3:
 	var vfov := deg_to_rad(player.camera.fov)
 	var size := get_viewport().get_visible_rect().size
 	var hfov := 2.0 * atan(tan(vfov / 2.0) * size.x / size.y)
-	var yaw := atan2(-sim.sun_dir.x, -sim.sun_dir.z) + atan(tan(hfov / 2.0) / 3.0)
-	var pitch := asin(sim.sun_dir.y) - atan(tan(vfov / 2.0) / 3.0)
+	var x := tan(hfov / 2.0) / 3.0
+	var y := tan(vfov / 2.0) / 3.0
+	var altitude := asin(sim.sun_dir.y)
+	var yaw_offset := asin(x / (cos(altitude) * sqrt(1.0 + x * x + y * y)))
+	var yaw := atan2(-sim.sun_dir.x, -sim.sun_dir.z) + yaw_offset
+	var pitch := atan2(sin(altitude), cos(altitude) * cos(yaw_offset)) - atan(y)
 	var direction := Vector3(-sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch))
 	return player.camera.global_position + direction * 10.0
 
