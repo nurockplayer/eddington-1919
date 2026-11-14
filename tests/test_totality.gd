@@ -455,10 +455,15 @@ func _test_sfx_buffers() -> void:
 	await process_frame
 
 func ogg_peak(stream: AudioStream, label: String) -> float:
-	var pb := stream.instantiate_playback()
+	# Decode a non-looping copy past the advertised end: a looping bed would
+	# otherwise refill from the start and hide a recording that ends early.
+	var source: AudioStream = stream.duplicate()
+	if "loop" in source:
+		source.loop = false
+	var pb := source.instantiate_playback()
 	pb.start(0.0)
 	var rate := AudioServer.get_mix_rate()
-	var remaining := int(ceil(stream.get_length() * rate))
+	var remaining := int(ceil((stream.get_length() + 0.5) * rate))
 	var decoded := 0
 	var peak := 0.0
 	while remaining > 0:
@@ -470,6 +475,7 @@ func ogg_peak(stream: AudioStream, label: String) -> float:
 		if block.size() < mini(4096, remaining + block.size()):
 			break
 	check(decoded / float(rate) >= stream.get_length() - 0.05, "%s decoded %.2f of %.2f s" % [label, decoded / float(rate), stream.get_length()])
+	check(decoded / float(rate) <= stream.get_length() + 0.05, "%s decode stops at the end, not looping (%.2f of %.2f s)" % [label, decoded / float(rate), stream.get_length()])
 	return peak
 
 
