@@ -13,7 +13,7 @@ if [[ ${1:-} == --check ]]; then
   xinner=$(value 1022x1024+0+0 1022x1024+1+0)
   yedge=$(value 1024x1+0+0 1024x1+0+1023)
   yinner=$(value 1024x1022+0+0 1024x1022+0+1)
-  read -r x y < <(magick xc: -format "%[fx:$xinner==0?($xedge==0?0:999):$xedge/$xinner] %[fx:$yinner==0?($yedge==0?0:999):$yedge/$yinner]" info:)
+  read -r x y < <(magick xc: -format "%[fx:$xinner==0?($xedge==0?0:999):$xedge/$xinner] %[fx:$yinner==0?($yedge==0?0:999):$yedge/$yinner]\n" info:)
   mean=$(magick "$image" -resize 1x1\! -depth 8 -format '%[hex:p{0,0}]' info:)
   printf 'wrap_x %s wrap_y %s mean #%s\n' "$x" "$y" "$mean"
   [[ $(magick xc: -format "%[fx:$x<=1.6 && $y<=1.6?1:0]" info:) == 1 ]]
@@ -33,8 +33,8 @@ magick "$input" -gravity center -crop 1:1 +repage -resize 1024x1024\! \
   mpr:x -roll +0+512 \
   \( mpr:x \( -size 1024x1024 xc: -fx 'min(1,min(j,h-1-j)/160)' \) -alpha off -compose CopyOpacity -composite \) \
   -compose Over -composite -alpha off -colorspace RGB "$tmp"
-read -r r g b < <(magick "$tmp" -format '%[fx:mean.r] %[fx:mean.g] %[fx:mean.b]' info:)
-read -r tr tg tb < <(magick -size 1x1 "xc:$target" -colorspace RGB -format '%[fx:mean.r] %[fx:mean.g] %[fx:mean.b]' info:)
+read -r r g b < <(magick "$tmp" -format '%[fx:mean.r] %[fx:mean.g] %[fx:mean.b]\n' info:)
+read -r tr tg tb < <(magick -size 1x1 "xc:$target" -colorspace RGB -format '%[fx:mean.r] %[fx:mean.g] %[fx:mean.b]\n' info:)
 magick "$tmp" -channel R -evaluate multiply "$(magick xc: -format "%[fx:$tr/$r]" info:)" \
   -channel G -evaluate multiply "$(magick xc: -format "%[fx:$tg/$g]" info:)" \
   -channel B -evaluate multiply "$(magick xc: -format "%[fx:$tb/$b]" info:)" \
