@@ -1045,8 +1045,8 @@ func _say(seq: Array, purpose: String) -> void:
 	_pending = purpose
 	if _dialogue_subject and phase in [Phase.PREP, Phase.NIGHT] and not dialogue_camera.current:
 		dialogue_camera.other_npc = world.cottingham if _dialogue_subject == world.eddington else world.eddington
-		dialogue_camera.frame(_dialogue_subject, player.camera)
-		dialogue_camera.make_current()
+		if dialogue_camera.frame(_dialogue_subject, player.camera):
+			dialogue_camera.make_current()
 	ui.play(seq)
 	_sync_player_input()
 

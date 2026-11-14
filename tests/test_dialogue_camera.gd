@@ -42,5 +42,23 @@ func _run() -> void:
 		game.stop_all_audio()
 		game.queue_free()
 		await process_frame
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game.set_process(false)
+	game._start_game()
+	game.phase = game.Phase.NIGHT
+	game.world.eddington.position = game.world.eddington_night
+	game.player.global_position = Vector3(11.3, 0.05, 4.2)
+	game.player.set_physics_process(false)
+	await physics_frame
+	game._interact("eddington")
+	var camera: Camera3D = game.dialogue_camera
+	check(camera.current, "night dialogue camera is current")
+	var query := PhysicsRayQueryParameters3D.create(camera.eye_point, camera.global_position)
+	query.exclude = [game.world.eddington.get_rid(), game.player.get_rid()]
+	check(game.get_world_3d().direct_space_state.intersect_ray(query).is_empty(), "night camera remains on the face side of walls")
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
