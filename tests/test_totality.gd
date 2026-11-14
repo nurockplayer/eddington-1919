@@ -423,10 +423,17 @@ func _test_sfx_buffers() -> void:
 	game.set_process(false)
 	for name in ["open", "change", "third", "insects", "surf", "birds"]:
 		var sound: AudioStreamPlayer = game.get("audio_" + name)
-		check(sound.stream is AudioStreamWAV, "%s is a synthesized WAV" % name)
-		if not sound.stream is AudioStreamWAV:
-			continue
-		var wav: AudioStreamWAV = sound.stream
+		var wav: AudioStreamWAV
+		if name in ["surf", "birds"] and game._bed_sampled(name):
+			check(sound.stream is AudioStreamOggVorbis, "%s uses the sampled OGG" % name)
+			if sound.stream is AudioStreamOggVorbis:
+				check(sound.stream.loop, "%s OGG loops" % name)
+			wav = game._wav(game._sfx_samples[name], 22050, true)
+		else:
+			check(sound.stream is AudioStreamWAV, "%s is a synthesized WAV" % name)
+			if not sound.stream is AudioStreamWAV:
+				continue
+			wav = sound.stream
 		if name in ["insects", "surf", "birds"]:
 			check(wav.loop_mode != AudioStreamWAV.LOOP_DISABLED, "%s WAV loops" % name)
 		var peak := 0.0
