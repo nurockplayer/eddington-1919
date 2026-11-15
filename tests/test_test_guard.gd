@@ -44,7 +44,7 @@ func _run() -> void:
 	var idle := _fixture("guard_idle")
 	check(idle.code == 124, "idle fixture exits 124: %s" % idle)
 	check("FAIL: deadline 3 s exceeded (res://tests/fixtures/guard_idle.gd)" in idle.output,
-		"idle fixture reports deadline and script")
+		"idle fixture reports deadline and script: %s" % idle.output)
 	check(idle.seconds >= 3.0 and idle.seconds < 20.0, "idle deadline takes 3 to 20 s")
 	var messages := _fixture("guard_messages")
 	check(messages.code == 0, "push_error and push_warning exit 0: %s" % messages)
@@ -52,7 +52,7 @@ func _run() -> void:
 	OS.set_environment("EDD_FAILFAST", "0")
 	var opted_out := _fixture("guard_script_error")
 	check(opted_out.code == 124, "fail-fast opt-out still exits 124: %s" % opted_out)
-	check("FAIL: deadline 3 s exceeded" in opted_out.output, "opt-out retains deadline")
+	check("FAIL: deadline 3 s exceeded" in opted_out.output, "opt-out retains deadline: %s" % opted_out.output)
 	check(not "FAIL: script error" in opted_out.output, "opt-out disables script error report")
 	if had_failfast:
 		OS.set_environment("EDD_FAILFAST", saved_failfast)
