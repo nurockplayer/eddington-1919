@@ -614,12 +614,13 @@ func _plantation_house() -> void:
 	sundy.name = "SundyHotspot"
 
 
-func _card_mat(key: String, tex_a: String, tex_b := "", custom := false, sway := 0.0, backlight := 0.3) -> ShaderMaterial:
+func _card_mat(key: String, tex_a: String, tex_b := "", custom := false, sway := 0.0, backlight := 0.3, tex_c := "") -> ShaderMaterial:
 	if not _mats.has(key):
 		var m := ShaderMaterial.new()
 		m.shader = FoliageCard
 		m.set_shader_parameter("tex_v1", load(FOLIAGE + tex_a))
 		m.set_shader_parameter("tex_v2", load(FOLIAGE + (tex_a if tex_b.is_empty() else tex_b)))
+		m.set_shader_parameter("tex_v3", load(FOLIAGE + (tex_a if tex_c.is_empty() else tex_c)))
 		m.set_shader_parameter("use_custom_variant", custom)
 		m.set_shader_parameter("sway", sway)
 		m.set_shader_parameter("backlight", backlight)
@@ -651,7 +652,7 @@ static func _folded_card(segments: int, length: float, pitch_a: float, pitch_b: 
 	for i in segments:
 		for side in 2:
 			var offsets := [Vector3(-across, -drop, 0), Vector3.ZERO, Vector3(across, -drop, 0)]
-			for corner in [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(0, 0), Vector2i(1, 1), Vector2i(1, 0)]:
+			for corner: Vector2i in [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(0, 0), Vector2i(1, 1), Vector2i(1, 0)]:
 				var row := i + corner.x
 				var col := side + corner.y
 				st.set_uv(Vector2(float(row) / segments, col * 0.5))
@@ -694,12 +695,8 @@ func palm(pos: Vector3, h: float) -> void:
 		var tint := randf() * 0.12 if i < 8 else rng.randf() * 0.12
 		var mesh := MeshInstance3D.new()
 		mesh.mesh = _palm_frond_mesh()
-		if i >= 12:
-			mesh.material_override = _card_mat("frond_dry", "coconut_frond_dry-v1.png", "", false, 0.0, 0.35)
-		elif (palm_crowns.size() + i) % 2 == 0:
-			mesh.material_override = _card_mat("frond_v1", "coconut_frond-v1.png", "", false, 0.0, 0.35)
-		else:
-			mesh.material_override = _card_mat("frond_v2", "coconut_frond-v2.png", "", false, 0.0, 0.35)
+		mesh.material_override = _card_mat("frond", "coconut_frond-v1.png", "coconut_frond-v2.png", false, 0.0, 0.35, "coconut_frond_dry-v1.png")
+		mesh.set_instance_shader_parameter("pick", 2.0 if i >= 12 else float((palm_crowns.size() + i) % 2))
 		mesh.set_instance_shader_parameter("tint", Color.WHITE.darkened(tint))
 		leaf.add_child(mesh)
 	var body := StaticBody3D.new()
@@ -878,7 +875,7 @@ static func _forest_loop(half_side: float, radius: float, bottom: float, top: fl
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for i in columns:
-		for corner in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 0), Vector2i(1, 1), Vector2i(0, 1)]:
+		for corner: Vector2i in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 0), Vector2i(1, 1), Vector2i(0, 1)]:
 			var col := i + corner.x
 			st.set_uv(Vector2(float(col) / columns * tiles, corner.y * 0.67))
 			st.set_normal(normals[col])
