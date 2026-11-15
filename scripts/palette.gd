@@ -40,6 +40,11 @@ const C := {
 	"wool_umber": Color(0.306, 0.275, 0.243),  # structure
 	"wool_pullover": Color(0.431, 0.424, 0.408),  # structure
 	"wool_waistcoat": Color(0.286, 0.278, 0.278),  # structure
+	"enamel": Color(0.784, 0.773, 0.722),  # structure
+	"amber_glass": Color(0.227, 0.149, 0.086),  # structure
+	"tray_liquid": Color(0.329, 0.263, 0.184),  # structure
+	"plate_dark": Color(0.165, 0.157, 0.149),  # structure
+	"zinc": Color(0.498, 0.518, 0.514),  # structure
 }
 
 const ROUGH := {
@@ -80,4 +85,9 @@ const ROUGH := {
 	"wool_umber": 0.96,
 	"wool_pullover": 0.82,
 	"wool_waistcoat": 0.82,
+	"enamel": 0.35,
+	"amber_glass": 0.12,
+	"tray_liquid": 0.08,
+	"plate_dark": 0.15,
+	"zinc": 0.55,
 }
