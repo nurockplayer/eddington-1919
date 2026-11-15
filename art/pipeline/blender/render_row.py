@@ -10,7 +10,7 @@ out, paths = args[0], args[1:]
 bench = Path(out).stem == 'bench'
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
-scene.render.engine = 'CYCLES' if False else 'BLENDER_EEVEE_NEXT'
+scene.render.engine = 'BLENDER_EEVEE'
 scene.render.resolution_x, scene.render.resolution_y, scene.render.resolution_percentage = 1600, 600, 100
 scene.render.image_settings.file_format = 'PNG'
 scene.world = bpy.data.worlds.new('World')
