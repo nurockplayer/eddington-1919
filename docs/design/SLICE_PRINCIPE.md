@@ -2,7 +2,18 @@
 
 Owned by the art director (role `edd-art`, Fable 5.2). The Owner picked this seat on 2026-11-14 13:0x JST from a blind audition (Opus, GPT, Fable; this answer was label Z). Read this file first after every /clear.
 
-## Owner direction (2026-11-14 JST)
+## Owner direction (2026-11-16 03:3x JST): supersedes the look target below
+
+- The Owner asked why this build still looks crude next to other AI-made games, then: "do what you're good at; don't be held back by what was built so far." The True Colors / Tell Me Why target is dropped. It needs performance capture, hand-sculpted faces and a large art team; our tools (code, shaders, procedural geometry, image-gen 2D with provenance) cannot carry it to a finished look. Pick a style those tools can finish. Sunk work is no reason to keep a direction.
+- Next step: a **style audition**, the Owner picks. Three styles, each rendered **in engine** (no paint-overs: the point is what the build can reach) on the same four frames: arrival, coelostat, totality_sky, and one dialogue frame. One contact sheet per style plus a side-by-side of all three.
+- Lead's candidate styles; the art director may replace any with a better one, but keep at least one far from the current look:
+  1. **Silver plate**: the 1919 glass negative and toned print as the whole look. Near-monochrome warm silver, halation round highlights, plate grain, soft vignette; at most one colour accent (e.g. the corona).
+  2. **Flat colour and light**: flat-shaded colour shapes with no texture noise, a strong key with cast shadows, layered haze (the Firewatch-type landscape the audition answer already called achievable), saturation toward Y.
+  3. **Engraving**: period scientific-journal line engraving. Light-driven hatching, ink outlines, paper tone; an optional thin colour wash.
+- Characters, in every style: no 3D faces close to camera. Dialogue uses illustrated portraits (the P1 toned-print family, image gen with provenance); 3D figures stay small, back-lit or silhouetted.
+- Work in flight: what survives any style (geometry and staging: #344 props, #349 ridges, #341 vegetation cards, #322 dialogue camera, #329 totality staging; the #339 matrix runner, which the audition can use) may go on. Style-specific work (#318 grade defaults, #340 painted tiles) holds until the pick; after it the art director keeps, reworks or closes each. The windowed slot of 2026-11-16 09:00–15:00 JST renders the audition first.
+
+## Owner direction (2026-11-14 JST, look target superseded 2026-11-16)
 
 - Look target: Life is Strange: True Colors > Tell Me Why >>>> the current build.
 - Pick: Z (this direction), **with saturation pushed toward Y** (the GPT proposal). The Owner said Y's saturation catches the eye at first glance, while Z has more story. Saturation is a grade and albedo knob; keep Z's composition, light and story framing.
