@@ -131,8 +131,6 @@ func _check_shrubs(wb) -> void:
 		check(mm.instance_count == expected.get(String(node.name), 0), "instance count: " + String(node.name))
 		check(mm.use_custom_data, "custom instance data enabled")
 		for j in mm.instance_count:
-			if j < 2:
-				print("custom sample ", node.name, " ", j, ": ", mm.get_instance_custom_data(j))
 			check(is_equal_approx(mm.get_instance_custom_data(j).r, float(j % 2)), "alternating texture variant")
 		for surface in mm.mesh.get_surface_count():
 			var m: Material = mm.mesh.surface_get_material(surface)
@@ -157,13 +155,12 @@ func _check_forest(loop: MeshInstance3D, top: float) -> void:
 	var v_min := 1.0
 	var v_max := 0.0
 	var low_columns := 0
-	var max_normal_error := 0.0
 	for i in vertices.size():
 		var p := vertices[i]
 		check(Vector2(p.x, p.z).length() >= 46.0 and absf(p.x) <= 57.5 and absf(p.z) <= 57.5, "forest outside clearing, within rounded square")
 		var inward := Vector3(-p.x, 0, -p.z).normalized()
-		max_normal_error = maxf(max_normal_error, normals[i].distance_to((inward + Vector3.UP).normalized()))
-		check(normals[i].is_equal_approx((inward + Vector3.UP).normalized()), "forest normal faces inward and up")
+		# Mesh normals are octahedrally encoded and quantized by Godot.
+		check(normals[i].distance_to((inward + Vector3.UP).normalized()) < 0.0002, "forest normal faces inward and up")
 		var bearing := rad_to_deg(atan2(p.x, -p.z))
 		if is_zero_approx(uvs[i].y) and bearing >= -50.0 and bearing <= -25.0:
 			low_columns += 1
@@ -172,4 +169,4 @@ func _check_forest(loop: MeshInstance3D, top: float) -> void:
 		v_max = maxf(v_max, uvs[i].y)
 	check(low_columns > 0, "forest samples the low sector")
 	check(is_zero_approx(v_min) and is_equal_approx(v_max, 0.67), "forest UV crops bottom third")
-	print("triangles ForestEdge/%s: %d; max normal error: %.8f" % [loop.name, _triangles(loop.mesh), max_normal_error])
+	print("triangles ForestEdge/%s: %d" % [loop.name, _triangles(loop.mesh)])
