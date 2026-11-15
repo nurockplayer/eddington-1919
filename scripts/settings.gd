@@ -6,6 +6,10 @@ const LOOK_SPEEDS := [0.6, 1.0, 1.5]
 const TEXT_SCALES := [0.85, 1.0, 1.2]
 
 const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db"}
+# Fixed makeup gain on Master (Owner 2026-11-15: the mix read quiet at about -22 LUFS);
+# +6 dB lands near -16 LUFS, and the limiter catches any peak above -1 dBFS.
+const MASTER_MAKEUP_DB := 6.0
+const MASTER_CEILING_DB := -1.0
 
 static var volumes := {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 static var quality := "standard"
@@ -106,9 +110,22 @@ static func apply_startup() -> void:
 		_video_applied = true
 
 
+static func ensure_master_limiter() -> AudioEffectHardLimiter:
+	for i in AudioServer.get_bus_effect_count(0):
+		var effect := AudioServer.get_bus_effect(0, i)
+		if effect is AudioEffectHardLimiter:
+			return effect
+	var limiter := AudioEffectHardLimiter.new()
+	limiter.pre_gain_db = MASTER_MAKEUP_DB
+	limiter.ceiling_db = MASTER_CEILING_DB
+	AudioServer.add_bus_effect(0, limiter)
+	return limiter
+
+
 static func apply_audio() -> void:
 	ScorePlayer.ensure_bus()
 	ensure_sfx_bus()
+	ensure_master_limiter()
 	for bus in VOLUME_KEYS:
 		var index := AudioServer.get_bus_index(bus)
 		var volume: float = volumes[bus]
