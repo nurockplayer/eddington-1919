@@ -4,7 +4,7 @@
   "pass": true,
   "checks": {
     "triangles": {
-      "value": 669,
+      "value": 480,
       "max": 700,
       "ok": true
     },
@@ -23,13 +23,13 @@
     },
     "dimensions_m": {
       "value": [
-        0.169,
         0.16,
-        0.238
+        0.204,
+        0.244
       ],
       "target": [
         0.16,
-        0.16,
+        0.21,
         0.24
       ],
       "tolerance": 0.1,
