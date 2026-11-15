@@ -87,11 +87,12 @@ func _run() -> void:
 			check(painted.resource_name == src.resource_name, "duplicate preserves kit material name")
 	check(roof_found, "built darkroom roof picks iron_sheet at 0.6 metres")
 	check(kit_found, "built production kit timber carries its picked tile")
-	var source := BoxMesh.new()
+	var source := ArrayMesh.new()
+	source.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, BoxMesh.new().get_mesh_arrays())
 	var pine := StandardMaterial3D.new()
 	pine.resource_name = "E1919_pine"
 	pine.albedo_color = wb.P("pine")
-	source.material = pine
+	source.surface_set_material(0, pine)
 	var painted_mesh: Mesh = wb._weathered_mesh(source)
 	var painted_pine := painted_mesh.surface_get_material(0) as BaseMaterial3D
 	check(painted_pine.resource_name == pine.resource_name and _path(painted_pine) == World.TILE_DIR + "pine.jpg", "MultiMesh material duplicate preserves name and receives tile")

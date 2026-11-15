@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/teak_dark.jpg-2cd515ace82a154130ef1b00aad8f592.ctex"
+uid="uid://c6kvbsruh1yuc"
+path.s3tc="res://.godot/imported/teak_dark.jpg-2cd515ace82a154130ef1b00aad8f592.s3tc.ctex"
+path.etc2="res://.godot/imported/teak_dark.jpg-2cd515ace82a154130ef1b00aad8f592.etc2.ctex"
 metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/principe/teak_dark.jpg"
-dest_files=["res://.godot/imported/teak_dark.jpg-2cd515ace82a154130ef1b00aad8f592.ctex"]
+dest_files=["res://.godot/imported/teak_dark.jpg-2cd515ace82a154130ef1b00aad8f592.s3tc.ctex", "res://.godot/imported/teak_dark.jpg-2cd515ace82a154130ef1b00aad8f592.etc2.ctex"]
 
 [params]
 

@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/pine.jpg-d040130b74a0eff45f8bd819cc789083.ctex"
+uid="uid://dmqmqua4m2dn4"
+path.s3tc="res://.godot/imported/pine.jpg-d040130b74a0eff45f8bd819cc789083.s3tc.ctex"
+path.etc2="res://.godot/imported/pine.jpg-d040130b74a0eff45f8bd819cc789083.etc2.ctex"
 metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/principe/pine.jpg"
-dest_files=["res://.godot/imported/pine.jpg-d040130b74a0eff45f8bd819cc789083.ctex"]
+dest_files=["res://.godot/imported/pine.jpg-d040130b74a0eff45f8bd819cc789083.s3tc.ctex", "res://.godot/imported/pine.jpg-d040130b74a0eff45f8bd819cc789083.etc2.ctex"]
 
 [params]
 

@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/leaf_litter.jpg-a7489a72c2c24a6303d452afe15c1075.ctex"
+uid="uid://bm25arom331va"
+path.s3tc="res://.godot/imported/leaf_litter.jpg-a7489a72c2c24a6303d452afe15c1075.s3tc.ctex"
+path.etc2="res://.godot/imported/leaf_litter.jpg-a7489a72c2c24a6303d452afe15c1075.etc2.ctex"
 metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/principe/leaf_litter.jpg"
-dest_files=["res://.godot/imported/leaf_litter.jpg-a7489a72c2c24a6303d452afe15c1075.ctex"]
+dest_files=["res://.godot/imported/leaf_litter.jpg-a7489a72c2c24a6303d452afe15c1075.s3tc.ctex", "res://.godot/imported/leaf_litter.jpg-a7489a72c2c24a6303d452afe15c1075.etc2.ctex"]
 
 [params]
 

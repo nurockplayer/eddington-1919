@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/laterite_wet.jpg-8aab747a7374a33a57d25853325f8866.ctex"
+uid="uid://bsry4dc2cilcv"
+path.s3tc="res://.godot/imported/laterite_wet.jpg-8aab747a7374a33a57d25853325f8866.s3tc.ctex"
+path.etc2="res://.godot/imported/laterite_wet.jpg-8aab747a7374a33a57d25853325f8866.etc2.ctex"
 metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/principe/laterite_wet.jpg"
-dest_files=["res://.godot/imported/laterite_wet.jpg-8aab747a7374a33a57d25853325f8866.ctex"]
+dest_files=["res://.godot/imported/laterite_wet.jpg-8aab747a7374a33a57d25853325f8866.s3tc.ctex", "res://.godot/imported/laterite_wet.jpg-8aab747a7374a33a57d25853325f8866.etc2.ctex"]
 
 [params]
 

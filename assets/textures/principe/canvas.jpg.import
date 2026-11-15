@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/canvas.jpg-34d3f791a1a3a40749d7b90cfe0280fe.ctex"
+uid="uid://6ycm52lx137r"
+path.s3tc="res://.godot/imported/canvas.jpg-34d3f791a1a3a40749d7b90cfe0280fe.s3tc.ctex"
+path.etc2="res://.godot/imported/canvas.jpg-34d3f791a1a3a40749d7b90cfe0280fe.etc2.ctex"
 metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/principe/canvas.jpg"
-dest_files=["res://.godot/imported/canvas.jpg-34d3f791a1a3a40749d7b90cfe0280fe.ctex"]
+dest_files=["res://.godot/imported/canvas.jpg-34d3f791a1a3a40749d7b90cfe0280fe.s3tc.ctex", "res://.godot/imported/canvas.jpg-34d3f791a1a3a40749d7b90cfe0280fe.etc2.ctex"]
 
 [params]
 

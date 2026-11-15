@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/laterite.jpg-b44f11124a4a7d876e9eb790e64f5496.ctex"
+uid="uid://bbt1aeb5tuomt"
+path.s3tc="res://.godot/imported/laterite.jpg-b44f11124a4a7d876e9eb790e64f5496.s3tc.ctex"
+path.etc2="res://.godot/imported/laterite.jpg-b44f11124a4a7d876e9eb790e64f5496.etc2.ctex"
 metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/principe/laterite.jpg"
-dest_files=["res://.godot/imported/laterite.jpg-b44f11124a4a7d876e9eb790e64f5496.ctex"]
+dest_files=["res://.godot/imported/laterite.jpg-b44f11124a4a7d876e9eb790e64f5496.s3tc.ctex", "res://.godot/imported/laterite.jpg-b44f11124a4a7d876e9eb790e64f5496.etc2.ctex"]
 
 [params]
 

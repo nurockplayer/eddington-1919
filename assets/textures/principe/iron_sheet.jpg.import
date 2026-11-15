@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/iron_sheet.jpg-1be5c26f9633c2e3135b4b4a71bfcd21.ctex"
+uid="uid://cwa4cthjpew3n"
+path.s3tc="res://.godot/imported/iron_sheet.jpg-1be5c26f9633c2e3135b4b4a71bfcd21.s3tc.ctex"
+path.etc2="res://.godot/imported/iron_sheet.jpg-1be5c26f9633c2e3135b4b4a71bfcd21.etc2.ctex"
 metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/principe/iron_sheet.jpg"
-dest_files=["res://.godot/imported/iron_sheet.jpg-1be5c26f9633c2e3135b4b4a71bfcd21.ctex"]
+dest_files=["res://.godot/imported/iron_sheet.jpg-1be5c26f9633c2e3135b4b4a71bfcd21.s3tc.ctex", "res://.godot/imported/iron_sheet.jpg-1be5c26f9633c2e3135b4b4a71bfcd21.etc2.ctex"]
 
 [params]
 
