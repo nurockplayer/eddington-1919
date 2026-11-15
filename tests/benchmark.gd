@@ -246,7 +246,29 @@ func _hide_groups() -> Array:
 	return hidden
 
 
+func _check_look_overrides() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if not arg.begins_with("--look-set="):
+			continue
+		var look := {}
+		for property in main.get_property_list():
+			if property.name == "_look" and main.get("_look") is Dictionary:
+				look = main.get("_look")
+		for pair in arg.trim_prefix("--look-set=").split(",", false):
+			var parts := pair.split("=")
+			if parts.size() != 2 or not look.has(parts[0]):
+				printerr("LOOK-SET ERROR: not applied ", pair)
+				continue
+			var actual = look[parts[0]]
+			if (actual is int or actual is float) and parts[1].is_valid_float():
+				if not is_equal_approx(float(actual), parts[1].to_float()):
+					printerr("LOOK-SET ERROR: not applied ", pair)
+			elif str(actual) != parts[1]:
+				printerr("LOOK-SET ERROR: not applied ", pair)
+
+
 func _run() -> void:
+	_check_look_overrides()
 	var hidden := _hide_groups()
 	main.ui.visible = false
 	# Name tags are HUD text: fixed-size, unlike the painted signs.
