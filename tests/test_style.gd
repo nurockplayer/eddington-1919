@@ -28,7 +28,7 @@ func _run() -> void:
 		check(impl.PARAMS is Dictionary and impl.DIALOGUE is Dictionary and impl.has_method("apply") and impl.has_method("light"), id + " interface")
 	var tree := Node3D.new()
 	root.add_child(tree)
-	var material := style.add_quad(tree, load("res://shaders/look_post.gdshader"), {"grain": 0.6})
+	var material: ShaderMaterial = style.add_quad(tree, load("res://shaders/look_post.gdshader"), {"grain": 0.6})
 	var quad := tree.get_node("StyleQuad") as MeshInstance3D
 	check(quad.is_in_group(Style.QUAD_GROUP) and material.render_priority == RenderingServer.MATERIAL_RENDER_PRIORITY_MAX, "quad")
 	check(is_equal_approx(material.get_shader_parameter("vignette"), 0.4) and is_equal_approx(material.get_shader_parameter("grain"), 0.6), "quad uniforms")
