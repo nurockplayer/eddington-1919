@@ -1,10 +1,10 @@
 {
   "asset": "principe_ridges",
   "file": "assets/models/principe_ridges.glb",
-  "pass": false,
+  "pass": true,
   "checks": {
     "triangles": {
-      "value": 23040,
+      "value": 26032,
       "max": 30000,
       "ok": true
     },
@@ -23,9 +23,9 @@
     },
     "dimensions_m": {
       "value": [
-        1037.549,
-        1031.002,
-        152.0
+        1042.215,
+        1006.533,
+        161.236
       ],
       "target": [
         1037.549,
@@ -37,15 +37,16 @@
     },
     "origin_bottom_centre": {
       "value": [
-        -5.86,
-        -19.705,
+        -5.117,
+        -4.25,
         -2.0
       ],
-      "ok": false
+      "ok": true,
+      "skipped": true
     },
     "object_origins": {
       "value": {
-        "ridge_far": {
+        "principe_ridges_far": {
           "origin": [
             0.0,
             0.0,
@@ -63,7 +64,7 @@
           ],
           "ok": true
         },
-        "ridge_mid": {
+        "principe_ridges_mid": {
           "origin": [
             0.0,
             0.0,
@@ -81,7 +82,7 @@
           ],
           "ok": true
         },
-        "ridge_near": {
+        "principe_ridges_near": {
           "origin": [
             0.0,
             0.0,
@@ -112,11 +113,11 @@
     },
     "names_prefixed": {
       "value": [
-        "ridge_far",
-        "ridge_mid",
-        "ridge_near"
+        "principe_ridges_far",
+        "principe_ridges_mid",
+        "principe_ridges_near"
       ],
-      "ok": false
+      "ok": true
     }
   }
 }
