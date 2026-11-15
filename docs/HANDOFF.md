@@ -6,11 +6,11 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 
 **In flight (lead):** none.
 - #343 test guard merged 2026-11-15 19:04 JST (824ba9c): exit 70 on script error, 900 s deadline for tests/test_*, `EDD_FAILFAST=0` opt-out; 2,506 checks green, no hidden script errors surfaced. Worktree/branch removed. Oracle major → #347 (child runs in test_test_guard need an outer `timeout`); small, do it when pace is behind or a slot is idle.
-- Harness: lead-board `light-host-run-no-cap` → tachiko-harness#270 (ORB_TEST_TIMEOUT for light runs, default 60 min, exit 124). Harness posts there when installed. Long light runs (full `tools/all_suites.sh`) will then need heavy or an explicit `ORB_TEST_TIMEOUT=`.
+- Harness: light orb-test runs now capped at 60 min (tachiko-harness#271, topic closed 2026-11-15 20:03 JST); `ORB_TEST_TIMEOUT=<min>` raises it, 0 disables. Long light runs (full `tools/all_suites.sh`) go heavy or set it explicitly in the `Test:` line.
 
 **edd-art (not ours to drive):** cx runs p1-matrix, p3-ridges, p5-install, p7-darkroom, veg-cards; each waits on its job-run in the eddington slot, one at a time outside the window.
 
 **PRs:** #329 draft (totality staging), #322 draft (dialogue camera) — both with edd-art for art acceptance; windowed captures 2026-11-16 09:00 JST, on its acceptance comment run `lead-wait pr 322` / `lead-wait pr 329` (fresh review). #318 draft (AD), #15 draft (paused). #330 waits for #329.
 **Open issues:** #1, #37, #285, #317 (decision log), #330, #334, #347. Audio: next step = CC0 field ambience (palm wind 384550, dusk 868748). Story D1–D8 done, D9 deferred; next story step only on an Owner reaction. Keepsake pick still with the Owner (rec. option 1 pencil cap).
 
-**Inbox:** empty (ev-20261115-190405-5763 acked). **Wake-ups:** none (Owner rule 2026-11-12).
+**Inbox:** empty (ev-20261115-200329-3a96 acked). **Wake-ups:** none (Owner rule 2026-11-12).
