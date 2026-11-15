@@ -1,0 +1,19 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path.s3tc="res://.godot/imported/cacao_branch-v2.png-5dee553bbec081c9253e9dc31f28ab10.s3tc.ctex"
+metadata={
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/principe/foliage/cacao_branch-v2.png"
+dest_files=["res://.godot/imported/cacao_branch-v2.png-5dee553bbec081c9253e9dc31f28ab10.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+mipmaps/generate=true
+process/fix_alpha_border=true

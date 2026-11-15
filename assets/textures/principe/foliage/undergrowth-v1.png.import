@@ -1,0 +1,19 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path.s3tc="res://.godot/imported/undergrowth-v1.png-b6d0a6462b72ca2d41f58bbf826da329.s3tc.ctex"
+metadata={
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/principe/foliage/undergrowth-v1.png"
+dest_files=["res://.godot/imported/undergrowth-v1.png-b6d0a6462b72ca2d41f58bbf826da329.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+mipmaps/generate=true
+process/fix_alpha_border=true

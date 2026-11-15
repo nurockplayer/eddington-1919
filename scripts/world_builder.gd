@@ -9,6 +9,8 @@ const PalmSway := preload("res://scripts/palm_sway.gd")
 const SafelightGlass := preload("res://scripts/safelight_glass.gd")
 const Look := preload("res://scripts/look.gd")
 const MODELS := "res://assets/models/"
+const FOLIAGE := "res://assets/textures/principe/foliage/"
+const FoliageCard := preload("res://shaders/foliage_card.gdshader")
 
 var root: Node3D
 var _mats := {}
@@ -275,6 +277,7 @@ func build() -> Dictionary:
 	out.merge(_darkroom())
 	_plantation_house()
 	_vegetation()
+	_forest_edge()
 	out.merge(_props())
 	_bounds()
 	randomize()  # vegetation reseeded the global RNG; don't leak that into "new sky" restarts
@@ -630,41 +633,50 @@ func _plantation_house() -> void:
 	sundy.name = "SundyHotspot"
 
 
+func _card_mat(key: String, tex_a: String, tex_b := "", custom := false, sway := 0.0, backlight := 0.3) -> ShaderMaterial:
+	if not _mats.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = FoliageCard
+		m.set_shader_parameter("tex_v1", load(FOLIAGE + tex_a))
+		m.set_shader_parameter("tex_v2", load(FOLIAGE + (tex_a if tex_b.is_empty() else tex_b)))
+		m.set_shader_parameter("use_custom_variant", custom)
+		m.set_shader_parameter("sway", sway)
+		m.set_shader_parameter("backlight", backlight)
+		_mats[key] = m
+	return _mats[key]
+
+
 static var _frond_mesh: ArrayMesh
+static var _cocoa_mesh: ArrayMesh
+static var _banana_mesh: ArrayMesh
 
 
-## One arched rachis and twelve separated leaflet pairs, shared by every palm.
+## A folded strip along the original rachis, shared by every palm.
 static func _palm_frond_mesh() -> ArrayMesh:
-	if _frond_mesh != null:
-		return _frond_mesh
-	var spine := PackedVector3Array([Vector3.ZERO])
-	for i in 26:
-		var angle := deg_to_rad(lerpf(10.0, -65.0, (i + 0.5) / 26.0))
-		spine.append(spine[-1] + Vector3(0, sin(angle), cos(angle)) * 0.1)
-	var vertices := PackedVector3Array()
-	for i in 26:
-		var a := spine[i]
-		var b := spine[i + 1]
-		var width := Vector3(lerpf(0.025, 0.004, i / 26.0), 0, 0)
-		vertices.append_array(PackedVector3Array([a - width, a + width, b + width, a - width, b + width, b - width]))
-	for i in 12:
-		var t := (i + 1.0) / 13.0
-		var at := spine[(i + 1) * 2]
-		var length := 0.12 + 0.62 * sin(PI * t)
-		for side in [-1.0, 1.0]:
-			# Narrow attachments leave sky between the swept, hanging leaflets.
-			vertices.append_array(PackedVector3Array([
-				at + Vector3(0, 0, -0.045),
-				at + Vector3(side * length, -length * 0.32, 0.18),
-				at + Vector3(0, 0, 0.045),
-			]))
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for vertex in vertices:
-		surface.add_vertex(vertex)
-	surface.generate_normals()
-	_frond_mesh = surface.commit()
+	if _frond_mesh == null:
+		_frond_mesh = _folded_card(26, 2.6, 10.0, -65.0, 0.65, 28.0)
 	return _frond_mesh
+
+
+static func _folded_card(segments: int, length: float, pitch_a: float, pitch_b: float, half_width: float, fold: float) -> ArrayMesh:
+	var spine := PackedVector3Array([Vector3.ZERO])
+	for i in segments:
+		var angle := deg_to_rad(lerpf(pitch_a, pitch_b, (i + 0.5) / segments))
+		spine.append(spine[-1] + Vector3(0, sin(angle), cos(angle)) * (length / segments))
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var across := half_width * cos(deg_to_rad(fold))
+	var drop := half_width * sin(deg_to_rad(fold))
+	for i in segments:
+		for side in 2:
+			var offsets := [Vector3(-across, -drop, 0), Vector3.ZERO, Vector3(across, -drop, 0)]
+			for corner in [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(0, 0), Vector2i(1, 1), Vector2i(1, 0)]:
+				var row := i + corner.x
+				var col := side + corner.y
+				st.set_uv(Vector2(float(row) / segments, col * 0.5))
+				st.add_vertex(spine[row] + offsets[col])
+	st.generate_normals()
+	return st.commit()
 
 
 func palm(pos: Vector3, h: float) -> void:
@@ -682,16 +694,6 @@ func palm(pos: Vector3, h: float) -> void:
 	cyl(0.16, h, Vector3(0, h * 0.5, 0), Color(0.42, 0.34, 0.24), p, false, Vector3.ZERO, 0.11)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(pos)
-	if not _mats.has("palm_frond"):
-		var shader := Shader.new()
-		shader.code = """shader_type spatial;
-render_mode cull_disabled;
-instance uniform vec4 frond_tint : source_color = vec4(1.0);
-void fragment() { ALBEDO = frond_tint.rgb; ROUGHNESS = 0.85; }
-"""
-		var material := ShaderMaterial.new()
-		material.shader = shader
-		_mats["palm_frond"] = material
 	var dead_count := rng.randi_range(2, 3) if rng.randf() < 0.4 else 0
 	for i in 12 + dead_count:
 		var leaf := Node3D.new()
@@ -709,13 +711,15 @@ void fragment() { ALBEDO = frond_tint.rgb; ROUGHNESS = 0.85; }
 		p.add_child(leaf)
 		palm_sway.add(leaf, palm_crowns.size(), i)
 		var tint := randf() * 0.12 if i < 8 else rng.randf() * 0.12
-		var color := P("foliage_deep").lightened(tint)
-		if i >= 12:
-			color = Color(0.30, 0.22, 0.12).lightened(tint)
 		var mesh := MeshInstance3D.new()
 		mesh.mesh = _palm_frond_mesh()
-		mesh.material_override = _mats["palm_frond"]
-		mesh.set_instance_shader_parameter("frond_tint", color)
+		if i >= 12:
+			mesh.material_override = _card_mat("frond_dry", "coconut_frond_dry-v1.png", "", false, 0.0, 0.35)
+		elif (palm_crowns.size() + i) % 2 == 0:
+			mesh.material_override = _card_mat("frond_v1", "coconut_frond-v1.png", "", false, 0.0, 0.35)
+		else:
+			mesh.material_override = _card_mat("frond_v2", "coconut_frond-v2.png", "", false, 0.0, 0.35)
+		mesh.set_instance_shader_parameter("tint", Color.WHITE.darkened(tint))
 		leaf.add_child(mesh)
 	var body := StaticBody3D.new()
 	var cs := CollisionShape3D.new()
@@ -736,14 +740,8 @@ func _vegetation() -> void:
 		Vector3(20, 0, 2), Vector3(-18, 0, 0), Vector3(12, 0, 13), Vector3(-12, 0, 12), Vector3(24, 0, -12)]
 	for s in spots:
 		palm(s, randf_range(6.0, 9.5))
-	# Low cocoa-like shrubs and banana clumps around the edges. With the foliage kit
-	# (art/assets.toml) they are instanced: one MultiMesh per model. All 70 together
-	# are ~12k triangles, so finer chunks for culling only add draw calls (r04 G4:
-	# quadrant chunks cost +26 draw calls looking up at totality). RNG use per shrub
-	# is unchanged, so the layout matches the v0.1 baseline; kind and yaw come from
-	# the index instead.
+	# Preserve the original per-kind transforms and global RNG stream.
 	var kit := {}  # model id -> Array[Transform3D]
-	var spheres := []  # primitive fallback: [pos, size, tint]
 	for i in 70:
 		var a := randf() * TAU
 		var d := randf_range(13.0, 40.0)
@@ -751,8 +749,7 @@ func _vegetation() -> void:
 		if pos.distance_to(Vector3(-15, 0, -20)) < 10.0:
 			continue
 		var s := randf_range(0.8, 1.8)
-		var tint := randf() * 0.5
-		spheres.append([pos, s, tint])
+		var _tint := randf() * 0.5  # preserve the original RNG draw
 		var banana := i % 3 == 0
 		var id := "banana_clump" if banana else "shrub_cocoa"
 		var k := (0.75 + 0.25 * s) if banana else s  # banana clumps vary less in size
@@ -760,22 +757,152 @@ func _vegetation() -> void:
 		if not kit.has(id):
 			kit[id] = []
 		kit[id].append(xf)
-	var instanced := ResourceLoader.exists(MODELS + "shrub_cocoa.glb") and ResourceLoader.exists(MODELS + "banana_clump.glb")
-	if instanced:
-		for id in kit:
-			multimesh(id, kit[id], "veg_shrub")
-		return
-	for sp in spheres:
-		var s: float = sp[1]
+	for id in kit:
+		var mesh := _banana_card_mesh() if id == "banana_clump" else _cocoa_card_mesh()
+		card_multimesh(id + "_multi", mesh, kit[id], "veg_shrub")
+
+
+func card_multimesh(name: String, mesh: Mesh, xforms: Array, group: String) -> MultiMeshInstance3D:
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = true
+	mm.mesh = mesh
+	mm.instance_count = xforms.size()
+	for j in xforms.size():
+		mm.set_instance_transform(j, xforms[j])
+		mm.set_instance_custom_data(j, Color(float(j % 2), 0, 0, 1))
+	var mmi := MultiMeshInstance3D.new()
+	mmi.name = name
+	mmi.multimesh = mm
+	mmi.add_to_group(group)
+	root.add_child(mmi)
+	return mmi
+
+
+static func _vertical_card(width: float, height: float, centered: bool) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for uv in [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 0), Vector2(1, 1), Vector2(0, 1)]:
+		st.set_uv(uv)
+		if centered:
+			st.add_vertex(Vector3((uv.x - 0.5) * width, (1.0 - uv.y) * height, 0))
+		else:
+			st.add_vertex(Vector3(0, (0.5 - uv.y) * height, uv.x * width))
+	st.generate_normals()
+	return st.commit()
+
+
+func _cocoa_card_mesh() -> ArrayMesh:
+	if _cocoa_mesh != null:
+		return _cocoa_mesh
+	var trunk := CylinderMesh.new()
+	trunk.top_radius = 0.05
+	trunk.bottom_radius = 0.05
+	trunk.height = 1.1
+	trunk.radial_segments = 6
+	trunk.rings = 0
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.append_from(trunk, 0, Transform3D(Basis.IDENTITY, Vector3(0, 0.55, 0)))
+	st.set_material(mat(P("teak_dark")))
+	_cocoa_mesh = st.commit()
+	st = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var branch := _vertical_card(1.5, 1.0, false)
+	var yaws := [0.0, 95.0, 185.0, 275.0]
+	for k in 4:
+		var basis := Basis(Vector3.UP, deg_to_rad(yaws[k])) * Basis(Vector3.RIGHT, deg_to_rad(12.0))
+		st.append_from(branch, 0, Transform3D(basis, Vector3(0, 0.9 + k * 0.15, 0)))
+	st.set_material(_card_mat("cacao", "cacao_branch-v1.png", "cacao_branch-v2.png", true, 0.03))
+	st.commit(_cocoa_mesh)
+	st = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var foot := _vertical_card(1.2, 0.82, true)
+	for yaw in [30.0, 120.0]:
+		st.append_from(foot, 0, Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), Vector3(0, -0.05, 0)))
+	st.set_material(_card_mat("undergrowth", "undergrowth-v1.png", "undergrowth-v2.png", true, 0.04))
+	st.commit(_cocoa_mesh)
+	return _cocoa_mesh
+
+
+func _banana_card_mesh() -> ArrayMesh:
+	if _banana_mesh != null:
+		return _banana_mesh
+	var stem := CylinderMesh.new()
+	stem.top_radius = 0.09
+	stem.bottom_radius = 0.09
+	stem.height = 1.5
+	stem.radial_segments = 8
+	stem.rings = 0
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.append_from(stem, 0, Transform3D(Basis.IDENTITY, Vector3(0, 0.75, 0)))
+	st.set_material(mat(P("foliage_light").darkened(0.25)))
+	_banana_mesh = st.commit()
+	st = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var leaf := _folded_card(10, 1.6, 35.0, -40.0, 0.325, 15.0)
+	for k in 6:
+		var basis := Basis(Vector3.UP, deg_to_rad(k * 60.0 + (k * 17) % 23))
+		st.append_from(leaf, 0, Transform3D(basis, Vector3(0, 1.5, 0)))
+	st.set_material(_card_mat("banana", "banana_leaf-v1.png", "banana_leaf-v2.png", true, 0.03))
+	st.commit(_banana_mesh)
+	return _banana_mesh
+
+
+func _forest_edge() -> void:
+	var band := Node3D.new()
+	band.name = "ForestEdge"
+	band.add_to_group("veg_forest_edge")
+	root.add_child(band)
+	for spec in [["Front", 47.0, 12.0, 13.0, "v1"], ["Back", 57.0, 16.0, 17.0, "v2"]]:
 		var mi := MeshInstance3D.new()
-		var sm := SphereMesh.new()
-		sm.radius = s
-		sm.height = s * 1.6
-		mi.mesh = sm
-		mi.position = sp[0] + Vector3(0, s * 0.6, 0)
-		mi.material_override = mat(P("foliage_deep").lerp(P("foliage_light"), sp[2]))
-		mi.add_to_group("veg_shrub")  # cost attribution: benchmark --bench-hide=veg_shrub
-		root.add_child(mi)
+		mi.name = spec[0]
+		mi.mesh = _forest_loop(spec[1], spec[2], -0.6, spec[3])
+		mi.material_override = _card_mat("forest_edge_" + spec[4], "forest_edge-" + spec[4] + ".png", "", false, 0.0, 0.2)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		band.add_child(mi)
+
+
+static func _forest_loop(half_side: float, radius: float, bottom: float, top: float) -> ArrayMesh:
+	var straight := 2.0 * (half_side - radius)
+	var quarter := straight + PI * radius * 0.5
+	var perimeter := 4.0 * quarter
+	var columns := ceili(perimeter / 2.0)
+	var tiles := maxi(3, roundi(perimeter / ((top - bottom) * 9.0)))
+	var points := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var shifts := PackedFloat32Array()
+	for i in columns + 1:
+		var distance := perimeter * i / columns
+		var side := mini(3, int(distance / quarter))
+		var along := distance - side * quarter
+		var p: Vector2
+		if along <= straight:
+			p = Vector2(-half_side + radius + along, -half_side)
+		else:
+			var angle := -PI * 0.5 + (along - straight) / radius
+			p = Vector2(half_side - radius, -half_side + radius) + Vector2(cos(angle), sin(angle)) * radius
+		p = p.rotated(side * PI * 0.5)
+		var point := Vector3(p.x, 0, p.y)
+		points.append(point)
+		normals.append((-point.normalized() + Vector3.UP).normalized())
+		var bearing := rad_to_deg(atan2(point.x, -point.z))
+		var ramp := clampf((absf(bearing + 38.0) - 24.0) / 10.0, 0.0, 1.0)
+		shifts.append(0.55 * (top - bottom) * (0.5 + 0.5 * cos(PI * ramp)))
+	# Copy the first column to close the seam exactly, including its normal and dip.
+	points[columns] = points[0]
+	normals[columns] = normals[0]
+	shifts[columns] = shifts[0]
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in columns:
+		for corner in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 0), Vector2i(1, 1), Vector2i(0, 1)]:
+			var col := i + corner.x
+			st.set_uv(Vector2(float(col) / columns * tiles, corner.y * 0.67))
+			st.set_normal(normals[col])
+			st.add_vertex(points[col] + Vector3.UP * ((top if corner.y == 0 else bottom) - shifts[col]))
+	return st.commit()
 
 
 func _props() -> Dictionary:

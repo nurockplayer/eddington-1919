@@ -1,0 +1,19 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path.s3tc="res://.godot/imported/coconut_frond-v2.png-9677d1bd201112e7b484c6e3dde25b1e.s3tc.ctex"
+metadata={
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/principe/foliage/coconut_frond-v2.png"
+dest_files=["res://.godot/imported/coconut_frond-v2.png-9677d1bd201112e7b484c6e3dde25b1e.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+mipmaps/generate=true
+process/fix_alpha_border=true
