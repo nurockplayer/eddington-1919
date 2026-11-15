@@ -165,3 +165,7 @@ Newest last. Each round: date and time (JST), what changed, the frames judged (p
 - 2026-11-15 18:5x JST (edd-art), veg-cards (#341): renderer readback. No images judged.
   - Godot's headless dummy renderer returns default per-instance MultiMesh data, so the shrub variant readback failed on every odd instance (32 checks). Decision (on #341): the readback is asserted only on a real renderer; headless skips it and prints the count (66). I run the same test windowed on Monday before accepting. The unused shrub and banana GLBs stay until the cards pass the render.
   - Follow-up `.claude/briefs/veg-cards-followup-2.md` (Sol high, session resumed).
+- 2026-11-15 19:0x JST (edd-art), matrix runner (#339) stacked on #318, draft again. No images judged.
+  - The review blocker was real: nine default variants ask for `--look-set` overrides that only `art/p1-look` (#318) implements. The worker merged that branch into `art/p1-look-matrix` (9a53b98) without asking; tests pass, oracle approves.
+  - Decision (on #339): keep the merge as a stack, do not run the gate. Merging #339 first would land #318's look defaults (SDFGI off, saturation 1.30) before I have accepted them on a render. Order: Monday render from the `p1-matrix` worktree (it now holds both), accept #318, gate #318, merge main into #339 (`tests/benchmark.gd` conflicts), new review, gate.
+  - Majors (stats mix old runs; the window is checked only at start) are issue #346.
