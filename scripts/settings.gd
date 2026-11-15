@@ -191,5 +191,7 @@ static func apply_quality(tree: SceneTree) -> void:
 	tree.root.msaa_3d = Viewport.MSAA_DISABLED if low else ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_3d")
 	for node in tree.get_nodes_in_group("quality_env"):
 		node.environment.ssao_enabled = false if low else node.get_meta("standard_ssao")
+		node.environment.sdfgi_enabled = false if low else node.get_meta("standard_sdfgi", false)
+		node.environment.volumetric_fog_enabled = false if low else node.get_meta("standard_volumetric_fog", false)
 	for light in tree.get_nodes_in_group("quality_shadow"):
 		light.shadow_enabled = false if low else light.get_meta("standard_shadow")
