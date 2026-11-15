@@ -47,7 +47,11 @@ def tray():
     body = mesh('tray', verts, faces, 'enamel')
     rim = mesh('rim', rings[1]+outline(.165,.135,.047),
                [(i,(i+1)%8,8+(i+1)%8,8+i) for i in range(8)], 'iron')
-    liquid = mesh('liquid', outline(.157,.127,.04), [tuple(range(8))], 'tray_liquid')
+    # Interpolate the inner wall at the surface, then leave a 1 mm gap.
+    t = (.03-.005)/(.046-.005)
+    liquid = mesh('liquid', outline(.144+(.163-.144)*t-.001,
+                                   .114+(.133-.114)*t-.001,.03),
+                  [tuple(range(8))], 'tray_liquid')
     return [body,rim,liquid]
 
 
@@ -78,20 +82,59 @@ def rack():
 
 
 def pail():
-    p = [lathe('pail',[(.10,0),(.135,.24),(.13,.24),(.095,.008)],'zinc'),
-         kit.torus('rim',.135,.005,(0,0,.24),'zinc',major_seg=24,minor_seg=4)]
-    # Bail rests against one side, kept within the pail's footprint.
-    p.append(kit.torus('bail',.105,.002,(0,0,.151),'zinc',rot=(72,0,0),major_seg=24,minor_seg=4))
+    p = [lathe('pail',[(.10,0),(.135,.232),(.141,.236),(.143,.242),
+                       (.139,.247),(.133,.245),(.130,.238),(.095,.008)],'zinc')]
+    # Half a wire ring, swung 80 degrees from upright toward -Y.
+    tilt = math.radians(80)
+    vertices = []
+    for i in range(15):
+        angle = math.pi*i/14
+        for j in range(6):
+            wire = 2*math.pi*j/6
+            radius = .142+.004*math.cos(wire)
+            normal = .004*math.sin(wire)
+            vertices.append((radius*math.cos(angle),
+                             -radius*math.sin(angle)*math.sin(tilt)+normal*math.cos(tilt),
+                             .240+radius*math.sin(angle)*math.cos(tilt)+normal*math.sin(tilt)))
+    faces = [tuple(reversed(range(6))), tuple(range(84,90))]
+    faces += [(i*6+j,i*6+(j+1)%6,(i+1)*6+(j+1)%6,(i+1)*6+j)
+              for i in range(14) for j in range(6)]
+    p.append(mesh('bail',vertices,faces,'zinc',True))
+    for x in (-.139,.139):
+        p.append(kit.box('ear',(.012,.004,.024),(x,0,.240),'zinc',bevel=0))
     return p
 
 
 def jug():
-    p = [lathe('jug',[(.065,0),(.075,.01),(.08,.06),(.078,.16),(.068,.22),(.068,.235),(.063,.235),(.063,.219)],'enamel'),
-         kit.torus('rim',.068,.003,(0,0,.235),'iron',major_seg=24,minor_seg=3),
-         kit.torus('handle',.05,.004,(.035,0,.12),'iron',rot=(90,0,0),major_seg=24,minor_seg=3)]
-    # The pointed pouring lip sits at the front of the rim.
-    p.append(mesh('spout',[(-.02,-.065,.23),(.02,-.065,.23),(0,-.079,.235)],[(0,1,2)],'enamel'))
-    return p
+    body = lathe('jug',[(.060,0),(.068,.008),(.080,.07),(.076,.13),(.058,.19),
+                        (.056,.205),(.066,.24),(.062,.24),(.053,.205)],'enamel')
+    limit = math.radians(35)
+    for vertex in body.data.vertices:
+        x,y,z = vertex.co
+        angle = math.atan2(x,-y)
+        if z >= .20 and abs(angle) <= limit:
+            offset = .02*math.cos(angle/limit*math.pi/2)**2
+            radius = math.hypot(x,y)
+            vertex.co = (x*(1+offset/radius),y*(1+offset/radius),z+offset/5)
+    # The band shares the displaced mouth vertices, so it follows the spout.
+    body.data.materials.append(kit.mat('iron'))
+    for face in body.data.polygons[2+6*24:2+7*24]:
+        face.material_index = 1
+    path = [(.058,.188),(.085,.196),(.108,.180),(.116,.150),
+            (.112,.115),(.098,.088),(.078,.076)]
+    path[0] = (path[0][0]-.003,path[0][1])
+    path[-1] = (path[-1][0]-.003,path[-1][1])
+    vertices = []
+    for i,(y,z) in enumerate(path):
+        before,after = path[max(0,i-1)],path[min(len(path)-1,i+1)]
+        dy,dz = after[0]-before[0],after[1]-before[1]
+        length = math.hypot(dy,dz)
+        for x,side in [(-.010,-1),(.010,-1),(.010,1),(-.010,1)]:
+            vertices.append((x,y-side*.002*dz/length,z+side*.002*dy/length))
+    faces = [tuple(range(4)),tuple(reversed(range(24,28)))]
+    faces += [(i*4+j,(i+1)*4+j,(i+1)*4+(j+1)%4,i*4+(j+1)%4)
+              for i in range(6) for j in range(4)]
+    return [body,mesh('handle',vertices,faces,'enamel')]
 
 
 def plate_box():

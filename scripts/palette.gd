@@ -41,9 +41,9 @@ const C := {
 	"wool_waistcoat": Color(0.286, 0.278, 0.278),  # structure
 	"enamel": Color(0.784, 0.773, 0.722),  # structure
 	"amber_glass": Color(0.227, 0.149, 0.086),  # structure
-	"tray_liquid": Color(0.118, 0.102, 0.086),  # structure
+	"tray_liquid": Color(0.329, 0.263, 0.184),  # structure
 	"plate_dark": Color(0.165, 0.157, 0.149),  # structure
-	"zinc": Color(0.431, 0.447, 0.451),  # structure
+	"zinc": Color(0.498, 0.518, 0.514),  # structure
 }
 
 const ROUGH := {
@@ -87,5 +87,5 @@ const ROUGH := {
 	"amber_glass": 0.12,
 	"tray_liquid": 0.08,
 	"plate_dark": 0.15,
-	"zinc": 0.5,
+	"zinc": 0.55,
 }

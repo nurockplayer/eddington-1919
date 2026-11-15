@@ -206,7 +206,7 @@ role = "structure"
 roughness = 0.12
 
 [swatch.tray_liquid]
-hex = "#1E1A16"
+hex = "#54432F"
 role = "structure"
 roughness = 0.08
 
@@ -216,7 +216,7 @@ role = "structure"
 roughness = 0.15
 
 [swatch.zinc]
-hex = "#6E7273"
+hex = "#7F8483"
 role = "structure"
-roughness = 0.5
-metallic = 0.6
+roughness = 0.55
+metallic = 0.3

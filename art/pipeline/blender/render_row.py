@@ -3,11 +3,12 @@ import math
 import sys
 from pathlib import Path
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 args = sys.argv[sys.argv.index('--') + 1:]
 out, paths = args[0], args[1:]
 bench = Path(out).stem == 'bench'
+closeup = Path(out).stem == 'closeup'
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
 scene.render.engine = 'BLENDER_EEVEE'
@@ -45,6 +46,9 @@ else:
     x = 0
     for path in paths:
         objs = import_prop(path)
+        if closeup and Path(path).stem == 'dr_jug':
+            for o in objs:
+                o.matrix_world = Matrix.Rotation(math.pi/2,4,'Z') @ o.matrix_world
         bpy.context.view_layer.update()
         lo, hi = bounds(objs)
         for o in objs:
@@ -57,7 +61,7 @@ floor.diffuse_color = (.075,.075,.075,1) if bench else (.3,.3,.3,1)
 bpy.ops.mesh.primitive_plane_add(size=200, location=(0,0,-.002))
 bpy.context.object.data.materials.append(floor)
 light_data = bpy.data.lights.new('key', 'POINT' if bench else 'SUN')
-light_data.energy = 60 if bench else 2
+light_data.energy = 200 if bench else 2
 if bench:
     light_data.color = (1,.80,.58)
     light_data.shadow_soft_size = .45
