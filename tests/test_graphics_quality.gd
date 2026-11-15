@@ -46,6 +46,8 @@ func _check_quality(low: bool) -> void:
 	check(not get_nodes_in_group("quality_shadow").is_empty(), "built secondary lights registered")
 	for node in get_nodes_in_group("quality_env"):
 		check(node.environment.ssao_enabled == (false if low else node.get_meta("standard_ssao")), "SSAO: " + node.name)
+		check(node.environment.sdfgi_enabled == (false if low else node.get_meta("standard_sdfgi", false)), "SDFGI: " + node.name)
+		check(node.environment.volumetric_fog_enabled == (false if low else node.get_meta("standard_volumetric_fog", false)), "volumetric fog: " + node.name)
 	for light in get_nodes_in_group("quality_shadow"):
 		check(light.shadow_enabled == (false if low else light.get_meta("standard_shadow")), "secondary shadow: " + light.name)
 
@@ -142,6 +144,7 @@ func _run() -> void:
 	live.free()
 	check(game.sun.shadow_enabled, "low retains the real sun shadow")
 	check(game.env.glow_enabled and game.env.fog_enabled, "low retains glow and fog")
+	check(not game.env.sdfgi_enabled and not game.env.volumetric_fog_enabled, "low disables SDFGI and volumetric fog")
 	check(not game.world.lamp.shadow_enabled, "low disables the 1919 lamp shadow")
 	var ui = game.ui
 	ui.toggle_pause()
@@ -156,6 +159,9 @@ func _run() -> void:
 	await _press_a()
 	check(Settings.quality == "standard" and ui.quality_button.text == "畫質：標準", "A cycles low to standard once")
 	_check_quality(false)
+	for node in get_nodes_in_group("quality_env"):
+		if node.environment == game.env:
+			check(game.env.sdfgi_enabled == node.get_meta("standard_sdfgi", false) and game.env.volumetric_fog_enabled, "standard restores look SDFGI and volumetric fog")
 	check(game.sun.shadow_enabled and game.world.lamp.shadow_enabled, "standard restores lamp and retains sun")
 	await _press_a()
 	check(Settings.quality == "low" and ui.quality_button.text == "畫質：低", "A cycles standard to low once")
