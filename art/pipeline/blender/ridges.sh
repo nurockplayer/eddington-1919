@@ -11,7 +11,7 @@ for kind in view silhouette; do
   done
   output=panorama
   [ "$kind" = view ] || output=silhouette
-  magick montage "$@" -resize 640x360 -geometry 640x360+0+0 -tile 3x2 "art/validation/p3-ridges/$output.jpg"
+  magick montage -font /System/Library/Fonts/Helvetica.ttc "$@" -resize 640x360 -geometry 640x360+0+0 -tile 3x2 "art/validation/p3-ridges/$output.jpg"
 done
 rm art/validation/p3-ridges/*.png
 exit "$g2"
