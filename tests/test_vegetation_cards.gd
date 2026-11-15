@@ -39,6 +39,7 @@ func _run() -> void:
 	check(wb.palm_crowns.size() == 15, "15 palm crowns preserved")
 	var variants := {}
 	var frond_mesh: Mesh
+	var frond_material: Material
 	var dead := 0
 	for palm in get_nodes_in_group("veg_palm"):
 		for i in palm.get_child_count() - 1:
@@ -51,14 +52,19 @@ func _run() -> void:
 			if not _card(frond.material_override):
 				continue
 			var m := frond.material_override as ShaderMaterial
-			var tex: Texture2D = m.get_shader_parameter("tex_v1")
-			var file := tex.resource_path.get_file()
+			if frond_material == null:
+				frond_material = m
+				for entry in [["tex_v1", "coconut_frond-v1.png"], ["tex_v2", "coconut_frond-v2.png"], ["tex_v3", "coconut_frond_dry-v1.png"]]:
+					var tex: Texture2D = m.get_shader_parameter(entry[0])
+					check(tex != null and tex.resource_path == FOLIAGE + entry[1], "shared frond material contains " + entry[1])
+			check(m == frond_material, "all fronds share one material")
+			var pick: float = frond.get_instance_shader_parameter("pick")
 			if i < 12:
-				check(file in ["coconut_frond-v1.png", "coconut_frond-v2.png"], "living frond samples a picked green cut-out")
-				variants[file] = true
+				check(pick == 0.0 or pick == 1.0, "living frond picks a green cut-out")
+				variants[pick] = true
 			else:
 				dead += 1
-				check(file == "coconut_frond_dry-v1.png", "dead frond samples dry v1")
+				check(pick == 2.0, "dead frond picks dry v1")
 			check(is_zero_approx(m.get_shader_parameter("sway")), "PalmSway owns frond motion")
 	check(variants.size() == 2 and dead > 0, "both green variants and dry fronds occur")
 	_check_fold(frond_mesh)
