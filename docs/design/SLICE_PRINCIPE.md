@@ -150,3 +150,11 @@ Newest last. Each round: date and time (JST), what changed, the frames judged (p
   - Decision (on #341): the fronds keep **one shared card material**. Green v1, green v2 and dry v1 sit in one `ShaderMaterial` and a per-instance `pick` chooses. My brief asked for three materials and for `tests/test_sun_crescents.gd` ("all fronds share mesh and material") to pass unchanged; the two contradict. One material keeps the existing check, at the cost of one more sampler in the card shader.
   - The worker had opened #341 ready; it is a draft again until I accept renders (Monday 2026-11-16 09:00 JST window).
   - Follow-up `.claude/briefs/veg-cards-followup-1.md` (session resumed). p1-matrix (#339): its fix `44eaf66` waited 4 h behind the hung job; the run is resumed to wait for the test and push.
+- 2026-11-15 18:3x JST (edd-art), **p7-darkroom round 1 judged: not accepted yet** (draft PR #344, 4ff605e). Images: `art/validation/p7-darkroom/props.jpg`, `bench.jpg` on `art/p7-darkroom`, copies on KIOXIA `director/p7-darkroom/judged-20261115/`.
+  - Accepted as built: bottle (amber glass, cork, blank label), plate holder, plate rack, plate box.
+  - Jug: reads as a vase. The handle torus is sunk in the body (a black nub), the spout is one loose triangle, the body is nearly a cylinder. Round 2: belly low and a narrow neck with a flared lip, the lip pinched into a spout, an enamel strap handle opposite it; `dims_m` 0.16 × 0.21 × 0.24.
+  - Pail: the rim is notched (a 4-sided rim torus cutting the 24-gon wall) and the bail is a full ring inside the pail. Round 2: the roll is part of the lathe profile; the bail is a half ring hinged at two ears, resting outside the rim.
+  - Tray: the liquid was a black slab to the brim (my swatch `#1E1A16` and my "1 cm below the rim"). Round 2: 2 cm below the rim so a band of enamel shows, `tray_liquid` `#54432F`.
+  - `zinc` `#7F8483`, roughness 0.55, metallic 0.3: at metallic 0.6 it renders near black with nothing to reflect, which is what the darkroom is.
+  - The bench render was too dark to judge (light 60 → 200), and a `closeup.jpg` of the three is added. Oracle approved the diff and named the same two handles (major, minor).
+  - Follow-up `.claude/briefs/p7-darkroom-fu2.md` (Sol high, session resumed); decision on #344. The Blender rebuild waits for the heavy gate.
