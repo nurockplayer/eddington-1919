@@ -33,6 +33,15 @@ func _run() -> void:
 	Settings.apply_startup()
 	check(Settings.video_apply_count == 1, "two startup calls apply video only once per process")
 	check(is_zero_approx(AudioServer.get_bus_volume_db(0)), "later startup still applies audio")
+	var limiters := 0
+	for i in AudioServer.get_bus_effect_count(0):
+		var effect := AudioServer.get_bus_effect(0, i)
+		if effect is AudioEffectHardLimiter:
+			limiters += 1
+			check(is_equal_approx(effect.pre_gain_db, Settings.MASTER_MAKEUP_DB) and is_equal_approx(effect.ceiling_db, Settings.MASTER_CEILING_DB),
+				"Master limiter adds %.1f dB with a %.1f dB ceiling" % [Settings.MASTER_MAKEUP_DB, Settings.MASTER_CEILING_DB])
+	check(limiters == 1, "two startup calls leave exactly one Master limiter (got %d)" % limiters)
+	check(Settings.MASTER_MAKEUP_DB > 0.0, "Master makeup gain is positive")
 	_check_video_calls()
 	ScorePlayer.set_music_enabled(false, test_path)
 	Settings.volumes = {"Master": 0.5, "Music": 0.25, "SFX": 0.0}
