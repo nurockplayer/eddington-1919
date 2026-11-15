@@ -32,6 +32,16 @@ def lathe(name, profile, material):
     return mesh(name, vertices, faces, material, True)
 
 
+def sharpen(obj, deg):
+    data = obj.data
+    data.update()
+    data.set_sharp_from_angle(angle=math.radians(deg))
+    for face in data.polygons[:2]:
+        for loop in face.loop_indices:
+            data.edges[data.loops[loop].edge_index].use_edge_sharp = True
+    data.update()
+
+
 def outline(x, y, z):
     c = 0.012
     return [(-x+c,-y,z), (x-c,-y,z), (x,-y+c,z), (x,y-c,z),
@@ -84,6 +94,16 @@ def rack():
 def pail():
     p = [lathe('pail',[(.10,0),(.135,.232),(.141,.236),(.143,.242),
                        (.139,.247),(.133,.245),(.130,.238),(.095,.008)],'zinc')]
+    body = p[0]
+    sharpen(body, 75)
+    # Split the wall from the first rolled-rim band as well as the bottom cap.
+    for face in body.data.polygons[2:26]:
+        body.data.edges[body.data.loops[face.loop_start+2].edge_index].use_edge_sharp = True
+    body.data.update()
+    wall_z = [body.data.corner_normals[loop].vector.z
+              for face in body.data.polygons[2:26] for loop in face.loop_indices]
+    print(f'pail outer wall corner normal z: min={min(wall_z):.6f} max={max(wall_z):.6f}', flush=True)
+    assert all(abs(z) < .3 for z in wall_z), 'pail outer wall corner normals'
     # Half a wire ring, swung 80 degrees from upright toward -Y.
     tilt = math.radians(80)
     vertices = []
@@ -107,7 +127,8 @@ def pail():
 
 def jug():
     body = lathe('jug',[(.060,0),(.068,.008),(.080,.07),(.076,.13),(.058,.19),
-                        (.056,.205),(.066,.24),(.062,.24),(.053,.205)],'enamel')
+                        (.056,.205),(.066,.24),(.062,.24),(.053,.205),
+                        (.072,.10),(.056,.012)],'enamel')
     limit = math.radians(35)
     for vertex in body.data.vertices:
         x,y,z = vertex.co
@@ -116,6 +137,7 @@ def jug():
             offset = .02*math.cos(angle/limit*math.pi/2)**2
             radius = math.hypot(x,y)
             vertex.co = (x*(1+offset/radius),y*(1+offset/radius),z+offset/5)
+    sharpen(body, 75)
     # The band shares the displaced mouth vertices, so it follows the spout.
     body.data.materials.append(kit.mat('iron'))
     for face in body.data.polygons[2+6*24:2+7*24]:
@@ -124,6 +146,13 @@ def jug():
             (.112,.115),(.098,.088),(.078,.076)]
     path[0] = (path[0][0]-.003,path[0][1])
     path[-1] = (path[-1][0]-.003,path[-1][1])
+    resampled = []
+    for i in range(len(path)-1):
+        p0,p1,p2,p3 = path[max(0,i-1)],path[i],path[i+1],path[min(len(path)-1,i+2)]
+        resampled.append(p1)
+        resampled.append(tuple((-p0[j]+9*p1[j]+9*p2[j]-p3[j])/16 for j in range(2)))
+    resampled.append(path[-1])
+    path = resampled
     vertices = []
     for i,(y,z) in enumerate(path):
         before,after = path[max(0,i-1)],path[min(len(path)-1,i+1)]
@@ -131,9 +160,9 @@ def jug():
         length = math.hypot(dy,dz)
         for x,side in [(-.010,-1),(.010,-1),(.010,1),(-.010,1)]:
             vertices.append((x,y-side*.002*dz/length,z+side*.002*dy/length))
-    faces = [tuple(range(4)),tuple(reversed(range(24,28)))]
+    faces = [tuple(range(4)),tuple(reversed(range(48,52)))]
     faces += [(i*4+j,(i+1)*4+j,(i+1)*4+(j+1)%4,i*4+(j+1)%4)
-              for i in range(6) for j in range(4)]
+              for i in range(12) for j in range(4)]
     return [body,mesh('handle',vertices,faces,'enamel')]
 
 
