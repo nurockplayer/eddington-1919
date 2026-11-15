@@ -1,0 +1,19 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path.s3tc="res://.godot/imported/forest_edge-v2.png-f14fab6eb92cbcf278f4be7ca3024c62.s3tc.ctex"
+metadata={
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/principe/foliage/forest_edge-v2.png"
+dest_files=["res://.godot/imported/forest_edge-v2.png-f14fab6eb92cbcf278f4be7ca3024c62.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+mipmaps/generate=true
+process/fix_alpha_border=true

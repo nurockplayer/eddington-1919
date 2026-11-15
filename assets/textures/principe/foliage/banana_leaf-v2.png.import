@@ -1,0 +1,19 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path.s3tc="res://.godot/imported/banana_leaf-v2.png-4ad995f54f7490e23083eb1c0570d037.s3tc.ctex"
+metadata={
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/principe/foliage/banana_leaf-v2.png"
+dest_files=["res://.godot/imported/banana_leaf-v2.png-4ad995f54f7490e23083eb1c0570d037.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+mipmaps/generate=true
+process/fix_alpha_border=true
