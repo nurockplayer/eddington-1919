@@ -50,6 +50,12 @@ const BOOKMARKS := [
 	["totality_live", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
 ]
 
+const AUDITION_BOOKMARKS := [
+	["coelostat_still", Vector3(1.5, 0.05, -4.9), Vector3(0.1, 1.15, -6.6), "prep_early"],
+	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-1.1, 1.35, -0.9), "prep_early"],
+]
+const AUDITION_LINE := "我從早上就盯著那道雲縫。每次我開始相信它，它就合上。"
+
 var main
 var out_dir := ""
 var totality_cloud_t := 230.0
@@ -174,7 +180,8 @@ func apply_capture_args(args: PackedStringArray) -> void:
 
 ## The bookmarks this run shoots; quits with exit code 1 when --bench-only names none.
 func _shots(bookmarks: Array) -> Array:
-	var shots := selected(bookmarks, only)
+	var available := bookmarks + AUDITION_BOOKMARKS if bookmarks == BOOKMARKS and not only.is_empty() else bookmarks
+	var shots := selected(available, only)
 	if shots.is_empty():
 		push_error("--bench-only names an unknown bookmark: " + ",".join(only))
 		get_tree().quit(1)
@@ -297,7 +304,24 @@ func _run() -> void:
 			target = main._totality_aim_point()
 		await _frames(2)
 		main.player.look_at_point(target)
+		var mouse_mode := Input.mouse_mode
+		if b[0] == "coelostat_still":
+			main.world.cottingham.visible = false
+		if b[0] == "dialogue":
+			main.ui.visible = true
+			main.ui.hud.visible = false
+			main.ui.cambridge_portraits = true
+			main.ui.play([{"s": "Eddington", "t": AUDITION_LINE}])
+			await _frames(4)
 		var r := await _sample_bookmark(b[0], b[3])
+		if b[0] == "coelostat_still":
+			main.world.cottingham.visible = true
+		if b[0] == "dialogue":
+			main.ui.dialog_panel.visible = false
+			main.ui.dialogue_portrait.hide()
+			main.ui._seq.clear()
+			Input.mouse_mode = mouse_mode
+			main.ui.visible = false
 		r["seed"] = main.sim.run_seed
 		results.append(r)
 		print("[BENCH] ", JSON.stringify(r))

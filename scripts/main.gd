@@ -17,6 +17,7 @@ const Chart := preload("res://scripts/chart.gd")
 const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
+const Style := preload("res://scripts/style.gd")
 const Look := preload("res://scripts/look.gd")
 const LookPost := preload("res://scripts/look_post.gd")
 const NightSky := preload("res://scripts/night_sky.gd")
@@ -116,6 +117,7 @@ var _night_bed_stopping := false
 var bot: Node
 var _look_sun := 1.0             # art-look gains (scripts/look.gd); 1.0 with --no-grade
 var _look_ambient := 1.0
+var _style: RefCounted
 var _look := {}   # Look.principe() values; empty with --no-grade
 var _departure_workbook_seen := false
 var _came_from_departure := false
@@ -142,6 +144,7 @@ func _ready() -> void:
 		Story.bet = Story.bet_1917.duplicate(true)
 	Story.kit_first = -1
 	var args := _user_args()
+	_style = Style.from_args(args)
 	# A restart's chosen sky wins over the command line, which only seeds the first run.
 	var seed_ := next_seed if next_seed >= 0 else int(args.get("seed", "-1"))
 	if seed_ < 0:
@@ -176,6 +179,8 @@ func _ready() -> void:
 	ui = UI.new()
 	add_child(ui)
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
+	if _style != null:
+		_style.apply(self)
 	ui.start_pressed.connect(_start_from_title)
 	ui.prologue_pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/cambridge.tscn"))
 	ui.continue_pressed.connect(_continue_from_title)
@@ -439,6 +444,8 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	env.ambient_light_color = amb_day.lerp(amb_tot, darkness).lerp(amb_night, night)
 	env.ambient_light_energy = lerpf(1.0, 0.55, darkness) * _look_ambient
 	env.fog_light_color = Color(0.62, 0.65, 0.68).lerp(Color(0.07, 0.08, 0.12), maxf(darkness, night))
+	if _style != null and not world.is_empty():
+		_style.light(self, contact, darkness, night)
 
 
 func _update_sky_prep() -> void:

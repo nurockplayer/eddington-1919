@@ -314,6 +314,7 @@ func _ground() -> void:
 	pm.subdivide_width = 60
 	pm.subdivide_depth = 60
 	mi.mesh = pm
+	mi.add_to_group("ground")
 	# r05: world-space macro patches (albedo) + fine breakup (detail), so the
 	# ground reads as a worn, rain-soaked clearing rather than a blurred carpet.
 	mi.material_override = _ground_material() if look else _ground_material_v04()
@@ -950,6 +951,7 @@ func _props() -> void:
 
 func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> Node3D:
 	var body := StaticBody3D.new()
+	body.add_to_group("npc")
 	var cs := CollisionShape3D.new()
 	var sh := CapsuleShape3D.new()
 	sh.radius = 0.3

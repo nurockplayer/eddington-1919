@@ -1,0 +1,4 @@
+# variant	extra user args (after --); tuned by the art director
+silver	--style=silver
+poster	--style=poster
+engraving	--style=engraving

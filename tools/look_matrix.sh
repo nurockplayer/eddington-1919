@@ -35,7 +35,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   # Intentional splitting of the TSV's extra arguments.
   perl -e 'alarm shift; exec @ARGV' 600 godot --path . --resolution 1280x720 --fixed-fps 60 --always-on-top -- --benchmark="$OUT/$name" --seed="$SEED" $extra ${ONLY:+--bench-only=$ONLY} >"$OUT/$name.log" 2>&1
   code=$?
-  if [ "$code" -eq 0 ] && [ -f "$OUT/$name/benchmark.json" ] && ! grep -q 'LOOK-SET ERROR' "$OUT/$name.log"; then
+  if [ "$code" -eq 0 ] && [ -f "$OUT/$name/benchmark.json" ] && ! grep -qE 'LOOK-SET ERROR|STYLE ERROR' "$OUT/$name.log"; then
     ok=$((ok + 1))
     successful+=("$name")
     result=ok
