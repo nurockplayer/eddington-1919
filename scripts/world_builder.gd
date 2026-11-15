@@ -9,9 +9,16 @@ const PalmSway := preload("res://scripts/palm_sway.gd")
 const SafelightGlass := preload("res://scripts/safelight_glass.gd")
 const Look := preload("res://scripts/look.gd")
 const MODELS := "res://assets/models/"
+const TILE_DIR := "res://assets/textures/principe/"
+const TILES := {
+	"laterite_wet": 2.0, "laterite": 2.0, "ground_cover": 1.5, "leaf_litter": 1.5,
+	"whitewash": 2.0, "roof_tile": 1.0, "brick": 0.6, "teak": 0.9,
+	"teak_dark": 0.9, "pine": 0.6, "canvas": 1.2, "iron_sheet": 0.6, "palm_bark": 0.5,
+}
 
 var root: Node3D
 var _mats := {}
+var _tile_textures := {}
 ## r05 art pass (BIBLE §3a). main.gd sets false for --no-grade, so that flag
 ## gives a complete before/after: environment look AND these material changes.
 var look := true
@@ -104,14 +111,14 @@ func cyl_collider(radius: float, height: float, pos: Vector3) -> StaticBody3D:
 	return body
 
 
-func mat(color: Color, rough := 0.85, metal := 0.0) -> StandardMaterial3D:
-	var key := "%s|%s|%s" % [color.to_html(), rough, metal]
+func mat(color: Color, rough := 0.85, metal := 0.0, tile := "") -> StandardMaterial3D:
+	var key := "%s|%s|%s|%s" % [color.to_html(), rough, metal, tile]
 	if not _mats.has(key):
 		var m := StandardMaterial3D.new()
 		m.albedo_color = color
 		m.roughness = rough
 		m.metallic = metal
-		weather(m)
+		weather(m, tile)
 		_mats[key] = m
 	return _mats[key]
 
@@ -134,13 +141,40 @@ var _weathered := {}   # original imported material → weathered copy (keeps in
 
 ## r05 anti-toy layer (BIBLE §3): a world-space grime/wear multiply on every
 ## non-metal, non-evidence surface, so large flat palette fills read as worn
-## timber, plaster and canvas. No authored textures; one shared noise texture.
-func weather(m: BaseMaterial3D) -> void:
+## timber, plaster and canvas. Picked painted tiles sit beneath the shared noise.
+func weather(m: BaseMaterial3D, tile := "") -> void:
 	# Metals keep clean reflections; evidence stays clean (BIBLE S1). Evidence is
 	# marked explicitly (evidence_mat(), palette role "evidence"), not inferred from
 	# brightness: a brightness cutoff also skipped whitewash and canvas (PR #6 review).
 	if not look or m.metallic > 0.5 or m.has_meta("evidence") or m.resource_name.begins_with("E1919_plate_glass"):
 		return
+	var id: String = tile
+	if id.is_empty():
+		var named := m.resource_name.trim_prefix("E1919_").get_slice(".", 0)
+		if TILES.has(named):
+			id = named
+		else:
+			for swatch: String in Palette.C:
+				if TILES.has(swatch) and m.albedo_color.to_html(false) == (Palette.C[swatch] as Color).to_html(false):
+					id = swatch
+					break
+	if TILES.has(id):
+		if not _tile_textures.has(id):
+			_tile_textures[id] = load(TILE_DIR + id + ".jpg")
+		m.albedo_texture = _tile_textures[id]
+		m.uv1_triplanar = true
+		m.uv1_world_triplanar = true
+		m.uv1_scale = Vector3.ONE / TILES[id]
+		m.uv1_triplanar_sharpness = 4.0
+		var reference: Color
+		if id == "iron_sheet":
+			reference = Color("4D4B4A")
+		elif id == "palm_bark":
+			reference = Color("6B5A44")
+		else:
+			reference = Palette.C[id]
+		var old := m.albedo_color
+		m.albedo_color = Color(clampf(old.r / reference.r, 0.0, 2.0), clampf(old.g / reference.g, 0.0, 2.0), clampf(old.b / reference.b, 0.0, 2.0), old.a)
 	if _weather_tex == null:
 		# try4 (0.06 freq, 5 octaves, 0.70–1.04) read as speckled camouflage: keep it broad and soft.
 		_weather_tex = _noise_tex(0.02, 3, [Color(0.82, 0.80, 0.78), Color(0.95, 0.94, 0.93), Color(1.02, 1.02, 1.01)])
@@ -521,7 +555,8 @@ func _darkroom() -> Dictionary:
 	box(Vector3(0.12, 2.5, 1.1), c + Vector3(-2.0, 1.25, -1.15), wall)
 	box(Vector3(0.12, 2.5, 1.1), c + Vector3(-2.0, 1.25, 1.15), wall)
 	box(Vector3(0.12, 0.5, 1.2), c + Vector3(-2.0, 2.25, 0), wall)
-	box(Vector3(4.6, 0.14, 4.0), c + Vector3(0, 2.6, 0), roof, null, false, Vector3(0, 0, deg_to_rad(-6)))
+	var roof_node := box(Vector3(4.6, 0.14, 4.0), c + Vector3(0, 2.6, 0), roof, null, false, Vector3(0, 0, deg_to_rad(-6)))
+	(roof_node as MeshInstance3D).material_override = mat(roof, 0.85, 0.0, "iron_sheet")
 	box(Vector3(4.0, 0.04, 3.4), c + Vector3(0, 0.02, 0), Color(0.3, 0.24, 0.18), null, false)
 	# Shelf with the plate box.
 	var shelf_wood := P("teak_dark")
