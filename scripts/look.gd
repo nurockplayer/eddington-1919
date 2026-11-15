@@ -77,28 +77,28 @@ static func apply_cinematic(env: Environment, sun: DirectionalLight3D, sky_mat: 
 ## set; a windowed comparison run overrides single values with the user arg
 ## --look-set=key=value,key=value (tools/look_matrix.sh). No sepia in play.
 const PRINCIPE := {
-	"tonemap": "aces",
-	"exposure": 1.1,
-	"white": 5.0,
-	"agx_contrast": 1.4,
-	"saturation": 1.18,
-	"contrast": 1.06,
-	"split_tone": 1.0,
-	"sun_floor": 0.3,
-	"sun_gain": 1.8,
-	"ambient_gain": 0.5,
-	"sky_gain": 0.72,
-	"cloud_shade": 0.34,
-	"ssao": 1,
-	"sdfgi": 1,
-	"sdfgi_energy": 1.0,
-	"fog_density": 0.0042,
-	"fog_aerial": 0.8,
-	"volumetric_fog": 1,
-	"volumetric_density": 0.012,
-	"vignette": 0.22,
-	"grain": 0.03,
-	"fov": 60.0,
+	"tonemap": "aces",          # Tone mapper: aces | agx | filmic
+	"exposure": 1.1,            # Tonemap exposure multiplier
+	"white": 5.0,               # ACES/filmic white point
+	"agx_contrast": 1.4,        # AgX contrast multiplier
+	"saturation": 1.30,         # Colour saturation multiplier
+	"contrast": 1.06,           # Grade contrast multiplier
+	"split_tone": 1.0,          # LUT blend: 0 neutral, 1 cool shadows/warm midtones
+	"sun_floor": 0.3,           # Minimum daytime key energy through cloud
+	"sun_gain": 1.8,            # Sun energy multiplier
+	"ambient_gain": 0.5,        # Ambient energy multiplier
+	"sky_gain": 0.72,           # Daytime sky brightness multiplier
+	"cloud_shade": 0.34,        # Cloud underside shading strength
+	"ssao": 1,                  # Contact occlusion: 0 off, 1 on
+	"sdfgi": 0,                 # SDFGI: 0 off, 1 on; preserves shaded faces/hats
+	"sdfgi_energy": 1.0,        # SDFGI bounce energy multiplier when enabled
+	"fog_density": 0.0042,      # Depth fog density
+	"fog_aerial": 0.8,          # Aerial perspective sky blend: 0..1
+	"volumetric_fog": 1,        # Volumetric fog: 0 off, 1 on
+	"volumetric_density": 0.012, # Volumetric fog density
+	"vignette": 0.22,           # Corner darkening strength: 0 off
+	"grain": 0.03,              # Film grain darkening strength: 0 off
+	"fov": 60.0,                # Príncipe player camera vertical degrees
 }
 
 

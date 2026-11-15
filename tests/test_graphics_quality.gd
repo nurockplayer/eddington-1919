@@ -122,7 +122,9 @@ func _run() -> void:
 	await _press_a()
 	check(Settings.quality == "standard" and ui.quality_button.text == "畫質：標準", "A cycles low to standard once")
 	_check_quality(false)
-	check(game.env.sdfgi_enabled and game.env.volumetric_fog_enabled, "standard restores SDFGI and volumetric fog")
+	for node in get_nodes_in_group("quality_env"):
+		if node.environment == game.env:
+			check(game.env.sdfgi_enabled == node.get_meta("standard_sdfgi", false) and game.env.volumetric_fog_enabled, "standard restores look SDFGI and volumetric fog")
 	check(game.sun.shadow_enabled and game.world.lamp.shadow_enabled, "standard restores lamp and retains sun")
 	await _press_a()
 	check(Settings.quality == "low" and ui.quality_button.text == "畫質：低", "A cycles standard to low once")
