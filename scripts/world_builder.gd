@@ -398,6 +398,16 @@ func _sea_and_hills() -> void:
 	sea.position.y = -0.4
 	sea.material_override = mat(P("sea_slate"), 0.12, 0.1)
 	root.add_child(sea)
+	var ridges := model("principe_ridges", Vector3.ZERO)
+	if ridges:
+		ridges.name = "FarRidges"
+		ridges.add_to_group("far_ridges")
+		for mi in ridges.find_children("*", "MeshInstance3D", true, false):
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			mi.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+		for i in 5:
+			randf()  # the hemispheres drew five values: keep the global RNG stream as it was
+		return
 	var green := P("hill_far")
 	for h in [[Vector3(-60, -6, -70), 30.0], [Vector3(25, -10, -90), 40.0], [Vector3(-95, -4, 10), 26.0], [Vector3(70, -8, -40), 30.0], [Vector3(-30, -12, -120), 50.0]]:
 		var mi := MeshInstance3D.new()

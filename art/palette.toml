@@ -86,6 +86,11 @@ hex = "#4E6450"
 role = "far"
 roughness = 0.9
 
+[swatch.hill_near]
+hex = "#3A5236"
+role = "far"
+roughness = 0.9
+
 [swatch.mirror]
 hex = "#E4E7EA"
 role = "evidence"
@@ -165,7 +170,7 @@ role = "structure"
 roughness = 0.2
 
 [swatch.eye_white]
-hex = "#D8CFC2"
+hex = "#D1C8BC"
 role = "structure"
 roughness = 0.7
 

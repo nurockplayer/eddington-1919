@@ -1,0 +1,123 @@
+{
+  "asset": "principe_ridges",
+  "file": "assets/models/principe_ridges.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 26032,
+      "max": 30000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_hill_far",
+        "E1919_hill_near"
+      ],
+      "max": 2,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        1042.215,
+        1006.533,
+        161.236
+      ],
+      "target": [
+        1042.215,
+        1006.533,
+        161.236
+      ],
+      "tolerance": 0.15,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        -5.117,
+        -4.25,
+        -2.0
+      ],
+      "ok": true,
+      "skipped": true
+    },
+    "object_origins": {
+      "value": {
+        "principe_ridges_far": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "principe_ridges_mid": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "principe_ridges_near": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "principe_ridges_far",
+        "principe_ridges_mid",
+        "principe_ridges_near"
+      ],
+      "ok": true
+    }
+  }
+}
