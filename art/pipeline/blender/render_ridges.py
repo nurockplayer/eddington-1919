@@ -49,6 +49,7 @@ for obj in ridges:
     obj.data.materials.append(preview)
 bpy.ops.object.light_add(type='SUN')
 sun = bpy.context.object
+sun.data.use_shadow = False
 bearing, altitude = map(math.radians, (-38, 56))
 direction = Vector((math.sin(bearing)*math.cos(altitude), math.cos(bearing)*math.cos(altitude), math.sin(altitude)))
 sun.rotation_euler = (-direction).to_track_quat('-Z', 'Y').to_euler()
