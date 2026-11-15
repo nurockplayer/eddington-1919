@@ -133,8 +133,9 @@ def jug():
     for vertex in body.data.vertices:
         x,y,z = vertex.co
         angle = math.atan2(x,-y)
-        if z >= .20 and abs(angle) <= limit:
-            offset = .02*math.cos(angle/limit*math.pi/2)**2
+        if z >= .19 and abs(angle) <= limit:
+            rise = min(1.0, (z - .19) / .05)
+            offset = .02*math.cos(angle/limit*math.pi/2)**2 * rise**2
             radius = math.hypot(x,y)
             vertex.co = (x*(1+offset/radius),y*(1+offset/radius),z+offset/5)
     sharpen(body, 75)
@@ -144,7 +145,7 @@ def jug():
         face.material_index = 1
     path = [(.058,.188),(.085,.196),(.108,.180),(.116,.150),
             (.112,.115),(.098,.088),(.078,.076)]
-    path[0] = (path[0][0]-.003,path[0][1])
+    path[0] = (path[0][0]-.0015,path[0][1])
     path[-1] = (path[-1][0]-.003,path[-1][1])
     resampled = []
     for i in range(len(path)-1):
@@ -160,6 +161,9 @@ def jug():
         length = math.hypot(dy,dz)
         for x,side in [(-.010,-1),(.010,-1),(.010,1),(-.010,1)]:
             vertices.append((x,y-side*.002*dz/length,z+side*.002*dy/length))
+    handle_min_radius = min(math.hypot(x,y) for x,y,z in vertices[:4])
+    print(f'Jug handle minimum radius: {handle_min_radius:.6f}')
+    assert handle_min_radius >= .0562
     faces = [tuple(range(4)),tuple(reversed(range(48,52)))]
     faces += [(i*4+j,(i+1)*4+j,(i+1)*4+(j+1)%4,i*4+(j+1)%4)
               for i in range(12) for j in range(4)]
