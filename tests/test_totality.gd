@@ -208,6 +208,10 @@ func _visible_sun_obstruction(game: Node) -> String:
 
 
 func _test_rehearsal() -> void:
+	var old_size := root.size
+	var old_scale_size := root.content_scale_size
+	root.size = Vector2i(1280, 720)
+	root.content_scale_size = Vector2i(1280, 720)
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
@@ -240,6 +244,7 @@ func _test_rehearsal() -> void:
 		check(game.ui._choice_buttons.size() == 4, "PREP offers rehearsal and keeps dismiss last")
 		game.ui._choose(2)
 		check(game.rehearsing and not game.player.can_move and game.player.can_look, "rehearsal freezes movement and retains look")
+		check(not game.world.eddington.visible and not game.world.cottingham.visible, "rehearsal hides both characters")
 		check(game.ui.toast.text == "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。" % Prompts.key("shutter"), "rehearsal teaches the shutter button")
 		var thick: float = game.sky_mat.get_shader_parameter("practice_cloud")
 		if i == 0:
@@ -271,6 +276,7 @@ func _test_rehearsal() -> void:
 			check(game.ui.toast.text == "Eddington 還在換片……", "press during automatic change reports the wait")
 		await create_timer(Sim.PLATE_CHANGE_S + 0.1).timeout
 		check(not game.rehearsing and game.player.can_move, "four-second change restores input")
+		check(game.world.eddington.visible and game.world.cottingham.visible, "rehearsal restores both characters")
 		check(game.world.roof.visible and is_equal_approx(game.player.yaw, 0.4) and is_equal_approx(game.player.pitch, -0.2), "rehearsal restores roof and camera")
 		check(is_equal_approx(game.player.global_position.z, 0.0), "rehearsal returns the player to the original position")
 		check(game.sky_mat.get_shader_parameter("practice_cloud") == -1.0, "rehearsal restores the sky shader")
@@ -294,6 +300,11 @@ func _test_rehearsal() -> void:
 	game.ui._choose(0)
 	await create_timer(2.2).timeout
 	check(game.phase == game.Phase.TOTALITY and not game._busy, "choice 0 still begins real totality")
+	check(not game.world.eddington.visible and not game.world.cottingham.visible, "totality hides both characters")
+	await physics_frame
+	await process_frame
+	var sun_screen: Vector2 = game.player.camera.unproject_position(game.player.camera.global_position + game.sim.sun_dir * 100.0)
+	check(sun_screen.distance_to(Vector2(853, 240)) < 40.0, "totality places Sun on upper-right third: %s" % sun_screen)
 	check(game.ui.prompt_label.text == "［%s］開始／停" % Prompts.key("shutter"), "totality retains a compact shutter reminder")
 	game.ui._process(7.1)
 	game._process_totality(0.1)
@@ -301,10 +312,15 @@ func _test_rehearsal() -> void:
 	game._end_totality()
 	game._process_totality(0.1)
 	check(game.tot_done and game.ui.prompt_label.text == "", "third contact clears the reminder without restoring it")
+	game._begin_night()
+	await create_timer(1.4).timeout
+	check(game.phase == game.Phase.NIGHT and game.world.eddington.visible and game.world.cottingham.visible, "night restores both characters")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
 	Prompts.joypad = false
+	root.size = old_size
+	root.content_scale_size = old_scale_size
 
 
 func _test_ready_status() -> void:
