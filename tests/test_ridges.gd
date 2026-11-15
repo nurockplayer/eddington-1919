@@ -13,7 +13,7 @@ func check(ok: bool, message: String) -> void:
 		print("FAIL: ", message)
 
 func _run() -> void:
-	var scene := load("res://scenes/main.tscn").instantiate()
+	var scene: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
 	var groups := get_nodes_in_group("far_ridges")
