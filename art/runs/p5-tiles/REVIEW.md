@@ -13,7 +13,7 @@ Art director picks, 2026-11-15 14:1x JST (edd-art), judged on the 3×3 sheets an
 | ground_cover | 1.25957, 1.28774, #3E5829 | 1.36211, 1.30352, #3E582A | pick: v2 (v1 repeats a heart-leaf motif) |
 | leaf_litter | 1.45736, 1.23085, #58442F | 1.53175, 1.19218, #57432F | pick: v2 (faint cross-fade ghost at the seam; tolerable on the ground) |
 | whitewash | 0.703706, 0.35809, #D1C9B8 | 1.58515, 1.23613, #D1C9B8 | pick: v2 (v1 repeats green stains) |
-| roof_tile | 0.61623, 0.56294, #904739 | 0.612368, 0.587186, #904739 | pick: v2, but rewrap before install: the cross-fade doubles the tile ridge at the seam; crop a whole number of tile periods instead |
+| roof_tile | 0.61623, 0.56294, #904739 | 0.612368, 0.587186, #904739 | pick: v2, but rewrap before install: the cross-fade doubles the tile ridge at the seam; crop a whole number of tile periods instead; re-wrapped 2026-11-15 18:55 JST (edd-art): 0.641818, 0.563404, #8F4739; installed |
 | brick | 0.574272, 0.54108, #97563D | 0.61509, 0.335069, #97563E | pick: v1 (v2 shows vertical cuts) |
 | teak | 0.513671, 1.05665, #6D4B30 | 0.374628, 1.04122, #6D4B31 | pick: v2 (v1 repeats dark knots) |
 | canvas | 0.547963, 0.289008, #CFC3A3 | 1.11891, 1.00262, #CFC3A4 | pick: v2 |
