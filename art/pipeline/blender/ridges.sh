@@ -7,7 +7,7 @@ blender -b --factory-startup -P art/pipeline/blender/render_ridges.py
 for kind in view silhouette; do
   set --
   for bearing in -37 -20 52 142 200 270; do
-    set -- "$@" -label "$bearing°" "art/validation/p3-ridges/${kind}_${bearing}.png"
+    set -- "$@" -label "${bearing}°" "art/validation/p3-ridges/${kind}_${bearing}.png"
   done
   output=panorama
   [ "$kind" = view ] || output=silhouette

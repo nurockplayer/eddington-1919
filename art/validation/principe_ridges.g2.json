@@ -1,0 +1,122 @@
+{
+  "asset": "principe_ridges",
+  "file": "assets/models/principe_ridges.glb",
+  "pass": false,
+  "checks": {
+    "triangles": {
+      "value": 23040,
+      "max": 30000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_hill_far",
+        "E1919_hill_near"
+      ],
+      "max": 2,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        1037.549,
+        1031.002,
+        152.0
+      ],
+      "target": [
+        1100.0,
+        1100.0,
+        152.0
+      ],
+      "tolerance": 0.15,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        -5.86,
+        -19.705,
+        -2.0
+      ],
+      "ok": false
+    },
+    "object_origins": {
+      "value": {
+        "ridge_far": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ridge_mid": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        },
+        "ridge_near": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "ridge_far",
+        "ridge_mid",
+        "ridge_near"
+      ],
+      "ok": false
+    }
+  }
+}
