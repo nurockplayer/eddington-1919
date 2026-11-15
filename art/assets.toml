@@ -188,6 +188,7 @@ dims_m = [1037.549, 1031.002, 152.0]
 tri_budget = 30000
 max_materials = 2
 max_texture_px = 0
+skip_checks = ["origin_bottom_centre"]  # terrain ring: the feet sit at -2 m so the ring tucks under the ground plane
 history = "RECONSTRUCTION: composed skyline; the two towers stand for Príncipe's phonolite plugs."
 status = "validated"
 
