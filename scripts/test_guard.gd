@@ -48,7 +48,7 @@ func _on_script_error(file: String, line: int, message: String) -> void:
 func _process(_delta: float) -> void:
 	if Time.get_ticks_msec() >= _deadline_msec:
 		set_process(false)
-		print("FAIL: deadline %s s exceeded (%s)" % [_deadline_seconds, _script_path])
+		print("FAIL: deadline %s s exceeded (%s)" % [String.num(_deadline_seconds), _script_path])
 		get_tree().quit(124)
 
 
