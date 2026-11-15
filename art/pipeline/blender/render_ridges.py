@@ -36,6 +36,17 @@ world = bpy.data.worlds.new('sky')
 world.use_nodes = True
 world.node_tree.nodes['Background'].inputs['Color'].default_value = (*rgb('C9D2D6'), 1)
 bpy.context.scene.world = world
+for obj in ridges:
+    haze = {'principe_ridges_near': 0.12, 'principe_ridges_mid': 0.38,
+            'principe_ridges_far': 0.62}[obj.name]
+    preview = obj.data.materials[0].copy()
+    preview.name = obj.name + '_haze_preview'
+    color = preview.node_tree.nodes['Principled BSDF'].inputs['Base Color']
+    mixed = tuple(c*(1-haze) + sky*haze for c, sky in zip(color.default_value[:3], rgb('C9D2D6')))
+    color.default_value = (*mixed, 1)
+    preview.diffuse_color = (*mixed, 1)
+    obj.data.materials.clear()
+    obj.data.materials.append(preview)
 bpy.ops.object.light_add(type='SUN')
 sun = bpy.context.object
 bearing, altitude = map(math.radians, (-38, 56))
@@ -48,6 +59,7 @@ camera.data.sensor_fit = 'VERTICAL'
 camera.data.angle = math.radians(60)
 scene = bpy.context.scene
 scene.camera = camera
+scene.render.engine = 'BLENDER_EEVEE'
 scene.render.resolution_x, scene.render.resolution_y = 1280, 720
 scene.render.resolution_percentage = 100
 scene.render.image_settings.file_format = 'PNG'
@@ -57,9 +69,12 @@ for silhouette in (False, True):
         for obj in ridges:
             obj.data.materials.clear()
             obj.data.materials.append(black)
-    for angle in (-37, -20, 52, 142, 200, 270):
+    for angle in (-37, -20, 52, 142, 200, 270, 152):
+        pitch = math.radians(9 if angle == 152 else 6)
+        camera.data.angle = math.radians(24 if angle == 152 else 60)
         t = math.radians(angle)
-        direction = Vector((math.sin(t)*math.cos(math.radians(6)), math.cos(t)*math.cos(math.radians(6)), math.sin(math.radians(6))))
+        direction = Vector((math.sin(t)*math.cos(pitch), math.cos(t)*math.cos(pitch), math.sin(pitch)))
         camera.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
-        scene.render.filepath = str(OUT / (('silhouette_' if silhouette else 'view_') + str(angle) + '.png'))
+        filename = ('towers_silhouette' if silhouette else 'towers_lit') if angle == 152 else ('silhouette_' if silhouette else 'view_') + str(angle)
+        scene.render.filepath = str(OUT / (filename + '.png'))
         bpy.ops.render.render(write_still=True)

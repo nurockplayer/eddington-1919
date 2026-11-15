@@ -18,46 +18,79 @@ def window(angle, start, end, fade):
     return 0.5 + 0.5 * math.cos(math.pi * d / fade) if d < fade else 0.0
 
 def noise(t, phase):
-    return (math.sin(5*t + phase) + 0.45*math.sin(10*t + 1.7*phase) + 0.2*math.sin(15*t - phase)) / 1.65
+    return (math.sin(5*t + phase) + 0.45*math.sin(10*t + 1.7*phase)
+            + 0.2*math.sin(15*t - phase) + 0.22*math.sin(27*t + 2.3*phase)
+            + 0.12*math.sin(52*t - 0.7*phase)) / 1.99
+
+def tower(x, points):
+    for (left, bottom), (right, top) in zip(points, points[1:]):
+        if left <= x <= right:
+            return bottom + (top-bottom)*(x-left)/(right-left)
+    return 0.0
 
 def build(name, index):
     verts, faces = [], []
-    for i in range(N):
-        t = 2 * math.pi * i / N
-        deg = 360 * i / N
-        low = window(deg, 290 if index else 300, 350 if index else 345, 14)
+    angles = [360*i/N for i in range(N)]
+    if index == 2:
+        angles = ([0.75*i for i in range(160)]
+                  + [120 + 0.25*i for i in range(280)]
+                  + [190 + 0.75*i for i in range(227)])
+    towers = []
+    for deg in angles:
+        towers.append(tower(math.radians(deg-140)*470, [
+            (-44, 0), (-30, 5), (-21, 14), (-15, 34), (-11, 52),
+            (-7, 61), (-3, 65), (2, 65), (6, 60), (9, 44),
+            (11, 20), (14, 8), (24, 0)])
+            + tower(math.radians(deg-168)*470, [
+            (-30, 0), (-20, 4), (-13, 12), (-9, 26), (-5, 32),
+            (0, 33), (4, 30), (7, 20), (10, 8), (18, 0)]))
+    towers = [(towers[i-1] + 2*h + towers[(i+1) % len(angles)])/4
+              for i, h in enumerate(towers)]
+    arc = 0.0
+    previous_radius = None
+    for i, deg in enumerate(angles):
+        t = math.radians(deg)
+        low = window(deg, 290 if index else 300, 350 if index else 345,
+                     20 if index == 0 else 14)
         n = noise(t, 1.2 + index)
         if index == 0:
             radius = 112 + 14*noise(t, 2.3)
-            height = 11.5 + 4*n + 1.2*math.sin(2*math.pi*radius*t/8)
-            radius = radius*(1-low) + 100*low
-            height = height*(1-low) + 5*low
+            radius = radius*(1-low) + (101 + 4*noise(t, 2.3))*low
+            if previous_radius is not None:
+                arc += (previous_radius + radius)/2 * math.radians(deg-angles[i-1])
+            previous_radius = radius
+            billow = 2*abs(math.sin(math.pi*arc/11)) - 1
+            height = (11.5 + 3.5*n)*(1-low) + (6 + 0.5*math.sin(8*t))*low + billow
             width = 22
         elif index == 1:
             radius = 230 + 26*noise(t, 3.4)
             height = 31 + 7*n
             height += (45-height)*window(deg, 59, 61, 20)
             height += (40-height)*window(deg, 204, 206, 22)
-            height = height*(1-low) + 7*low
+            height = height*(1-low) + (11.5 + 2.5*math.cos(12*(t-math.radians(300))))*low
             width = 29
         else:
             radius = 470 + 40*noise(t, 4.5)
             height = 55 + 12*n
             mass = window(deg, 125, 185, 15)
-            height = height*(1-mass) + 95*mass
-            height += 55*window(deg, 138.5, 141.5, 4.7)
-            height += 25*window(deg, 166.5, 169.5, 3.4)
+            massif_height = 90 + 4*math.sin(4*(t-math.radians(125))) + 1.2*math.sin(27*t) + 0.8*math.sin(52*t)
+            height = height*(1-mass) + massif_height*mass + towers[i]
+            radius = radius*(1-mass) + (470 + 5*noise(t, 4.5))*mass
             height = height*(1-low) + 28*low
             width = 34
+        gully = (1 + (math.sin(40*t + index) + 0.5*math.sin(90*t - index))/1.5)/2
+        previous_r = -math.inf
         for row in range(9):
             u = (row - 4) / 4
             r = radius + width*u
+            assert r > previous_r, (name, deg, row)
+            previous_r = r
             y = -2 + (height+2)*(1 - abs(u)**0.65)
             if 0 < row < 8 and row != 4:
-                r += height*0.12*math.sin(math.pi*abs(u))*noise(t*3, index+row*0.8)
+                y -= 0.12*height*gully*math.sin(math.pi*abs(u))
             verts.append((r*math.sin(t), r*math.cos(t), y))
-    for i in range(N):
-        j = (i+1) % N
+    for i in range(len(angles)):
+        j = (i+1) % len(angles)
         for row in range(8):
             faces.append((i*9+row, j*9+row, j*9+row+1, i*9+row+1))
     mesh = bpy.data.meshes.new(name)
@@ -72,7 +105,9 @@ def build(name, index):
 
 def main():
     kit.reset()
-    kit.export('assets/models/principe_ridges.glb', [build('ridge_near', 0), build('ridge_mid', 1), build('ridge_far', 2)])
+    kit.export('assets/models/principe_ridges.glb', [
+        build('principe_ridges_near', 0), build('principe_ridges_mid', 1),
+        build('principe_ridges_far', 2)])
 
 if __name__ == '__main__':
     main()
