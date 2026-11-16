@@ -120,7 +120,7 @@ func _input(event: InputEvent) -> void:
 	# Pause belongs to the existing pause menu above this panel.
 	if event.is_action_pressed("pause"):
 		return
-	var enter := event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ENTER
+	var enter: bool = event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ENTER
 	if (released and event.is_action_pressed("interact") and not event.is_echo()) or enter or event.is_action_pressed("trim_leave"):
 		finished.emit()
 	# Keep movement, camera and log inputs out of the world while observing.
