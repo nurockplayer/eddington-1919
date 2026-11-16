@@ -37,6 +37,7 @@ const DROP_PROMPTS := [
 const DROP_NOTE := "示意圖，不按比例。"
 const LIGHT_NOTE := "示意圖：落差放大了許多。真的箱子裡，比一個原子還小。"
 
+var _story: Node
 var input_blocked := false
 var stage := 0
 var mode := ""
@@ -93,6 +94,7 @@ static func fall_time() -> float:
 
 
 func _ready() -> void:
+	_story = get_node("/root/Story")
 	hide()
 
 
@@ -295,22 +297,22 @@ func _refresh_stage() -> void:
 		_sync_frame_buttons()
 	_layout()
 	_canvas.queue_redraw()
-	if mode == "light" and Story.light_guess < 0:
+	if mode == "light" and _story.light_guess < 0:
 		guess_btns[0].grab_focus()
 	else:
 		release_btn.grab_focus()
 
 
 func _guess(index: int) -> void:
-	if input_blocked or Story.light_guess >= 0:
+	if input_blocked or _story.light_guess >= 0:
 		return
-	Story.light_guess = index
+	_story.light_guess = index
 	_update_light_prompt()
 	release_btn.grab_focus()
 
 
 func _update_light_prompt() -> void:
-	var guessing: bool = Story.light_guess < 0
+	var guessing: bool = _story.light_guess < 0
 	for button in guess_btns:
 		button.visible = guessing
 	for button in frame_btns:
@@ -323,11 +325,11 @@ func _update_light_prompt() -> void:
 		_prompt.text = L.t("光會落在對面牆的哪裡？")
 	elif _played.outside and _played.inside:
 		_prompt.text = L.t("兩邊都看過了——可以關上")
-		if Story.light_guess == 2:
+		if _story.light_guess == 2:
 			_feedback.text = L.t("你猜對了：光落得比出發點低。")
 		else:
 			var choices := [L.t("比出發點高"), L.t("一樣高")]
-			_feedback.text = L.t("你猜的是%s。Eddington 在劍橋問過你：地板一直往上追它。") % choices[Story.light_guess]
+			_feedback.text = L.t("你猜的是%s。Eddington 在劍橋問過你：地板一直往上追它。") % choices[_story.light_guess]
 	elif _played.outside:
 		_prompt.text = L.t("還要從艙內看一次")
 	elif _played.inside:
@@ -349,7 +351,7 @@ func _release() -> void:
 			return
 		_fall_start()
 	else:
-		if _light_running or Story.light_guess < 0:
+		if _light_running or _story.light_guess < 0:
 			return
 		_light_running = true
 		_light_t = 0.0
@@ -381,7 +383,7 @@ func _next() -> void:
 
 
 func _frame(index: int) -> void:
-	if input_blocked or Story.light_guess < 0:
+	if input_blocked or _story.light_guess < 0:
 		return
 	view = "outside" if index == 0 else "inside"
 	_light_running = false
