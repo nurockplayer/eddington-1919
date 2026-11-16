@@ -141,7 +141,6 @@ var mic_row: HFlowContainer
 var mic_record_btn: Button
 var mic_readout: Label
 var mic_note: Label
-var mic_hint: Label
 var viewer_steps: RichTextLabel
 var mic_overlay: Control
 var micrometer_on := false
@@ -806,10 +805,6 @@ func _build_viewer(root: Control) -> void:
 	mic_readout = _label(L.t("讀數：0.00 格"), 16, ACCENT)
 	mic_readout.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	mic_row.add_child(mic_readout)
-	mic_hint = _label(L.t("把十字線對準參考星，再按「記下讀數」。"), 14, ACCENT)
-	mic_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mic_hint.visible = false
-	mid.add_child(mic_hint)
 	mic_note = _label(L.t("位移為示意放大；真實的位移比一個星點還小得多。"), 14, DIM)
 	mic_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mic_note.visible = false
@@ -1088,7 +1083,12 @@ func _sync_micrometer_controls() -> void:
 	var has_plate: bool = _viewer_sel >= 0 and _plate_texture != null
 	mic_btn.disabled = _viewer_reporting or not has_plate
 	mic_record_btn.disabled = _viewer_reporting or not has_plate
-	mic_hint.visible = micrometer_on and has_plate and not _viewer_reporting and not _viewer_plates[_viewer_sel].get("read", false)
+	if micrometer_on and has_plate and not _viewer_reporting and not _viewer_plates[_viewer_sel].get("read", false):
+		mic_note.text = L.t("把十字線對準參考星，再按「記下讀數」。")
+		mic_note.add_theme_color_override("font_color", ACCENT)
+	else:
+		mic_note.text = L.t("位移為示意放大；真實的位移比一個星點還小得多。")
+		mic_note.add_theme_color_override("font_color", DIM)
 
 
 func _update_micrometer() -> void:

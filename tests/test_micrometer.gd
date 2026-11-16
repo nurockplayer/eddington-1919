@@ -121,11 +121,14 @@ func _run() -> void:
 	var ui = game.ui
 	ui.mic_btn.button_pressed = true
 	check(ui.micrometer_on and ui.mic_row.is_visible_in_tree() and ui.mic_note.is_visible_in_tree(),
-		"micrometer toggle shows the record row and the exaggeration note")
-	check(ui.mic_note.text == "位移為示意放大；真實的位移比一個星點還小得多。", "exaggeration note is verbatim")
-	check(ui.mic_hint.is_visible_in_tree(), "unread plate shows the alignment hint beside the micrometer")
+		"micrometer toggle shows the record row and the shared note")
+	check(ui.mic_note.text == "把十字線對準參考星，再按「記下讀數」。"
+		and ui.mic_note.get_theme_color("font_color") == ui.ACCENT,
+		"unread plate shows the alignment hint in accent in the shared note")
 	_read_plate(game, 0, 1.75)
-	check(not ui.mic_hint.visible, "recording hides the alignment hint")
+	check(ui.mic_note.text == "位移為示意放大；真實的位移比一個星點還小得多。"
+		and ui.mic_note.get_theme_color("font_color") == ui.DIM,
+		"recording restores the exaggeration note in dim")
 	check(game.sim.plates[0].read and is_equal_approx(float(game.sim.plates[0].reading), game.sim.reading_for_value(1.75)),
 		"recording stores the crosshair position as the plate's reading")
 	check(ui.mic_readout.text == "讀數：%.2f 格" % ui.micrometer_px, "readout shows the setting in 格")
