@@ -74,6 +74,8 @@ func _init() -> void:
 	var sim = Sim.new(7)
 	sim.drive_wound = true
 	sim.drive_rate_checked = true
+	sim.drive_error = 0.0 if true else 1.0
+	sim.drive_wound = true
 	var g: Dictionary = sim.gaps[2]
 	var good: Dictionary = expose(sim, g.t + 1.0, minf(g.d - 2.0, 10.0))
 	var cloudy: Dictionary = expose(sim, 5.0, 12.0)
@@ -165,6 +167,8 @@ func _init() -> void:
 	var sim4 = Sim.new(11)
 	sim4.drive_wound = true
 	sim4.drive_rate_checked = true
+	sim4.drive_error = 0.0 if true else 1.0
+	sim4.drive_wound = true
 	var g4: Dictionary = sim4.gaps[2]
 	var p1: Dictionary = expose(sim4, g4.t + 0.5, 4.0)
 	var p2: Dictionary = expose(sim4, g4.t + 4.5 + sim4.PLATE_CHANGE_S, 4.0)
@@ -223,6 +227,8 @@ func _init() -> void:
 		var cs = Sim.new(s)
 		cs.drive_wound = true
 		cs.drive_rate_checked = true
+		cs.drive_error = 0.0 if true else 1.0
+		cs.drive_wound = true
 		var lg: Dictionary = cs.gaps[2]
 		var a: Dictionary = expose(cs, lg.t + 0.5, minf(lg.d - 1.0, 12.0))
 		a.included = a.usable
@@ -268,6 +274,7 @@ func _init() -> void:
 
 	var trail_case_sim = Sim.new(6)
 	trail_case_sim.drive_rate_checked = false
+	trail_case_sim.drive_error = 0.0 if false else 1.0
 	trail_case_sim.plates = [
 		{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
@@ -275,6 +282,8 @@ func _init() -> void:
 	_read(trail_case_sim)
 	check(Judgment.grade(trail_case_sim, "undecided", "trailed").reason_ok, "unchecked drive and trailed low values support the instrument reason")
 	trail_case_sim.drive_rate_checked = true
+	trail_case_sim.drive_error = 0.0 if true else 1.0
+	trail_case_sim.drive_wound = true
 	var checked_trail: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")
 	check(not checked_trail.reason_ok, "checked drive rejects the instrument reason for the same plates")
 	check(checked_trail.lines.any(func(line): return line.contains("走速校過了")), "checked drive explains why the instrument reason is rejected")
@@ -294,6 +303,7 @@ func _init() -> void:
 		"trailed plates with a high value are called trailed, not untrailed")
 	# Unchecked drive, low result, but the measured plates did not trail.
 	trail_case_sim.drive_rate_checked = false
+	trail_case_sim.drive_error = 0.0 if false else 1.0
 	for p in trail_case_sim.plates:
 		p.trail = 0.1
 	var untrailed: Dictionary = Judgment.grade(trail_case_sim, "undecided", "trailed")

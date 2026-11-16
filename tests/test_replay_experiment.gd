@@ -88,7 +88,16 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 	await dialogue(game)
 	check(game.sim.briefed, "preparation briefing completed")
 	game._hold_complete("drive")
-	game._hold_complete("chronometer")
+	game._interact_needs_release = false
+	game._interact("drive")
+	# Use the autoplay observation/input path, rather than a completion flag.
+	var trimmer = load("res://tests/test_autoplay_hold.gd").HoldBot.new()
+	trimmer.main = game
+	root.add_child(trimmer)
+	game.set_process(true)
+	await trimmer.trim_drive()
+	game.set_process(false)
+	trimmer.queue_free()
 	for holder in 8:
 		game._hold_complete("plate_box")
 	game._interact("eddington")

@@ -91,6 +91,8 @@ func _run() -> void:
 	var sim := Sim.new(77)
 	sim.plates_delivered = sim.MAX_EXTRA_PLATES
 	sim.drive_rate_checked = true
+	sim.drive_error = 0.0 if true else 1.0
+	sim.drive_wound = true
 	# Run the maximum 12 exposures through the same shutter and cloud model.
 	for i in sim.plates_available():
 		var start := float(i * 24)

@@ -55,7 +55,7 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 			lines.append(L.t("· 第一次量：%.2f″ ± %.2f″") % [first.value, first.sigma])
 		else:
 			lines.append(L.t("· 第一次量：沒有量出任何數值。"))
-	lines.append(L.t("· 時鐘驅動：%s。") % (L.t("上了發條並校過走速") if run.get("drive_rate_checked", false) else (L.t("上了發條但沒校走速") if run.get("drive_wound", false) else L.t("由 Cottingham 匆忙處理"))))
+	lines.append(L.t("· 時鐘驅動：%s。") % (L.t("上了發條並校過走速") if run.get("drive_rate_checked", false) else (L.t("上了發條但走速尚未驗證") if run.get("drive_wound", false) else L.t("由 Cottingham 匆忙處理"))))
 	# Conversion arc A: the prediction comes back beside the evidence.
 	var bet: Dictionary = story.get("bet", {})
 	if not bet.is_empty():

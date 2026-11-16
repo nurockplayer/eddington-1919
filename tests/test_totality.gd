@@ -402,7 +402,7 @@ func _test_aim_aspects() -> void:
 func _test_ready_status() -> void:
 	var states := [
 		[true, true, 0, "可用底片 6 張。時鐘驅動：上了發條並校過走速。", 6],
-		[true, false, 0, "可用底片 6 張。時鐘驅動：上了發條但沒校走速。", 6],
+		[true, false, 0, "可用底片 6 張。時鐘驅動：上了發條但走速尚未驗證。", 6],
 		[false, false, 0, "可用底片 6 張。時鐘驅動：還沒上發條。", 6],
 		[true, true, 2, "可用底片 8 張（你手上的 2 張會交給 Cottingham）。時鐘驅動：上了發條並校過走速。", 8],
 	]
@@ -415,6 +415,7 @@ func _test_ready_status() -> void:
 		game.sim.plates_delivered = 2
 		game.sim.drive_wound = state[0]
 		game.sim.drive_rate_checked = state[1]
+		game.sim.drive_error = 0.0 if state[1] else 1.0
 		game.sim.plates_carried = state[2]
 		game._interact("eddington")
 		check(game.ui.text_label.text == state[3], "real PREP dialogue reports plates, handoff and drive: " + state[3])
@@ -807,6 +808,7 @@ func _test_judgment_reasons() -> void:
 	check(game.ui._seq.map(func(line): return line.key) == ["telegram", "reason"], "real judgment skips the verdict when nothing was measured")
 	# The fifth reason through the real judgment path (no bot route reaches it).
 	game.sim.drive_rate_checked = false
+	game.sim.drive_error = 0.0 if false else 1.0
 	game.sim.plates = [
 		{"number": 1, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
 		{"number": 2, "usable": true, "quality": "poor", "included": true, "trail": 0.6, "value": 0.87, "sigma": 0.2},
@@ -898,6 +900,8 @@ func _test_strict_poor_only() -> void:
 		var game := _make_game()
 		_reset_game(game, 77, 0.0)
 		game.sim.drive_rate_checked = true
+		game.sim.drive_error = 0.0 if true else 1.0
+		game.sim.drive_wound = true
 		# A long exposure records enough stars but trails; the optional short
 		# exposure in the late gap supplies a clear plate in the same seeded sky.
 		# A quarter-second exposure also leaves a real unusable plate to exclude.
@@ -1165,6 +1169,8 @@ func _test_callouts() -> void:
 	# Long exposure names the unchecked drive.
 	_reset_game(game, 1919, 0.0)
 	game.sim.drive_rate_checked = true
+	game.sim.drive_error = 0.0 if true else 1.0
+	game.sim.drive_wound = true
 	log = []
 	game._toggle_shutter()
 	for i in int(22.0 / GAME_STEP):

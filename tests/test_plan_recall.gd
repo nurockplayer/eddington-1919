@@ -89,6 +89,7 @@ func _check_drive(story: Node, plan: Array, played: bool, rate_checked: bool, ex
 	game.set_process(false)
 	game.sim = Sim.new(1919)
 	game.sim.drive_rate_checked = rate_checked
+	game.sim.drive_error = 0.0 if rate_checked else 1.0
 	game.sim.plates = [
 		{"number": 1, "start": 30.0, "duration": 4.0, "sunlit": false, "included": false, "usable": true, "stars": 7, "quality": "good", "sky_read": "clear"},
 	]

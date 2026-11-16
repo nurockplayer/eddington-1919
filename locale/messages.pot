@@ -4829,3 +4829,151 @@ msgstr ""
 #: scripts/content.gd:66
 msgid "\nEddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"
 msgstr ""
+
+#: scripts/main.gd:1314
+msgid "\n發條上滿了，但走速尚未驗證。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:134
+msgid "%s · 間距 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgstr ""
+
+#: scripts/main.gd:1194
+msgid "%s 觀察追蹤、請 Cottingham 微調走速"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "B 鍵"
+msgstr ""
+
+#: scripts/content.gd:334
+msgid "Cottingham：「二十秒了——走速尚未驗證，留意曝光時間。」"
+msgstr ""
+
+#: scripts/main.gd:961
+msgid "Cottingham：「好，放開按鍵，再看追蹤示意圖。」"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:110
+msgid "Cottingham：「看看它剛才在哪裡，現在又在哪裡。試著微調一下。」"
+msgstr ""
+
+#: scripts/prompts.gd:9
+msgid "E／Enter"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:75
+msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
+msgstr ""
+
+#: scripts/content.gd:87
+msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速尚未驗證時，留下的誤差越大，長曝光的星像越容易拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
+msgstr ""
+
+#: scripts/prompts.gd:9
+msgid "←／→"
+msgstr ""
+
+#: scripts/content.gd:31 scripts/ending.gd:58
+msgid "上了發條但走速尚未驗證"
+msgstr ""
+
+#: scripts/content.gd:46
+msgid "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
+msgstr ""
+
+#: scripts/content.gd:46
+msgid "你先在驅動箱上[b]按住 %s 上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:149
+msgid "剛才"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:131
+msgid "向右"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:131
+msgid "向左"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:593
+msgid "單憑這張底片，仍無法判定。"
+msgstr ""
+
+#: scripts/content.gd:45
+msgid "我負責定天鏡的驅動。你看追蹤示意圖，告訴我怎麼微調；移動越少，長曝光的星像越清楚。"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "方向鍵左／右"
+msgstr ""
+
+#: scripts/judgment.gd:99
+msgid "星像平均拖長 %.2f——走速尚未驗證。數值偏低，可能是儀器，不是星。"
+msgstr ""
+
+#: scripts/judgment.gd:29
+msgid "星像拖長了——走速尚未驗證。數值偏低，可能是儀器，不是星。"
+msgstr ""
+
+#: scripts/content.gd:293
+msgid "時鐘走得很穩。謝謝你那天觀察追蹤、請我微調。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:150
+msgid "現在"
+msgstr ""
+
+#: scripts/content.gd:295
+msgid "發條是滿的，走速尚未驗證；底片留下了當時設定的結果。"
+msgstr ""
+
+#: scripts/content.gd:51
+msgid "發條滿了。在驅動箱再按一次，看追蹤示意圖，你觀察、我調走速。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:44 scripts/coelostat_calibration.gd:72
+msgid "觀察星像的移動，再請 Cottingham 微調。位置是否居中並不重要。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:136
+msgid "走速已驗證；可記錄目前設定。"
+msgstr ""
+
+#: scripts/content.gd:126
+msgid "走速：尚未驗證；星像拖長的程度也取決於留下的走速誤差。"
+msgstr ""
+
+#: scripts/content.gd:125
+msgid "走速：已在追蹤示意圖中驗證。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:133
+msgid "近乎靜止"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:39
+msgid "追蹤示意圖——示意重建，非史料"
+msgstr ""
+
+#: scripts/content.gd:296
+msgid "那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:42
+msgid "（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:53
+msgid "（桌角有一個沒寄出的信封，寫著你的名字。）"
+msgstr ""
+
+#: scripts/main.gd:932
+msgid "［%s］觀察追蹤、請 Cottingham 微調"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:137
+msgid "［%s］請他調慢／調快　［%s］微調\n［%s］記錄　［%s］保留設定離開　［%s］暫停"
+msgstr ""

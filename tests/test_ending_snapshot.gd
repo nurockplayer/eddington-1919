@@ -11,7 +11,7 @@ const Ending := preload("res://scripts/ending.gd")
 const TEXTS := ["title", "body", "history", "review", "telegram"]
 # Every field the ending reads from the stored run. build() must not need the live sim.
 const FIELDS := ["combined", "grade", "first_result", "reselected_after_seeing",
-	"drive_rate_checked", "drive_wound", "plate_total", "plates_available", "plate_counts",
+	"drive_rate_checked", "drive_wound", "drive_error", "plate_total", "plates_available", "plate_counts",
 	"bounds", "telegram_id", "reason_id", "reason_text", "bet", "bet_pick", "rule_id",
 	"kit_line", "departure_kit", "verdict_truth"]
 
@@ -111,6 +111,7 @@ func _setup(game: Node, story: Node, spec: Dictionary) -> void:
 	sim.reselected_after_seeing = spec.get("reselected", false)
 	sim.drive_wound = spec.get("drive_wound", false)
 	sim.drive_rate_checked = spec.get("drive_rate_checked", false)
+	sim.drive_error = 0.0 if spec.get("drive_rate_checked", false) else 1.0
 	# Conversion arc C: a plate counts only once the player has read it with the
 	# micrometer. Push the crosshair to each selected plate's true displacement.
 	if sim.measured:

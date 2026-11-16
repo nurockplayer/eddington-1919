@@ -391,9 +391,10 @@ func _prep_full() -> void:
 	await shot("04_coelostat")
 	await _hold(KEY_E, 3.5)
 	_log("drive wound %s" % main.sim.drive_wound)
+	await _tap(KEY_E)
+	await trim_drive()
 	await walk([RIGHT_BACK, RIGHT_FRONT, Vector3(0.5, 0, -0.1), FRONT_LEFT, TABLE_SPOT])
 	await look(Vector3(-1.65, 0.89, -3.45))
-	await _hold(KEY_E, 4.5)
 	_log("rate checked %s" % main.sim.drive_rate_checked)
 	await interact(Vector3(-2.2, 0.845, -3.35))
 	await talk()
@@ -456,7 +457,8 @@ func _totality() -> void:
 				want = false
 		else:
 			var dur: float = sim._open.duration if exposing else 0.0
-			var limit := 16.0 if sim.drive_rate_checked else 6.0
+			var residual: float = absf(sim.drive_error)
+			var limit := 16.0 if sim.drive_rate_checked else clampf(0.30 / (0.012 + 0.038 * residual), 6.0, 16.0)
 			if exposing:
 				want = dens < 0.62 and dur < limit and t < sim.TOTALITY_S - 6.0
 			else:
@@ -785,3 +787,25 @@ func _restore_monkey_settings() -> void:
 		file.store_buffer(_settings_bytes)
 	else:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path("user://settings.cfg"))
+
+
+## Observe the same one-second displacement shown in the panel; no hidden target.
+func trim_drive() -> void:
+	while main.calibration.visible and not main.sim.drive_rate_checked:
+		var panel = main.calibration
+		if panel.elapsed < 1.0:
+			await get_tree().process_frame
+			continue
+		var drift: float = panel.measured_drift
+		if absf(drift) > 0.65:
+			_key(KEY_SHIFT, absf(drift) < 5.0)
+			_key(KEY_LEFT if drift > 0.0 else KEY_RIGHT, true)
+		else:
+			_key(KEY_LEFT, false)
+			_key(KEY_RIGHT, false)
+		await get_tree().process_frame
+	_key(KEY_LEFT, false)
+	_key(KEY_RIGHT, false)
+	_key(KEY_SHIFT, false)
+	if main.calibration.visible:
+		await _tap(KEY_ENTER)
