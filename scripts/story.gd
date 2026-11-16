@@ -26,6 +26,7 @@ var mercury_suspect := -1
 var sky_promise := -1
 var bond_tone := ""
 var slip_fix := -1
+var light_guess := -1
 var departure_done := false
 ## Conversion arc move D: the October 1919 Cambridge epilogue and the ending plate
 ## it carries across the scene change.
@@ -38,7 +39,7 @@ const SAVED := [
 	"runs", "from_prologue", "prologue_done", "clues", "report", "plan",
 	"kit_choice", "want", "kit_first", "trial_note", "exam", "bet", "bet_1917",
 	"orrery", "mercury_suspect", "sky_promise", "bond_tone", "slip_fix",
-	"departure_done", "epilogue_done", "ending_plate_caption",
+	"departure_done", "epilogue_done", "ending_plate_caption", "light_guess",
 ]
 
 
@@ -96,6 +97,7 @@ func reset(keep_runs := false) -> void:
 	sky_promise = -1
 	bond_tone = ""
 	slip_fix = -1
+	light_guess = -1
 	departure_done = false
 	epilogue_done = false
 	ending_plate = null

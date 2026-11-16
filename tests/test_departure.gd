@@ -212,6 +212,8 @@ func _drain_dialogue(chapter, choices: Dictionary = {}) -> void:
 ## Both light views run through their real buttons, and only then does 收起來 enable.
 func _play_box_light(chapter) -> void:
 	var sketch = chapter.box_sketch
+	if root.get_node("Story").light_guess < 0:
+		sketch.guess_btns[2].pressed.emit()
 	for index in 2:
 		if index > 0:
 			sketch.frame_btns[1].pressed.emit()
