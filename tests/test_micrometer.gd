@@ -4,6 +4,7 @@ extends SceneTree
 ## measure path through main.gd.
 ## Run: godot --headless --path . --script res://tests/test_micrometer.gd
 
+const Settings := preload("res://scripts/settings.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Render := preload("res://scripts/plate_render.gd")
 const Judgment := preload("res://scripts/judgment.gd")
