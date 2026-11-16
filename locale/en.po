@@ -656,6 +656,15 @@ msgstr "…(Looks at you.) Keep that sentence. In a few days, someone may want t
 msgid "↑↓ 或右搖桿：捲動"
 msgstr "↑↓ or right stick: scroll"
 
+msgid "① 選片"
+msgstr "① Select plates"
+
+msgid "② 測微器讀數 %d/%d"
+msgstr "② Micrometer readings %d/%d"
+
+msgid "③ 向 Eddington 報告"
+msgstr "③ Report to Eddington"
+
 msgid "□ 到測量桌：先寫下選片規則，再量底片"
 msgstr "□ Go to the measuring table: write your selection rule first, then measure the plates"
 
@@ -799,6 +808,9 @@ msgstr "A business letter from London: 'Our workshop is at present wholly occupi
 
 msgid "一張底片判斷不了。要另一張同一片天的底片才知道。"
 msgstr "One plate won't tell us. We'd need another plate of the same part of the sky to know."
+
+msgid "一張都還沒讀。選中的底片要用測微器讀過，才有數字可以報告。"
+msgstr "You haven’t read a single plate yet. Read your selected plates with the micrometer so you have numbers to report."
 
 msgid "一枚黃銅放大鏡"
 msgstr "A brass magnifying glass"
@@ -2022,6 +2034,12 @@ msgstr "The copyist"
 
 msgid "抄錄的人草率，或是憑空編造"
 msgstr "The copyist was careless, or invented it"
+
+msgid "把十字線對準參考星，再按「記下讀數」。"
+msgstr "Align the crosshair with the reference star, then press “Record reading”."
+
+msgid "把它們抄到你的圖上。一筆一筆來。"
+msgstr "Copy them onto your chart. One at a time."
 
 msgid "把它翻過來，十七個點都對上了。"
 msgstr "Turn it over and all seventeen points match."

@@ -1595,11 +1595,12 @@ func _open_viewer() -> void:
 
 
 func _on_reading_set(i: int, px: float) -> void:
-	if sim.measured or i < 0 or i >= sim.plates.size():
+	if i < 0 or i >= sim.plates.size():
 		return
 	sim.plates[i].reading = px
 	sim.plates[i].read = true
 	_refresh_viewer()
+	ui._select_plate(i, plate_textures[i], false)
 
 
 func _refresh_viewer() -> void:
@@ -1681,6 +1682,9 @@ func _on_viewer_closed() -> void:
 
 
 func _on_report() -> void:
+	if sim.included_usable().is_empty():
+		ui.set_viewer_note(L.t("一張都還沒讀。選中的底片要用測微器讀過，才有數字可以報告。"))
+		return
 	ui.set_viewer_report(true)
 	_refresh_viewer()
 	_start_judgment()
