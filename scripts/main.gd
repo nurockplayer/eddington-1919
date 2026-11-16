@@ -1682,7 +1682,7 @@ func _on_viewer_closed() -> void:
 
 
 func _on_report() -> void:
-	if sim.included_usable().is_empty():
+	if sim.plates.any(func(p): return p.usable) and sim.included_usable().is_empty():
 		ui.set_viewer_note(L.t("一張都還沒讀。選中的底片要用測微器讀過，才有數字可以報告。"))
 		return
 	ui.set_viewer_report(true)

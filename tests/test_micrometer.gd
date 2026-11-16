@@ -73,6 +73,29 @@ func _button(index: JoyButton) -> void:
 
 
 func _run() -> void:
+	# No exposures and unusable plates must still reach the no-results judgment.
+	for only_unusable in [false, true]:
+		var empty_game := await _new_game([])
+		if only_unusable:
+			var plate := _plate(1, 1.75)
+			plate.stars = 4
+			plate.quality = "unusable"
+			plate.usable = false
+			empty_game.sim.plates.append(plate)
+			empty_game.plate_textures.append(Render.render(empty_game.sim, plate))
+			empty_game._open_viewer()
+		var empty_ui = empty_game.ui
+		empty_ui.measure_btn.pressed.emit()
+		await process_frame
+		check(empty_game.sim.measured and empty_game.sim.included_usable().is_empty(),
+			"no-results selection locks without a usable reading (unusable=%s)" % only_unusable)
+		empty_ui.report_btn.grab_focus()
+		await _button(JOY_BUTTON_A)
+		check(empty_ui._viewer_reporting and empty_ui.dialog_active() and empty_game._pending == "judgment",
+			"Report reaches no-results judgment (unusable=%s)" % only_unusable)
+		await _finish(empty_game)
+	print("mic: no-results reporting done")
+
 	print("mic: 1 new game")
 	# 1. A careful reading at the true displacement reproduces the plate's value.
 	var game := await _new_game([1.75, 1.60])
