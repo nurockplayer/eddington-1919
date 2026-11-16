@@ -239,9 +239,14 @@ func _test_director_input_and_story() -> void:
 	story.reset()
 	check(story.bond_tone == "" and story.sky_promise == -1 and story.slip_fix == -1 and not story.departure_done,
 		"new-game reset clears M2 continuity fields")
-	var chapter_script: Script = load("res://scripts/cambridge/departure_director.gd")
-	var chapter = chapter_script.new()
-	root.add_child(chapter)
+	change_scene_to_file("res://scenes/departure.tscn")
+	await scene_changed
+	var chapter = current_scene
+	story.light_guess = 2
+	chapter.ui.restart_pressed.emit(false)
+	await scene_changed
+	chapter = current_scene
+	check(story.light_guess == -1, "departure restart clears the light prediction")
 	var deadline := Time.get_ticks_msec() + 12000
 	while not chapter.ui.dialog_active() and Time.get_ticks_msec() < deadline:
 		await process_frame
