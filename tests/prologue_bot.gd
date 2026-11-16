@@ -996,6 +996,7 @@ func _box_sketch_run() -> void:
 			await shot("box_drop_%d_ticks" % stage)
 			await click_button(sketch.next_btn)
 		return
+	await click_button(sketch.guess_btns[2])
 	for index in 2:
 		var view_name: String = "outside" if index == 0 else "inside"
 		if sketch.view != view_name:

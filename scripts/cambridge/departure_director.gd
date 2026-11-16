@@ -58,6 +58,7 @@ func _ready() -> void:
 	ui.restart_pressed.connect(func(_same):
 		get_tree().paused = false
 		Story.sky_promise = -1
+		Story.light_guess = -1
 		Story.bond_tone = ""
 		Story.slip_fix = -1
 		Story.departure_done = false

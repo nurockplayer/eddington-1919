@@ -169,12 +169,21 @@ func _test_light_through_departure() -> void:
 	chapter._dialogue_done({})
 	check(sketch.visible and sketch.mode == "light", "the farewell opens the light sketch")
 	check(sketch.next_btn.disabled, "收起來 starts disabled")
+	check(sketch.release_btn.disabled and sketch.release_btn.text == "放出光", "light waits for a prediction")
+	sketch.release_btn.pressed.emit()
+	check(not sketch._light_running, "a launch without a prediction is blocked")
+	sketch.guess_btns[0].pressed.emit()
+	check(story.light_guess == 0 and not sketch.release_btn.disabled, "choosing a prediction enables launch")
+	check(sketch._prompt.text.contains("艙外") and sketch._prompt.text.contains("艙內"), "both frames are named before playing")
 	check(_has_label(sketch, Sketch.LIGHT_NOTE), "the light sketch always says it is an illustration at a huge scale")
 
 	sketch.release_btn.pressed.emit()
 	var outside_done: bool = await _wait_for(func(): return not sketch.release_btn.disabled, 5.0)
 	check(outside_done, "the outside view lets the light land")
 	check(sketch.next_btn.disabled, "one view does not enable 收起來")
+	check(sketch._prompt.text == "還要從艙內看一次", "prompt names the remaining inside frame")
+	sketch.next_btn.pressed.emit()
+	check(sketch.visible, "closing before both frames does nothing")
 	check(sketch.landing.has("outside"), "the outside view records where the light lands")
 	var outside_point: Vector2 = sketch.landing.get("outside", Vector2.ZERO)
 
@@ -184,6 +193,8 @@ func _test_light_through_departure() -> void:
 	var inside_done: bool = await _wait_for(func(): return not sketch.release_btn.disabled, 5.0)
 	check(inside_done, "the inside view lets the light land")
 	check(not sketch.next_btn.disabled, "both views enable 收起來")
+	check(sketch._prompt.text == "兩邊都看過了——可以關上", "prompt explains closing is available")
+	check(sketch._feedback.text.contains("比出發點高") and sketch._feedback.text.contains("Eddington 在劍橋問過你：地板一直往上追它。"), "wrong prediction recalls the Cambridge interview")
 	var inside_point: Vector2 = sketch.landing.get("inside", Vector2.ONE)
 	check(outside_point.is_equal_approx(inside_point),
 		"the landing point matches in box coordinates (%s vs %s)" % [outside_point, inside_point])
@@ -216,13 +227,16 @@ func _test_input_blocked() -> void:
 	sketch.input_blocked = true
 	sketch.release_btn.pressed.emit()
 	check(sketch.fall_ticks.is_empty() and not sketch.release_btn.disabled, "input_blocked stops 鬆手")
+	root.get_node("Story").light_guess = -1
 	sketch.open("light")
 	await process_frame
 	sketch.input_blocked = true
+	sketch.guess_btns[0].pressed.emit()
+	check(root.get_node("Story").light_guess == -1, "input_blocked stops prediction")
 	sketch.frame_btns[1].pressed.emit()
 	check(sketch.view == "outside", "input_blocked stops the frame buttons")
 	sketch.release_btn.pressed.emit()
-	check(not sketch.landing.has("outside") and not sketch.release_btn.disabled, "input_blocked stops 讓光進來")
+	check(not sketch.landing.has("outside") and sketch.release_btn.disabled, "input_blocked stops 讓光進來")
 	layer.queue_free()
 	await process_frame
 
@@ -280,9 +294,14 @@ func _test_gamepad() -> void:
 		check(sketch.next_btn.has_focus() and not sketch.next_btn.disabled, "drop stage %d: focus moves to the next button" % i)
 		await _pad(JOY_BUTTON_A)
 	check(not sketch.visible, "the last A closes the drop sketch")
+	root.get_node("Story").light_guess = -1
 	sketch.open("light")
 	await process_frame
-	check(sketch.release_btn.has_focus(), "the light sketch lands focus on 鬆手")
+	check(sketch.guess_btns[0].has_focus(), "the light sketch starts on prediction")
+	await _pad(JOY_BUTTON_DPAD_RIGHT)
+	await _pad(JOY_BUTTON_DPAD_RIGHT)
+	await _pad(JOY_BUTTON_A)
+	check(root.get_node("Story").light_guess == 2 and sketch.release_btn.has_focus(), "gamepad chooses the lower prediction")
 	await _pad(JOY_BUTTON_A)
 	check(sketch._light_running, "A runs the light in the first view")
 	check(await _wait_for(func(): return not sketch._light_running, 5.0), "the first light run ends")
@@ -295,6 +314,7 @@ func _test_gamepad() -> void:
 	check(sketch._light_running, "A runs the light in the second view")
 	check(await _wait_for(func(): return not sketch._light_running, 5.0), "the second light run ends")
 	check(sketch.next_btn.has_focus() and not sketch.next_btn.disabled, "focus moves to 收起來 once both views ran")
+	check(sketch._feedback.text == "你猜對了：光落得比出發點低。", "correct prediction gets feedback")
 	await _pad(JOY_BUTTON_A)
 	check(not sketch.visible, "A closes the light sketch")
 	layer.queue_free()

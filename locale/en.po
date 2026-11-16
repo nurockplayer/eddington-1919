@@ -806,6 +806,9 @@ msgstr "A brass magnifying glass"
 msgid "一樣重，平均下來約 1.46″。可是這兩組自己就差了一倍，平均只是把分歧藏起來。再說，一架比例尺可能變了的鏡頭，憑什麼和沒變的一樣重？"
 msgstr "Equal weight gives an average of about 1.46″. But the two sets differ by a factor of two; averaging only hides the disagreement. And why should a telescope whose plate scale may have changed carry the same weight as one that has not?"
 
+msgid "一樣高"
+msgstr "At the same height"
+
 msgid "三個都在裡面。"
 msgstr "All three are inside."
 
@@ -1055,6 +1058,12 @@ msgstr "You didn't ask me to write, but I kept a record anyway."
 msgid "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
 msgstr "You chose the plates by the rule you wrote before measuring. Whether the result matched your hopes or not, no one can say you chose after seeing the numbers."
 
+msgid "你猜對了：光落得比出發點低。"
+msgstr "You were right: the light lands lower than its starting point."
+
+msgid "你猜的是%s。Eddington 在劍橋問過你：地板一直往上追它。"
+msgstr "You guessed %s. Eddington asked you in Cambridge: the floor keeps rising to meet it."
+
 msgid "你留在年鑑上的記號：\n・海王星：%s\n・哈雷彗星：%s\n・水星的 43 角秒：%s\n\n你當時最懷疑的是：%s\n[color=#b8ad98]這台小機器的軌道是齒輪定死的，演不出那 43 角秒。[/color]"
 msgstr "Your marks in the almanac:\n· Neptune: %s\n· Halley's Comet: %s\n· Mercury's 43 arcseconds: %s\n\nWhat you suspected most at the time: %s\n[color=#b8ad98]This little machine's orbits are fixed by its gears; it cannot show that 43 arcseconds.[/color]"
 
@@ -1202,6 +1211,9 @@ msgstr "Skip this one for now; decide after more plates are measured."
 msgid "先選片，再量測。數值會在量測後顯示。"
 msgstr "Choose the plates first, then measure. Values appear after measuring."
 
+msgid "光會落在對面牆的哪裡？"
+msgstr "Where will the light strike the far wall?"
+
 msgid "光轉三度，對得上嗎？角落那個「14」，你仔細看過了嗎？"
 msgstr "Does a bare three-degree turn bring it into line? Have you looked closely at that '14' in the corner?"
 
@@ -1240,6 +1252,9 @@ msgstr "When two places measure the same number, then I shall begin to sit up."
 
 msgid "兩週。"
 msgstr "Two weeks."
+
+msgid "兩邊都看過了——可以關上"
+msgstr "Both views seen—you can close the sketch."
 
 msgid "共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。"
 msgstr "%d plates in all, %d selected.\nJudge the star images yourself: whether there are at least five stars, whether they are trailed, whether cloud has covered them."
@@ -2098,6 +2113,9 @@ msgstr "Change: can't say"
 msgid "改：零"
 msgstr "Change: zero"
 
+msgid "放出光"
+msgstr "Release the light"
+
 msgid "放大未重合點"
 msgstr "Zoom on the unmatched point"
 
@@ -2343,6 +2361,12 @@ msgstr "Scale and orientation were corrected first against the distant stars—y
 
 msgid "比例和方向，先用遠處的星校正過——那一條是 Eddington 補上的。"
 msgstr "Scale and orientation were corrected first against the distant stars—that was one Eddington added."
+
+msgid "比出發點低"
+msgstr "Lower than the starting point"
+
+msgid "比出發點高"
+msgstr "Higher than the starting point"
 
 msgid "比對片、遠處的星、先寫好的規則。（把紙推到%s面前）"
 msgstr "The comparison plate, the distant stars, the rules written first. (Pushes the sheet across to %s)"
@@ -2994,6 +3018,15 @@ msgstr "not yet wound"
 
 msgid "還沒有量出任何數字，談不上偏低，也就輪不到儀器來解釋。"
 msgstr "No number has been measured at all, so it cannot be low, and the instrument is not needed to explain anything."
+
+msgid "還要從艙內看一次"
+msgstr "Still to see: the inside view."
+
+msgid "還要從艙外和艙內各看一次"
+msgstr "See it once from outside and once from inside."
+
+msgid "還要從艙外看一次"
+msgstr "Still to see: the outside view."
 
 msgid "還要更多證據"
 msgstr "We need more evidence"

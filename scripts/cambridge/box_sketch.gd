@@ -37,6 +37,7 @@ const DROP_PROMPTS := [
 const DROP_NOTE := "示意圖，不按比例。"
 const LIGHT_NOTE := "示意圖：落差放大了許多。真的箱子裡，比一個原子還小。"
 
+var _story: Node
 var input_blocked := false
 var stage := 0
 var mode := ""
@@ -44,6 +45,7 @@ var view := ""
 var release_btn: Button
 var next_btn: Button
 var frame_btns: Array[Button] = []
+var guess_btns: Array[Button] = []
 ## One Array of pencil offsets per fall, in box coordinates, as the animation drew them.
 var fall_ticks: Array = []
 ## Equal-time light marks in box coordinates, per view.
@@ -60,6 +62,7 @@ var _played: Dictionary = {"outside": false, "inside": false}
 var _canvas: Control
 var _prompt: Label
 var _note: Label
+var _feedback: Label
 var _inset_label: Label
 var _arrow_label: Label
 var _buttons: HBoxContainer
@@ -91,6 +94,7 @@ static func fall_time() -> float:
 
 
 func _ready() -> void:
+	_story = get_node("/root/Story")
 	hide()
 
 
@@ -106,6 +110,8 @@ func open(p_mode: String) -> void:
 	marks = {"outside": [], "inside": []}
 	landing.clear()
 	_played = {"outside": false, "inside": false}
+	frame_btns.clear()
+	guess_btns.clear()
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -181,6 +187,8 @@ func _build() -> void:
 	_canvas.add_child(_prompt)
 	_note = _label("", 17)
 	_canvas.add_child(_note)
+	_feedback = _label("", 18)
+	_canvas.add_child(_feedback)
 	_inset_label = _label("", 18)
 	_inset_label.visible = false
 	_canvas.add_child(_inset_label)
@@ -192,6 +200,12 @@ func _build() -> void:
 	_buttons.add_theme_constant_override("separation", 16)
 	_canvas.add_child(_buttons)
 	if mode == "light":
+		for i in 3:
+			var choices := [L.t("比出發點高"), L.t("一樣高"), L.t("比出發點低")]
+			var guess := _button(choices[i])
+			guess.pressed.connect(_guess.bind(i))
+			_buttons.add_child(guess)
+			guess_btns.append(guess)
 		for i in 2:
 			var frame := _button(L.t("從箱外看") if i == 0 else L.t("從箱裡看"))
 			frame.toggle_mode = true
@@ -200,7 +214,7 @@ func _build() -> void:
 			frame_btns.append(frame)
 	else:
 		frame_btns.clear()
-	release_btn = _button(L.t("鬆手"))
+	release_btn = _button(L.t("放出光") if mode == "light" else L.t("鬆手"))
 	release_btn.pressed.connect(_release)
 	_buttons.add_child(release_btn)
 	next_btn = _button("")
@@ -245,6 +259,8 @@ func _layout() -> void:
 	var margin := size_.x * 0.06
 	_prompt.position = Vector2(margin, size_.y * 0.735)
 	_prompt.size = Vector2(size_.x - margin * 2.0, size_.y * 0.09)
+	_feedback.position = Vector2(size_.x * 0.54, size_.y * 0.30)
+	_feedback.size = Vector2(size_.x * 0.40, size_.y * 0.30)
 	_note.position = Vector2(margin, size_.y * 0.83)
 	_note.size = Vector2(size_.x - margin * 2.0, size_.y * 0.06)
 	_buttons.position = Vector2(0.0, size_.y * 0.90)
@@ -275,13 +291,51 @@ func _refresh_stage() -> void:
 		_inset_label.text = L.t("地面") if stage == 0 else L.t("Eddington 用手蓋住了這一格。")
 		_arrow_label.visible = stage == 1
 	else:
-		_prompt.text = ""
+		_update_light_prompt()
 		_note.text = L.t(LIGHT_NOTE)
 		next_btn.text = L.t("收起來")
 		_sync_frame_buttons()
 	_layout()
 	_canvas.queue_redraw()
+	if mode == "light" and _story.light_guess < 0:
+		guess_btns[0].grab_focus()
+	else:
+		release_btn.grab_focus()
+
+
+func _guess(index: int) -> void:
+	if input_blocked or _story.light_guess >= 0:
+		return
+	_story.light_guess = index
+	_update_light_prompt()
 	release_btn.grab_focus()
+
+
+func _update_light_prompt() -> void:
+	var guessing: bool = _story.light_guess < 0
+	for button in guess_btns:
+		button.visible = guessing
+	for button in frame_btns:
+		button.visible = not guessing
+	release_btn.visible = not guessing
+	next_btn.visible = not guessing
+	release_btn.disabled = guessing
+	_feedback.text = ""
+	if guessing:
+		_prompt.text = L.t("光會落在對面牆的哪裡？")
+	elif _played.outside and _played.inside:
+		_prompt.text = L.t("兩邊都看過了——可以關上")
+		if _story.light_guess == 2:
+			_feedback.text = L.t("你猜對了：光落得比出發點低。")
+		else:
+			var choices := [L.t("比出發點高"), L.t("一樣高")]
+			_feedback.text = L.t("你猜的是%s。Eddington 在劍橋問過你：地板一直往上追它。") % choices[_story.light_guess]
+	elif _played.outside:
+		_prompt.text = L.t("還要從艙內看一次")
+	elif _played.inside:
+		_prompt.text = L.t("還要從艙外看一次")
+	else:
+		_prompt.text = L.t("還要從艙外和艙內各看一次")
 
 
 func _sync_frame_buttons() -> void:
@@ -297,7 +351,7 @@ func _release() -> void:
 			return
 		_fall_start()
 	else:
-		if _light_running:
+		if _light_running or _story.light_guess < 0:
 			return
 		_light_running = true
 		_light_t = 0.0
@@ -329,7 +383,7 @@ func _next() -> void:
 
 
 func _frame(index: int) -> void:
-	if input_blocked:
+	if input_blocked or _story.light_guess < 0:
 		return
 	view = "outside" if index == 0 else "inside"
 	_light_running = false
@@ -378,6 +432,7 @@ func _fall_end() -> void:
 func light_end() -> void:
 	_played[view] = true
 	landing[view] = _box_point(LIGHT_SPAN)
+	_update_light_prompt()
 	release_btn.disabled = false
 	if _played.outside and _played.inside:
 		next_btn.disabled = false

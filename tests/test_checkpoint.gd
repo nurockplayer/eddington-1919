@@ -86,6 +86,7 @@ func _fill(story) -> void:
 	story.sky_promise = 1
 	story.bond_tone = "warm"
 	story.slip_fix = 1
+	story.light_guess = 2
 	story.departure_done = true
 	story.epilogue_done = true
 	story.ending_plate_caption = "1919 年 10 月"
@@ -103,6 +104,7 @@ func _check_round_trip(story) -> void:
 	for key in StoryScript.SAVED:
 		check(typeof(story.get(key)) == typeof(expected[key]) and story.get(key) == expected[key],
 			"%s comes back with its type and value" % key)
+	check(story.light_guess == 2, "the light prediction survives checkpoint restore")
 	check(story.departure_done and story.epilogue_done, "the chapter flags come back true")
 	check(typeof(story.runs[0]["seed"]) == TYPE_INT and typeof(story.runs[0]["score"]) == TYPE_FLOAT,
 		"a run keeps int and float values")
