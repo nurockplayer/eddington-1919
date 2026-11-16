@@ -1,4 +1,4 @@
 # variant	extra user args (after --); tuned by the art director
-silver	--style=silver
-poster	--style=poster
-engraving	--style=engraving
+silver	--style=silver --bench-cloud-t=215
+poster	--style=poster --bench-cloud-t=215
+engraving	--style=engraving --bench-cloud-t=215
