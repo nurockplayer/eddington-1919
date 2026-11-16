@@ -35,7 +35,7 @@ func _fixture(filename: String) -> Dictionary:
 	var capped := pid > 0 and OS.is_process_running(pid)
 	if capped:
 		OS.kill(pid)
-	var code := OS.get_process_exit_code(pid) if pid > 0 else -1
+	var code := OS.get_process_exit_code(pid) if pid > 0 and not capped else -1
 	var output := ""
 	if FileAccess.file_exists(log_path):
 		output = FileAccess.get_file_as_string(log_path)
