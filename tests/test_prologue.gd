@@ -314,6 +314,35 @@ func _test_plan_limit(chapter) -> void:
 	PlanBoard.Settings.reduced_motion = saved_motion
 
 
+func _test_plan_limit_blocked_reopen(chapter) -> void:
+	var saved_motion: bool = PlanBoard.Settings.reduced_motion
+	PlanBoard.Settings.reduced_motion = false
+	chapter.plan_board.open()
+	await process_frame
+	for id in ["comparison", "far_stars", "rules_first", "keep_agreeing"]:
+		chapter.plan_board.card_buttons[id].grab_focus()
+		await _send_key(KEY_ENTER)
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+	var fifth: Button = chapter.plan_board.card_buttons["conditions"]
+	fifth.grab_focus()
+	await _send_key(KEY_ENTER)
+	check(fifth.disabled and not chapter.ui.dialog_active(), "blocked reopen race begins during the fifth-card shake")
+	chapter.plan_board.finish_btn.grab_focus()
+	await _send_key(KEY_ENTER)
+	check(chapter.ui.dialog_active() and chapter._pending == "board_reaction" and not chapter.plan_board.visible, "biased Finish opens the blocked dialogue and hides the board during the shake")
+	while chapter.ui.dialog_active():
+		chapter.ui._advance()
+	check(chapter.plan_board.visible and chapter.plan_board.selected.size() == 3 and fifth.disabled, "blocked dialogue reopens the three-card board before the fifth-card shake ends")
+	var deadline := Time.get_ticks_msec() + 350
+	while Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(not chapter.ui.dialog_active() and not chapter.ui.text_label.text.contains("板上只寫得下四件事——先拿掉一張。"), "blocked reopen does not receive a stale fifth-card rejection")
+	check(chapter.plan_board.visible and chapter.plan_board.selected.size() == 3 and not chapter.plan_board.selected.has("keep_agreeing"), "blocked reopen keeps the board visible with three unbiased cards")
+	check(not fifth.disabled, "blocked reopen re-enables the fifth card after its shake")
+	PlanBoard.Settings.reduced_motion = saved_motion
+
+
 func _test_plan_limit_finish(chapter) -> void:
 	var saved_motion: bool = PlanBoard.Settings.reduced_motion
 	PlanBoard.Settings.reduced_motion = false
@@ -708,6 +737,7 @@ func _test_cambridge_rain() -> void:
 		return
 	await _drive_box(chapter)
 	_finish_test_dialogue(chapter)
+	await _test_plan_limit_blocked_reopen(chapter)
 	await _test_plan_limit_finish(chapter)
 	chapter._interact("notebook")
 	check(chapter.beat == chapter.Beat.TRIAL_TASK and not chapter.report_sheet.visible and chapter._free(), "trial cannot reopen report submission or rewind the story")
