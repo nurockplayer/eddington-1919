@@ -20,10 +20,12 @@ func check(ok: bool, message: String) -> void:
 
 
 func wait_for(predicate: Callable, message: String) -> void:
+	print("REPLAY WAIT: ", message)
 	var deadline := Time.get_ticks_msec() + 15000
 	while not predicate.call() and Time.get_ticks_msec() < deadline:
 		await process_frame
 	check(predicate.call(), message)
+	print("REPLAY WAIT DONE: ", message)
 
 
 func dialogue(game, choices := {}) -> void:
@@ -73,12 +75,14 @@ func replay(game, same_sky := true):
 	next.player.set_physics_process(false)
 	Settings.text_scale = 1.2
 	Settings.refresh_fonts(self)
+	print("REPLAY: starting reloaded title")
 	next.ui.start_pressed.emit()
 	await wait_for(func(): return next.phase != next.Phase.TITLE, "replayed title start reaches 1919")
 	return next
 
 
 func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
+	print("REPLAY RUN: rule=%d expose=%s" % [rule, expose])
 	await dialogue(game)
 	game._interact("eddington")
 	await dialogue(game)
