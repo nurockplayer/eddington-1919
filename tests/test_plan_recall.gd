@@ -34,8 +34,8 @@ func _run() -> void:
 
 	for case in [[["comparison", "far_stars"], true, MINE, CAL_MINE], [["rules_first"], true, ADDED, CAL_ADDED], [[], false, "", ""]]:
 		await _check_viewer(story, case[0], case[1], case[2], case[3])
-	for case in [[["conditions"], true, false, "沒有校過"], [["conditions"], true, true, "已對著天文鐘校過"],
-			[["comparison"], true, false, ""], [[], false, false, "沒有校過"], [[], false, true, "已對著天文鐘校過"]]:
+	for case in [[["conditions"], true, false, "尚未驗證；星像拖長的程度也取決於留下的走速誤差。"], [["conditions"], true, true, "已在追蹤示意圖中驗證"],
+			[["comparison"], true, false, ""], [[], false, false, "尚未驗證；星像拖長的程度也取決於留下的走速誤差。"], [[], false, true, "已在追蹤示意圖中驗證"]]:
 		await _check_drive(story, case[0], case[1], case[2], case[3])
 	for case in [[["far_stars"], true, true], [["comparison"], true, false], [[], false, false]]:
 		await _check_comparison_fetch(story, case[0], case[1], case[2])
@@ -89,6 +89,7 @@ func _check_drive(story: Node, plan: Array, played: bool, rate_checked: bool, ex
 	game.set_process(false)
 	game.sim = Sim.new(1919)
 	game.sim.drive_rate_checked = rate_checked
+	game.sim.drive_error = 0.0 if rate_checked else 1.0
 	game.sim.plates = [
 		{"number": 1, "start": 30.0, "duration": 4.0, "sunlit": false, "included": false, "usable": true, "stars": 7, "quality": "good", "sky_read": "clear"},
 	]

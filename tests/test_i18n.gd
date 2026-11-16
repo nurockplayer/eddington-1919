@@ -96,11 +96,11 @@ func hold_line_checks() -> void:
 	var previous := Settings.hold_toggle
 	Settings.hold_toggle = false
 	check(Content.cottingham_first()[2].t
-		== "你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。" % Prompts.key("interact"),
+		== "你先在驅動箱上[b]按住 %s 上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。" % Prompts.key("interact"),
 		"holding mode keeps the old sentence")
 	Settings.hold_toggle = true
 	check(Content.cottingham_first()[2].t
-		== "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。" % Prompts.key("interact"),
+		== "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。" % Prompts.key("interact"),
 		"single-press mode keeps the old sentence")
 	Settings.hold_toggle = previous
 
