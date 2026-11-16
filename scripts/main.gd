@@ -1597,6 +1597,8 @@ func _open_viewer() -> void:
 func _on_reading_set(i: int, px: float) -> void:
 	if i < 0 or i >= sim.plates.size():
 		return
+	if sim.measured and sim.plates[i].get("read", false):
+		return
 	sim.plates[i].reading = px
 	sim.plates[i].read = true
 	if sim.measured and not sim.reselected_after_seeing:
@@ -1660,11 +1662,20 @@ func _on_measure() -> void:
 		_say([{"s": Content.E, "t": L.t("你改了選片。寫下來：為什麼？"), "key": "reselect_reason",
 			"choices": [L.t("星像品質：它拖長、起霧或星不夠"), L.t("第一次的數字不合我的預期"), L.t("說不上來")]}], "reselect_reason")
 		return
+	if sim.measured_readings != null:
+		for p in sim.plates:
+			if sim.measured_readings.has(p.number) and p.reading != sim.measured_readings[p.number]:
+				sim.reselected_after_seeing = true
+				break
 	_finish_measurement()
 
 
 func _finish_measurement() -> void:
 	sim.measured_selection = sim.plates.filter(func(p): return p.included).map(func(p): return p.number)
+	sim.measured_readings = {}
+	for p in sim.plates:
+		if p.get("read", false):
+			sim.measured_readings[p.number] = p.reading
 	sim.measured = true
 	ui.set_viewer_locked(true)
 	if not sim.reselected_after_seeing:

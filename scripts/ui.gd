@@ -1082,7 +1082,7 @@ func _sync_micrometer_controls() -> void:
 		return
 	var has_plate: bool = _viewer_sel >= 0 and _plate_texture != null
 	mic_btn.disabled = _viewer_reporting or not has_plate
-	mic_record_btn.disabled = _viewer_reporting or not has_plate
+	mic_record_btn.disabled = _viewer_reporting or not has_plate or (_viewer_locked and _viewer_plates[_viewer_sel].get("read", false))
 	if micrometer_on and has_plate and not _viewer_reporting and not _viewer_plates[_viewer_sel].get("read", false):
 		mic_note.text = L.t("把十字線對準參考星，再按「記下讀數」。")
 		mic_note.add_theme_color_override("font_color", ACCENT)
@@ -1117,6 +1117,8 @@ func _nudge_micrometer(direction: float, fine: bool) -> void:
 
 func _record_micrometer() -> void:
 	if not micrometer_on or _viewer_sel < 0 or _viewer_reporting:
+		return
+	if _viewer_locked and _viewer_plates[_viewer_sel].get("read", false):
 		return
 	_viewer_sound("mark")
 	reading_set.emit(_viewer_sel, micrometer_px)
