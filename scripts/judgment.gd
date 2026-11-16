@@ -26,7 +26,7 @@ const REASONS := [
 	{"id": "uncertain", "text": "底片少、誤差大；需要 Sobral 的結果與回國後的完整量測。"},
 	{"id": "corona", "text": "日冕那麼清楚——我們一定成功了。"},
 	{"id": "nostars", "text": "雲太厚，底片上沒有足夠的星點可以量。"},
-	{"id": "trailed", "text": "星像拖長了——走速沒校過。數值偏低，可能是儀器，不是星。"},
+	{"id": "trailed", "text": "星像拖長了——走速尚未驗證。數值偏低，可能是儀器，不是星。"},
 ]
 
 ## How well each telegram fits each evidence class: 2 best, 1 defensible, 0 wrong.
@@ -96,7 +96,7 @@ static func reasons_for(sim) -> Array:
 		var trail_sum := 0.0
 		for p in sim.included_usable():
 			trail_sum += p.trail
-		reasons[4].text = L.t("星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。") % (trail_sum / c.n)
+		reasons[4].text = L.t("星像平均拖長 %.2f——走速尚未驗證。數值偏低，可能是儀器，不是星。") % (trail_sum / c.n)
 	return reasons
 
 

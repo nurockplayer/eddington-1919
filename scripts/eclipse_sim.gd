@@ -42,6 +42,9 @@ var plates_carried := 0
 var plates_delivered := 0
 var drive_wound := false
 var drive_rate_checked := false
+# FICTION: normalized signed residual; winding alone leaves the original error.
+const DRIVE_DEADBAND := 0.04
+var drive_error := 1.0
 
 # --- totality state ---------------------------------------------------------
 var plates: Array = []        # developed plate dictionaries, in exposure order
@@ -197,12 +200,10 @@ func plates_available() -> int:
 
 ## Image drift of the coelostat drive (trail units per exposure second).
 ## FICTION: after the morning's rain the drive needs re-winding and its rate
-## checked against the chronometer; Cottingham manages alone if not helped.
+## observed through an illustrative diagram; Cottingham handles the mechanism.
 func drift_rate() -> float:
-	if drive_rate_checked:
-		return 0.012
 	if drive_wound:
-		return 0.05
+		return 0.012 if absf(drive_error) <= DRIVE_DEADBAND else 0.012 + 0.038 * absf(drive_error)
 	return 0.075
 
 

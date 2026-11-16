@@ -35,7 +35,10 @@ const BED_DIR := "res://assets/sfx/"
 const BED_RMS_DB := {"birds": -29.70, "insects": -34.79, "surf": -23.85}
 
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
-const HOLD := {"drive": 3.0, "chronometer": 4.0, "plate_box": 1.2}
+const HOLD := {"drive": 3.0, "plate_box": 1.2}
+## FICTION: player observation and trim requests use an illustrative diagram.
+const Calibration := preload("res://scripts/coelostat_calibration.gd")
+var calibration: Control
 
 static var next_seed := -1
 ## Survives a 1919 replay (reload) so a prologue player keeps Story continuity and the coda;
@@ -179,6 +182,10 @@ func _ready() -> void:
 	ui.reselect_pressed.connect(_on_reselect)
 	ui.report_pressed.connect(_on_report)
 	ui.viewer_closed.connect(_on_viewer_closed)
+	calibration = Calibration.new()
+	ui.get_child(0).add_child(calibration)
+	calibration.hide()
+	calibration.finished.connect(_close_calibration)
 	Settings.apply_quality(get_tree())
 	_build_audio()
 	player.can_move = false
@@ -254,6 +261,7 @@ static func _ensure_inputs() -> void:
 		"look_left": [KEY_LEFT], "look_right": [KEY_RIGHT], "look_up": [KEY_UP], "look_down": [KEY_DOWN],
 		"run": [KEY_SHIFT], "interact": [KEY_E], "shutter": [KEY_SPACE], "pause": [KEY_ESCAPE],
 		"toggle_fullscreen": [KEY_F11], "toggle_log": [KEY_TAB],
+		"trim_fine": [KEY_SHIFT], "trim_leave": [KEY_B],
 		"overlay_rotate_left": [KEY_Q], "overlay_rotate_right": [KEY_E],
 	}
 	for action in map:
@@ -265,6 +273,7 @@ static func _ensure_inputs() -> void:
 			if not InputMap.action_has_event(action, ev):
 				InputMap.action_add_event(action, ev)
 	var axes := {
+		"trim_fine": [JOY_AXIS_TRIGGER_LEFT, 1.0],
 		"gamepad_look_left": [JOY_AXIS_RIGHT_X, -1.0], "gamepad_look_right": [JOY_AXIS_RIGHT_X, 1.0],
 		"gamepad_look_up": [JOY_AXIS_RIGHT_Y, -1.0], "gamepad_look_down": [JOY_AXIS_RIGHT_Y, 1.0],
 		"move_left": [JOY_AXIS_LEFT_X, -1.0], "move_right": [JOY_AXIS_LEFT_X, 1.0],
@@ -288,7 +297,7 @@ static func _ensure_inputs() -> void:
 			if event is InputEventJoypadMotion:
 				InputMap.action_erase_event(action, event)
 	var buttons := {
-		"ui_accept": [JOY_BUTTON_A], "ui_cancel": [JOY_BUTTON_B],
+		"trim_leave": [JOY_BUTTON_B], "ui_accept": [JOY_BUTTON_A], "ui_cancel": [JOY_BUTTON_B],
 		"ui_up": [JOY_BUTTON_DPAD_UP], "ui_down": [JOY_BUTTON_DPAD_DOWN],
 		"ui_left": [JOY_BUTTON_DPAD_LEFT], "ui_right": [JOY_BUTTON_DPAD_RIGHT],
 		"run": [JOY_BUTTON_LEFT_STICK], "interact": [JOY_BUTTON_A],
@@ -771,7 +780,7 @@ func _process(delta: float) -> void:
 
 
 func _ui_free() -> bool:
-	return not get_tree().paused and not ui.log_open() and not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
+	return not calibration.visible and not get_tree().paused and not ui.log_open() and not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
 
 
 func _sync_player_input() -> void:
@@ -814,8 +823,13 @@ func _process_prep(delta: float) -> void:
 				_sfx("close")
 				_finish_rehearsal(L.t("你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"))
 		return
-	if _ui_free():
-		prep_left -= delta
+	if _ui_free() or (calibration.visible and not get_tree().paused):
+		var active_delta := minf(delta, maxf(prep_left, 0.0))
+		prep_left -= active_delta
+		if calibration.visible:
+			calibration.advance(active_delta)
+			if prep_left <= 0.0:
+				_close_calibration()
 		_update_sky_prep()
 	var minutes_to_14_13 := prep_left / PREP_S * 23.0
 	var local_min := 13 * 60 + 13 + 60 - minutes_to_14_13  # 14:13 at zero
@@ -881,8 +895,6 @@ func _hold_allowed(id: String) -> bool:
 	match id:
 		"drive":
 			return not sim.drive_wound
-		"chronometer":
-			return sim.drive_wound and not sim.drive_rate_checked
 		"plate_box":
 			return sim.plates_carried + sim.plates_delivered < sim.MAX_EXTRA_PLATES
 	return false
@@ -917,10 +929,8 @@ func _prompt_for(id: String, n: Node) -> String:
 		"drive":
 			if not sim.drive_wound:
 				return L.t("［按 %s 開始］上發條") % Prompts.key("interact") if Settings.hold_toggle else L.t("［按住 %s］上發條") % Prompts.key("interact")
-			return L.t("時鐘驅動：發條已上滿")
+			return L.t("［%s］觀察追蹤、請 Cottingham 微調") % Prompts.key("interact")
 		"chronometer":
-			if sim.drive_wound and not sim.drive_rate_checked:
-				return L.t("［按 %s 開始］替 Cottingham 報秒、校走速") % Prompts.key("interact") if Settings.hold_toggle else L.t("［按住 %s］替 Cottingham 報秒、校走速") % Prompts.key("interact")
 			return L.t("［%s］看天文鐘") % Prompts.key("interact")
 		"plate_box":
 			var left: int = sim.MAX_EXTRA_PLATES - sim.plates_carried - sim.plates_delivered
@@ -946,12 +956,9 @@ func _hold_complete(id: String) -> void:
 	match id:
 		"drive":
 			sim.drive_wound = true
+			_interact_needs_release = true
 			audio_click.play()
-			ui.show_toast(L.t("發條上滿了。") + (L.t("Cottingham：「好，接著去天文鐘那裡。」") if met_cottingham else ""))
-		"chronometer":
-			sim.drive_rate_checked = true
-			audio_click.play()
-			ui.show_toast(L.t("你對著天文鐘一秒一秒報數。Cottingham：「慢了一點……好，對上了。」"))
+			ui.show_toast(L.t("發條上滿了。") + (L.t("Cottingham：「好，放開按鍵，再看追蹤示意圖。」") if met_cottingham else ""))
 		"plate_box":
 			sim.plates_carried += 1
 			audio_click.play()
@@ -1011,6 +1018,11 @@ func _interact(id: String) -> void:
 	if phase != Phase.PREP:
 		return
 	match id:
+		"drive":
+			if sim.drive_wound and not _interact_needs_release and not calibration.visible:
+				_cancel_hold()
+				calibration.open(sim)
+				_sync_player_input()
 		"eddington":
 			if not sim.briefed:
 				var seq: Array = Content.briefing()
@@ -1054,6 +1066,13 @@ func _interact(id: String) -> void:
 		"measure":
 			ui.show_toast(L.t("測量桌。今晚，底片會在這裡被逐張比對。"))
 	_refresh_objectives()
+
+
+func _close_calibration() -> void:
+	calibration.hide()
+	_interact_needs_release = true
+	_refresh_objectives()
+	_sync_player_input()
 
 
 func _update_rack() -> void:
@@ -1172,7 +1191,7 @@ func _refresh_objectives() -> void:
 		lines.append(L.t("%s 向 Eddington 報到") % ok.call(sim.briefed))
 		lines.append(L.t("%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）") % [ok.call(sim.plates_delivered >= sim.MAX_EXTRA_PLATES), sim.plates_delivered, sim.MAX_EXTRA_PLATES, sim.plates_carried])
 		lines.append(L.t("%s 協助 Cottingham 上發條") % ok.call(sim.drive_wound))
-		lines.append(L.t("%s 用天文鐘替他校走速") % ok.call(sim.drive_rate_checked))
+		lines.append(L.t("%s 觀察追蹤、請 Cottingham 微調走速") % ok.call(sim.drive_rate_checked))
 		lines.append(L.t("[color=#a99]可選：讀曝光計畫、看牛津比對底片[/color]"))
 		if sim.briefed:
 			lines.append(L.t("[color=#db8]準備好了就告訴 Eddington，或等倒數結束[/color]"))
@@ -1292,7 +1311,7 @@ func _begin_totality() -> void:
 	if not sim.drive_wound:
 		note = L.t("\nCottingham 只能自己趕著上發條，來不及對時。")
 	elif not sim.drive_rate_checked:
-		note = L.t("\n發條上滿了，但走速沒有校過。")
+		note = L.t("\n發條上滿了，但走速尚未驗證。")
 	ui.show_toast(L.t("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。") % Prompts.key("shutter") + note, 7.0)
 	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
 	if bot:
@@ -1752,6 +1771,7 @@ func _record_run() -> void:
 		"first_result": sim.first_result.duplicate(true) if sim.first_result != null else null,
 		"reselected_after_seeing": sim.reselected_after_seeing,
 		"drive_rate_checked": sim.drive_rate_checked, "drive_wound": sim.drive_wound,
+		"drive_error": sim.drive_error,
 		"plate_total": sim.plates.size(), "plates_available": sim.plates_available(),
 		"plate_counts": {"good": sim.count_quality("good"), "poor": sim.count_quality("poor"),
 			"unusable": sim.count_quality("unusable")},
