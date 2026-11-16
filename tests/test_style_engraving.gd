@@ -72,7 +72,7 @@ func _run() -> void:
 
 	var second = load("res://scenes/main.tscn").instantiate()
 	root.add_child(second)
-	await process_frame
+	# _ready() and applying these material overrides are synchronous.
 	second._style = Style.from_args({"style": "engraving", "style-set": "wash=0.3,line_px=7"})
 	second._style.apply(second)
 	material = second._style.quad_material
