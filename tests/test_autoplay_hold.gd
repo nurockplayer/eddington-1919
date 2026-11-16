@@ -270,10 +270,10 @@ func _trim_checks(game) -> int:
 		await _event(JOY_BUTTON_START, false, true)
 		if paused:
 			failures += 1
-		var pad := mode == "gamepad"
+		var pad: bool = mode == "gamepad"
 		if mode in ["success", "gamepad", "reduced", "partial"]:
 			var trimming := false
-			var trim_code := JOY_BUTTON_DPAD_LEFT if pad else KEY_LEFT
+			var trim_code: int = JOY_BUTTON_DPAD_LEFT if pad else KEY_LEFT
 			for step in 400:
 				# Only the displayed movement controls the correction.
 				var should_trim: bool = absf(panel.measured_drift) > (12.0 if mode == "partial" else 0.65)
@@ -344,6 +344,7 @@ func _trim_checks(game) -> int:
 			images.append(load("res://scripts/plate_render.gd").render(game.sim, plate).get_image().get_data())
 		print("trim %s: verified=%s residual=%.4f trail=%s" % [mode, game.sim.drive_rate_checked, game.sim.drive_error, trails.back() if not trails.is_empty() else -1])
 	if trails.size() != 5 or not (trails[0] < trails[1] and trails[1] < trails[2]):
+		print("FAIL: successful trim < partial trim < abandoned in developed-plate trail: ", trails)
 		failures += 1
 	if images.size() != 5 or images[0] == images[1] or images[1] == images[2]:
 		failures += 1
