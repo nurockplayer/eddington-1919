@@ -31,8 +31,7 @@ static func opening() -> Array:
 ## HISTORICAL_RECORD (story_factcheck §7). kit_line is the stored "給 Kit：…" workbook line.
 static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit_line: String) -> Array:
 	var seq: Array = [
-		{"s": K, "t": L.t("你瘦了。")},
-		{"s": K, "t": L.t("說吧。你決定好要先跟我說的那一句。")},
+		{"s": K, "t": L.t("你瘦了。") + "\n\n" + L.t("說吧。你決定好要先跟我說的那一句。")},
 	]
 	var said := kit_line.trim_prefix(L.t("給 Kit：%s") % "")
 	seq.append({"s": YOU, "t": said if said != "" else L.t("……我回來了。")})
@@ -40,20 +39,22 @@ static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit
 		0: seq.append({"s": K, "t": L.t("那我要聽。從雲開始講。")})
 		1: seq.append({"s": K, "t": L.t("範圍很寬，也是一個答案。你以前不會這樣說。")})
 		2: seq.append({"s": K, "t": L.t("那就慢慢告訴我。今天晚上很長。")})
-	seq.append({"s": "", "t": L.t("（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）")})
-	seq.append({"s": K, "t": L.t("這是你自己抬頭看到的。好。")})
+	var workbook := L.t("（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）") + "\n\n" + L.t("這是你自己抬頭看到的。好。")
+	if seq[-1].s == K:
+		seq[-1].t += "\n\n" + workbook
+	else:
+		seq.append({"s": K, "t": workbook})
 	if sky_promise == 0:
 		seq.append({"s": K, "t": L.t("你要我寫這裡變了什麼。我寫了。")})
 	else:
 		seq.append({"s": K, "t": L.t("你沒要我寫，我還是記下來了。")})
-	seq.append({"s": K, "t": L.t("Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。")})
-	seq.append({"s": K, "t": L.t("那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。")})
-	seq.append({"s": "", "t": L.t("（桌角有一個沒寄出的信封，寫著你的名字。）")})
-	seq.append({"s": K, "t": L.t("那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。")})
+	seq[-1].t += "\n\n" + L.t("Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。")
+	seq[-1].t += "\n\n" + L.t("那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。")
+	seq.append({"s": K, "t": L.t("（桌角有一個沒寄出的信封，寫著你的名字。）") + "\n\n" + L.t("那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。")})
 	if bond_tone == "close":
-		seq.append({"s": K, "t": L.t("……裡面寫了什麼，以後再說。不是今晚。")})
+		seq[-1].t += "\n\n" + L.t("……裡面寫了什麼，以後再說。不是今晚。")
 	else:
-		seq.append({"s": K, "t": L.t("反正裡面寫的，剛剛都說了。省一張郵票。")})
+		seq[-1].t += "\n\n" + L.t("反正裡面寫的，剛剛都說了。省一張郵票。")
 	return seq
 
 
@@ -72,7 +73,6 @@ static func tableau_caption() -> String:
 static func letter() -> Array:
 	return [
 		{"s": L.t("Dyson 的信（推測重建，非原文）"), "t": L.t("Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。")},
-		{"s": A, "t": L.t("把它們抄到你的圖上。一筆一筆來。")},
 	]
 
 

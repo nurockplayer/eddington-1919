@@ -40,6 +40,7 @@ func dispose(game: Node) -> void:
 	game.queue_free()
 
 func _run() -> void:
+	await _test_judgment_stretch()
 	var cases := [
 		{"value": 1.75, "dirty": false, "evidence": "favors_e", "needle": "你不用一個人回家了"},
 		{"value": 1.75, "dirty": true, "evidence": "favors_e", "needle": "挑得還不夠乾淨"},
@@ -55,7 +56,7 @@ func _run() -> void:
 			if str(seq[i].t).contains(c.needle):
 				index = i
 		check(game._grade.evidence == c.evidence and game._grade.clean == not c.dirty, "real grade reaches " + c.evidence)
-		check(index == game._grade.lines.size() and index < seq.size() - 1 and seq[-1].t == Content.cottingham_coda(game.sim), "payoff follows grade and precedes coda: " + c.needle)
+		check(index == game._grade.presentation.size() and index < seq.size() - 1 and str(seq[-1].t).ends_with(Content.cottingham_coda(game.sim)) and seq[-1].s == Content.C, "payoff follows grade and precedes coda: " + c.needle)
 		dispose(game)
 		await process_frame
 	var grades := []
@@ -95,3 +96,36 @@ func _run() -> void:
 	await process_frame
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _test_judgment_stretch() -> void:
+	# All conditional selection groups, confirmed context, and an automatic reread.
+	var game := make_game(1.75, true)
+	game._came_from_departure = true
+	game._departure_workbook_seen = true
+	game._add_night_workbook()
+	var saved := "給 Kit：我看見了雲。"
+	game._night_departure_workbook.write_kit_line(saved)
+	game.sim.plates.append({"number": 3, "usable": true, "quality": "poor", "included": true,
+		"trail": 0.5, "sigma": 0.3, "read": true, "reading": game.sim.reading_for_value(1.75)})
+	game.sim.plates.append({"number": 4, "usable": false, "quality": "unusable", "included": true})
+	game.sim.reselected_after_seeing = true
+	game.sim.reselect_history = [{"reason": "result", "removed": [2], "added": [3, 4]}]
+	game._after_judgment({"telegram": 0, "reason": 3})
+	var count := 0
+	var shown := ""
+	while game._pending in ["reaction", "coda_opening", "coda_workbook"] and count < 30:
+		shown += str(game.ui._seq[game.ui._seq_i].t) + "\n"
+		count += 1
+		game.ui._advance()
+	check(count == 8 and game.coda_step == game.CodaStep.LOUPE,
+		"longest judgment to reread route uses at most eight entries (got %d)" % count)
+	for line in game._grade.lines:
+		check(shown.contains(line), "judgment preserves raw feedback: " + line)
+	for entry in Content.go_home_alone(game._grade.evidence, game._grade.clean):
+		check(shown.contains(entry.t), "judgment preserves homecoming: " + entry.t)
+	for line in [Content.cottingham_coda(game.sim), "（Eddington 把電報稿折好，收進外套口袋，出去找送電報的人。）",
+		"（你又讀了一遍工作簿最後一頁。字比你記得的還要歪。）", saved]:
+		check(shown.contains(line), "judgment preserves departure and reread: " + line)
+	dispose(game)
+	await process_frame

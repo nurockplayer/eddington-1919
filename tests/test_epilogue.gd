@@ -68,15 +68,31 @@ func _test_reunion(story: Node) -> void:
 		var text := _text(chapter)
 		check(chapter.world.kit.visible and (chapter.world.kit.get_meta("room_collision_shape") as CollisionShape3D).disabled, "Kit is visible without a collider")
 		check(text.find("你瘦了。") >= 0 and text.find("Greenwich 來信了") > text.find("你瘦了。"), "Kit speaks before the opening")
-		check(str(seq[2].s) == str(CONTENT.YOU) and str(seq[2].t) == ("我看見了雲。" if i == 0 else "……我回來了。"), "the player delivers the saved line or fallback")
+		check(str(seq[1].s) == str(CONTENT.YOU) and str(seq[1].t) == ("我看見了雲。" if i == 0 else "……我回來了。"), "the player delivers the saved line or fallback")
 		for j in 3:
 			check(text.contains(replies[j]) == (i == j), "kit_first %d selects reply %d" % [i, j])
 		check(text.contains("你要我寫這裡變了什麼。我寫了。") == (i == 0), "sky promise selects its reply")
 		check(text.contains("你沒要我寫，我還是記下來了。") == (i != 0), "other sky promise selects its reply")
 		check(text.contains("……裡面寫了什麼，以後再說。不是今晚。") == (i == 0), "close bond selects its envelope line")
 		check(text.contains("反正裡面寫的，剛剛都說了。省一張郵票。") == (i != 0), "warm bond selects its envelope line")
+		var count := seq.size()
 		_finish(chapter)
 		check(chapter.beat == chapter.Beat.LETTER, "reunion and opening reach LETTER together")
+		chapter._interact("letter")
+		count += chapter.ui._seq.size()
+		var letter_text := _text(chapter)
+		check(letter_text.contains(CONTENT.letter()[0].t), "longest reunion keeps the complete reconstructed letter")
+		_finish(chapter)
+		for step in 3:
+			chapter.chart.button.pressed.emit()
+		check(chapter.chart.step == 3 and chapter.chart.question.text == "Sobral 4 吋那一點：細線（兩倍誤差）裡容得下哪一個？",
+			"reunion reaches the exact first Sobral question after three copy clicks")
+		check(count + 1 == 8, "longest reunion includes Sobral question in eight entries (got %d)" % (count + 1))
+		for line in ["你瘦了。", "說吧。你決定好要先跟我說的那一句。", "（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）",
+			"這是你自己抬頭看到的。好。", "Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。",
+			"那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。", "（桌角有一個沒寄出的信封，寫著你的名字。）",
+			"那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。", "Greenwich 來信了。Dyson 寫的，在桌上。你先看。"]:
+			check(text.contains(line), "longest reunion preserves: " + line)
 		chapter.free()
 		await process_frame
 

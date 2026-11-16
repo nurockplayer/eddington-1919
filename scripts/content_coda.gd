@@ -14,7 +14,6 @@ const YOU := CAST.YOU
 static func opening() -> Array:
 	return [
 		{"s": "", "t": L.t("（Eddington 把電報稿折好，收進外套口袋，出去找送電報的人。）")},
-		{"s": "", "t": L.t("（雨早就停了。屋外的蟲聲很響，暗房裡只剩下你和桌上的燈。）")},
 	]
 
 
@@ -22,7 +21,7 @@ static func opening() -> Array:
 static func workbook_again(kit_line := "") -> Array:
 	var seq: Array = [{"s": "", "t": L.t("（你又讀了一遍工作簿最後一頁。字比你記得的還要歪。）")}]
 	if not kit_line.is_empty():
-		seq.append({"s": L.t("工作簿"), "t": kit_line})
+		seq[0].t += "\n\n" + (L.t("%s：%s") % [L.t("工作簿"), kit_line])
 	return seq
 
 
@@ -30,34 +29,36 @@ static func workbook_again(kit_line := "") -> Array:
 ## was made by image quality before seeing values. measured_any: at least one plate measured.
 ## ashby_bet: Ashby wrote his own 1917 ledger entry (conversion arc move A).
 static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable := false, ashby_bet := false, pressed := false) -> Array:
-	var seq: Array = []
+	var memory: Array[String] = []
+	var outcome: Array[String] = []
 	if ashby_bet:
 		# FICTION: the player recalls Ashby's own ledger entry before the loupe.
-		seq.append({"s": YOU, "t": L.t("（他在 1917 年那頁寫的是 0.87。我的底片，要寄給他看。）")})
-	seq.append({"s": "", "t": L.t("（你拿起 %s的放大鏡。）") % L.t(CAST.MENTOR)})
+		memory.append(L.t("（他在 1917 年那頁寫的是 0.87。我的底片，要寄給他看。）"))
+	memory.append(L.t("（你拿起 %s的放大鏡。）") % L.t(CAST.MENTOR))
 	if pressed:
 		# FICTION.
-		seq.append({"s": YOU, "t": L.t("（那天晚上你問他，是不是早就認定了。他說是——然後把規則指給你看。）")})
+		memory.append(L.t("（那天晚上你問他，是不是早就認定了。他說是——然後把規則指給你看。）"))
 	if not measured_any and any_usable:
-		seq.append({"s": YOU, "t": L.t("（放大鏡底下有星點——是你沒有拿去量的那幾張。）")})
-		seq.append({"s": YOU, "t": L.t("（雲很厚，可是不是什麼都沒留下。回去以後，先把它們量完。）")})
+		outcome.append(L.t("（放大鏡底下有星點——是你沒有拿去量的那幾張。）"))
+		outcome.append(L.t("（雲很厚，可是不是什麼都沒留下。回去以後，先把它們量完。）"))
 	elif not measured_any:
-		seq.append({"s": YOU, "t": L.t("（放大鏡底下沒有可以量的東西——只有雲留下的一片灰。）")})
-		seq.append({"s": YOU, "t": L.t("（可是你把雲記下來了。他說過：無論看見什麼。）")})
+		outcome.append(L.t("（放大鏡底下沒有可以量的東西——只有雲留下的一片灰。）"))
+		outcome.append(L.t("（可是你把雲記下來了。他說過：無論看見什麼。）"))
 	elif fit == 2 and clean:
-		seq.append({"s": YOU, "t": L.t("（底片、數字、電報——每一步都寫在紙上了，連那幾張不能用的也是。）")})
-		seq.append({"s": YOU, "t": L.t("（他不會因為這樣就相信。可是他會一頁一頁讀下去。這就夠了。）")})
+		outcome.append(L.t("（底片、數字、電報——每一步都寫在紙上了，連那幾張不能用的也是。）"))
+		outcome.append(L.t("（他不會因為這樣就相信。可是他會一頁一頁讀下去。這就夠了。）"))
 	elif fit == 2:
-		seq.append({"s": YOU, "t": L.t("（選片那一頁還有一行說不清楚：為什麼留這張、丟那張。）")})
-		seq.append({"s": YOU, "t": L.t("（回去以後把它寫清楚——在他問之前。）")})
+		outcome.append(L.t("（選片那一頁還有一行說不清楚：為什麼留這張、丟那張。）"))
+		outcome.append(L.t("（回去以後把它寫清楚——在他問之前。）"))
 	elif fit == 1:
-		seq.append({"s": YOU, "t": L.t("（電報寫得太小心，或是太寬鬆——你自己也說不準。）")})
-		seq.append({"s": YOU, "t": L.t("（他會在旁邊畫一個問號。問號不丟人。）")})
+		outcome.append(L.t("（電報寫得太小心，或是太寬鬆——你自己也說不準。）"))
+		outcome.append(L.t("（他會在旁邊畫一個問號。問號不丟人。）"))
 	else:
-		seq.append({"s": YOU, "t": L.t("（電報已經發出去了，收不回來。）")})
-		seq.append({"s": YOU, "t": L.t("（你想起他說的：要被一張乾淨的底片說服，而不是被一個好故事。）")})
-		seq.append({"s": YOU, "t": L.t("（這一次，你差一點就成了那個好故事。）")})
-	return seq
+		outcome.append(L.t("（電報已經發出去了，收不回來。）"))
+		outcome.append(L.t("（你想起他說的：要被一張乾淨的底片說服，而不是被一個好故事。）"))
+		outcome.append(L.t("（這一次，你差一點就成了那個好故事。）"))
+	return [{"s": YOU, "t": "\n\n".join(memory)},
+		{"s": YOU, "t": "\n\n".join(outcome)}]
 
 
 ## Issue #37 loop 5 (proposal): the old small doubts come back beside tonight's numbers.
@@ -68,9 +69,9 @@ static func small_numbers(residual_found: bool, measured_any: bool) -> Array:
 		seq.append({"s": YOU, "t": L.t("（14 號底片上那一點極淡的白。兩年了，還是沒有人知道它是什麼。）")})
 	seq.append({"s": YOU, "t": L.t("（Eddington 那個關緊的箱子。從裡面分不出來——所以才要到這裡，看太陽旁邊的星。）")})
 	if measured_any:
-		seq.append({"s": YOU, "t": L.t("（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）")})
+		seq[-1].t += "\n\n" + L.t("（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）")
 	else:
-		seq.append({"s": YOU, "t": L.t("（今晚什麼也沒量到。沒有數字，也是一筆紀錄。）")})
+		seq[-1].t += "\n\n" + L.t("（今晚什麼也沒量到。沒有數字，也是一筆紀錄。）")
 	return seq
 
 
@@ -78,7 +79,7 @@ static func small_numbers(residual_found: bool, measured_any: bool) -> Array:
 ## kit_choice is the 1917 answer about the childhood star chart (-1: no prologue).
 ## overclaimed: the telegram said more than the plates (CONFIRMED).
 static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false, misread := false, clean := true, sky_promise := -1) -> Array:
-	var seq: Array = [{"s": YOU, "t": L.t("（工作簿後面還有很多空白頁。回去的路還很長。）")}]
+	var seq: Array = []
 	match kit_choice:
 		0:
 			if overclaimed:
@@ -91,7 +92,7 @@ static func kit_close(bond_tone: String, kit_choice := -1, overclaimed := false,
 			seq.append({"s": YOU, "t": L.t("（那天晚上 Kit 問起那張星圖，你沒有回答。見了面，也許可以從那張圖說起。）")})
 	if bond_tone == "close":
 		seq.append({"s": YOU, "t": L.t("（有些話，也許可以等到見了面再說。）")})
-		seq.append({"s": YOU, "t": L.t("（也許。）")})
+		seq[-1].t += "\n\n" + L.t("（也許。）")
 	else:
 		seq.append({"s": YOU, "t": L.t("（Kit 一定會先問天空，再問底片。）")})
 	match sky_promise:

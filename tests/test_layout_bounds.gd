@@ -9,6 +9,8 @@ const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const EpilogueChart := preload("res://scripts/cambridge/epilogue_chart.gd")
+const Coda := preload("res://scripts/content_coda.gd")
+const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
 const BoxSketch := preload("res://scripts/cambridge/box_sketch.gd")
 var checks := 0
 var failures := 0
@@ -51,6 +53,7 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_merged_dialogue()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	Settings.load_settings(test_path)
 	var real_path := ProjectSettings.globalize_path(Settings.settings_path())
@@ -386,3 +389,70 @@ func _run() -> void:
 	Settings.load_settings()
 	print("test_layout_bounds: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _test_merged_dialogue() -> void:
+	var locale := L.current()
+	var scale := Settings.text_scale
+	var ui = preload("res://scripts/ui.gd").new()
+	root.add_child(ui)
+	ui.hide_title()
+	ui.cambridge_portraits = true
+	root.content_scale_size = Vector2i(1600, 900)
+	root.size = Vector2i(1280, 720)
+	Settings.text_scale = 1.2
+	for language in L.LOCALES:
+		L.apply(language)
+		Settings.refresh_fonts(self)
+		context = "merged dialogue %s largest text" % language
+		var sim := Sim.new(1919)
+		sim.rule_id = "strict"
+		sim.reselected_after_seeing = true
+		sim.reselect_history = [{"reason": "result"}]
+		sim.plates = [
+			{"number": 1, "quality": "good", "usable": true, "included": true, "read": true,
+				"sigma": 0.1, "trail": 0.1, "duration": 20.0, "reading": sim.reading_for_value(1.75)},
+			{"number": 2, "quality": "good", "usable": true, "included": false},
+			{"number": 3, "quality": "poor", "usable": true, "included": true, "read": true,
+				"sigma": 0.3, "trail": 0.5, "reading": sim.reading_for_value(1.75)},
+			{"number": 4, "quality": "unusable", "usable": false, "included": true}]
+		var entries: Array = []
+		for telegram in Judgment.TELEGRAMS:
+			for reason in Judgment.REASONS:
+				for line in Judgment.grade(sim, telegram.id, reason.id).presentation:
+					entries.append({"s": Content.E, "t": line})
+		# Also cover the clean poor-only rule qualification and multi-plate corroboration.
+		for plate in sim.plates:
+			plate.included = plate.quality == "poor"
+		for line in Judgment.grade(sim, "confirmed", "trailed").presentation:
+			entries.append({"s": Content.E, "t": line})
+		for measured in [true, false]:
+			for fit in [0, 1, 2]:
+				for clean in [true, false]:
+					entries.append_array(Coda.ashby_answer(fit, clean, measured, true, true, true))
+			entries.append_array(Coda.small_numbers(true, measured))
+		for evidence in ["favors_e", "ambiguous", "none"]:
+			for clean in [true, false]:
+				var home := Content.go_home_alone(evidence, clean)
+				if home[-1].s == Content.C:
+					home[-1].t += "\n\n" + Content.cottingham_coda(sim)
+				entries.append_array(home)
+		for bond in ["close", "warm"]:
+			for first in [0, 1, 2, -1]:
+				for promise in [0, 1]:
+					entries.append_array(Epilogue.kit_reunion(first, bond, promise, L.t("給 Kit：%s") % Coda.kit_first_reply(2, false)))
+			entries.append_array(Coda.kit_close(bond, 0, true, false, false, 1))
+		entries.append_array(Coda.workbook_again(L.t("給 Kit：%s") % Coda.kit_first_reply(2, false)))
+		var seen := {}
+		for entry in entries:
+			if seen.has(entry.t):
+				continue
+			seen[entry.t] = true
+			ui.play([entry])
+			await settle()
+			bounds(ui.dialog_panel)
+			check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1,
+				"merged text fits dialogue box: " + str(entry.t))
+	ui.free()
+	L.apply(locale)
+	Settings.text_scale = scale
