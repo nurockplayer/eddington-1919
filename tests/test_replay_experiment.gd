@@ -141,9 +141,12 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 		game._process_totality(0.1 / game.sim.TIME_SCALE)
 	await wait_for(func(): return game._pending == "after_totality" and game.ui.dialog_active(), "third contact closes on the spoken aftermath")
 	await dialogue(game)
-	await wait_for(func(): return game.phase == game.Phase.NIGHT and not game._busy, "third contact develops the real plates and reaches night")
+	# Plate rendering is synchronous. Once it yields to the night caption, start
+	# the asynchronous transition deadline rather than charging rendering to it.
+	await wait_for(func(): return game.phase == game.Phase.NIGHT, "third contact develops the real plates and reaches night")
+	await wait_for(func(): return not game._busy, "night caption and fade complete")
 	if game.phase != game.Phase.NIGHT or game._busy:
-		print("replay night state: phase=%s busy=%s paused=%s caption_alpha=%s" % [game.phase, game._busy, paused, game.ui.caption.modulate.a])
+		return
 	await dialogue(game)
 	if game._needs_comparison_fetch():
 		game._interact("oxford_case")
