@@ -348,7 +348,7 @@ msgstr ""
 msgid "Eddington 抬頭看了一眼：「雲還是很厚……繼續。」"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:289
+#: scripts/cambridge/box_sketch.gd:291
 msgid "Eddington 用手蓋住了這一格。"
 msgstr ""
 
@@ -1016,7 +1016,7 @@ msgstr ""
 msgid "一樣重，平均下來約 1.46″。可是這兩組自己就差了一倍，平均只是把分歧藏起來。再說，一架比例尺可能變了的鏡頭，憑什麼和沒變的一樣重？"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:202 scripts/cambridge/box_sketch.gd:329
+#: scripts/cambridge/box_sketch.gd:204 scripts/cambridge/box_sketch.gd:331
 msgid "一樣高"
 msgstr ""
 
@@ -1332,11 +1332,11 @@ msgstr ""
 msgid "你照著量之前寫下的規則選片。結果合不合期望，都沒有人能說你是看了數字才挑的。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:327
+#: scripts/cambridge/box_sketch.gd:329
 msgid "你猜對了：光落得比出發點低。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:330
+#: scripts/cambridge/box_sketch.gd:332
 msgid "你猜的是%s。Eddington 在劍橋問過你：地板一直往上追它。"
 msgstr ""
 
@@ -1532,7 +1532,7 @@ msgstr ""
 msgid "先選片，再量測。數值會在量測後顯示。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:323
+#: scripts/cambridge/box_sketch.gd:325
 msgid "光會落在對面牆的哪裡？"
 msgstr ""
 
@@ -1580,7 +1580,7 @@ msgstr ""
 msgid "兩週。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:325
+#: scripts/cambridge/box_sketch.gd:327
 msgid "兩邊都看過了——可以關上"
 msgstr ""
 
@@ -1860,7 +1860,7 @@ msgstr ""
 msgid "嗯。這種事，不常有。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:287 scripts/cambridge/box_sketch.gd:424
+#: scripts/cambridge/box_sketch.gd:289 scripts/cambridge/box_sketch.gd:426
 msgid "回到桌邊"
 msgstr ""
 
@@ -1900,7 +1900,7 @@ msgstr ""
 msgid "在筆記本最後寫一句：哪一個證據最讓你改變想法？"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:289
+#: scripts/cambridge/box_sketch.gd:291
 msgid "地面"
 msgstr ""
 
@@ -2294,11 +2294,11 @@ msgstr ""
 msgid "很確定"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:208
+#: scripts/cambridge/box_sketch.gd:210
 msgid "從箱外看"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:208
+#: scripts/cambridge/box_sketch.gd:210
 msgid "從箱裡看"
 msgstr ""
 
@@ -2630,7 +2630,7 @@ msgstr ""
 msgid "接下來的六個晚上，我們每晚沖兩張。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:287 scripts/cambridge/box_sketch.gd:424
+#: scripts/cambridge/box_sketch.gd:289 scripts/cambridge/box_sketch.gd:426
 msgid "換一格"
 msgstr ""
 
@@ -2654,7 +2654,7 @@ msgstr ""
 msgid "收好清單"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:294
+#: scripts/cambridge/box_sketch.gd:296
 msgid "收起來"
 msgstr ""
 
@@ -2698,7 +2698,7 @@ msgstr ""
 msgid "改：零"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:215
+#: scripts/cambridge/box_sketch.gd:217
 msgid "放出光"
 msgstr ""
 
@@ -3018,11 +3018,11 @@ msgstr ""
 msgid "比例和方向，先用遠處的星校正過——那一條是 Eddington 補上的。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:202
+#: scripts/cambridge/box_sketch.gd:204
 msgid "比出發點低"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:202 scripts/cambridge/box_sketch.gd:329
+#: scripts/cambridge/box_sketch.gd:204 scripts/cambridge/box_sketch.gd:331
 msgid "比出發點高"
 msgstr ""
 
@@ -3718,7 +3718,7 @@ msgstr ""
 msgid "起霧：雲光蓋住，星點淡、數得到的少"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:193
+#: scripts/cambridge/box_sketch.gd:195
 msgid "越拉越快"
 msgstr ""
 
@@ -3870,15 +3870,15 @@ msgstr ""
 msgid "還沒有量出任何數字，談不上偏低，也就輪不到儀器來解釋。"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:332
+#: scripts/cambridge/box_sketch.gd:334
 msgid "還要從艙內看一次"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:336
+#: scripts/cambridge/box_sketch.gd:338
 msgid "還要從艙外和艙內各看一次"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:334
+#: scripts/cambridge/box_sketch.gd:336
 msgid "還要從艙外看一次"
 msgstr ""
 
@@ -4208,7 +4208,7 @@ msgstr ""
 msgid "高"
 msgstr ""
 
-#: scripts/cambridge/box_sketch.gd:215
+#: scripts/cambridge/box_sketch.gd:217
 msgid "鬆手"
 msgstr ""
 
