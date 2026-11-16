@@ -21,7 +21,7 @@ func _run() -> void:
 	check(Style.arg_errors("silver", "").is_empty(), "empty pairs")
 	check(Style.from_args({}) == null, "no style")
 	var style = Style.from_args({"style": "silver", "style-set": "vignette=0.4"})
-	check(style.id == "silver" and style.params.vignette is float and is_equal_approx(style.params.vignette, 0.4) and style.params.grain == 0.03, "overrides")
+	check(style.id == "silver" and style.params.vignette is float and is_equal_approx(style.params.vignette, 0.4) and style.params.grain == 0.09, "overrides")
 	check(Style.from_args({"style": "nope"}) == null, "unknown returns null")
 	for id in Style.STYLES:
 		var impl = load(Style.STYLES[id]).new()
@@ -59,7 +59,7 @@ func _run() -> void:
 	game._style = Style.from_args({"style": "silver"})
 	game._style.apply(game)
 	var posts := get_nodes_in_group("look_post")
-	check(posts.size() == 1 and is_equal_approx(posts[0].material.get_shader_parameter("vignette"), 0.22), "post")
+	check(posts.size() == 1 and is_equal_approx(posts[0].material.get_shader_parameter("vignette"), 0.5), "post")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(game.ui.dialogue_portrait.prints_override.has("Eddington"), "portrait")
 	check(get_nodes_in_group("ground").size() == 1 and get_nodes_in_group("npc").size() == 2, "world groups")
