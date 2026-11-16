@@ -86,14 +86,38 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 	game._hold_complete("drive")
 	game._interact_needs_release = false
 	game._interact("drive")
-	# Use the autoplay observation/input path, rather than a completion flag.
-	var trimmer = load("res://tests/test_autoplay_hold.gd").HoldBot.new()
-	trimmer.main = game
-	root.add_child(trimmer)
-	game.set_process(true)
-	await trimmer.trim_drive()
-	game.set_process(false)
-	trimmer.queue_free()
+	# Keep the replay suite's manually advanced clock during calibration too.
+	# Inputs follow the displayed movement; no hidden correct setting is read.
+	for step in 450:
+		var drift: float = game.calibration.measured_drift
+		for action in ["ui_left", "trim_fine"]:
+			var event := InputEventAction.new()
+			event.action = action
+			event.pressed = absf(drift) > 0.65 if action == "ui_left" else absf(drift) < 5.0
+			Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		game._process_prep(0.1)
+		await process_frame
+		if game.sim.drive_rate_checked:
+			break
+	for action in ["ui_left", "trim_fine"]:
+		var event := InputEventAction.new()
+		event.action = action
+		event.pressed = false
+		Input.parse_input_event(event)
+	Input.flush_buffered_events()
+	check(game.sim.drive_rate_checked, "observed trim input verifies the replay drive")
+	var record := InputEventAction.new()
+	record.action = "interact"
+	record.pressed = true
+	Input.parse_input_event(record)
+	Input.flush_buffered_events()
+	await process_frame
+	record.pressed = false
+	Input.parse_input_event(record)
+	Input.flush_buffered_events()
+	await process_frame
+	check(not game.calibration.visible, "record input closes replay calibration")
 	for holder in 8:
 		game._hold_complete("plate_box")
 	game._interact("eddington")
@@ -114,6 +138,8 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 	await wait_for(func(): return game._pending == "after_totality" and game.ui.dialog_active(), "third contact closes on the spoken aftermath")
 	await dialogue(game)
 	await wait_for(func(): return game.phase == game.Phase.NIGHT and not game._busy, "third contact develops the real plates and reaches night")
+	if game.phase != game.Phase.NIGHT or game._busy:
+		print("replay night state: phase=%s busy=%s paused=%s caption_alpha=%s" % [game.phase, game._busy, paused, game.ui.caption.modulate.a])
 	await dialogue(game)
 	if game._needs_comparison_fetch():
 		game._interact("oxford_case")
