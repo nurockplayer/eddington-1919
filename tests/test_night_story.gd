@@ -56,7 +56,7 @@ func _run() -> void:
 			if str(seq[i].t).contains(c.needle):
 				index = i
 		check(game._grade.evidence == c.evidence and game._grade.clean == not c.dirty, "real grade reaches " + c.evidence)
-		check(index == game._grade.presentation.size() and index < seq.size() - 1 and str(seq[-1].t).ends_with(Content.cottingham_coda(game.sim)) and seq[-1].s == Content.C, "payoff follows grade and precedes coda: " + c.needle)
+		check(index == game._grade.get("presentation", game._grade.lines).size() and index < seq.size() - 1 and str(seq[-1].t).ends_with(Content.cottingham_coda(game.sim)) and seq[-1].s == Content.C, "payoff follows grade and precedes coda: " + c.needle)
 		dispose(game)
 		await process_frame
 	var grades := []
