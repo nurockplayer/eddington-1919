@@ -95,6 +95,24 @@ func _run() -> void:
 			"Report reaches no-results judgment (unusable=%s)" % only_unusable)
 		await _finish(empty_game)
 	print("mic: no-results reporting done")
+	# Usable plates outside the selection must not block a no-results report.
+	for only_unusable in [false, true]:
+		var excluded_game := await _new_game([1.75, 1.50])
+		excluded_game._on_plate_toggled(0, false)
+		if only_unusable:
+			excluded_game.sim.plates[1].usable = false
+			excluded_game.sim.plates[1].quality = "unusable"
+		else:
+			excluded_game._on_plate_toggled(1, false)
+		var excluded_ui = excluded_game.ui
+		excluded_ui.measure_btn.pressed.emit()
+		await process_frame
+		excluded_ui.report_btn.grab_focus()
+		await _button(JOY_BUTTON_A)
+		check(excluded_ui._viewer_reporting and excluded_ui.dialog_active() and excluded_game._pending == "judgment",
+			"no-usable selection reaches judgment with excluded usable plates (unusable=%s)" % only_unusable)
+		await _finish(excluded_game)
+	print("mic: excluded usable plates reporting done")
 
 	print("mic: 1 new game")
 	# 1. A careful reading at the true displacement reproduces the plate's value.
@@ -212,6 +230,36 @@ func _run() -> void:
 			"one reading proceeds to Eddington with the other plate unread")
 	await _finish(game4)
 	print("mic: 4 done")
+
+	# The first result follows readings on the locked selection until it changes.
+	var snapshot_game := await _new_game([1.75, 1.50])
+	var snapshot_ui = snapshot_game.ui
+	snapshot_ui.measure_btn.pressed.emit()
+	await process_frame
+	snapshot_ui.mic_btn.button_pressed = true
+	_read_plate(snapshot_game, 0, 1.75)
+	check(snapshot_game.sim.first_result.n > 0,
+		"locked reading updates first_result before reselection")
+	var first_result: Dictionary = snapshot_game.sim.first_result.duplicate(true)
+	snapshot_ui.reselect_btn.pressed.emit()
+	await process_frame
+	snapshot_game._on_plate_toggled(0, false)
+	_read_plate(snapshot_game, 1, 1.50)
+	snapshot_ui.measure_btn.pressed.emit()
+	await process_frame
+	check(snapshot_game._pending == "reselect_reason", "changed selection asks for a reselection reason")
+	snapshot_game._on_dialogue_done({"reselect_reason": 0})
+	await process_frame
+	check(snapshot_game.sim.measured and snapshot_game.sim.reselected_after_seeing,
+		"changed selection locks after its reason is recorded")
+	check(snapshot_game.sim.first_result == first_result and first_result.n > 0
+		and not is_equal_approx(snapshot_game.sim.first_result.value, snapshot_game.sim.combined().value),
+		"reselection preserves the first locked reading instead of the new result")
+	_read_plate(snapshot_game, 1, 1.60)
+	check(snapshot_game.sim.first_result == first_result,
+		"reading after reselection preserves the first result")
+	await _finish(snapshot_game)
+	print("mic: first-result snapshot done")
 
 	# 5. Readings survive 重新選片.
 	print("mic: 5 new game")
