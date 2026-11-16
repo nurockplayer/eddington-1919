@@ -265,12 +265,19 @@ func _test_rehearsal() -> void:
 		if i != 3 and i != 4:
 			await _rehearsal_press(shutter)
 		check(game.ui.toast.text.contains(expected[i]), "%s timing gives its feedback" % cases[i])
+		check(game.ui.toast.text.contains("這一小會兒"), "rehearsal describes the brief real-time change without a game-clock number")
 		check(game._rehearsal_step == 2 and game.prep_left == prep_before, "change wait freezes preparation")
 		if i == 4:
 			await _rehearsal_press(shutter)
 			check(game.ui.toast.text == "Eddington 還在換片……", "press during automatic change reports the wait")
-		await create_timer(Sim.PLATE_CHANGE_S + 0.1).timeout
-		check(not game.rehearsing and game.player.can_move, "four-second change restores input")
+		var change_seconds := Sim.PLATE_CHANGE_S / Sim.TIME_SCALE
+		await create_timer(change_seconds * 0.5).timeout
+		check(game.rehearsing, "rehearsal keeps input locked midway through the real change rhythm")
+		await create_timer(change_seconds * 0.5 + 0.15).timeout
+		check(not game.rehearsing and game.player.can_move, "rehearsal change restores input at the real totality rhythm")
+		# Let the old four-second timer finish on revert runs so later cases stay independent.
+		if game.rehearsing:
+			await create_timer(Sim.PLATE_CHANGE_S).timeout
 		check(game.world.roof.visible and is_equal_approx(game.player.yaw, 0.4) and is_equal_approx(game.player.pitch, -0.2), "rehearsal restores roof and camera")
 		check(is_equal_approx(game.player.global_position.z, 0.0), "rehearsal returns the player to the original position")
 		check(game.sky_mat.get_shader_parameter("practice_cloud") == -1.0, "rehearsal restores the sky shader")
