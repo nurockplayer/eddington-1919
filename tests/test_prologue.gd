@@ -277,6 +277,43 @@ func _send_tab(ui: CanvasLayer) -> void:
 	await _send_key(KEY_TAB)
 
 
+func _test_plan_limit(chapter) -> void:
+	var saved_motion: bool = PlanBoard.Settings.reduced_motion
+	for reduced in [false, true]:
+		PlanBoard.Settings.reduced_motion = reduced
+		chapter.plan_board.open()
+		await process_frame
+		for id in ["comparison", "far_stars", "rules_first", "two_sites"]:
+			chapter.plan_board.card_buttons[id].grab_focus()
+			await _send_key(KEY_ENTER)
+			while chapter.ui.dialog_active():
+				chapter.ui._advance()
+		var selected: Array = chapter.plan_board.selected.duplicate()
+		var fifth: Button = chapter.plan_board.card_buttons["conditions"]
+		fifth.grab_focus()
+		await _send_key(KEY_ENTER)
+		var shook := not is_zero_approx(fifth.rotation)
+		var deadline := Time.get_ticks_msec() + 350
+		while Time.get_ticks_msec() < deadline:
+			shook = shook or not is_zero_approx(fifth.rotation)
+			await process_frame
+		check(shook != reduced, "fifth card shakes only when reduced motion is off")
+		check(is_zero_approx(fifth.rotation) and not fifth.disabled, "fifth card settles and remains usable")
+		check(chapter.plan_board.selected == selected and not fifth.button_pressed, "fifth pick preserves the four selections and stays unpressed")
+		check(chapter.ui.dialog_active() and chapter.ui.text_label.text.contains("板上只寫得下四件事——先拿掉一張。"), "fifth pick explains the limit through the real reaction dialogue")
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+		check(chapter.plan_board.visible, "dismissing the limit reaction returns to the board")
+		chapter.plan_board.card_buttons["two_sites"].grab_focus()
+		await _send_key(KEY_ENTER)
+		fifth.grab_focus()
+		await _send_key(KEY_ENTER)
+		check(chapter.plan_board.selected.has("conditions") and chapter.plan_board.selected.size() == 4, "removing a card allows the rejected card to be selected")
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+	PlanBoard.Settings.reduced_motion = saved_motion
+
+
 func _send_key(code: Key) -> void:
 	var pressed := InputEventKey.new()
 	pressed.keycode = code
@@ -544,6 +581,7 @@ func _test_cambridge_pause_restore() -> void:
 	chapter._sync_player()
 	await _pause_round_trip(chapter, "Cambridge plan board: Esc twice")
 	check(chapter.plan_board.visible, "plan board stays visible after Esc twice")
+	await _test_plan_limit(chapter)
 	chapter.plan_board.hide()
 	chapter._interact("lightbox")
 	chapter._sync_player()

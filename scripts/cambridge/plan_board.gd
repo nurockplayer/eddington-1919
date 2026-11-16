@@ -143,6 +143,15 @@ func _toggle_card(card: Dictionary, button: Button, slots: Array[Label]) -> void
 	else:
 		if selected.size() >= 4:
 			button.button_pressed = false
+			if not Settings.reduced_motion:
+				button.disabled = true
+				button.pivot_offset = button.size / 2.0
+				var shake := create_tween()
+				for angle in [1.5, -1.5, 1.0, 0.0]:
+					shake.tween_property(button, "rotation_degrees", angle, 0.04)
+				await shake.finished
+				button.disabled = false
+			reaction.emit([{"s": C17.YOU, "t": L.t("板上只寫得下四件事——先拿掉一張。")}])
 			return
 		selected.append(id)
 		button.button_pressed = true

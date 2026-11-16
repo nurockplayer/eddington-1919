@@ -32,6 +32,9 @@ msgstr "\n[color=#fd8]Combined: %.2f″ ± %.2f″ (twice the error: %.2f–%.2f
 msgid "\n你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。"
 msgstr "\nYou: 'Stop!'  Eddington changes the plate—a real change takes about four seconds, and pressing during it does nothing. You must call stop before third contact."
 
+msgid "\n你：『停！』　Eddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"
+msgstr "\nYou: “Stop!” Eddington changes the plate—pressing during this brief pause won’t help. Be sure to call stop before third contact."
+
 msgid "\n全食時：空白鍵（或 RB／X）喊開始與停。"
 msgstr "\nDuring totality: Space (or RB/X) calls start and stop."
 
@@ -2259,6 +2262,9 @@ msgstr "In the workbook: no value was measured."
 
 msgid "本子翻到新的一頁：第 %d 次試驗。上一回的記錄留在旁邊。"
 msgstr "A new page in the book: trial %d. The last record stays beside it."
+
+msgid "板上只寫得下四件事——先拿掉一張。"
+msgstr "Only four things will fit on the board—take one card off first."
 
 msgid "查看 %s 的工作簿"
 msgstr "Examine %s's workbook"

@@ -1238,8 +1238,8 @@ func _rehearse_shutter() -> void:
 func _finish_rehearsal(feedback: String) -> void:
 	_sfx("change")
 	_rehearsal_step = 2
-	ui.show_toast(L.t("Eddington：") + feedback + L.t("\n你：『停！』　Eddington 換片——真的換片要四秒左右，這段時間按了也沒用。第三接觸之前一定要喊停。"), 7.0)
-	await get_tree().create_timer(sim.PLATE_CHANGE_S, false).timeout
+	ui.show_toast(L.t("Eddington：") + feedback + L.t("\n你：『停！』　Eddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"), 7.0)
+	await get_tree().create_timer(sim.PLATE_CHANGE_S / sim.TIME_SCALE, false).timeout
 	sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	world.roof.visible = _rehearsal_roof_visible
 	player.global_position = _rehearsal_position
