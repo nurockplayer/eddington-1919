@@ -273,8 +273,8 @@ func _test_ending_and_coda(story: Node) -> void:
 	coda._interact("mentor_loupe")
 	check(not _text(coda).contains("他在 1917 年那頁寫的是 0.87"),
 		"the coda line needs Ashby's 1917 entry")
-	check(Coda.ashby_answer(2, true, true, true, false).size() == Coda.ashby_answer(2, true, true, true, true).size() - 1,
-		"the coda line is one extra entry, nothing else changes")
+	check(Coda.ashby_answer(2, true, true, true, false).size() == Coda.ashby_answer(2, true, true, true, true).size(),
+		"the conditional bet shares the mentor-memory entry")
 	coda.stop_all_audio()
 	coda.queue_free()
 	await process_frame

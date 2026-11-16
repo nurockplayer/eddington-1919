@@ -1713,10 +1713,13 @@ func _after_judgment(results: Dictionary) -> void:
 	_reason = results.get("reason", 1)
 	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
 	var seq := []
-	for l in _grade.lines:
+	for l in _grade.presentation:
 		seq.append({"s": Content.E, "t": l})
 	seq.append_array(Content.go_home_alone(_grade.evidence, _grade.clean))
-	seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
+	if seq[-1].s == Content.C:
+		seq[-1].t += "\n\n" + Content.cottingham_coda(sim)
+	else:
+		seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
 	_say(seq, "reaction")
 
 

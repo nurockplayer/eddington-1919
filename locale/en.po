@@ -2008,9 +2008,6 @@ msgstr "The copyist"
 msgid "抄錄的人草率，或是憑空編造"
 msgstr "The copyist was careless, or invented it"
 
-msgid "把它們抄到你的圖上。一筆一筆來。"
-msgstr "Copy them onto your chart. One at a time."
-
 msgid "把它翻過來，十七個點都對上了。"
 msgstr "Turn it over and all seventeen points match."
 
@@ -3382,9 +3379,6 @@ msgstr "(That star chart from childhood. Drawing it wrong is not the same as lyi
 msgid "（小時候那張星圖。畫錯，跟說謊，不是一回事。今晚的電報，只寫了底片上有的。）"
 msgstr "(That star chart from childhood. Drawing it wrong is not the same as lying. Tonight's telegram says only what the plates say.)"
 
-msgid "（工作簿後面還有很多空白頁。回去的路還很長。）"
-msgstr "(There are many blank pages left in the workbook. The way home is long.)"
-
 msgid "（工作簿最後一頁。日期是 Kit 的字：1919 年 5 月 29 日。）"
 msgstr "(The last page of the workbook. The date is in Kit's hand: 29 May 1919.)"
 
@@ -3477,9 +3471,6 @@ msgstr "(That night you asked whether he had decided already. He said yes—and 
 
 msgid "（雨停了。Eddington 的腳步聲消失在走廊盡頭。）"
 msgstr "(The rain has stopped. Eddington's footsteps fade down the corridor.)"
-
-msgid "（雨早就停了。屋外的蟲聲很響，暗房裡只剩下你和桌上的燈。）"
-msgstr "(The rain stopped long ago. The insects outside are loud; in the darkroom there is only you and the lamp on the table.)"
 
 msgid "（雲很厚，可是不是什麼都沒留下。回去以後，先把它們量完。）"
 msgstr "(The cloud was thick, but it did not leave nothing. When you get back, measure those first.)"

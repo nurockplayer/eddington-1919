@@ -495,6 +495,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 
 
 func _run() -> void:
+	await _test_longest_loupe_stretch()
 	_test_grade_branches()
 	_test_kit_tones()
 	await _test_sky_promise_payoff()
@@ -508,3 +509,47 @@ func _run() -> void:
 	await create_timer(0.1).timeout
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
+
+
+func _test_longest_loupe_stretch() -> void:
+	var chapter = await _new_main(true)
+	var story = root.get_node("Story")
+	story.bet = {"ashby": 1}
+	story.clues = {"residual": true}
+	story.kit_choice = 0
+	story.bond_tone = "close"
+	story.sky_promise = 1
+	chapter.sim.plates = [{"number": 1, "usable": true, "included": true, "quality": "good",
+		"read": true, "sigma": 0.1, "reading": chapter.sim.reading_for_value(1.75)}]
+	chapter._grade = {"fit": 0, "clean": false}
+	chapter._telegram = 0
+	chapter._pressed_eddington = true
+	chapter.phase = chapter.Phase.CODA
+	chapter.coda_step = chapter.CodaStep.LOUPE
+	chapter._interact("mentor_loupe")
+	var shown := ""
+	var count := 0
+	while count < 30:
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		shown += str(entry.t) + "\n"
+		count += 1
+		if entry.get("key", "") == "kit_first":
+			break
+		chapter.ui._advance()
+	check(count == 8 and chapter._pending == "coda_kit", "longest loupe to Kit route includes prompt in eight entries (got %d)" % count)
+	for line in ["（他在 1917 年那頁寫的是 0.87。我的底片，要寄給他看。）",
+		"（你拿起 %s的放大鏡。）" % L.t(Coda.CAST.MENTOR),
+		"（那天晚上你問他，是不是早就認定了。他說是——然後把規則指給你看。）",
+		"（電報已經發出去了，收不回來。）", "（你想起他說的：要被一張乾淨的底片說服，而不是被一個好故事。）",
+		"（這一次，你差一點就成了那個好故事。）", "（14 號底片上那一點極淡的白。兩年了，還是沒有人知道它是什麼。）",
+		"（Eddington 那個關緊的箱子。從裡面分不出來——所以才要到這裡，看太陽旁邊的星。）",
+		"（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）",
+		"（小時候那張星圖。畫錯，跟說謊，不是一回事——可是今晚的電報，寫得比底片上的多。）",
+		"（有些話，也許可以等到見了面再說。）", "（也許。）",
+		"（我跟 Kit 說過，全食那五分鐘我會在換底片。Kit 會想知道，那五分鐘裡底片上留下了什麼。）",
+		"（見到 Kit，第一句話要說什麼？）"]:
+		check(shown.contains(line), "longest loupe preserves: " + line)
+	chapter.stop_all_audio()
+	chapter.free()
+	await process_frame
+	story.reset()

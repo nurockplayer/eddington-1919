@@ -138,12 +138,13 @@ static func grade(sim, telegram_id: String, reason_id: String) -> Dictionary:
 	var lines: Array[String] = []
 	lines.append_array(_telegram_lines(ev, telegram_id, any_usable, any_good, sim))
 	lines.append(_reason_line(ev, reason_id, reason_ok, sim))
-	lines.append_array(_selection_lines(sel, clean, sim))
+	var presentation: Array[String] = ["\n\n".join(lines)]
+	lines.append_array(_selection_lines(sel, clean, sim, presentation))
 	var title := _title(ev, telegram_id, fit, reason_ok, clean, any_usable)
 	return {
 		"evidence": ev, "fit": fit, "reason_ok": reason_ok, "clean": clean,
 		"score": fit + (1 if reason_ok else 0) + (1 if clean else 0),
-		"lines": lines, "title": title,
+		"lines": lines, "presentation": presentation, "title": title,
 	}
 
 
@@ -231,7 +232,7 @@ static func _reason_line(ev: String, reason_id: String, ok: bool, sim) -> String
 			return L.t("你的理由和你寫下的電報不太對得上。")
 
 
-static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]:
+static func _selection_lines(sel: Dictionary, clean: bool, sim, presentation: Array[String]) -> Array[String]:
 	var out: Array[String] = []
 	var rule: String = sim.get("rule_id") if sim.get("rule_id") != null else ""
 	match rule:
@@ -249,6 +250,9 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 			out.append(L.t("『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。"))
 		"none":
 			out.append(L.t("沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。"))
+	if not out.is_empty():
+		presentation.append("\n\n".join(out))
+	var group_start := out.size()
 	if sim.plates.is_empty():
 		return out
 	if not sel.omitted_good.is_empty():
@@ -257,6 +261,9 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 		out.append(L.t("第 %s 號的星像拖長了或被雲霧蓋住。和好片一起平均，會把誤差帶進結論。") % _nums(sel.included_poor))
 	if not sel.included_unusable.is_empty():
 		out.append(L.t("第 %s 號上連五顆星都數不到，量不出任何東西。選片要看星像，不是看張數。") % _nums(sel.included_unusable))
+	if out.size() > group_start:
+		presentation.append("\n\n".join(out.slice(group_start)))
+	group_start = out.size()
 	if sel.reselected:
 		if sim.reselect_history.any(func(change): return change.reason == "result"):
 			out.append(L.t("你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"))
@@ -302,6 +309,8 @@ static func _selection_lines(sel: Dictionary, clean: bool, sim) -> Array[String]
 			out.append(L.t("那一段晴天其實夠長——拍到一半關上、換片，再拍一張，就會有兩張可以互相檢查。誰也沒法事先知道雲會停多久，所以計畫上才寫：先拍短的。"))
 	if rule != "strict" and clean and sim.included_usable().size() > 0:
 		out.append(L.t("你先按星像品質選片，再看數值。這個順序比任何一個數字都重要。"))
+	if out.size() > group_start:
+		presentation.append("\n\n".join(out.slice(group_start)))
 	return out
 
 
