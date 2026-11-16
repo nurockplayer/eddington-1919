@@ -19,11 +19,11 @@ Read `/Users/tachikoma/Developer/eddington-1919/.claude/briefs/coelostat-skill-r
 2. Keyboard and gamepad both complete the trim; pause during the panel freezes prep time; prep expiry closes it with the current result.
 3. Reduced motion shows the stationary marks and the same success rule.
 4. All existing suites in the `Test:` line pass after updating the ones the report lists (`test_autoplay_hold`, `test_replay_experiment` direct `_hold_complete("chronometer")`, fixtures). Revert check for acceptance 1.
-5. Every e2e route reaches its phases.
+5. Every e2e route reaches its phases (GitHub CI all-suites; not run locally).
 
 ## Rules
 - Player-facing text in zh-TW wrapped in `L.t("…")`, then `python3 -I tools/i18n.py extract` and en/ja/ko via `tools/i18n.py apply`; `check --require-translated` passes.
 - Tests through orb-test only; while iterating, only the suites you touch. Revert check: commit first, revert temporarily, run, restore with git.
 - Host: 16 GB shared Mac. Times in JST. PR against main naming "Refs #351", draft; do not merge. If a design point above conflicts with the code in a way that changes behaviour, stop with a `DECISION:` line.
 
-Test: ORB_TEST_TIMEOUT=90 orb-test --host -- sh -c 'for t in test_autoplay_hold test_sim test_totality test_plan_recall test_principe_story test_ending_snapshot test_plate_reading test_i18n test_replay_experiment test_gamepad test_reduced_motion test_layout_bounds; do godot --headless --path . --script res://tests/$t.gd || exit 1; done; python3 -I tools/i18n.py check --require-translated && ./tools/e2e_headless.sh'
+Test: orb-test --host -- sh -c 'for t in test_autoplay_hold test_sim test_totality test_plan_recall test_principe_story test_ending_snapshot test_plate_reading test_i18n test_replay_experiment test_gamepad test_reduced_motion test_layout_bounds; do godot --headless --path . --script res://tests/$t.gd || exit 1; done; python3 -I tools/i18n.py check --require-translated'

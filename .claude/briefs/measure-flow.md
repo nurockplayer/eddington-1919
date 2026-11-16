@@ -17,11 +17,11 @@ Check every autoplay route in `tests/autoplay_bot.gd` (~441–461, ~535–547): 
 ## Acceptance
 - Reporting with zero readings shows the refusal line and stays in the viewer; with one reading it proceeds.
 - The strip shows 0/m after lock and m/m after reading all; it is in the en, ja and ko catalogues.
-- All `tools/e2e_headless.sh` routes still reach their phases.
+- All e2e routes still reach their phases (GitHub CI all-suites runs them on the PR; not run locally).
 
 ## Rules
 - Player-facing text: write the zh-TW source wrapped in `L.t("…")` (the msgid), then `python3 -I tools/i18n.py extract` and add en, ja and ko translations with `tools/i18n.py apply` (match the tone of neighbouring entries; keep placeholders and BBCode). `tools/i18n.py check --require-translated` must pass.
 - Tests through `orb-test` only, only the suites in the `Test:` line while iterating. A behaviour test must drive the real flow (the same calls the player's input makes), not only a helper, and must fail when the fix is reverted: commit the fix first, revert the change temporarily, run, then restore with git (never `git checkout` over uncommitted work). Report the revert result.
 - Host: 16 GB shared Mac. Times in reports carry JST. Open a ready PR against main naming "Refs #351"; do not merge.
 
-Test: orb-test --host -- sh -c 'godot --headless --path . --script res://tests/test_micrometer.gd && godot --headless --path . --script res://tests/test_plate_reading.gd && godot --headless --path . --script res://tests/test_totality.gd && godot --headless --path . --script res://tests/test_gamepad.gd && godot --headless --path . --script res://tests/test_ending_snapshot.gd && godot --headless --path . --script res://tests/test_layout_bounds.gd && python3 -I tools/i18n.py check --require-translated && ./tools/e2e_headless.sh'
+Test: orb-test --host -- sh -c 'godot --headless --path . --script res://tests/test_micrometer.gd && godot --headless --path . --script res://tests/test_plate_reading.gd && godot --headless --path . --script res://tests/test_totality.gd && godot --headless --path . --script res://tests/test_gamepad.gd && godot --headless --path . --script res://tests/test_ending_snapshot.gd && godot --headless --path . --script res://tests/test_layout_bounds.gd && python3 -I tools/i18n.py check --require-translated'

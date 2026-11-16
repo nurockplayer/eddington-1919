@@ -14,10 +14,10 @@ Read `/Users/tachikoma/Developer/eddington-1919/.claude/briefs/coda-trim-report.
 ## Acceptance
 1. Static counts from the report hold: judgment stretch ≤ 8 entries on the longest route, loupe → Kit ≤ 8 including the choice prompt, reunion → Sobral question ≤ 8 including the question. Add one test per stretch that drives the real flow on its longest route and asserts the entry count (the report's routes) and that every run-specific line it lists as Keep still appears.
 2. Revert check for those three tests.
-3. All suites in the `Test:` line pass; every e2e route reaches its phases.
+3. All suites in the `Test:` line pass; every e2e route reaches its phases (GitHub CI all-suites; not run locally).
 
 ## Rules
 - Tests through orb-test only; while iterating, only the suites you touch. Revert check: commit first, revert temporarily, run, restore with git.
 - Host: 16 GB shared Mac. Times in JST. Ready PR against main naming "Refs #351"; do not merge. A conflict with the decisions above that changes behaviour → stop with a `DECISION:` line.
 
-Test: ORB_TEST_TIMEOUT=90 orb-test --host -- sh -c 'for t in test_night_story test_prediction_ledger test_epilogue test_coda test_sim test_kit_recall test_ending_snapshot test_layout_bounds test_text_size test_i18n; do godot --headless --path . --script res://tests/$t.gd || exit 1; done; python3 -I tools/i18n.py check --require-translated && ./tools/e2e_headless.sh'
+Test: orb-test --host -- sh -c 'for t in test_night_story test_prediction_ledger test_epilogue test_coda test_sim test_kit_recall test_ending_snapshot test_layout_bounds test_text_size test_i18n; do godot --headless --path . --script res://tests/$t.gd || exit 1; done; python3 -I tools/i18n.py check --require-translated'
