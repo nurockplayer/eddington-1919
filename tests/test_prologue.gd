@@ -314,6 +314,45 @@ func _test_plan_limit(chapter) -> void:
 	PlanBoard.Settings.reduced_motion = saved_motion
 
 
+func _test_plan_limit_finish(chapter) -> void:
+	var saved_motion: bool = PlanBoard.Settings.reduced_motion
+	PlanBoard.Settings.reduced_motion = false
+	var ids := ["comparison", "far_stars", "rules_first", "two_sites"]
+	chapter.plan_board.open()
+	await process_frame
+	for id in ids:
+		chapter.plan_board.card_buttons[id].grab_focus()
+		await _send_key(KEY_ENTER)
+		while chapter.ui.dialog_active():
+			chapter.ui._advance()
+	var fifth: Button = chapter.plan_board.card_buttons["conditions"]
+	fifth.grab_focus()
+	await _send_key(KEY_ENTER)
+	check(fifth.disabled and not chapter.ui.dialog_active(), "finish race begins while the fifth-card shake is still running")
+	chapter.plan_board.finish_btn.grab_focus()
+	await _send_key(KEY_ENTER)
+	check(chapter._pending == "plan_finish" and not chapter.plan_board.visible, "Finish closes the board during the fifth-card shake")
+	var deadline := Time.get_ticks_msec() + 350
+	while Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(chapter.ui.dialog_active() and chapter._pending == "plan_finish" and chapter.ui._seq == C17.plan_finish(ids), "late fifth-card rejection preserves the active plan-finish dialogue")
+	check(not chapter.ui.text_label.text.contains("板上只寫得下四件事——先拿掉一張。"), "late fifth-card rejection does not replace plan-finish text")
+	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.
+	var guard := 100
+	while chapter._pending in ["plan_finish", "trial"] and guard > 0:
+		guard -= 1
+		if not chapter.ui._choice_buttons.is_empty():
+			chapter.ui._choose(1)
+		else:
+			chapter.ui._advance()
+	check(guard > 0, "the plan and trial dialogue finish")
+	check(chapter.beat == chapter.Beat.TRIAL_TASK and chapter.player.can_move and chapter._free(), "trial dialogue releases movement for the cabinet task")
+	check(chapter._trial_marker.visible and chapter.ui.objectives.text.contains("到櫃子取出畢宿星團"), "trial highlights the cabinet and shows its objective")
+	check(root.get_node("Story").plan == ids, "finishing during the shake persists the four valid plan cards")
+	check(not chapter.plan_board.visible, "the board stays hidden after plan-finish and trial dialogue")
+	PlanBoard.Settings.reduced_motion = saved_motion
+
+
 func _send_key(code: Key) -> void:
 	var pressed := InputEventKey.new()
 	pressed.keycode = code
@@ -669,18 +708,7 @@ func _test_cambridge_rain() -> void:
 		return
 	await _drive_box(chapter)
 	_finish_test_dialogue(chapter)
-	chapter._finish_plan(["comparison", "far_stars", "rules_first"])
-	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.
-	var guard := 100
-	while chapter._pending in ["plan_finish", "trial"] and guard > 0:
-		guard -= 1
-		if not chapter.ui._choice_buttons.is_empty():
-			chapter.ui._choose(1)
-		else:
-			chapter.ui._advance()
-	check(guard > 0, "the plan and trial dialogue finish")
-	check(chapter.beat == chapter.Beat.TRIAL_TASK and chapter.player.can_move and chapter._free(), "trial dialogue releases movement for the cabinet task")
-	check(chapter._trial_marker.visible and chapter.ui.objectives.text.contains("到櫃子取出畢宿星團"), "trial highlights the cabinet and shows its objective")
+	await _test_plan_limit_finish(chapter)
 	chapter._interact("notebook")
 	check(chapter.beat == chapter.Beat.TRIAL_TASK and not chapter.report_sheet.visible and chapter._free(), "trial cannot reopen report submission or rewind the story")
 	var story := root.get_node("Story")

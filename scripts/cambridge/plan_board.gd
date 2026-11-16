@@ -151,6 +151,9 @@ func _toggle_card(card: Dictionary, button: Button, slots: Array[Label]) -> void
 					shake.tween_property(button, "rotation_degrees", angle, 0.04)
 				await shake.finished
 				button.disabled = false
+				# The player may finish (or be blocked) during the shake; the board is then closed.
+				if not visible:
+					return
 			reaction.emit([{"s": C17.YOU, "t": L.t("板上只寫得下四件事——先拿掉一張。")}])
 			return
 		selected.append(id)
