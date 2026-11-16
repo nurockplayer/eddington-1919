@@ -141,6 +141,7 @@ var mic_row: HFlowContainer
 var mic_record_btn: Button
 var mic_readout: Label
 var mic_note: Label
+var viewer_steps: RichTextLabel
 var mic_overlay: Control
 var micrometer_on := false
 ## Current crosshair setting for the selected plate, in plate pixels, radial.
@@ -431,7 +432,7 @@ func _process(delta: float) -> void:
 			_blink_elapsed -= blink_interval
 			_blink_oxford = not _blink_oxford
 			_update_blink()
-	if viewer.visible and micrometer_on and not _viewer_locked and not _viewer_reporting and not get_tree().paused and not log_panel.visible:
+	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible:
 		var held: float = 0.0
 		if Input.is_action_pressed("ui_right"):
 			held = 1.0
@@ -824,6 +825,8 @@ func _build_viewer(root: Control) -> void:
 	chart = preload("res://scripts/chart.gd").new()
 	chart.custom_minimum_size = Vector2(560, 420)
 	right.add_child(chart)
+	viewer_steps = _rich(16)
+	right.add_child(viewer_steps)
 	var btns := GridContainer.new()
 	btns.columns = 2
 	btns.add_theme_constant_override("h_separation", 10)
@@ -1079,7 +1082,13 @@ func _sync_micrometer_controls() -> void:
 		return
 	var has_plate: bool = _viewer_sel >= 0 and _plate_texture != null
 	mic_btn.disabled = _viewer_reporting or not has_plate
-	mic_record_btn.disabled = _viewer_reporting or _viewer_locked or not has_plate
+	mic_record_btn.disabled = _viewer_reporting or not has_plate
+	if micrometer_on and has_plate and not _viewer_reporting and not _viewer_plates[_viewer_sel].get("read", false):
+		mic_note.text = L.t("把十字線對準參考星，再按「記下讀數」。")
+		mic_note.add_theme_color_override("font_color", ACCENT)
+	else:
+		mic_note.text = L.t("位移為示意放大；真實的位移比一個星點還小得多。")
+		mic_note.add_theme_color_override("font_color", DIM)
 
 
 func _update_micrometer() -> void:
@@ -1101,16 +1110,20 @@ func _mic_fine() -> bool:
 
 
 func _nudge_micrometer(direction: float, fine: bool) -> void:
-	if _viewer_locked or _viewer_reporting:
+	if _viewer_reporting:
 		return
 	set_micrometer_reading(micrometer_px + direction * (0.05 if fine else 0.25))
 
 
 func _record_micrometer() -> void:
-	if not micrometer_on or _viewer_sel < 0 or _viewer_locked or _viewer_reporting:
+	if not micrometer_on or _viewer_sel < 0 or _viewer_reporting:
 		return
 	_viewer_sound("mark")
 	reading_set.emit(_viewer_sel, micrometer_px)
+	if not Settings.reduced_motion:
+		var thumb := thumbs.get_child(_viewer_sel + 1) as Button
+		thumb.modulate = Color(1.5, 1.5, 1.5)
+		thumb.create_tween().tween_property(thumb, "modulate", Color.WHITE, 0.3)
 
 
 func _mic_drag_to(local: Vector2) -> void:
@@ -1147,7 +1160,7 @@ func _plate_gui_input(event: InputEvent) -> void:
 	if micrometer_on and _viewer_sel >= 0:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
-				_mic_dragging = not _viewer_locked
+				_mic_dragging = true
 				if _mic_dragging:
 					_mic_drag_to(event.position)
 			else:
@@ -1278,6 +1291,24 @@ func refresh_thumbs() -> void:
 	for i in _viewer_plates.size():
 		if i + 1 < kids.size():
 			kids[i + 1].text = _thumb_text(i)
+	_refresh_viewer_steps()
+	_sync_micrometer_controls()
+
+
+func _refresh_viewer_steps() -> void:
+	var total := 0
+	var read := 0
+	for p in _viewer_plates:
+		if p.included and p.usable:
+			total += 1
+			if p.get("read", false):
+				read += 1
+	var current := 0 if not _viewer_locked else 1
+	if _viewer_reporting or (_viewer_locked and total > 0 and read == total):
+		current = 2
+	var steps := [L.t("① 選片"), L.t("② 測微器讀數 %d/%d") % [read, total], L.t("③ 向 Eddington 報告")]
+	steps[current] = "[b][color=#e5bd7d]%s[/color][/b]" % steps[current]
+	viewer_steps.text = " → ".join(steps)
 
 
 func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
@@ -1349,6 +1380,7 @@ func set_viewer_locked(locked: bool) -> void:
 	var focused := get_viewport().gui_get_focus_owner() as BaseButton
 	var action_focused := focused in [measure_btn, reselect_btn, report_btn, include_box]
 	_viewer_locked = locked
+	_refresh_viewer_steps()
 	measure_btn.disabled = locked
 	reselect_btn.disabled = not locked or _viewer_reporting
 	report_btn.disabled = not locked or _viewer_reporting
@@ -2160,7 +2192,7 @@ func _input(event: InputEvent) -> void:
 			_nudge_micrometer(-1.0 if event.is_action_pressed("ui_left") else 1.0, _mic_fine())
 			get_viewport().set_input_as_handled()
 			return
-		if event.is_action_pressed("ui_accept") and _viewer_sel >= 0 and not _viewer_locked:
+		if event.is_action_pressed("ui_accept") and _viewer_sel >= 0:
 			_record_micrometer()
 			get_viewport().set_input_as_handled()
 			return

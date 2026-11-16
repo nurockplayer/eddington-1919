@@ -4,6 +4,7 @@ extends SceneTree
 ## measure path through main.gd.
 ## Run: godot --headless --path . --script res://tests/test_micrometer.gd
 
+const Settings := preload("res://scripts/settings.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Render := preload("res://scripts/plate_render.gd")
 const Judgment := preload("res://scripts/judgment.gd")
@@ -72,6 +73,47 @@ func _button(index: JoyButton) -> void:
 
 
 func _run() -> void:
+	# No exposures and unusable plates must still reach the no-results judgment.
+	for only_unusable in [false, true]:
+		var empty_game := await _new_game([])
+		if only_unusable:
+			var plate := _plate(1, 1.75)
+			plate.stars = 4
+			plate.quality = "unusable"
+			plate.usable = false
+			empty_game.sim.plates.append(plate)
+			empty_game.plate_textures.append(Render.render(empty_game.sim, plate))
+			empty_game._open_viewer()
+		var empty_ui = empty_game.ui
+		empty_ui.measure_btn.pressed.emit()
+		await process_frame
+		check(empty_game.sim.measured and empty_game.sim.included_usable().is_empty(),
+			"no-results selection locks without a usable reading (unusable=%s)" % only_unusable)
+		empty_ui.report_btn.grab_focus()
+		await _button(JOY_BUTTON_A)
+		check(empty_ui._viewer_reporting and empty_ui.dialog_active() and empty_game._pending == "judgment",
+			"Report reaches no-results judgment (unusable=%s)" % only_unusable)
+		await _finish(empty_game)
+	print("mic: no-results reporting done")
+	# Usable plates outside the selection must not block a no-results report.
+	for only_unusable in [false, true]:
+		var excluded_game := await _new_game([1.75, 1.50])
+		excluded_game._on_plate_toggled(0, false)
+		if only_unusable:
+			excluded_game.sim.plates[1].usable = false
+			excluded_game.sim.plates[1].quality = "unusable"
+		else:
+			excluded_game._on_plate_toggled(1, false)
+		var excluded_ui = excluded_game.ui
+		excluded_ui.measure_btn.pressed.emit()
+		await process_frame
+		excluded_ui.report_btn.grab_focus()
+		await _button(JOY_BUTTON_A)
+		check(excluded_ui._viewer_reporting and excluded_ui.dialog_active() and excluded_game._pending == "judgment",
+			"no-usable selection reaches judgment with excluded usable plates (unusable=%s)" % only_unusable)
+		await _finish(excluded_game)
+	print("mic: excluded usable plates reporting done")
+
 	print("mic: 1 new game")
 	# 1. A careful reading at the true displacement reproduces the plate's value.
 	var game := await _new_game([1.75, 1.60])
@@ -79,15 +121,21 @@ func _run() -> void:
 	var ui = game.ui
 	ui.mic_btn.button_pressed = true
 	check(ui.micrometer_on and ui.mic_row.is_visible_in_tree() and ui.mic_note.is_visible_in_tree(),
-		"micrometer toggle shows the record row and the exaggeration note")
-	check(ui.mic_note.text == "位移為示意放大；真實的位移比一個星點還小得多。", "exaggeration note is verbatim")
+		"micrometer toggle shows the record row and the shared note")
+	check(ui.mic_note.text == "把十字線對準參考星，再按「記下讀數」。"
+		and ui.mic_note.get_theme_color("font_color") == ui.ACCENT,
+		"unread plate shows the alignment hint in accent in the shared note")
 	_read_plate(game, 0, 1.75)
+	check(ui.mic_note.text == "位移為示意放大；真實的位移比一個星點還小得多。"
+		and ui.mic_note.get_theme_color("font_color") == ui.DIM,
+		"recording restores the exaggeration note in dim")
 	check(game.sim.plates[0].read and is_equal_approx(float(game.sim.plates[0].reading), game.sim.reading_for_value(1.75)),
 		"recording stores the crosshair position as the plate's reading")
 	check(ui.mic_readout.text == "讀數：%.2f 格" % ui.micrometer_px, "readout shows the setting in 格")
 	_read_plate(game, 1, 1.60)
 	ui.measure_btn.pressed.emit()
 	await process_frame
+	check(ui.viewer_steps.text.contains("② 測微器讀數 2/2") and ui.viewer_steps.text.contains("[b][color=#e5bd7d]③"), "all readings highlight the report step")
 	check(game.sim.measured and game.sim.included_usable().size() == 2, "both read plates are measured")
 	check(ui.chart.rows.size() == 2, "chart gets one row per read plate (%d)" % ui.chart.rows.size())
 	check(absf(ui.chart.rows[0].value - 1.75) <= 0.01, "true reading reproduces plate 1 value (%.4f)" % ui.chart.rows[0].value)
@@ -135,7 +183,7 @@ func _run() -> void:
 	await _finish(game3)
 	print("mic: 3 done")
 
-	# 4. Measuring with no readings at all still completes, with no value.
+	# 4. Lock, try to report without readings, then read and report through input.
 	print("mic: 4 new game")
 	var game4 := await _new_game([1.75, 1.50])
 	print("mic: 4 opened")
@@ -146,8 +194,75 @@ func _run() -> void:
 		"a measurement with no readings completes with no value")
 	check(ui4.viewer_note.text.contains("第1號還沒讀數") and ui4.viewer_note.text.contains("第2號還沒讀數"),
 		"the no-value note names every unread plate")
+	check(ui4.viewer_steps.text.contains("② 測微器讀數 0/2") and ui4.viewer_steps.text.contains("[b][color=#e5bd7d]②"),
+		"locking shows 0/2 and highlights reading")
+	check(not ui4.report_btn.disabled, "zero readings keep Report enabled for gamepad focus")
+	var sounds_before: Array = ui4.viewer_sfx_log.duplicate()
+	ui4.report_btn.grab_focus()
+	await _button(JOY_BUTTON_A)
+	check(ui4.viewer.visible and not ui4._viewer_reporting and not ui4.dialog_active(),
+		"zero-reading report stays in the editable viewer")
+	check(ui4.viewer_note.text == "一張都還沒讀。選中的底片要用測微器讀過，才有數字可以報告。",
+		"zero-reading report shows Eddington's refusal")
+	check(ui4.viewer_sfx_log == sounds_before, "refusal plays no report sound")
+	if not ui4._viewer_reporting:
+		ui4.mic_btn.button_pressed = true
+		check(not ui4.mic_record_btn.disabled and ui4.include_box.disabled,
+			"locked selection still allows micrometer readings")
+		var reduced_before: bool = Settings.reduced_motion
+		Settings.reduced_motion = false
+		await _button(JOY_BUTTON_DPAD_RIGHT)
+		await _button(JOY_BUTTON_A)
+		check(game4.sim.plates[0].get("read", false) and is_equal_approx(ui4.micrometer_px, 0.25),
+			"D-pad and A record after selection is locked")
+		check(ui4.thumbs.get_child(1).text.contains("✓讀") and ui4.thumbs.get_child(1).modulate != Color.WHITE,
+			"recording flashes the thumbnail read mark")
+		await create_timer(0.4).timeout
+		check(ui4.thumbs.get_child(1).modulate == Color.WHITE, "thumbnail pulse returns to normal")
+		check(ui4.viewer_steps.text.contains("② 測微器讀數 1/2"), "reading updates the strip to 1/2")
+		check(ui4.viewer_note.text.contains("第2號還沒讀數，不會算進去。"), "partial reading keeps the not-counted note")
+		Settings.reduced_motion = true
+		_read_plate(game4, 0, 1.75)
+		check(ui4.thumbs.get_child(1).text.contains("✓讀") and ui4.thumbs.get_child(1).modulate == Color.WHITE,
+			"reduced motion records the mark without a pulse")
+		Settings.reduced_motion = reduced_before
+		ui4.mic_btn.button_pressed = false
+		ui4.report_btn.grab_focus()
+		await _button(JOY_BUTTON_A)
+		check(ui4._viewer_reporting and ui4.dialog_active() and game4._pending == "interval",
+			"one reading proceeds to Eddington with the other plate unread")
 	await _finish(game4)
 	print("mic: 4 done")
+
+	# The first result follows readings on the locked selection until it changes.
+	var snapshot_game := await _new_game([1.75, 1.50])
+	var snapshot_ui = snapshot_game.ui
+	snapshot_ui.measure_btn.pressed.emit()
+	await process_frame
+	snapshot_ui.mic_btn.button_pressed = true
+	_read_plate(snapshot_game, 0, 1.75)
+	check(snapshot_game.sim.first_result.n > 0,
+		"locked reading updates first_result before reselection")
+	var first_result: Dictionary = snapshot_game.sim.first_result.duplicate(true)
+	snapshot_ui.reselect_btn.pressed.emit()
+	await process_frame
+	snapshot_game._on_plate_toggled(0, false)
+	_read_plate(snapshot_game, 1, 1.50)
+	snapshot_ui.measure_btn.pressed.emit()
+	await process_frame
+	check(snapshot_game._pending == "reselect_reason", "changed selection asks for a reselection reason")
+	snapshot_game._on_dialogue_done({"reselect_reason": 0})
+	await process_frame
+	check(snapshot_game.sim.measured and snapshot_game.sim.reselected_after_seeing,
+		"changed selection locks after its reason is recorded")
+	check(snapshot_game.sim.first_result == first_result and first_result.n > 0
+		and not is_equal_approx(snapshot_game.sim.first_result.value, snapshot_game.sim.combined().value),
+		"reselection preserves the first locked reading instead of the new result")
+	_read_plate(snapshot_game, 1, 1.60)
+	check(snapshot_game.sim.first_result == first_result,
+		"reading after reselection preserves the first result")
+	await _finish(snapshot_game)
+	print("mic: first-result snapshot done")
 
 	# 5. Readings survive 重新選片.
 	print("mic: 5 new game")
