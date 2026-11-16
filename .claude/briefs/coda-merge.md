@@ -20,4 +20,4 @@ Read `/Users/tachikoma/Developer/eddington-1919/.claude/briefs/coda-trim-report.
 - Tests through orb-test only; while iterating, only the suites you touch. Revert check: commit first, revert temporarily, run, restore with git.
 - Host: 16 GB shared Mac. Times in JST. Ready PR against main naming "Refs #351"; do not merge. A conflict with the decisions above that changes behaviour → stop with a `DECISION:` line.
 
-Test: orb-test --host -- sh -c 'for t in test_night_story test_prediction_ledger test_epilogue test_coda test_sim test_kit_recall test_ending_snapshot test_layout_bounds test_text_size test_i18n; do godot --headless --path . --script res://tests/$t.gd || exit 1; done; python3 -I tools/i18n.py check --require-translated'
+Test: orb-test --dot -- sh -c 'godot --headless --path . --import >/dev/null 2>&1; for t in test_night_story test_prediction_ledger test_epilogue test_coda test_sim test_kit_recall test_ending_snapshot test_layout_bounds test_text_size test_i18n; do godot --headless --path . --script res://tests/$t.gd || exit 1; done; python3 -I tools/i18n.py check --require-translated'

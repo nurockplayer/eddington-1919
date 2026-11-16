@@ -1,0 +1,1 @@
+A host restart at 2026-11-14 15:30 JST killed the job you were waiting on; it left no result. Rerun the same `job-run` command (same id is fine; if it is refused as existing, add a `-2` suffix) and end with the WAIT line as before. Then continue from your last report's Follow-ups, same rules as your brief.

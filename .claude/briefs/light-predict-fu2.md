@@ -2,4 +2,4 @@ GitHub CI all-suites on PR #352 head c4f0a5b fails the leak-gate (run 4386391365
 
 Lead stopped your local `light-predict-full` job (2026-11-16 23:0x JST): GitHub CI runs the full suite and e2e for free; do not rerun e2e locally. Locally run only `test_box_sketch`, `test_departure` and `test_prologue`. Push, then verify CI through job-run (`job-run light-predict-ci -- gh pr checks 352 --watch --fail-fast`, ending with its WAIT line). Report the CI result; on another failure fix once more.
 
-Test: orb-test --host -- sh -c 'godot --headless --path . --script res://tests/test_box_sketch.gd && godot --headless --path . --script res://tests/test_departure.gd && godot --headless --path . --script res://tests/test_prologue.gd'
+Test: orb-test --dot -- sh -c 'godot --headless --path . --import >/dev/null 2>&1; godot --headless --path . --script res://tests/test_box_sketch.gd && godot --headless --path . --script res://tests/test_departure.gd && godot --headless --path . --script res://tests/test_prologue.gd'

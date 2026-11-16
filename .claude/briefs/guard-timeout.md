@@ -40,4 +40,4 @@ func _fixture(filename: String) -> Dictionary:
 ## Limits
 Host: 16 GB shared Mac; tests only through orb-test, only the suite you touch. Times in reports carry JST. Open a PR (ready, not draft) against main; do not merge.
 
-Test: orb-test --host -- godot --headless --path . --script res://tests/test_test_guard.gd
+Test: orb-test --dot -- sh -c 'godot --headless --path . --import >/dev/null 2>&1; godot --headless --path . --script res://tests/test_test_guard.gd'

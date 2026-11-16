@@ -1,0 +1,1 @@
+Your previous resume failed to start (host DNS outage 2026-11-14 15:00 JST), but the job you were waiting on finished OK; its result and log are in ~/.local/state/job-run/<your job id>/ (result.json, log). Continue from your last report's Follow-ups: finish the manifest, sheets and checks, run your test, commit and push. Same rules as your brief; no PR unless your brief says so.
