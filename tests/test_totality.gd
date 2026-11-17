@@ -756,7 +756,8 @@ func _test_chart_ledger() -> void:
 	var story := root.get_node("Story")
 	var saved_original: Dictionary = story.bet_1917.duplicate(true)
 	var game := _make_game()
-	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true,
+	game.sim.plates = [{"number": 1, "start": 10.0, "duration": 6.0, "sunlit": false,
+		"usable": true, "quality": "good", "included": true,
 		"trail": 0.1, "value": 1.8, "sigma": 0.2}]
 	_read_included(game.sim)
 	game.sim.measured = true
