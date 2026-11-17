@@ -118,7 +118,7 @@ static func ledger_case(run: Dictionary) -> String:
 	if int(c.get("n", 0)) > 0:
 		if bool(run.get("clean", false)) and float(b.get("lo", 0.0)) > 0.87:
 			return "conceded"
-		if float(b.get("hi", 99.0)) < 0.87:
+		if float(b.get("lo", 99.0)) <= 0.0 and 0.0 <= float(b.get("hi", 99.0)) and float(b.get("hi", 99.0)) < 0.87:
 			return "zero_only"
 		if float(b.get("lo", 99.0)) <= 0.87 and 0.87 <= float(b.get("hi", 99.0)) and float(b.get("hi", 99.0)) < 1.75:
 			return "own_low"

@@ -189,6 +189,8 @@ func _test_final_replies(story: Node) -> void:
 	var cases := [
 		{"choice": 0, "case": "zero_only", "combined": {"n": 2, "value": 0.0, "sigma": 0.13}, "bounds": {"lo": -0.26, "hi": 0.26}, "pick": 1,
 			"reply": "你的底片只容得下零。你要是憑它們改了想法，先寫清楚：儀器查過了沒有。"},
+		{"choice": 0, "case": "inconclusive", "combined": {"n": 2, "value": 0.45, "sigma": 0.18}, "bounds": {"lo": 0.09, "hi": 0.81}, "pick": 1,
+			"reply": "你的底片還分不出 0.87 和 1.75，剛才我們都看見了。讓你改變想法的，也許不是那個數字，是你親手量過它。那就照這樣寫。"},
 		{"choice": 0, "case": "own_low", "combined": {"n": 2, "value": 0.70, "sigma": 0.12}, "bounds": {"lo": 0.40, "hi": 1.50}, "pick": 1,
 			"reply": "你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。"},
 		{"choice": 0, "case": "inconclusive", "combined": {"n": 2, "value": 1.30, "sigma": 0.30}, "bounds": {"lo": 0.60, "hi": 1.90}, "pick": 1,
@@ -249,9 +251,11 @@ func _test_ledger_cases(story: Node) -> void:
 		{"run": _make_run({"n": 2, "value": 1.30, "sigma": 0.30}, {"lo": 0.60, "hi": 1.90}), "case": "inconclusive"},
 		{"run": _make_run({"n": 0, "value": 0.0, "sigma": 0.0}, {}), "case": "no_value"},
 		{"run": _make_run({"n": 2, "value": 0.0, "sigma": 0.13}, {"lo": -0.26, "hi": 0.26}), "case": "zero_only"},
+		{"run": _make_run({"n": 2, "value": 0.45, "sigma": 0.18}, {"lo": 0.09, "hi": 0.81}), "case": "inconclusive"},
 	]
 	check(CONTENT.ledger_case(_make_run({"n": 2}, {"lo": 0.0, "hi": 0.86})) == "zero_only", "0.86 excludes 0.87")
 	check(CONTENT.ledger_case(_make_run({"n": 2}, {"lo": 0.0, "hi": 0.87})) == "own_low", "0.87 includes 0.87")
+	check(CONTENT.ledger_case(_make_run({"n": 2}, {"lo": -0.5, "hi": -0.1})) == "inconclusive", "an interval below zero excludes zero")
 	for i in cases.size():
 		var run: Dictionary = cases[i].run
 		check(CONTENT.ledger_case(run) == cases[i].case, "ledger_case names the %s shape" % cases[i].case)
