@@ -22,15 +22,15 @@ func _shell_quote(value: String) -> String:
 	return "'" + value.replace("'", "'\"'\"'") + "'"
 
 
-func _fixture(filename: String) -> Dictionary:
-	var log_path := ProjectSettings.globalize_path("user://guard_%s.log" % filename)
+func _fixture(filename: String, cap_s := CHILD_CAP_S) -> Dictionary:
+	var log_path := ProjectSettings.globalize_path("user://guard_%s_%d_%d.log" % [filename, OS.get_process_id(), Time.get_ticks_usec()])
 	var cmd := "exec %s --headless --path %s --script %s >%s 2>&1" % [
 		_shell_quote(OS.get_executable_path()),
 		_shell_quote(ProjectSettings.globalize_path("res://")),
 		_shell_quote("res://tests/fixtures/%s.gd" % filename), _shell_quote(log_path)]
 	var started := Time.get_ticks_msec()
 	var pid := OS.create_process("/bin/sh", ["-c", cmd])
-	while pid > 0 and OS.is_process_running(pid) and Time.get_ticks_msec() - started < CHILD_CAP_S * 1000.0:
+	while pid > 0 and OS.is_process_running(pid) and Time.get_ticks_msec() - started < cap_s * 1000.0:
 		OS.delay_msec(100)
 	var capped := pid > 0 and OS.is_process_running(pid)
 	if capped:
@@ -41,7 +41,7 @@ func _fixture(filename: String) -> Dictionary:
 		output = FileAccess.get_file_as_string(log_path)
 		DirAccess.remove_absolute(log_path)
 	return {"code": code, "output": output,
-		"seconds": (Time.get_ticks_msec() - started) / 1000.0, "capped": capped}
+		"seconds": (Time.get_ticks_msec() - started) / 1000.0, "capped": capped, "pid": pid}
 
 
 func _run() -> void:
@@ -76,6 +76,17 @@ func _run() -> void:
 	check(opted_out.code == 124, "fail-fast opt-out still exits 124: %s" % opted_out)
 	check("FAIL: deadline 3 s exceeded" in opted_out.output, "opt-out retains deadline: %s" % opted_out.output)
 	check(not "FAIL: script error" in opted_out.output, "opt-out disables script error report")
+	OS.set_environment("EDD_FAILFAST", "0")
+	OS.set_environment("EDD_TEST_DEADLINE", "600")
+	var outer_cap := _fixture("guard_idle", 2.0)
+	check(outer_cap.capped and outer_cap.code == -1, "outer cap kills idle fixture: %s" % outer_cap)
+	check(outer_cap.seconds >= 2.0 and outer_cap.seconds < 6.0,
+		"outer cap ends fixture in 2 to 6 s: %s" % outer_cap.seconds)
+	var killed_pid := int(outer_cap.pid)
+	var pid_check_started := Time.get_ticks_msec()
+	while OS.is_process_running(killed_pid) and Time.get_ticks_msec() - pid_check_started < 1000:
+		OS.delay_msec(100)
+	check(not OS.is_process_running(killed_pid), "outer-capped fixture process is no longer running")
 	if had_failfast:
 		OS.set_environment("EDD_FAILFAST", saved_failfast)
 	else:
