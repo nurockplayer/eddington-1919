@@ -31,6 +31,7 @@ func _run() -> void:
 	story.reset()
 	await _test_restart_clears_run(story)
 	story.reset()
+	_test_verdict_ledger()
 	await _test_ledger_cases(story)
 	story.reset()
 	await _test_full_flow(story)
@@ -241,6 +242,20 @@ func _test_final_replies(story: Node) -> void:
 
 ## Cases 8–10 of the fact check are the five shapes the ledger can take; each one is
 ## played in the real weight dialogue, together with its astrographic reply.
+func _test_verdict_ledger() -> void:
+	var run := _make_run({"n": 1}, {})
+	var baseline := CONTENT.ledger(run, {}, {})
+	check(baseline.size() == 1, "old run has no ledger recall")
+	run.merge({"verdict": 2, "verdict_truth": 3, "verdict_class": "overclaim"}, true)
+	var over := CONTENT.ledger(run, {}, {})
+	check(over.size() == 2 and over[0].t.contains("支持 1.75"), "overclaim recalls verdict before case")
+	run.merge({"verdict": 3, "verdict_truth": 1, "verdict_class": "underclaim"}, true)
+	var under := CONTENT.ledger(run, {}, {})
+	check(under.size() == 2 and under[0].t.contains("只容得下 0.87") and under[0].t.contains("排除"), "underclaim recalls truth before case")
+	run["verdict_class"] = "consistent"
+	check(CONTENT.ledger(run, {}, {}) == baseline, "consistent verdict leaves ledger unchanged")
+
+
 func _test_ledger_cases(story: Node) -> void:
 	var chapter = await _new_epilogue()
 	_finish(chapter)
