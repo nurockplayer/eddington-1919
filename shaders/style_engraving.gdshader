@@ -19,7 +19,7 @@ uniform vec3 ink_col : source_color = vec3(0.133, 0.110, 0.094);
 
 uniform float exposure = 2.2;
 uniform float totality_gain = 1.5;    // exposure multiplier at totality
-uniform float night_gain = 6.0;
+uniform float night_gain = 3.0;
 uniform float resp_r = 0.60;          // channel mix of the tone (a "plate response")
 uniform float resp_g = 0.55;
 uniform float resp_b = -0.15;
@@ -51,6 +51,11 @@ uniform vec3 tot_paper : source_color = vec3(0.17, 0.21, 0.40);
 uniform float tot_wash = 1.0;         // 0 the page stays cream … 1 it turns to blue paper at totality
 uniform float heighten_lo = 0.55;     // tone where the white heightening starts
 uniform float heighten_hi = 0.85;
+// Night: a dark page; where red light falls (the safelight) the page is washed red.
+uniform vec3 night_paper : source_color = vec3(0.07, 0.08, 0.16);
+uniform vec3 safe_paper : source_color = vec3(0.42, 0.10, 0.07);
+uniform vec3 safe_light : source_color = vec3(0.96, 0.62, 0.45);
+uniform float night_wash = 1.0;       // 0 the page stays cream at night … 1 dark page and red wash
 uniform float ink_strength = 0.94;
 uniform float normal_from_depth = 0.0; // 1: normals from depth derivatives instead of the buffer
 
@@ -126,6 +131,10 @@ void fragment() {
 	vec3 ray_v = normalize(pv);
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
 	float k = 2.0 / (abs(PROJECTION_MATRIX[1][1]) * VIEWPORT_SIZE.y);
+	// Line weights are given for a 720-line frame and follow the viewport height.
+	float res_k = VIEWPORT_SIZE.y / 720.0;
+	float l_px = line_px * res_k;
+	float r_px = ray_px * res_k;
 
 	// Tone: 1 = bare paper, 0 = solid ink.
 	float ex = exposure * mix(1.0, totality_gain, darkness) * mix(1.0, night_gain, night);
@@ -136,7 +145,7 @@ void fragment() {
 	float dark = 1.0 - tone;
 
 	// Outlines: second difference of depth (zero on any flat surface) and normal breaks.
-	vec2 o = outline_px / VIEWPORT_SIZE;
+	vec2 o = outline_px * res_k / VIEWPORT_SIZE;
 	vec3 p_l = view_pos(depth_tex, uv - vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
 	vec3 p_r = view_pos(depth_tex, uv + vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
 	vec3 p_d = view_pos(depth_tex, uv - vec2(0.0, o.y), INV_PROJECTION_MATRIX);
@@ -150,9 +159,9 @@ void fragment() {
 		dark *= sky_ink;
 		// Ruling: lines of equal altitude, crossed by a tilted family where the sky is dark.
 		float elev = asin(clamp(ray_w.y, -1.0, 1.0));
-		float i1 = hatch(elev, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55), line_px, 99.0);
+		float i1 = hatch(elev, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55), l_px, 99.0);
 		float tilt = asin(clamp(dot(ray_w, normalize(vec3(0.62, 0.48, 0.62))), -1.0, 1.0));
-		float i2 = hatch(tilt, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55), line_px, 99.0);
+		float i2 = hatch(tilt, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55), l_px, 99.0);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
@@ -164,7 +173,7 @@ void fragment() {
 		if (w_rays > 0.0) {
 			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
 			float g_ang = k / (6.2831853 * max(r * sun_r, 0.0001));
-			float rays = hatch(ang, g_ang, clamp((dark - 0.04) * 1.5, 0.0, 0.8), ray_px, -3.0);
+			float rays = hatch(ang, g_ang, clamp((dark - 0.04) * 1.5, 0.0, 0.8), r_px, -3.0);
 			rays = max(rays, 1.0 - smoothstep(0.96, 1.0, r));     // the Moon's disc prints solid
 			ink = mix(ink, rays, w_rays);
 		}
@@ -206,9 +215,9 @@ void fragment() {
 		vec3 a1_v = (VIEW_MATRIX * vec4(a1, 0.0)).xyz;
 		vec3 a2_v = (VIEW_MATRIX * vec4(a2, 0.0)).xyz;
 		vec3 a3_v = (VIEW_MATRIX * vec4(a3, 0.0)).xyz;
-		float i1 = hatch(dot(pw, a1) + wob, grad_px(a1_v, n_v, q, z, k), clamp((dark - 0.06) * 1.7, 0.0, 0.55) * weight, line_px, 99.0);
-		float i2 = hatch(dot(pw, a2) + wob, grad_px(a2_v, n_v, q, z, k), clamp((dark - cross_at) * 1.6, 0.0, 0.55) * weight, line_px, 99.0);
-		float i3 = hatch(dot(pw, a3) - wob, grad_px(a3_v, n_v, q, z, k), clamp((dark - third_at) * 2.2, 0.0, 0.60) * weight, line_px, 99.0);
+		float i1 = hatch(dot(pw, a1) + wob, grad_px(a1_v, n_v, q, z, k), clamp((dark - 0.06) * 1.7, 0.0, 0.55) * weight, l_px, 99.0);
+		float i2 = hatch(dot(pw, a2) + wob, grad_px(a2_v, n_v, q, z, k), clamp((dark - cross_at) * 1.6, 0.0, 0.55) * weight, l_px, 99.0);
+		float i3 = hatch(dot(pw, a3) - wob, grad_px(a3_v, n_v, q, z, k), clamp((dark - third_at) * 2.2, 0.0, 0.60) * weight, l_px, 99.0);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2) * (1.0 - i3);
 		ink = max(ink, smoothstep(solid_lo, solid_hi, dark));
 		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z));
@@ -216,12 +225,16 @@ void fragment() {
 	ink = max(ink, edge * outline);
 
 	// Paper: fibre grain fixed to the page; an optional thin wash of the scene's hue.
-	vec2 fp = FRAGCOORD.xy;
+	vec2 fp = FRAGCOORD.xy / res_k;
 	float fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	float blue = darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone) * blue);
+	float nw = night * night_wash;
+	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
+	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
+	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone) * nw);
 	ALBEDO = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
 }

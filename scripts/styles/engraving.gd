@@ -8,13 +8,13 @@ const SHADER := preload("res://shaders/style_engraving.gdshader")
 ## Every key is a float and can be overridden with --style-set. Keys listed in
 ## UNIFORMS are shader uniforms of the same name; the others are read here.
 const PARAMS := {
-	"exposure": 2.2, "totality_gain": 1.5, "night_gain": 6.0,
+	"exposure": 2.2, "totality_gain": 1.5, "night_gain": 3.0,
 	"resp_r": 0.60, "resp_g": 0.55, "resp_b": -0.15,
 	"tone_lo": 0.10, "tone_hi": 0.80, "sky_ink": 0.80, "sky_gain": 0.4,
 	"line_px": 5.0, "ray_px": 5.0, "ray_inner": 3.0, "ray_outer": 8.0,
 	"cross_at": 0.34, "third_at": 0.62, "solid_lo": 0.92, "solid_hi": 0.99, "flat_at": 0.92,
 	"outline": 1.0, "outline_px": 1.3, "edge_depth": 0.02, "edge_normal": 0.18, "far_outline": 0.35,
-	"wobble": 1.0, "wash": 0.0, "wash_depth": 0.0, "wash_floor": 0.25, "tot_wash": 1.0, "heighten_lo": 0.55, "heighten_hi": 0.85, "paper_grain": 0.05, "ink_strength": 0.94, "normal_from_depth": 0.0,
+	"wobble": 1.0, "wash": 0.0, "wash_depth": 0.0, "wash_floor": 0.25, "tot_wash": 1.0, "heighten_lo": 0.55, "heighten_hi": 0.85, "night_wash": 1.0, "paper_grain": 0.05, "ink_strength": 0.94, "normal_from_depth": 0.0,
 	"sun_floor": 0.9, "sun_gain": 1.8, "ambient": 0.45, "shadow_blur": 0.4, "sun_angle": 0.3,
 	"ssao": 1.0, "fog_density": 0.006, "vignette": 0.12, "fov": 60.0,
 }
@@ -22,7 +22,7 @@ const UNIFORMS := [
 	"exposure", "totality_gain", "night_gain", "resp_r", "resp_g", "resp_b", "tone_lo", "tone_hi",
 	"sky_ink", "sky_gain", "line_px", "ray_px", "ray_inner", "ray_outer", "cross_at", "third_at", "solid_lo",
 	"solid_hi", "flat_at", "outline", "outline_px", "edge_depth", "edge_normal", "far_outline",
-	"wobble", "wash", "wash_depth", "wash_floor", "tot_wash", "heighten_lo", "heighten_hi", "paper_grain", "ink_strength", "normal_from_depth",
+	"wobble", "wash", "wash_depth", "wash_floor", "tot_wash", "heighten_lo", "heighten_hi", "night_wash", "paper_grain", "ink_strength", "normal_from_depth",
 ]
 const PAPER := Color("efe6d2")
 const INK := Color("221c18")
