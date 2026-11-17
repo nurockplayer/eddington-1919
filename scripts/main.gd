@@ -973,7 +973,7 @@ func _interact(id: String) -> void:
 			var any_usable: bool = sim.plates.any(func(p): return p.usable)
 			var residual_found: bool = Story.clues.get("residual", false)  # found, whatever the report says
 			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any, any_usable,
-				int(Story.bet.get("ashby", 0)) == 1, _pressed_eddington, _verdict_class) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
+				int(Story.bet.get("ashby", 0)) == 1, _pressed_eddington) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
 		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		ui.show_toast(L.t("Ashby 先生給的放大鏡。"), 4.0)
