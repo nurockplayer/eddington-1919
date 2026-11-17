@@ -5,12 +5,20 @@ const Benchmark := preload("res://tests/benchmark.gd")
 var test_path := Settings.settings_path() + ".test_graphics_quality"
 class TestBenchmark extends Benchmark:
 	var written_summary: Dictionary
+	var stub_shot := false
 
 	func _ready() -> void:
 		pass
 
 	func _write_summary(results: Array, seed_: int, hidden: Array, chapter := "") -> void:
 		written_summary = _summary(results, seed_, hidden, chapter)
+
+	func _shot(path: String) -> bool:
+		if stub_shot:
+			var image := Image.create(4, 4, false, Image.FORMAT_RGB8)
+			image.fill(Color.WHITE)
+			return image.save_png(path) == OK
+		return await super(path)
 
 var checks := 0
 var failures := 0
@@ -127,6 +135,12 @@ func _run() -> void:
 	check(game.sim.plates.size() >= 1 and game.change_left == 0.0 and game.sim.is_exposing(), "live sample completes a plate change and starts the next exposure")
 	var s := live._summary([r], 7, [])
 	check(s.seed == 7 and s.bookmarks.size() == 1, "summary preserves the supplied run seed and bookmark")
+	live.stub_shot = true
+	r = await live._sample_bookmark("arrival", "prep_early")
+	check(r.screenshot == "arrival.png", "successful sample records screenshot path")
+	check(FileAccess.file_exists(live.out_dir.path_join(r.screenshot)), "successful sample screenshot file exists")
+	live.stub_shot = false
+	DirAccess.remove_absolute(live.out_dir.path_join(r.screenshot))
 	game.sim = Benchmark.Sim.new(7)
 	game.sky_mat.set_shader_parameter("cloud_tex", ImageTexture.create_from_image(game.sim.cloud_img))
 	live.only = PackedStringArray(["arrival", "totality_live"])
