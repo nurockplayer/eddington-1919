@@ -152,7 +152,8 @@ func _toggle_card(card: Dictionary, button: Button, slots: Array[Label]) -> void
 				await shake.finished
 				button.disabled = false
 				# The player may finish (or be blocked) during the shake; the board is then closed.
-				if not visible:
+				# A blocked Finish can also reopen the board with fewer cards before the shake ends.
+				if not visible or selected.size() < 4:
 					return
 			reaction.emit([{"s": C17.YOU, "t": L.t("板上只寫得下四件事——先拿掉一張。")}])
 			return
