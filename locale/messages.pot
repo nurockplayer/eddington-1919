@@ -459,7 +459,7 @@ msgid "Sobral 的 4 吋鏡頭"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:75
-msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
+msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″（機率誤差）。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:51

@@ -72,7 +72,7 @@ static func tableau_caption() -> String:
 ## is not a quotation, and the arrival day is not established.
 static func letter() -> Array:
 	return [
-		{"s": L.t("Dyson 的信（推測重建，非原文）"), "t": L.t("Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。")},
+		{"s": L.t("Dyson 的信（推測重建，非原文）"), "t": L.t("Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″（機率誤差）。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。")},
 	]
 
 

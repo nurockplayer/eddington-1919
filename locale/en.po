@@ -360,8 +360,8 @@ msgstr "Sobral astrographic: about 0.93″, no reliable error"
 msgid "Sobral 的 4 吋鏡頭"
 msgstr "Sobral's 4-inch lens"
 
-msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
-msgstr "The Sobral plates have been measured at Greenwich.\n4-inch lens: 1.98″ ± 0.12″.\nAstrographic telescope: about 0.93″; the star images are blurred, and the focal length and plate scale may have changed that day."
+msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″（機率誤差）。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
+msgstr "The Sobral plates have been measured at Greenwich.\n4-inch lens: 1.98″ ± 0.12″ (probable error).\nAstrographic telescope: about 0.93″; the star images are blurred, and the focal length and plate scale may have changed that day."
 
 msgid "Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。"
 msgstr "The lamps are lit on Trumpington Street again. A first-year who puts sugar in everything sits at that empty desk now."
