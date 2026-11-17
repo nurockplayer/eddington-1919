@@ -1719,7 +1719,7 @@ msgid "工作簿最後一頁還是空的。你把它放在箱子的最上層。"
 msgstr "The last page of the workbook is still blank. You pack it at the top of the crate."
 
 msgid "工作簿給我看看。……最後一頁。"
-msgstr "Let me see the workbook. ...The last page."
+msgstr "Let me see the workbook. …The last page."
 
 msgid "差異的原因"
 msgstr "Cause of the difference"
