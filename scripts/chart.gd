@@ -8,6 +8,7 @@ const Settings := preload("res://scripts/settings.gd")
 var rows: Array = []        # [{label, value, sigma, weak}]
 var combined: Dictionary = {}
 var revealed := false
+var ledger: Array = []
 var _label_px := Settings.fs(14)
 var _drawn_label_px := -1
 var _drawn_hollow := 0
@@ -15,12 +16,19 @@ var _drawn_filled := 0
 var _drawn_markers: Array = []  # per row, in draw order: "filled" or "hollow"
 var _drawn_bars: Array = []     # per row: "bar" or "none"
 var _drawn_texts: Array = []    # every string drawn this frame
+var _drawn_ledger: Array = []
+var _drawn_ledger_bounds: Array = []
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
 	rows = p_rows
 	combined = p_combined
 	revealed = p_revealed
+	queue_redraw()
+
+
+func set_ledger(p_ledger: Array) -> void:
+	ledger = p_ledger
 	queue_redraw()
 
 
@@ -34,7 +42,8 @@ func refresh_fonts() -> void:
 ## the intended values, so a broken draw path cannot pass.
 func drawn() -> Dictionary:
 	return {"label_px": _drawn_label_px, "hollow": _drawn_hollow, "filled": _drawn_filled,
-		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate()}
+		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate(),
+		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate()}
 
 
 ## Every string the last _draw() painted. draw_string output is not a node
@@ -56,6 +65,54 @@ static func two_sigma_span(value: float, sigma: float) -> Vector2:
 	return Vector2(value - 2.0 * sigma, value + 2.0 * sigma)
 
 
+func _paint_ledger(font: Font, refs: Array, top: float) -> void:
+	var entries := ledger.duplicate(true)
+	if entries.size() == 2 and entries[0].pick == entries[1].pick:
+		entries = [{"pick": entries[0].pick, "kind": "current", "tag":
+			L.t("押的（1917 年至今沒改）：說不準") if entries[0].pick == 3 else L.t("押的（1917 年至今沒改）")}]
+	var px := Settings.fs(13)
+	var ascent := font.get_ascent(px)
+	var height := ascent + font.get_descent(px)
+	var items: Array = []
+	for entry in entries:
+		var pick: int = entry.pick
+		if pick < 0 or pick > 3:
+			continue
+		var width := font.get_string_size(entry.tag, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+		var x := size.x - width - 4.0 if pick == 3 else _x(refs[pick][0], size.x) + 9.0
+		var rect := Rect2(clampf(x, 4.0, size.x - width - 4.0), 0.0, width, height)
+		if not items.is_empty():
+			var previous: Rect2 = items[-1].rect
+			if previous.grow(4.0).intersects(rect):
+				# Two full-size lines do not fit in 30 px. Stagger vertically, then
+				# separate horizontally so even the largest locale font stays clear.
+				rect.position.y = maxf(0.0, top - height)
+				rect.position.x = minf(maxf(rect.position.x, previous.end.x + 8.0), size.x - width - 4.0)
+				previous.position.x = minf(previous.position.x, rect.position.x - previous.size.x - 8.0)
+				items[-1].rect = previous
+		items.append({"entry": entry, "rect": rect})
+	for item in items:
+		var entry: Dictionary = item.entry
+		var pick: int = entry.pick
+		var rect: Rect2 = item.rect
+		var col := Color(0.85, 0.82, 0.75) if pick == 3 else Color(refs[pick][2])
+		var shape := "text"
+		if pick < 3:
+			var x := _x(refs[pick][0], size.x)
+			var y := rect.position.y + height * 0.5
+			var triangle := PackedVector2Array([Vector2(x - 4, y - 3), Vector2(x + 4, y - 3), Vector2(x, y + 4)])
+			shape = "hollow" if entry.kind == "original" else "filled"
+			if shape == "filled":
+				draw_colored_polygon(triangle, col)
+			else:
+				triangle.append(triangle[0])
+				draw_polyline(triangle, col, 1.0, true)
+		draw_string(font, rect.position + Vector2(0, ascent), entry.tag, HORIZONTAL_ALIGNMENT_LEFT, -1, px, col)
+		_drawn_texts.append(entry.tag)
+		_drawn_ledger.append({"pick": pick, "kind": entry.kind, "shape": shape})
+		_drawn_ledger_bounds.append(rect)
+
+
 func _draw() -> void:
 	_drawn_label_px = -1
 	_drawn_hollow = 0
@@ -63,13 +120,16 @@ func _draw() -> void:
 	_drawn_markers.clear()
 	_drawn_bars.clear()
 	_drawn_texts.clear()
+	_drawn_ledger.clear()
+	_drawn_ledger_bounds.clear()
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
 	var top := 30.0
 	var bottom := h - 46.0
-	for ref in [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]:
+	var refs := [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]
+	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
 		_drawn_texts.append(ref[1])
@@ -82,6 +142,7 @@ func _draw() -> void:
 		_drawn_texts.append(unmeasured)
 		draw_string(font, Vector2(70, h * 0.45), unmeasured, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
 		return
+	_paint_ledger(font, refs, top)
 	if rows.is_empty():
 		var empty_hint := L.t("沒有可量測的底片。")
 		_drawn_texts.append(empty_hint)
