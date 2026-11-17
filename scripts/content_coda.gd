@@ -28,7 +28,7 @@ static func workbook_again(kit_line := "") -> Array:
 ## fit: Judgment fit of the telegram (2 best, 1 defensible, 0 wrong). clean: plate selection
 ## was made by image quality before seeing values. measured_any: at least one plate measured.
 ## ashby_bet: Ashby wrote his own 1917 ledger entry (conversion arc move A).
-static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable := false, ashby_bet := false, pressed := false) -> Array:
+static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable := false, ashby_bet := false, pressed := false, verdict_class := "") -> Array:
 	var memory: Array[String] = []
 	var outcome: Array[String] = []
 	if ashby_bet:
@@ -57,6 +57,10 @@ static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable :
 		outcome.append(L.t("（電報已經發出去了，收不回來。）"))
 		outcome.append(L.t("（你想起他說的：要被一張乾淨的底片說服，而不是被一個好故事。）"))
 		outcome.append(L.t("（這一次，你差一點就成了那個好故事。）"))
+	if verdict_class == "overclaim":
+		outcome.append(L.t("（你在暗房說底片支持它。可是單憑那條細線，還撐不起這句話。）"))
+	elif verdict_class == "underclaim":
+		outcome.append(L.t("（你的底片本來可以說話，你卻讓它們安靜了。謹慎是好的，可別謹慎到不敢讀。）"))
 	return [{"s": YOU, "t": "\n\n".join(memory)},
 		{"s": YOU, "t": "\n\n".join(outcome)}]
 

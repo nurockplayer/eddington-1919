@@ -973,7 +973,7 @@ func _interact(id: String) -> void:
 			var any_usable: bool = sim.plates.any(func(p): return p.usable)
 			var residual_found: bool = Story.clues.get("residual", false)  # found, whatever the report says
 			_say(CodaContent.ashby_answer(_grade.fit, _grade.clean, measured_any, any_usable,
-				int(Story.bet.get("ashby", 0)) == 1, _pressed_eddington) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
+				int(Story.bet.get("ashby", 0)) == 1, _pressed_eddington, _verdict_class) + CodaContent.small_numbers(residual_found, measured_any), "coda_loupe")
 		return
 	if id == "mentor_loupe" and Story.departure_done and phase in [Phase.PREP, Phase.NIGHT]:
 		ui.show_toast(L.t("Ashby 先生給的放大鏡。"), 4.0)
@@ -1768,7 +1768,7 @@ func _record_run() -> void:
 	_run_record_index = Story.runs.size()
 	Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
 		"rule_id": sim.rule_id, "bet": Story.bet.duplicate(true), "bet_pick": sim.bet_pick,
-		"verdict": _verdict, "verdict_class": _verdict_class,
+		"verdict": _verdict, "verdict_truth": _verdict_truth, "verdict_class": _verdict_class,
 		"telegram_id": Judgment.TELEGRAMS[_telegram].id,
 		"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
 		"score": _grade.get("score", 0), "clean": _grade.clean,

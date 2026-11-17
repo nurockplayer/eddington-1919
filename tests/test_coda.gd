@@ -80,6 +80,14 @@ func text_of(seq: Array) -> String:
 	return out
 
 
+func _test_verdict_recall() -> void:
+	var baseline := text_of(Coda.ashby_answer(2, true, true))
+	for verdict_class in ["overclaim", "underclaim", "consistent", ""]:
+		var actual := text_of(Coda.ashby_answer(2, true, true, false, false, false, verdict_class))
+		var extra := actual.count("\n\n") - baseline.count("\n\n")
+		check(extra == (1 if verdict_class in ["overclaim", "underclaim"] else 0), "coda verdict line count: " + verdict_class)
+
+
 func _test_grade_branches() -> void:
 	var legacy_grade: Dictionary = Judgment.grade(LegacyGradeFixture.new(), "hopeful", "uncertain")
 	check(legacy_grade.has("fit"), "Judgment.grade returns fit when rule_id is absent")
@@ -453,8 +461,10 @@ func _test_unmeasured_usable_coda() -> void:
 	check(chapter._grade.fit == 0, "no-results telegram is wrong when a usable plate was ignored")
 	chapter.phase = chapter.Phase.CODA
 	chapter.coda_step = chapter.CodaStep.LOUPE
+	chapter._verdict_class = "overclaim"
 	chapter._interact("mentor_loupe")
 	var loupe_text := text_of(chapter.ui._seq)
+	check(loupe_text.contains("單憑那條細線"), "main passes verdict class into Ashby recollection")
 	check(loupe_text.contains("沒有拿去量") and not loupe_text.contains("一片灰"), "main passes usable plates into Ashby's answer")
 	chapter._on_dialogue_done({})
 	var kit_text := text_of(chapter.ui._seq)
@@ -497,6 +507,7 @@ func _test_replay_keeps_prologue_origin() -> void:
 func _run() -> void:
 	await _test_longest_loupe_stretch()
 	_test_grade_branches()
+	_test_verdict_recall()
 	_test_kit_tones()
 	await _test_sky_promise_payoff()
 	await _test_kit_first_choices()

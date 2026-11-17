@@ -62,6 +62,10 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 		lines.append(L.t("· 量之前你寫的：%s（%s）。") % [Content.bet_pick_text(int(bet.pick)), Content.bet_sure_text(int(bet.sure))])
 	if int(bet.get("ashby", 0)) == 1:
 		lines.append(L.t("· Ashby 先生寫的：0.87。"))
+	var verdict := int(run.get("verdict", -1))
+	if verdict >= 0:
+		var phrases := {"consistent": L.t("和你自己的誤差範圍相符"), "overclaim": L.t("說得比你的誤差範圍滿"), "underclaim": L.t("比你的誤差範圍保守")}
+		lines.append(L.t("· 你在暗房的判斷：%s——%s。") % [Content.verdict_text(verdict), phrases.get(str(run.get("verdict_class", "")), "")])
 	# Conversion arc: FICTION — the player's own revision, written in the 1919 ledger.
 	if run.has("bet_oct"):
 		lines.append(L.t("· 1919 年 10 月你寫的：%s。") % Content.bet_pick_text(int(run.bet_oct)))

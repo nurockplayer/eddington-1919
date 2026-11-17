@@ -13,7 +13,7 @@ const TEXTS := ["title", "body", "history", "review", "telegram"]
 const FIELDS := ["combined", "grade", "first_result", "reselected_after_seeing",
 	"drive_rate_checked", "drive_wound", "plate_total", "plates_available", "plate_counts",
 	"bounds", "telegram_id", "reason_id", "reason_text", "bet", "bet_pick", "rule_id",
-	"kit_line", "departure_kit"]
+	"kit_line", "departure_kit", "verdict_truth"]
 
 var failures := 0
 var checks := 0
@@ -47,6 +47,17 @@ func _run() -> void:
 	var empty_bounds: Dictionary = runs[2].snapshot.get("bounds", {})
 	check(measured_bounds.has("lo") and measured_bounds.has("hi"), "measured run records the interval bounds")
 	check(empty_bounds.is_empty(), "no-measurement run records empty interval bounds")
+
+	var recall: Dictionary = runs[0].snapshot.duplicate(true)
+	for entry in [["consistent", "相符"], ["overclaim", "說得比你的誤差範圍滿"], ["underclaim", "比你的誤差範圍保守"]]:
+		recall["verdict"] = 2
+		recall["verdict_class"] = entry[0]
+		var body: String = Ending.build(recall, runs[0].view).body
+		check(body.contains("你在暗房的判斷：支持 1.75″") and body.contains(entry[1]), "ending recalls " + entry[0])
+	recall.erase("verdict")
+	recall.erase("verdict_class")
+	recall.erase("verdict_truth")
+	check(not Ending.build(recall, runs[0].view).body.contains("你在暗房的判斷"), "old run has no verdict recall")
 
 	# The scene and its simulation are gone; only the snapshot and the Story view remain.
 	game.stop_all_audio()
