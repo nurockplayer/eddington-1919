@@ -579,6 +579,22 @@ func _test_judgment_neither() -> void:
 	var hopeful_both := Judgment.grade(sim, "hopeful", "uncertain")
 	check(hopeful_both.lines.has("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。"), "both-contained hopeful response keeps its original line")
 	check(both.score == neither.score and hopeful_both.score == hopeful_neither.score, "distinguishing neither from both leaves scores unchanged")
+	# Keep the same selection and reason, changing only the measured interval.
+	sim.plates[0].value = 0.0
+	sim.plates[0].sigma = sqrt(0.13 * 0.13 - Sim.SET_SIGMA * Sim.SET_SIGMA)
+	_read_plate(sim, sim.plates[0])
+	var combined: Dictionary = sim.combined()
+	check(is_equal_approx(combined.value, 0.0) and is_equal_approx(combined.sigma, 0.13), "zero-only fixture is 0.00 ± 0.13")
+	check(Judgment.verdict_truth(sim) == 0, "zero-only fixture supports zero")
+	var zero_undecided := Judgment.grade(sim, "undecided", "uncertain")
+	var zero_hopeful := Judgment.grade(sim, "hopeful", "uncertain")
+	check(zero_undecided.evidence == "ambiguous" and zero_hopeful.evidence == "ambiguous", "zero-only interval retains ambiguous evidence")
+	check(zero_undecided.score == neither.score and zero_hopeful.score == hopeful_neither.score, "zero-only interval retains telegram scores")
+	check(zero_undecided.presentation.any(func(line): return line.contains("對。數字只容得下不偏折，兩種預測都被排除了；在弄清楚是光還是儀器之前，什麼也不能說。我們照實說。")), "undecided presentation names zero-only containment")
+	check(zero_hopeful.presentation.any(func(line): return line.contains("「有希望」是個寬鬆的詞。我們的數字只容得下不偏折，兩種預測都被排除了——在相信它之前，先查儀器。")), "hopeful presentation names zero-only containment")
+	for grade in [zero_undecided, zero_hopeful]:
+		check(not grade.presentation.any(func(line): return line.contains("對不上") or line.contains("距離")), "zero-only presentation omits neither-contained wording")
+
 
 
 func _test_judgment_prompt() -> void:

@@ -746,6 +746,9 @@ msgstr "'Hopeful' will do, but it is a loose word. Our numbers are still swingin
 msgid "「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"
 msgstr "'Hopeful' will do, but it is a loose word. Our numbers are still some way from either prediction—few plates, and the instrument may be at fault."
 
+msgid "「有希望」是個寬鬆的詞。我們的數字只容得下不偏折，兩種預測都被排除了——在相信它之前，先查儀器。"
+msgstr "“Hopeful” is a loose word. Our numbers fit only no deflection and rule out both predictions—before we believe that, let us check the instrument."
+
 msgid "「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。"
 msgstr "'Hopeful'? What we measured actually leans towards the smaller deflection. That word will make people think we saw something else."
 
@@ -1660,6 +1663,9 @@ msgstr "Yes. So I am in no hurry to believe. That isn't stubbornness—it is wha
 
 msgid "對。數字不會自己變成鏡像。那是抄錄方法留下的指紋。"
 msgstr "Yes. Figures don't turn themselves into a mirror image. That is the fingerprint the method left."
+
+msgid "對。數字只容得下不偏折，兩種預測都被排除了；在弄清楚是光還是儀器之前，什麼也不能說。我們照實說。"
+msgstr "Yes. The numbers fit only no deflection and rule out both predictions; until we understand whether it is the light or the instrument, we cannot say more. We shall report what we have."
 
 msgid "對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。"
 msgstr "Yes. The numbers fit neither prediction; until we understand why, nothing can be said. We say so plainly."
