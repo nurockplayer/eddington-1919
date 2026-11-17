@@ -88,11 +88,14 @@ func _test_reunion(story: Node) -> void:
 		check(chapter.chart.step == 3 and chapter.chart.question.text == "Sobral 4 吋那一點：細線（兩倍誤差）裡容得下哪一個？",
 			"reunion reaches the exact first Sobral question after three copy clicks")
 		check(count + 1 == 8, "longest reunion includes Sobral question in eight entries (got %d)" % (count + 1))
-		for line in ["你瘦了。", "說吧。你決定好要先跟我說的那一句。", "（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）",
+		for line in ["你瘦了。", "說吧。你決定好要先跟我說的那一句。", "工作簿給我看看。……最後一頁。",
 			"這是你自己抬頭看到的。好。", "Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。",
-			"那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。", "（桌角有一個沒寄出的信封，寫著你的名字。）",
+			"那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。", "桌角那個信封，上面寫著你的名字。",
 			"那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。", "Greenwich 來信了。Dyson 寫的，在桌上。你先看。"]:
 			check(text.contains(line), "longest reunion preserves: " + line)
+		for entry in seq:
+			if str(entry.s) == "Kit":
+				check(not str(entry.t).begins_with("（"), "Kit reunion has no parenthetical narrator text under Kit")
 		chapter.free()
 		await process_frame
 
