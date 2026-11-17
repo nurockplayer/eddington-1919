@@ -59,6 +59,7 @@ func _run() -> void:
 	_test_judgment_neither()
 	_test_judgment_prompt()
 	await _test_judgment_reasons()
+	await _test_chart_ledger()
 	await _test_strict_poor_only()
 	await _test_report_rule_layout()
 	await _test_birds_quiet()
@@ -730,6 +731,69 @@ func _test_judgment_reasons() -> void:
 	game.ui._choose(4)
 	check(game._grade.reason_ok and game._grade.lines.any(func(l): return l.contains("Cottingham 會記得")),
 		"choosing the instrument reason in the real dialogue is graded and answered")
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+
+
+func _test_chart_ledger() -> void:
+	var chart := Chart.new()
+	chart.size = Vector2(560, 420)
+	root.add_child(chart)
+	chart.set_data([], {}, true)
+	for frame in 2:
+		await process_frame
+	check(chart.drawn().ledger.is_empty(), "October chart with no ledger paints no bets")
+	chart.set_ledger([
+		{"pick": 1, "kind": "original", "tag": "1917 年押的"},
+		{"pick": 1, "kind": "current", "tag": "現在押的"},
+	])
+	for frame in 2:
+		await process_frame
+	check(chart.drawn().ledger == [{"pick": 1, "kind": "current", "shape": "filled"}]
+		and chart.drawn_texts().has("押的（1917 年至今沒改）"), "chart merges matching ledger entries")
+	chart.free()
+	var story := root.get_node("Story")
+	var saved_original: Dictionary = story.bet_1917.duplicate(true)
+	var game := _make_game()
+	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true,
+		"trail": 0.1, "value": 1.8, "sigma": 0.2}]
+	_read_included(game.sim)
+	game.sim.measured = true
+	game.plate_textures = [null]
+	game.ui.hide_title()
+	game._open_viewer()
+	var cases := [
+		[1, 2, [{"pick": 1, "kind": "original", "shape": "hollow"}, {"pick": 2, "kind": "current", "shape": "filled"}], ["1917 年押的", "現在押的"]],
+		[2, 2, [{"pick": 2, "kind": "current", "shape": "filled"}], ["押的（1917 年至今沒改）"]],
+		[-1, 2, [{"pick": 2, "kind": "current", "shape": "filled"}], ["1919 年押的"]],
+		[3, 2, [{"pick": 3, "kind": "original", "shape": "text"}, {"pick": 2, "kind": "current", "shape": "filled"}], ["1917 年押的：說不準", "現在押的"]],
+		[0, 3, [{"pick": 0, "kind": "original", "shape": "hollow"}, {"pick": 3, "kind": "current", "shape": "text"}], ["1917 年押的", "現在押的：說不準"]],
+		[3, 3, [{"pick": 3, "kind": "current", "shape": "text"}], ["押的（1917 年至今沒改）：說不準"]],
+		[-1, 3, [{"pick": 3, "kind": "current", "shape": "text"}], ["1919 年押的：說不準"]],
+		[0, -1, [{"pick": 0, "kind": "original", "shape": "hollow"}], ["1917 年押的"]],
+		[-1, -1, [], []],
+	]
+	for scenario in cases:
+		story.bet_1917 = {"pick": scenario[0], "year": 1917} if scenario[0] >= 0 else {}
+		game.sim.bet_pick = scenario[1]
+		game._refresh_viewer()
+		for frame in 2:
+			await process_frame
+		check(game.ui.chart.drawn().ledger == scenario[2], "real viewer paints ledger shapes for %s -> %s" % [scenario[0], scenario[1]])
+		for tag in scenario[3]:
+			check(game.ui.chart.drawn_texts().has(tag), "real viewer paints ledger tag: " + tag)
+		if scenario[0] < 0:
+			check(not game.ui.chart.drawn_texts().any(func(tag): return tag.contains("1917")), "Príncipe-only chart invents no 1917 commitment")
+	story.bet_1917 = {"pick": 1, "year": 1917}
+	game.sim.bet_pick = 2
+	game.sim.measured = false
+	game._refresh_viewer()
+	for frame in 2:
+		await process_frame
+	check(game.ui.chart.drawn().ledger.is_empty() and game.ui.chart.drawn().ledger_bounds.is_empty(), "before Measure no ledger items are painted")
+	check(not game.ui.chart.drawn_texts().has("1917 年押的") and not game.ui.chart.drawn_texts().has("現在押的"), "before Measure no ledger tags are painted")
+	story.bet_1917 = saved_original
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame

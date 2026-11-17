@@ -26,7 +26,7 @@ msgstr ""
 msgid "\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]"
 msgstr ""
 
-#: scripts/main.gd:1628
+#: scripts/main.gd:1644
 msgid "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]"
 msgstr ""
 
@@ -50,19 +50,19 @@ msgstr ""
 msgid "\n發條上滿了，但走速沒有校過。"
 msgstr ""
 
-#: scripts/main.gd:1641
+#: scripts/main.gd:1657
 msgid "\n第%d號還沒讀數，不會算進去。"
 msgstr ""
 
-#: scripts/main.gd:1632
+#: scripts/main.gd:1648
 msgid "\n第一次量：%.2f″ ± %.2f″"
 msgstr ""
 
-#: scripts/main.gd:1634
+#: scripts/main.gd:1650
 msgid "\n第一次量：沒有量出任何數值。"
 msgstr ""
 
-#: scripts/main.gd:1629
+#: scripts/main.gd:1645
 msgid "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
 msgstr ""
 
@@ -84,7 +84,7 @@ msgid_plural "%.2f″ ± %.2f″（量 %d 張）"
 msgstr[0] ""
 msgstr[1] ""
 
-#: scripts/main.gd:1727
+#: scripts/main.gd:1743
 msgid "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″"
 msgstr ""
 
@@ -216,6 +216,14 @@ msgstr ""
 msgid "1917 年 11 月 10 日，聯合常設日食委員會決定：如果可能，派隊到巴西的 Sobral 和非洲西岸外海的普林西比島。"
 msgstr ""
 
+#: scripts/main.gd:1622
+msgid "1917 年押的"
+msgstr ""
+
+#: scripts/main.gd:1622
+msgid "1917 年押的：說不準"
+msgstr ""
+
 #: scripts/cambridge/content_epilogue.gd:109 scripts/cambridge/content_epilogue.gd:183
 msgid "1917 年的帳本"
 msgstr ""
@@ -250,6 +258,14 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:334 scripts/cambridge/content_1917.gd:338
 msgid "1919 年 5 月 29 日有一次日全食。那天，太陽會停在金牛座一片星場的前面——那裡的亮星，多得不尋常。"
+msgstr ""
+
+#: scripts/main.gd:1629
+msgid "1919 年押的"
+msgstr ""
+
+#: scripts/main.gd:1629
+msgid "1919 年押的：說不準"
 msgstr ""
 
 #: scripts/ending.gd:81
@@ -1028,7 +1044,7 @@ msgstr ""
 msgid "一張底片判斷不了。要另一張同一片天的底片才知道。"
 msgstr ""
 
-#: scripts/main.gd:1703
+#: scripts/main.gd:1719
 msgid "一張都還沒讀。選中的底片要用測微器讀過，才有數字可以報告。"
 msgstr ""
 
@@ -1312,7 +1328,7 @@ msgstr ""
 msgid "你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"
 msgstr ""
 
-#: scripts/main.gd:1643
+#: scripts/main.gd:1659
 msgid "你寫下的規則：%s"
 msgstr ""
 
@@ -1336,7 +1352,7 @@ msgstr ""
 msgid "你按星點數判斷，而不是按心情。"
 msgstr ""
 
-#: scripts/main.gd:1664
+#: scripts/main.gd:1680
 msgid "你改了選片。寫下來：為什麼？"
 msgstr ""
 
@@ -1572,7 +1588,7 @@ msgstr ""
 msgid "先跳過這顆，等量多幾張再說。"
 msgstr ""
 
-#: scripts/chart.gd:81
+#: scripts/chart.gd:141
 msgid "先選片，再量測。數值會在量測後顯示。"
 msgstr ""
 
@@ -1628,11 +1644,11 @@ msgstr ""
 msgid "兩邊都看過了——可以關上"
 msgstr ""
 
-#: scripts/main.gd:1619
+#: scripts/main.gd:1635
 msgid "共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。"
 msgstr ""
 
-#: scripts/main.gd:1624
+#: scripts/main.gd:1640
 msgid "共 %d 張：星像清楚 %d、可量但有瑕疵 %d、星不足五顆 %d。\n已勾選 %d 張。"
 msgstr ""
 
@@ -1848,7 +1864,7 @@ msgstr ""
 msgid "可辨識的星點：%d 顆"
 msgstr ""
 
-#: scripts/chart.gd:140
+#: scripts/chart.gd:201
 msgid "合併"
 msgstr ""
 
@@ -2382,7 +2398,7 @@ msgstr ""
 msgid "怎麼改？"
 msgstr ""
 
-#: scripts/chart.gd:72
+#: scripts/chart.gd:131
 msgid "愛因斯坦 1.75″"
 msgstr ""
 
@@ -2662,6 +2678,14 @@ msgstr ""
 msgid "把底片夾上去，轉動螺旋，一次讀一顆星的位置。讀數比肉眼能分辨的細得多。\n今晚用不到它——今晚只需要看片台和眼睛。"
 msgstr ""
 
+#: scripts/chart.gd:72 scripts/main.gd:1627
+msgid "押的（1917 年至今沒改）"
+msgstr ""
+
+#: scripts/chart.gd:72 scripts/main.gd:1627
+msgid "押的（1917 年至今沒改）：說不準"
+msgstr ""
+
 #: scripts/content.gd:350
 msgid "拍攝時：Cottingham 說一半在雲裡。"
 msgstr ""
@@ -2850,7 +2874,7 @@ msgstr ""
 msgid "明白了。"
 msgstr ""
 
-#: scripts/main.gd:1665
+#: scripts/main.gd:1681
 msgid "星像品質：它拖長、起霧或星不夠"
 msgstr ""
 
@@ -3146,7 +3170,7 @@ msgstr ""
 msgid "沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。"
 msgstr ""
 
-#: scripts/chart.gd:86
+#: scripts/chart.gd:147
 msgid "沒有可量測的底片。"
 msgstr ""
 
@@ -3246,7 +3270,7 @@ msgstr ""
 msgid "無"
 msgstr ""
 
-#: scripts/chart.gd:72
+#: scripts/chart.gd:131
 msgid "無偏折 0″"
 msgstr ""
 
@@ -3286,7 +3310,7 @@ msgstr ""
 msgid "爐火很小。煤也得省著用。"
 msgstr ""
 
-#: scripts/content.gd:105 scripts/content.gd:106 scripts/main.gd:1796
+#: scripts/content.gd:105 scripts/content.gd:106 scripts/main.gd:1812
 msgid "牛津比對底片"
 msgstr ""
 
@@ -3302,7 +3326,7 @@ msgstr ""
 msgid "牛津（無日）"
 msgstr ""
 
-#: scripts/chart.gd:72
+#: scripts/chart.gd:131
 msgid "牛頓式 0.87″"
 msgstr ""
 
@@ -3316,6 +3340,14 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:391
 msgid "現在你告訴我。（拿起你的紙）如果日食那張底片上的星「移動」了——我們怎麼知道，那不是有人把底片放反、放斜了？"
+msgstr ""
+
+#: scripts/main.gd:1631
+msgid "現在押的"
+msgstr ""
+
+#: scripts/main.gd:1631
+msgid "現在押的：說不準"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:392
@@ -3438,7 +3470,7 @@ msgstr ""
 msgid "第 %d 號%s%s"
 msgstr ""
 
-#: scripts/main.gd:1802
+#: scripts/main.gd:1818
 msgid "第 %d 號底片"
 msgstr ""
 
@@ -3502,7 +3534,7 @@ msgstr ""
 msgid "第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。"
 msgstr ""
 
-#: scripts/main.gd:1665
+#: scripts/main.gd:1681
 msgid "第一次的數字不合我的預期"
 msgstr ""
 
@@ -3714,7 +3746,7 @@ msgstr ""
 msgid "誤差與上回相同；量值照實並列。"
 msgstr ""
 
-#: scripts/main.gd:1665
+#: scripts/main.gd:1681
 msgid "說不上來"
 msgstr ""
 
