@@ -746,6 +746,9 @@ msgstr "'Hopeful' will do, but it is a loose word. Our numbers are still swingin
 msgid "「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"
 msgstr "'Hopeful' will do, but it is a loose word. Our numbers are still some way from either prediction—few plates, and the instrument may be at fault."
 
+msgid "「有希望」是個寬鬆的詞。我們的數字只容得下不偏折，兩種預測都被排除了——在相信它之前，先查儀器。"
+msgstr "“Hopeful” is a loose word. Our numbers fit only no deflection and rule out both predictions—before we believe that, let us check the instrument."
+
 msgid "「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。"
 msgstr "'Hopeful'? What we measured actually leans towards the smaller deflection. That word will make people think we saw something else."
 
@@ -1085,11 +1088,17 @@ msgstr "You've grown thin."
 msgid "你的工作筆記"
 msgstr "Your Working Notes"
 
+msgid "你的底片只容得下零。你要是憑它們改了想法，先寫清楚：儀器查過了沒有。"
+msgstr "Your plates hold only zero. If they changed your mind, first write clearly whether the instruments were checked."
+
 msgid "你的底片站在我的 0.87 這邊。我不會假裝沒看見。可是 Sobral 的小鏡頭不站——兩地不一致，總得有一邊要解釋。"
 msgstr "Your plates stand with my 0.87. I will not pretend not to see that. But Sobral's small lens does not—the two sites disagree, and one of them will have to be explained."
 
 msgid "你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。"
 msgstr "Your plates stand with me. If you changed your mind on their strength, you changed it against Sobral's small lens. Write that plainly; don't leave later readers to guess."
+
+msgid "你的底片連我的 0.87 都容不下，只剩下零。光一點都不彎？我不信——我寧可先懷疑儀器。何況 Sobral 的小鏡頭也不站在零那邊。"
+msgstr "Your plates cannot even hold my 0.87; only zero remains. Light does not bend at all? I don't believe it—I'd sooner suspect the instruments. Besides, Sobral's small lens does not stand with zero either."
 
 msgid "你的底片還分不出 0.87 和 1.75，剛才我們都看見了。讓你改變想法的，也許不是那個數字，是你親手量過它。那就照這樣寫。"
 msgstr "Your plates cannot yet tell 0.87 from 1.75; we both saw that just now. Perhaps what changed your mind was not the number but having measured it yourself. Then write it that way."
@@ -1201,6 +1210,9 @@ msgstr "Sir… do you truly not believe it?"
 
 msgid "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？"
 msgstr "First your number: %s. The heavy line on the chart is your value plus or minus one error; the fine lines extending from each end mark twice the error. Within the fine-line range, which prediction fits?"
+
+msgid "先看你的數字：%s。粗線是你的數字加減一個誤差，細線是兩倍誤差。你自己判斷——你的底片支持哪一個？"
+msgstr "First, look at your numbers: %s. The thick line is your value plus or minus one error; the thin line is twice the error. Judge for yourself—which prediction do your plates support?"
 
 msgid "先空拍一次，練練喊開始和停？"
 msgstr "A dry run first, to practise calling start and stop?"
@@ -1658,6 +1670,9 @@ msgstr "Yes. So I am in no hurry to believe. That isn't stubbornness—it is wha
 msgid "對。數字不會自己變成鏡像。那是抄錄方法留下的指紋。"
 msgstr "Yes. Figures don't turn themselves into a mirror image. That is the fingerprint the method left."
 
+msgid "對。數字只容得下不偏折，兩種預測都被排除了；在弄清楚是光還是儀器之前，什麼也不能說。我們照實說。"
+msgstr "Yes. The numbers fit only no deflection and rule out both predictions; until we understand whether it is the light or the instrument, we cannot say more. We shall report what we have."
+
 msgid "對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。"
 msgstr "Yes. The numbers fit neither prediction; until we understand why, nothing can be said. We say so plainly."
 
@@ -1702,6 +1717,9 @@ msgstr "Small"
 
 msgid "少了%s。"
 msgstr "It is missing %s."
+
+msgid "尚無定論"
+msgstr "Inconclusive"
 
 msgid "就算戰爭還沒結束，也照計畫準備"
 msgstr "Prepare as planned even if the war is not over"
@@ -2097,6 +2115,15 @@ msgstr "Rub it out and write the correct figure over it."
 
 msgid "擦改的墨跡還留在紙上"
 msgstr "The rubbed-out ink still shows on the paper."
+
+msgid "支持 0.87″"
+msgstr "Supports 0.87″"
+
+msgid "支持 0（光不偏折）"
+msgstr "Supports 0 (no deflection of light)"
+
+msgid "支持 1.75″"
+msgstr "Supports 1.75″"
 
 msgid "收好清單"
 msgstr "Put the list away"
@@ -2749,6 +2776,18 @@ msgstr "That covers a lot, but it's an answer. You wouldn't have said that befor
 msgid "納入量測"
 msgstr "Include"
 
+msgid "細線一個預測都容不下——先懷疑儀器。單憑這些底片，還不能支持 %s。"
+msgstr "The thin line contains none of the predictions—question the instrument first. These plates alone cannot yet support %s."
+
+msgid "細線只容得下 %s，排除另外兩個預測。說這些底片支持它，是公允的判斷。"
+msgstr "The thin line contains only %s and rules out the other two predictions. It is a fair reading to say these plates support it."
+
+msgid "細線容得下 %s；單憑這些底片，還不能支持 %s，排除其他預測。"
+msgstr "The thin line contains %s; these plates alone cannot yet support %s and rule out the other predictions."
+
+msgid "細線容得下多個預測，或一個都容不下。這些底片還不能分辨它們；說尚無定論，是誠實的判斷。"
+msgstr "The thin line contains several predictions, or none at all. These plates cannot yet distinguish between them; calling the result inconclusive is an honest reading."
+
 msgid "給 Kit："
 msgstr ""
 
@@ -2871,6 +2910,9 @@ msgstr "Before we come to the trouble—go and look at the orrery on the shelf."
 
 msgid "請坐。我是 Eddington。%s說，這是你寫的。"
 msgstr "Please sit down. I am Eddington. %s tells me this is yours."
+
+msgid "謹慎沒有錯。不過，細線只容得下 %s，排除另外兩個預測；這些底片確實支持一個判斷。"
+msgstr "There is no fault in caution. Still, the thin line contains only %s and rules out the other two predictions; these plates do support a judgement."
 
 msgid "謹慎沒有錯。只是——我們的好底片確實指向較大的偏折，不必把它說得比實際更弱。"
 msgstr "Caution is no fault. Only—our good plates do point to the larger deflection; there is no need to make it sound weaker than it is."

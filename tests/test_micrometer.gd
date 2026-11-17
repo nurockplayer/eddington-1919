@@ -229,7 +229,7 @@ func _run() -> void:
 		ui4.mic_btn.button_pressed = false
 		ui4.report_btn.grab_focus()
 		await _button(JOY_BUTTON_A)
-		check(ui4._viewer_reporting and ui4.dialog_active() and game4._pending == "interval",
+		check(ui4._viewer_reporting and ui4.dialog_active() and game4._pending == "verdict",
 			"one reading proceeds to Eddington with the other plate unread")
 	await _finish(game4)
 	print("mic: 4 done")

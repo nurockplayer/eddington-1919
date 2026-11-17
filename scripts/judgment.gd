@@ -52,7 +52,7 @@ static func interval_bounds(sim) -> Dictionary:
 	var c: Dictionary = sim.combined()
 	var lo := ("%.2f" % (c.value - 2*c.sigma)).to_float()
 	var hi := ("%.2f" % (c.value + 2*c.sigma)).to_float()
-	for prediction in [sim.HALF, sim.EINSTEIN]:
+	for prediction in [0.0, sim.HALF, sim.EINSTEIN]:
 		var contained: bool = absf(c.value - prediction) / c.sigma <= 2.0
 		if contained:
 			if lo > prediction:
@@ -66,6 +66,26 @@ static func interval_bounds(sim) -> Dictionary:
 			else:
 				hi = prediction - 0.01
 	return {"lo": lo, "hi": hi}
+
+
+static func verdict_truth(sim) -> int:
+	var c: Dictionary = sim.combined()
+	if c.n == 0:
+		return 3
+	var contained: Array[int] = []
+	var predictions := [0.0, sim.HALF, sim.EINSTEIN]
+	for i in 3:
+		if absf(c.value - predictions[i]) / c.sigma <= 2.0:
+			contained.append(i)
+	return contained[0] if contained.size() == 1 else 3
+
+
+static func verdict_class(verdict: int, truth: int) -> String:
+	if verdict == truth:
+		return "consistent"
+	if verdict == 3 and truth < 3:
+		return "underclaim"
+	return "overclaim"
 
 
 static func interval_truth(sim) -> int:
@@ -168,7 +188,10 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 					out.append(L.t("「有希望」？我們量到的數字其實偏向較小的偏折。這個詞會讓人以為我們看到了別的東西。"))
 				_:
 					if interval_holds_neither(sim):
-						out.append(L.t("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"))
+						if verdict_truth(sim) == 0:
+							out.append(L.t("「有希望」是個寬鬆的詞。我們的數字只容得下不偏折，兩種預測都被排除了——在相信它之前，先查儀器。"))
+						else:
+							out.append(L.t("「有希望」可以接受，但它是個寬鬆的詞。我們的數字離兩種預測都還有一段距離——片子少，也可能是儀器。"))
 					else:
 						out.append(L.t("「有希望」可以接受，但它是個寬鬆的詞。我們的數字其實還在兩種預測之間搖擺。"))
 		"undecided":
@@ -181,7 +204,10 @@ static func _telegram_lines(ev: String, t: String, any_usable: bool, any_good: b
 					out.append(L.t("對。這幾張偏向較小的偏折，可是片子少、誤差大，還不能說什麼。我們照實說。"))
 				_:
 					if interval_holds_neither(sim):
-						out.append(L.t("對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。"))
+						if verdict_truth(sim) == 0:
+							out.append(L.t("對。數字只容得下不偏折，兩種預測都被排除了；在弄清楚是光還是儀器之前，什麼也不能說。我們照實說。"))
+						else:
+							out.append(L.t("對。數字和兩種預測都對不上；在弄清楚原因之前，什麼也不能說。我們照實說。"))
 					else:
 						out.append(L.t("對。誤差範圍同時容得下兩種答案。我們照實說。"))
 		"none":

@@ -111,14 +111,16 @@ static func ledger(run: Dictionary, bet_1917: Dictionary, bet_now: Dictionary) -
 	return seq
 
 
-## "conceded" / "own_low" / "inconclusive" / "no_value"; static so tests can read it.
+## "conceded" / "zero_only" / "own_low" / "inconclusive" / "no_value"; static so tests can read it.
 static func ledger_case(run: Dictionary) -> String:
 	var c: Dictionary = run.get("combined", {})
 	var b: Dictionary = run.get("bounds", {})
 	if int(c.get("n", 0)) > 0:
 		if bool(run.get("clean", false)) and float(b.get("lo", 0.0)) > 0.87:
 			return "conceded"
-		if float(b.get("hi", 99.0)) < 1.75 and float(b.get("lo", 99.0)) <= 0.87:
+		if float(b.get("lo", 99.0)) <= 0.0 and 0.0 <= float(b.get("hi", 99.0)) and float(b.get("hi", 99.0)) < 0.87:
+			return "zero_only"
+		if float(b.get("lo", 99.0)) <= 0.87 and 0.87 <= float(b.get("hi", 99.0)) and float(b.get("hi", 99.0)) < 1.75:
 			return "own_low"
 		return "inconclusive"
 	return "no_value"
@@ -128,6 +130,8 @@ static func _case_line(run: Dictionary) -> String:
 	match ledger_case(run):
 		"conceded":
 			return L.t("我寫的是 0.87。你的底片和 Sobral 的小鏡頭，都容不下它。……在這件事上，我錯了。")
+		"zero_only":
+			return L.t("你的底片連我的 0.87 都容不下，只剩下零。光一點都不彎？我不信——我寧可先懷疑儀器。何況 Sobral 的小鏡頭也不站在零那邊。")
 		"own_low":
 			return L.t("你的底片站在我的 0.87 這邊。我不會假裝沒看見。可是 Sobral 的小鏡頭不站——兩地不一致，總得有一邊要解釋。")
 		"inconclusive":
@@ -206,6 +210,8 @@ static func final_reply(choice: int, run := {}, bet_1917 := {}, bet_now := {}) -
 		return []
 	if choice == 0:
 		match ledger_case(run):
+			"zero_only":
+				return [{"s": A, "t": L.t("你的底片只容得下零。你要是憑它們改了想法，先寫清楚：儀器查過了沒有。")}]
 			"own_low":
 				return [{"s": A, "t": L.t("你的底片站在我這邊。你要是憑它們改了想法，改的方向，和 Sobral 的小鏡頭相反。寫清楚，別讓後人替你猜。")}]
 			"inconclusive":

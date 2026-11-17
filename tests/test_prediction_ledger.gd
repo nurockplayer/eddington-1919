@@ -2,7 +2,7 @@ extends SceneTree
 ## Conversion arc move A — the prediction ledger. The player writes a guess
 ## (0 / 0.87 / 1.75 / 說不準) and a confidence in 1917; Ashby writes 0.87.
 ## In 1919 the ledger returns before Measure (keep or change), is set against
-## the player's own 2σ range after the interval answer, and is recalled in the
+## the player's own 2σ range after the verdict, and is recalled in the
 ## ending and the coda. No prologue, no recall.
 const DIRECTOR := "res://scripts/cambridge/director.gd"
 const MAIN_PATH := "res://scripts/main.gd"
@@ -191,7 +191,7 @@ func _test_replay_page(story: Node) -> void:
 	await process_frame
 
 
-## The interval answer is followed by the bet against the player's own plates.
+## The verdict is followed by the bet against the player's own plates.
 func _test_confrontation_flow(story: Node) -> void:
 	var game = await _new_game(story, false, {"pick": 1, "sure": 0, "ashby": 0, "year": 1919})
 	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true,
@@ -201,10 +201,10 @@ func _test_confrontation_flow(story: Node) -> void:
 	game.sim.measured = true
 	game.sim.bet_pick = 1
 	game._start_judgment()
-	game.ui._choose(Judgment.interval_truth(game.sim))
+	game.ui._choose(Judgment.verdict_truth(game.sim))
 	var text := _text(game)
 	check(text.contains("你押的是 0.87") and text.contains("容不下它"),
-		"the interval answer confronts the bet before the telegram choices")
+		"the verdict confronts the bet before the telegram choices")
 	check(text.contains("容得下 1.75"), "the confrontation names the prediction the range does hold")
 	game.stop_all_audio()
 	game.queue_free()

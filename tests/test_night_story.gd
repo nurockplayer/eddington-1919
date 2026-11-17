@@ -63,8 +63,8 @@ func _run() -> void:
 	for pick in [0, 1]:
 		var game := make_game(1.75)
 		game.sim.bet_pick = 2
-		game._pending = "interval"
-		game._on_dialogue_done({"interval": Judgment.interval_truth(game.sim)})
+		game._pending = "verdict"
+		game._on_dialogue_done({"verdict": Judgment.verdict_truth(game.sim)})
 		var keys: Array = game.ui._seq.map(func(e): return e.get("key", ""))
 		check(keys.find("press") >= 0 and keys.find("press") < keys.find("telegram"), "press appears before telegram")
 		while game.ui._seq[game.ui._seq_i].get("key", "") != "press":
@@ -89,8 +89,8 @@ func _run() -> void:
 	check(grades[0].score == grades[1].score and grades[0].evidence == grades[1].evidence, "press leaves grade score and evidence unchanged")
 	var no_bet := make_game(1.75)
 	no_bet.sim.bet_pick = -1
-	no_bet._pending = "interval"
-	no_bet._on_dialogue_done({"interval": Judgment.interval_truth(no_bet.sim)})
+	no_bet._pending = "verdict"
+	no_bet._on_dialogue_done({"verdict": Judgment.verdict_truth(no_bet.sim)})
 	check(not no_bet.ui._seq.any(func(e): return e.get("key", "") == "press"), "no bet offers no press")
 	dispose(no_bet)
 	await process_frame
