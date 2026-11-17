@@ -53,6 +53,7 @@ var bet_pick := -1               # Conversion arc A: prediction ledger pick (0..
 var measured := false
 var reselected_after_seeing := false
 var measured_selection = null    # plate numbers included at the last measurement
+var measured_readings = null     # plate number -> reading at the last measurement
 var first_result = null
 var reselect_reason := ""
 var reselect_added: Array = []

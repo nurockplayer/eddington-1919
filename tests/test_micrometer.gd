@@ -264,6 +264,72 @@ func _run() -> void:
 	await _finish(snapshot_game)
 	print("mic: first-result snapshot done")
 
+	# 4.1. Recorded evidence locks; changing it after reopening is a revision.
+	var locked_game := await _new_game([1.75, 1.50])
+	var locked_ui = locked_game.ui
+	locked_ui.mic_btn.button_pressed = true
+	_read_plate(locked_game, 0, 1.75)
+	_read_plate(locked_game, 1, 1.50)
+	locked_ui.measure_btn.pressed.emit()
+	await process_frame
+	var locked_reading: float = locked_game.sim.plates[0].reading
+	var locked_result: Dictionary = locked_game.sim.combined().duplicate(true)
+	var locked_first: Dictionary = locked_game.sim.first_result.duplicate(true)
+	check(locked_game.sim.measured_readings == {
+		1: locked_game.sim.plates[0].reading, 2: locked_game.sim.plates[1].reading},
+		"Measure snapshots recorded readings by plate number")
+	locked_ui._select_plate(0, locked_game.plate_textures[0], false)
+	locked_ui.set_micrometer_reading(locked_reading + 2.0)
+	check(is_equal_approx(locked_ui.micrometer_px, locked_reading + 2.0),
+		"the crosshair can still move on a locked recorded plate")
+	locked_ui.mic_record_btn.pressed.emit()
+	check(locked_ui.mic_record_btn.disabled, "record is disabled on a locked recorded plate")
+	check(locked_game.sim.plates[0].reading == locked_reading,
+		"pressing record cannot overwrite a locked reading")
+	check(locked_game.sim.combined() == locked_result, "locked record leaves combined evidence unchanged")
+	locked_ui.reading_set.emit(0, locked_reading + 2.0)
+	check(locked_game.sim.plates[0].reading == locked_reading,
+		"main also rejects a reading signal for a locked recorded plate")
+	locked_ui.reselect_btn.pressed.emit()
+	await process_frame
+	check(not locked_ui.mic_record_btn.disabled, "reselect enables recording an already-read plate")
+	_read_plate(locked_game, 0, 1.25)
+	check(locked_game.sim.plates[0].reading != locked_reading, "unlocked record changes the reading")
+	locked_ui.measure_btn.pressed.emit()
+	await process_frame
+	check(not locked_ui.dialog_active() and locked_game._pending != "reselect_reason",
+		"readings-only revision needs no selection reason")
+	check(locked_game.sim.measured and locked_game.sim.reselected_after_seeing,
+		"changed reading locks as a revision")
+	check(locked_game.sim.first_result == locked_first, "readings-only revision preserves first_result")
+	check(locked_ui.viewer_note.text.contains("第一次量"), "readings-only revision shows the first measurement")
+	check(locked_game.sim.measured_readings[1] == locked_game.sim.plates[0].reading,
+		"remeasurement snapshots the revised reading")
+	await _finish(locked_game)
+
+	var unread_game := await _new_game([1.75, 1.50])
+	var unread_ui = unread_game.ui
+	unread_ui.mic_btn.button_pressed = true
+	_read_plate(unread_game, 0, 1.75)
+	unread_ui.measure_btn.pressed.emit()
+	await process_frame
+	check(unread_ui.mic_record_btn.disabled, "locking immediately disables record on the read plate")
+	unread_ui._select_plate(1, unread_game.plate_textures[1], false)
+	check(not unread_ui.mic_record_btn.disabled, "selecting an unread locked plate enables record")
+	_read_plate(unread_game, 1, 1.50)
+	check(unread_game.sim.plates[1].get("read", false)
+		and is_equal_approx(unread_game.sim.plates[1].reading, unread_game.sim.reading_for_value(1.50)),
+		"a still-unread plate can be recorded while locked")
+	check(unread_ui.mic_record_btn.disabled, "record disables after the locked plate's first reading")
+	unread_ui.reselect_btn.pressed.emit()
+	await process_frame
+	unread_ui.measure_btn.pressed.emit()
+	await process_frame
+	check(unread_game.sim.measured and not unread_game.sim.reselected_after_seeing,
+		"a new reading absent from the previous snapshot is not a revision")
+	await _finish(unread_game)
+	print("mic: 4.1 reading lock and revision done")
+
 	# 5. Readings survive 重新選片.
 	print("mic: 5 new game")
 	var game5 := await _new_game([1.75, 1.60])
@@ -283,6 +349,7 @@ func _run() -> void:
 	ui5.measure_btn.pressed.emit()
 	await process_frame
 	check(not ui5.dialog_active() and game5.sim.measured, "unchanged reselection measures again without a reason prompt")
+	check(not game5.sim.reselected_after_seeing, "identical readings and selection are not a revision")
 	check(ui5.chart.rows.size() == 2, "both readings still count after reselection")
 	await _finish(game5)
 	print("mic: 5 done")
