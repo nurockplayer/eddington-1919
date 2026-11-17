@@ -39,7 +39,7 @@ static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit
 		0: seq.append({"s": K, "t": L.t("那我要聽。從雲開始講。")})
 		1: seq.append({"s": K, "t": L.t("範圍很寬，也是一個答案。你以前不會這樣說。")})
 		2: seq.append({"s": K, "t": L.t("那就慢慢告訴我。今天晚上很長。")})
-	var workbook := L.t("（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）") + "\n\n" + L.t("這是你自己抬頭看到的。好。")
+	var workbook := L.t("工作簿給我看看。……最後一頁。") + "\n\n" + L.t("這是你自己抬頭看到的。好。")
 	if seq[-1].s == K:
 		seq[-1].t += "\n\n" + workbook
 	else:
@@ -50,7 +50,7 @@ static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit
 		seq.append({"s": K, "t": L.t("你沒要我寫，我還是記下來了。")})
 	seq[-1].t += "\n\n" + L.t("Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。")
 	seq[-1].t += "\n\n" + L.t("那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。")
-	seq.append({"s": K, "t": L.t("（桌角有一個沒寄出的信封，寫著你的名字。）") + "\n\n" + L.t("那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。")})
+	seq.append({"s": K, "t": L.t("桌角那個信封，上面寫著你的名字。") + "\n\n" + L.t("那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。")})
 	if bond_tone == "close":
 		seq[-1].t += "\n\n" + L.t("……裡面寫了什麼，以後再說。不是今晚。")
 	else:
