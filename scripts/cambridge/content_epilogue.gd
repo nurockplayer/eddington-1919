@@ -107,6 +107,11 @@ static func ledger(run: Dictionary, bet_1917: Dictionary, bet_now: Dictionary) -
 		if int(bet_now.get("pick", -1)) != int(bet_1917.get("pick", -1)):
 			page += L.t("\n1919 年你改成：%s。") % Content.bet_pick_text(int(bet_now.get("pick", -1)))
 		seq.append({"s": L.t("1917 年的帳本"), "t": page})
+	var names := [L.t("零"), "0.87", "1.75"]
+	if run.get("verdict_class", "") == "overclaim":
+		seq.append({"s": A, "t": L.t("你在暗房說底片支持 %s。帳上這一行，要寫得比那天小心。") % names[int(run.verdict)]})
+	elif run.get("verdict_class", "") == "underclaim" and run.has("verdict_truth"):
+		seq.append({"s": A, "t": L.t("你在暗房說尚無定論。可是你的底片只容得下 %s，另外兩個都排除了——帳上可以寫得比那天有把握。") % names[int(run.verdict_truth)]})
 	seq.append({"s": A, "t": _case_line(run)})
 	return seq
 

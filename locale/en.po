@@ -555,6 +555,9 @@ msgstr "· Ashby wrote: 0.87."
 msgid "· Sobral 天體照相儀那組：%s。"
 msgstr "· Sobral's astrographic set: %s."
 
+msgid "· 你在暗房的判斷：%s——%s。"
+msgstr "· Your darkroom verdict: %s — %s."
+
 msgid "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。"
 msgid_plural "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。"
 msgstr[0] "· You measured %d plate, combined %.2f″ ± %.2f″ (illustrative simulation)."
@@ -1019,6 +1022,12 @@ msgstr "What you doubted most in 1917: %s."
 msgid "你在出發前，就認定是 1.75 了，對不對？"
 msgstr "You decided it was 1.75 before we sailed, didn't you?"
 
+msgid "你在暗房說尚無定論。可是你的底片只容得下 %s，另外兩個都排除了——帳上可以寫得比那天有把握。"
+msgstr "In the darkroom you said it was inconclusive. But your plates leave room only for %s and rule out the other two — the ledger can be more certain than you were that day."
+
+msgid "你在暗房說底片支持 %s。帳上這一行，要寫得比那天小心。"
+msgstr "In the darkroom you said the plates supported %s. This line in the ledger needs more care than you gave it that day."
+
 msgid "你在薄的那段裡開、在變厚前停：那張會是清楚的。"
 msgstr "You opened while the cloud was thin and stopped before it thickened: that plate would be clear."
 
@@ -1474,6 +1483,9 @@ msgstr "Brightness estimates for the same variable star, line after line, in han
 
 msgid "向 Eddington 報告 →"
 msgstr "Report to Eddington →"
+
+msgid "和你自己的誤差範圍相符"
+msgstr "consistent with your own error range"
 
 msgid "和出發時一樣高"
 msgstr "At the same height it started"
@@ -2407,6 +2419,9 @@ msgstr "Compares the same area every half second; move with the right stick or a
 msgid "每天晚上都有人在看你泡的茶。……我懂你的意思。"
 msgstr "Somebody looks at the tea you make every night. … I know what you mean."
 
+msgid "比你的誤差範圍保守"
+msgstr "more cautious than your error range requires"
+
 msgid "比例和方向，先用遠處的星校正過——1917 年你寫進了計畫。"
 msgstr "Scale and orientation were corrected first against the distant stars—you wrote that into the plan in 1917."
 
@@ -2901,6 +2916,9 @@ msgstr "Curiously enough—Einstein's own calculation in 1911 gave only half. It
 
 msgid "說吧。你決定好要先跟我說的那一句。"
 msgstr "Go on. The first thing you decided to tell me."
+
+msgid "說得比你的誤差範圍滿"
+msgstr "claims more than your error range allows"
 
 msgid "說得誠實。雲擋住了大部分星光，我們不假裝。"
 msgstr "That is honest. The cloud kept most of the starlight from us, and we don't pretend otherwise."
@@ -3414,6 +3432,9 @@ msgstr "(You read the last page of the workbook again. The writing is more crook
 msgid "（你吹熄了燈。）"
 msgstr "(You blow out the lamp.)"
 
+msgid "（你在暗房說底片支持它。可是單憑那條細線，還撐不起這句話。）"
+msgstr "(In the darkroom you said the plates supported it. But that thin line alone could not hold up those words.)"
+
 msgid "（你從櫃子取出畢宿星團的舊底片，攤開 Eddington 的清單。）"
 msgstr "(You take the old Hyades plates from the cabinet and spread out Eddington's list.)"
 
@@ -3444,6 +3465,9 @@ msgid "（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）"
 msgid_plural "（你的合併估計：%.2f″ ± %.2f″，%d 張底片。）"
 msgstr[0] "(Your combined estimate: %.2f″ ± %.2f″, from %d plate.)"
 msgstr[1] "(Your combined estimate: %.2f″ ± %.2f″, from %d plates.)"
+
+msgid "（你的底片本來可以說話，你卻讓它們安靜了。謹慎是好的，可別謹慎到不敢讀。）"
+msgstr "(Your plates could have spoken, but you kept them quiet. Caution is good; do not be too cautious to read.)"
 
 msgid "（你的鉛筆削好了，排在清單旁邊。不是你削的。）"
 msgstr "(Your pencil is sharpened and laid beside the list. You didn't sharpen it.)"

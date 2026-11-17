@@ -246,6 +246,11 @@ static func verdict_prompt(interval: String) -> Array:
 	return [{"s": E, "t": L.t("先看你的數字：%s。粗線是你的數字加減一個誤差，細線是兩倍誤差。你自己判斷——你的底片支持哪一個？") % interval, "key": "verdict", "choices": [L.t("支持 0（光不偏折）"), L.t("支持 0.87″"), L.t("支持 1.75″"), L.t("尚無定論")]}]
 
 
+static func verdict_text(v: int) -> String:
+	var labels := [L.t("支持 0（光不偏折）"), L.t("支持 0.87″"), L.t("支持 1.75″"), L.t("尚無定論")]
+	return labels[v] if v >= 0 and v < labels.size() else ""
+
+
 # Bounds distinguish multiple predictions from none when truth is inconclusive.
 static func verdict_feedback(verdict: int, truth: int, bounds: Dictionary) -> String:
 	var names := [L.t("零"), "0.87", "1.75"]
