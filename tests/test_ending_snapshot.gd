@@ -52,12 +52,12 @@ func _run() -> void:
 	for entry in [["consistent", "相符"], ["overclaim", "說得比你的誤差範圍滿"], ["underclaim", "比你的誤差範圍保守"]]:
 		recall["verdict"] = 2
 		recall["verdict_class"] = entry[0]
-		var body: String = Ending.build(recall, runs[0].view).body
+		var body: String = Ending.build(recall, runs[0].view).review
 		check(body.contains("你在暗房的判斷：支持 1.75″") and body.contains(entry[1]), "ending recalls " + entry[0])
 	recall.erase("verdict")
 	recall.erase("verdict_class")
 	recall.erase("verdict_truth")
-	check(not Ending.build(recall, runs[0].view).body.contains("你在暗房的判斷"), "old run has no verdict recall")
+	check(not Ending.build(recall, runs[0].view).review.contains("你在暗房的判斷"), "old run has no verdict recall")
 
 	# The scene and its simulation are gone; only the snapshot and the Story view remain.
 	game.stop_all_audio()
