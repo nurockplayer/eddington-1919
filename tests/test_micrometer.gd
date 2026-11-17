@@ -108,7 +108,7 @@ func _check_feel() -> void:
 		var sound: AudioStreamPlayer = ui._viewer_sfx["tick"]
 		check(sound.stream == ui._viewer_sfx["mark"].stream and sound.playing,
 			"tick plays the existing short click sample")
-		check(sound.pitch_scale == 1.0 and sound.volume_db == -18.0 and sound.bus == "SFX",
+		check(sound.pitch_scale == 1.0 and sound.volume_db == -11.0 and sound.bus == "SFX",
 			"tick uses fixed quiet volume, pitch and SFX bus")
 		signatures.append([ui.viewer_sfx_log.duplicate(), sound.stream, sound.pitch_scale,
 			sound.volume_db, ui._mic_star_point(), ui._mic_dir()])

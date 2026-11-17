@@ -1278,7 +1278,7 @@ func _build_viewer_sfx() -> void:
 	tick.bus = "SFX"
 	tick.stream = _viewer_sfx["mark"].stream
 	tick.pitch_scale = 1.0
-	tick.volume_db = -18.0
+	tick.volume_db = -11.0
 	add_child(tick)
 	_viewer_sfx["tick"] = tick
 
@@ -1912,17 +1912,6 @@ func _build_pause(root: Control) -> void:
 		Settings.toggle_invert_y()
 		invert.text = L.t("上下反轉：開") if Settings.invert_y else L.t("上下反轉：關"))
 	v.add_child(invert)
-	var mic_step := _button(L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
-	mic_step.pressed.connect(func():
-		Settings.cycle_mic_step()
-		mic_step.text = L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
-	v.add_child(mic_step)
-	var mic_cross := _button(L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關"))
-	mic_cross.pressed.connect(func():
-		Settings.toggle_mic_large_cross()
-		mic_cross.text = L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關")
-		mic_overlay.queue_redraw())
-	v.add_child(mic_cross)
 	var motion := _button(L.t("減少晃動：開") if Settings.reduced_motion else L.t("減少晃動：關"))
 	motion.pressed.connect(func():
 		Settings.toggle_reduced_motion()
@@ -1936,6 +1925,17 @@ func _build_pause(root: Control) -> void:
 	var help := _button(L.t("操作說明"))
 	help.pressed.connect(_open_help)
 	v.add_child(help)
+	var mic_step := _button(L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
+	mic_step.pressed.connect(func():
+		Settings.cycle_mic_step()
+		mic_step.text = L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
+	v.add_child(mic_step)
+	var mic_cross := _button(L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關"))
+	mic_cross.pressed.connect(func():
+		Settings.toggle_mic_large_cross()
+		mic_cross.text = L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關")
+		mic_overlay.queue_redraw())
+	v.add_child(mic_cross)
 	_pause_title_btn = _button(L.t("回到標題"))
 	var pause_title := _pause_title_btn
 	pause_title.pressed.connect(func():
