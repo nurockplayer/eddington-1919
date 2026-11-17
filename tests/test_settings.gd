@@ -42,6 +42,7 @@ func _run() -> void:
 				"Master limiter adds %.1f dB with a %.1f dB ceiling" % [Settings.MASTER_MAKEUP_DB, Settings.MASTER_CEILING_DB])
 	check(limiters == 1, "two startup calls leave exactly one Master limiter (got %d)" % limiters)
 	check(Settings.MASTER_MAKEUP_DB > 0.0, "Master makeup gain is positive")
+	await _check_master_limiter_output()
 	_check_video_calls()
 	ScorePlayer.set_music_enabled(false, test_path)
 	Settings.volumes = {"Master": 0.5, "Music": 0.25, "SFX": 0.0}
@@ -123,6 +124,72 @@ func _run() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	print("test_settings: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _check_master_limiter_output() -> void:
+	var master_db := AudioServer.get_bus_volume_db(0)
+	var master_muted := AudioServer.is_bus_mute(0)
+	AudioServer.set_bus_volume_db(0, 0.0)
+	AudioServer.set_bus_mute(0, false)
+	var capture := AudioEffectCapture.new()
+	capture.buffer_length = 0.5
+	var capture_index := AudioServer.get_bus_effect_count(0)
+	AudioServer.add_bus_effect(0, capture)
+	var quiet_peak := await _capture_sine_peak(capture, 0.1)
+	if quiet_peak < 0.0:
+		if AudioServer.get_driver_name() == "Dummy":
+			print("SKIP: dummy audio driver does not mix")
+		else:
+			check(false, "Master capture receives 4096 frames within 2 seconds")
+	else:
+		var expected_quiet := 0.1 * db_to_linear(6.0)
+		print("Master limiter quiet peak: %.6f (expected %.6f, tolerance +/-1.5 dB)" % [quiet_peak, expected_quiet])
+		check(quiet_peak >= expected_quiet * db_to_linear(-1.5)
+			and quiet_peak <= expected_quiet * db_to_linear(1.5),
+			"Master makeup gain raises a quiet sine by 6 dB")
+		var loud_peak := await _capture_sine_peak(capture, 1.0)
+		var ceiling := db_to_linear(-1.0) + 0.01
+		print("Master limiter loud peak: %.6f (maximum %.6f)" % [loud_peak, ceiling])
+		check(loud_peak >= 0.0 and loud_peak <= ceiling,
+			"Master limiter keeps a loud sine below the -1 dB ceiling (+0.01 tolerance)")
+	AudioServer.remove_bus_effect(0, capture_index)
+	AudioServer.set_bus_volume_db(0, master_db)
+	AudioServer.set_bus_mute(0, master_muted)
+
+
+func _capture_sine_peak(capture: AudioEffectCapture, amplitude: float) -> float:
+	var sample_rate := int(AudioServer.get_mix_rate())
+	var pcm := PackedByteArray()
+	pcm.resize(sample_rate * 2)
+	for i in sample_rate:
+		pcm.encode_s16(i * 2, roundi(32767.0 * amplitude * sin(TAU * 440.0 * i / sample_rate)))
+	var sine := AudioStreamWAV.new()
+	sine.format = AudioStreamWAV.FORMAT_16_BITS
+	sine.mix_rate = sample_rate
+	sine.stereo = false
+	sine.data = pcm
+	sine.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	sine.loop_end = sample_rate
+	var player := AudioStreamPlayer.new()
+	player.stream = sine
+	player.bus = "Master"
+	player.volume_db = 0.0
+	root.add_child(player)
+	capture.clear_buffer()
+	player.play()
+	var deadline := Time.get_ticks_msec() + 2000
+	while capture.get_frames_available() < 4096 and Time.get_ticks_msec() < deadline:
+		await create_timer(0.01).timeout
+	var peak := -1.0
+	if capture.get_frames_available() >= 4096:
+		var frames := capture.get_buffer(4096)
+		peak = 0.0
+		# Ignore the limiter's attack before measuring both output channels.
+		for i in range(1024, frames.size()):
+			peak = maxf(peak, maxf(absf(frames[i].x), absf(frames[i].y)))
+	player.stop()
+	player.free()
+	return peak
 
 
 func _check_settings_path() -> void:
