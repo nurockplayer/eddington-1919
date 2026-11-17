@@ -830,7 +830,7 @@ func _test_report_rule_layout() -> void:
 			await process_frame
 		var note_before: String = game.ui.viewer_note.text
 		await _click_control(game.ui.report_btn)
-		for stage in ["interval", "feedback", "telegram", "reason"]:
+		for stage in ["verdict", "feedback", "telegram", "reason"]:
 			for frame in 4:
 				await process_frame
 			var chart_rect: Rect2 = game.ui.chart.get_global_rect()
@@ -843,9 +843,9 @@ func _test_report_rule_layout() -> void:
 			check(root.get_visible_rect().encloses(rule_rect) and not dialog_rect.intersects(rule_rect),
 				"scale %s %s rule fits viewport and stays above dialogue" % [scale, stage])
 			match stage:
-				"interval":
-					check(game.ui._seq[game.ui._seq_i].key == "interval", "real report starts at interval")
-					await _click_control(game.ui._choice_buttons[Judgment.interval_truth(game.sim)])
+				"verdict":
+					check(game.ui._seq[game.ui._seq_i].key == "verdict", "real report starts at verdict")
+					await _click_control(game.ui._choice_buttons[Judgment.verdict_truth(game.sim)])
 				"feedback":
 					game.ui._advance()
 				"telegram":
