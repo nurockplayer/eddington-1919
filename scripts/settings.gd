@@ -3,6 +3,7 @@ extends RefCounted
 
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const LOOK_SPEEDS := [0.6, 1.0, 1.5]
+const MIC_STEPS := [0.5, 1.0, 2.0]
 const TEXT_SCALES := [0.85, 1.0, 1.2]
 
 const VOLUME_KEYS := {"Master": "master_db", "Music": "music_db", "SFX": "sfx_db"}
@@ -18,6 +19,8 @@ static var text_scale := 1.0
 static var language := ""
 static var look_speed := 1.0
 static var invert_y := false
+static var mic_step := 1.0
+static var mic_large_cross := false
 static var reduced_motion := false
 static var hold_toggle := false
 static var fullscreen := false
@@ -78,6 +81,10 @@ static func load_settings(path := settings_path()) -> void:
 	if look_speed not in LOOK_SPEEDS:
 		look_speed = 1.0
 	invert_y = bool(cfg.get_value("input", "invert_y", false))
+	mic_step = float(cfg.get_value("input", "mic_step", 1.0))
+	if mic_step not in MIC_STEPS:
+		mic_step = 1.0
+	mic_large_cross = bool(cfg.get_value("ui", "mic_large_cross", false))
 	reduced_motion = bool(cfg.get_value("ui", "reduced_motion", false))
 	hold_toggle = bool(cfg.get_value("input", "hold_toggle", false))
 	text_scale = float(cfg.get_value("ui", "text_scale", 1.0))
@@ -98,6 +105,8 @@ static func save_settings(path := settings_path()) -> Error:
 	cfg.set_value("ui", "reduced_motion", reduced_motion)
 	cfg.set_value("input", "look_speed", look_speed)
 	cfg.set_value("input", "invert_y", invert_y)
+	cfg.set_value("input", "mic_step", mic_step)
+	cfg.set_value("ui", "mic_large_cross", mic_large_cross)
 	cfg.set_value("input", "hold_toggle", hold_toggle)
 	return cfg.save(path)
 
@@ -170,6 +179,16 @@ static func cycle_text_scale(path := settings_path()) -> Error:
 
 static func cycle_look_speed(path := settings_path()) -> Error:
 	look_speed = LOOK_SPEEDS[(LOOK_SPEEDS.find(look_speed) + 1) % LOOK_SPEEDS.size()]
+	return save_settings(path)
+
+
+static func cycle_mic_step(path := settings_path()) -> Error:
+	mic_step = MIC_STEPS[(MIC_STEPS.find(mic_step) + 1) % MIC_STEPS.size()]
+	return save_settings(path)
+
+
+static func toggle_mic_large_cross(path := settings_path()) -> Error:
+	mic_large_cross = not mic_large_cross
 	return save_settings(path)
 
 

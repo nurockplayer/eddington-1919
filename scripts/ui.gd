@@ -150,6 +150,7 @@ var _mic_had_loupe := false
 var _mic_dragging := false
 var _mic_hold := 0.0
 var _mic_repeat := 0.0
+var _mic_last_tick_ms := -50
 ## Set by main before open_viewer: returns {value, sigma} for a read plate.
 var measurement_of := Callable()
 var _comparison_texture: Texture2D
@@ -1101,7 +1102,14 @@ func set_micrometer_reading(px: float) -> void:
 	if not micrometer_on or _viewer_sel < 0:
 		return
 	var limit: float = PlateRender.SIZE
-	micrometer_px = clampf(px, 0.0, limit)
+	var next := clampf(px, 0.0, limit)
+	if next == micrometer_px:
+		return
+	micrometer_px = next
+	var now := Time.get_ticks_msec()
+	if now - _mic_last_tick_ms >= 50:
+		_mic_last_tick_ms = now
+		_viewer_sound("tick")
 	_update_micrometer()
 
 
@@ -1112,7 +1120,7 @@ func _mic_fine() -> bool:
 func _nudge_micrometer(direction: float, fine: bool) -> void:
 	if _viewer_reporting:
 		return
-	set_micrometer_reading(micrometer_px + direction * (0.05 if fine else 0.25))
+	set_micrometer_reading(micrometer_px + direction * (0.05 if fine else 0.25) * Settings.mic_step)
 
 
 func _record_micrometer() -> void:
@@ -1146,10 +1154,18 @@ func _draw_micrometer() -> void:
 	var across := along.orthogonal()
 	mic_overlay.draw_line(_plate_to_local(star - dir * 14.0), _plate_to_local(star + dir * 70.0),
 		Color(ACCENT, 0.22), 1.0)
+	# Graduations stay on the night-position ruler, independent of plate values.
+	for unit in range(-14, 71):
+		var tick := _plate_to_local(star + dir * float(unit))
+		var half_length := 5.0 if unit % 5 == 0 else 2.5
+		mic_overlay.draw_line(tick - across * half_length, tick + across * half_length,
+			Color(ACCENT, 0.35), 1.0)
 	mic_overlay.draw_arc(night, 5.0, 0.0, TAU, 20, Color(0.74, 0.84, 0.96, 0.85), 1.0, true)
 	var cross := _plate_to_local(star + dir * micrometer_px)
-	mic_overlay.draw_line(cross - across * 9.0, cross + across * 9.0, ACCENT, 1.5)
-	mic_overlay.draw_line(cross - along * 9.0, cross + along * 9.0, ACCENT, 1.5)
+	var arm := 16.0 if Settings.mic_large_cross else 9.0
+	var width := 2.5 if Settings.mic_large_cross else 1.5
+	mic_overlay.draw_line(cross - across * arm, cross + across * arm, ACCENT, width)
+	mic_overlay.draw_line(cross - along * arm, cross + along * arm, ACCENT, width)
 	var label_pos := night - along * 34.0 + across * 12.0
 	mic_overlay.draw_string(font, label_pos, L.t("夜裡的位置"), HORIZONTAL_ALIGNMENT_LEFT, -1,
 		Settings.fs(13), Color(0.74, 0.84, 0.96, 0.9))
@@ -1257,6 +1273,14 @@ func _build_viewer_sfx() -> void:
 		player.volume_db = -9.0
 		add_child(player)
 		_viewer_sfx[name] = player
+	# Reuse the short mark click at a fixed, quieter level.
+	var tick := AudioStreamPlayer.new()
+	tick.bus = "SFX"
+	tick.stream = _viewer_sfx["mark"].stream
+	tick.pitch_scale = 1.0
+	tick.volume_db = -18.0
+	add_child(tick)
+	_viewer_sfx["tick"] = tick
 
 
 func _viewer_sound(name: String) -> void:
@@ -1888,6 +1912,17 @@ func _build_pause(root: Control) -> void:
 		Settings.toggle_invert_y()
 		invert.text = L.t("上下反轉：開") if Settings.invert_y else L.t("上下反轉：關"))
 	v.add_child(invert)
+	var mic_step := _button(L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
+	mic_step.pressed.connect(func():
+		Settings.cycle_mic_step()
+		mic_step.text = L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
+	v.add_child(mic_step)
+	var mic_cross := _button(L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關"))
+	mic_cross.pressed.connect(func():
+		Settings.toggle_mic_large_cross()
+		mic_cross.text = L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關")
+		mic_overlay.queue_redraw())
+	v.add_child(mic_cross)
 	var motion := _button(L.t("減少晃動：開") if Settings.reduced_motion else L.t("減少晃動：關"))
 	motion.pressed.connect(func():
 		Settings.toggle_reduced_motion()
@@ -1928,10 +1963,10 @@ func _build_pause(root: Control) -> void:
 			return
 		quit_pressed.emit())
 	v.add_child(quit_button)
-	for button in [r, music_button, fullscreen_button, language_button, look, invert, motion, hold_button, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
-	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, motion, hold_button, help, pause_title, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
