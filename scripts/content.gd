@@ -242,6 +242,29 @@ static func interval_feedback(answer: int, truth: int) -> String:
 	return L.t("再看一次：%s。\n看圖上的細線：兩條預測線，哪一條落在細線裡面？") % contains[truth]
 
 
+static func verdict_prompt(interval: String) -> Array:
+	return [{"s": E, "t": L.t("先看你的數字：%s。粗線是你的數字加減一個誤差，細線是兩倍誤差。你自己判斷——你的底片支持哪一個？") % interval, "key": "verdict", "choices": [L.t("支持 0（光不偏折）"), L.t("支持 0.87″"), L.t("支持 1.75″"), L.t("尚無定論")]}]
+
+
+# Bounds distinguish multiple predictions from none when truth is inconclusive.
+static func verdict_feedback(verdict: int, truth: int, bounds: Dictionary) -> String:
+	var names := [L.t("零"), "0.87", "1.75"]
+	if verdict == truth:
+		if truth < 3:
+			return L.t("細線只容得下 %s，排除另外兩個預測。說這些底片支持它，是公允的判斷。") % names[truth]
+		return L.t("細線容得下多個預測，或一個都容不下。這些底片還不能分辨它們；說尚無定論，是誠實的判斷。")
+	if verdict == 3:
+		return L.t("謹慎沒有錯。不過，細線只容得下 %s，排除另外兩個預測；這些底片確實支持一個判斷。") % names[truth]
+	var held: Array[String] = []
+	for i in 3:
+		var prediction: float = [0.0, 0.87, 1.75][i]
+		if bounds.lo <= prediction and prediction <= bounds.hi:
+			held.append(names[i])
+	if held.is_empty():
+		return L.t("細線一個預測都容不下——先懷疑儀器。單憑這些底片，還不能支持 %s。") % names[verdict]
+	return L.t("細線容得下 %s；單憑這些底片，還不能支持 %s，排除其他預測。") % [_bet_join(held), names[verdict]]
+
+
 static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
 	return [
 		{"s": E, "t": L.t("我們得發電報給倫敦的 Dyson。只有幾個字的空間——你會寫什麼？"), "key": "telegram", "choices": telegrams},

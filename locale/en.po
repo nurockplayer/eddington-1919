@@ -1202,6 +1202,9 @@ msgstr "Sir… do you truly not believe it?"
 msgid "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？"
 msgstr "First your number: %s. The heavy line on the chart is your value plus or minus one error; the fine lines extending from each end mark twice the error. Within the fine-line range, which prediction fits?"
 
+msgid "先看你的數字：%s。粗線是你的數字加減一個誤差，細線是兩倍誤差。你自己判斷——你的底片支持哪一個？"
+msgstr "First, look at your numbers: %s. The thick line is your value plus or minus one error; the thin line is twice the error. Judge for yourself—which prediction do your plates support?"
+
 msgid "先空拍一次，練練喊開始和停？"
 msgstr "A dry run first, to practise calling start and stop?"
 
@@ -1703,6 +1706,9 @@ msgstr "Small"
 msgid "少了%s。"
 msgstr "It is missing %s."
 
+msgid "尚無定論"
+msgstr "Inconclusive"
+
 msgid "就算戰爭還沒結束，也照計畫準備"
 msgstr "Prepare as planned even if the war is not over"
 
@@ -2097,6 +2103,15 @@ msgstr "Rub it out and write the correct figure over it."
 
 msgid "擦改的墨跡還留在紙上"
 msgstr "The rubbed-out ink still shows on the paper."
+
+msgid "支持 0.87″"
+msgstr "Supports 0.87″"
+
+msgid "支持 0（光不偏折）"
+msgstr "Supports 0 (no deflection of light)"
+
+msgid "支持 1.75″"
+msgstr "Supports 1.75″"
 
 msgid "收好清單"
 msgstr "Put the list away"
@@ -2749,6 +2764,18 @@ msgstr "That covers a lot, but it's an answer. You wouldn't have said that befor
 msgid "納入量測"
 msgstr "Include"
 
+msgid "細線一個預測都容不下——先懷疑儀器。單憑這些底片，還不能支持 %s。"
+msgstr "The thin line contains none of the predictions—question the instrument first. These plates alone cannot yet support %s."
+
+msgid "細線只容得下 %s，排除另外兩個預測。說這些底片支持它，是公允的判斷。"
+msgstr "The thin line contains only %s and rules out the other two predictions. It is a fair reading to say these plates support it."
+
+msgid "細線容得下 %s；單憑這些底片，還不能支持 %s，排除其他預測。"
+msgstr "The thin line contains %s; these plates alone cannot yet support %s and rule out the other predictions."
+
+msgid "細線容得下多個預測，或一個都容不下。這些底片還不能分辨它們；說尚無定論，是誠實的判斷。"
+msgstr "The thin line contains several predictions, or none at all. These plates cannot yet distinguish between them; calling the result inconclusive is an honest reading."
+
 msgid "給 Kit："
 msgstr ""
 
@@ -2871,6 +2898,9 @@ msgstr "Before we come to the trouble—go and look at the orrery on the shelf."
 
 msgid "請坐。我是 Eddington。%s說，這是你寫的。"
 msgstr "Please sit down. I am Eddington. %s tells me this is yours."
+
+msgid "謹慎沒有錯。不過，細線只容得下 %s，排除另外兩個預測；這些底片確實支持一個判斷。"
+msgstr "There is no fault in caution. Still, the thin line contains only %s and rules out the other two predictions; these plates do support a judgement."
 
 msgid "謹慎沒有錯。只是——我們的好底片確實指向較大的偏折，不必把它說得比實際更弱。"
 msgstr "Caution is no fault. Only—our good plates do point to the larger deflection; there is no need to make it sound weaker than it is."

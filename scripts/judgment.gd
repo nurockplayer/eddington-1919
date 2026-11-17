@@ -52,7 +52,7 @@ static func interval_bounds(sim) -> Dictionary:
 	var c: Dictionary = sim.combined()
 	var lo := ("%.2f" % (c.value - 2*c.sigma)).to_float()
 	var hi := ("%.2f" % (c.value + 2*c.sigma)).to_float()
-	for prediction in [sim.HALF, sim.EINSTEIN]:
+	for prediction in [0.0, sim.HALF, sim.EINSTEIN]:
 		var contained: bool = absf(c.value - prediction) / c.sigma <= 2.0
 		if contained:
 			if lo > prediction:
@@ -66,6 +66,26 @@ static func interval_bounds(sim) -> Dictionary:
 			else:
 				hi = prediction - 0.01
 	return {"lo": lo, "hi": hi}
+
+
+static func verdict_truth(sim) -> int:
+	var c: Dictionary = sim.combined()
+	if c.n == 0:
+		return 3
+	var contained: Array[int] = []
+	var predictions := [0.0, sim.HALF, sim.EINSTEIN]
+	for i in 3:
+		if absf(c.value - predictions[i]) / c.sigma <= 2.0:
+			contained.append(i)
+	return contained[0] if contained.size() == 1 else 3
+
+
+static func verdict_class(verdict: int, truth: int) -> String:
+	if verdict == truth:
+		return "consistent"
+	if verdict == 3 and truth < 3:
+		return "underclaim"
+	return "overclaim"
 
 
 static func interval_truth(sim) -> int:

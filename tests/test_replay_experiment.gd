@@ -34,8 +34,8 @@ func dialogue(game, choices := {}) -> void:
 		if entry.has("choices"):
 			var key: String = entry.get("key", "")
 			var index: int = choices.get(key, 1 if key == "press" else 0)
-			if key == "interval":
-				index = Judgment.interval_truth(game.sim)
+			if key == "verdict":
+				index = Judgment.verdict_truth(game.sim)
 			game.ui._choice_buttons[index].pressed.emit()
 		else:
 			game.ui._advance()

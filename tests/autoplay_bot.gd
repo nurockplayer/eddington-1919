@@ -237,7 +237,7 @@ func interact(target: Vector3) -> String:
 func talk(choices: Array = [], random_choices := true) -> void:
 	var guard := 60
 	var ci := 0
-	var interval_only: bool = main._pending == "interval"
+	var verdict_only: bool = main._pending == "verdict"
 	await _frames(3)
 	while main.ui.dialog_active() and guard > 0:
 		if continuation_helper and main.phase == main.Phase.CODA:
@@ -271,8 +271,8 @@ func talk(choices: Array = [], random_choices := true) -> void:
 			await _dwell()
 			await _tap(KEY_E)
 		await _frames(2)
-		# The interval hands off synchronously; leave the telegram for the next talk.
-		if interval_only and main._pending != "interval":
+		# The verdict hands off synchronously; leave the telegram for the next talk.
+		if verdict_only and main._pending != "verdict":
 			break
 
 
@@ -586,7 +586,7 @@ func _night() -> void:
 			tele = {"none": 3, "favors_e": 1, "ambiguous": 2, "favors_half": 2}[ev]
 			reason = 4 if Judgment.trailed_case(main.sim) else {"none": 3, "favors_e": 0, "ambiguous": 1, "favors_half": 1}[ev]
 	if main.sim.combined().n > 0:
-		await talk([Judgment.interval_truth(main.sim)])
+		await talk([Judgment.verdict_truth(main.sim)])
 	await talk([tele, reason])
 	await _wait(0.5)
 	await talk()

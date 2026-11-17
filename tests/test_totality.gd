@@ -54,6 +54,8 @@ func _run() -> void:
 	await _test_sfx_buffers()
 	await _test_viewer_note()
 	_test_interval_truth()
+	_test_verdict_truth()
+	_test_verdict_class()
 	_test_judgment_neither()
 	_test_judgment_prompt()
 	await _test_judgment_reasons()
@@ -488,7 +490,7 @@ func ogg_peak(stream: AudioStream, label: String) -> float:
 
 func _test_interval_truth() -> void:
 	var sim := Sim.new(1919)
-	check(Judgment.interval_truth(sim) == -1, "no measured plates means no interval answer")
+	check(Judgment.interval_truth(sim) == -1, "no measured plates means no verdict")
 	check(not Judgment.interval_holds_neither(sim), "no measurements is not a neither-contained interval")
 	# Exact classification wins; adjust rounded bounds only when they would change it.
 	# Fixture σ is the plate error; with conversion arc C the displayed interval
@@ -509,6 +511,52 @@ func _test_interval_truth() -> void:
 		check(lo == case[3] and hi == case[4], "displayed bounds preserve exact containment: %s to %s" % [lo, hi])
 		check((lo.to_float() <= sim.EINSTEIN and sim.EINSTEIN <= hi.to_float()) == (case[2] in [0, 1]), "displayed interval agrees about 1.75")
 		check((lo.to_float() <= sim.HALF and sim.HALF <= hi.to_float()) == (case[2] in [0, 2]), "displayed interval agrees about 0.87")
+
+
+class VerdictFixture extends RefCounted:
+	const HALF := 0.87
+	const EINSTEIN := 1.75
+	var result: Dictionary
+	func combined() -> Dictionary:
+		return result
+
+
+func _test_verdict_truth() -> void:
+	var sim := VerdictFixture.new()
+	for case in [[0.0, 0.1, 0], [0.87, 0.1, 1], [1.75, 0.1, 2],
+		[1.3, 0.3, 3], [0.4, 0.25, 3], [3.0, 0.1, 3]]:
+		sim.result = {"n": 1, "value": case[0], "sigma": case[1]}
+		check(Judgment.verdict_truth(sim) == case[2], "verdict for %.2f ± %.2f is %d" % case)
+		var bounds := Judgment.interval_bounds(sim)
+		for prediction in [0.0, sim.HALF, sim.EINSTEIN]:
+			check((bounds.lo <= prediction and prediction <= bounds.hi) == (absf(case[0] - prediction) / case[1] <= 2.0),
+				"displayed verdict bounds agree with containment at %s" % prediction)
+	for i in 3:
+		var prediction: float = [0.0, sim.HALF, sim.EINSTEIN][i]
+		for direction in [-1, 1]:
+			var value: float = prediction + direction * 0.25
+			# Derive σ from the exact floating-point distance: the endpoint is 2σ.
+			sim.result = {"n": 1, "value": value, "sigma": absf(value - prediction) / 2.0}
+			check(Judgment.verdict_truth(sim) == i, "prediction %s at endpoint %d is contained" % [prediction, direction])
+	for case in [[0.20, true, -0.10], [0.301, false, 0.01]]:
+		sim.result = {"n": 1, "value": case[0], "sigma": 0.15}
+		var bounds := Judgment.interval_bounds(sim)
+		check((absf(case[0]) / 0.15 <= 2.0) == case[1], "zero containment at %.3f ± 0.15" % case[0])
+		check(is_equal_approx(bounds.lo, case[2]) and ((bounds.lo <= 0.0) == case[1]), "rounded lower bound preserves zero containment")
+	sim.result = {"n": 0, "value": 0.0, "sigma": 0.0}
+	check(Judgment.verdict_truth(sim) == 3, "no measurements is inconclusive")
+
+
+func _test_verdict_class() -> void:
+	var table := [
+		["consistent", "overclaim", "overclaim", "overclaim"],
+		["overclaim", "consistent", "overclaim", "overclaim"],
+		["overclaim", "overclaim", "consistent", "overclaim"],
+		["underclaim", "underclaim", "underclaim", "consistent"],
+	]
+	for verdict in 4:
+		for truth in 4:
+			check(Judgment.verdict_class(verdict, truth) == table[verdict][truth], "verdict class %d/%d" % [verdict, truth])
 
 
 func _test_judgment_neither() -> void:
@@ -539,10 +587,10 @@ func _test_judgment_prompt() -> void:
 	var plain := Content.judgment_prompt(tele, reasons)
 	check(plain.map(func(line): return line.key) == ["telegram", "reason"], "judgment contains only telegram and reason")
 	var interval := "1.75″ ± 0.10″，兩倍誤差是 1.55″ 到 1.95″"
-	var prompt := Content.interval_prompt(interval)
-	check(prompt.map(func(line): return line.key) == ["interval"], "interval question is its own dialogue")
-	check(prompt[0].s == Content.E and prompt[0].t == "先看你的數字：%s。圖上的粗線是你的數字加減一個誤差，兩端延伸的細線是兩倍誤差。細線範圍裡，容得下哪一個預測？" % interval, "Eddington asks about the formatted interval")
-	check(prompt[0].choices == ["兩個都容得下（0.87″ 和 1.75″）", "只容得下 1.75″", "只容得下 0.87″", "兩個都不在裡面"], "interval choices use truth index order")
+	var prompt := Content.verdict_prompt(interval)
+	check(prompt.map(func(line): return line.key) == ["verdict"], "verdict is its own dialogue")
+	check(prompt[0].s == Content.E and prompt[0].t == "先看你的數字：%s。粗線是你的數字加減一個誤差，細線是兩倍誤差。你自己判斷——你的底片支持哪一個？" % interval, "Eddington neutrally asks for the player's verdict")
+	check(prompt[0].choices == ["支持 0（光不偏折）", "支持 0.87″", "支持 1.75″", "尚無定論"], "verdict choices use prediction index order")
 
 
 func _test_judgment_reasons() -> void:
@@ -569,8 +617,8 @@ func _test_judgment_reasons() -> void:
 	for action in game.ui.report_btn.get_parent().get_children() + [game.ui.include_box]:
 		check(not action.is_visible_in_tree() and action.disabled, "report hides and disables %s" % action.text)
 	check(game.ui.dialog_panel.get_index() > game.ui.viewer.get_index(), "dialogue draws and receives clicks above the viewer")
-	check(not game.ui.dialog_panel.get_global_rect().intersects(game.ui.chart.get_global_rect()), "interval choices leave the chart visible")
-	check(root.gui_get_focus_owner() == game.ui._choice_buttons[0], "report puts focus on the interval choices")
+	check(not game.ui.dialog_panel.get_global_rect().intersects(game.ui.chart.get_global_rect()), "verdict choices leave the chart visible")
+	check(root.gui_get_focus_owner() == game.ui._choice_buttons[0], "report puts focus on the verdict choices")
 	var selected: int = game.ui._viewer_sel
 	await _click_control(game.ui.thumbs.get_child(2))
 	game.ui.include_box.toggled.emit(false)
@@ -587,13 +635,13 @@ func _test_judgment_reasons() -> void:
 	check(game.ui.viewer_note.text.contains("%.2f–%.2f″" % [bounds.lo, bounds.hi]), "report note agrees with the prompt interval")
 	check(game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "report repeats the rule in the player's own words")
 	check(game._reasons[0].text.contains("%.2f″ ± %.2f″" % [c.value, c.sigma]), "judgment stores the combined value in the reason")
-	check(game.ui._seq[0].key == "interval" and game.ui._seq[0].t.contains("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, c.value - 2*c.sigma, c.value + 2*c.sigma]), "real judgment opens with the combined 2σ interval")
-	check(game.ui._seq.size() == 1 and game.ui._choice_buttons.size() == 4, "only interval choices exist before the answer")
+	check(game.ui._seq[0].key == "verdict" and game.ui._seq[0].t.contains("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, c.value - 2*c.sigma, c.value + 2*c.sigma]), "real judgment opens with the combined 2σ interval")
+	check(game.ui._seq.size() == 1 and game.ui._choice_buttons.size() == 4, "only verdict choices exist before the answer")
 	var evidence_before: Dictionary = game.sim.combined().duplicate(true)
 	game.ui._choose(0) # Wrong: this interval contains only 1.75″.
-	check(game._interval_answer == 0, "real interval dialogue stores the answer")
-	var correction_shown: bool = game.ui.text_label.text.contains("再看一次")
-	check(correction_shown and game.ui._choice_buttons.is_empty(), "wrong interval feedback is shown before telegram choices exist")
+	check(game._verdict == 0, "real verdict dialogue stores the answer")
+	var correction_shown: bool = game.ui.text_label.text.contains("還不能支持 零")
+	check(correction_shown and game.ui._choice_buttons.is_empty(), "wrong verdict feedback is shown before telegram choices exist")
 	check(game.ui.viewer.visible and game.ui._viewer_locked, "evidence stays visible during wrong-answer feedback")
 	# Stop this flow on a regression so later choices do not target the wrong entry.
 	if not correction_shown or not game.ui._choice_buttons.is_empty():
@@ -602,8 +650,8 @@ func _test_judgment_reasons() -> void:
 		await process_frame
 		return
 	check(game._pending == "judgment" and game.ui._seq_i == 0 and not game.ui._seq[0].has("choices"), "feedback leads the telegram sequence")
-	check(game.ui.text_label.text == "再看一次：範圍只容得下 1.75″。\n看圖上的細線：兩條預測線，哪一條落在細線裡面？", "wrong answer corrects containment and points at the chart")
-	check(game._grade.is_empty() and game.sim.combined() == evidence_before, "interval feedback leaves evidence and grading untouched")
+	check(game.ui.text_label.text == "細線容得下 1.75；單憑這些底片，還不能支持 零，排除其他預測。", "wrong answer corrects containment and points at the chart")
+	check(game._grade.is_empty() and game.sim.combined() == evidence_before, "verdict feedback leaves evidence and grading untouched")
 	game.ui._advance()
 	check(game.ui._seq[game.ui._seq_i].key == "telegram" and game.ui._choice_buttons.size() == Judgment.TELEGRAMS.size(), "telegram choices appear after feedback is advanced")
 	check(game.ui.viewer.visible and root.gui_get_focus_owner() == game.ui._choice_buttons[0], "telegram choices keep evidence visible and hold focus")
@@ -616,13 +664,31 @@ func _test_judgment_reasons() -> void:
 	var wrong_grade: Dictionary = game._grade.duplicate(true)
 	var wrong_reaction: Array = game.ui._seq.duplicate(true)
 	game._start_judgment()
-	game.ui._choose(Judgment.interval_truth(game.sim))
-	check(game.ui.text_label.text == "對，範圍就是這樣讀的。" and game.ui._choice_buttons.is_empty(), "correct interval answer is acknowledged before telegram choices")
+	game.ui._choose(Judgment.verdict_truth(game.sim))
+	check(game.ui.text_label.text == "細線只容得下 1.75，排除另外兩個預測。說這些底片支持它，是公允的判斷。" and game.ui._choice_buttons.is_empty(), "correct verdict is acknowledged before telegram choices")
 	game.ui._advance()
 	game.ui._choose(1)
 	game.ui._choose(0)
-	check(game._grade == wrong_grade and game._grade.score == wrong_grade.score, "right and wrong interval answers yield identical grading and score")
-	check(game.ui._seq == wrong_reaction, "interval feedback is absent from the unchanged grading reaction")
+	check(game._grade == wrong_grade and game._grade.score == wrong_grade.score, "right and wrong verdicts yield identical grading and score")
+	check(game.ui._seq == wrong_reaction, "verdict feedback is absent from the unchanged grading reaction")
+	var expected_classes := ["overclaim", "overclaim", "consistent", "underclaim"]
+	for verdict in 4:
+		game._start_judgment()
+		check(game._pending == "verdict" and game.ui._seq[0].key == "verdict", "Report opens the verdict stage")
+		check(game.ui._seq[0].t == "先看你的數字：%s。粗線是你的數字加減一個誤差，細線是兩倍誤差。你自己判斷——你的底片支持哪一個？" % ("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, bounds.lo, bounds.hi]), "real first choice contains no feedback")
+		game.ui._choose(verdict)
+		check(game._verdict == verdict and game._verdict_truth == 2 and game._verdict_class == expected_classes[verdict], "real results handler stores verdict and class %d" % verdict)
+		game.ui._advance()
+		check(game.ui._seq[game.ui._seq_i].key == "telegram", "every verdict advances to the telegram")
+		game.ui._choose(1)
+		game.ui._choose(0)
+		check(game._grade == wrong_grade, "verdict %d earns no telegram grading advantage" % verdict)
+	var story := root.get_node("Story")
+	var run_count: int = story.runs.size()
+	game._record_run()
+	check(story.runs.size() == run_count + 1 and story.runs[-1].verdict == 3 and story.runs[-1].verdict_class == "underclaim", "real run snapshot includes verdict and verdict_class")
+	story.runs.pop_back()
+
 	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true, "trail": 0.1, "value": 1.5496, "sigma": 0.1}]
 	_read_plate(game.sim, game.sim.plates[0])
 	game._start_judgment()
@@ -633,7 +699,7 @@ func _test_judgment_reasons() -> void:
 	check(game.ui.viewer_note.text.contains("1.29–1.81″"), "viewer note matches the judgment interval")
 	game.sim.plates = []
 	game._start_judgment()
-	check(game.ui._seq.map(func(line): return line.key) == ["telegram", "reason"], "real judgment skips the interval when nothing was measured")
+	check(game.ui._seq.map(func(line): return line.key) == ["telegram", "reason"], "real judgment skips the verdict when nothing was measured")
 	# The fifth reason through the real judgment path (no bot route reaches it).
 	game.sim.drive_rate_checked = false
 	game.sim.plates = [
@@ -642,7 +708,7 @@ func _test_judgment_reasons() -> void:
 	]
 	_read_included(game.sim)
 	game._start_judgment()
-	game.ui._choose(Judgment.interval_truth(game.sim))
+	game.ui._choose(Judgment.verdict_truth(game.sim))
 	game.ui._advance()
 	game.ui._choose(2)
 	game.ui._choose(4)

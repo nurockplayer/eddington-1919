@@ -1104,14 +1104,16 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			_finish_measurement()
 			_open_viewer()
 			ui.reselect_btn.grab_focus()
-		"interval":
-			_interval_answer = results.interval
+		"verdict":
+			_verdict = results.verdict
+			_verdict_truth = Judgment.verdict_truth(sim)
+			_verdict_class = Judgment.verdict_class(_verdict, _verdict_truth)
 			var tele := Judgment.telegram_choices()
 			var rea := _reasons.map(func(r): return L.t(r.text))
 			var against: Array = []
 			if sim.bet_pick >= 0:
 				against.append({"s": Content.E, "t": Content.bet_vs_plates(sim.bet_pick, Judgment.interval_bounds(sim))})
-			_say([{"s": Content.E, "t": Content.interval_feedback(_interval_answer, Judgment.interval_truth(sim))}] + against + (Content.press_eddington(sim.bet_pick) if sim.bet_pick >= 0 else []) + Content.judgment_prompt(tele, rea), "judgment")
+			_say([{"s": Content.E, "t": Content.verdict_feedback(_verdict, _verdict_truth, Judgment.interval_bounds(sim))}] + against + (Content.press_eddington(sim.bet_pick) if sim.bet_pick >= 0 else []) + Content.judgment_prompt(tele, rea), "judgment")
 		"judgment":
 			_pressed_eddington = int(results.get("press", -1)) == 0
 			_after_judgment(results)
@@ -1706,7 +1708,9 @@ func _on_report() -> void:
 
 
 var _grade: Dictionary
-var _interval_answer := -1
+var _verdict := -1
+var _verdict_truth := -1
+var _verdict_class := ""
 var _pressed_eddington := false
 var _telegram := 0
 var _reason := 0
@@ -1721,7 +1725,7 @@ func _start_judgment() -> void:
 	if c.n > 0:
 		var bounds := Judgment.interval_bounds(sim)
 		var interval := L.t("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″") % [c.value, c.sigma, bounds.lo, bounds.hi]
-		_say(Content.interval_prompt(interval), "interval")
+		_say(Content.verdict_prompt(interval), "verdict")
 	else:
 		_say(Content.judgment_prompt(tele, rea), "judgment")
 
@@ -1764,6 +1768,7 @@ func _record_run() -> void:
 	_run_record_index = Story.runs.size()
 	Story.runs.append({"seed": sim.run_seed, "exposures": exposures, "combined": c,
 		"rule_id": sim.rule_id, "bet": Story.bet.duplicate(true), "bet_pick": sim.bet_pick,
+		"verdict": _verdict, "verdict_class": _verdict_class,
 		"telegram_id": Judgment.TELEGRAMS[_telegram].id,
 		"reason_id": reasons[_reason].id, "reason_text": reasons[_reason].text,
 		"score": _grade.get("score", 0), "clean": _grade.clean,
