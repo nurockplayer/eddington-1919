@@ -36,9 +36,15 @@ No unwrapped CJK literal outside an allowlist; every msgid present in en, ja, ko
 | 參考星 | reference star | 基準星 | 기준성 |
 | 機率誤差 | probable error | 確率誤差 | 확률 오차 |
 | 兩倍誤差 | twice the error (a probable error doubled is not 2σ) | 誤差の2倍 | 오차의 2배 |
+| 支持 | supports | 支持する | 지지한다 |
+| 排除 | rules out | 除外する | 배제한다 |
+| 未定 | inconclusive (verdict) / undecided (a person) | 未定 | 미정 |
+| 說不準 | can't say | わからない | 단정할 수 없다 |
 | 帳本 | ledger | 帳簿 | 장부 |
 | 閃爍比對 | blink comparison | ブリンク比較 | 블링크 비교 |
 | 太陽系儀 | orrery | オーラリー | 오러리 (태양계 모형) |
+
+未定 is an evidence verdict; 說不準 is a declined prediction. Do not mix them.
 
 **Forms of address.** Dyson is ダイソン卿 in Japanese and 다이슨 경 in Korean. Dyson is `Sir Frank` or `Dyson`, never `Mr Dyson` (knighted 1915); Eddington is `Professor Eddington` or `Eddington`, never `Mr Eddington`; Ashby is `Mr Ashby`.
 

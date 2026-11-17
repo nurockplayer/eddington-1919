@@ -57,7 +57,7 @@ msgid "\n第一次量：沒有量出任何數值。"
 msgstr "\nFirst measurement: no value came out."
 
 msgid "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
-msgstr "\nThe thin lines mark twice the error: Eddington's test is which prediction that range includes, and which one it excludes."
+msgstr "\nThe thin lines mark twice the error: Eddington's test is which prediction that range includes, and which one it rules out."
 
 msgid "\n（和你的底片放在一起看——兩套儀器、隔一個大西洋。）"
 msgstr "\n(Seen beside your plates—two instruments, an ocean apart.)"
@@ -1473,7 +1473,7 @@ msgid "問人是對的。可是人不一定都在。紙會在。"
 msgstr "Asking is right. But people aren't always there. Paper will be."
 
 msgid "單憑這張底片，仍無法判定。"
-msgstr "This plate alone cannot settle it."
+msgstr "This plate alone is still inconclusive."
 
 msgid "嗯。照實說。Dyson 先生讀得懂一張空白的底片。"
 msgstr "Mm. Say so. Dyson can read a blank plate."
@@ -3177,8 +3177,8 @@ msgstr "After measuring, keep only the plates that agree with the prediction"
 
 msgid "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。"
 msgid_plural "量得 %.2f″ ± %.2f″（%d 張）：兩倍誤差之內容得下 1.75″，也排除了 0.87″。"
-msgstr[0] "Measured %.2f″ ± %.2f″ (plates: %d): within twice the error, that includes 1.75″ and excludes 0.87″."
-msgstr[1] "Measured %.2f″ ± %.2f″ (plates: %d): within twice the error, that includes 1.75″ and excludes 0.87″."
+msgstr[0] "Measured %.2f″ ± %.2f″ (plates: %d): within twice the error, that includes 1.75″ and rules out 0.87″."
+msgstr[1] "Measured %.2f″ ± %.2f″ (plates: %d): within twice the error, that includes 1.75″ and rules out 0.87″."
 
 msgid "量得 %.2f″ ± %.2f″，誤差還太大；需要 Sobral 的結果與回國後的完整量測。"
 msgstr "Measured %.2f″ ± %.2f″, but the error is still too large; we need the Sobral results and full measurements after we return home."
@@ -3220,7 +3220,7 @@ msgid "關閉"
 msgstr "Close"
 
 msgid "隔著雲，星少，未定"
-msgstr "Through cloud, stars few, result undecided"
+msgstr "Through cloud, stars few, inconclusive"
 
 msgid "隔著雲，有希望"
 msgstr "Through cloud, hopeful"
