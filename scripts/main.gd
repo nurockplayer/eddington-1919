@@ -1628,7 +1628,6 @@ func _refresh_viewer() -> void:
 		else:
 			tag = L.t("現在押的：說不準") if sim.bet_pick == 3 else L.t("現在押的")
 		ledger.append({"pick": sim.bet_pick, "kind": "current", "tag": tag})
-	ui.chart.set_ledger(ledger)
 	var sel: int = sim.plates.filter(func(p): return p.included).size()
 	var note := L.t("共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。") % [sim.plates.size(), sel]
 	if sim.measured:
