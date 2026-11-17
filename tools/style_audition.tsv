@@ -1,4 +1,4 @@
-# variant	extra user args (after --); tuned by the art director
-silver	--style=silver --bench-cloud-t=215
-poster	--style=poster --bench-cloud-t=215
+# variant	extra user args (after --); tuned by the art director (2026-11-17 JST, rounds 2 and 3)
+silver	--style=silver --bench-cloud-t=215 --style-set=totality_gain=0.5,soft=0.10,far_soft=0.2,volumetric_fog=0,contrast=1.35,vignette=0.3,fog_density=0.004,glow=1.2
+poster	--style=poster --bench-cloud-t=215 --style-set=corona_fall=2.0,streamer=1.8,streamer_reach=0.15,corona_3=0.012,corona_2=0.06,veil=0.8,cloud_rough=0.12,ambient_totality=1.4
 engraving	--style=engraving --bench-cloud-t=215

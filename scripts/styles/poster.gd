@@ -11,7 +11,7 @@ const Palette := preload("res://scripts/palette.gd")
 ## Every key is a float and can be overridden with --style-set. Keys listed in
 ## UNIFORMS are shader uniforms of the same name; the others are read here.
 const PARAMS := {
-	"gain": 0.78, "sat": 1.15, "sky_bands": 5.0, "cloud_lo": 0.50, "cloud_hi": 0.74, "veil": 0.55,
+	"gain": 0.78, "sat": 1.15, "sky_bands": 5.0, "cloud_lo": 0.50, "cloud_hi": 0.74, "cloud_rough": 0.0, "veil": 0.55,
 	"haze_k": 0.012, "haze_max": 0.88, "haze_turn": 0.45,
 	"corona_fall": 3.2, "corona_base": 0.35, "streamer": 1.3, "streamer_reach": 0.25,
 	"corona_1": 0.30, "corona_2": 0.11, "corona_3": 0.035, "star_px": 2.2,
@@ -20,13 +20,13 @@ const PARAMS := {
 	"vignette": 0.0, "grain": 0.04, "fov": 60.0,
 }
 const UNIFORMS := [
-	"gain", "sat", "sky_bands", "cloud_lo", "cloud_hi", "veil", "haze_k", "haze_max", "haze_turn",
+	"gain", "sat", "sky_bands", "cloud_lo", "cloud_hi", "cloud_rough", "veil", "haze_k", "haze_max", "haze_turn",
 	"corona_fall", "corona_base", "streamer", "streamer_reach", "corona_1", "corona_2", "corona_3", "star_px",
 ]
 ## The inks, as display colours (the uniforms are source_color).
 const INKS := {
-	"sky_top": Color(0.30, 0.56, 0.62), "sky_low": Color(0.96, 0.87, 0.68),
-	"cloud_a": Color(0.98, 0.94, 0.84), "cloud_b": Color(0.78, 0.72, 0.74),
+	"sky_top": Color(0.24, 0.52, 0.66), "sky_low": Color(0.96, 0.87, 0.68),
+	"cloud_a": Color(0.98, 0.94, 0.84), "cloud_b": Color(0.86, 0.82, 0.80),
 	"sun_ink": Color(1.0, 0.96, 0.80),
 	"tot_top": Color(0.055, 0.075, 0.20), "tot_mid": Color(0.16, 0.17, 0.38), "tot_low": Color(0.86, 0.47, 0.30),
 	"tot_cloud_a": Color(0.13, 0.14, 0.30), "tot_cloud_b": Color(0.08, 0.09, 0.21),

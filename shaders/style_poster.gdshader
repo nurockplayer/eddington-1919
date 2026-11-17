@@ -22,10 +22,10 @@ uniform float star_vis = 0.0;
 uniform vec2 star_pos[12];                     // in solar radii about the Sun
 
 // The inks. Set from scripts/styles/poster.gd (INKS).
-uniform vec3 sky_top : source_color = vec3(0.30, 0.56, 0.62);
+uniform vec3 sky_top : source_color = vec3(0.24, 0.52, 0.66);
 uniform vec3 sky_low : source_color = vec3(0.96, 0.87, 0.68);
 uniform vec3 cloud_a : source_color = vec3(0.98, 0.94, 0.84);
-uniform vec3 cloud_b : source_color = vec3(0.78, 0.72, 0.74);
+uniform vec3 cloud_b : source_color = vec3(0.86, 0.82, 0.80);
 uniform vec3 sun_ink : source_color = vec3(1.0, 0.96, 0.80);
 uniform vec3 tot_top : source_color = vec3(0.055, 0.075, 0.20);
 uniform vec3 tot_mid : source_color = vec3(0.16, 0.17, 0.38);
@@ -46,6 +46,7 @@ uniform float sat = 1.15;             // saturation of the lit geometry
 uniform float sky_bands = 5.0;        // flat bands from horizon to zenith
 uniform float cloud_lo = 0.50;        // cloud density where the cloud shape starts
 uniform float cloud_hi = 0.74;        // … and where its darker core starts
+uniform float cloud_rough = 0.0;      // small-scale break-up of the cloud edge before it is cut
 uniform float veil = 0.55;            // how far thin cloud lets the Sun or corona through
 uniform float haze_k = 0.012;         // haze per metre
 uniform float haze_max = 0.88;
@@ -94,7 +95,9 @@ void fragment() {
 	vec3 sky = mix(day, tot, darkness);
 
 	vec2 plane = d.xz / max(h, 0.06);
-	float dens = textureLod(cloud_tex, plane * cloud_scale - wind * cloud_time, 0.0).r;
+	vec2 cloud_uv = plane * cloud_scale - wind * cloud_time;
+	float dens = textureLod(cloud_tex, cloud_uv, 0.0).r;
+	dens += (textureLod(cloud_tex, cloud_uv * 4.7 + vec2(0.31, 0.67), 0.0).r - 0.5) * cloud_rough;
 	dens = mix(dens, 0.97, smoothstep(0.35, 0.05, h));
 	dens = h > 0.0 ? dens : 1.0;
 	float body = cut(cloud_lo, dens);

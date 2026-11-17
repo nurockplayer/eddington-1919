@@ -18,7 +18,7 @@ uniform vec3 paper : source_color = vec3(0.937, 0.902, 0.824);
 uniform vec3 ink_col : source_color = vec3(0.133, 0.110, 0.094);
 
 uniform float exposure = 2.2;
-uniform float totality_gain = 14.0;   // exposure multiplier at totality
+uniform float totality_gain = 1.5;    // exposure multiplier at totality
 uniform float night_gain = 6.0;
 uniform float resp_r = 0.60;          // channel mix of the tone (a "plate response")
 uniform float resp_g = 0.55;
@@ -26,6 +26,7 @@ uniform float resp_b = -0.15;
 uniform float tone_lo = 0.10;         // display tone that prints solid
 uniform float tone_hi = 0.80;         // display tone that stays bare paper
 uniform float sky_ink = 0.80;         // the sky never prints darker than this share
+uniform float sky_gain = 0.4;         // exposure of the day sky alone (below 1 rules it)
 uniform float line_px = 5.0;          // line spacing in pixels
 uniform float ray_px = 5.0;           // corona ray spacing in pixels
 uniform float ray_inner = 3.0;        // rays hold to this many solar radii …
@@ -42,7 +43,14 @@ uniform float edge_normal = 0.18;
 uniform float far_outline = 0.35;     // outline strength beyond 45 m
 uniform float wobble = 1.0;           // hand wobble of the lines
 uniform float wash = 0.0;             // 0 ink only … 1 hand-coloured
+uniform float wash_depth = 0.0;       // 0 the wash only tints … 1 it also carries the scene's value
+uniform float wash_floor = 0.25;      // darkest value of the wash
 uniform float paper_grain = 0.05;
+// Totality as a drawing on blue paper: dark ink, the lights heightened in white.
+uniform vec3 tot_paper : source_color = vec3(0.17, 0.21, 0.40);
+uniform float tot_wash = 1.0;         // 0 the page stays cream … 1 it turns to blue paper at totality
+uniform float heighten_lo = 0.55;     // tone where the white heightening starts
+uniform float heighten_hi = 0.85;
 uniform float ink_strength = 0.94;
 uniform float normal_from_depth = 0.0; // 1: normals from depth derivatives instead of the buffer
 
@@ -121,8 +129,9 @@ void fragment() {
 
 	// Tone: 1 = bare paper, 0 = solid ink.
 	float ex = exposure * mix(1.0, totality_gain, darkness) * mix(1.0, night_gain, night);
-	float lum = max(dot(c, vec3(resp_r, resp_g, resp_b)), 0.0) * ex;
+	float lum = max(dot(c, vec3(resp_r, resp_g, resp_b)), 0.0) * ex * (sky ? mix(sky_gain, 1.0, darkness) : 1.0);
 	float tone = pow(lum / (1.0 + lum), 0.4545);
+	float tone_raw = tone;
 	tone = clamp((tone - tone_lo) / max(tone_hi - tone_lo, 0.001), 0.0, 1.0);
 	float dark = 1.0 - tone;
 
@@ -210,6 +219,9 @@ void fragment() {
 	vec2 fp = FRAGCOORD.xy;
 	float fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
-	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash);
+	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
+	float blue = darkness * tot_wash;
+	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
+	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone) * blue);
 	ALBEDO = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
 }

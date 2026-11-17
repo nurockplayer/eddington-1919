@@ -6,11 +6,12 @@ if [ "$#" -lt 1 ]; then
   echo 'usage: tools/style_audition.sh <out dir> [variants.tsv]' >&2
   exit 2
 fi
-ONLY=${ONLY:-arrival,coelostat_still,totality_sky,dialogue} tools/look_matrix.sh "$1" "${2:-tools/style_audition.tsv}"
+FRAMES=${FRAMES:-arrival,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue}
+ONLY=${ONLY:-$FRAMES} tools/look_matrix.sh "$1" "${2:-tools/style_audition.tsv}"
 code=$?
 OUT=$1
 variants=${2:-tools/style_audition.tsv}
-frames=(arrival coelostat_still totality_sky dialogue)
+IFS=, read -r -a frames <<< "$FRAMES"
 names=()
 while IFS= read -r line || [ -n "$line" ]; do
   case "$line" in ''|\#*) continue ;; esac
@@ -26,7 +27,7 @@ if [ "${#names[@]}" -gt 0 ]; then
     tiles=()
     for frame in "${frames[@]}"; do tiles+=("$OUT/$name/$frame.png"); done
     sheet="$OUT/sheets/style-$name.jpg"
-    magick montage "${tiles[@]}" -tile 2x2 -geometry 1280x720+8+8 -background '#202020' -quality 92 "$sheet"
+    magick montage "${tiles[@]}" -tile 2x -geometry 1280x720+8+8 -background '#202020' -quality 92 "$sheet"
     echo "$sheet"
   done
   tiles=()

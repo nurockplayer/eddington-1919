@@ -53,7 +53,11 @@ const BOOKMARKS := [
 const AUDITION_BOOKMARKS := [
 	["coelostat_still", Vector3(1.5, 0.05, -4.9), Vector3(0.1, 1.15, -6.6), "prep_early"],
 	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-1.1, 1.35, -0.9), "prep_early"],
+	# Position and target are set in _run() from the Sun's azimuth.
+	["totality_wide", Vector3.ZERO, Vector3.ZERO, "totality"],
 ]
+const WIDE_FOV := 85.0
+const WIDE_BACK := 13.0
 const AUDITION_LINE := "我從早上就盯著那道雲縫。每次我開始相信它，它就合上。"
 
 var main
@@ -300,6 +304,16 @@ func _run() -> void:
 		main.player.global_position = b[1]
 		main.player.velocity = Vector3.ZERO
 		var target: Vector3 = b[2]
+		var fov: float = main.player.camera.fov
+		if b[0] == "totality_wide":
+			# Behind the camp on the Sun's azimuth, a wide lens: the two observers
+			# small at the foot of the frame, the Sun two thirds of the way up.
+			var sd: Vector3 = main.sim.sun_dir
+			var flat := Vector3(sd.x, 0.0, sd.z).normalized()
+			main.player.global_position = Vector3(0.0, 0.05, -1.4) - flat * WIDE_BACK
+			main.player.camera.fov = WIDE_FOV
+			var pitch := asin(sd.y) - deg_to_rad(WIDE_FOV / 3.0)
+			target = main.player.global_position + Vector3(0.0, 1.6, 0.0) + (flat * cos(pitch) + Vector3.UP * sin(pitch)) * 10.0
 		if target == Vector3.INF:
 			target = main._totality_aim_point()
 		await _frames(2)
@@ -310,12 +324,14 @@ func _run() -> void:
 		if b[0] == "dialogue":
 			main.ui.visible = true
 			main.ui.hud.visible = false
+			main.ui.title_panel.visible = false
 			main.ui.cambridge_portraits = true
 			main.ui.play([{"s": "Eddington", "t": AUDITION_LINE}])
 			await _frames(4)
 		var r := await _sample_bookmark(b[0], b[3])
 		if b[0] == "coelostat_still":
 			main.world.cottingham.visible = true
+		main.player.camera.fov = fov
 		if b[0] == "dialogue":
 			main.ui.dialog_panel.visible = false
 			main.ui.dialogue_portrait.hide()
