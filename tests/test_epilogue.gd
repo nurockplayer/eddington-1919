@@ -252,6 +252,8 @@ func _test_verdict_ledger() -> void:
 	run.merge({"verdict": 3, "verdict_truth": 1, "verdict_class": "underclaim"}, true)
 	var under := CONTENT.ledger(run, {}, {})
 	check(under.size() == 2 and under[0].t.contains("只容得下 0.87") and under[0].t.contains("排除"), "underclaim recalls truth before case")
+	run.erase("verdict_truth")
+	check(CONTENT.ledger(run, {}, {}) == baseline, "old underclaim run without truth keeps ledger playable")
 	run["verdict_class"] = "consistent"
 	check(CONTENT.ledger(run, {}, {}) == baseline, "consistent verdict leaves ledger unchanged")
 

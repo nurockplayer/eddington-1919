@@ -110,7 +110,7 @@ static func ledger(run: Dictionary, bet_1917: Dictionary, bet_now: Dictionary) -
 	var names := [L.t("零"), "0.87", "1.75"]
 	if run.get("verdict_class", "") == "overclaim":
 		seq.append({"s": A, "t": L.t("你在暗房說底片支持 %s。帳上這一行，要寫得比那天小心。") % names[int(run.verdict)]})
-	elif run.get("verdict_class", "") == "underclaim":
+	elif run.get("verdict_class", "") == "underclaim" and run.has("verdict_truth"):
 		seq.append({"s": A, "t": L.t("你在暗房說尚無定論。可是你的底片只容得下 %s，另外兩個都排除了——帳上可以寫得比那天有把握。") % names[int(run.verdict_truth)]})
 	seq.append({"s": A, "t": _case_line(run)})
 	return seq
