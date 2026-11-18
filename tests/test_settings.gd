@@ -260,20 +260,20 @@ func _check_pause_menu() -> void:
 	await process_frame
 	var mic_buttons := 0
 	for button in ui.pause_panel.find_children("*", "Button", true, false):
-		if button.text.begins_with("顯微測微器步幅："):
+		if button.text.begins_with("測微器步幅："):
 			mic_buttons += 1
 			Settings.mic_step = 1.0
 			button.pressed.emit()
 			Settings.mic_step = 0.0
 			Settings.load_settings()
-			check(Settings.mic_step == 2.0 and button.text == "顯微測微器步幅：2.0×", "pause step button cycles and saves")
-		elif button.text.begins_with("顯微測微器大十字線："):
+			check(Settings.mic_step == 2.0 and button.text == "測微器步幅：2.0×", "pause step button cycles and saves")
+		elif button.text.begins_with("測微器大十字線："):
 			mic_buttons += 1
 			Settings.mic_large_cross = false
 			button.pressed.emit()
 			Settings.mic_large_cross = false
 			Settings.load_settings()
-			check(Settings.mic_large_cross and button.text == "顯微測微器大十字線：開", "pause crosshair button toggles and saves")
+			check(Settings.mic_large_cross and button.text == "測微器大十字線：開", "pause crosshair button toggles and saves")
 	check(mic_buttons == 2, "pause menu has both micrometer settings")
 	var sliders: Array[Node] = ui.pause_panel.find_children("*", "HSlider", true, false)
 	check(sliders.size() == 3, "real pause menu has three sliders")

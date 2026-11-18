@@ -3285,13 +3285,13 @@ msgstr "Music: On"
 msgid "音樂：關"
 msgstr "Music: Off"
 
-msgid "顯微測微器大十字線：開"
+msgid "測微器大十字線：開"
 msgstr "Micrometer large crosshair: On"
 
-msgid "顯微測微器大十字線：關"
+msgid "測微器大十字線：關"
 msgstr "Micrometer large crosshair: Off"
 
-msgid "顯微測微器步幅：%s×"
+msgid "測微器步幅：%s×"
 msgstr "Micrometer step: %s×"
 
 msgid "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"

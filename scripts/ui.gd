@@ -1141,6 +1141,10 @@ func _mic_drag_to(local: Vector2) -> void:
 	set_micrometer_reading((plate_point - _mic_star_point()).dot(_mic_dir()))
 
 
+static func _mic_tick_step(screen_unit_px: float) -> int:
+	return maxi(1, ceili(5.0 / screen_unit_px))
+
+
 func _draw_micrometer() -> void:
 	if not micrometer_on or _viewer_sel < 0 or _plate_texture == null:
 		return
@@ -1152,20 +1156,33 @@ func _draw_micrometer() -> void:
 		return
 	var along := one_px.normalized()
 	var across := along.orthogonal()
-	mic_overlay.draw_line(_plate_to_local(star - dir * 14.0), _plate_to_local(star + dir * 70.0),
-		Color(ACCENT, 0.22), 1.0)
-	# Graduations stay on the night-position ruler, independent of plate values.
+	var screen_unit_px := mic_overlay.get_screen_transform().basis_xform(one_px).length()
+	var step := _mic_tick_step(screen_unit_px)
+	# Offset the ruler from the evidence; keep zero aligned with the blue circle.
+	var ruler_zero := night + across * 24.0
+	mic_overlay.draw_line(ruler_zero - one_px * 14.0, ruler_zero + one_px * 70.0,
+		Color(ACCENT, 0.22), 1.0, true)
+	# Thin out graduations in screen space, including the window's canvas stretch.
 	for unit in range(-14, 71):
-		var tick := _plate_to_local(star + dir * float(unit))
-		var half_length := 5.0 if unit % 5 == 0 else 2.5
+		if unit % step != 0:
+			continue
+		var tick := ruler_zero + one_px * float(unit)
+		var major := unit % (step * 2) == 0
+		var half_length := 8.0 if major else 3.0
 		mic_overlay.draw_line(tick - across * half_length, tick + across * half_length,
-			Color(ACCENT, 0.35), 1.0)
+			Color(ACCENT, 0.35), 1.0, true)
+		if major:
+			mic_overlay.draw_string(font, tick + across * 11.0 + Vector2(0, 3), str(unit),
+				HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(10), Color(ACCENT, 0.35))
 	mic_overlay.draw_arc(night, 5.0, 0.0, TAU, 20, Color(0.74, 0.84, 0.96, 0.85), 1.0, true)
 	var cross := _plate_to_local(star + dir * micrometer_px)
 	var arm := 16.0 if Settings.mic_large_cross else 9.0
 	var width := 2.5 if Settings.mic_large_cross else 1.5
-	mic_overlay.draw_line(cross - across * arm, cross + across * arm, ACCENT, width)
-	mic_overlay.draw_line(cross - along * arm, cross + along * arm, ACCENT, width)
+	mic_overlay.draw_line(cross - across * arm, cross + across * arm, ACCENT, width, true)
+	mic_overlay.draw_line(cross - along * arm, cross + along * arm, ACCENT, width, true)
+	var index := cross + across * 14.0
+	mic_overlay.draw_polyline(PackedVector2Array([index - across * 3.0 - along * 3.0,
+		index, index - across * 3.0 + along * 3.0]), ACCENT, 1.5, true)
 	var label_pos := night - along * 34.0 + across * 12.0
 	mic_overlay.draw_string(font, label_pos, L.t("夜裡的位置"), HORIZONTAL_ALIGNMENT_LEFT, -1,
 		Settings.fs(13), Color(0.74, 0.84, 0.96, 0.9))
@@ -1925,15 +1942,15 @@ func _build_pause(root: Control) -> void:
 	var help := _button(L.t("操作說明"))
 	help.pressed.connect(_open_help)
 	v.add_child(help)
-	var mic_step := _button(L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
+	var mic_step := _button(L.t("測微器步幅：%s×") % str(Settings.mic_step))
 	mic_step.pressed.connect(func():
 		Settings.cycle_mic_step()
-		mic_step.text = L.t("顯微測微器步幅：%s×") % str(Settings.mic_step))
+		mic_step.text = L.t("測微器步幅：%s×") % str(Settings.mic_step))
 	v.add_child(mic_step)
-	var mic_cross := _button(L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關"))
+	var mic_cross := _button(L.t("測微器大十字線：開") if Settings.mic_large_cross else L.t("測微器大十字線：關"))
 	mic_cross.pressed.connect(func():
 		Settings.toggle_mic_large_cross()
-		mic_cross.text = L.t("顯微測微器大十字線：開") if Settings.mic_large_cross else L.t("顯微測微器大十字線：關")
+		mic_cross.text = L.t("測微器大十字線：開") if Settings.mic_large_cross else L.t("測微器大十字線：關")
 		mic_overlay.queue_redraw())
 	v.add_child(mic_cross)
 	_pause_title_btn = _button(L.t("回到標題"))

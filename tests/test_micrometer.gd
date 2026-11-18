@@ -76,6 +76,12 @@ func _check_feel() -> void:
 	var game := await _new_game([0.87, 1.75])
 	var ui = game.ui
 	ui.mic_btn.button_pressed = true
+	# 720p / 1080p, loupe off / x2: all pitches are measured in screen pixels.
+	for pitch in [2.2, 3.3, 4.4, 6.6]:
+		var tick_step: int = ui._mic_tick_step(pitch)
+		check(pitch * tick_step >= 5.0, "ruler tick pitch >= 5 screen px at unit pitch %s" % pitch)
+		check(tick_step == 1 or pitch * (tick_step - 1) < 5.0,
+			"ruler retains every graduation that fits at unit pitch %s" % pitch)
 	var saved_step: float = Settings.mic_step
 	for step in Settings.MIC_STEPS:
 		Settings.mic_step = step
