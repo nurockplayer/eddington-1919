@@ -53,8 +53,13 @@ uniform float far_cap = 0.55;         // darkest tone of distant land by day
 uniform float far_tot = 0.75;         // lightest tone of distant land at totality: a silhouette
 uniform float far_lod = 2.5;          // blur of the distant tone
 uniform float far_edge = 0.35;        // relative depth step that still draws a contour far away
-uniform float ground_cap = 0.72;      // darkest tone of level ground at totality (1 = may print solid)
-uniform float wash = 0.0;             // 0 ink only … 1 hand-coloured
+uniform float far_line = 0.0;         // contour strength of distant land (0 = its tone alone carries it)
+uniform float far_sky = 0.40;         // ink share of a clear day sky high up, the reference for far_step
+uniform float far_step = 0.10;        // by day distant land prints at least this much darker than clear sky
+uniform float sky_horizon = 0.5;      // share of the day sky's ruling left at the horizon (1 = even sky)
+uniform float sky_horizon_h = 0.45;   // altitude in radians where the sky's ruling is back at full weight
+uniform float ground_cap = 0.60;      // darkest tone of level ground at totality (1 = may print solid)
+uniform float wash = 0.35;            // 0 ink only … 1 hand-coloured
 uniform float wash_depth = 0.0;       // 0 the wash only tints … 1 it also carries the scene's value
 uniform float wash_floor = 0.25;      // darkest value of the wash
 uniform float paper_grain = 0.05;
@@ -149,6 +154,9 @@ void fragment() {
 	// 0 near … 1 distant land. By distance, not depth, so that turning the head changes nothing.
 	float dist_f = sky ? 0.0 : smoothstep(far_start, far_end, length(pv));
 	float elev = asin(clamp(ray_w.y, -1.0, 1.0));
+	// By day the sky's ruling thins toward the horizon, so distant land can stand a tone darker against it.
+	float lit = 1.0 - max(darkness, night);
+	float hz = mix(1.0, mix(sky_horizon, 1.0, smoothstep(0.0, sky_horizon_h, elev)), lit);
 	vec3 c = texture(screen_tex, uv).rgb;
 	vec3 c_t = textureLod(screen_tex, uv, max(mix(tone_lod, far_lod, dist_f) + log2(res_k), 0.0)).rgb;
 
@@ -175,10 +183,13 @@ void fragment() {
 	float tone_p = tone;   // the tone the page's heightening follows
 	if (sky) {
 		dark *= sky_ink;
+		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
+		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
+		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
 		// Ruling: lines of equal altitude, crossed by a tilted family where the sky is dark.
-		float i1 = hatch(elev, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55), l_px, 99.0);
+		float i1 = hatch(elev, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, l_px, 99.0);
 		float tilt = asin(clamp(dot(ray_w, normalize(vec3(0.62, 0.48, 0.62))), -1.0, 1.0));
-		float i2 = hatch(tilt, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55), l_px, 99.0);
+		float i2 = hatch(tilt, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, l_px, 99.0);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
@@ -244,10 +255,11 @@ void fragment() {
 		ink = max(ink, smoothstep(solid_lo, solid_hi, dark) * (1.0 - dist_f));
 		// Distant land: one ruling in the sky's own lines, between a floor and a cap of tone.
 		float dark_far = clamp(max(dark, mix(far_floor, far_tot, darkness)), 0.0, mix(far_cap, 1.0, darkness));
-		float i_far = hatch(elev, k, clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, l_px, 99.0);
+		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85), (far_sky * hz + far_step) * lit);
+		float i_far = hatch(elev, k, cov_far * dist_f, l_px, 99.0);
 		ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
 		tone_p = mix(tone, 1.0 - dark_far, dist_f);
-		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z));
+		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
 	}
 	ink = max(ink, edge * outline);
 
