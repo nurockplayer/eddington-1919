@@ -123,7 +123,7 @@ rejected captures and this lane's generated `.godot`/Python caches are removed.
    baseline and the rejected first after-pass. Only two remain. Capture the
    corrected honest route at 1280×720, then inspect it at 1920×1080, with seed 7,
    speed 2, `--fixed-fps 60 --always-on-top`, using the ordinary prologue bot's
-   `--shots` mode. Honour the weekday/time/memory gates and finish by 14:30 JST.
+   `--shots` mode. Honour the presence/memory gates of `orb-test --heavy`.
    Copy the three named bookmarks to the planned `after-*.jpg` files at JPEG
    quality 85; retain exactly six JPEGs with the existing three before-images,
    and delete every other capture/receipt.
