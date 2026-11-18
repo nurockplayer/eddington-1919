@@ -1,20 +1,16 @@
 #!/bin/bash
 # Run each look variant and collect benchmark tables and contact sheets.
 # Run: orb-test --heavy --host -- tools/look_matrix.sh <out dir> [variants.tsv]
-# Owner rule: windowed Godot only Mon–Fri 09:00–15:00 JST.
+# Windowed Godot only while the host gate is open (`heavy-window --help`); orb-test --heavy waits for it.
 set -u
 
 if [ "$#" -lt 1 ]; then
   echo "usage: tools/look_matrix.sh <out dir> [variants.tsv]" >&2
   exit 2
 fi
-if [ "${WINDOWED_OK:-0}" != 1 ]; then
-  day=$(TZ=Asia/Tokyo date +%u)
-  hour=$(TZ=Asia/Tokyo date +%H)
-  if [ "$day" -ge 6 ] || [ "$((10#$hour))" -lt 9 ] || [ "$((10#$hour))" -ge 15 ]; then
-    echo "windowed Godot only Mon–Fri 09:00–15:00 JST" >&2
-    exit 2
-  fi
+if [ "${WINDOWED_OK:-0}" != 1 ] && command -v heavy-window >/dev/null 2>&1 && ! reason=$(heavy-window); then
+  echo "windowed Godot: heavy gate $reason" >&2
+  exit 2
 fi
 mkdir -p "$1" || exit 1
 OUT=$(cd "$1" && pwd) || exit 1

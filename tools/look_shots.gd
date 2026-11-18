@@ -1,6 +1,6 @@
 extends SceneTree
-## Fixed-camera stills of the decorations, for the windowed look (Owner rule:
-## windowed runs Mon–Fri 09:00–15:00 JST only). One run captures every view;
+## Fixed-camera stills of the decorations, for the windowed look (windowed runs
+## only through orb-test --heavy: `heavy-window --help`). One run captures every view;
 ## a view whose node is missing (branch not merged) is reported and skipped.
 ##
 ## Run: orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top \

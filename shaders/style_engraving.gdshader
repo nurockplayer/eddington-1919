@@ -5,7 +5,7 @@ render_mode unshaded, fog_disabled, depth_test_disabled, depth_draw_never, cull_
 // planes in world space cut by the surface, so lines stay on the surfaces; the
 // spacing follows the pixel footprint in octaves, each second line tapering out.
 
-uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
+uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear_mipmap;
 uniform sampler2D depth_tex : hint_depth_texture, repeat_disable, filter_nearest;
 uniform sampler2D normal_tex : hint_normal_roughness_texture, repeat_disable, filter_nearest;
 
@@ -42,6 +42,18 @@ uniform float edge_depth = 0.02;
 uniform float edge_normal = 0.18;
 uniform float far_outline = 0.35;     // outline strength beyond 45 m
 uniform float wobble = 1.0;           // hand wobble of the lines
+uniform float wobble_rel = 0.35;      // the wobble never exceeds this share of the line spacing
+uniform float tone_lod = 0.0;         // blur (mip level at 720 lines) of the tone the hatching follows
+// Distance: beyond far_start the land hands its surface lines over to one ruling of
+// equal altitude, the sky's own, so that far things are quiet and lie behind near ones.
+uniform float far_start = 25.0;
+uniform float far_end = 70.0;
+uniform float far_floor = 0.28;       // lightest tone of distant land (0 = bare paper)
+uniform float far_cap = 0.55;         // darkest tone of distant land by day
+uniform float far_tot = 0.75;         // lightest tone of distant land at totality: a silhouette
+uniform float far_lod = 2.5;          // blur of the distant tone
+uniform float far_edge = 0.35;        // relative depth step that still draws a contour far away
+uniform float ground_cap = 0.72;      // darkest tone of level ground at totality (1 = may print solid)
 uniform float wash = 0.0;             // 0 ink only … 1 hand-coloured
 uniform float wash_depth = 0.0;       // 0 the wash only tints … 1 it also carries the scene's value
 uniform float wash_floor = 0.25;      // darkest value of the wash
@@ -123,7 +135,6 @@ vec3 view_pos(sampler2D depth, vec2 uv, mat4 inv_proj) {
 
 void fragment() {
 	vec2 uv = SCREEN_UV;
-	vec3 c = texture(screen_tex, uv).rgb;
 	float raw = texture(depth_tex, uv).r;
 	bool sky = raw < 0.00001;
 	vec3 pv = view_pos(depth_tex, uv, INV_PROJECTION_MATRIX);
@@ -135,10 +146,15 @@ void fragment() {
 	float res_k = VIEWPORT_SIZE.y / 720.0;
 	float l_px = line_px * res_k;
 	float r_px = ray_px * res_k;
+	// 0 near … 1 distant land. By distance, not depth, so that turning the head changes nothing.
+	float dist_f = sky ? 0.0 : smoothstep(far_start, far_end, length(pv));
+	float elev = asin(clamp(ray_w.y, -1.0, 1.0));
+	vec3 c = texture(screen_tex, uv).rgb;
+	vec3 c_t = textureLod(screen_tex, uv, max(mix(tone_lod, far_lod, dist_f) + log2(res_k), 0.0)).rgb;
 
 	// Tone: 1 = bare paper, 0 = solid ink.
 	float ex = exposure * mix(1.0, totality_gain, darkness) * mix(1.0, night_gain, night);
-	float lum = max(dot(c, vec3(resp_r, resp_g, resp_b)), 0.0) * ex * (sky ? mix(sky_gain, 1.0, darkness) : 1.0);
+	float lum = max(dot(c_t, vec3(resp_r, resp_g, resp_b)), 0.0) * ex * (sky ? mix(sky_gain, 1.0, darkness) : 1.0);
 	float tone = pow(lum / (1.0 + lum), 0.4545);
 	float tone_raw = tone;
 	tone = clamp((tone - tone_lo) / max(tone_hi - tone_lo, 0.001), 0.0, 1.0);
@@ -151,14 +167,15 @@ void fragment() {
 	vec3 p_d = view_pos(depth_tex, uv - vec2(0.0, o.y), INV_PROJECTION_MATRIX);
 	vec3 p_u = view_pos(depth_tex, uv + vec2(0.0, o.y), INV_PROJECTION_MATRIX);
 	float lap = abs(p_l.z + p_r.z - 2.0 * pv.z) + abs(p_d.z + p_u.z - 2.0 * pv.z);
-	float edge = smoothstep(edge_depth, edge_depth * 2.5, lap / z);
+	float e_thr = mix(edge_depth, far_edge, dist_f);
+	float edge = smoothstep(e_thr, e_thr * 2.5, lap / z);
 
 	vec3 n_v = vec3(0.0, 0.0, 1.0);
 	float ink = 0.0;
+	float tone_p = tone;   // the tone the page's heightening follows
 	if (sky) {
 		dark *= sky_ink;
 		// Ruling: lines of equal altitude, crossed by a tilted family where the sky is dark.
-		float elev = asin(clamp(ray_w.y, -1.0, 1.0));
 		float i1 = hatch(elev, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55), l_px, 99.0);
 		float tilt = asin(clamp(dot(ray_w, normalize(vec3(0.62, 0.48, 0.62))), -1.0, 1.0));
 		float i2 = hatch(tilt, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55), l_px, 99.0);
@@ -192,7 +209,7 @@ void fragment() {
 			vec3 n_d = normalize(texture(normal_tex, uv - vec2(0.0, o.y)).xyz * 2.0 - 1.0);
 			vec3 n_u = normalize(texture(normal_tex, uv + vec2(0.0, o.y)).xyz * 2.0 - 1.0);
 			float n_break = 1.0 - min(min(dot(n_v, n_l), dot(n_v, n_r)), min(dot(n_v, n_d), dot(n_v, n_u)));
-			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break));
+			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break) * (1.0 - dist_f));
 		}
 
 		// Three line families per surface. Flat surfaces are hatched in plan; all
@@ -200,6 +217,10 @@ void fragment() {
 		vec3 a1;
 		vec3 a2;
 		vec3 a3;
+		if (n_w.y > flat_at) {
+			// At totality level ground stays open ruling; what stands on it prints solid.
+			dark = min(dark, mix(1.0, ground_cap, darkness));
+		}
 		if (abs(n_w.y) > flat_at) {
 			a1 = vec3(0.940, 0.0, 0.342);
 			a2 = vec3(0.087, 0.0, 0.996);
@@ -210,16 +231,22 @@ void fragment() {
 			a2 = normalize(vec3(0.0, 0.8, 0.0) + t_h * 0.6);
 			a3 = normalize(vec3(0.0, 0.8, 0.0) - t_h * 0.6);
 		}
-		float wob = (vnoise(pw.xz * 1.7 + vec2(pw.y * 0.9)) - 0.5) * 0.04 * wobble;
-		float weight = 1.0 + (vnoise(pw.xz * 0.8 + vec2(pw.y * 1.3)) - 0.5) * 0.3 * wobble;
 		vec3 a1_v = (VIEW_MATRIX * vec4(a1, 0.0)).xyz;
 		vec3 a2_v = (VIEW_MATRIX * vec4(a2, 0.0)).xyz;
 		vec3 a3_v = (VIEW_MATRIX * vec4(a3, 0.0)).xyz;
-		float i1 = hatch(dot(pw, a1) + wob, grad_px(a1_v, n_v, q, z, k), clamp((dark - 0.06) * 1.7, 0.0, 0.55) * weight, l_px, 99.0);
+		float g1 = grad_px(a1_v, n_v, q, z, k);
+		float wob = (vnoise(pw.xz * 1.7 + vec2(pw.y * 0.9)) - 0.5) * min(0.04, wobble_rel * g1 * l_px) * wobble;
+		float weight = (1.0 + (vnoise(pw.xz * 0.8 + vec2(pw.y * 1.3)) - 0.5) * 0.3 * wobble) * (1.0 - dist_f);
+		float i1 = hatch(dot(pw, a1) + wob, g1, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * weight, l_px, 99.0);
 		float i2 = hatch(dot(pw, a2) + wob, grad_px(a2_v, n_v, q, z, k), clamp((dark - cross_at) * 1.6, 0.0, 0.55) * weight, l_px, 99.0);
 		float i3 = hatch(dot(pw, a3) - wob, grad_px(a3_v, n_v, q, z, k), clamp((dark - third_at) * 2.2, 0.0, 0.60) * weight, l_px, 99.0);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2) * (1.0 - i3);
-		ink = max(ink, smoothstep(solid_lo, solid_hi, dark));
+		ink = max(ink, smoothstep(solid_lo, solid_hi, dark) * (1.0 - dist_f));
+		// Distant land: one ruling in the sky's own lines, between a floor and a cap of tone.
+		float dark_far = clamp(max(dark, mix(far_floor, far_tot, darkness)), 0.0, mix(far_cap, 1.0, darkness));
+		float i_far = hatch(elev, k, clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, l_px, 99.0);
+		ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
+		tone_p = mix(tone, 1.0 - dark_far, dist_f);
 		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z));
 	}
 	ink = max(ink, edge * outline);
@@ -231,10 +258,10 @@ void fragment() {
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	float blue = darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
-	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone) * blue);
+	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone_p) * blue);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
-	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone) * nw);
+	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
 	ALBEDO = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
 }
