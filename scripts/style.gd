@@ -42,6 +42,24 @@ static func from_args(args: Dictionary) -> RefCounted:
 func apply(main: Node) -> void:
 	impl.apply(main, self)
 	dress_dialogue(main.ui)
+	for label in main.find_children("*", "Label3D", true, false):
+		print_label(label)
+	main.get_tree().node_added.connect(_node_added.bind(main))
+	main.world.sun_crescents.material_override.set_shader_parameter("print_paper", Engraving.PAPER)
+	var firefly_ramp: Gradient = main.world.fireflies.color_ramp
+	for i in firefly_ramp.get_point_count():
+		firefly_ramp.set_color(i, Color(Engraving.PAPER, firefly_ramp.get_color(i).a))
+
+
+func _node_added(node: Node, main: Node) -> void:
+	if node is Label3D and main.is_ancestor_of(node):
+		print_label.call_deferred(node)
+
+
+func print_label(label: Label3D) -> void:
+	label.modulate = Engraving.INK
+	label.outline_modulate = Engraving.PAPER
+	label.outline_size = maxi(label.outline_size, 4)
 
 
 func light(main: Node, contact: float, darkness: float, night: float) -> void:
@@ -51,7 +69,7 @@ func light(main: Node, contact: float, darkness: float, night: float) -> void:
 func add_quad(main: Node, shader: Shader, uniforms := {}) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = shader
-	m.render_priority = RenderingServer.MATERIAL_RENDER_PRIORITY_MAX
+	m.render_priority = RenderingServer.MATERIAL_RENDER_PRIORITY_MIN
 	for k in params:
 		m.set_shader_parameter(k, params[k])
 	for k in uniforms:

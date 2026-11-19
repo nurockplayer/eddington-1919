@@ -85,7 +85,7 @@ totality staging, story and measurement code remain main's.
 
 ## Out of scope
 
-Alpha-blended signs, Sun crescents and fireflies can be hidden or drawn wrongly
-by the pass. HUD and menus retain their existing colours. Main's vegetation,
+Signs, Sun crescents and fireflies draw after the engraving pass in print palette
+colours. HUD and menus retain their existing colours. Main's vegetation,
 ridges, darkroom props and totality staging differ from the audition's four
 unmerged geometry PRs. These are reported on the captured bookmarks, not tuned.
