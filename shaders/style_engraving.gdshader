@@ -210,6 +210,7 @@ void fragment() {
 	float ink = 0.0;
 	float tone_p = tone;   // the tone the page's heightening follows
 	float bead = 0.0;
+	float bead_surround = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -229,7 +230,9 @@ void fragment() {
 		vec2 moon_c = vec2((1.0 - contact) * 2.1, 0.12 * (1.0 - contact));
 		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
 		float bead_r = diamond_radius * sqrt(diamond);
-		bead = diamond * front * (1.0 - smoothstep(bead_r * 0.8, max(bead_r, 0.00001), length(lp - bead_c)));
+		float bead_dist = length(lp - bead_c);
+		bead = diamond * front * (1.0 - smoothstep(bead_r * 0.8, max(bead_r, 0.00001), bead_dist));
+		bead_surround = diamond * front * smoothstep(1.0, 1.04, r) * (1.0 - smoothstep(0.4, 1.0, bead_dist));
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {
 			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
@@ -324,5 +327,7 @@ void fragment() {
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
 	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
-	ALBEDO = mix(mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength), paper, bead);
+	vec3 print_colour = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
+	print_colour = mix(print_colour, ink_col, bead_surround * 0.18);
+	ALBEDO = mix(print_colour, paper, bead);
 }
