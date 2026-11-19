@@ -168,11 +168,12 @@ func _check_forest(loop: MeshInstance3D, top: float) -> void:
 		# Mesh normals are octahedrally encoded and quantized by Godot.
 		check(normals[i].distance_to((inward + Vector3.UP).normalized()) < 0.0002, "forest normal faces inward and up")
 		var bearing := rad_to_deg(atan2(p.x, -p.z))
-		if is_zero_approx(uvs[i].y) and bearing >= -50.0 and bearing <= -25.0:
+		if is_equal_approx(uvs[i].y, 0.02) and bearing >= -50.0 and bearing <= -25.0:
 			low_columns += 1
 			check(p.y <= 0.45 * top + 0.1, "house/Sun sector lowered without squashing")
 		v_min = minf(v_min, uvs[i].y)
 		v_max = maxf(v_max, uvs[i].y)
 	check(low_columns > 0, "forest samples the low sector")
-	check(is_zero_approx(v_min) and is_equal_approx(v_max, 0.67), "forest UV crops bottom third")
+	# The top edge sits just inside the texture: at v = 0 the repeating sampler filters the opaque bottom row in.
+	check(is_equal_approx(v_min, 0.02) and is_equal_approx(v_max, 0.67), "forest UV crops bottom third, top edge off the wrap")
 	print("triangles ForestEdge/%s: %d" % [loop.name, _triangles(loop.mesh)])

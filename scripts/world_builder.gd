@@ -913,7 +913,9 @@ static func _forest_loop(half_side: float, radius: float, bottom: float, top: fl
 	for i in columns:
 		for corner: Vector2i in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 0), Vector2i(1, 1), Vector2i(0, 1)]:
 			var col := i + corner.x
-			st.set_uv(Vector2(float(col) / columns * tiles, corner.y * 0.67))
+			# The top edge stays off v = 0: the repeating sampler would filter the opaque
+			# bottom row into it and draw a thin fringe across the sky.
+			st.set_uv(Vector2(float(col) / columns * tiles, lerpf(0.02, 0.67, corner.y)))
 			st.set_normal(normals[col])
 			st.add_vertex(points[col] + Vector3.UP * ((top if corner.y == 0 else bottom) - shifts[col]))
 	return st.commit()

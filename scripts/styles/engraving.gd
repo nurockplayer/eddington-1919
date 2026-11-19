@@ -16,7 +16,7 @@ const PARAMS := {
 	"outline": 1.0, "outline_px": 1.3, "edge_depth": 0.02, "edge_normal": 0.18, "far_outline": 0.35,
 	"wobble": 1.0, "wobble_rel": 0.35, "tone_lod": 0.0,
 	"far_start": 25.0, "far_end": 70.0, "far_floor": 0.28, "far_cap": 0.55, "far_tot": 0.75, "far_lod": 2.5, "far_edge": 0.35, "ground_cap": 0.60,
-	"far_line": 0.0, "far_sky": 0.40, "far_step": 0.10, "far_in": 0.25, "wash_far": 1.0, "sky_horizon": 0.5, "sky_horizon_h": 0.45,
+	"far_line": 0.0, "far_sky": 0.40, "far_step": 0.16, "far_in": 0.25, "wash_far": 0.4, "sky_horizon": 0.5, "sky_horizon_h": 0.45,
 	"wash": 0.35, "wash_depth": 0.0, "wash_floor": 0.25, "tot_wash": 1.0, "heighten_lo": 0.55, "heighten_hi": 0.85, "night_wash": 1.0, "paper_grain": 0.05, "ink_strength": 0.94, "normal_from_depth": 0.0,
 	"sun_floor": 0.9, "sun_gain": 1.8, "ambient": 0.45, "shadow_blur": 0.4, "sun_angle": 0.3,
 	"ssao": 1.0, "fog_density": 0.006, "vignette": 0.12, "fov": 60.0,

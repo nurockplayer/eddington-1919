@@ -55,9 +55,9 @@ uniform float far_lod = 2.5;          // blur of the distant tone
 uniform float far_edge = 0.35;        // relative depth step that still draws a contour far away
 uniform float far_line = 0.0;         // contour strength of distant land (0 = its tone alone carries it)
 uniform float far_sky = 0.40;         // ink share of a clear day sky high up, the reference for far_step
-uniform float far_step = 0.10;        // by day distant land prints at least this much darker than clear sky
+uniform float far_step = 0.16;       // by day distant land prints at least this much darker than clear sky
 uniform float far_in = 0.25;          // share of the way to far_end by which that floor is fully in
-uniform float wash_far = 1.0;         // share of the wash left on distant land
+uniform float wash_far = 0.4;        // share of the wash left on distant land
 uniform float sky_horizon = 0.5;      // share of the day sky's ruling left at the horizon (1 = even sky)
 uniform float sky_horizon_h = 0.45;   // altitude in radians where the sky's ruling is back at full weight
 uniform float ground_cap = 0.60;      // darkest tone of level ground at totality (1 = may print solid)
