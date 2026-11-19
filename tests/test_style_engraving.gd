@@ -40,6 +40,8 @@ func _run() -> void:
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
+	_test_hud_paper(game)
+	await _test_choices_caption(game)
 	check(game._style != null and game._style.id == "engraving", "engraving by default")
 	check(Style.from_args({"no-grade": ""}) == null, "existing no-grade comparison preserved")
 	check(game.env.tonemap_mode == Environment.TONE_MAPPER_LINEAR, "linear tonemap")
@@ -99,3 +101,86 @@ func _run() -> void:
 	root.msaa_3d = saved_msaa
 	print("test_style_engraving: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _test_hud_paper(game: Node) -> void:
+	var ui: Node = game.ui
+	var was_title: bool = ui.title_panel.visible
+	var was_busy: bool = game._busy
+	ui.title_panel.hide()
+	game._busy = false
+	game._process_interaction(0)
+	check(ui.crosshair.modulate == Color.WHITE, "interaction cannot fade or tint the crosshair slip")
+	ui.title_panel.visible = was_title
+	game._busy = was_busy
+	check(ui.dialogue_portrait.disclosure.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "translated portrait caption wraps inside its card")
+	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
+		game._apply_light(0.62, state[0], -150.0, state[1])
+		var dark: bool = state[0] > 0 or state[1] > 0
+		for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption]:
+			check(label.has_theme_stylebox_override("normal"), "HUD text has its own slip: " + str(label.get_path()))
+			if label.has_theme_stylebox_override("normal"):
+				_check_slip(label.get_theme_stylebox("normal"), label.get_theme_color("font_color"), dark)
+		check(not ui.crosshair.has_theme_stylebox_override("normal"), "crosshair mark has no slip")
+		check(ui.crosshair.get_theme_constant("outline_size") > 0, "crosshair has a contrasting edge")
+		if state[1] > 0:
+			check(ui.dialog_panel.get_theme_stylebox("panel").bg_color == Engraving.INK, "night slips use warm page ink")
+		for panel in [ui.objectives.get_parent(), ui.tot_panel, ui.dialog_panel, ui.dialogue_portrait]:
+			var slip: StyleBoxFlat = panel.get_theme_stylebox("panel")
+			var text: Color = ui.hint_label.get_theme_color("font_color")
+			_check_slip(slip, text, dark)
+		check(ui.hint_label.get_theme_color("font_color") == ui.speaker_label.get_theme_color("font_color"), "dialogue hint has the same ink as its speaker")
+		check(ui.dialogue_portrait.disclosure.get_theme_color("font_color") == ui.hint_label.get_theme_color("font_color"), "portrait caption has the same ink as dialogue")
+		if dark:
+			check(ui.dialogue_portrait.image.self_modulate.get_luminance() < 0.5, "portrait paper takes the page wash")
+	game._apply_light(0.62, 0, -150, 0)
+	ui.set_objectives("[color=#a99]Grey line[/color]")
+	check(not ui.objectives.text.contains("[color"), "authored objective colour cannot override page ink")
+	ui.set_totality(true, "[color=#fd8]Exposure[/color]")
+	ui.set_prompt("Shutter")
+	check(not ui.prompt_label.visible and not ui.crosshair.visible, "totality leaves the corona free of central HUD")
+	check(not ui.tot_label.text.contains("[color"), "exposure colour cannot override page ink")
+	ui.set_totality(false)
+
+
+func _test_choices_caption(game: Node) -> void:
+	var ui: Node = game.ui
+	var title_visible: bool = ui.title_panel.visible
+	ui.title_panel.hide()
+	ui.play([{"s":"Eddington", "t":"Choice", "key":"choice", "choices":["First", "Second"]}])
+	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
+		game._apply_light(0.62, state[0], -150, state[1])
+		for selected in [0, 1]:
+			ui._choice_buttons[selected].grab_focus()
+			var chosen: Button = ui._choice_buttons[selected]
+			var other: Button = ui._choice_buttons[1 - selected]
+			var normal: StyleBoxFlat = other.get_theme_stylebox("normal")
+			var reverse: StyleBoxFlat = chosen.get_theme_stylebox("normal")
+			check(reverse.bg_color != normal.bg_color, "selected choice differs from normal in polarity " + str(state))
+			check(reverse.bg_color == other.get_theme_color("font_color") and chosen.get_theme_color("font_color") == normal.bg_color, "selected choice reverses ink and paper")
+			check(other.get_theme_stylebox("hover").border_width_left > normal.border_width_left, "unfocused hover has a heavier rule")
+			check(chosen.get_theme_stylebox("pressed").bg_color == reverse.bg_color, "pressed choice reverses too")
+	ui._choose(0)
+	var locale := L.current()
+	for language in ["en", "ja", "zh_TW", "ko"]:
+		L.apply(language)
+		var tween: Tween = ui.show_caption(L.t("接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"))
+		tween.kill()
+		await process_frame
+		var rect: Rect2 = ui.caption.get_global_rect()
+		var viewport: Rect2 = ui.caption.get_viewport_rect()
+		check(viewport.encloses(rect.grow(16)), language + " caption slip is inside viewport")
+		check(absf(rect.get_center().x - viewport.get_center().x) <= 2 and absf(rect.get_center().y - viewport.get_center().y) <= 2, language + " caption centred within 2 px")
+	L.apply(locale)
+	ui.caption.modulate.a = 0
+	ui.dialogue_portrait.hide()
+	ui.title_panel.visible = title_visible
+	game._apply_light(0.62, 0, -150, 0)
+
+
+func _check_slip(slip: StyleBoxFlat, text: Color, dark: bool) -> void:
+	check(slip.bg_color.a == 1.0, "slip is solid")
+	check((slip.bg_color.get_luminance() < text.get_luminance()) == dark, "slip follows page polarity")
+	var a := text.srgb_to_linear().get_luminance()
+	var b := slip.bg_color.srgb_to_linear().get_luminance()
+	check((maxf(a, b) + 0.05) / (minf(a, b) + 0.05) >= 4.5, "slip text contrast >= 4.5")
