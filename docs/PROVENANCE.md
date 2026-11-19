@@ -136,7 +136,7 @@ corona, and a diamond-ring bead at two o'clock. It is an illustrative eclipse
 symbol, not a depiction of the clouded Príncipe observation.
 `tools/render_icon.gd` uses Godot's `Image.load_svg_from_string` at native scale
 and `save_png` to generate the committed `assets/icon/icon_1024.png` for macOS.
-Rebuild with `orb-test --host -- godot --headless --path . --script res://tools/render_icon.gd`.
+Rebuild with `tachi-run --host -- godot --headless --path . --script res://tools/render_icon.gd`.
 `tests/test_release_export.gd` also renders a temporary 32 px PNG and checks the
 dark centre and bright bead, then removes it.
 
