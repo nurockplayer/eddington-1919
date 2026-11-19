@@ -19,6 +19,7 @@ uniform sampler2D return_night : source_color, repeat_disable, filter_nearest;
 uniform sampler2D return_day : source_color, repeat_disable, filter_nearest;
 uniform float return_radius = -1.0;
 uniform float return_band = 0.0349066;
+uniform float return_blend = -1.0; // endpoint glow into the live day print
 uniform float diamond_radius = 0.45; // core radius in solar radii
 uniform float diamond_spikes = 4.0; // longest spike in solar radii
 uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
@@ -196,7 +197,7 @@ void fragment() {
 	float z = max(-pv.z, 0.01);
 	vec3 ray_v = normalize(pv);
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
-	if (day_return_active) {
+	if (day_return_active && return_blend < 0.0) {
 		float distance = acos(clamp(dot(ray_w, sun_dir), -1.0, 1.0));
 		if (return_radius < 0.0 || distance > return_radius) {
 			ALBEDO = texture(return_night, uv).rgb;
@@ -448,5 +449,6 @@ void fragment() {
 		}
 	}
 	ALBEDO = mix(print_colour, paper, bead);
+	if (day_return_active) ALBEDO = mix(texture(return_day, uv).rgb, ALBEDO, return_blend);
 	}
 }

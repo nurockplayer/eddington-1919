@@ -11,8 +11,11 @@ var skies: Array[ShaderMaterial] = []
 var sources: Array[VisualInstance3D] = []
 var mirrors: Array = []
 var frozen_cloud := 0.0
-var day_gap := 0.0
 var settle_started := -1.0
+var camera_mask := 0
+var camera_environment: Environment
+var compositor: MeshInstance3D
+var compositor_layers := 0
 
 
 func started() -> bool:
@@ -29,10 +32,19 @@ func setup(game: Node, print_style: RefCounted) -> void:
 	main = game
 	style = print_style
 	frozen_cloud = main.t_game - 0.5 * main.sim.TIME_SCALE
-	day_gap = main.sky_mat.get_shader_parameter("third_contact_gap")
 	for visual in main.find_children("*", "VisualInstance3D", true, false):
 		if not visual.is_in_group("style_quad"):
 			sources.append(visual)
+	compositor = main.get_tree().get_first_node_in_group("style_quad")
+	compositor_layers = compositor.layers
+	compositor.layers = 1 << 19
+	camera_mask = main.player.camera.cull_mask
+	camera_environment = main.player.camera.environment
+	# Only the endpoint worlds need geometry during the crossing.
+	main.player.camera.cull_mask = 1 << 19
+	var empty := Environment.new()
+	empty.background_mode = Environment.BG_COLOR
+	main.player.camera.environment = empty
 	for index in 2:
 		var viewport := SubViewport.new()
 		viewport.own_world_3d = true
@@ -93,18 +105,24 @@ func setup(game: Node, print_style: RefCounted) -> void:
 
 func _sync() -> void:
 	style.quad_material.set_shader_parameter("return_radius", radius())
-	# The day plate initially keeps the contact veil and its welcome solar glow.
-	# Close it over 1.5 s once the trailing edge has left this view, rather than
-	# dropping the glow when the two endpoint worlds are released.
+	# Once this view is day and the native tween has finished, ease its glow
+	# into the live day print. Blending the prints avoids re-cutting hatch lines.
 	var farthest := 0.0
 	var camera: Camera3D = main.player.camera
 	for corner in [Vector2.ZERO, Vector2(main.get_viewport().size.x, 0), Vector2(main.get_viewport().size), Vector2(0, main.get_viewport().size.y)]:
 		farthest = maxf(farthest, camera.project_ray_normal(corner).angle_to(main.sim.sun_dir))
-	if settle_started < 0.0 and radius() - deg_to_rad(style.params.return_width) >= farthest:
-		settle_started = elapsed
-	var settle := 0.0 if settle_started < 0.0 else smoothstep(0.0, 1.5, elapsed - settle_started)
-	for material in [skies[1], materials[1]]:
-		material.set_shader_parameter("third_contact_gap", lerpf(day_gap, 0.0, settle))
+	var view_is_day := elapsed >= 3.0 and radius() - deg_to_rad(style.params.return_width) >= farthest
+	if view_is_day:
+		if settle_started < 0.0: settle_started = elapsed
+		camera.cull_mask = camera_mask | (1 << 19)
+		camera.environment = camera_environment
+		plates[0].render_target_update_mode = SubViewport.UPDATE_DISABLED
+		style.quad_material.set_shader_parameter("return_blend", smoothstep(0.0, 1.5, elapsed - settle_started))
+	else:
+		settle_started = -1.0
+		camera.cull_mask = 1 << 19
+		plates[0].render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		style.quad_material.set_shader_parameter("return_blend", -1.0)
 	for index in 2:
 		plates[index].size = main.get_viewport().size
 		cameras[index].global_transform = main.player.camera.global_transform
@@ -131,3 +149,10 @@ func _process(delta: float) -> void:
 		queue_free()
 		return
 	_sync()
+
+
+func _exit_tree() -> void:
+	if is_instance_valid(main.player.camera):
+		main.player.camera.cull_mask = camera_mask
+		main.player.camera.environment = camera_environment
+	if is_instance_valid(compositor): compositor.layers = compositor_layers

@@ -46,7 +46,7 @@ func _run() -> void:
 		front._sync()
 		front.elapsed += 1.5
 		front._sync()
-		check(front.skies[1].get_shader_parameter("third_contact_gap") == 0.0, "day veil reaches the live sky state before release")
+		check(game._style.quad_material.get_shader_parameter("return_blend") == 1.0, "day glow reaches the live print before release")
 		check(changes == 1, "HUD switches palette exactly once")
 		game.stop_all_audio()
 		game.free()

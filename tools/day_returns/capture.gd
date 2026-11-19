@@ -17,15 +17,20 @@ func _thick_cloud() -> void:
 			material.set_shader_parameter("practice_cloud", 0.97)
 			material.set_shader_parameter("third_contact_gap", 0.0)
 
-func _cost() -> void:
-	var file := FileAccess.open(base.path_join("cost.tsv"), FileAccess.WRITE)
+func plates_live() -> bool:
+	var front = game._style.impl.day_return
+	return is_instance_valid(front) and front.plates[0].render_target_update_mode == SubViewport.UPDATE_ALWAYS
+
+func _cost(stage: String) -> void:
+	var file := FileAccess.open(base.path_join("cost-" + stage + ".tsv"), FileAccess.WRITE)
 	file.store_line("rep\tsample\tforced_draw_ms\tboth_worlds_live")
+	for i in 30: RenderingServer.force_draw(false)
 	for rep in 3:
 		for i in 120:
 			var start := Time.get_ticks_usec()
 			RenderingServer.force_draw(false)
 			var ms := (Time.get_ticks_usec() - start) / 1000.0
-			file.store_line("%d\t%d\t%.6f\ttrue" % [rep, i, ms])
+			file.store_line("%d\t%d\t%.6f\t%s" % [rep, i, ms, plates_live()])
 	file.close()
 
 func _run() -> void:
@@ -61,13 +66,15 @@ func _run() -> void:
 		var band: float = deg_to_rad(game._style.params.return_width)
 		var ui_rects := []
 		for control in [game.ui.dialogue_portrait, game.ui.dialog_panel, game.ui.toast]:
-			if control.is_visible_in_tree(): ui_rects.append(rect_array(control.get_global_rect()))
+			if control.is_visible_in_tree(): ui_rects.append(rect_array(root.get_stretch_transform() * control.get_global_rect()))
 		snapshot("scratch/f_%05d.png" % i, {"contact_s": seconds, "front_radius": radius,
 			"front_band": band, "params": game._style.params, "sun_dir": xyz(game.sim.sun_dir),
 			"ui_rects": ui_rects, "practice_cloud": game.sky_mat.get_shader_parameter("practice_cloud"),
 			"third_contact_gap": game.sky_mat.get_shader_parameter("third_contact_gap")})
-		if measure and i == contact_frame + 90: _cost()
-		if thick and i == contact_frame + 42:
+		if measure and contact_frame >= 0:
+			for stage in {42: "bead", 90: "crossing", 210: "late"}:
+				if i == contact_frame + stage: _cost({42: "bead", 90: "crossing", 210: "late"}[stage])
+		if thick and contact_frame >= 0 and i == contact_frame + 42:
 			# At the native diamond peak, disable only the burst for a same-frame control.
 			front.materials[0].set_shader_parameter("diamond", 0.0)
 			RenderingServer.force_draw(false)

@@ -46,6 +46,7 @@ def main():
     source = SURVEY.read_text()
     survey = source.split('func sky_mask(')[0]
     survey += source[source.index('func prepare_plates('):source.index('func ', source.index('func evidence(') + 5)]
+    survey = survey.replace('[r.position.x,r.position.y,r.size.x,r.size.y]', 'rect_array(root.get_stretch_transform() * r)')
     survey = survey.replace('seed(7)', 'seed(_capture_seed())')
     survey = survey.replace('root.add_child(game)', 'game.next_seed = _capture_seed()\n\troot.add_child(game)')
     (out / 'tools/survey.gd').write_text(survey + '\nfunc _capture_seed() -> int:\n\tfor arg in OS.get_cmdline_user_args():\n\t\tif arg.begins_with("--seed="):\n\t\t\treturn int(arg.trim_prefix("--seed="))\n\treturn 7\n\nfunc _run() -> void:\n\tpass\n')
@@ -76,7 +77,7 @@ def main():
                 record['variant'] = name
                 record['clip'] = f'clips/{name}.mp4'
                 receipts.write(json.dumps(record) + '\n')
-            if (folder / 'cost.tsv').exists(): shutil.copyfile(folder / 'cost.tsv', out / (name + '-cost.tsv'))
+            for cost in folder.glob('cost-*.tsv'): shutil.copyfile(cost, out / (name + '-' + cost.stem + '-cost.tsv'))
             if (folder / 'diamond-off.png').exists(): shutil.copyfile(folder / 'diamond-off.png', out / 'thick-diamond-off.png')
             shutil.rmtree(folder)
     # Compare the immutable main snapshot and candidate using the same native route.
