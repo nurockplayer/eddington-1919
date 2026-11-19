@@ -46,9 +46,9 @@ def main():
     # Reuse the survey's native state, framing and receipt helpers. Its inherited
     # _run is replaced; the canvas stays at the game's actual play scale.
     survey = SURVEY.read_text().split('func sky_mask(')[0]
-    survey = survey.replace('seed(7)', 'seed(int(OS.get_cmdline_user_args().filter(func(a): return a.begins_with("--seed="))[0].trim_prefix("--seed=")))')
-    survey = survey.replace('root.add_child(game)', 'game.next_seed = int(OS.get_cmdline_user_args().filter(func(a): return a.begins_with("--seed="))[0].trim_prefix("--seed="))\n\troot.add_child(game)')
-    (out / 'tools/survey.gd').write_text(survey + '\nfunc _run() -> void:\n\tpass\n')
+    survey = survey.replace('seed(7)', 'seed(_capture_seed())')
+    survey = survey.replace('root.add_child(game)', 'game.next_seed = _capture_seed()\n\troot.add_child(game)')
+    (out / 'tools/survey.gd').write_text(survey + '\nfunc _capture_seed() -> int:\n\tfor arg in OS.get_cmdline_user_args():\n\t\tif arg.begins_with("--seed="):\n\t\t\treturn int(arg.trim_prefix("--seed="))\n\treturn 7\n\nfunc _run() -> void:\n\tpass\n')
     for script in ('survey.gd', 'capture.gd'):
         run(['godot', '--headless', '--path', str(REPO), '--check-only', '--script', str(out / 'tools' / script)], out / 'tools' / (script + '-parse.log'))
     with (out / 'receipts.jsonl').open('w') as receipts:
