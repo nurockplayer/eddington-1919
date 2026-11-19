@@ -790,6 +790,9 @@ func _process(delta: float) -> void:
 			_process_totality(delta)
 		Phase.NIGHT, Phase.CODA:
 			_process_interaction(delta)
+	if _style != null:
+		for name in ["cloud_tex", "cloud_time", "practice_cloud", "wind", "cloud_scale"]:
+			_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
 	if phase != Phase.TITLE and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and _ui_free() and bot == null:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not get_tree().paused:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

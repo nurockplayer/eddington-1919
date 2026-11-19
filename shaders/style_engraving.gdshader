@@ -19,6 +19,12 @@ uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
 uniform float diamond_ray_floor = 0.70;
 uniform float diamond = 0.0;
 uniform float contact = 1.0;
+// The sky's live cloud field, including the rehearsal override.
+uniform sampler2D cloud_tex : repeat_enable, filter_linear;
+uniform float cloud_time = 0.0;
+uniform float practice_cloud = -1.0;
+uniform vec2 wind = vec2(0.0042, 0.0026);
+uniform float cloud_scale = 0.35;
 
 uniform vec3 paper : source_color = vec3(0.937, 0.902, 0.824);
 uniform vec3 ink_col : source_color = vec3(0.133, 0.110, 0.094);
@@ -232,7 +238,19 @@ void fragment() {
 		float front = step(0.0, dot(ray_w, sun_dir));
 		vec2 moon_c = vec2((1.0 - contact) * 2.1, 0.12 * (1.0 - contact));
 		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
-		float size = sqrt(diamond);
+		vec3 bead_dir = normalize(sun_dir + sun_r * (t1 * bead_c.x + t2 * bead_c.y));
+		float dens = texture(cloud_tex, bead_dir.xz / max(bead_dir.y, 0.06) * cloud_scale - wind * cloud_time).r;
+		dens = mix(dens, 0.97, smoothstep(0.35, 0.05, bead_dir.y));
+		if (practice_cloud >= 0.0) {
+			dens = mix(dens, practice_cloud, smoothstep(0.96, 0.995, dot(bead_dir, sun_dir)));
+		}
+		dens = mix(dens, dens * 0.55, night);
+		// The sky composites solar light with this transmission. Carry it by
+		// area on the page, keeping the burst bare paper rather than grey.
+		float alpha = clamp(dens * 1.08, 0.0, 1.0);
+		float transmission = (1.0 - alpha) * (1.0 + 0.15 * alpha);
+		float visible_diamond = diamond * transmission;
+		float size = sqrt(visible_diamond);
 		vec2 bp = lp - bead_c;
 		float bead_dist = length(bp);
 		// Fixed unequal rays, each narrowing to a point as it leaves the core.
@@ -248,14 +266,14 @@ void fragment() {
 			if (inward > 0.0) reach = min(reach, 0.333 / inward);
 			spikes = max(spikes, step(0.0, along) * step(along, reach) * step(across, diamond_radius * size * 0.36 * (1.0 - along / max(reach, 0.00001))));
 		}
-		bead = front * step(0.000001, diamond) * max(step(bead_dist, diamond_radius * size), spikes);
-		moon_ink = front * step(0.000001, diamond) * step(r, 1.0);
+		bead = front * step(0.000001, visible_diamond) * max(step(bead_dist, diamond_radius * size), spikes);
+		moon_ink = front * step(0.000001, visible_diamond) * step(r, sqrt(transmission));
 
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {
 			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
 			float g_ang = k / (6.2831853 * max(r * sun_r, 0.0001));
-			float ray_dark = mix(dark, max(dark, diamond_ray_floor), diamond * diamond_rays * (1.0 - smoothstep(1.0, 3.0, r)));
+			float ray_dark = mix(dark, max(dark, diamond_ray_floor), visible_diamond * diamond_rays * (1.0 - smoothstep(1.0, 3.0, r)));
 			float rays = hatch(ang, g_ang, clamp((ray_dark - 0.04) * 1.5, 0.0, 0.8), r_px, -3.0);
 			rays = max(rays, 1.0 - smoothstep(0.96, 1.0, r));     // the Moon's disc prints solid
 			ink = mix(ink, rays, w_rays);
