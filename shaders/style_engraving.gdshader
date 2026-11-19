@@ -56,7 +56,7 @@ uniform float far_edge = 0.35;        // relative depth step that still draws a 
 uniform float ground_rule = 1.0;      // at totality level ground is ruled in the sky's lines alone (0 = its plan hatching)
 uniform float ground_mottle = 0.7;    // the ruled ground's lines swell and thin in patches fixed to the ground (0 = an even tint, 1 = up to the heaviest line)
 uniform float ground_grain = 2.0;     // the smallest patch spans this many lines of the ruling, at any distance
-uniform float ground_edge = 0.6;      // 0 the patches melt into each other … 1 they have an edge
+uniform float ground_edge = 0.85;     // 0 the patches melt into each other … 1 they have an edge
 uniform float far_line = 0.0;         // contour strength of distant land (0 = its tone alone carries it)
 uniform float far_sky = 0.40;         // ink share of a clear day sky high up, the reference for far_step
 uniform float far_step = 0.16;       // by day distant land prints at least this much darker than clear sky
@@ -100,10 +100,23 @@ float vnoise(vec2 p) {
 			mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), f.x), f.y);
 }
 
-// Ground patches: value noise under a turned, finer copy; oct keeps the octaves apart.
-float patch_n(vec2 p, float oct) {
-	vec2 t = vec2(0.80 * p.x - 0.60 * p.y, 0.60 * p.x + 0.80 * p.y) * 2.03;
-	return vnoise(p + vec2(oct * 7.3, oct * 3.1)) * 0.65 + vnoise(t + vec2(oct * 1.7, 11.5)) * 0.35;
+// Ground patches: four octaves of value noise, each turned against the last. lod is log2 of the
+// smallest size wanted; an octave comes in as lod falls below it and lasts over three more, so a
+// patch keeps its shape while the camera nears and finer ones arrive inside it.
+float patch_n(vec2 p, float lod) {
+	float l0 = floor(lod);
+	float acc = 0.0;
+	float nrm = 0.0;
+	for (int i = 1; i <= 4; i++) {
+		float j = l0 + float(i);
+		float t = j - lod;
+		float w = smoothstep(0.0, 1.5, t) * (1.0 - smoothstep(2.0, 3.5, t));
+		float a = j * 2.4;
+		vec2 r = vec2(cos(a) * p.x - sin(a) * p.y, sin(a) * p.x + cos(a) * p.y) / exp2(j);
+		acc += (vnoise(r + vec2(j * 7.3, j * 3.1)) - 0.5) * w;
+		nrm += w * w;
+	}
+	return 0.5 + acc / sqrt(max(nrm, 0.0001));
 }
 
 // Coverage of one line of half-width h at distance d from its centre, for a
@@ -279,8 +292,7 @@ void fragment() {
 		float d_g = length(pv);
 		float s_min = ground_grain * l_px * k * d_g * d_g / max(INV_VIEW_MATRIX[3].y - pw.y, 0.3);
 		float lod_g = log2(max(s_min, 0.001));
-		float s_g = exp2(floor(lod_g) + 2.0);
-		float n_g = mix(patch_n(pw.xz / s_g, floor(lod_g)), patch_n(pw.xz / (2.0 * s_g), floor(lod_g) + 1.0), smoothstep(0.2, 0.8, fract(lod_g)));
+		float n_g = patch_n(pw.xz, lod_g);
 		float w_g = mix(0.5, 0.06, ground_edge);
 		float g_mot = (smoothstep(0.5 - w_g, 0.5 + w_g, n_g) * 2.0 - 1.0) * ground_mottle * (1.0 - smoothstep(15.0, 45.0, d_g));
 		float c_g = clamp((ground_cap - 0.06) * 1.3, 0.0, 0.85);

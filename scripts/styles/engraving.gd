@@ -15,7 +15,7 @@ const PARAMS := {
 	"cross_at": 0.34, "third_at": 0.62, "solid_lo": 0.92, "solid_hi": 0.99, "flat_at": 0.92,
 	"outline": 1.0, "outline_px": 1.3, "edge_depth": 0.02, "edge_normal": 0.18, "far_outline": 0.35,
 	"wobble": 1.0, "wobble_rel": 0.35, "tone_lod": 0.0,
-	"far_start": 25.0, "far_end": 70.0, "far_floor": 0.28, "far_cap": 0.55, "far_tot": 0.75, "far_lod": 2.5, "far_edge": 0.35, "ground_cap": 0.60, "ground_rule": 1.0, "ground_mottle": 0.7, "ground_grain": 2.0, "ground_edge": 0.6,
+	"far_start": 25.0, "far_end": 70.0, "far_floor": 0.28, "far_cap": 0.55, "far_tot": 0.75, "far_lod": 2.5, "far_edge": 0.35, "ground_cap": 0.60, "ground_rule": 1.0, "ground_mottle": 0.7, "ground_grain": 2.0, "ground_edge": 0.85,
 	"far_line": 0.0, "far_sky": 0.40, "far_step": 0.16, "far_in": 0.25, "wash_far": 0.4, "sky_horizon": 0.5, "sky_horizon_h": 0.45,
 	"wash": 0.35, "wash_depth": 0.0, "wash_floor": 0.25, "tot_wash": 1.0, "heighten_lo": 0.55, "heighten_hi": 0.85, "night_wash": 1.0, "paper_grain": 0.05, "ink_strength": 0.94, "normal_from_depth": 0.0,
 	"sun_floor": 0.9, "sun_gain": 1.8, "ambient": 0.45, "shadow_blur": 0.4, "sun_angle": 0.3,
