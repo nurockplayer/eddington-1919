@@ -159,8 +159,27 @@ func _sync() -> void:
 	style.quad_material.set_shader_parameter("return_radius", radius())
 	var farthest := 0.0
 	var camera: Camera3D = main.player.camera
-	for corner in [Vector2.ZERO, Vector2(main.get_viewport().size.x, 0), Vector2(main.get_viewport().size), Vector2(0, main.get_viewport().size.y)]:
-		farthest = maxf(farthest, camera.project_ray_normal(corner).angle_to(main.sim.sun_dir))
+	var size := main.get_viewport().get_visible_rect().size
+	var points := [Vector2.ZERO, Vector2(size.x, 0), size, Vector2(0, size.y)]
+	var rays: Array[Vector3] = []
+	var forward := -camera.global_basis.z
+	for point in points:
+		var ray := camera.project_ray_normal(point)
+		rays.append(ray / ray.dot(forward))
+		farthest = maxf(farthest, ray.angle_to(main.sim.sun_dir))
+	for i in 4:
+		var start := rays[i]
+		var edge := rays[(i + 1) % 4] - start
+		var a: float = main.sim.sun_dir.dot(start)
+		var b: float = main.sim.sun_dir.dot(edge)
+		var denominator := b * start.dot(edge) - a * edge.length_squared()
+		if not is_zero_approx(denominator):
+			var t := (a * start.dot(edge) - b * start.length_squared()) / denominator
+			if t > 0.0 and t < 1.0:
+				farthest = maxf(farthest, (start + t * edge).angle_to(main.sim.sun_dir))
+	var opposite: Vector3 = camera.global_position - main.sim.sun_dir * 1000.0
+	if not camera.is_position_behind(opposite) and Rect2(Vector2.ZERO, size).has_point(camera.unproject_position(opposite)):
+		farthest = PI
 	var view_is_day := elapsed >= 3.0 and radius() - deg_to_rad(style.params.return_width) >= farthest
 	if view_is_day:
 		if settle_started < 0.0: settle_started = elapsed
