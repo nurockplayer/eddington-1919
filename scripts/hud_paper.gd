@@ -7,6 +7,7 @@ var slips: Array[StyleBoxFlat] = []
 var panel_slips := {}
 var buttons: StyleBoxFlat
 var foreground: Color
+var evidence_dialogue := {}
 
 
 func setup(target: Node, colours: Dictionary) -> void:
@@ -38,6 +39,15 @@ func setup(target: Node, colours: Dictionary) -> void:
 
 
 func light(darkness: float, night: float, params: Dictionary) -> void:
+	if evidence_dialogue.is_empty():
+		evidence_dialogue = {
+			"panel": ui.dialog_panel.get_theme_stylebox("panel"),
+			"mount": ui.dialogue_portrait.get_theme_stylebox("panel"),
+			"speaker": ui.speaker_label.get_theme_color("font_color"),
+			"text": ui.text_label.get_theme_color("default_color"),
+			"hint": ui.hint_label.get_theme_color("font_color"),
+			"disclosure": ui.dialogue_portrait.disclosure.get_theme_color("font_color"),
+		}
 	var blue := darkness * float(params.tot_wash)
 	var wash := night * float(params.night_wash)
 	# The print's polarity follows its page. Tint within each polarity follows
@@ -64,6 +74,23 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 
 
 func _choices() -> void:
+	# Row 7's report conversation is part of the evidence viewer, whose pixels
+	# are deliberately outside this pass, including its shared dialogue controls.
+	if ui.viewer.visible:
+		ui.dialog_panel.add_theme_stylebox_override("panel", evidence_dialogue.panel)
+		ui.dialogue_portrait.add_theme_stylebox_override("panel", evidence_dialogue.mount)
+		ui.speaker_label.add_theme_color_override("font_color", evidence_dialogue.speaker)
+		ui.text_label.add_theme_color_override("default_color", evidence_dialogue.text)
+		ui.hint_label.add_theme_color_override("font_color", evidence_dialogue.hint)
+		ui.dialogue_portrait.disclosure.add_theme_color_override("font_color", evidence_dialogue.disclosure)
+		ui.dialogue_portrait.image.self_modulate = Color.WHITE
+		return
+	ui.dialog_panel.add_theme_stylebox_override("panel", panel_slips[ui.dialog_panel])
+	ui.dialogue_portrait.add_theme_stylebox_override("panel", panel_slips[ui.dialogue_portrait])
+	ui.speaker_label.add_theme_color_override("font_color", foreground)
+	ui.text_label.add_theme_color_override("default_color", foreground)
+	ui.hint_label.add_theme_color_override("font_color", foreground)
+	ui.dialogue_portrait.disclosure.add_theme_color_override("font_color", foreground)
 	for button in ui._choice_buttons:
 		for state in ["normal", "hover", "pressed", "focus"]:
 			button.add_theme_stylebox_override(state, buttons)

@@ -397,7 +397,7 @@ func _build_hud(root: Control) -> void:
 
 
 func _paper_text(bb: String) -> String:
-	if not paper_hud:
+	if not paper_hud or viewer.visible:
 		return bb
 	var colours := RegEx.new()
 	colours.compile("\\[/?color(?:=[^\\]]+)?\\]")
