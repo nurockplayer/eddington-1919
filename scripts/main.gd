@@ -1293,6 +1293,9 @@ func _begin_totality() -> void:
 	_busy = true
 	phase = Phase.TOTALITY
 	_quiet_birds()
+	_sync_player_input()
+	await ui.fade_to(1.0, 0.7).finished
+	# Change the view and paper layout only while the fade is fully black.
 	ui.set_prompt("")
 	ui.set_objectives("")
 	if sim.plates_carried > 0:
@@ -1300,8 +1303,6 @@ func _begin_totality() -> void:
 		sim.plates_carried = 0
 		_update_rack()
 	plates_left = sim.plates_available()
-	player.can_move = false
-	await ui.fade_to(1.0, 0.7).finished
 	player.global_position = world.station_pos + Vector3(0, 0.05, 0)
 	player.velocity = Vector3.ZERO
 	player.look_at_point(player.camera.global_position + sim.sun_dir * 10.0)
@@ -1318,6 +1319,7 @@ func _begin_totality() -> void:
 	_callout_nudged = false
 	_was_changing = false
 	_apply_light(1.0, 1.0, 0.0, 0.0)
+	_update_totality_hud()
 	score.play("totality_drone", 1.2)
 	score.play("totality_glass", 1.2)
 	await ui.fade_to(0.0, 1.2).finished
@@ -1329,7 +1331,6 @@ func _begin_totality() -> void:
 	elif not sim.drive_rate_checked:
 		note = L.t("\n發條上滿了，但走速沒有校過。")
 	ui.show_toast(L.t("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。") % Prompts.key("shutter") + note, 7.0)
-	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
 	if bot:
 		bot.on_phase("totality")
 
@@ -1391,6 +1392,12 @@ func _process_totality(delta: float) -> void:
 		_warned_end = true
 		score.play("totality_edge", 3.0)
 		ui.set_callout(L.t("太陽西緣開始發亮——第三接觸快到了！"), 3.0)
+	_update_totality_hud()
+	if t_game >= sim.TOTALITY_S:
+		_end_totality()
+
+
+func _update_totality_hud() -> void:
 	var left := maxf(sim.TOTALITY_S - t_game, 0.0)
 	var status := ""
 	if sim.is_exposing():
@@ -1412,8 +1419,6 @@ func _process_totality(delta: float) -> void:
 		open_start = sim._open.start
 	ui.set_totality(true, header, Cues.strip_model(t_game, sim.TOTALITY_S, sim.plates, open_start, sim.plates_available()))
 	ui.set_clock("")
-	if t_game >= sim.TOTALITY_S:
-		_end_totality()
 
 
 ## Hindsight-free callouts: facts the observers had, never a hint about the sky ahead.
