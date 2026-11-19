@@ -24,6 +24,8 @@ func setup(target: Node, colours: Dictionary) -> void:
 		# A Label's normal box is behind its existing content: no layout shift.
 		slip.expand_margin_left = 16
 		slip.expand_margin_right = 16
+		slip.expand_margin_top = 16
+		slip.expand_margin_bottom = 16
 		label.add_theme_stylebox_override("normal", slip)
 		label.add_theme_constant_override("outline_size", 0)
 		slips.append(slip)
@@ -133,9 +135,9 @@ func _layout() -> void:
 			ui.clock_label.position.x = -ui.clock_label.size.x * 0.5
 			ui.clock_label.position.y = task.position.y + task.size.y + 16.0
 		else:
-			ui.clock_label.position.y = 14.0
+			ui.clock_label.position.y = 18.0
 	else:
-		ui.clock_label.position.y = 14.0
+		ui.clock_label.position.y = 18.0
 	var font: Font = ui.toast.get_theme_font("font")
 	var font_size: int = ui.toast.get_theme_font_size("font_size")
 	var width := 0.0
