@@ -1615,6 +1615,22 @@ func _refresh_viewer() -> void:
 		var m: Dictionary = sim.measurement(p)
 		rows.append({"label": L.t("第%d號") % p.number, "value": m.value, "sigma": m.sigma, "weak": p.quality != "good"})
 	ui.chart.set_data(rows, sim.combined(), sim.measured)
+	var ledger := []
+	var original: int = Story.bet_1917.get("pick", -1)
+	if original >= 0:
+		ledger.append({"pick": original, "kind": "original", "tag":
+			L.t("1917 年押的：說不準") if original == 3 else L.t("1917 年押的")})
+	if sim.bet_pick >= 0:
+		var tag: String
+		if original == sim.bet_pick:
+			ledger.clear()
+			tag = L.t("押的（1917 年至今沒改）：說不準") if sim.bet_pick == 3 else L.t("押的（1917 年至今沒改）")
+		elif original < 0:
+			tag = L.t("1919 年押的：說不準") if sim.bet_pick == 3 else L.t("1919 年押的")
+		else:
+			tag = L.t("現在押的：說不準") if sim.bet_pick == 3 else L.t("現在押的")
+		ledger.append({"pick": sim.bet_pick, "kind": "current", "tag": tag})
+	ui.chart.set_ledger(ledger)
 	var sel: int = sim.plates.filter(func(p): return p.included).size()
 	var note := L.t("共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。") % [sim.plates.size(), sel]
 	if sim.measured:

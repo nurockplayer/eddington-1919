@@ -234,6 +234,24 @@ func _run() -> void:
 				"twelve plates and measured note are visible")
 			await settle()
 			bounds(ui.viewer)
+			# Drawn ledger text is not a Control; check its actual painted rectangles.
+			var saved_bet_1917: Dictionary = story.bet_1917.duplicate(true)
+			var saved_bet_pick: int = sim.bet_pick
+			for picks in [[1, 2], [2, 1], [3, 2], [0, 3], [3, 3], [2, 2], [-1, 2], [-1, 3]]:
+				story.bet_1917 = {"pick": picks[0], "year": 1917} if picks[0] >= 0 else {}
+				sim.bet_pick = picks[1]
+				game._refresh_viewer()
+				await settle()
+				var ledger_bounds: Array = ui.chart.drawn().ledger_bounds
+				check(not ledger_bounds.is_empty(), "real viewer paints ledger text for bounds checks")
+				for i in ledger_bounds.size():
+					var rect: Rect2 = ledger_bounds[i]
+					check(Rect2(0, 0, ui.chart.size.x, 30).grow(0.01).encloses(rect), "ledger tag stays inside the top band: %s" % rect)
+					for j in range(i):
+						check(not rect.intersects(ledger_bounds[j]), "ledger tags do not overlap")
+				story.bet_1917 = saved_bet_1917
+				sim.bet_pick = saved_bet_pick
+			game._refresh_viewer()
 			var viewer_buttons: Array = ui.viewer.find_children("*", "BaseButton", true, false).filter(func(b): return b.is_visible_in_tree())
 			for i in viewer_buttons.size():
 				for j in range(i + 1, viewer_buttons.size()):
