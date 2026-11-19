@@ -209,7 +209,7 @@ void fragment() {
 	vec3 n_v = vec3(0.0, 0.0, 1.0);
 	float ink = 0.0;
 	float tone_p = tone;   // the tone the page's heightening follows
-	float bead = 0.0
+	float bead = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
