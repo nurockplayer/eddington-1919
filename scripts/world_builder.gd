@@ -489,19 +489,23 @@ func _shelter_and_instrument() -> Dictionary:
 	root.add_child(rack)
 	out.rack = rack
 	# Observing table: exposure plan, chronometer, metronome.
-	box(Vector3(1.3, 0.06, 0.75), Vector3(-1.9, 0.8, -3.4), wood)
+	# Layer 2 receives the Oxford lantern; the floor, legs and roof do not.
+	box(Vector3(1.3, 0.06, 0.75), Vector3(-1.9, 0.8, -3.4), wood).find_children("*", "MeshInstance3D", true, false)[0].layers = 3
 	for dx in [-0.58, 0.58]:
 		for dz in [-0.3, 0.3]:
 			box(Vector3(0.06, 0.8, 0.06), Vector3(-1.9 + dx, 0.4, -3.4 + dz), wood, null, false)
 	var plan := box(Vector3(0.34, 0.03, 0.26), Vector3(-2.2, 0.845, -3.35), P("canvas"))
+	plan.find_children("*", "MeshInstance3D", true, false)[0].layers = 3
 	interactable(plan, "plan", L.t("曝光計畫"))
 	var chrono := box(Vector3(0.22, 0.12, 0.22), Vector3(-1.65, 0.89, -3.45), Color(0.33, 0.22, 0.12))
-	cyl(0.08, 0.02, Vector3(-1.65, 0.96, -3.45), Color(0.92, 0.9, 0.82))
+	chrono.find_children("*", "MeshInstance3D", true, false)[0].layers = 3
+	cyl(0.08, 0.02, Vector3(-1.65, 0.96, -3.45), Color(0.92, 0.9, 0.82)).layers = 3
 	interactable(chrono, "chronometer", L.t("天文鐘"))
 	var metro := MeshInstance3D.new()
 	var pr := PrismMesh.new()
 	pr.size = Vector3(0.12, 0.24, 0.1)
 	metro.mesh = pr
+	metro.layers = 3
 	metro.material_override = mat(Color(0.25, 0.15, 0.08))
 	metro.position = Vector3(-1.35, 0.95, -3.3)
 	root.add_child(metro)
@@ -801,6 +805,7 @@ func _props() -> Dictionary:
 	root.add_child(label)
 	# Comparison-plate case from Oxford.
 	var case_node := box(Vector3(0.4, 0.22, 0.32), Vector3(-2.65, 0.95, -3.45), Color(0.15, 0.18, 0.22))
+	case_node.find_children("*", "MeshInstance3D", true, false)[0].layers = 3
 	interactable(case_node, "oxford_case", L.t("牛津比對底片盒"))
 	return _hurricane_lantern()
 
@@ -835,6 +840,7 @@ func _hurricane_lantern() -> Dictionary:
 	light.position.y = 0.18
 	light.light_color = Color(0.55, 0.66, 1.0)  # plate response prints this pool white
 	light.light_energy = 0.0
+	light.light_cull_mask = 2
 	light.light_indirect_energy = 0.0
 	light.light_volumetric_fog_energy = 0.0
 	light.omni_range = 3.5
@@ -856,6 +862,8 @@ func _hurricane_lantern() -> Dictionary:
 	glass.glow_colour = Color(1.0, 0.93, 0.78)
 	glass.light = light
 	lantern.add_child(glass)
+	for mesh in lantern.find_children("*", "MeshInstance3D", true, false):
+		mesh.layers = 3
 	# Stowed until night: even an unlit new silhouette would alter totality.
 	lantern.hide()
 	return {"oxford_lantern": lantern, "oxford_lantern_light": light}

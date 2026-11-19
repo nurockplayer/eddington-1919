@@ -45,6 +45,14 @@ func _run() -> void:
 	check(not lantern.visible and flame.light_energy == 0.0, "the camp lantern is stowed before night")
 	check(is_equal_approx(lantern.position.y, 0.83), "the hurricane lantern stands on the bench")
 	check(flame.omni_range == 3.5 and flame.shadow_enabled, "the lantern has a local shadowed pool")
+	check(flame.light_cull_mask == 2, "the lantern lights only its bench layer")
+	var receivers := 0
+	for mesh in root3d.find_children("*", "MeshInstance3D", true, false):
+		if mesh.layers & flame.light_cull_mask:
+			receivers += 1
+			var p: Vector3 = mesh.global_position
+			check(p.y >= 0.8 and p.x >= -2.65 and p.x <= -1.35 and p.z >= -3.45 and p.z <= -3.13, "only the bench top and its objects receive the lantern: %s" % p)
+	check(receivers == 15, "all fifteen bench and lantern meshes receive the light: %d" % receivers)
 	var globe := lantern.get_node("OxfordLanternGlass")
 	flame.light_energy = 8.0
 	await process_frame
