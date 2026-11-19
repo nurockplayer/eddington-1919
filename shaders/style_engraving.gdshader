@@ -390,7 +390,14 @@ void fragment() {
 			if (projected.w > 0.0 && distance_px < 1.5 + star_keyline_px + 0.25) {
 				float gate = (1.0 - smoothstep(0.35, 0.80, eclipse_cloud_density(direction))) * star_vis;
 				float ring = smoothstep(1.25, 1.75, distance_px) * (1.0 - smoothstep(1.25 + star_keyline_px, 1.75 + star_keyline_px, distance_px));
-				float bright = mix(smoothstep(0.68, 0.78, max(print_colour.r, max(print_colour.g, print_colour.b))), 1.0, star_keyline_all);
+				// Read the field outside the point, so its white core cannot
+				// turn on a keyline against otherwise dark paper.
+				vec2 sample_px = vec2(4.0) / VIEWPORT_SIZE;
+				vec3 response = vec3(resp_r, resp_g, resp_b);
+				float field_lum = min(min(dot(textureLod(screen_tex, star_uv + vec2(sample_px.x, 0.0), 0.0).rgb, response), dot(textureLod(screen_tex, star_uv - vec2(sample_px.x, 0.0), 0.0).rgb, response)), min(dot(textureLod(screen_tex, star_uv + vec2(0.0, sample_px.y), 0.0).rgb, response), dot(textureLod(screen_tex, star_uv - vec2(0.0, sample_px.y), 0.0).rgb, response)));
+				float field_ex = max(field_lum, 0.0) * ex;
+				float field_tone = clamp((pow(field_ex / (1.0 + field_ex), 0.4545) - tone_lo) / (tone_hi - tone_lo), 0.0, 1.0);
+				float bright = mix(smoothstep(0.72, 0.80, field_tone), 1.0, star_keyline_all);
 				print_colour = mix(print_colour, ink_col, ring * bright * gate);
 			}
 		}

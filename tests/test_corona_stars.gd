@@ -14,16 +14,23 @@ func peak(c: Color) -> float:
 	return maxf(c.r, maxf(c.g, c.b))
 
 func contrast(image: Image, point: Vector2) -> float:
-	var core := 0.0
-	var ring := 1.0
-	for y in range(int(point.y) - 4, int(point.y) + 5):
-		for x in range(int(point.x) - 4, int(point.x) + 5):
+	var core := -1.0
+	var centre := Vector2i.ZERO
+	var nearest := INF
+	for y in range(int(point.y) - 2, int(point.y) + 3):
+		for x in range(int(point.x) - 2, int(point.x) + 3):
 			var radius := (Vector2(x + 0.5, y + 0.5) - point).length()
+			if radius > 1.5: continue
 			var value := peak(image.get_pixel(x, y))
-			if radius <= 1.5:
-				core = maxf(core, value)
-			elif radius <= 3.25:
-				ring = minf(ring, value)
+			if value > core or (value == core and radius < nearest):
+				core = value
+				nearest = radius
+				centre = Vector2i(x, y)
+	var ring := 1.0
+	for y in range(centre.y - 1, centre.y + 2):
+		for x in range(centre.x - 1, centre.x + 2):
+			if Vector2i(x, y) != centre:
+				ring = minf(ring, peak(image.get_pixel(x, y)))
 	return (core - ring) * 255.0
 
 func changed(a: Image, b: Image, point: Vector2) -> int:
@@ -55,7 +62,7 @@ func _initialize() -> void:
 		var before := Image.load_from_file(base.path_join(rec.frame.replace(variant + "-", "main-")))
 		check(rec.stars.size() == 12, "all twelve field stars recorded")
 		for star in rec.stars:
-			var point := Vector2(star.pixel[0], star.pixel[1])
+			var point := Vector2(star.pixel[0], star.pixel[1]) * Vector2(after.get_size()) / Vector2(rec.projection_size[0], rec.projection_size[1])
 			check(star.in_frame, "star in frame: " + str(star.index))
 			var old := contrast(before, point)
 			var value := contrast(after, point)
