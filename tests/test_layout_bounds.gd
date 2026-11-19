@@ -157,7 +157,7 @@ func _run() -> void:
 			game._refresh_objectives()
 			await settle()
 			bounds(ui.objectives.get_parent())
-			var measure_line := L.t("[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]")
+			var measure_line := L.t("[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]").trim_prefix("[color=#a99]").trim_suffix("[/color]")
 			var walk_line := L.t("%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）").get_slice("%s", 1).get_slice("%d", 0)
 			check(ui.objectives.text.contains(measure_line) and ui.objectives.text.contains(walk_line),
 				"PREP objectives name the measurement and the darkroom")
