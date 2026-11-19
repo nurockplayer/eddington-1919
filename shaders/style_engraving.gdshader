@@ -13,7 +13,9 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);   // world, toward the Sun
 uniform float sun_r = 0.02;                    // the Sun's angular radius in radians
 uniform float darkness = 0.0;                  // 0 day … 1 totality
 uniform float night = 0.0;
-uniform float diamond_radius = 0.22; // bead radius in solar radii
+uniform float diamond_radius = 0.25; // core radius in solar radii
+uniform float diamond_spikes = 2.0; // longest spike in solar radii
+uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
 uniform float diamond = 0.0;
 uniform float contact = 1.0;
 
@@ -210,7 +212,7 @@ void fragment() {
 	float ink = 0.0;
 	float tone_p = tone;   // the tone the page's heightening follows
 	float bead = 0.0;
-	float bead_surround = 0.0;
+	float moon_ink = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -229,15 +231,28 @@ void fragment() {
 		float front = step(0.0, dot(ray_w, sun_dir));
 		vec2 moon_c = vec2((1.0 - contact) * 2.1, 0.12 * (1.0 - contact));
 		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
-		float bead_r = diamond_radius * sqrt(diamond);
-		float bead_dist = length(lp - bead_c);
-		bead = diamond * front * (1.0 - smoothstep(bead_r * 0.8, max(bead_r, 0.00001), bead_dist));
-		bead_surround = diamond * front * smoothstep(1.0, 1.04, r) * (1.0 - smoothstep(0.4, 1.0, bead_dist));
+		float size = sqrt(diamond);
+		vec2 bp = lp - bead_c;
+		float bead_dist = length(bp);
+		// Fixed unequal rays, each narrowing to a point as it leaves the core.
+		float spikes = 0.0;
+		for (int i = 0; i < 9; i++) {
+			float fi = float(i);
+			float direction = fi * 2.399963;
+			float along = dot(bp, vec2(cos(direction), sin(direction)));
+			float across = abs(dot(bp, vec2(-sin(direction), cos(direction))));
+			float reach = diamond_spikes * size * (0.45 + 0.55 * hash21(vec2(fi, 7.0)));
+			spikes = max(spikes, step(0.0, along) * step(along, reach) * step(across, diamond_radius * size * 0.36 * (1.0 - along / max(reach, 0.00001))));
+		}
+		bead = front * step(0.000001, diamond) * max(step(bead_dist, diamond_radius * size), spikes);
+		moon_ink = front * step(0.000001, diamond) * step(r, 1.0);
+
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {
 			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
 			float g_ang = k / (6.2831853 * max(r * sun_r, 0.0001));
-			float rays = hatch(ang, g_ang, clamp((dark - 0.04) * 1.5, 0.0, 0.8), r_px, -3.0);
+			float ray_dark = mix(dark, max(dark, 0.55), diamond * diamond_rays * (1.0 - smoothstep(1.0, 3.0, r)));
+			float rays = hatch(ang, g_ang, clamp((ray_dark - 0.04) * 1.5, 0.0, 0.8), r_px, -3.0);
 			rays = max(rays, 1.0 - smoothstep(0.96, 1.0, r));     // the Moon's disc prints solid
 			ink = mix(ink, rays, w_rays);
 		}
@@ -328,6 +343,6 @@ void fragment() {
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
 	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
 	vec3 print_colour = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
-	print_colour = mix(print_colour, ink_col, bead_surround * 0.18);
+	print_colour = mix(print_colour, ink_col, moon_ink);
 	ALBEDO = mix(print_colour, paper, bead);
 }

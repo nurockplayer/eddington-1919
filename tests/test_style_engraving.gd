@@ -75,9 +75,10 @@ func _run() -> void:
 	check(not game.env.volumetric_fog_enabled, "standard quality preserves volumetric fog off")
 	game.free()
 
-	var overridden := Style.from_args({"style-set": "wash=0.3,line_px=7"})
+	var overridden := Style.from_args({"style-set": "wash=0.3,line_px=7,diamond_radius=0.4,diamond_spikes=3,diamond_rays=0.5"})
 	check(is_equal_approx(overridden.params.wash, 0.3), "wash override")
 	check(overridden.params.line_px == 7.0, "line spacing override")
+	check(overridden.params.diamond_radius == 0.4 and overridden.params.diamond_spikes == 3.0 and overridden.params.diamond_rays == 0.5, "diamond overrides")
 	Settings.quality = saved_quality
 	root.scaling_3d_scale = saved_scale
 	root.msaa_3d = saved_msaa
