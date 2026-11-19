@@ -93,7 +93,7 @@ def main():
             frames = out / 'clip-frames' / name
             frames.mkdir(parents=True)
             run(['ffmpeg', '-nostdin', '-loglevel', 'error', '-i', str(clip), '-vf',
-                 'select=between(n\\,236\\,244)', '-vsync', '0', '-start_number', '236',
+                 'select=between(n\\,236\\,244)', '-fps_mode', 'passthrough', '-start_number', '236',
                  str(frames / 'frame-%03d.png')], out / 'tools' / (name + '-clip-frames.log'))
             subprocess.run(['python3', str(out / 'tools/finish.py'), str(folder), str(out)], check=True)
             for line in (folder / 'receipts.jsonl').read_text().splitlines():
