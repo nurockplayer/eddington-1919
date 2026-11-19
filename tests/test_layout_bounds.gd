@@ -93,7 +93,9 @@ func _run() -> void:
 			Settings.save_settings(test_path)
 			var game: Node = load("res://scenes/main.tscn").instantiate()
 			root.add_child(game)
-			game.set_process(false)
+			# Layout needs the live UI, not player physics or animated 3D scenery.
+			game.process_mode = Node.PROCESS_MODE_DISABLED
+			game.ui.process_mode = Node.PROCESS_MODE_PAUSABLE
 			game.sim = sim
 			game.plate_textures = textures
 			game.comparison_tex = comparison
@@ -123,7 +125,8 @@ func _run() -> void:
 			Checkpoint.save("principe")
 			var resume_game: Node = load("res://scenes/main.tscn").instantiate()
 			root.add_child(resume_game)
-			resume_game.set_process(false)
+			resume_game.process_mode = Node.PROCESS_MODE_DISABLED
+			resume_game.ui.process_mode = Node.PROCESS_MODE_PAUSABLE
 			await settle()
 			var resume_ui = resume_game.ui
 			# The new UI loads the settings file this suite does not use; keep the pass at its scale.

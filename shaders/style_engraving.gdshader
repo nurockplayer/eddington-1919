@@ -227,6 +227,8 @@ void fragment() {
 	float tone_p = tone;   // the tone the page's heightening follows
 	float bead = 0.0;
 	float moon_ink = 0.0;
+	float box_reserve = 0.0;
+	float case_solid = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -295,6 +297,26 @@ void fragment() {
 		n_v = normal_from_depth > 0.5 ? n_dep : n_buf;
 		vec3 n_w = normalize((INV_VIEW_MATRIX * vec4(n_v, 0.0)).xyz);
 		vec3 pw = (INV_VIEW_MATRIX * vec4(pv, 1.0)).xyz;
+		// Local paper reserve on the plate box's top and door-facing edge.
+		// Kept separate from tone/outline defaults and inactive at night/totality.
+		vec3 box_delta = abs(pw - vec3(11.65, 1.18, 2.25));
+		if (all(lessThan(box_delta, vec3(0.181, 0.151, 0.251)))) {
+			float top = smoothstep(1.26, 1.29, pw.y);
+			float side = (1.0 - smoothstep(11.49, 11.52, pw.x)) * smoothstep(2.42, 2.46, pw.z);
+			box_reserve = max(top, side) * lit;
+		}
+
+		// The brass rim/handle catch the same doorway key; the glass stays dark.
+		vec2 loupe_delta = pw.xz - vec2(11.0, 3.94);
+		bool loupe_ring = length(loupe_delta) < 0.106 && pw.y > 0.849 && pw.y < 0.875;
+		bool loupe_handle = abs(loupe_delta.x) < 0.028 && loupe_delta.y > 0.075 && loupe_delta.y < 0.271 && pw.y > 0.853 && pw.y < 0.879;
+		if (loupe_ring || loupe_handle) {
+			box_reserve = max(box_reserve, lit);
+		}
+		// The black Oxford case stands solid on the lantern's reserved bench.
+		if (all(lessThan(abs(pw - vec3(-2.65, 0.95, -3.45)), vec3(0.201, 0.111, 0.161)))) {
+			case_solid = night;
+		}
 
 		if (normal_from_depth < 0.5) {
 			vec3 n_l = normalize(texture(normal_tex, uv - vec2(o.x, 0.0)).xyz * 2.0 - 1.0);
@@ -360,6 +382,8 @@ void fragment() {
 		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
 	}
 	ink = max(ink, edge * outline);
+	ink = mix(ink, min(ink, 0.08), box_reserve);
+	ink = max(ink, case_solid);
 
 	// Paper: fibre grain fixed to the page; an optional thin wash of the scene's hue.
 	vec2 fp = FRAGCOORD.xy / res_k;
