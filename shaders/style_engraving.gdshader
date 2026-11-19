@@ -56,6 +56,8 @@ uniform float far_edge = 0.35;        // relative depth step that still draws a 
 uniform float far_line = 0.0;         // contour strength of distant land (0 = its tone alone carries it)
 uniform float far_sky = 0.40;         // ink share of a clear day sky high up, the reference for far_step
 uniform float far_step = 0.10;        // by day distant land prints at least this much darker than clear sky
+uniform float far_in = 0.25;          // share of the way to far_end by which that floor is fully in
+uniform float wash_far = 1.0;         // share of the wash left on distant land
 uniform float sky_horizon = 0.5;      // share of the day sky's ruling left at the horizon (1 = even sky)
 uniform float sky_horizon_h = 0.45;   // altitude in radians where the sky's ruling is back at full weight
 uniform float ground_cap = 0.60;      // darkest tone of level ground at totality (1 = may print solid)
@@ -255,8 +257,10 @@ void fragment() {
 		ink = max(ink, smoothstep(solid_lo, solid_hi, dark) * (1.0 - dist_f));
 		// Distant land: one ruling in the sky's own lines, between a floor and a cap of tone.
 		float dark_far = clamp(max(dark, mix(far_floor, far_tot, darkness)), 0.0, mix(far_cap, 1.0, darkness));
-		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85), (far_sky * hz + far_step) * lit);
-		float i_far = hatch(elev, k, cov_far * dist_f, l_px, 99.0);
+		// The floor comes in early: a sunlit palm at 40 m has lost its own lines and must not print paler than the sky.
+		float cov_floor = (far_sky * hz + far_step) * lit * smoothstep(0.0, far_in, dist_f);
+		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
+		float i_far = hatch(elev, k, cov_far, l_px, 99.0);
 		ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
 		tone_p = mix(tone, 1.0 - dark_far, dist_f);
 		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
@@ -267,7 +271,7 @@ void fragment() {
 	vec2 fp = FRAGCOORD.xy / res_k;
 	float fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
-	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
+	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	float blue = darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone_p) * blue);
