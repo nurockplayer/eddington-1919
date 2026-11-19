@@ -13,6 +13,12 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);   // world, toward the Sun
 uniform float sun_r = 0.02;                    // the Sun's angular radius in radians
 uniform float darkness = 0.0;                  // 0 day … 1 totality
 uniform float night = 0.0;
+// Two independently lit print plates. No intermediate tone is rendered.
+uniform bool day_return_active = false;
+uniform sampler2D return_night : repeat_disable, filter_nearest;
+uniform sampler2D return_day : repeat_disable, filter_nearest;
+uniform float return_radius = -1.0;
+uniform float return_band = 0.0349066;
 uniform float diamond_radius = 0.45; // core radius in solar radii
 uniform float diamond_spikes = 4.0; // longest spike in solar radii
 uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
@@ -190,6 +196,21 @@ void fragment() {
 	float z = max(-pv.z, 0.01);
 	vec3 ray_v = normalize(pv);
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
+	if (day_return_active) {
+		float distance = acos(clamp(dot(ray_w, sun_dir), -1.0, 1.0));
+		vec3 axis = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
+		float angle = atan(dot(ray_w, cross(axis, sun_dir)), dot(ray_w, axis));
+		// The same three/seven-fold streamers as the corona, with pointed tips.
+		float rays = pow(max(0.0, sin(angle * 3.0 + 1.3) * sin(angle * 7.0 - 0.4)), 4.0);
+		float leading = return_radius + return_band * 0.7 * rays;
+		if (return_radius < 0.0 || distance > leading) {
+			ALBEDO = texture(return_night, uv).rgb;
+		} else if (distance >= return_radius - return_band) {
+			ALBEDO = paper;
+		} else {
+			ALBEDO = texture(return_day, uv).rgb;
+		}
+	} else {
 	float k = 2.0 / (abs(PROJECTION_MATRIX[1][1]) * VIEWPORT_SIZE.y);
 	// Line weights are given for a 720-line frame and follow the viewport height.
 	float res_k = VIEWPORT_SIZE.y / 720.0;
@@ -432,4 +453,5 @@ void fragment() {
 		}
 	}
 	ALBEDO = mix(print_colour, paper, bead);
+	}
 }
