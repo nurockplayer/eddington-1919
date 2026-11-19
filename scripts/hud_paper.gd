@@ -126,14 +126,14 @@ func _layout() -> void:
 	# whenever there is room alongside the task panel.
 	for label in [ui.clock_label, ui.prompt_label]:
 		label.size.x = label.get_minimum_size().x
-		label.position.x = -label.size.x * 0.5
+		label.position.x = (ui.hud.size.x - label.size.x) * 0.5
 	var task: Control = ui.objectives.get_parent()
 	if task.visible:
-		var left: float = task.position.x + task.size.x + 16.0
-		ui.clock_label.position.x = maxf(ui.clock_label.position.x, left - ui.hud.size.x * 0.5)
-		if ui.clock_label.position.x + ui.hud.size.x * 0.5 + ui.clock_label.size.x + 16.0 > ui.hud.size.x:
-			ui.clock_label.position.x = -ui.clock_label.size.x * 0.5
-			ui.clock_label.position.y = task.position.y + task.size.y + 16.0
+		var left: float = task.position.x + task.size.x + 32.0
+		ui.clock_label.position.x = maxf(ui.clock_label.position.x, left)
+		if ui.clock_label.position.x + ui.clock_label.size.x + 16.0 > ui.hud.size.x:
+			ui.clock_label.position.x = (ui.hud.size.x - ui.clock_label.size.x) * 0.5
+			ui.clock_label.position.y = task.position.y + task.size.y + 32.0
 		else:
 			ui.clock_label.position.y = 18.0
 	else:
@@ -144,4 +144,4 @@ func _layout() -> void:
 	for line in ui.toast.text.split("\n"):
 		width = maxf(width, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
 	ui.toast.size.x = minf(width, 960.0)
-	ui.toast.position.x = -ui.toast.size.x * 0.5
+	ui.toast.position.x = (ui.hud.size.x - ui.toast.size.x) * 0.5
