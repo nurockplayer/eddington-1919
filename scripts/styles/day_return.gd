@@ -47,10 +47,8 @@ func setup(game: Node, print_style: RefCounted) -> void:
 				child.free()
 			viewport.add_child(copy)
 			copy.global_transform = source.global_transform
-			if source is MeshInstance3D and not source.skeleton.is_empty():
-				var skeleton = source.get_node_or_null(source.skeleton)
-				if skeleton is Skeleton3D:
-					RenderingServer.instance_attach_skeleton(copy.get_instance(), skeleton.get_skeleton())
+			if source is MeshInstance3D and source.get_skin_reference() != null:
+				RenderingServer.instance_attach_skeleton(copy.get_instance(), source.get_skin_reference().get_skeleton())
 			if source == main.sun:
 				var density: float = main.sim.cloud_over_sun(main.t_game + 10.0)
 				copy.light_energy = 0.0 if index == 0 else (style.params.sun_floor + 1.4 * main._crescent(0.8) * (1.0 - density * 0.85)) * main._look_sun
