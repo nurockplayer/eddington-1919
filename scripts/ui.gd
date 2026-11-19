@@ -505,7 +505,7 @@ func show_caption(text: String, seconds := 3.0) -> Tween:
 	if paper_hud:
 		caption.set_anchors_preset(Control.PRESET_CENTER)
 		caption.size = caption.get_minimum_size()
-		caption.position = -caption.size * 0.5
+		caption.position = (caption.get_parent_area_size() - caption.size) * 0.5
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_STOP)
 	tw.tween_property(caption, "modulate:a", 1.0, 0.6)

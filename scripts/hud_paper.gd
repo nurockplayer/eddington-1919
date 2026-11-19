@@ -6,6 +6,9 @@ var palette: Dictionary
 var slips: Array[StyleBoxFlat] = []
 var panel_slips := {}
 var buttons: StyleBoxFlat
+var selected_button: StyleBoxFlat
+var hovered_button: StyleBoxFlat
+var choice_focus := StyleBoxEmpty.new()
 var foreground: Color
 var evidence_dialogue := {}
 var portrait_tint := Color.WHITE
@@ -40,6 +43,9 @@ func setup(target: Node, colours: Dictionary) -> void:
 	buttons.set_corner_radius_all(0)
 	buttons.set_border_width_all(1)
 	buttons.set_content_margin_all(10)
+	selected_button = buttons.duplicate()
+	hovered_button = buttons.duplicate()
+	hovered_button.set_border_width_all(3)
 	ui.dialogue_entry.connect(func(_speaker: String): _choices())
 	ui.tot_panel.visibility_changed.connect(_central_visibility)
 	ui.paper_layout = _layout
@@ -71,6 +77,10 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 		panel.add_theme_stylebox_override("panel", panel_slips[panel])
 	buttons.bg_color = background
 	buttons.border_color = foreground
+	selected_button.bg_color = foreground
+	selected_button.border_color = foreground
+	hovered_button.bg_color = background
+	hovered_button.border_color = foreground
 	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption, ui.tot_hint, ui.callout, ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
 		label.add_theme_color_override("font_color", foreground)
 		label.add_theme_constant_override("outline_size", 0)
@@ -108,10 +118,19 @@ func _choices() -> void:
 	ui.hint_label.add_theme_color_override("font_color", foreground)
 	ui.dialogue_portrait.disclosure.add_theme_color_override("font_color", foreground)
 	for button in ui._choice_buttons:
-		for state in ["normal", "hover", "pressed", "focus"]:
-			button.add_theme_stylebox_override(state, buttons)
-		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
-			button.add_theme_color_override(state, foreground)
+		if not button.focus_entered.is_connected(_choices):
+			button.focus_entered.connect(_choices)
+			button.focus_exited.connect(_choices)
+		var focused: bool = button.has_focus()
+		button.add_theme_stylebox_override("normal", selected_button if focused else buttons)
+		button.add_theme_stylebox_override("hover", selected_button if focused else hovered_button)
+		button.add_theme_stylebox_override("pressed", selected_button)
+		button.add_theme_stylebox_override("hover_pressed", selected_button)
+		button.add_theme_stylebox_override("focus", choice_focus)
+		for state in ["font_color", "font_hover_color", "font_focus_color"]:
+			button.add_theme_color_override(state, buttons.bg_color if focused else foreground)
+		for state in ["font_pressed_color", "font_hover_pressed_color"]:
+			button.add_theme_color_override(state, buttons.bg_color)
 
 
 func _central_visibility() -> void:

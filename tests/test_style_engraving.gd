@@ -41,6 +41,7 @@ func _run() -> void:
 	root.add_child(game)
 	await process_frame
 	_test_hud_paper(game)
+	await _test_choices_caption(game)
 	check(game._style != null and game._style.id == "engraving", "engraving by default")
 	check(Style.from_args({"no-grade": ""}) == null, "existing no-grade comparison preserved")
 	check(game.env.tonemap_mode == Environment.TONE_MAPPER_LINEAR, "linear tonemap")
@@ -140,6 +141,41 @@ func _test_hud_paper(game: Node) -> void:
 	check(not ui.prompt_label.visible and not ui.crosshair.visible, "totality leaves the corona free of central HUD")
 	check(not ui.tot_label.text.contains("[color"), "exposure colour cannot override page ink")
 	ui.set_totality(false)
+
+
+func _test_choices_caption(game: Node) -> void:
+	var ui: Node = game.ui
+	var title_visible: bool = ui.title_panel.visible
+	ui.title_panel.hide()
+	ui.play([{"s":"Eddington", "t":"Choice", "key":"choice", "choices":["First", "Second"]}])
+	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
+		game._apply_light(0.62, state[0], -150, state[1])
+		for selected in [0, 1]:
+			ui._choice_buttons[selected].grab_focus()
+			var chosen: Button = ui._choice_buttons[selected]
+			var other: Button = ui._choice_buttons[1 - selected]
+			var normal: StyleBoxFlat = other.get_theme_stylebox("normal")
+			var reverse: StyleBoxFlat = chosen.get_theme_stylebox("normal")
+			check(reverse.bg_color != normal.bg_color, "selected choice differs from normal in polarity " + str(state))
+			check(reverse.bg_color == other.get_theme_color("font_color") and chosen.get_theme_color("font_color") == normal.bg_color, "selected choice reverses ink and paper")
+			check(other.get_theme_stylebox("hover").border_width_left > normal.border_width_left, "unfocused hover has a heavier rule")
+			check(chosen.get_theme_stylebox("pressed").bg_color == reverse.bg_color, "pressed choice reverses too")
+	ui._choose(0)
+	var locale := L.current()
+	for language in ["en", "ja", "zh_TW", "ko"]:
+		L.apply(language)
+		var tween: Tween = ui.show_caption(L.t("接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"))
+		tween.kill()
+		await process_frame
+		var rect: Rect2 = ui.caption.get_global_rect()
+		var viewport: Rect2 = ui.caption.get_viewport_rect()
+		check(viewport.encloses(rect.grow(16)), language + " caption slip is inside viewport")
+		check(absf(rect.get_center().x - viewport.get_center().x) <= 2 and absf(rect.get_center().y - viewport.get_center().y) <= 2, language + " caption centred within 2 px")
+	L.apply(locale)
+	ui.caption.modulate.a = 0
+	ui.dialogue_portrait.hide()
+	ui.title_panel.visible = title_visible
+	game._apply_light(0.62, 0, -150, 0)
 
 
 func _check_slip(slip: StyleBoxFlat, text: Color, dark: bool) -> void:
