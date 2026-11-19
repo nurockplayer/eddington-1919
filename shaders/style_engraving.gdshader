@@ -450,8 +450,8 @@ void fragment() {
 		}
 	}
 	ALBEDO = mix(print_colour, paper, bead);
-	if (day_return_active && return_blend >= 0.0 && sky) {
-		ALBEDO = mix(ALBEDO, texture(return_day, uv).rgb, smoothstep(0.0, 0.2, return_blend) * (1.0 - return_blend));
+	if (day_return_active && return_blend > 0.0 && sky) {
+		ALBEDO = mix(ALBEDO, texture(return_day, uv).rgb, 1.0 - return_blend);
 	}
 	}
 }

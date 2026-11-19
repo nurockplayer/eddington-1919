@@ -142,7 +142,7 @@ func _draw_day() -> void:
 	# Keep the exposure oracle's native tween; override only the rendered day.
 	native_sun_energy = main.sun.light_energy
 	main.sun.light_energy = day_sun_energy
-	if settle_started < 0.0:
+	if settle_started < 0.0 or elapsed == settle_started:
 		for key in ["contact", "cloud_time", "third_contact_gap", "diamond"]:
 			native_print[key] = style.quad_material.get_shader_parameter(key)
 			style.quad_material.set_shader_parameter(key, materials[1].get_shader_parameter(key))
@@ -193,7 +193,7 @@ func _sync() -> void:
 		# The native depth/normal buffers draw daylight silhouettes for the
 		# entire return. No geometry renderer changes at the start of the ease.
 		camera.cull_mask = camera_mask if started() else 1 << 19
-		camera.environment = camera_environment if view_is_day else cameras[1].environment
+		camera.environment = camera_environment if view_is_day and blend > 0.0 else cameras[1].environment
 		compositor.layers = compositor_layers
 		cameras[1].cull_mask = 1 << 19
 	for index in 2:

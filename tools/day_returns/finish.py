@@ -243,7 +243,7 @@ def report(out, main_sha, sha):
              '| View | Pairs above 1.5× | Maximum ratio |\n|---|---:|---:|']
     for r in summaries:
         lines.append(f"| {r['variant']} | {r['whole_exceedances']} | {r['whole_max_ratio']:.3f} |")
-    lines += ['## +3.0 s comparison\n\nControlled same-frame captures found that restoring the crossing branch changed 43,880 sky-view pixels and 174,155 horizon-view pixels, while restoring the print uniforms changed none. The horizon calculation used corners only: the farthest ray is on the bottom edge (2.658 radians versus 2.295 at corners), so it ended the crossing early. The sky print now fades in and out without an instantaneous switch. Old and new decoded clip counts use the same H.264 decoding and threshold; the candidate also has lossless-frame counts. `continuity-plus3p0.tsv` keeps both with the surrounding lossless means.',
+    lines += ['## +3.0 s comparison\n\nThe fixed daylight rendering carries into the first ease frame; the fixed sky print then fades into the live sky. Old and new decoded clip counts use the same H.264 decoding and threshold; the candidate also has lossless-frame counts. `continuity-plus3p0.tsv` keeps both with the surrounding lossless means. The decoded 120×120 Sun-centre crop means and consecutive steps are in `*-sun-crop-mean.tsv`; decoded clip frames 236–244 are in `clip-frames/`.',
               '| View | 5316288 decoded | New decoded | New lossless | Previous / next ten means | Ratio | Pass |\n|---|---:|---:|---:|---:|---:|---|']
     for r in summaries:
         step = r['whole_plus3']

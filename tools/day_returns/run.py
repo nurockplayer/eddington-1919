@@ -3,6 +3,7 @@
 Windowed captures run sequentially. The same argument interface as style_motion.
 """
 import argparse
+import csv
 import json
 import os
 from pathlib import Path
@@ -76,6 +77,24 @@ def main():
                  '-i', str(folder / 'scratch/f_%05d.png'), '-c:v', 'libx264', '-crf', '10',
                  '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(out / 'clips' / (name + '.mp4'))],
                 out / 'tools' / (name + '-encode.log'))
+            clip = out / 'clips' / (name + '.mp4')
+            crops = subprocess.check_output(['ffmpeg', '-nostdin', '-loglevel', 'error', '-i', str(clip),
+                '-vf', 'crop=120:120:580:300', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'])
+            crop_size = 120 * 120 * 3
+            with (out / (name + '-sun-crop-mean.tsv')).open('w') as series:
+                writer = csv.writer(series, delimiter='\t')
+                writer.writerow(['frame', 'contact_s', 'mean_rgb', 'step'])
+                previous = None
+                for frame in range(len(crops) // crop_size):
+                    mean = sum(crops[frame * crop_size:(frame + 1) * crop_size]) / (crop_size * 255)
+                    if 1.85 <= frame / 60 - 1 <= 6:
+                        writer.writerow([frame, frame / 60 - 1, mean, abs(mean - previous)])
+                    previous = mean
+            frames = out / 'clip-frames' / name
+            frames.mkdir(parents=True)
+            run(['ffmpeg', '-nostdin', '-loglevel', 'error', '-i', str(clip), '-vf',
+                 'select=between(n\\,236\\,244)', '-vsync', '0', '-start_number', '236',
+                 str(frames / 'frame-%03d.png')], out / 'tools' / (name + '-clip-frames.log'))
             subprocess.run(['python3', str(out / 'tools/finish.py'), str(folder), str(out)], check=True)
             for line in (folder / 'receipts.jsonl').read_text().splitlines():
                 record = json.loads(line)
