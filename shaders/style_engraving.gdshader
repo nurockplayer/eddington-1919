@@ -29,7 +29,7 @@ uniform float cloud_scale = 0.35;
 // Reserve the existing field-star points in bright paper, in output pixels.
 uniform vec2 star_pos[12];
 uniform float star_keyline_px = 1.0;
-uniform float star_keyline_all = 0.0;
+uniform float star_keyline_all = 1.0;
 
 #include "res://shaders/eclipse_cloud.gdshaderinc"
 
@@ -386,10 +386,15 @@ void fragment() {
 			vec3 direction = sun_dir * sqrt(1.0 - dot(offset, offset)) + t1 * offset.x + t2 * offset.y;
 			vec4 projected = PROJECTION_MATRIX * VIEW_MATRIX * vec4(direction, 0.0);
 			vec2 star_uv = projected.xy / projected.w * 0.5 + 0.5;
-			float distance_px = length((uv - star_uv) * VIEWPORT_SIZE);
-			if (projected.w > 0.0 && distance_px < 1.5 + star_keyline_px + 0.25) {
+			// Anchor the reserve to the output pixel grid. Every subpixel
+			// star position therefore prints the same closed round sign.
+			vec2 centre_px = floor(star_uv * VIEWPORT_SIZE) + vec2(0.5);
+			float distance_px = length(uv * VIEWPORT_SIZE - centre_px);
+			float inner_px = 1.5 * res_k;
+			float outer_px = (1.5 + star_keyline_px) * res_k;
+			if (projected.w > 0.0 && distance_px <= outer_px) {
 				float gate = (1.0 - smoothstep(0.35, 0.80, eclipse_cloud_density(direction))) * star_vis;
-				float ring = smoothstep(1.25, 1.75, distance_px) * (1.0 - smoothstep(1.25 + star_keyline_px, 1.75 + star_keyline_px, distance_px));
+				float ring = step(inner_px, distance_px);
 				// Read the field outside the point, so its white core cannot
 				// turn on a keyline against otherwise dark paper.
 				vec2 sample_px = vec2(4.0) / VIEWPORT_SIZE;

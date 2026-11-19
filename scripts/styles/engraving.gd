@@ -11,7 +11,7 @@ const PARAMS := {
 	"exposure": 2.2, "totality_gain": 1.5, "night_gain": 3.0,
 	"resp_r": 0.60, "resp_g": 0.55, "resp_b": -0.15,
 	"tone_lo": 0.10, "tone_hi": 0.80, "sky_ink": 0.80, "sky_gain": 0.4,
-	"star_keyline_px": 1.0, "star_keyline_all": 0.0,
+	"star_keyline_px": 1.0, "star_keyline_all": 1.0,
 	"diamond_radius": 0.45, "diamond_spikes": 4.0, "diamond_rays": 1.0, "diamond_ray_floor": 0.70,
 	"line_px": 5.0, "ray_px": 5.0, "ray_inner": 3.0, "ray_outer": 8.0,
 	"cross_at": 0.34, "third_at": 0.62, "solid_lo": 0.92, "solid_hi": 0.99, "flat_at": 0.92,
