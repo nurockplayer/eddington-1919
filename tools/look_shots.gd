@@ -39,7 +39,8 @@ func frames(n: int) -> void:
 
 func _hide_ui(scene: Node) -> void:
 	for layer in scene.find_children("*", "CanvasLayer", true, false):
-		(layer as CanvasLayer).visible = false
+		if not layer.is_in_group("look_post"):
+			(layer as CanvasLayer).visible = false
 
 
 func _aim(scene: Node, from: Vector3, at: Vector3) -> Camera3D:
