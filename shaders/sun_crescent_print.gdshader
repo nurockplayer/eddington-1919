@@ -19,9 +19,9 @@ void fragment() {
 	float sun_dist = length(lp) - 1.0;
 	float moon_dist = 1.0 - length(lp - moon_c);
 	float dist = max(sun_dist, moon_dist);
-	float px = max(fwidth(dist), 0.00001);
+	float px = max(length(vec2(dFdx(dist), dFdy(dist))), 0.00001);
 	float coverage = 1.0 - smoothstep(-px * 0.5, px * 0.5, dist);
-	float rim = 1.0 - smoothstep(px, px * 2.0, abs(dist));
+	float rim = 1.0 - smoothstep(px * 0.45, px * 1.05, abs(dist));
 	ALBEDO = mix(print_paper.rgb, print_ink.rgb, rim);
 	ALPHA = max(coverage, rim);
 }

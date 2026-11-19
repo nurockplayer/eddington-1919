@@ -13,6 +13,9 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);   // world, toward the Sun
 uniform float sun_r = 0.02;                    // the Sun's angular radius in radians
 uniform float darkness = 0.0;                  // 0 day … 1 totality
 uniform float night = 0.0;
+uniform float diamond_radius = 0.22; // bead radius in solar radii
+uniform float diamond = 0.0;
+uniform float contact = 1.0;
 
 uniform vec3 paper : source_color = vec3(0.937, 0.902, 0.824);
 uniform vec3 ink_col : source_color = vec3(0.133, 0.110, 0.094);
@@ -206,6 +209,7 @@ void fragment() {
 	vec3 n_v = vec3(0.0, 0.0, 1.0);
 	float ink = 0.0;
 	float tone_p = tone;   // the tone the page's heightening follows
+	float bead = 0.0
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -222,6 +226,10 @@ void fragment() {
 		vec2 lp = vec2(dot(ray_w, t1), dot(ray_w, t2)) / sun_r;   // in solar radii
 		float r = length(lp);
 		float front = step(0.0, dot(ray_w, sun_dir));
+		vec2 moon_c = vec2((1.0 - contact) * 2.1, 0.12 * (1.0 - contact));
+		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
+		float bead_r = diamond_radius * sqrt(diamond);
+		bead = diamond * front * (1.0 - smoothstep(bead_r * 0.8, max(bead_r, 0.00001), length(lp - bead_c)));
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {
 			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
@@ -316,5 +324,5 @@ void fragment() {
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
 	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
-	ALBEDO = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
+	ALBEDO = mix(mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength), paper, bead);
 }

@@ -9,9 +9,11 @@ art director to rejudge; acceptance remains **0/9** until that judgement.
 - #318 (`a4ef072`): Príncipe lighting parameters, lighting hooks, quality metadata,
   camera FOV and vignette post. Cambridge and departure keep their existing look.
 - #339 (`9a53b98`): benchmark image statistics and the TSV comparison runner.
-- Audition `7406dec`: unchanged `shaders/style_engraving.gdshader` and
+- Audition `7406dec`: `shaders/style_engraving.gdshader` and
   `scripts/styles/engraving.gd`, runtime pass, portrait and its provenance,
-  named bookmarks, resolution capture and the motion tools.
+  named bookmarks, resolution capture and the motion tools. The shader differs from
+  `7406dec` in the local diamond-bead exception; `diamond_radius` defaults to 0.22
+  solar radii and the bead follows the sky shader’s contact and diamond values.
 - This PR supersedes #318 and #339; both remain open and untouched.
 
 The runtime wrapper always selects engraving; `--style-set=key=value,key=value`

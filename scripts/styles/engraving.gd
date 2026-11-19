@@ -11,6 +11,7 @@ const PARAMS := {
 	"exposure": 2.2, "totality_gain": 1.5, "night_gain": 3.0,
 	"resp_r": 0.60, "resp_g": 0.55, "resp_b": -0.15,
 	"tone_lo": 0.10, "tone_hi": 0.80, "sky_ink": 0.80, "sky_gain": 0.4,
+	"diamond_radius": 0.22,
 	"line_px": 5.0, "ray_px": 5.0, "ray_inner": 3.0, "ray_outer": 8.0,
 	"cross_at": 0.34, "third_at": 0.62, "solid_lo": 0.92, "solid_hi": 0.99, "flat_at": 0.92,
 	"outline": 1.0, "outline_px": 1.3, "edge_depth": 0.02, "edge_normal": 0.18, "far_outline": 0.35,
@@ -23,7 +24,7 @@ const PARAMS := {
 }
 const UNIFORMS := [
 	"exposure", "totality_gain", "night_gain", "resp_r", "resp_g", "resp_b", "tone_lo", "tone_hi",
-	"sky_ink", "sky_gain", "line_px", "ray_px", "ray_inner", "ray_outer", "cross_at", "third_at", "solid_lo",
+	"sky_ink", "sky_gain", "diamond_radius", "line_px", "ray_px", "ray_inner", "ray_outer", "cross_at", "third_at", "solid_lo",
 	"solid_hi", "flat_at", "outline", "outline_px", "edge_depth", "edge_normal", "far_outline",
 	"wobble", "wobble_rel", "tone_lod", "far_start", "far_end", "far_floor", "far_cap", "far_tot", "far_lod", "far_edge", "ground_cap", "ground_rule", "ground_mottle", "ground_grain", "ground_edge",
 	"far_line", "far_sky", "far_step", "far_in", "wash_far", "sky_horizon", "sky_horizon_h",

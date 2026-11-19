@@ -773,6 +773,9 @@ static func prepare_replay(seed_value: int, same_sky: bool, from_prologue: bool)
 
 
 func _process(delta: float) -> void:
+	if _style != null:
+		_style.quad_material.set_shader_parameter("contact", sky_mat.get_shader_parameter("contact"))
+		_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)
 	_update_npc_look()
 	if player.global_position.y < -3.0:
 		player.velocity = Vector3.ZERO
