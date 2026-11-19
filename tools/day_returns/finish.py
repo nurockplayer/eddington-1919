@@ -259,7 +259,7 @@ def report(out, main_sha, sha):
     lines += [f'- {name}: {exact} exact / {threshold} at 6%.' for name,exact,threshold in comparisons if 'second_' not in name]
     thick = next(r for r in summaries if r['variant'].startswith('thick'))
     lines.append(f"## Thick cloud\n\nDensity 0.97 with the contact gap disabled, presentation only. Peak versus same-frame diamond-off control: {thick['thick_peak_vs_diamond_off_6pct']} changed Sun-region pixels at 6%.")
-    lines.append('## Remaining gate\n\nDirector acceptance remains pending in a PR comment; #392 stays draft. Any whole-frame continuity count above its limit, median stage budget failure or nonzero main comparison remains blocking. Windowed logs were checked for shader/script errors. Lossless clip frames and the temporary main snapshot were deleted after clips and tables were generated.')
+    lines.append('## Remaining gate\n\nDirector acceptance remains pending in a PR comment. Any whole-frame continuity count above its limit, median stage budget failure or nonzero main comparison remains blocking. Windowed logs were checked for shader/script errors. Lossless clip frames and the temporary main snapshot were deleted after clips and tables were generated.')
     lines.append('## Test totality\n\nThe unchanged `test_totality` passed alone through `tachi-run --host` on main fa0dcfd in 548.60 s and on the branch in 203.19 s, 658 checks and 0 failures each.')
     (out / 'report.md').write_text('\n\n'.join(lines) + '\n')
 

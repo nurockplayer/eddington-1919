@@ -1,5 +1,5 @@
 extends "/Volumes/KIOXIA/eddington-1919-cache/director/day-returns/aaca5a9/tools/survey.gd"
-## Frozen-frame diagnosis: only the camera environment changes between draws.
+## Frozen-frame diagnosis: compare old/new sky blending at identical geometry.
 
 func pixels(a: Image, b: Image) -> int:
 	var count := 0
@@ -32,26 +32,21 @@ func _run() -> void:
 		var front = game._style.impl.day_return
 		front.set_process(false)
 		var day: Environment = front.cameras[1].environment
-		var native: Environment = game.env
 		print("VIEW ", "horizon" if horizon else "sky", " elapsed=", front.elapsed, " blend=", game._style.quad_material.get_shader_parameter("return_blend"))
-		for property in day.get_property_list():
-			var key: String = property.name
-			if property.usage & PROPERTY_USAGE_STORAGE and day.get(key) != native.get(key):
-				print("ENV ", key, " day=", day.get(key), " native=", native.get(key))
+		var material: ShaderMaterial = game._style.quad_material
+		var corrected: Shader = material.shader
+		var old := Shader.new()
+		old.code = corrected.code.replace("vec3 day_sky = min(texture(return_day, uv).rgb, mix(page, ink_col, clamp(edge * outline, 0.0, 1.0) * ink_strength));", "vec3 day_sky = texture(return_day, uv).rgb;")
+		material.set_shader_parameter("return_blend", 0.0)
 		var a := draw_environment(day)
-		var b := draw_environment(native)
+		# The first draw also supplies the sky endpoint texture.
 		var a2 := draw_environment(day)
-		print("PIXELS env_switch=", pixels(a, b), " repeated_day=", pixels(a, a2))
-		# Copy each differing rendering setting independently onto the day env.
-		for property in day.get_property_list():
-			var key: String = property.name
-			if not property.usage & PROPERTY_USAGE_STORAGE or key in ["resource_name", "resource_path", "resource_local_to_scene", "script"]:
-				continue
-			if day.get(key) == native.get(key): continue
-			var probe: Environment = day.duplicate()
-			probe.set(key, native.get(key))
-			var image := draw_environment(probe)
-			print("PROBE ", key, " vs_day=", pixels(a, image), " vs_native=", pixels(b, image))
+		material.set_shader_parameter("return_blend", 0.000001)
+		var fixed := draw_environment(day)
+		material.shader = old
+		var previous := draw_environment(day)
+		print("PIXELS old_blend_step=", pixels(a2, previous), " fixed_blend_step=", pixels(a2, fixed), " repeated_day=", pixels(a, a2))
+		material.shader = corrected
 		game.stop_all_audio()
 		game.free()
 		await process_frame

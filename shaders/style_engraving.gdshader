@@ -451,7 +451,10 @@ void fragment() {
 	}
 	ALBEDO = mix(print_colour, paper, bead);
 	if (day_return_active && return_blend > 0.0 && sky) {
-		ALBEDO = mix(ALBEDO, texture(return_day, uv).rgb, 1.0 - return_blend);
+		// The sky-only endpoint has no silhouette ink. Retain the native
+		// sky-side contours when carrying its fixed glow into the ease.
+		vec3 day_sky = min(texture(return_day, uv).rgb, mix(page, ink_col, clamp(edge * outline, 0.0, 1.0) * ink_strength));
+		ALBEDO = mix(ALBEDO, day_sky, 1.0 - return_blend);
 	}
 	}
 }
