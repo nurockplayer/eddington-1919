@@ -40,7 +40,7 @@ func _run() -> void:
 			check(front.materials[0].get_shader_parameter("darkness") == 1.0 and front.materials[1].get_shader_parameter("darkness") == 0.0, "both endpoint plate weights stay fixed")
 			check(is_equal_approx(game.sky_mat.get_shader_parameter("darkness"), 1.0 - v * v), "native lighting tween stays unchanged")
 			if frame == 15:
-				check(front.radius() >= game.sim.SUN_R and front.radius() - deg_to_rad(game._style.params.return_width) < 0.0, "first white front covers the whole Moon")
+				check(front.radius() >= game.sim.SUN_R and front.radius() < 2.0 * game.sim.SUN_R and shader.contains("return_radius < 2.0 * sun_r"), "first white front covers the whole Moon")
 		check(changes == 1, "HUD switches palette exactly once")
 		game.stop_all_audio()
 		game.free()

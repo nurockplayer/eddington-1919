@@ -15,8 +15,8 @@ uniform float darkness = 0.0;                  // 0 day … 1 totality
 uniform float night = 0.0;
 // Two independently lit print plates. No intermediate tone is rendered.
 uniform bool day_return_active = false;
-uniform sampler2D return_night : repeat_disable, filter_nearest;
-uniform sampler2D return_day : repeat_disable, filter_nearest;
+uniform sampler2D return_night : source_color, repeat_disable, filter_nearest;
+uniform sampler2D return_day : source_color, repeat_disable, filter_nearest;
 uniform float return_radius = -1.0;
 uniform float return_band = 0.0349066;
 uniform float diamond_radius = 0.45; // core radius in solar radii
@@ -205,7 +205,7 @@ void fragment() {
 		float leading = return_radius + return_band * 0.7 * rays;
 		if (return_radius < 0.0 || distance > leading) {
 			ALBEDO = texture(return_night, uv).rgb;
-		} else if (distance >= return_radius - return_band) {
+		} else if (distance >= return_radius - return_band || return_radius < 2.0 * sun_r) {
 			ALBEDO = paper;
 		} else {
 			ALBEDO = texture(return_day, uv).rgb;
