@@ -1,0 +1,17 @@
+{
+  "id": "eddington_engraving",
+  "variant": 1,
+  "prompt": "Redraw the man in the reference image as a nineteenth-century steel engraving, the kind printed as a frontispiece portrait in a scientific journal. Keep his likeness, the three-quarter pose, the rimless pince-nez, the dark suit, waistcoat, white collar and tie, and the framing (head and shoulders, same crop). Black ink lines only on cream paper: every tone is built from fine parallel hatching and cross-hatching that follows the form of the face, lines swelling in the shadows, fine stipple on the lit skin, clean contour lines, the dark suit a dense cross-hatch. The figure fades into bare paper toward the bottom and the edges as an engraved vignette; the background is bare cream paper with a little horizontal ruling behind the head. No grey wash, no colour, no photographic shading, no text, no border, no signature.",
+  "reference": {
+    "path": "assets/portraits/eddington_neutral.jpg",
+    "sha256": "9bdf563f084122081ac47a56276bf3c6f69dbdd0adcc72381b28717f5be884c2"
+  },
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-16 03:38 JST",
+  "retries": 0,
+  "raw_sha256": "4a15a582951a2f44f84d2d266b16dea7499d73328bdb8514b3478daefcf786e3",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/style-audition/portraits/raw/eddington_engraving-v1.png",
+  "file": "assets/portraits/eddington_engraving.jpg",
+  "source_file": "art/runs/style-audition/portraits/eddington_engraving-v1.jpg",
+  "source_commit": "7406dec"
+}

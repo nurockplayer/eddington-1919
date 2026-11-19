@@ -100,6 +100,8 @@ One sentence: a humid tropical afternoon painted in gouache; a warm key when the
 
 ## Slice acceptance (engraving; replaces section 6 of the audition answer, 2026-11-17 JST)
 
+Implementation and capture commands: [engraving on main](ENGRAVING_MAIN.md). This port provides frames for the art director to rejudge rows **1, 3 and 6**; it moves no row by itself.
+
 Pass count: **0/9**. Met on the audition branch only, counted once the implementation branch is on main: rows 1, 3, 6. Each row is judged on the running build, in the frames `arrival`, `coelostat_still`, `totality_sky`, `totality_wide`, `totality_horizon`, `dialogue`, `darkroom` at 1280×720 unless the row says otherwise.
 
 | # | Row | How it is judged |

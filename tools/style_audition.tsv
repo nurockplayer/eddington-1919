@@ -1,0 +1,3 @@
+# name	extra Godot user arguments
+engraving	--bench-cloud-t=215
+wide_lines	--bench-cloud-t=215 --style-set=line_px=7

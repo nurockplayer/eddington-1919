@@ -6,6 +6,7 @@ const Sim := preload("res://scripts/eclipse_sim.gd")
 ## real game scene with the game's own lighting code: the camera visits fixed
 ## bookmarks under fixed lighting states, then saves a screenshot and render
 ## stats for each one. Compare two runs with art/pipeline/compare.py.
+## Each bookmark also records image statistics (SLICE_PRINCIPE.md §6 targets: under 3% clipped white and under 3% pure black).
 ##
 ## Run: godot --path . --always-on-top -- --benchmark=art/validation/<label> [--seed=7]
 ## Use a fixed --seed so the cloud field is identical between runs.
@@ -49,11 +50,65 @@ const BOOKMARKS := [
 	["totality_live", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
 ]
 
+const AUDITION_BOOKMARKS := [
+	["coelostat_still", Vector3(1.5, 0.05, -4.9), Vector3(0.1, 1.15, -6.6), "prep_early"],
+	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-1.1, 1.35, -0.9), "prep_early"],
+	# Position and target are set in _run() from the Sun's azimuth.
+	["totality_wide", Vector3.ZERO, Vector3.ZERO, "totality"],
+]
+const WIDE_FOV := 85.0
+const WIDE_BACK := 13.0
+const AUDITION_LINE := "我從早上就盯著那道雲縫。每次我開始相信它，它就合上。"
+
 var main
 var out_dir := ""
 var totality_cloud_t := 230.0
 var only := PackedStringArray()
 var capture_args := false
+var last_image: Image
+
+
+static func image_stats(img: Image) -> Dictionary:
+	var copy := img.duplicate() as Image
+	copy.convert(Image.FORMAT_RGB8)
+	if copy.get_width() > 320 or copy.get_height() > 180:
+		copy.resize(320, 180, Image.INTERPOLATE_NEAREST)
+	var w := copy.get_width()
+	var h := copy.get_height()
+	var values := PackedFloat64Array()
+	var luma_sum := 0.0
+	var sat_sum := 0.0
+	var low_sum := 0.0
+	var white := 0
+	var black := 0
+	for y in h:
+		for x in w:
+			var c := copy.get_pixel(x, y)
+			var luma := 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b
+			var maximum := maxf(c.r, maxf(c.g, c.b))
+			var minimum := minf(c.r, minf(c.g, c.b))
+			var sat := 0.0 if maximum == 0.0 else (maximum - minimum) / maximum
+			values.append(luma)
+			luma_sum += luma
+			sat_sum += sat
+			if y >= h / 2:
+				low_sum += sat
+			if luma >= 0.98:
+				white += 1
+			if luma <= 0.02:
+				black += 1
+	var n := w * h
+	values.sort()
+	return {
+		"luma_mean": snappedf(luma_sum / n, 0.001),
+		"luma_p05": snappedf(values[int(n * 0.05)], 0.001),
+		"luma_p50": snappedf(values[int(n * 0.5)], 0.001),
+		"luma_p95": snappedf(values[int(n * 0.95)], 0.001),
+		"sat_mean": snappedf(sat_sum / n, 0.001),
+		"sat_low_mean": snappedf(low_sum / (w * (h - h / 2)), 0.001),
+		"clip_white_pct": snappedf(100.0 * white / n, 0.1),
+		"clip_black_pct": snappedf(100.0 * black / n, 0.1),
+	}
 
 
 static func quality_arg(args: PackedStringArray) -> String:
@@ -129,7 +184,8 @@ func apply_capture_args(args: PackedStringArray) -> void:
 
 ## The bookmarks this run shoots; quits with exit code 1 when --bench-only names none.
 func _shots(bookmarks: Array) -> Array:
-	var shots := selected(bookmarks, only)
+	var available := bookmarks + AUDITION_BOOKMARKS if bookmarks == BOOKMARKS and not only.is_empty() else bookmarks
+	var shots := selected(available, only)
 	if shots.is_empty():
 		push_error("--bench-only names an unknown bookmark: " + ",".join(only))
 		get_tree().quit(1)
@@ -176,7 +232,8 @@ func _shot(path: String) -> bool:
 	var t0 := Time.get_ticks_msec()
 	while not drawn[0] and Time.get_ticks_msec() - t0 < 5000:
 		await get_tree().process_frame
-	return get_viewport().get_texture().get_image().save_png(path) == OK
+	last_image = get_viewport().get_texture().get_image()
+	return last_image.save_png(path) == OK
 
 
 func _avg(a: PackedFloat32Array) -> float:
@@ -204,7 +261,44 @@ func _hide_groups() -> Array:
 	return hidden
 
 
+func _totality_aim_point() -> Vector3:
+	var vfov := deg_to_rad(main.player.camera.fov)
+	var size := get_viewport().get_visible_rect().size
+	var hfov := 2.0 * atan(tan(vfov / 2.0) * size.x / size.y)
+	var x := tan(hfov / 2.0) / 3.0
+	var y := tan(vfov / 2.0) / 3.0
+	var altitude := asin(main.sim.sun_dir.y)
+	var yaw_offset := asin(x / (cos(altitude) * sqrt(1.0 + x * x + y * y)))
+	var yaw := atan2(-main.sim.sun_dir.x, -main.sim.sun_dir.z) + yaw_offset
+	var pitch := atan2(sin(altitude), cos(altitude) * cos(yaw_offset)) - atan(y)
+	var direction := Vector3(-sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch))
+	return main.player.camera.global_position + direction * 10.0
+
+
+
+func _check_look_overrides() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if not arg.begins_with("--look-set="):
+			continue
+		var look := {}
+		for property in main.get_property_list():
+			if property.name == "_look" and main.get("_look") is Dictionary:
+				look = main.get("_look")
+		for pair in arg.trim_prefix("--look-set=").split(",", false):
+			var parts := pair.split("=")
+			if parts.size() != 2 or not look.has(parts[0]):
+				printerr("LOOK-SET ERROR: not applied ", pair)
+				continue
+			var actual = look[parts[0]]
+			if (actual is int or actual is float) and parts[1].is_valid_float():
+				if not is_equal_approx(float(actual), parts[1].to_float()):
+					printerr("LOOK-SET ERROR: not applied ", pair)
+			elif str(actual) != parts[1]:
+				printerr("LOOK-SET ERROR: not applied ", pair)
+
+
 func _run() -> void:
+	_check_look_overrides()
 	var hidden := _hide_groups()
 	main.ui.visible = false
 	# Name tags are HUD text: fixed-size, unlike the painted signs.
@@ -212,6 +306,11 @@ func _run() -> void:
 		tag.visible = not tag.fixed_size
 	main.player.can_move = false
 	main.player.can_look = false
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--bench-motion="):
+			var motion = load("res://tools/style_motion.gd").new()
+			await motion.run(self, arg.trim_prefix("--bench-motion="))
+			return
 	var results := []
 	var shots := _shots(BOOKMARKS)
 	if shots.is_empty():
@@ -225,11 +324,40 @@ func _run() -> void:
 		main.player.global_position = b[1]
 		main.player.velocity = Vector3.ZERO
 		var target: Vector3 = b[2]
+		var fov: float = main.player.camera.fov
+		if b[0] == "totality_wide":
+			# Behind the camp on the Sun's azimuth, a wide lens: the two observers
+			# small at the foot of the frame, the Sun two thirds of the way up.
+			var sd: Vector3 = main.sim.sun_dir
+			var flat := Vector3(sd.x, 0.0, sd.z).normalized()
+			main.player.global_position = Vector3(0.0, 0.05, -1.4) - flat * WIDE_BACK
+			main.player.camera.fov = WIDE_FOV
+			var pitch := asin(sd.y) - deg_to_rad(WIDE_FOV / 3.0)
+			target = main.player.global_position + Vector3(0.0, 1.6, 0.0) + (flat * cos(pitch) + Vector3.UP * sin(pitch)) * 10.0
 		if target == Vector3.INF:
-			target = main.player.camera.global_position + main.sim.sun_dir * 10.0
+			target = _totality_aim_point()
 		await _frames(2)
 		main.player.look_at_point(target)
+		var mouse_mode := Input.mouse_mode
+		if b[0] == "coelostat_still":
+			main.world.cottingham.visible = false
+		if b[0] == "dialogue":
+			main.ui.visible = true
+			main.ui.hud.visible = false
+			main.ui.title_panel.visible = false
+			main.ui.cambridge_portraits = true
+			main.ui.play([{"s": "Eddington", "t": AUDITION_LINE}])
+			await _frames(4)
 		var r := await _sample_bookmark(b[0], b[3])
+		if b[0] == "coelostat_still":
+			main.world.cottingham.visible = true
+		main.player.camera.fov = fov
+		if b[0] == "dialogue":
+			main.ui.dialog_panel.visible = false
+			main.ui.dialogue_portrait.hide()
+			main.ui._seq.clear()
+			Input.mouse_mode = mouse_mode
+			main.ui.visible = false
 		r["seed"] = main.sim.run_seed
 		results.append(r)
 		print("[BENCH] ", JSON.stringify(r))
@@ -288,6 +416,7 @@ func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
 	var captured := await _shot(out_dir.path_join(png))
 	var r := {
 		"bookmark": bookmark, "lighting": lighting, "screenshot": png if captured else "",
+		"image": image_stats(last_image) if last_image != null else {},
 		"frame_ms_avg": _avg(ms),
 		"frame_ms_p95": _p95(ms),
 		"forced_draw_ms_avg": _avg(forced),

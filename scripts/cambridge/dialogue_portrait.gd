@@ -15,6 +15,7 @@ const PRINTS := {
 	},
 }
 
+var prints_override := {}
 var image: TextureRect
 var disclosure: Label
 
@@ -49,7 +50,12 @@ func setup(muted: Color) -> void:
 
 
 func show_entry(entry: Dictionary) -> void:
-	var variants: Dictionary = PRINTS.get(str(entry.get("s", "")), {})
+	var speaker := str(entry.get("s", ""))
+	var variants: Dictionary = PRINTS.get(speaker, {})
+	if prints_override.has(speaker):
+		image.texture = load(prints_override[speaker]) as Texture2D
+		visible = image.texture != null
+		return
 	if variants.is_empty():
 		image.texture = null
 		hide()
