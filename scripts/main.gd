@@ -330,6 +330,8 @@ func _build_environment() -> void:
 	sky_mat.set_shader_parameter("cloud_scale", sim.CLOUD_SCALE)
 	sky_mat.set_shader_parameter("sun_dir", sim.sun_dir)
 	sky_mat.set_shader_parameter("sun_r", sim.SUN_R)
+	sky_mat.set_shader_parameter("contact", 0.8)
+	sky_mat.set_shader_parameter("third_contact", Vector2.ZERO)
 	sky_mat.set_shader_parameter("star_pos", sim.star_offsets)
 	var mags := PackedFloat32Array()
 	for i in sim.STAR_COUNT:

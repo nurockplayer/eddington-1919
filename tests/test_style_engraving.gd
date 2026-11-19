@@ -56,6 +56,7 @@ func _run() -> void:
 		check(material.get_shader_parameter(name) == Engraving.PARAMS[name], "material parameter " + name)
 	check(material.get_shader_parameter("line_px") == 5.0, "default line spacing")
 	check(material.get_shader_parameter("sun_r") == game.sim.SUN_R, "solar radius")
+	check(game.sky_mat.get_shader_parameter("third_contact") == Vector2.ZERO, "diamond starts off")
 	check(material.get_shader_parameter("paper") == Engraving.PAPER, "paper colour")
 	check(game.player.camera.fov == 60.0, "camera FOV")
 	check(game._look_sun == 1.8, "sun gain")
