@@ -8,7 +8,7 @@ const SHADER := preload("res://shaders/style_engraving.gdshader")
 ## Every key is a float and can be overridden with --style-set. Keys listed in
 ## UNIFORMS are shader uniforms of the same name; the others are read here.
 const PARAMS := {
-	"return_seconds": 1.2, "return_width": 2.0, "return_delay": 0.0,
+	"return_seconds": 1.8, "return_width": 2.0, "return_delay": 0.0,
 	"exposure": 2.2, "totality_gain": 1.5, "night_gain": 3.0,
 	"resp_r": 0.60, "resp_g": 0.55, "resp_b": -0.15,
 	"tone_lo": 0.10, "tone_hi": 0.80, "sky_ink": 0.80, "sky_gain": 0.4,

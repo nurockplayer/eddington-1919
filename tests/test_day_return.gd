@@ -42,6 +42,11 @@ func _run() -> void:
 			check(is_equal_approx(game.sky_mat.get_shader_parameter("darkness"), 1.0 - v * v), "native lighting tween stays unchanged")
 			if frame == 15:
 				check(front.radius() >= game.sim.SUN_R and front.radius() < 2.0 * game.sim.SUN_R and shader.contains("return_radius < 2.0 * sun_r"), "first white front covers the whole Moon")
+		front.elapsed = 5.5
+		front._sync()
+		front.elapsed += 1.5
+		front._sync()
+		check(front.skies[1].get_shader_parameter("third_contact_gap") == 0.0, "day veil reaches the live sky state before release")
 		check(changes == 1, "HUD switches palette exactly once")
 		game.stop_all_audio()
 		game.free()

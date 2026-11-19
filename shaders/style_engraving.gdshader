@@ -198,12 +198,7 @@ void fragment() {
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
 	if (day_return_active) {
 		float distance = acos(clamp(dot(ray_w, sun_dir), -1.0, 1.0));
-		vec3 axis = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
-		float angle = atan(dot(ray_w, cross(axis, sun_dir)), dot(ray_w, axis));
-		// The same three/seven-fold streamers as the corona, with pointed tips.
-		float rays = pow(max(0.0, sin(angle * 3.0 + 1.3) * sin(angle * 7.0 - 0.4)), 4.0);
-		float leading = return_radius + return_band * 0.7 * rays;
-		if (return_radius < 0.0 || distance > leading) {
+		if (return_radius < 0.0 || distance > return_radius) {
 			ALBEDO = texture(return_night, uv).rgb;
 		} else if (distance >= return_radius - return_band || return_radius < 2.0 * sun_r) {
 			ALBEDO = paper;

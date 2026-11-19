@@ -14,13 +14,11 @@ from zoneinfo import ZoneInfo
 REPO = Path(__file__).resolve().parents[2]
 SURVEY = Path('/Volumes/KIOXIA/eddington-1919-cache/director/row-verdicts/595792a/tools/capture.gd')
 VARIANTS = [
-    ('default-7', 7, 1.2, 2, 0, False),
-    ('fast-7', 7, .8, 2, 0, False),
-    ('slow-7', 7, 1.8, 2, 0, False),
-    ('wide-7', 7, 1.2, 6, 0, False),
-    ('delayed-7', 7, 1.2, 2, .2, False),
-    ('default-1919', 1919, 1.2, 2, 0, False),
-    ('horizon-7', 7, 1.2, 2, 0, True),
+    ('delay-06-7', 7, .6, False, False),
+    ('delay-09-7', 7, .9, False, False),
+    ('delay-09-1919', 1919, .9, False, False),
+    ('horizon-09-7', 7, .9, True, False),
+    ('thick-09-7', 7, .9, False, True),
 ]
 
 def run(argv, log):
@@ -41,26 +39,29 @@ def main():
     for name in ('tools', 'clips', 'sheets'):
         (out / name).mkdir()
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip()
-    for name in ('capture.gd', 'run.py', 'finish.py'):
+    for name in ('capture.gd', 'compare.gd', 'run.py', 'finish.py'):
         shutil.copyfile(REPO / 'tools/day_returns' / name, out / 'tools' / name)
     # Reuse the survey's native state, framing and receipt helpers. Its inherited
     # _run is replaced; the canvas stays at the game's actual play scale.
-    survey = SURVEY.read_text().split('func sky_mask(')[0]
+    source = SURVEY.read_text()
+    survey = source.split('func sky_mask(')[0]
+    survey += source[source.index('func prepare_plates('):source.index('func ', source.index('func evidence(') + 5)]
     survey = survey.replace('seed(7)', 'seed(_capture_seed())')
     survey = survey.replace('root.add_child(game)', 'game.next_seed = _capture_seed()\n\troot.add_child(game)')
     (out / 'tools/survey.gd').write_text(survey + '\nfunc _capture_seed() -> int:\n\tfor arg in OS.get_cmdline_user_args():\n\t\tif arg.begins_with("--seed="):\n\t\t\treturn int(arg.trim_prefix("--seed="))\n\treturn 7\n\nfunc _run() -> void:\n\tpass\n')
-    for script in ('survey.gd', 'capture.gd'):
+    for script in ('survey.gd', 'capture.gd', 'compare.gd'):
         run(['godot', '--headless', '--path', str(REPO), '--check-only', '--script', str(out / 'tools' / script)], out / 'tools' / (script + '-parse.log'))
     with (out / 'receipts.jsonl').open('w') as receipts:
-        for name, seed, crossing, width, delay, horizon in VARIANTS:
+        for name, seed, delay, horizon, thick in VARIANTS:
             folder = out / name
             (folder / 'scratch').mkdir(parents=True)
-            overrides = f'return_seconds={crossing},return_width={width},return_delay={delay}'
+            overrides = f'return_seconds=1.8,return_width=2,return_delay={delay}'
             argv = ['godot', '--path', str(REPO), '--windowed', '--resolution', '1280x720',
                     '--fixed-fps', '60', '--always-on-top', '--script', str(out / 'tools/capture.gd'),
                     '--', f'--out={folder}', f'--sha={sha}', f'--seed={seed}', f'--style-set={overrides}']
-            if horizon:
-                argv.append('--horizon')
+            if horizon: argv.append('--horizon')
+            if thick: argv.append('--thick')
+            if name in ('delay-09-7', 'horizon-09-7'): argv.append('--cost')
             with (out / 'tools/commands.jsonl').open('a') as commands:
                 commands.write(json.dumps({'at': datetime.now(ZoneInfo('Asia/Tokyo')).isoformat() + ' JST', 'argv': argv}) + '\n')
             run(argv, out / 'tools' / (name + '-windowed.log'))
@@ -75,8 +76,26 @@ def main():
                 record['variant'] = name
                 record['clip'] = f'clips/{name}.mp4'
                 receipts.write(json.dumps(record) + '\n')
+            if (folder / 'cost.tsv').exists(): shutil.copyfile(folder / 'cost.tsv', out / (name + '-cost.tsv'))
+            if (folder / 'diamond-off.png').exists(): shutil.copyfile(folder / 'diamond-off.png', out / 'thick-diamond-off.png')
             shutil.rmtree(folder)
-    (out / 'report.md').write_text(f'''# Row 5 day return\n\nCandidate `{sha}`. Written {datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%F %T JST')}.\n\nSeven whole-frame 60 fps native contact clips, -1 to +6 s. Defaults on seeds 7 and 1919; crossing 0.8/1.2/1.8 s, band 2/6 degrees and delay 0/0.2 s. Horizon uses the default. Shader logs checked before encoding.\n\n`*-luminance.tsv` contains every frame's mean luminance behind the front and the exact same pixels at +6 s, with white-band pixels excluded. Changed pixels use maximum RGB channel difference >=16 (6 percent). The day-page comparison excludes HUD and moving foreground; receipts retain each frame's camera, native state and pass values.\n\n## Follow-ups\n\nArt acceptance, unchanged-against-main captures (including second contact and plate/chart), and thick-cloud/no-diamond proof remain separate required gates.\n''')
+    # Compare the immutable main snapshot and candidate using the same native route.
+    main_sha = subprocess.check_output(['git', 'rev-parse', 'origin/main'], cwd=REPO, text=True).strip()
+    control = out / 'main-scratch'
+    control.mkdir()
+    archive = subprocess.Popen(['git', 'archive', main_sha], cwd=REPO, stdout=subprocess.PIPE)
+    subprocess.run(['tar', '-x', '-C', str(control)], stdin=archive.stdout, check=True)
+    archive.stdout.close()
+    if archive.wait(): raise RuntimeError('git archive main failed')
+    run(['godot', '--headless', '--path', str(control), '--import'], out / 'tools/main-import.log')
+    for side, repo, revision in [('main', control, main_sha), ('candidate', REPO, sha)]:
+        folder = out / ('compare-' + side)
+        (folder / 'frames').mkdir(parents=True)
+        run(['godot', '--path', str(repo), '--windowed', '--resolution', '1280x720',
+             '--fixed-fps', '60', '--script', str(out / 'tools/compare.gd'), '--',
+             f'--out={folder}', f'--sha={revision}'], out / 'tools' / (side + '-windowed.log'))
+    shutil.rmtree(control)
+    subprocess.run(['python3', str(out / 'tools/finish.py'), '--report', str(out), main_sha, sha], check=True)
     print(f'CAPTURE COMPLETE {out}/report.md JST')
 
 if __name__ == '__main__':
