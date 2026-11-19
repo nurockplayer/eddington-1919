@@ -19,7 +19,8 @@ uniform sampler2D return_night : source_color, repeat_disable, filter_nearest;
 uniform sampler2D return_day : source_color, repeat_disable, filter_nearest;
 uniform float return_radius = -1.0;
 uniform float return_band = 0.0349066;
-uniform float return_blend = -1.0; // endpoint glow into the live day print
+uniform float return_blend = -1.0; // blend complete sky prints, preserving the ruling
+uniform sampler2D return_live_sky : source_color, repeat_disable, filter_linear_mipmap;
 uniform float diamond_radius = 0.45; // core radius in solar radii
 uniform float diamond_spikes = 4.0; // longest spike in solar radii
 uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
@@ -197,7 +198,7 @@ void fragment() {
 	float z = max(-pv.z, 0.01);
 	vec3 ray_v = normalize(pv);
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
-	if (day_return_active && return_blend < 0.0) {
+	if (day_return_active) {
 		float distance = acos(clamp(dot(ray_w, sun_dir), -1.0, 1.0));
 		if (return_radius < 0.0 || distance > return_radius) {
 			ALBEDO = texture(return_night, uv).rgb;
@@ -207,6 +208,8 @@ void fragment() {
 			ALBEDO = texture(return_day, uv).rgb;
 		}
 	} else {
+	vec3 endpoint_print = vec3(0.0);
+	for (int page_index = 0; page_index < 2; page_index++) {
 	float k = 2.0 / (abs(PROJECTION_MATRIX[1][1]) * VIEWPORT_SIZE.y);
 	// Line weights are given for a 720-line frame and follow the viewport height.
 	float res_k = VIEWPORT_SIZE.y / 720.0;
@@ -220,6 +223,11 @@ void fragment() {
 	float hz = mix(1.0, mix(sky_horizon, 1.0, smoothstep(0.0, sky_horizon_h, elev)), lit);
 	vec3 c = texture(screen_tex, uv).rgb;
 	vec3 c_t = textureLod(screen_tex, uv, max(mix(tone_lod, far_lod, dist_f) + log2(res_k), 0.0)).rgb;
+
+	if (page_index == 1) {
+		c = texture(return_live_sky, uv).rgb;
+		c_t = textureLod(return_live_sky, uv, max(tone_lod + log2(res_k), 0.0)).rgb;
+	}
 
 	// Tone: 1 = bare paper, 0 = solid ink.
 	float ex = exposure * mix(1.0, totality_gain, darkness) * mix(1.0, night_gain, night);
@@ -449,6 +457,12 @@ void fragment() {
 		}
 	}
 	ALBEDO = mix(print_colour, paper, bead);
-	if (day_return_active) ALBEDO = mix(texture(return_day, uv).rgb, ALBEDO, return_blend);
+	if (page_index == 0) {
+		endpoint_print = ALBEDO;
+		if (return_blend < 0.0 || !sky) break;
+	} else {
+		ALBEDO = mix(endpoint_print, ALBEDO, return_blend);
+	}
+	}
 	}
 }

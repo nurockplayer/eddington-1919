@@ -4,6 +4,9 @@ extends Node
 var main: Node
 var style: RefCounted
 var elapsed := 0.0
+var active := false
+var live_sky: SubViewport
+var live_camera: Camera3D
 var plates: Array[SubViewport] = []
 var cameras: Array[Camera3D] = []
 var materials: Array[ShaderMaterial] = []
@@ -37,21 +40,15 @@ func setup(game: Node, print_style: RefCounted) -> void:
 			sources.append(visual)
 	compositor = main.get_tree().get_first_node_in_group("style_quad")
 	compositor_layers = compositor.layers
-	compositor.layers = 1 << 19
 	camera_mask = main.player.camera.cull_mask
 	camera_environment = main.player.camera.environment
-	# Only the endpoint worlds need geometry during the crossing.
-	main.player.camera.cull_mask = 1 << 19
-	var empty := Environment.new()
-	empty.background_mode = Environment.BG_COLOR
-	main.player.camera.environment = empty
 	for index in 2:
 		var viewport := SubViewport.new()
 		viewport.own_world_3d = true
 		viewport.size = main.get_viewport().size
 		viewport.msaa_3d = main.get_viewport().msaa_3d
 		viewport.scaling_3d_scale = main.get_viewport().scaling_3d_scale
-		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 		add_child(viewport)
 		plates.append(viewport)
 		var copies: Array[VisualInstance3D] = []
@@ -96,6 +93,48 @@ func setup(game: Node, print_style: RefCounted) -> void:
 		quad.material_override = material
 		viewport.add_child(quad)
 		materials.append(material)
+	# The ease needs two sky prints, but only one geometry/light/shadow pass.
+	live_sky = SubViewport.new()
+	live_sky.own_world_3d = true
+	live_sky.size = main.get_viewport().size
+	live_sky.use_hdr_2d = true
+	live_sky.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(live_sky)
+	live_camera = Camera3D.new()
+	live_camera.environment = main.env
+	live_sky.add_child(live_camera)
+	materials[1].set_shader_parameter("return_live_sky", live_sky.get_texture())
+	_sync()
+
+
+func warm() -> void:
+	for viewport in plates + [live_sky]:
+		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	# Compile both endpoint pipelines under second contact's opaque fade.
+	RenderingServer.force_draw(false)
+	RenderingServer.force_draw(false)
+	for viewport in plates + [live_sky]:
+		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+
+
+func activate() -> void:
+	active = true
+	elapsed = 0.0
+	frozen_cloud = main.t_game - 0.5 * main.sim.TIME_SCALE
+	for index in 2:
+		var cloud_t: float = frozen_cloud if index == 0 else main.t_game + 10.0
+		skies[index].set_shader_parameter("cloud_time", cloud_t)
+		materials[index].set_shader_parameter("cloud_time", cloud_t)
+		skies[index].set_shader_parameter("third_contact_gap", main.sky_mat.get_shader_parameter("third_contact_gap"))
+		for i in sources.size():
+			if sources[i] == main.sun:
+				var density: float = main.sim.cloud_over_sun(cloud_t)
+				mirrors[index][i].light_energy = 0.0 if index == 0 else (style.params.sun_floor + 1.4 * main._crescent(0.8) * (1.0 - density * 0.85)) * main._look_sun
+	compositor.layers = 1 << 19
+	main.player.camera.cull_mask = 1 << 19
+	var empty := Environment.new()
+	empty.background_mode = Environment.BG_COLOR
+	main.player.camera.environment = empty
 	style.quad_material.set_shader_parameter("return_night", plates[0].get_texture())
 	style.quad_material.set_shader_parameter("return_day", plates[1].get_texture())
 	style.quad_material.set_shader_parameter("return_band", deg_to_rad(style.params.return_width))
@@ -105,8 +144,6 @@ func setup(game: Node, print_style: RefCounted) -> void:
 
 func _sync() -> void:
 	style.quad_material.set_shader_parameter("return_radius", radius())
-	# Once this view is day and the native tween has finished, ease its glow
-	# into the live day print. Blending the prints avoids re-cutting hatch lines.
 	var farthest := 0.0
 	var camera: Camera3D = main.player.camera
 	for corner in [Vector2.ZERO, Vector2(main.get_viewport().size.x, 0), Vector2(main.get_viewport().size), Vector2(0, main.get_viewport().size.y)]:
@@ -114,15 +151,20 @@ func _sync() -> void:
 	var view_is_day := elapsed >= 3.0 and radius() - deg_to_rad(style.params.return_width) >= farthest
 	if view_is_day:
 		if settle_started < 0.0: settle_started = elapsed
-		camera.cull_mask = camera_mask | (1 << 19)
-		camera.environment = camera_environment
-		plates[0].render_target_update_mode = SubViewport.UPDATE_DISABLED
-		style.quad_material.set_shader_parameter("return_blend", smoothstep(0.0, 1.5, elapsed - settle_started))
 	else:
 		settle_started = -1.0
-		camera.cull_mask = 1 << 19
-		plates[0].render_target_update_mode = SubViewport.UPDATE_ALWAYS
-		style.quad_material.set_shader_parameter("return_blend", -1.0)
+	var blend := -1.0 if settle_started < 0.0 else smoothstep(0.0, 1.5, elapsed - settle_started)
+	style.quad_material.set_shader_parameter("return_blend", blend)
+	materials[1].set_shader_parameter("return_blend", blend)
+	if active:
+		plates[0].render_target_update_mode = SubViewport.UPDATE_DISABLED if view_is_day else SubViewport.UPDATE_ALWAYS
+		plates[1].render_target_update_mode = SubViewport.UPDATE_ALWAYS if started() else SubViewport.UPDATE_DISABLED
+		live_sky.render_target_update_mode = SubViewport.UPDATE_ALWAYS if view_is_day else SubViewport.UPDATE_DISABLED
+	live_sky.size = main.get_viewport().size
+	live_camera.global_transform = camera.global_transform
+	live_camera.fov = camera.fov
+	live_camera.near = camera.near
+	live_camera.far = camera.far
 	for index in 2:
 		plates[index].size = main.get_viewport().size
 		cameras[index].global_transform = main.player.camera.global_transform
@@ -143,6 +185,7 @@ func _sync() -> void:
 
 
 func _process(delta: float) -> void:
+	if not active: return
 	elapsed += delta
 	if settle_started >= 0.0 and elapsed >= maxf(3.0, settle_started + 1.5) and radius() > PI + deg_to_rad(style.params.return_width):
 		style.quad_material.set_shader_parameter("day_return_active", false)

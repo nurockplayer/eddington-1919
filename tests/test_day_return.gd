@@ -25,6 +25,7 @@ func _run() -> void:
 		game._style.impl.start_day_return(game, game._style)
 		var front: Node = game._style.impl.day_return
 		front.set_process(false)
+		check(not front.started() and front.plates[1].render_target_update_mode == SubViewport.UPDATE_DISABLED, "unseen day endpoint does not draw before the front")
 		check(front.plates[0].size == root.size and front.plates[1].size == root.size, "endpoint plates use the physical render size")
 		var changes := 0
 		var previous: Color = game.ui.hint_label.get_theme_color("font_color")
@@ -40,7 +41,7 @@ func _run() -> void:
 			previous = foreground
 			check(front.materials[0].get_shader_parameter("darkness") == 1.0 and front.materials[1].get_shader_parameter("darkness") == 0.0, "both endpoint plate weights stay fixed")
 			check(is_equal_approx(game.sky_mat.get_shader_parameter("darkness"), 1.0 - v * v), "native lighting tween stays unchanged")
-			if frame == 15:
+			if frame == 51:
 				check(front.radius() >= game.sim.SUN_R and front.radius() < 2.0 * game.sim.SUN_R and shader.contains("return_radius < 2.0 * sun_r"), "first white front covers the whole Moon")
 		front.elapsed = 5.5
 		front._sync()

@@ -7,6 +7,7 @@ from array import array
 from datetime import datetime
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 from zoneinfo import ZoneInfo
 from PIL import Image, ImageChops, ImageDraw, ImageMath, ImageStat
@@ -90,7 +91,7 @@ def summarize(folder, out):
                'ordinary_max_changed': level, 'ordinary_mean_changed': sum(r[7] for r in ordinary)/len(ordinary),
                'ordinary_max_mean_abs_rgb': max(r[8] for r in ordinary), 'exceedances': len(exceeds),
                'post_front_max_changed': max(r[7] for r in rows if left is not None and r[0] > left)}
-    if folder.name in ('delay-06-7', 'delay-09-7'):
+    if folder.name.startswith('delay-06'):
         # Native pixels: no enlargement or resampling. 19 crops, -0.2..+1.6 s.
         sheet = Image.new('RGB', (1500, 4 * 324), '#efe6d2')
         label = ImageDraw.Draw(sheet)
@@ -103,6 +104,34 @@ def summarize(folder, out):
             sheet.paste(crop, (i % 5 * 300, i // 5 * 324))
             label.text((i % 5 * 300 + 4, i // 5 * 324 + 302), f"{record['contact_s']:+.2f} s, native pixels", fill='#221c18')
         sheet.save(out / 'sheets' / (folder.name + '-sun-1x.png'))
+    if folder.name == 'delay-06-7':
+        prior = Path('/Volumes/KIOXIA/eddington-1919-cache/director/day-returns/d70ba99/clips/delay-06-7.mp4')
+        decoder = subprocess.Popen(['ffmpeg', '-nostdin', '-loglevel', 'error', '-i', str(prior),
+                                    '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], stdout=subprocess.PIPE)
+        sheet = Image.new('RGB', (600, 4 * 324), '#efe6d2')
+        labels = ImageDraw.Draw(sheet)
+        selected = {min(range(len(records)), key=lambda i: abs(records[i]['contact_s'] - t)): t
+                    for t in (2.0, 2.5, 3.0, 3.5)}
+        with (out / 'd70ba99-world-comparison.tsv').open('w') as file:
+            writer = csv.writer(file, delimiter='\t')
+            writer.writerow(['contact_s', 'world_changed_pixels_6pct', 'world_mean_abs_rgb'])
+            for i, record in enumerate(records):
+                data = decoder.stdout.read(width * height * 3)
+                assert len(data) == width * height * 3, 'short d70ba99 clip'
+                control = Image.frombytes('RGB', (width, height), data)
+                candidate = Image.open(folder / record['frame']).convert('RGB')
+                count, mean = changed(candidate, control, world)
+                writer.writerow([record['contact_s'], count, mean])
+                if i in selected:
+                    row = list(selected).index(i)
+                    x, y = map(round, record['sun_pixel'])
+                    box = (x-150, y-150, x+150, y+150)
+                    for col, picture in enumerate((control, candidate)):
+                        sheet.paste(picture.crop(box), (col*300, row*324))
+                        labels.text((col*300+4, row*324+302), f"{('d70ba99', 'candidate')[col]} {selected[i]:+.1f} s", fill='#221c18')
+        decoder.stdout.close()
+        assert decoder.wait() == 0
+        sheet.save(out / 'sheets/glow-vs-d70ba99-sun-1x.png')
     if folder.name.startswith('thick'):
         peak = min(records, key=lambda r: abs(r['contact_s'] - .7))
         a = Image.open(folder / peak['frame']).convert('RGB')
@@ -143,27 +172,36 @@ def report(out, main_sha, sha):
         for rep in range(3):
             values = sorted(float(r['forced_draw_ms']) for r in rows if int(r['rep']) == rep)
             p95 = values[math.ceil(.95 * len(values))-1]
-            costs.append([path.stem, rep, sum(values)/len(values), p95, p95 <= 11.1])
+            limit = 14.0 if path.stem.startswith('horizon-') and 'crossing' in path.stem else 11.1
+            costs.append([path.stem, rep, sum(values)/len(values), p95, limit, p95 <= limit])
     with (out / 'frame-cost.tsv').open('w') as file:
         writer = csv.writer(file, delimiter='\t')
-        writer.writerow(['view', 'rep', 'forced_draw_mean_ms', 'forced_draw_p95_ms', 'within_11.1_ms'])
+        writer.writerow(['view', 'rep', 'forced_draw_mean_ms', 'forced_draw_p95_ms', 'limit_ms', 'within_budget'])
         writer.writerows(costs)
-    lines = [f'# Row 5 follow-up 2\n\nCandidate `{sha}`; main control `{main_sha}`. Written {datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%F %T JST")}.',
-             '## 1. Page handoff\n\nThe day endpoint retained the contact veil while the live sky had closed it. Once the native tween has finished and the trailing edge has left the view, the endpoint print blends into the live day print over 1.5 s. This preserves the solar glow without re-cutting hatch lines during the ease. During the crossing the main camera draws only the compositor, avoiding a third geometry render; during the ease the unseen night endpoint stops rendering. The +4.5 s brightening in the old world region was the dialogue portrait, not a sky change. New world masks exclude the union of dialogue/portrait/toast rectangles for every frame; top/bottom HUD strips are excluded too. Masks are retained. Consecutive changes count world pixels whose maximum RGB channel difference is at least 16/255. Ordinary motion is the maximum of those counts on +5..+6 s. No threshold multiplier is applied. All exceedances after the front leaves are listed in each `*-above-ordinary.tsv`.',
+    cold = []
+    for path in sorted(out.glob('cold-*-first-30.tsv')):
+        rows = list(csv.DictReader(path.open(), delimiter='\t'))
+        worst = max(rows, key=lambda r: float(r['process_and_draw_ms']))
+        cold.append((path.stem, int(worst['frame_after_contact']), float(worst['forced_draw_ms']), float(worst['process_and_draw_ms'])))
+    lines = [f'# Day returns follow-up 3\n\nCandidate `{sha}`; main control `{main_sha}`. Written {datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%F %T JST")}.',
+             '## Picture and implementation\n\nDefault delay is 0.6 s, crossing 1.8 s, band 2 degrees. Native 4× MSAA is retained on both endpoint worlds. The hidden day world stops drawing before the front. After the front, only the day world renders geometry; a sky-only HDR view supplies the live sky to the same engraving pass, which blends complete sky prints over 1.5 s. Geometry is printed once. Endpoint allocation and shader warm-up run under the real second-contact black fade. The native lighting tween and the star keyline from main are unchanged; the day endpoint has darkness zero and therefore no star rings.',
+             'Clips: default seeds 7 and 1919, horizon and thick cloud in `clips/`. Sun-centred 300×300 crops at native pixels every 0.1 s from −0.2 to +1.6 s are in `sheets/`. `glow-vs-d70ba99-sun-1x.png` pairs +2.0, +2.5, +3.0, +3.5 s with the accepted delay-06-7 clip. `d70ba99-world-comparison.tsv` compares the fixed world region against that H.264 clip at every frame; it includes codec error, ordinary motion and main’s added star keyline. No threshold was relaxed.',
+             '## Continuity\n\nThe director accepted the old five above-ordinary pairs as ordinary motion. The same fixed world mask and 16/255 channel threshold remain; all current pairs above the +5..+6 s ordinary maximum are retained in the TSVs. This list alone is not a new rejection of the accepted motion.',
              '| View | Front leaves (s) | Ordinary max / mean pixels | Post-front max | Above ordinary |\n|---|---:|---:|---:|---:|']
     for r in summaries:
         lines.append(f"| {r['variant']} | {r['front_left_s']} | {r['ordinary_max_changed']} / {r['ordinary_mean_changed']:.1f} | {r['post_front_max_changed']} | {r['exceedances']} |")
-    lines += ['\n## 2. Round edge\n\nRemoved the angular streamer offset from the front. Both edges now use only angular distance from the Sun and the 2 degree band. No diamond geometry, size, growth or timing from #387 changed.',
-              '## 3. Diamond interval\n\nCrossing default is 1.8 s. Delay 0.6 and 0.9 s clips on seed 7 and native 300×300 Sun crops every 0.1 s from −0.2 to +1.6 s are in `clips/` and `sheets/`. Delay 0.9 s is used for seed 1919 and the horizon; it gives the bead more time before the front. The default delay remains unchanged pending the director’s choice.',
-              '## 4. Cost, main comparisons and thick cloud\n\nForced-draw samples use `RenderingServer.force_draw(false)` while both endpoint worlds are live: 30 warm-up draws, then 3 repetitions × 120 draws at the bead, crossing and late stages in each view, at 1280×720. Stage names are retained in the sample file names; the both_worlds_live column records whether the night endpoint is still rendering. No present or PNG encoding is timed. Per-sample values and summaries are retained. Budget is 11.1 ms per frame.',
-              '| View | Rep | Mean ms | p95 ms | Within 11.1 ms |\n|---|---:|---:|---:|---|']
-    lines += [f'| {view} | {rep} | {mean:.3f} | {p95:.3f} | {ok} |' for view,rep,mean,p95,ok in costs]
+    lines += ['## Frame cost\n\n1280×720 native forced draws, 30 warm-up draws then 3 × 120 samples per stage. No present or PNG encoding is timed. The bead is +0.7 s, crossing +1.5 s, late +3.5 s, day +6 s. Main baselines use the identical two cameras and native contact route, totality immediately before third contact and day at +6 s. Horizon crossing alone has the decided 14.0 ms allowance for its 1.8 s; every other stage is limited to 11.1 ms. Crossing retains both native 4× worlds because the picture contains the night page and day page at once. The sky-only late render replaces the second geometry pass without lowering MSAA.',
+              '| View / stage | Rep | Mean ms | p95 ms | Limit ms | Pass |\n|---|---:|---:|---:|---:|---|']
+    lines += [f'| {view} | {rep} | {mean:.3f} | {p95:.3f} | {limit:.1f} | {ok} |' for view,rep,mean,p95,limit,ok in costs]
+    lines += ['## First frames\n\nFresh Godot process per camera; real second-contact preparation happens before third contact. The first 30 frames include third-contact setup and forced drawing, with vsync disabled. Shader disk caches are not deleted. `process_and_draw_ms` includes game processing and activation on the first frame; PNG encoding is excluded. Raw values are retained.',
+              '| View | Worst frame (0-based) | Draw ms | Process + draw ms |\n|---|---:|---:|---:|']
+    lines += [f'| {view} | {frame} | {draw:.3f} | {total:.3f} |' for view,frame,draw,total in cold]
     second = [r for r in comparisons if 'second_' in r[0]]
-    lines.append(f'\nSecond contact: {len(second)} native-route samples, every 5 frames over 5 s; max changed pixels {max(r[1] for r in second)} exact / {max(r[2] for r in second)} at 6%. Plate viewer, loupe, micrometer and result chart use the existing two-exposure evidence route; region counts and all paired source images are retained in `main-comparisons.tsv` and `compare-*/frames/`.')
+    lines.append(f'## Main comparisons\n\nSecond contact: {len(second)} native-route samples, every 5 frames over 5 s; max changed pixels {max(r[1] for r in second)} exact / {max(r[2] for r in second)} at 6%. Paired sources for plate viewer, loupe, micrometer and result chart are retained in `compare-*/frames/`; counts in `main-comparisons.tsv`.')
     lines += [f'- {name}: {exact} exact / {threshold} at 6%.' for name,exact,threshold in comparisons if 'second_' not in name]
     thick = next(r for r in summaries if r['variant'].startswith('thick'))
-    lines.append(f"\nThick cloud: explicit rehearsal fixture, density 0.97 with the authored contact gap disabled, applied to sky and pass, without changing simulation/scoring. `clips/thick-09-7.mp4`; peak versus same-frame diamond-off control: {thick['thick_peak_vs_diamond_off_6pct']} changed Sun-region pixels at 6%. This fixture tests optical occlusion; normal seeds retain #387’s authored thin veil.")
-    lines.append('\n## Remaining gates\n\nDirector acceptance and delay choice are pending. PR #392 stays draft. Nonzero above-ordinary counts, budget failures or main comparison changes in the tables above remain failures; capture completion alone is not acceptance. All windowed logs were checked for shader/script errors before encoding. Scratch frame folders and the main snapshot were deleted after processing.')
+    lines.append(f"## Thick cloud\n\nDensity 0.97 with the contact gap disabled, presentation only. Peak versus same-frame diamond-off control: {thick['thick_peak_vs_diamond_off_6pct']} changed Sun-region pixels at 6%.")
+    lines.append('## Remaining gate\n\nDirector acceptance remains pending in a PR comment; #392 stays draft. Budget failures and nonzero main comparisons remain blocking. Windowed logs were checked for shader/script errors. Lossless clip frames and the temporary main snapshot were deleted after clips and tables were generated.')
     (out / 'report.md').write_text('\n\n'.join(lines) + '\n')
 
 

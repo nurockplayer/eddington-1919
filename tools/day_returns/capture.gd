@@ -4,6 +4,8 @@ var capture_seed := 7
 var horizon := false
 var thick := false
 var measure := false
+var baseline := false
+var cold := false
 
 func _thick_cloud() -> void:
 	# Rehearsal fixture: an optically opaque cloud instead of the authored gap.
@@ -18,8 +20,8 @@ func _thick_cloud() -> void:
 			material.set_shader_parameter("third_contact_gap", 0.0)
 
 func plates_live() -> bool:
-	var front = game._style.impl.day_return
-	return is_instance_valid(front) and front.plates[0].render_target_update_mode == SubViewport.UPDATE_ALWAYS
+	var front = game._style.impl.get("day_return")
+	return is_instance_valid(front) and front.active and front.plates[0].render_target_update_mode == SubViewport.UPDATE_ALWAYS and front.plates[1].render_target_update_mode == SubViewport.UPDATE_ALWAYS
 
 func _cost(stage: String) -> void:
 	var file := FileAccess.open(base.path_join("cost-" + stage + ".tsv"), FileAccess.WRITE)
@@ -41,9 +43,16 @@ func _run() -> void:
 		if arg == "--horizon": horizon = true
 		if arg == "--thick": thick = true
 		if arg == "--cost": measure = true
+		if arg == "--baseline": baseline = true
+		if arg == "--cold": cold = true
 	root.size = Vector2i(1280, 720)
 	receipts = FileAccess.open(base.path_join("receipts.jsonl"), FileAccess.WRITE)
 	await fresh()
+	# Use the real second-contact route so cold runs include its warm-up.
+	var npc_rotations := [game.world.eddington.rotation, game.world.cottingham.rotation]
+	await game._begin_totality()
+	game.world.eddington.rotation = npc_rotations[0]
+	game.world.cottingham.rotation = npc_rotations[1]
 	set_state("totality")
 	if thick:
 		RenderingServer.frame_pre_draw.connect(_thick_cloud)
@@ -53,11 +62,27 @@ func _run() -> void:
 		aim(Vector3(0, 1.67, -0.9), Vector3(0, 1.67, -0.9) + game.sim.sun_dir * 10)
 	game.t_game = game.sim.TOTALITY_S - game.sim.TIME_SCALE - DT * game.sim.TIME_SCALE
 	state = "native_third_contact"
+	var first_frames: FileAccess
+	if cold:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+		first_frames = FileAccess.open(base.path_join("first-30.tsv"), FileAccess.WRITE)
+		first_frames.store_line("frame_after_contact\tforced_draw_ms\tprocess_and_draw_ms")
 	var contact_frame := -1
 	for i in 421:
+		if baseline and i == 59: _cost("totality")
+		var process_start := Time.get_ticks_usec()
 		game._process(DT)
 		if game.tot_done and contact_frame < 0:
 			contact_frame = i
+		if cold and contact_frame >= 0 and i - contact_frame < 30:
+			var draw_start := Time.get_ticks_usec()
+			RenderingServer.force_draw(false)
+			var end := Time.get_ticks_usec()
+			first_frames.store_line("%d\t%.6f\t%.6f" % [i-contact_frame, (end-draw_start)/1000.0, (end-process_start)/1000.0])
+		if baseline or cold:
+			if contact_frame >= 0 and i == contact_frame + 360 and baseline: _cost("day-plus6")
+			await process_frame
+			continue
 		await RenderingServer.frame_post_draw
 		var front = game._style.impl.get("day_return")
 		var radius := -1.0
@@ -72,14 +97,15 @@ func _run() -> void:
 			"ui_rects": ui_rects, "practice_cloud": game.sky_mat.get_shader_parameter("practice_cloud"),
 			"third_contact_gap": game.sky_mat.get_shader_parameter("third_contact_gap")})
 		if measure and contact_frame >= 0:
-			for stage in {42: "bead", 90: "crossing", 210: "late"}:
-				if i == contact_frame + stage: _cost({42: "bead", 90: "crossing", 210: "late"}[stage])
+			for stage in {42: "bead", 90: "crossing", 210: "late", 360: "day-plus6"}:
+				if i == contact_frame + stage: _cost({42: "bead", 90: "crossing", 210: "late", 360: "day-plus6"}[stage])
 		if thick and contact_frame >= 0 and i == contact_frame + 42:
 			# At the native diamond peak, disable only the burst for a same-frame control.
 			front.materials[0].set_shader_parameter("diamond", 0.0)
 			RenderingServer.force_draw(false)
 			root.get_texture().get_image().save_png(base.path_join("diamond-off.png"))
 		await process_frame
+	if cold: first_frames.close()
 	if thick: RenderingServer.frame_pre_draw.disconnect(_thick_cloud)
 	game.stop_all_audio()
 	game.free()
