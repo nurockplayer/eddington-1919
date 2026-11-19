@@ -155,7 +155,7 @@ func _run() -> void:
 	DirAccess.remove_absolute(live.out_dir)
 	live.free()
 	check(game.sun.shadow_enabled, "low retains the real sun shadow")
-	check(game.env.glow_enabled and game.env.fog_enabled, "low retains glow and fog")
+	check(not game.env.glow_enabled and game.env.fog_enabled, "low preserves engraving glow off and depth fog")
 	check(not game.world.lamp.shadow_enabled, "low disables the 1919 lamp shadow")
 	var ui = game.ui
 	ui.toggle_pause()
