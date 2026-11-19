@@ -18,12 +18,12 @@ func setup(target: Node, colours: Dictionary) -> void:
 	ui.paper_hud = true
 	disclosure_wrap = ui.dialogue_portrait.disclosure.autowrap_mode
 	ui.dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	for label in [ui.clock_label, ui.prompt_label, ui.crosshair, ui.toast, ui.caption]:
+	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption]:
 		var slip := StyleBoxFlat.new()
 		slip.set_border_width_all(1)
 		# A Label's normal box is behind its existing content: no layout shift.
-		slip.expand_margin_left = 6
-		slip.expand_margin_right = 6
+		slip.expand_margin_left = 16
+		slip.expand_margin_right = 16
 		label.add_theme_stylebox_override("normal", slip)
 		label.add_theme_constant_override("outline_size", 0)
 		slips.append(slip)
@@ -40,6 +40,9 @@ func setup(target: Node, colours: Dictionary) -> void:
 	buttons.set_content_margin_all(10)
 	ui.dialogue_entry.connect(func(_speaker: String): _choices())
 	ui.tot_panel.visibility_changed.connect(_central_visibility)
+	ui.paper_layout = _layout
+	ui.hud.resized.connect(_layout)
+	ui.objectives.get_parent().resized.connect(_layout)
 
 
 func light(darkness: float, night: float, params: Dictionary) -> void:
@@ -57,7 +60,7 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	# The print's polarity follows its page. Tint within each polarity follows
 	# the same lighting values as the engraving, including third contact.
 	var dark := blue > 0.5 or wash > 0.5
-	var background: Color = palette.ink_col.lerp(palette.tot_paper, blue * 0.15).lerp(palette.night_paper, wash * 0.5) if dark else palette.paper
+	var background: Color = palette.ink_col.lerp(palette.tot_paper, blue * 0.15).lerp(palette.ink_col, wash) if dark else palette.paper
 	foreground = palette.paper.lerp(palette.safe_light, wash) if dark else palette.ink_col
 	for slip in slips:
 		slip.bg_color = background
@@ -66,9 +69,12 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 		panel.add_theme_stylebox_override("panel", panel_slips[panel])
 	buttons.bg_color = background
 	buttons.border_color = foreground
-	for label in [ui.clock_label, ui.prompt_label, ui.crosshair, ui.toast, ui.caption, ui.tot_hint, ui.callout, ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
+	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption, ui.tot_hint, ui.callout, ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
 		label.add_theme_color_override("font_color", foreground)
 		label.add_theme_constant_override("outline_size", 0)
+	ui.crosshair.add_theme_color_override("font_color", foreground)
+	ui.crosshair.add_theme_color_override("font_outline_color", palette.ink_col if dark else palette.paper)
+	ui.crosshair.add_theme_constant_override("outline_size", 3)
 	for label in [ui.objectives, ui.tot_label, ui.text_label]:
 		label.add_theme_color_override("default_color", foreground)
 	# The original print stays on its card; multiply its paper by the page wash.
@@ -111,3 +117,29 @@ func _central_visibility() -> void:
 	ui.crosshair.visible = not ui.tot_panel.visible
 	if ui.tot_panel.visible:
 		ui.hold_bar.hide()
+
+
+func _layout() -> void:
+	# Size the labels around their text, preserving the centred prompt and clock
+	# whenever there is room alongside the task panel.
+	for label in [ui.clock_label, ui.prompt_label]:
+		label.size.x = label.get_minimum_size().x
+		label.position.x = -label.size.x * 0.5
+	var task: Control = ui.objectives.get_parent()
+	if task.visible:
+		var left: float = task.position.x + task.size.x + 16.0
+		ui.clock_label.position.x = maxf(ui.clock_label.position.x, left - ui.hud.size.x * 0.5)
+		if ui.clock_label.position.x + ui.hud.size.x * 0.5 + ui.clock_label.size.x + 16.0 > ui.hud.size.x:
+			ui.clock_label.position.x = -ui.clock_label.size.x * 0.5
+			ui.clock_label.position.y = task.position.y + task.size.y + 16.0
+		else:
+			ui.clock_label.position.y = 14.0
+	else:
+		ui.clock_label.position.y = 14.0
+	var font: Font = ui.toast.get_theme_font("font")
+	var font_size: int = ui.toast.get_theme_font_size("font_size")
+	var width := 0.0
+	for line in ui.toast.text.split("\n"):
+		width = maxf(width, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+	ui.toast.size.x = minf(width, 960.0)
+	ui.toast.position.x = -ui.toast.size.x * 0.5

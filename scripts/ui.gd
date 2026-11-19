@@ -12,6 +12,7 @@ const DialoguePortrait := preload("res://scripts/cambridge/dialogue_portrait.gd"
 const FadeStars := preload("res://scripts/fade_stars.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 var paper_hud := false
+var paper_layout := Callable()
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -407,12 +408,15 @@ func _paper_text(bb: String) -> String:
 func set_objectives(bb: String) -> void:
 	objectives.text = _paper_text(bb)
 	objectives.get_parent().visible = bb != ""
+	if paper_hud:
+		paper_layout.call()
 
 
 func set_prompt(text: String) -> void:
 	prompt_label.text = text
 	if paper_hud:
 		prompt_label.visible = not text.is_empty() and not tot_panel.visible
+		paper_layout.call()
 
 
 func set_hold(progress: float) -> void:
@@ -422,6 +426,8 @@ func set_hold(progress: float) -> void:
 
 func show_toast(text: String, seconds := 4.0) -> void:
 	toast.text = text
+	if paper_hud:
+		paper_layout.call()
 	toast.modulate.a = 1.0
 	_toast_t = seconds
 	_append_history(L.t("・") + text)
@@ -707,6 +713,7 @@ func set_clock(text: String) -> void:
 	clock_label.text = text
 	if paper_hud:
 		clock_label.visible = not text.is_empty()
+		paper_layout.call()
 
 
 # ------------------------------------------------------------------ Plate viewer

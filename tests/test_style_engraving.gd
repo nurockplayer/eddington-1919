@@ -116,10 +116,14 @@ func _test_hud_paper(game: Node) -> void:
 	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
 		game._apply_light(0.62, state[0], -150.0, state[1])
 		var dark: bool = state[0] > 0 or state[1] > 0
-		for label in [ui.clock_label, ui.prompt_label, ui.crosshair, ui.toast, ui.caption]:
+		for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption]:
 			check(label.has_theme_stylebox_override("normal"), "HUD text has its own slip: " + str(label.get_path()))
 			if label.has_theme_stylebox_override("normal"):
 				_check_slip(label.get_theme_stylebox("normal"), label.get_theme_color("font_color"), dark)
+		check(not ui.crosshair.has_theme_stylebox_override("normal"), "crosshair mark has no slip")
+		check(ui.crosshair.get_theme_constant("outline_size") > 0, "crosshair has a contrasting edge")
+		if state[1] > 0:
+			check(ui.dialog_panel.get_theme_stylebox("panel").bg_color == Engraving.INK, "night slips use warm page ink")
 		for panel in [ui.objectives.get_parent(), ui.tot_panel, ui.dialog_panel, ui.dialogue_portrait]:
 			var slip: StyleBoxFlat = panel.get_theme_stylebox("panel")
 			var text: Color = ui.hint_label.get_theme_color("font_color")
