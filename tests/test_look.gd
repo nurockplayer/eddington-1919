@@ -74,7 +74,7 @@ func _run() -> void:
 	check(game.sun.light_energy == 0.0, "night sun off")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(game.sun.light_energy >= 0.3 * 1.8, "cloud floor")
-	check(game.env.ambient_light_energy == 0.45, "ambient gain")
+	check(is_equal_approx(game.env.ambient_light_energy, 0.45), "ambient gain")
 	game._apply_light(0.97, 0.9, -10.0, 0.0)
 	check(game.sun.light_energy < 0.3 * 1.8, "floor fades")
 	game.free()
