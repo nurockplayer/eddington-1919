@@ -51,7 +51,7 @@ if [ "$ok" -gt 0 ]; then
       for name in "${successful[@]}"; do
         tiles+=(-label "$name" "$OUT/$name/$b.png")
       done
-      magick montage "${tiles[@]}" -resize 640x360 -tile 3x -geometry +6+6 -background '#202020' -fill white "$OUT/sheets/$b.jpg"
+      magick montage -font /System/Library/Fonts/Helvetica.ttc "${tiles[@]}" -resize 640x360 -tile 3x -geometry +6+6 -background '#202020' -fill white "$OUT/sheets/$b.jpg"
     done
   else
     echo 'magick not installed; skipping contact sheets'

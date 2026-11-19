@@ -54,9 +54,24 @@ ffmpeg is installed. Use fresh directories. For resolution comparison, render
 
 ## Validation and frames
 
-Pending the detached import, focused suites and windowed capture. The delivery
-report records their actual results, per-cell counts, evidence-image counts,
-windowed diagnostics and CI status; no art acceptance is claimed here.
+The eight branch/reference pairs, repeated branch frames, photographic evidence,
+1080p/1440p instrument frames, two-variant table and both 960-frame motion captures
+were produced at code commit `e970c8f`, from 2026-11-19 12:14 JST to
+2026-11-19 12:28 JST. They live at
+`/Volumes/KIOXIA/eddington-1919-cache/director/engraving-main/e970c8f/`.
+`pixel-counts.json` records the 4x3 comparisons; `evidence-exact-counts.json`
+records zero differing pixels in every plate/chart crop, including loupe and
+micrometer overlays. `inspection/` contains gridded branch/reference/difference
+sheets. The complete delivery report and latest CI state are in
+[PR #383](https://github.com/nurockplayer/eddington-1919/pull/383).
+
+Focused suites passed: look 54, benchmark statistics 10, graphics quality 96,
+portrait 78, plate reading 195, micrometer 156 and totality 658 checks, all zero
+failures. The style suite passed 270 checks in CI. No shader or script error
+occurred in windowed Godot. Its one-instance ObjectDB warning also occurs on
+main. The variants runner uses the Mac's Helvetica font explicitly because
+ImageMagick's empty default font prevented its labelled contact sheet.
+No art acceptance is claimed here.
 
 ## Assumptions
 
@@ -64,6 +79,7 @@ The explicit requirement to keep the PR draft takes precedence over the generic
 one-shot instruction to open it ready. The diff exceeds 300 lines because it
 ports the existing shader, parameter table, benchmark/statistics and motion
 capture tools required by the acceptance cases, rather than replacing them.
+The comparison tool runs on this Mac and uses `/System/Library/Fonts/Helvetica.ttc`.
 The audition's sky-bookmark framing lives in the benchmark; gameplay geometry,
 totality staging, story and measurement code remain main's.
 
