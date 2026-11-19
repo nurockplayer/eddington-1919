@@ -46,6 +46,7 @@ func apply(main: Node) -> void:
 		print_label(label)
 	main.get_tree().node_added.connect(_node_added.bind(main))
 	main.world.sun_crescents.material_override.set_shader_parameter("print_paper", Engraving.PAPER)
+	main.world.sun_crescents.material_override.set_shader_parameter("print_enabled", true)
 	var firefly_ramp: Gradient = main.world.fireflies.color_ramp
 	for i in firefly_ramp.get_point_count():
 		firefly_ramp.set_color(i, Color(Engraving.PAPER, firefly_ramp.get_color(i).a))

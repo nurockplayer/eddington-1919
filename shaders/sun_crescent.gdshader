@@ -6,6 +6,7 @@ uniform vec4 ground_to_sun;      // row-major 2x2, per metre of gap height
 uniform vec2 moon_c = vec2(2.1, 0.12);
 uniform float brightness = 0.0;
 uniform vec4 print_paper : source_color = vec4(1.0, 0.86, 0.62, 1.0);
+uniform bool print_enabled = false;
 varying vec2 local;
 
 void vertex() {
@@ -17,5 +18,6 @@ void fragment() {
 	// Frond gaps are not perfect pinholes: soft rims.
 	float in_sun = 1.0 - smoothstep(0.8, 1.0, length(lp));
 	float in_moon = 1.0 - smoothstep(0.95, 1.15, length(lp - moon_c));
-	ALBEDO = print_paper.rgb * in_sun * (1.0 - in_moon) * brightness * 0.32;
+	ALBEDO = (print_enabled ? print_paper.rgb : vec3(1.0, 0.86, 0.62)) * in_sun * (1.0 - in_moon) * brightness * (print_enabled ? 1.0 : 0.32);
+	ALPHA = 1.0;
 }

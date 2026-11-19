@@ -51,6 +51,7 @@ func _run() -> void:
 	var labels: Array[Node] = game.find_children("*", "Label3D", true, false)
 	check(labels.size() > 0 and labels[0].modulate == Engraving.INK and labels[0].outline_modulate == Engraving.PAPER, "labels use print palette")
 	check(game.world.sun_crescents.material_override.get_shader_parameter("print_paper") == Engraving.PAPER, "crescents use paper colour")
+	check(game.world.sun_crescents.material_override.get_shader_parameter("print_enabled"), "crescents use print brightness")
 	for name in Engraving.PARAMS:
 		check(material.get_shader_parameter(name) == Engraving.PARAMS[name], "material parameter " + name)
 	check(material.get_shader_parameter("line_px") == 5.0, "default line spacing")
