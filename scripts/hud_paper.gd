@@ -144,4 +144,6 @@ func _layout() -> void:
 	for line in ui.toast.text.split("\n"):
 		width = maxf(width, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
 	ui.toast.size.x = minf(width, 960.0)
+	# Refit the wrapped height after changing the width.
+	ui.toast.size.y = 0.0
 	ui.toast.position.x = (ui.hud.size.x - ui.toast.size.x) * 0.5
