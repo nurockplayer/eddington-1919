@@ -57,7 +57,8 @@ uniform float far_line = 0.0;         // contour strength of distant land (0 = i
 uniform float far_sky = 0.40;         // ink share of a clear day sky high up, the reference for far_step
 uniform float far_step = 0.16;       // by day distant land prints at least this much darker than clear sky
 uniform float far_in = 0.25;          // share of the way to far_end by which that floor is fully in
-uniform float wash_far = 0.4;        // share of the wash left on distant land
+uniform float wash_soft = 1.0;        // 1 = distant land's wash follows the blurred picture, 0 = the sharp one
+uniform float wash_far = 0.4;       // share of the wash left on distant land
 uniform float sky_horizon = 0.5;      // share of the day sky's ruling left at the horizon (1 = even sky)
 uniform float sky_horizon_h = 0.45;   // altitude in radians where the sky's ruling is back at full weight
 uniform float ground_cap = 0.60;      // darkest tone of level ground at totality (1 = may print solid)
@@ -270,7 +271,9 @@ void fragment() {
 	// Paper: fibre grain fixed to the page; an optional thin wash of the scene's hue.
 	vec2 fp = FRAGCOORD.xy / res_k;
 	float fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
-	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
+	// Distant land takes its wash from the blurred picture: a texture's sunlit patches would print as hard-edged stains.
+	vec3 c_w = mix(c, c_t, dist_f * wash_soft);
+	vec3 hue = c_w / max(max(c_w.r, max(c_w.g, c_w.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	float blue = darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
