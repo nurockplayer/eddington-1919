@@ -9,12 +9,15 @@ var buttons: StyleBoxFlat
 var foreground: Color
 var evidence_dialogue := {}
 var portrait_tint := Color.WHITE
+var disclosure_wrap: int
 
 
 func setup(target: Node, colours: Dictionary) -> void:
 	ui = target
 	palette = colours
 	ui.paper_hud = true
+	disclosure_wrap = ui.dialogue_portrait.disclosure.autowrap_mode
+	ui.dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	for label in [ui.clock_label, ui.prompt_label, ui.crosshair, ui.toast, ui.caption]:
 		var slip := StyleBoxFlat.new()
 		slip.set_border_width_all(1)
@@ -79,6 +82,7 @@ func _choices() -> void:
 	# Row 7's report conversation is part of the evidence viewer, whose pixels
 	# are deliberately outside this pass, including its shared dialogue controls.
 	if ui.viewer.visible:
+		ui.dialogue_portrait.disclosure.autowrap_mode = disclosure_wrap
 		ui.dialog_panel.add_theme_stylebox_override("panel", evidence_dialogue.panel)
 		ui.dialogue_portrait.add_theme_stylebox_override("panel", evidence_dialogue.mount)
 		ui.speaker_label.add_theme_color_override("font_color", evidence_dialogue.speaker)
@@ -87,6 +91,7 @@ func _choices() -> void:
 		ui.dialogue_portrait.disclosure.add_theme_color_override("font_color", evidence_dialogue.disclosure)
 		ui.dialogue_portrait.image.self_modulate = Color.WHITE
 		return
+	ui.dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ui.dialogue_portrait.image.self_modulate = portrait_tint
 	ui.dialog_panel.add_theme_stylebox_override("panel", panel_slips[ui.dialog_panel])
 	ui.dialogue_portrait.add_theme_stylebox_override("panel", panel_slips[ui.dialogue_portrait])

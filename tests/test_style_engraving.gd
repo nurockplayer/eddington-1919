@@ -104,6 +104,15 @@ func _run() -> void:
 
 func _test_hud_paper(game: Node) -> void:
 	var ui: Node = game.ui
+	var was_title: bool = ui.title_panel.visible
+	var was_busy: bool = game._busy
+	ui.title_panel.hide()
+	game._busy = false
+	game._process_interaction(0)
+	check(ui.crosshair.modulate == Color.WHITE, "interaction cannot fade or tint the crosshair slip")
+	ui.title_panel.visible = was_title
+	game._busy = was_busy
+	check(ui.dialogue_portrait.disclosure.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "translated portrait caption wraps inside its card")
 	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
 		game._apply_light(0.62, state[0], -150.0, state[1])
 		var dark: bool = state[0] > 0 or state[1] > 0
