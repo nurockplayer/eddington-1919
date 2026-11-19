@@ -392,9 +392,9 @@ void fragment() {
 			float distance_px = length(uv * VIEWPORT_SIZE - centre_px);
 			float inner_px = 1.5 * res_k;
 			float outer_px = (1.5 + star_keyline_px) * res_k;
-			if (projected.w > 0.0 && distance_px <= outer_px) {
+			if (projected.w > 0.0 && distance_px < outer_px + 0.3 * res_k) {
 				float gate = (1.0 - smoothstep(0.35, 0.80, eclipse_cloud_density(direction))) * star_vis;
-				float ring = step(inner_px, distance_px);
+				float ring = step(inner_px, distance_px) * (1.0 - smoothstep(outer_px - 0.5 * res_k, outer_px + 0.3 * res_k, distance_px));
 				// Read the field outside the point, so its white core cannot
 				// turn on a keyline against otherwise dark paper.
 				vec2 sample_px = vec2(4.0) / VIEWPORT_SIZE;
