@@ -22,9 +22,12 @@ uniform float contact = 1.0;
 // The sky's live cloud field, including the rehearsal override.
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
+uniform float third_contact_gap = 0.0;
 uniform float practice_cloud = -1.0;
 uniform vec2 wind = vec2(0.0042, 0.0026);
 uniform float cloud_scale = 0.35;
+
+#include "res://shaders/eclipse_cloud.gdshaderinc"
 
 uniform vec3 paper : source_color = vec3(0.937, 0.902, 0.824);
 uniform vec3 ink_col : source_color = vec3(0.133, 0.110, 0.094);
@@ -239,12 +242,7 @@ void fragment() {
 		vec2 moon_c = vec2((1.0 - contact) * 2.1, 0.12 * (1.0 - contact));
 		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
 		vec3 bead_dir = normalize(sun_dir + sun_r * (t1 * bead_c.x + t2 * bead_c.y));
-		float dens = texture(cloud_tex, bead_dir.xz / max(bead_dir.y, 0.06) * cloud_scale - wind * cloud_time).r;
-		dens = mix(dens, 0.97, smoothstep(0.35, 0.05, bead_dir.y));
-		if (practice_cloud >= 0.0) {
-			dens = mix(dens, practice_cloud, smoothstep(0.96, 0.995, dot(bead_dir, sun_dir)));
-		}
-		dens = mix(dens, dens * 0.55, night);
+		float dens = eclipse_cloud_density(bead_dir);
 		// The sky composites solar light with this transmission. Carry it by
 		// area on the page, keeping the burst bare paper rather than grey.
 		float alpha = clamp(dens * 1.08, 0.0, 1.0);
@@ -270,9 +268,11 @@ void fragment() {
 		// Cloud changes the weight of ruling across the whole Moon, never its
 		// outline. The accepted thin gap and clearer skies keep solid ink.
 		float moon_weight = 1.0 - smoothstep(0.15, 1.0 / 1.08, dens);
-		float moon_lines = hatch(elev, k, moon_weight, l_px, 99.0);
-		moon_lines = max(moon_lines, step(1.0, moon_weight));
-		moon_ink = front * step(0.000001, visible_diamond) * step(r, 1.0) * moon_lines;
+		// The diamond opens line widths, retaining the cloud's full-strength weight.
+		float moon_cover = moon_weight * diamond;
+		float moon_lines = hatch(elev, k, moon_cover, l_px, 99.0);
+		moon_lines = max(moon_lines, step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover));
+		moon_ink = front * step(r, 1.0) * moon_lines;
 
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {

@@ -53,3 +53,9 @@ static func third_contact_glint(v: float) -> Vector2:
 	var beads := sin(v / 0.18 * PI) if v > 0.0 and v < 0.18 else 0.0
 	var diamond := sin((v - 0.08) / 0.32 * PI) if v > 0.08 and v < 0.40 else 0.0
 	return Vector2(beads, diamond)
+
+
+## Presentation only: a thin veil from the last game-second of totality until
+## 2.4 real seconds into the contact tween (which advances cloud time by 10 s).
+static func third_contact_cloud_gap(seconds_from_contact: float) -> float:
+	return smoothstep(-1.0, 0.0, seconds_from_contact) * (1.0 - smoothstep(4.0, 8.0, seconds_from_contact))

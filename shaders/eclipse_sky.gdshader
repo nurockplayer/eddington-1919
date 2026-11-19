@@ -2,10 +2,11 @@ shader_type sky;
 // Overcast tropical sky with a drifting cloud field, the partially / totally
 // eclipsed Sun, corona and the field stars. The cloud texture and its motion are
 // the same data the simulation samples, so what the player sees over the Sun is
-// what the plate receives.
+// what the plate receives, except for the presentation-only third-contact veil.
 
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
+uniform float third_contact_gap = 0.0; // presentation only; exposure cloud stays unchanged
 uniform float practice_cloud = -1.0; // rehearsal-only density near the Sun
 uniform vec2 wind = vec2(0.0042, 0.0026);
 uniform float cloud_scale = 0.35;
@@ -28,6 +29,8 @@ uniform vec3 gal_centre = vec3(1.0, 0.0, 0.0);
 uniform vec3 meteor_head = vec3(0.0, 1.0, 0.0);
 uniform vec3 meteor_tail = vec3(0.0, 1.0, 0.0);
 uniform float meteor_glow = 0.0;
+
+#include "res://shaders/eclipse_cloud.gdshaderinc"
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -58,20 +61,7 @@ void sky() {
 	// Clouds are sampled once from the same drifting field used by the plate
 	// simulation. This optical visibility gates all eclipse/night stars and the
 	// corona together, so a clear gap opens the whole view at once.
-	float dens = 0.0;
-	if (h > 0.0) {
-		vec2 plane = d.xz / max(h, 0.06);
-		vec2 uv = plane * cloud_scale - wind * cloud_time;
-		dens = texture(cloud_tex, uv).r;
-		dens = mix(dens, 0.97, smoothstep(0.35, 0.05, h));   // haze toward horizon
-	} else {
-		dens = 1.0;
-	}
-	if (practice_cloud >= 0.0 && h > 0.0) {
-		float near_practice_sun = smoothstep(0.96, 0.995, dot(d, sun_dir));
-		dens = mix(dens, practice_cloud, near_practice_sun);
-	}
-	dens = mix(dens, dens * 0.55, night);
+	float dens = eclipse_cloud_density(d);
 	float cloud_visibility = 1.0 - smoothstep(0.35, 0.80, dens);
 	float background_stars = 0.0;
 	if (h > 0.0) {
