@@ -32,6 +32,17 @@ const UNIFORMS := [
 ]
 const PAPER := Color("efe6d2")
 const INK := Color("221c18")
+# The shader's existing page colours, shared with in-play print furniture.
+const PAGES := {
+	"paper": PAPER, "ink_col": INK,
+	"tot_paper": Color(0.17, 0.21, 0.40),
+	"night_paper": Color(0.07, 0.08, 0.16),
+	"safe_paper": Color(0.42, 0.10, 0.07),
+	"safe_light": Color(0.96, 0.62, 0.45),
+}
+const HudPaper := preload("res://scripts/hud_paper.gd")
+var hud_paper := HudPaper.new()
+
 const DIALOGUE := {
 	"portrait": "res://assets/portraits/eddington_engraving.jpg",
 	"panel": Color(0.937, 0.902, 0.824, 0.97), "border": INK,
@@ -64,15 +75,16 @@ func apply(main: Node, style: RefCounted) -> void:
 	main._look_sun = p.sun_gain
 	main._look_ambient = p.ambient
 	main.player.camera.fov = p.fov
-	style.add_quad(main, SHADER, {
-		"sun_dir": main.sim.sun_dir, "sun_r": main.sim.SUN_R,
-		"paper": PAPER, "ink_col": INK,
-	})
+	var uniforms := PAGES.duplicate()
+	uniforms.merge({"sun_dir": main.sim.sun_dir, "sun_r": main.sim.SUN_R})
+	style.add_quad(main, SHADER, uniforms)
+	hud_paper.setup(main.ui, PAGES)
 	style.set_post(main, p.vignette, 0.0)
 
 
 func light(_main: Node, style: RefCounted, _contact: float, darkness: float, night: float) -> void:
 	if style.quad_material == null:
 		return
+	hud_paper.light(darkness, night, style.params)
 	style.quad_material.set_shader_parameter("darkness", darkness)
 	style.quad_material.set_shader_parameter("night", night)

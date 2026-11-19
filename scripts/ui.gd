@@ -11,6 +11,7 @@ const Strip := preload("res://scripts/totality_strip.gd")
 const DialoguePortrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
 const FadeStars := preload("res://scripts/fade_stars.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
+var paper_hud := false
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -395,13 +396,23 @@ func _build_hud(root: Control) -> void:
 	tot_box.add_child(callout)
 
 
+func _paper_text(bb: String) -> String:
+	if not paper_hud:
+		return bb
+	var colours := RegEx.new()
+	colours.compile("\\[/?color(?:=[^\\]]+)?\\]")
+	return colours.sub(bb, "", true)
+
+
 func set_objectives(bb: String) -> void:
-	objectives.text = bb
+	objectives.text = _paper_text(bb)
 	objectives.get_parent().visible = bb != ""
 
 
 func set_prompt(text: String) -> void:
 	prompt_label.text = text
+	if paper_hud:
+		prompt_label.visible = not text.is_empty() and not tot_panel.visible
 
 
 func set_hold(progress: float) -> void:
@@ -461,7 +472,9 @@ func _process(delta: float) -> void:
 		scroll.scroll_vertical += pixels
 	if _toast_t > 0.0:
 		_toast_t -= delta
-		if _toast_t < 0.6:
+		if paper_hud:
+			toast.modulate.a = 1.0 if _toast_t > 0.0 else 0.0
+		elif _toast_t < 0.6:
 			toast.modulate.a = maxf(_toast_t / 0.6, 0.0)
 	if _callout_t > 0.0:
 		_callout_t -= delta
@@ -470,7 +483,7 @@ func _process(delta: float) -> void:
 			callout.text = ""
 			callout.visible = false
 			callout.modulate.a = 0.0
-		elif _callout_t < 0.6:
+		elif _callout_t < 0.6 and not paper_hud:
 			callout.modulate.a = maxf(_callout_t / 0.6, 0.0)
 
 
@@ -483,6 +496,10 @@ func fade_to(alpha: float, seconds := 0.8) -> Tween:
 
 func show_caption(text: String, seconds := 3.0) -> Tween:
 	caption.text = text
+	if paper_hud:
+		caption.set_anchors_preset(Control.PRESET_CENTER)
+		caption.size = caption.get_minimum_size()
+		caption.position = -caption.size * 0.5
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_STOP)
 	tw.tween_property(caption, "modulate:a", 1.0, 0.6)
@@ -574,7 +591,7 @@ func _show_entry() -> void:
 	if history.size() > 60:
 		history.pop_front()
 	speaker_label.text = L.t(str(e.get("s", "")))
-	text_label.text = e.get("t", "")
+	text_label.text = _paper_text(e.get("t", ""))
 	if cambridge_portraits:
 		_layout_dialogue_portrait()
 		dialogue_portrait.show_entry(e)
@@ -665,7 +682,7 @@ func _dialogue_input(event: InputEvent) -> void:
 
 func set_totality(visible_: bool, bb := "", strip_model := {}) -> void:
 	tot_panel.visible = visible_
-	tot_label.text = bb
+	tot_label.text = _paper_text(bb)
 	tot_strip.visible = visible_ and not strip_model.is_empty()
 	if not strip_model.is_empty():
 		tot_strip.set_model(strip_model)
@@ -688,6 +705,8 @@ func set_callout(text: String, seconds := 3.5) -> void:
 
 func set_clock(text: String) -> void:
 	clock_label.text = text
+	if paper_hud:
+		clock_label.visible = not text.is_empty()
 
 
 # ------------------------------------------------------------------ Plate viewer

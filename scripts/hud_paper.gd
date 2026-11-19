@@ -1,0 +1,78 @@
+extends RefCounted
+## In-play print furniture only; viewer and menu themes stay on their own root.
+
+var ui: Node
+var palette: Dictionary
+var slips: Array[StyleBoxFlat] = []
+var panel_slips := {}
+var buttons: StyleBoxFlat
+var foreground: Color
+
+
+func setup(target: Node, colours: Dictionary) -> void:
+	ui = target
+	palette = colours
+	ui.paper_hud = true
+	for label in [ui.clock_label, ui.prompt_label, ui.crosshair, ui.toast, ui.caption]:
+		var slip := StyleBoxFlat.new()
+		slip.set_border_width_all(1)
+		# A Label's normal box is behind its existing content: no layout shift.
+		slip.expand_margin_left = 6
+		slip.expand_margin_right = 6
+		label.add_theme_stylebox_override("normal", slip)
+		label.add_theme_constant_override("outline_size", 0)
+		slips.append(slip)
+	for panel in [ui.objectives.get_parent(), ui.tot_panel, ui.dialog_panel, ui.dialogue_portrait]:
+		var slip: StyleBoxFlat = panel.get_theme_stylebox("panel").duplicate()
+		slip.set_corner_radius_all(0)
+		slip.set_border_width_all(1)
+		panel.add_theme_stylebox_override("panel", slip)
+		slips.append(slip)
+		panel_slips[panel] = slip
+	buttons = ui._panel_style(palette.paper, palette.ink_col)
+	buttons.set_corner_radius_all(0)
+	buttons.set_border_width_all(1)
+	buttons.set_content_margin_all(10)
+	ui.dialogue_entry.connect(func(_speaker: String): _choices())
+	ui.tot_panel.visibility_changed.connect(_central_visibility)
+
+
+func light(darkness: float, night: float, params: Dictionary) -> void:
+	var blue := darkness * float(params.tot_wash)
+	var wash := night * float(params.night_wash)
+	# The print's polarity follows its page. Tint within each polarity follows
+	# the same lighting values as the engraving, including third contact.
+	var dark := blue > 0.5 or wash > 0.5
+	var background: Color = palette.ink_col.lerp(palette.tot_paper, blue * 0.15).lerp(palette.night_paper, wash * 0.5) if dark else palette.paper
+	foreground = palette.paper.lerp(palette.safe_light, wash) if dark else palette.ink_col
+	for slip in slips:
+		slip.bg_color = background
+		slip.border_color = foreground
+	for panel in panel_slips:
+		panel.add_theme_stylebox_override("panel", panel_slips[panel])
+	buttons.bg_color = background
+	buttons.border_color = foreground
+	for label in [ui.clock_label, ui.prompt_label, ui.crosshair, ui.toast, ui.caption, ui.tot_hint, ui.callout, ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
+		label.add_theme_color_override("font_color", foreground)
+		label.add_theme_constant_override("outline_size", 0)
+	for label in [ui.objectives, ui.tot_label, ui.text_label]:
+		label.add_theme_color_override("default_color", foreground)
+	# The original print stays on its card; multiply its paper by the page wash.
+	ui.dialogue_portrait.image.self_modulate = palette.paper.lerp(palette.tot_paper, blue).lerp(palette.safe_paper, wash) / palette.paper
+	_choices()
+	_central_visibility()
+
+
+func _choices() -> void:
+	for button in ui._choice_buttons:
+		for state in ["normal", "hover", "pressed", "focus"]:
+			button.add_theme_stylebox_override(state, buttons)
+		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+			button.add_theme_color_override(state, foreground)
+
+
+func _central_visibility() -> void:
+	ui.prompt_label.visible = not ui.tot_panel.visible and not ui.prompt_label.text.is_empty()
+	ui.crosshair.visible = not ui.tot_panel.visible
+	if ui.tot_panel.visible:
+		ui.hold_bar.hide()
