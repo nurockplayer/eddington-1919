@@ -197,7 +197,7 @@ def report(out, main_sha, sha):
               '| View | Worst frame (0-based) | Draw ms | Process + draw ms |\n|---|---:|---:|---:|']
     lines += [f'| {view} | {frame} | {draw:.3f} | {total:.3f} |' for view,frame,draw,total in cold]
     second = [r for r in comparisons if 'second_' in r[0]]
-    lines.append(f'## Main comparisons\n\nSecond contact: {len(second)} native-route samples, every 5 frames over 5 s; max changed pixels {max(r[1] for r in second)} exact / {max(r[2] for r in second)} at 6%. Paired sources for plate viewer, loupe, micrometer and result chart are retained in `compare-*/frames/`; counts in `main-comparisons.tsv`.')
+    lines.append(f'## Main comparisons\n\nSecond contact: {len(second)} native-route samples, every 5 frames over 5 s; max changed pixels {max(r[1] for r in second)} exact / {max(r[2] for r in second)} at 6%. Second-contact and plate viewer, loupe, micrometer and result chart counts are in `main-comparisons.tsv`. Lossless comparison frames are deleted after the table is written.')
     lines += [f'- {name}: {exact} exact / {threshold} at 6%.' for name,exact,threshold in comparisons if 'second_' not in name]
     thick = next(r for r in summaries if r['variant'].startswith('thick'))
     lines.append(f"## Thick cloud\n\nDensity 0.97 with the contact gap disabled, presentation only. Peak versus same-frame diamond-off control: {thick['thick_peak_vs_diamond_off_6pct']} changed Sun-region pixels at 6%.")

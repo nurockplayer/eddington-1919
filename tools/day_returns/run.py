@@ -115,6 +115,8 @@ def main():
             shutil.rmtree(folder)
     shutil.rmtree(control)
     subprocess.run(['python3', str(out / 'tools/finish.py'), '--report', str(out), main_sha, sha], check=True)
+    for side in ('main', 'candidate'):
+        shutil.rmtree(out / ('compare-' + side) / 'frames')
     print(f'CAPTURE COMPLETE {out}/report.md JST')
 
 if __name__ == '__main__':
