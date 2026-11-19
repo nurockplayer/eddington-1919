@@ -353,7 +353,7 @@ func _build_hud(root: Control) -> void:
 	hud.add_child(prompt_label)
 	hold_bar = ProgressBar.new()
 	hold_bar.set_anchors_preset(Control.PRESET_CENTER)
-	hold_bar.position = Vector2(-120, 66)
+	hold_bar.position = Vector2(-120, 40)
 	hold_bar.size = Vector2(240, 14)
 	hold_bar.show_percentage = false
 	hold_bar.max_value = 1.0

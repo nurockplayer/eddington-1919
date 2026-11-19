@@ -142,6 +142,9 @@ func _test_hud_paper(game: Node) -> void:
 	check(not ui.prompt_label.visible and not ui.crosshair.visible, "totality leaves the corona free of central HUD")
 	check(not ui.tot_label.text.contains("[color"), "exposure colour cannot override page ink")
 	ui.set_totality(false)
+	ui.set_hold(0.5)
+	check(not ui.prompt_label.get_global_rect().grow(16).intersects(ui.hold_bar.get_global_rect()), "hold bar clears the prompt paper margin")
+	ui.set_hold(0)
 
 
 func _test_choices_caption(game: Node) -> void:

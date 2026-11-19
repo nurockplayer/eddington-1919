@@ -304,8 +304,9 @@ void fragment() {
 
 		// The brass rim/handle catch the same doorway key; the glass stays dark.
 		vec2 loupe_delta = pw.xz - vec2(11.0, 3.94);
-		bool loupe_brass = length(loupe_delta) < 0.106 || (abs(loupe_delta.x) < 0.028 && loupe_delta.y > 0.029 && loupe_delta.y < 0.271);
-		if (loupe_brass && pw.y > 0.873 && pw.y < 0.880 && n_w.y > 0.8) {
+		bool loupe_ring = length(loupe_delta) < 0.106 && pw.y > 0.849 && pw.y < 0.875;
+		bool loupe_handle = abs(loupe_delta.x) < 0.028 && loupe_delta.y > 0.075 && loupe_delta.y < 0.271 && pw.y > 0.853 && pw.y < 0.879;
+		if (loupe_ring || loupe_handle) {
 			box_reserve = max(box_reserve, lit);
 		}
 		// The black Oxford case stands solid on the lantern's reserved bench.
