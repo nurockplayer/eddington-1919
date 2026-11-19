@@ -19,6 +19,14 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	root.size = Vector2i(1280, 720)
+	for path in ["dialogue", "timer"]:
+		print("Second contact entry: ", path)
+		await _test_path(path)
+	print("%d checks, %d failures" % [checks, failures])
+	quit(0 if failures == 0 else 1)
+
+
+func _test_path(path: String) -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
@@ -35,7 +43,16 @@ func _run() -> void:
 	var clock_rect: Rect2 = game.ui.clock_label.get_global_rect()
 	var plates := var_to_bytes(game.sim.plates)
 	check(game.ui.paper_hud and not objectives.is_empty() and not clock.is_empty(), "normal engraving PREP HUD is populated")
-	game._begin_totality()
+	if path == "dialogue":
+		game._pending = "eddington_prep"
+		game._on_dialogue_done({"prep": 0})
+	else:
+		game.prep_left = 0.0
+		game._process_prep(0.0)
+		# The expiry tick updates the countdown before the fade starts.
+		clock = game.ui.clock_label.text
+		clock_rect = game.ui.clock_label.get_global_rect()
+	check(game.phase == game.Phase.TOTALITY and game._busy, path + " starts the real second-contact transition")
 	var fade_out: Tween = get_processed_tweens().back()
 	fade_out.pause()
 	_check_prep_frame(game, camera, yaw, pitch, objectives, clock, clock_rect)
@@ -73,8 +90,6 @@ func _run() -> void:
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
-	print("%d checks, %d failures" % [checks, failures])
-	quit(0 if failures == 0 else 1)
 
 
 func _check_prep_frame(game: Node, camera: Transform3D, yaw: float, pitch: float, objectives: String, clock: String, clock_rect: Rect2) -> void:

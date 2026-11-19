@@ -1119,6 +1119,7 @@ func _on_dialogue_done(results: Dictionary) -> void:
 		"eddington_prep":
 			if results.get("prep", -1) == 0:
 				_begin_totality()
+				return  # The transition owns the HUD handover under black.
 			elif results.get("prep", -1) == 2:
 				_begin_rehearsal()
 		"rules":
