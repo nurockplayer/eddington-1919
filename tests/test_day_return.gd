@@ -44,7 +44,7 @@ func _run() -> void:
 			if frame == 120:
 				check(game.player.camera.cull_mask == front.camera_mask and front.cameras[1].cull_mask == 1 << 19 and front.plates[1].render_target_update_mode == SubViewport.UPDATE_DISABLED, "native geometry draws before the ease, with no day geometry duplicate")
 			if frame == 51:
-				check(front.radius() >= game.sim.SUN_R and front.radius() < 2.0 * game.sim.SUN_R and shader.contains("return_radius < 2.0 * sun_r"), "first white front covers the whole Moon")
+				check(front.radius() >= game.sim.SUN_R and front.radius() < 2.0 * game.sim.SUN_R and shader.contains("return_radius >= 2.0 * sun_r"), "first white front covers the whole Moon")
 		front.elapsed = 5.5
 		front._sync()
 		front.elapsed += 1.5
