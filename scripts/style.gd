@@ -9,6 +9,8 @@ const LookPost := preload("res://scripts/look_post.gd")
 var id := "engraving"
 var impl: RefCounted
 var params := {}
+var label_darkness := 0.0
+var label_night := 0.0
 var quad_material: ShaderMaterial
 
 
@@ -45,8 +47,9 @@ func apply(main: Node) -> void:
 	for label in main.find_children("*", "Label3D", true, false):
 		print_label(label)
 	main.get_tree().node_added.connect(_node_added.bind(main))
+	main.world.sun_crescents.material_override.shader = preload("res://shaders/sun_crescent_print.gdshader")
 	main.world.sun_crescents.material_override.set_shader_parameter("print_paper", Engraving.PAPER)
-	main.world.sun_crescents.material_override.set_shader_parameter("print_enabled", true)
+	main.world.sun_crescents.material_override.set_shader_parameter("print_ink", Engraving.INK)
 	var firefly_ramp: Gradient = main.world.fireflies.color_ramp
 	for i in firefly_ramp.get_point_count():
 		firefly_ramp.set_color(i, Color(Engraving.PAPER, firefly_ramp.get_color(i).a))
@@ -58,13 +61,17 @@ func _node_added(node: Node, main: Node) -> void:
 
 
 func print_label(label: Label3D) -> void:
-	label.modulate = Engraving.INK
-	label.outline_modulate = Engraving.PAPER
+	label.modulate = Engraving.INK.lerp(Color(0.16, 0.13, 0.11), maxf(label_darkness, label_night))
+	label.outline_modulate = Engraving.PAPER.lerp(Color(0.17, 0.21, 0.40), label_darkness).lerp(Color(0.07, 0.08, 0.16), label_night)
 	label.outline_size = maxi(label.outline_size, 4)
 
 
 func light(main: Node, contact: float, darkness: float, night: float) -> void:
 	impl.light(main, self, contact, darkness, night)
+	label_darkness = darkness
+	label_night = night
+	for label in main.find_children("*", "Label3D", true, false):
+		print_label(label)
 
 
 func add_quad(main: Node, shader: Shader, uniforms := {}) -> ShaderMaterial:
