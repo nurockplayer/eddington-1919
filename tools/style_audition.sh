@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run the style variants and assemble the four audition frames.
-# Run: orb-test --heavy --host -- tools/style_audition.sh <out dir> [variants.tsv]
+# Run: tachi-run --heavy --host -- tools/style_audition.sh <out dir> [variants.tsv]
 set -u
 if [ "$#" -lt 1 ]; then
   echo 'usage: tools/style_audition.sh <out dir> [variants.tsv]' >&2

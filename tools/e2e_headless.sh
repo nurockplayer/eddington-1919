@@ -8,8 +8,8 @@
 # the route. Windowed runs (--always-on-top) are only for screenshots; see
 # docs/PLAYTEST_BOT_DRIVE.md.
 #
-# Usage: orb-test --host -- ./tools/e2e_headless.sh
-# (Owner rule 2026-10-25 JST: tests never run bare on the host; orb-test holds the
+# Usage: tachi-run --host -- ./tools/e2e_headless.sh
+# (Owner rule 2026-10-25 JST: tests never run bare on the host; tachi-run holds the
 # host-wide test slot, so this script takes no lock of its own.)
 # Exits non-zero if any route fails.
 

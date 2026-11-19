@@ -1,6 +1,6 @@
 #!/bin/bash
 # Every tests/test_*.gd on the current checkout, one at a time, with a per-suite cap.
-# Prints one line per suite; exits 1 if any suite fails. Run from the repo root through orb-test --host.
+# Prints one line per suite; exits 1 if any suite fails. Run from the repo root through tachi-run --host.
 godot --headless --path . --import >/dev/null 2>&1
 export EDD_SETTINGS_PATH="$PWD/.godot/test-settings.cfg"
 fail=0
