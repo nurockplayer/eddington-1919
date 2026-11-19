@@ -48,6 +48,9 @@ func _run() -> void:
 		front.elapsed += 1.5
 		front._sync()
 		check(game._style.quad_material.get_shader_parameter("return_blend") == 1.0, "day glow reaches the live print before release")
+		check(game.player.camera.cull_mask == front.camera_mask and front.cameras[1].cull_mask == 1 << 19, "late ease renders geometry only in the native world")
+		front._process(0.0)
+		check(not game._style.quad_material.get_shader_parameter("day_return_active") and game._style.quad_material.get_shader_parameter("return_blend") == -1.0, "release clears the blend before freeing its texture")
 		check(changes == 1, "HUD switches palette exactly once")
 		game.stop_all_audio()
 		game.free()

@@ -89,7 +89,7 @@ func light(_main: Node, style: RefCounted, _contact: float, darkness: float, nig
 	if style.quad_material == null:
 		return
 	var page_darkness := darkness
-	if is_instance_valid(day_return):
+	if is_instance_valid(day_return) and day_return.active:
 		page_darkness = 0.0 if day_return.started() else 1.0
 	hud_paper.light(page_darkness, night, style.params)
 	style.quad_material.set_shader_parameter("darkness", darkness)

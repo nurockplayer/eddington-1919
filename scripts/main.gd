@@ -1328,6 +1328,8 @@ func _begin_totality() -> void:
 	if _style != null:
 		_style.impl.prepare_day_return(self, _style)
 		_style.impl.day_return.warm()
+	_update_totality_hud()
+	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
 	score.play("totality_drone", 1.2)
 	score.play("totality_glass", 1.2)
 	await ui.fade_to(0.0, 1.2).finished
