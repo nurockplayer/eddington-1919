@@ -14,23 +14,16 @@ func peak(c: Color) -> float:
 	return maxf(c.r, maxf(c.g, c.b))
 
 func contrast(image: Image, point: Vector2) -> float:
-	var core := -1.0
-	var centre := Vector2i.ZERO
-	var nearest := INF
-	for y in range(int(point.y) - 2, int(point.y) + 3):
-		for x in range(int(point.x) - 2, int(point.x) + 3):
-			var radius := (Vector2(x + 0.5, y + 0.5) - point).length()
-			if radius > 1.5: continue
-			var value := peak(image.get_pixel(x, y))
-			if value > core or (value == core and radius < nearest):
-				core = value
-				nearest = radius
-				centre = Vector2i(x, y)
+	var core := 0.0
 	var ring := 1.0
-	for y in range(centre.y - 1, centre.y + 2):
-		for x in range(centre.x - 1, centre.x + 2):
-			if Vector2i(x, y) != centre:
-				ring = minf(ring, peak(image.get_pixel(x, y)))
+	for y in range(int(point.y) - 3, int(point.y) + 4):
+		for x in range(int(point.x) - 3, int(point.x) + 4):
+			var radius := (Vector2(x + 0.5, y + 0.5) - point).length()
+			var value := peak(image.get_pixel(x, y))
+			if radius <= 1.5:
+				core = maxf(core, value)
+			elif radius <= 2.5:
+				ring = minf(ring, value)
 	return (core - ring) * 255.0
 
 func changed(a: Image, b: Image, point: Vector2) -> int:
