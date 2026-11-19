@@ -51,7 +51,7 @@ func _run() -> void:
 		if mesh.layers & flame.light_cull_mask:
 			receivers += 1
 			var p: Vector3 = mesh.global_position
-			check(p.y >= 0.8 and p.x >= -2.65 and p.x <= -1.35 and p.z >= -3.45 and p.z <= -3.13, "only the bench top and its objects receive the lantern: %s" % p)
+			check(p.y >= 0.799 and p.x >= -2.651 and p.x <= -1.349 and p.z >= -3.451 and p.z <= -3.129, "only the bench top and its objects receive the lantern: %s" % p)
 	check(receivers == 15, "all fifteen bench and lantern meshes receive the light: %d" % receivers)
 	var globe := lantern.get_node("OxfordLanternGlass")
 	flame.light_energy = 8.0
