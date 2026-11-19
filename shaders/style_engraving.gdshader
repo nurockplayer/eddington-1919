@@ -13,9 +13,10 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);   // world, toward the Sun
 uniform float sun_r = 0.02;                    // the Sun's angular radius in radians
 uniform float darkness = 0.0;                  // 0 day … 1 totality
 uniform float night = 0.0;
-uniform float diamond_radius = 0.25; // core radius in solar radii
-uniform float diamond_spikes = 2.0; // longest spike in solar radii
+uniform float diamond_radius = 0.45; // core radius in solar radii
+uniform float diamond_spikes = 4.0; // longest spike in solar radii
 uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
+uniform float diamond_ray_floor = 0.70;
 uniform float diamond = 0.0;
 uniform float contact = 1.0;
 
@@ -239,19 +240,22 @@ void fragment() {
 		for (int i = 0; i < 9; i++) {
 			float fi = float(i);
 			float direction = fi * 2.399963;
-			float along = dot(bp, vec2(cos(direction), sin(direction)));
+			vec2 spike_dir = vec2(cos(direction), sin(direction));
+			float along = dot(bp, spike_dir);
 			float across = abs(dot(bp, vec2(-sin(direction), cos(direction))));
 			float reach = diamond_spikes * size * (0.45 + 0.55 * hash21(vec2(fi, 7.0)));
+			float inward = -dot(spike_dir, bead_c);
+			if (inward > 0.0) reach = min(reach, 0.333 / inward);
 			spikes = max(spikes, step(0.0, along) * step(along, reach) * step(across, diamond_radius * size * 0.36 * (1.0 - along / max(reach, 0.00001))));
 		}
-		bead = front * step(0.000001, diamond) * step(0.667, r) * max(step(bead_dist, diamond_radius * size), spikes);
+		bead = front * step(0.000001, diamond) * max(step(bead_dist, diamond_radius * size), spikes);
 		moon_ink = front * step(0.000001, diamond) * step(r, 1.0);
 
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {
 			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
 			float g_ang = k / (6.2831853 * max(r * sun_r, 0.0001));
-			float ray_dark = mix(dark, max(dark, 0.55), diamond * diamond_rays * (1.0 - smoothstep(1.0, 3.0, r)));
+			float ray_dark = mix(dark, max(dark, diamond_ray_floor), diamond * diamond_rays * (1.0 - smoothstep(1.0, 3.0, r)));
 			float rays = hatch(ang, g_ang, clamp((ray_dark - 0.04) * 1.5, 0.0, 0.8), r_px, -3.0);
 			rays = max(rays, 1.0 - smoothstep(0.96, 1.0, r));     // the Moon's disc prints solid
 			ink = mix(ink, rays, w_rays);

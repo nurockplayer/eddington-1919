@@ -55,6 +55,7 @@ func _run() -> void:
 	for name in Engraving.PARAMS:
 		check(material.get_shader_parameter(name) == Engraving.PARAMS[name], "material parameter " + name)
 	check(material.get_shader_parameter("line_px") == 5.0, "default line spacing")
+	check(material.get_shader_parameter("diamond_radius") == 0.45 and material.get_shader_parameter("diamond_spikes") == 4.0 and material.get_shader_parameter("diamond_ray_floor") == 0.70, "diamond defaults")
 	check(material.get_shader_parameter("sun_r") == game.sim.SUN_R, "solar radius")
 	check(game.sky_mat.get_shader_parameter("third_contact") == Vector2.ZERO, "diamond starts off")
 	check(material.get_shader_parameter("paper") == Engraving.PAPER, "paper colour")
@@ -75,10 +76,10 @@ func _run() -> void:
 	check(not game.env.volumetric_fog_enabled, "standard quality preserves volumetric fog off")
 	game.free()
 
-	var overridden := Style.from_args({"style-set": "wash=0.3,line_px=7,diamond_radius=0.4,diamond_spikes=3,diamond_rays=0.5"})
+	var overridden := Style.from_args({"style-set": "wash=0.3,line_px=7,diamond_radius=0.4,diamond_spikes=3,diamond_rays=0.5,diamond_ray_floor=0.85"})
 	check(is_equal_approx(overridden.params.wash, 0.3), "wash override")
 	check(overridden.params.line_px == 7.0, "line spacing override")
-	check(overridden.params.diamond_radius == 0.4 and overridden.params.diamond_spikes == 3.0 and overridden.params.diamond_rays == 0.5, "diamond overrides")
+	check(overridden.params.diamond_radius == 0.4 and overridden.params.diamond_spikes == 3.0 and overridden.params.diamond_rays == 0.5 and overridden.params.diamond_ray_floor == 0.85, "diamond overrides")
 	Settings.quality = saved_quality
 	root.scaling_3d_scale = saved_scale
 	root.msaa_3d = saved_msaa

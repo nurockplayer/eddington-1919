@@ -12,8 +12,9 @@ art director to rejudge; acceptance remains **0/9** until that judgement.
 - Audition `7406dec`: `shaders/style_engraving.gdshader` and
   `scripts/styles/engraving.gd`, runtime pass, portrait and its provenance,
   named bookmarks, resolution capture and the motion tools. The shader differs from
-  `7406dec` in the local diamond-bead exception; `diamond_radius` defaults to 0.22
-  solar radii and the bead follows the sky shader’s contact and diamond values.
+  `7406dec` in the local diamond-bead exception; `diamond_radius` defaults to 0.45
+  solar radii, `diamond_spikes` to 4.0, and `diamond_ray_floor` to 0.70. The bead
+  follows the sky shader’s contact and diamond values.
 - This PR supersedes #318 and #339; both remain open and untouched.
 
 The runtime wrapper always selects engraving; `--style-set=key=value,key=value`
