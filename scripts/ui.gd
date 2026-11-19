@@ -1169,7 +1169,7 @@ func _draw_micrometer() -> void:
 	var across := along.orthogonal()
 	var window_unit_px := _mic_window_unit_px(one_px)
 	var step := _mic_tick_step(window_unit_px)
-	var label_step := maxi(5, _mic_tick_step(window_unit_px, 16.0))
+	var label_step := maxi(10, _mic_tick_step(window_unit_px, 16.0))
 	# Offset the ruler from the evidence; keep zero aligned with the blue circle.
 	var ruler_zero := night + across * 24.0
 	mic_overlay.draw_line(ruler_zero - one_px * 14.0, ruler_zero + one_px * 70.0,

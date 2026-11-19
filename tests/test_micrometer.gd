@@ -94,7 +94,7 @@ func _check_feel() -> void:
 			check(is_equal_approx(pitch, one_px.length() * float(window.y) / 900.0),
 				"ruler pitch includes window/canvas scaling: " + context)
 			var tick_step: int = ui._mic_tick_step(pitch)
-			var label_step: int = maxi(5, ui._mic_tick_step(pitch, 16.0))
+			var label_step: int = maxi(10, ui._mic_tick_step(pitch, 16.0))
 			check(pitch * tick_step >= 5.0, "neighbouring ticks >= 5 window px: " + context)
 			check(tick_step in [1, 2, 5, 10, 20, 50, 100], "1-2-5 decimal tick step: " + context)
 			check(label_step in [5, 10, 20, 50, 100] and label_step % tick_step == 0,
