@@ -28,6 +28,7 @@ func _run() -> void:
 	check(Settings.volumes == {"Master": 1.0, "Music": 1.0, "SFX": 1.0} and not Settings.fullscreen,
 		"missing settings default to full volume and windowed")
 	check(not Settings.hold_toggle, "hold interaction defaults to hold")
+	check(Settings.mic_step == 1.0 and not Settings.mic_large_cross, "micrometer defaults to 1x and small crosshair")
 	Settings.apply_startup()
 	AudioServer.set_bus_volume_db(0, -12.0)
 	Settings.apply_startup()
@@ -49,15 +50,31 @@ func _run() -> void:
 	Settings.fullscreen = true
 	Settings.look_speed = 1.5
 	Settings.invert_y = true
+	Settings.mic_step = 2.0
+	Settings.mic_large_cross = true
 	check(Settings.save_settings(test_path) == OK, "settings save to a separate test path")
 	Settings.volumes = {"Master": 1.0, "Music": 1.0, "SFX": 1.0}
 	Settings.fullscreen = false
 	Settings.look_speed = 1.0
 	Settings.invert_y = false
+	Settings.mic_step = 1.0
+	Settings.mic_large_cross = false
 	Settings.load_settings(test_path)
 	check(Settings.volumes == {"Master": 0.5, "Music": 0.25, "SFX": 0.0} and Settings.fullscreen,
 		"all settings roundtrip")
 	check(Settings.look_speed == 1.5 and Settings.invert_y, "look settings roundtrip")
+	check(Settings.mic_step == 2.0 and Settings.mic_large_cross, "micrometer settings roundtrip")
+	for expected in [0.5, 1.0, 2.0]:
+		Settings.cycle_mic_step(test_path)
+		Settings.mic_step = 0.0
+		Settings.load_settings(test_path)
+		check(Settings.mic_step == expected, "micrometer step cycles and persists to %s" % expected)
+	Settings.toggle_mic_large_cross(test_path)
+	check(not Settings.mic_large_cross, "large crosshair toggles off")
+	Settings.toggle_mic_large_cross(test_path)
+	Settings.mic_large_cross = false
+	Settings.load_settings(test_path)
+	check(Settings.mic_large_cross, "large crosshair toggle persists")
 	Settings.look_speed = 1.0
 	for expected in [1.5, 0.6, 1.0]:
 		Settings.cycle_look_speed(test_path)
@@ -81,9 +98,11 @@ func _run() -> void:
 	var cfg := ConfigFile.new()
 	cfg.load(test_path)
 	cfg.set_value("input", "look_speed", 9.0)
+	cfg.set_value("input", "mic_step", 9.0)
 	cfg.save(test_path)
 	Settings.load_settings(test_path)
 	check(Settings.look_speed == 1.0, "invalid look speed resets")
+	check(Settings.mic_step == 1.0, "invalid micrometer step resets")
 	check(cfg.get_value("audio", "master_db") == 0.5 and cfg.get_value("audio", "music_db") == 0.25
 		and cfg.get_value("audio", "sfx_db") == 0.0, "audio keys store linear values")
 	check(not cfg.get_value("audio", "music_enabled"), "volume save preserves the music toggle")
@@ -306,6 +325,23 @@ func _check_pause_menu() -> void:
 	var video_calls := Settings.video_apply_count
 	ui.toggle_pause()
 	await process_frame
+	var mic_buttons := 0
+	for button in ui.pause_panel.find_children("*", "Button", true, false):
+		if button.text.begins_with("測微器步幅："):
+			mic_buttons += 1
+			Settings.mic_step = 1.0
+			button.pressed.emit()
+			Settings.mic_step = 0.0
+			Settings.load_settings()
+			check(Settings.mic_step == 2.0 and button.text == "測微器步幅：2.0×", "pause step button cycles and saves")
+		elif button.text.begins_with("測微器大十字線："):
+			mic_buttons += 1
+			Settings.mic_large_cross = false
+			button.pressed.emit()
+			Settings.mic_large_cross = false
+			Settings.load_settings()
+			check(Settings.mic_large_cross and button.text == "測微器大十字線：開", "pause crosshair button toggles and saves")
+	check(mic_buttons == 2, "pause menu has both micrometer settings")
 	var sliders: Array[Node] = ui.pause_panel.find_children("*", "HSlider", true, false)
 	check(sliders.size() == 3, "real pause menu has three sliders")
 	var focus: Control = root.gui_get_focus_owner()

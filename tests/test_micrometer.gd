@@ -72,7 +72,103 @@ func _button(index: JoyButton) -> void:
 	await process_frame
 
 
+func _check_feel() -> void:
+	var game := await _new_game([0.87, 1.75])
+	var ui = game.ui
+	ui.mic_btn.button_pressed = true
+	var saved_window := root.size
+	var saved_canvas := root.content_scale_size
+	root.content_scale_size = Vector2i(1600, 900)
+	for window in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
+		root.size = window
+		await process_frame
+		await process_frame
+		check(root.get_visible_rect().size.is_equal_approx(Vector2(1600, 900)),
+			"%s window uses the 1600x900 canvas" % window)
+		for zoom in [false, true]:
+			ui._set_loupe(zoom)
+			var star: Vector2 = ui._mic_star_point()
+			var one_px: Vector2 = ui._plate_to_local(star + ui._mic_dir()) - ui._plate_to_local(star)
+			var pitch: float = ui._mic_window_unit_px(one_px)
+			var context := "%s loupe=%s" % [window, zoom]
+			check(is_equal_approx(pitch, one_px.length() * float(window.y) / 900.0),
+				"ruler pitch includes window/canvas scaling: " + context)
+			var tick_step: int = ui._mic_tick_step(pitch)
+			var label_step: int = maxi(10, ui._mic_tick_step(pitch, 16.0))
+			check(pitch * tick_step >= 5.0, "neighbouring ticks >= 5 window px: " + context)
+			check(tick_step in [1, 2, 5, 10, 20, 50, 100], "1-2-5 decimal tick step: " + context)
+			check(label_step in [5, 10, 20, 50, 100] and label_step % tick_step == 0,
+				"round decimal numbered ticks: " + context)
+			for unit in range(-14, 71):
+				if unit % tick_step == 0 and unit % label_step == 0:
+					check(unit % 5 == 0, "numbered value is a multiple of five: %s %s" % [unit, context])
+			for reading in [0.0, 6.0, 23.0]:
+				ui.set_micrometer_reading(reading)
+				ui.mic_overlay.queue_redraw()
+				await process_frame
+	root.content_scale_size = saved_canvas
+	root.size = saved_window
+	ui._set_loupe(true)
+	await process_frame
+	var saved_step: float = Settings.mic_step
+	for step in Settings.MIC_STEPS:
+		Settings.mic_step = step
+		for fine in [false, true]:
+			ui.set_micrometer_reading(10.0)
+			var delta: float = (0.05 if fine else 0.25) * step
+			ui._nudge_micrometer(1.0, fine)
+			check(is_equal_approx(ui.micrometer_px, 10.0 + delta),
+				"scaled positive nudge step=%s fine=%s" % [step, fine])
+			ui._nudge_micrometer(-1.0, fine)
+			check(is_equal_approx(ui.micrometer_px, 10.0),
+				"scaled negative nudge step=%s fine=%s" % [step, fine])
+	Settings.mic_step = 1.0
+	var signatures: Array = []
+	for plate in 2:
+		ui._select_plate(plate, game.plate_textures[plate], false)
+		ui.set_micrometer_reading(0.0)
+		ui.viewer_sfx_log.clear()
+		ui._mic_last_tick_ms = Time.get_ticks_msec() - 50
+		ui.set_micrometer_reading(0.0)
+		ui.set_micrometer_reading(-1.0)
+		check(ui.viewer_sfx_log.is_empty(), "unchanged/clamped reading is silent")
+		var started := Time.get_ticks_msec()
+		ui._nudge_micrometer(1.0, false)
+		check(ui.viewer_sfx_log == ["tick"], "one reading change emits one tick")
+		for i in 9:
+			ui._nudge_micrometer(1.0, false)
+		check(Time.get_ticks_msec() - started < 50, "ten nudges run within 50 ms")
+		check(ui.viewer_sfx_log == ["tick"], "ten changes within 50 ms emit one tick")
+		var sound: AudioStreamPlayer = ui._viewer_sfx["tick"]
+		check(sound.stream == ui._viewer_sfx["mark"].stream and sound.playing,
+			"tick plays the existing short click sample")
+		check(sound.pitch_scale == 1.0 and sound.volume_db == -11.0 and sound.bus == "SFX",
+			"tick uses fixed quiet volume, pitch and SFX bus")
+		signatures.append([ui.viewer_sfx_log.duplicate(), sound.stream, sound.pitch_scale,
+			sound.volume_db, ui._mic_star_point(), ui._mic_dir()])
+		ui._mic_last_tick_ms = Time.get_ticks_msec() - 50
+		ui._nudge_micrometer(1.0, true)
+		check(ui.viewer_sfx_log == ["tick", "tick"], "tick resumes after the 50 ms interval")
+		# Queue the actual draw path for both crosshair sizes on both real plates.
+		for large in [false, true]:
+			Settings.mic_large_cross = large
+			ui.mic_overlay.queue_redraw()
+			await process_frame
+	check(signatures[0] == signatures[1],
+		"different true shifts with identical nudges have identical ticks and scale anchors")
+	var source := FileAccess.get_file_as_string("res://scripts/ui.gd")
+	for method in ["set_micrometer_reading", "_draw_micrometer", "_mic_star_point", "_mic_dir", "_plate_geometry", "_plate_to_local", "_viewer_sound"]:
+		var body := source.get_slice("func " + method + "(", 1).get_slice("\nfunc ", 0)
+		check(not body.is_empty() and not body.contains("_viewer_plates[")
+			and not body.contains("measurement_of") and not body.contains(".value")
+			and not body.contains("reading_for_value"), method + " does not read the plate's true shift")
+	Settings.mic_step = saved_step
+	Settings.mic_large_cross = false
+	await _finish(game)
+
+
 func _run() -> void:
+	await _check_feel()
 	# No exposures and unusable plates must still reach the no-results judgment.
 	for only_unusable in [false, true]:
 		var empty_game := await _new_game([])
