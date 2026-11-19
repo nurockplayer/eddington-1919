@@ -53,6 +53,7 @@ uniform float far_cap = 0.55;         // darkest tone of distant land by day
 uniform float far_tot = 0.75;         // lightest tone of distant land at totality: a silhouette
 uniform float far_lod = 2.5;          // blur of the distant tone
 uniform float far_edge = 0.35;        // relative depth step that still draws a contour far away
+uniform float ground_rule = 1.0;      // at totality level ground is ruled in the sky's lines alone (0 = its plan hatching)
 uniform float far_line = 0.0;         // contour strength of distant land (0 = its tone alone carries it)
 uniform float far_sky = 0.40;         // ink share of a clear day sky high up, the reference for far_step
 uniform float far_step = 0.16;       // by day distant land prints at least this much darker than clear sky
@@ -234,6 +235,9 @@ void fragment() {
 			// At totality level ground stays open ruling; what stands on it prints solid.
 			dark = min(dark, mix(1.0, ground_cap, darkness));
 		}
+		// At totality level ground gives up its plan hatching for the page's one ruling: seen at a
+		// grazing angle the crossed families beat against each other and against the distant ruling.
+		float g_rule = n_w.y > flat_at ? darkness * ground_rule : 0.0;
 		if (abs(n_w.y) > flat_at) {
 			a1 = vec3(0.940, 0.0, 0.342);
 			a2 = vec3(0.087, 0.0, 0.996);
@@ -249,7 +253,7 @@ void fragment() {
 		vec3 a3_v = (VIEW_MATRIX * vec4(a3, 0.0)).xyz;
 		float g1 = grad_px(a1_v, n_v, q, z, k);
 		float wob = (vnoise(pw.xz * 1.7 + vec2(pw.y * 0.9)) - 0.5) * min(0.04, wobble_rel * g1 * l_px) * wobble;
-		float weight = (1.0 + (vnoise(pw.xz * 0.8 + vec2(pw.y * 1.3)) - 0.5) * 0.3 * wobble) * (1.0 - dist_f);
+		float weight = (1.0 + (vnoise(pw.xz * 0.8 + vec2(pw.y * 1.3)) - 0.5) * 0.3 * wobble) * (1.0 - dist_f) * (1.0 - g_rule);
 		float i1 = hatch(dot(pw, a1) + wob, g1, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * weight, l_px, 99.0);
 		float i2 = hatch(dot(pw, a2) + wob, grad_px(a2_v, n_v, q, z, k), clamp((dark - cross_at) * 1.6, 0.0, 0.55) * weight, l_px, 99.0);
 		float i3 = hatch(dot(pw, a3) - wob, grad_px(a3_v, n_v, q, z, k), clamp((dark - third_at) * 2.2, 0.0, 0.60) * weight, l_px, 99.0);
@@ -260,6 +264,7 @@ void fragment() {
 		// The floor comes in early: a sunlit palm at 40 m has lost its own lines and must not print paler than the sky.
 		float cov_floor = (far_sky * hz + far_step) * lit * smoothstep(0.0, far_in, dist_f);
 		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
+		cov_far = mix(cov_far, clamp((ground_cap - 0.06) * 1.3, 0.0, 0.85), g_rule);
 		float i_far = hatch(elev, k, cov_far, l_px, 99.0);
 		ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
 		tone_p = mix(tone, 1.0 - dark_far, dist_f);
