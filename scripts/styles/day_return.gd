@@ -18,6 +18,9 @@ var camera_environment: Environment
 var composite_environment: Environment
 var compositor: MeshInstance3D
 var compositor_layers := 0
+var native_sun_energy := 0.0
+var day_sun_energy := 0.0
+var native_print := {}
 
 
 func started() -> bool:
@@ -119,6 +122,8 @@ func activate() -> void:
 			if sources[i] == main.sun:
 				var density: float = main.sim.cloud_over_sun(cloud_t)
 				mirrors[index][i].light_energy = 0.0 if index == 0 else (style.params.sun_floor + 1.4 * main._crescent(0.8) * (1.0 - density * 0.85)) * main._look_sun
+	RenderingServer.frame_pre_draw.connect(_draw_day)
+	RenderingServer.frame_post_draw.connect(_restore_native)
 	compositor.layers = 1 << 19
 	main.player.camera.cull_mask = 1 << 19
 	composite_environment = Environment.new()
@@ -128,7 +133,26 @@ func activate() -> void:
 	style.quad_material.set_shader_parameter("return_day", plates[1].get_texture())
 	style.quad_material.set_shader_parameter("return_band", deg_to_rad(style.params.return_width))
 	style.quad_material.set_shader_parameter("day_return_active", true)
+	for i in sources.size():
+		if sources[i] == main.sun: day_sun_energy = mirrors[1][i].light_energy
 	_sync()
+
+
+func _draw_day() -> void:
+	# Keep the exposure oracle's native tween; override only the rendered day.
+	native_sun_energy = main.sun.light_energy
+	main.sun.light_energy = day_sun_energy
+	if settle_started < 0.0:
+		for key in ["contact", "cloud_time", "third_contact_gap", "diamond"]:
+			native_print[key] = style.quad_material.get_shader_parameter(key)
+			style.quad_material.set_shader_parameter(key, materials[1].get_shader_parameter(key))
+
+
+func _restore_native() -> void:
+	main.sun.light_energy = native_sun_energy
+	for key in native_print:
+		style.quad_material.set_shader_parameter(key, native_print[key])
+	native_print.clear()
 
 
 func _sync() -> void:
@@ -146,13 +170,13 @@ func _sync() -> void:
 	style.quad_material.set_shader_parameter("return_blend", blend)
 	if active:
 		plates[0].render_target_update_mode = SubViewport.UPDATE_DISABLED if view_is_day else SubViewport.UPDATE_ALWAYS
-		plates[1].render_target_update_mode = SubViewport.UPDATE_ALWAYS if started() else SubViewport.UPDATE_DISABLED
-		# Once the view is day, only the native world renders geometry. The
-		# endpoint contributes its fixed sky print to the native engraving pass.
-		camera.cull_mask = camera_mask if view_is_day else 1 << 19
-		camera.environment = camera_environment if view_is_day else composite_environment
-		compositor.layers = compositor_layers if view_is_day else 1 << 19
-		cameras[1].cull_mask = 1 << 19 if view_is_day else camera_mask
+		plates[1].render_target_update_mode = SubViewport.UPDATE_ALWAYS if view_is_day else SubViewport.UPDATE_DISABLED
+		# The native depth/normal buffers draw daylight silhouettes for the
+		# entire return. No geometry renderer changes at the start of the ease.
+		camera.cull_mask = camera_mask if started() else 1 << 19
+		camera.environment = camera_environment if view_is_day else cameras[1].environment
+		compositor.layers = compositor_layers
+		cameras[1].cull_mask = 1 << 19
 	for index in 2:
 		plates[index].size = main.get_viewport().size
 		cameras[index].global_transform = main.player.camera.global_transform
@@ -184,6 +208,9 @@ func _process(delta: float) -> void:
 
 
 func _exit_tree() -> void:
+	if active:
+		RenderingServer.frame_pre_draw.disconnect(_draw_day)
+		RenderingServer.frame_post_draw.disconnect(_restore_native)
 	if is_instance_valid(main.player.camera):
 		main.player.camera.cull_mask = camera_mask
 		main.player.camera.environment = camera_environment

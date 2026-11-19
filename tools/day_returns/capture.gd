@@ -68,7 +68,7 @@ func _run() -> void:
 		first_frames = FileAccess.open(base.path_join("first-30.tsv"), FileAccess.WRITE)
 		first_frames.store_line("frame_after_contact\tforced_draw_ms\tprocess_and_draw_ms")
 	var contact_frame := -1
-	for i in 421:
+	for i in 431:
 		if baseline and i == 59: _cost("totality")
 		var process_start := Time.get_ticks_usec()
 		game._process(DT)
@@ -97,8 +97,9 @@ func _run() -> void:
 			"ui_rects": ui_rects, "practice_cloud": game.sky_mat.get_shader_parameter("practice_cloud"),
 			"third_contact_gap": game.sky_mat.get_shader_parameter("third_contact_gap")})
 		if measure and contact_frame >= 0:
-			for stage in {42: "bead", 90: "crossing", 210: "late", 360: "day-plus6"}:
-				if i == contact_frame + stage: _cost({42: "bead", 90: "crossing", 210: "late", 360: "day-plus6"}[stage])
+			var stages := {42: "bead", 90: "crossing", 210: "crossing-plus3p5" if horizon else "ease-plus3p5", 270: "ease-plus4p5", 360: "day-plus6"}
+			for stage in stages:
+				if i == contact_frame + stage: _cost(stages[stage])
 		if thick and contact_frame >= 0 and i == contact_frame + 42:
 			# At the native diamond peak, disable only the burst for a same-frame control.
 			front.materials[0].set_shader_parameter("diamond", 0.0)

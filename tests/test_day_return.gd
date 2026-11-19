@@ -13,7 +13,7 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	var shader := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
-	check(shader.contains("ALBEDO = texture(return_night, uv).rgb;") and shader.contains("ALBEDO = texture(return_day, uv).rgb;") and shader.contains("ALBEDO = paper;"), "only the two endpoint plates and paper white can reach the compositor")
+	check(shader.contains("ALBEDO = texture(return_night, uv).rgb;") and shader.contains("float print_darkness = day_return_active ? 0.0 : darkness;") and shader.contains("ALBEDO = paper;"), "the front reveals native day geometry behind paper white")
 	for seed_ in [7, 1919]:
 		var game = load("res://scenes/main.tscn").instantiate()
 		game.next_seed = seed_
@@ -41,6 +41,8 @@ func _run() -> void:
 			previous = foreground
 			check(front.materials[0].get_shader_parameter("darkness") == 1.0 and front.materials[1].get_shader_parameter("darkness") == 0.0, "both endpoint plate weights stay fixed")
 			check(is_equal_approx(game.sky_mat.get_shader_parameter("darkness"), 1.0 - v * v), "native lighting tween stays unchanged")
+			if frame == 120:
+				check(game.player.camera.cull_mask == front.camera_mask and front.cameras[1].cull_mask == 1 << 19 and front.plates[1].render_target_update_mode == SubViewport.UPDATE_DISABLED, "native geometry draws before the ease, with no day geometry duplicate")
 			if frame == 51:
 				check(front.radius() >= game.sim.SUN_R and front.radius() < 2.0 * game.sim.SUN_R and shader.contains("return_radius < 2.0 * sun_r"), "first white front covers the whole Moon")
 		front.elapsed = 5.5
