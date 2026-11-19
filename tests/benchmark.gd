@@ -291,6 +291,11 @@ func _run() -> void:
 		tag.visible = not tag.fixed_size
 	main.player.can_move = false
 	main.player.can_look = false
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--bench-motion="):
+			var motion = load("res://tools/style_motion.gd").new()
+			await motion.run(self, arg.trim_prefix("--bench-motion="))
+			return
 	var results := []
 	var shots := _shots(BOOKMARKS)
 	if shots.is_empty():
