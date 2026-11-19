@@ -419,6 +419,7 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	sky_mat.set_shader_parameter("contact", contact)
 	sky_mat.set_shader_parameter("darkness", darkness)
 	sky_mat.set_shader_parameter("cloud_time", cloud_t)
+	sky_mat.set_shader_parameter("third_contact_gap", Cues.third_contact_cloud_gap(cloud_t - sim.TOTALITY_S))
 	sky_mat.set_shader_parameter("night", night)
 	if meteors:
 		meteors.set_night(night > 0.5)
