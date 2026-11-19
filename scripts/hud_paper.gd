@@ -8,6 +8,7 @@ var panel_slips := {}
 var buttons: StyleBoxFlat
 var foreground: Color
 var evidence_dialogue := {}
+var portrait_tint := Color.WHITE
 
 
 func setup(target: Node, colours: Dictionary) -> void:
@@ -68,7 +69,8 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	for label in [ui.objectives, ui.tot_label, ui.text_label]:
 		label.add_theme_color_override("default_color", foreground)
 	# The original print stays on its card; multiply its paper by the page wash.
-	ui.dialogue_portrait.image.self_modulate = palette.paper.lerp(palette.tot_paper, blue).lerp(palette.safe_paper, wash) / palette.paper
+	portrait_tint = palette.paper.lerp(palette.tot_paper, blue).lerp(palette.safe_paper, wash) / palette.paper
+	ui.dialogue_portrait.image.self_modulate = portrait_tint
 	_choices()
 	_central_visibility()
 
@@ -85,6 +87,7 @@ func _choices() -> void:
 		ui.dialogue_portrait.disclosure.add_theme_color_override("font_color", evidence_dialogue.disclosure)
 		ui.dialogue_portrait.image.self_modulate = Color.WHITE
 		return
+	ui.dialogue_portrait.image.self_modulate = portrait_tint
 	ui.dialog_panel.add_theme_stylebox_override("panel", panel_slips[ui.dialog_panel])
 	ui.dialogue_portrait.add_theme_stylebox_override("panel", panel_slips[ui.dialogue_portrait])
 	ui.speaker_label.add_theme_color_override("font_color", foreground)
