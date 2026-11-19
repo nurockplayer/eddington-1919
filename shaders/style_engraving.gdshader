@@ -268,9 +268,11 @@ void fragment() {
 		// Cloud changes the weight of ruling across the whole Moon, never its
 		// outline. The accepted thin gap and clearer skies keep solid ink.
 		float moon_weight = 1.0 - smoothstep(0.15, 1.0 / 1.08, dens);
-		float moon_lines = hatch(elev, k, moon_weight, l_px, 99.0);
-		moon_lines = max(moon_lines, step(1.0, moon_weight));
-		moon_ink = front * step(0.000001, visible_diamond) * step(r, 1.0) * moon_lines;
+		// The diamond opens line widths, retaining the cloud's full-strength weight.
+		float moon_cover = moon_weight * diamond;
+		float moon_lines = hatch(elev, k, moon_cover, l_px, 99.0);
+		moon_lines = max(moon_lines, step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover));
+		moon_ink = front * step(r, 1.0) * moon_lines;
 
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {
