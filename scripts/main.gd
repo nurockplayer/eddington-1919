@@ -443,6 +443,7 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	env.fog_light_color = Color(0.62, 0.65, 0.68).lerp(Color(0.07, 0.08, 0.12), maxf(darkness, night))
 	if _style != null and not world.is_empty():
 		_style.light(self, contact, darkness, night)
+	_sync_style_sky()
 
 
 func _update_sky_prep() -> void:
@@ -776,9 +777,6 @@ static func prepare_replay(seed_value: int, same_sky: bool, from_prologue: bool)
 
 
 func _process(delta: float) -> void:
-	if _style != null:
-		_style.quad_material.set_shader_parameter("contact", sky_mat.get_shader_parameter("contact"))
-		_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)
 	_update_npc_look()
 	if player.global_position.y < -3.0:
 		player.velocity = Vector3.ZERO
@@ -791,12 +789,18 @@ func _process(delta: float) -> void:
 			_process_totality(delta)
 		Phase.NIGHT, Phase.CODA:
 			_process_interaction(delta)
-	if _style != null:
-		for name in ["cloud_tex", "cloud_time", "practice_cloud", "wind", "cloud_scale"]:
-			_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
+	_sync_style_sky()
 	if phase != Phase.TITLE and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and _ui_free() and bot == null:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not get_tree().paused:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _sync_style_sky() -> void:
+	if _style == null:
+		return
+	for name in ["contact", "cloud_tex", "cloud_time", "third_contact_gap", "practice_cloud", "wind", "cloud_scale"]:
+		_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
+	_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)
 
 
 func _ui_free() -> bool:
@@ -1452,10 +1456,11 @@ func _end_totality() -> void:
 	tw.tween_method(func(v):
 		# Daylight returns slowly at first, so the beads and the diamond (v < 0.4)
 		# burn against a still-dark sky and a black Moon.
-		_apply_light(1.0 - v * 0.2, 1.0 - v * v, t_game + v * 10.0, 0.0)
-		sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v)), 0.0, 1.0, 3.0)
+		sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
+		_apply_light(1.0 - v * 0.2, 1.0 - v * v, t_game + v * 10.0, 0.0), 0.0, 1.0, 3.0)
 	await tw.finished
 	sky_mat.set_shader_parameter("third_contact", Vector2.ZERO)
+	_sync_style_sky()
 	await get_tree().create_timer(1.5).timeout
 	_say(Content.after_totality(sim.plates.size()), "after_totality")
 

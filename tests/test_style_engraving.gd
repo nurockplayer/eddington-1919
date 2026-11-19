@@ -28,7 +28,7 @@ func _run() -> void:
 		check(Engraving.PARAMS[name] is float, "float parameter " + name)
 	for token in ["hint_screen_texture", "hint_depth_texture", "hint_normal_roughness_texture", "POSITION = vec4(VERTEX.xy, 1.0, 1.0)"]:
 		check(shader_text.contains(token), "shader contains " + token)
-	for name in {"cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
+	for name in {"third_contact_gap": "float", "cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
 	check(shader_text.contains("step(r, 1.0) * moon_lines") and not shader_text.contains("step(r, sqrt(transmission))"), "cloud does not resize Moon ink")
@@ -75,13 +75,14 @@ func _run() -> void:
 	check(material.get_shader_parameter("night") == 1.0, "night follows lighting")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(material.get_shader_parameter("night") == 0.0, "night clears in daylight")
+	game.sky_mat.set_shader_parameter("third_contact_gap", 0.75)
 	game.sky_mat.set_shader_parameter("cloud_time", 304.4)
 	game.sky_mat.set_shader_parameter("practice_cloud", 0.97)
 	game.sky_mat.set_shader_parameter("wind", Vector2(0.005, 0.003))
 	game.sky_mat.set_shader_parameter("cloud_scale", 0.4)
 	game.phase = game.Phase.TITLE
 	game._process(0.0)
-	for name in ["cloud_tex", "cloud_time", "practice_cloud", "wind", "cloud_scale"]:
+	for name in ["cloud_tex", "cloud_time", "third_contact_gap", "practice_cloud", "wind", "cloud_scale"]:
 		check(material.get_shader_parameter(name) == game.sky_mat.get_shader_parameter(name), "live cloud sync " + name)
 	game.sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	Settings.quality = "standard"

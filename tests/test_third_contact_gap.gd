@@ -22,7 +22,12 @@ func _run() -> void:
 	# Main 0d09113: pin the exposure/plate oracle, including its seeded cloud field.
 	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "c6628ffd041798c554ebbe3fddb96ace7101283be89db9f8a13887ecfa566eb7", "simulation is byte-identical to main")
 	var shader := FileAccess.get_file_as_string("res://shaders/eclipse_sky.gdshader")
-	check(shader.contains("dens = mix(dens, min(dens, 0.55), third_contact_gap * near_contact_sun);"), "sky applies the contact veil to cloud compositing")
+	var shared_cloud := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
+	check(shared_cloud.contains("dens = mix(dens, min(dens, 0.55), third_contact_gap * near_contact_sun);"), "shared cloud applies the contact veil")
+	var engraving := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
+	for source in [shader, engraving]:
+		check(source.contains('#include "res://shaders/eclipse_cloud.gdshaderinc"'), "sky and engraving use one cloud rule")
+	check(engraving.contains("eclipse_cloud_density(bead_dir)"), "engraving samples the sky cloud over the bead")
 	for seed_ in [7, 1919]:
 		await _check_seed(seed_)
 	print("%d third contact gap checks, %d failures" % [checks, failures])
@@ -41,6 +46,10 @@ func _check_seed(seed_: int) -> void:
 	for t in [0.0, 151.0, 301.0, 301.5, 302.0, 302.9, 304.4, 310.0]:
 		game._apply_light(1.0, 1.0, t, 0.0)
 		var gap: float = game.sky_mat.get_shader_parameter("third_contact_gap")
+		# _apply_light also runs inside the native contact tween, after _process.
+		# No extra _process call may be required to deliver its state to the pass.
+		for name in ["third_contact_gap", "cloud_time", "contact"]:
+			check(game._style.quad_material.get_shader_parameter(name) == game.sky_mat.get_shader_parameter(name), "seed %d: immediate pass sync %s at %.1f" % [seed_, name, t])
 		var density: float = game.sim.cloud_over_sun(t)
 		var visible := lerpf(density, minf(density, 0.55), gap)
 		check(density == ref.cloud_over_sun(t), "seed %d: physical cloud unchanged at %.1f" % [seed_, t])

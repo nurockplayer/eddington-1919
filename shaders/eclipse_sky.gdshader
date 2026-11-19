@@ -30,6 +30,8 @@ uniform vec3 meteor_head = vec3(0.0, 1.0, 0.0);
 uniform vec3 meteor_tail = vec3(0.0, 1.0, 0.0);
 uniform float meteor_glow = 0.0;
 
+#include "res://shaders/eclipse_cloud.gdshaderinc"
+
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
@@ -59,23 +61,7 @@ void sky() {
 	// Clouds are sampled once from the same drifting field used by the plate
 	// simulation. This optical visibility gates all eclipse/night stars and the
 	// corona together, so a clear gap opens the whole view at once.
-	float dens = 0.0;
-	if (h > 0.0) {
-		vec2 plane = d.xz / max(h, 0.06);
-		vec2 uv = plane * cloud_scale - wind * cloud_time;
-		dens = texture(cloud_tex, uv).r;
-		dens = mix(dens, 0.97, smoothstep(0.35, 0.05, h));   // haze toward horizon
-	} else {
-		dens = 1.0;
-	}
-	if (practice_cloud >= 0.0 && h > 0.0) {
-		float near_practice_sun = smoothstep(0.96, 0.995, dot(d, sun_dir));
-		dens = mix(dens, practice_cloud, near_practice_sun);
-	}
-	// Keep a visible veil, opening only near the Sun for the final beads/ring.
-	float near_contact_sun = smoothstep(0.96, 0.995, dot(d, sun_dir));
-	dens = mix(dens, min(dens, 0.55), third_contact_gap * near_contact_sun);
-	dens = mix(dens, dens * 0.55, night);
+	float dens = eclipse_cloud_density(d);
 	float cloud_visibility = 1.0 - smoothstep(0.35, 0.80, dens);
 	float background_stars = 0.0;
 	if (h > 0.0) {
