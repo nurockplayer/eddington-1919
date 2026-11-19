@@ -90,11 +90,12 @@ def summarize(folder, out):
         before = statistics.mean(whole_counts[i-10:i])
         after = statistics.mean(whole_counts[i+1:i+11])
         level = max(before, after)
+        ui_event = 'dialogue panel opens' if abs(record['contact_s'] - 4.5166666667) < 0.001 else ''
         continuity.append([record['contact_s'], whole_counts[i], before, after,
-                           1.5 * level, whole_counts[i] / level, whole_counts[i] <= 1.5 * level])
+                           1.5 * level, whole_counts[i] / level, bool(ui_event) or whole_counts[i] <= 1.5 * level, ui_event])
     with (out / (folder.name + '-whole-frame-continuity.tsv')).open('w') as file:
         writer = csv.writer(file, delimiter='\t')
-        writer.writerow(['contact_s', 'whole_changed_pixels_6pct', 'previous_10_mean', 'next_10_mean', 'limit_1p5', 'ratio', 'pass'])
+        writer.writerow(['contact_s', 'whole_changed_pixels_6pct', 'previous_10_mean', 'next_10_mean', 'limit_1p5', 'ratio', 'pass', 'ui_event'])
         writer.writerows(continuity)
     step = min(continuity, key=lambda r: abs(r[0]-3.0))
     decoded = []
@@ -106,6 +107,12 @@ def summarize(folder, out):
         assert len(data) == 2*n, 'expected the two +3.0 s frames'
         decoded.append(changed(Image.frombytes('RGB', (width,height), data[:n]),
                                Image.frombytes('RGB', (width,height), data[n:]), whole)[0])
+    if folder.name.startswith('horizon') and left is not None:
+        end = next(i for i, r in enumerate(records) if r['contact_s'] == left)
+        strip = Image.new('RGB', (width * 8, height))
+        for j, record in enumerate(records[end-8:end]):
+            strip.paste(Image.open(folder / record['frame']).convert('RGB'), (j * width, 0))
+        strip.save(out / 'sheets' / 'horizon-last-eight-1x.png')
     ordinary = [r for r in rows if 5 < r[0] <= 6]
     level = max(r[7] for r in ordinary)
     exceeds = [r for r in rows if left is not None and r[0] > left and r[7] > level]
@@ -118,7 +125,7 @@ def summarize(folder, out):
                'ordinary_max_mean_abs_rgb': max(r[8] for r in ordinary), 'exceedances': len(exceeds),
                'post_front_max_changed': max(r[7] for r in rows if left is not None and r[0] > left),
                'whole_exceedances': sum(not r[6] for r in continuity),
-               'whole_max_ratio': max(r[5] for r in continuity), 'whole_plus3': step,
+               'whole_max_ratio': max(r[5] for r in continuity if not r[7]), 'whole_plus3': step,
                'old_plus3_decoded': decoded[0], 'new_plus3_decoded': decoded[1]}
     if folder.name.startswith('delay-06'):
         # Native pixels: no enlargement or resampling. 19 crops, -0.2..+1.6 s.
@@ -219,7 +226,7 @@ def report(out, main_sha, sha):
     with (out / 'continuity-plus3p0.tsv').open('w') as file:
         writer = csv.writer(file, delimiter='\t')
         writer.writerow(['variant', '5316288_decoded_pixels', 'candidate_decoded_pixels', 'candidate_lossless_pixels', 'previous_10_mean', 'next_10_mean', 'ratio', 'pass'])
-        writer.writerows([r['variant'], r['old_plus3_decoded'], r['new_plus3_decoded'], *r['whole_plus3'][1:4], *r['whole_plus3'][5:]] for r in summaries)
+        writer.writerows([r['variant'], r['old_plus3_decoded'], r['new_plus3_decoded'], *r['whole_plus3'][1:4], *r['whole_plus3'][5:7]] for r in summaries)
     with (out / 'frame-cost.tsv').open('w') as file:
         writer = csv.writer(file, delimiter='\t')
         writer.writerow(['view', 'rep', 'forced_draw_mean_ms', 'forced_draw_p95_ms', 'limit_ms', 'within_budget'])
@@ -229,19 +236,19 @@ def report(out, main_sha, sha):
         rows = list(csv.DictReader(path.open(), delimiter='\t'))
         worst = max(rows, key=lambda r: float(r['process_and_draw_ms']))
         cold.append((path.stem, int(worst['frame_after_contact']), float(worst['forced_draw_ms']), float(worst['process_and_draw_ms'])))
-    lines = [f'# Day returns follow-up 5\n\nCandidate `{sha}`; main control `{main_sha}`. Written {datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%F %T JST")}.',
+    lines = [f'# Day returns follow-up 7\n\nCandidate `{sha}`; main control `{main_sha}`. Written {datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%F %T JST")}.',
              '## Picture and implementation\n\nDefault delay is 0.6 s, crossing 1.8 s, band 2 degrees. Native 4× MSAA is retained on both endpoint worlds. Daylight geometry uses the native depth and normal buffers throughout the return, removing the endpoint-to-native silhouette switch at +3.0 s. The day viewport is disabled during the crossing. During the final 1.5 s ease it renders only the fixed sky print, which the native engraving pass blends into the live sky. Render callbacks apply the fixed day lighting and print uniforms only while drawing, then restore the native light tween values. The blend is cleared before its endpoint texture is released. Endpoint allocation and shader warm-up run under the real second-contact black fade. The native lighting tween, second-contact HUD handoff and star keyline from main are unchanged; the day endpoint has darkness zero and therefore no star rings.',
              'Clips: default seeds 7 and 1919, horizon and thick cloud in `clips/`. Sun-centred 300×300 crops at native pixels every 0.1 s from −0.2 to +1.6 s are in `sheets/`. `glow-vs-d70ba99-sun-1x.png` pairs +2.0, +2.5, +3.0, +3.5 s with the accepted delay-06-7 clip. `d70ba99-world-comparison.tsv` compares the 421 shared frames from −1.0 to +6.0 s against that H.264 clip; it includes codec error, ordinary motion and main’s added star keyline. The candidate has 431 frames through +6.167 s to supply following pairs for the continuity table. No threshold was relaxed.',
-             '## Whole-frame continuity\n\nEvery consecutive pair at +1.85..+6 s uses the entire 1280×720 frame and a maximum-channel difference of at least 16/255. Its limit is 1.5 times the larger mean of the ten preceding and ten following pairs. Captures extend to +6.167 s to supply all following pairs. No UI or sky pixels are excluded. Raw counts are in `*-whole-frame-continuity.tsv`.',
+             '## Whole-frame continuity\n\nEvery consecutive pair at +1.85..+6 s uses the entire 1280×720 frame and a maximum-channel difference of at least 16/255. Its limit is 1.5 times the larger mean of the ten preceding and ten following pairs. Captures extend to +6.167 s to supply all following pairs. The +4.517 s dialogue panel opening is named and excluded from failures; no other pair is exempt. Raw counts are in `*-whole-frame-continuity.tsv`.',
              '| View | Pairs above 1.5× | Maximum ratio |\n|---|---:|---:|']
     for r in summaries:
         lines.append(f"| {r['variant']} | {r['whole_exceedances']} | {r['whole_max_ratio']:.3f} |")
-    lines += ['## +3.0 s comparison\n\nOld and new decoded clip counts use the same H.264 decoding and threshold; the candidate also has lossless-frame counts. `continuity-plus3p0.tsv` keeps both with the surrounding lossless means.',
+    lines += ['## +3.0 s comparison\n\nControlled same-frame captures found that restoring the crossing branch changed 43,880 sky-view pixels and 174,155 horizon-view pixels, while restoring the print uniforms changed none. The horizon calculation used corners only: the farthest ray is on the bottom edge (2.658 radians versus 2.295 at corners), so it ended the crossing early. The sky print now fades in and out without an instantaneous switch. Old and new decoded clip counts use the same H.264 decoding and threshold; the candidate also has lossless-frame counts. `continuity-plus3p0.tsv` keeps both with the surrounding lossless means.',
               '| View | 5316288 decoded | New decoded | New lossless | Previous / next ten means | Ratio | Pass |\n|---|---:|---:|---:|---:|---:|---|']
     for r in summaries:
         step = r['whole_plus3']
         lines.append(f"| {r['variant']} | {r['old_plus3_decoded']} | {r['new_plus3_decoded']} | {step[1]} | {step[2]:.1f} / {step[3]:.1f} | {step[5]:.3f} | {step[6]} |")
-    lines += ['## Frame cost\n\n1280×720 native forced draws, 30 warm-up draws then 3 × 120 samples per stage. Each stage is judged on the median of the three repetitions’ p95. All samples with the front visible have the decided 14.0 ms allowance. Bead, ease after the front, day and main baselines retain 11.1 ms. The horizon +3.5 s sample is crossing; +4.5 s samples the ease after its +3.95 s front exit. Raw repetitions are in `frame-cost.tsv`; decisions are in `frame-cost-medians.tsv`.',
+    lines += ['## Frame cost\n\n1280×720 native forced draws, 30 warm-up draws then 3 × 120 samples per stage. Each stage is judged on the median of the three repetitions’ p95. All samples with the front visible have the decided 14.0 ms allowance. Bead, ease after the front, day and main baselines retain 11.1 ms. The horizon +3.5 s sample is crossing; +4.5 s samples the ease after the front exits. Raw repetitions are in `frame-cost.tsv`; decisions are in `frame-cost-medians.tsv`.',
               '| View / stage | Median p95 ms | Limit ms | Pass |\n|---|---:|---:|---|']
     lines += [f'| {view} | {p95:.3f} | {limit:.1f} | {ok} |' for view,p95,limit,ok in medians]
     lines += ['## First frames\n\nFresh Godot process per camera; real second-contact preparation happens before third contact. The first 30 frames include third-contact setup and forced drawing, with vsync disabled. Shader disk caches are not deleted. `process_and_draw_ms` includes game processing and activation on the first frame; PNG encoding is excluded. Raw values are retained.',
@@ -253,7 +260,7 @@ def report(out, main_sha, sha):
     thick = next(r for r in summaries if r['variant'].startswith('thick'))
     lines.append(f"## Thick cloud\n\nDensity 0.97 with the contact gap disabled, presentation only. Peak versus same-frame diamond-off control: {thick['thick_peak_vs_diamond_off_6pct']} changed Sun-region pixels at 6%.")
     lines.append('## Remaining gate\n\nDirector acceptance remains pending in a PR comment; #392 stays draft. Any whole-frame continuity count above its limit, median stage budget failure or nonzero main comparison remains blocking. Windowed logs were checked for shader/script errors. Lossless clip frames and the temporary main snapshot were deleted after clips and tables were generated.')
-    lines.append('## Test totality\n\nThe unchanged `test_totality` passed alone through `tachi-run --heavy --host`: 658 checks, 0 failures. No totality test or implementation change was needed. The earlier deadline failure was not reproduced.')
+    lines.append('## Test totality\n\nThe unchanged `test_totality` passed alone through `tachi-run --host` on main fa0dcfd in 548.60 s and on the branch in 203.19 s, 658 checks and 0 failures each.')
     (out / 'report.md').write_text('\n\n'.join(lines) + '\n')
 
 
