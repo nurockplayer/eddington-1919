@@ -26,6 +26,10 @@ uniform float third_contact_gap = 0.0;
 uniform float practice_cloud = -1.0;
 uniform vec2 wind = vec2(0.0042, 0.0026);
 uniform float cloud_scale = 0.35;
+// Reserve the existing field-star points in bright paper, in output pixels.
+uniform vec2 star_pos[12];
+uniform float star_keyline_px = 1.0;
+uniform float star_keyline_all = 0.0;
 
 #include "res://shaders/eclipse_cloud.gdshaderinc"
 
@@ -371,5 +375,25 @@ void fragment() {
 	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
 	vec3 print_colour = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
 	print_colour = mix(print_colour, ink_col, moon_ink);
+	// Only the sky around an optically visible field star gets a reserve.
+	// Keep the original white core; the corona's ruling ends at its ink edge.
+	float star_vis = clamp((darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night);
+	if (sky && star_vis > 0.0 && star_keyline_px > 0.0) {
+		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
+		vec3 t2 = cross(t1, sun_dir);
+		for (int i = 0; i < 12; i++) {
+			vec2 offset = star_pos[i] * sun_r;
+			vec3 direction = sun_dir * sqrt(1.0 - dot(offset, offset)) + t1 * offset.x + t2 * offset.y;
+			vec4 projected = PROJECTION_MATRIX * VIEW_MATRIX * vec4(direction, 0.0);
+			vec2 star_uv = projected.xy / projected.w * 0.5 + 0.5;
+			float distance_px = length((uv - star_uv) * VIEWPORT_SIZE);
+			if (projected.w > 0.0 && distance_px < 1.5 + star_keyline_px + 0.25) {
+				float gate = (1.0 - smoothstep(0.35, 0.80, eclipse_cloud_density(direction))) * star_vis;
+				float ring = smoothstep(1.25, 1.75, distance_px) * (1.0 - smoothstep(1.25 + star_keyline_px, 1.75 + star_keyline_px, distance_px));
+				float bright = mix(smoothstep(0.68, 0.78, max(print_colour.r, max(print_colour.g, print_colour.b))), 1.0, star_keyline_all);
+				print_colour = mix(print_colour, ink_col, ring * bright * gate);
+			}
+		}
+	}
 	ALBEDO = mix(print_colour, paper, bead);
 }
