@@ -244,7 +244,7 @@ void fragment() {
 			float reach = diamond_spikes * size * (0.45 + 0.55 * hash21(vec2(fi, 7.0)));
 			spikes = max(spikes, step(0.0, along) * step(along, reach) * step(across, diamond_radius * size * 0.36 * (1.0 - along / max(reach, 0.00001))));
 		}
-		bead = front * step(0.000001, diamond) * max(step(bead_dist, diamond_radius * size), spikes);
+		bead = front * step(0.000001, diamond) * step(0.667, r) * max(step(bead_dist, diamond_radius * size), spikes);
 		moon_ink = front * step(0.000001, diamond) * step(r, 1.0);
 
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
