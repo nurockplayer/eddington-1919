@@ -224,6 +224,7 @@ void fragment() {
 	float bead = 0.0;
 	float moon_ink = 0.0;
 	float box_reserve = 0.0;
+	float case_solid = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -301,6 +302,17 @@ void fragment() {
 			box_reserve = max(top, side) * lit;
 		}
 
+		// The brass rim/handle catch the same doorway key; the glass stays dark.
+		vec2 loupe_delta = pw.xz - vec2(11.0, 3.94);
+		bool loupe_brass = length(loupe_delta) < 0.106 || (abs(loupe_delta.x) < 0.028 && loupe_delta.y > 0.029 && loupe_delta.y < 0.271);
+		if (loupe_brass && pw.y > 0.873 && pw.y < 0.880 && n_w.y > 0.8) {
+			box_reserve = max(box_reserve, lit);
+		}
+		// The black Oxford case stands solid on the lantern's reserved bench.
+		if (all(lessThan(abs(pw - vec3(-2.65, 0.95, -3.45)), vec3(0.201, 0.111, 0.161)))) {
+			case_solid = night;
+		}
+
 		if (normal_from_depth < 0.5) {
 			vec3 n_l = normalize(texture(normal_tex, uv - vec2(o.x, 0.0)).xyz * 2.0 - 1.0);
 			vec3 n_r = normalize(texture(normal_tex, uv + vec2(o.x, 0.0)).xyz * 2.0 - 1.0);
@@ -366,6 +378,7 @@ void fragment() {
 	}
 	ink = max(ink, edge * outline);
 	ink = mix(ink, min(ink, 0.08), box_reserve);
+	ink = max(ink, case_solid);
 
 	// Paper: fibre grain fixed to the page; an optional thin wash of the scene's hue.
 	vec2 fp = FRAGCOORD.xy / res_k;

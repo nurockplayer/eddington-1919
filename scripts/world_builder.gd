@@ -561,7 +561,7 @@ func _darkroom() -> Dictionary:
 	doorway.light_energy = 0.0
 	doorway.light_indirect_energy = 0.0
 	doorway.light_volumetric_fog_energy = 0.0
-	doorway.spot_range = 5.0
+	doorway.spot_range = 4.0
 	doorway.spot_angle = 65.0
 	doorway.spot_attenuation = 1.0
 	doorway.shadow_enabled = true
@@ -809,7 +809,7 @@ func _props() -> Dictionary:
 func _hurricane_lantern() -> Dictionary:
 	var lantern := Node3D.new()
 	lantern.name = "OxfordLantern"
-	lantern.position = Vector3(-2.35, 0.83, -3.13)
+	lantern.position = Vector3(-1.85, 0.83, -3.13)
 	root.add_child(lantern)
 	var iron := Color(0.12, 0.11, 0.10)
 	# Eight-sided tank, chimney and two guards; no imported mesh.
@@ -833,7 +833,7 @@ func _hurricane_lantern() -> Dictionary:
 	var light := OmniLight3D.new()
 	light.name = "OxfordLanternLight"
 	light.position.y = 0.18
-	light.light_color = Color(1.0, 0.93, 0.78)
+	light.light_color = Color(0.55, 0.66, 1.0)  # plate response prints this pool white
 	light.light_energy = 0.0
 	light.light_indirect_energy = 0.0
 	light.light_volumetric_fog_energy = 0.0
@@ -853,7 +853,7 @@ func _hurricane_lantern() -> Dictionary:
 	glass.position.y = 0.17
 	glass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	glass.glass_colour = Color(0.65, 0.62, 0.52)
-	glass.glow_colour = light.light_color
+	glass.glow_colour = Color(1.0, 0.93, 0.78)
 	glass.light = light
 	lantern.add_child(glass)
 	# Stowed until night: even an unlit new silhouette would alter totality.
