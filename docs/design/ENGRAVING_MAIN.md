@@ -25,10 +25,10 @@ The rejected audition styles and the four geometry PRs are not imported.
 ## Capture
 
 From the branch root, choose a fresh job ID and an absolute KIOXIA output path.
-All windowed commands run through `job-run` and `orb-test --heavy --host`.
+All windowed commands run through `job-run` and `tachi-run --heavy --host`.
 
 ```sh
-job-run --id eng-main-frames -- orb-test --heavy --host -- godot --path . --resolution 1280x720 --fixed-fps 60 --always-on-top -- --benchmark=<OUT>/<short-head>/branch --bench-only=arrival,house,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue,darkroom --bench-size=1280x720 --bench-cloud-t=215 --seed=7
+job-run --id eng-main-frames -- tachi-run --heavy --host -- godot --path . --resolution 1280x720 --fixed-fps 60 --always-on-top -- --benchmark=<OUT>/<short-head>/branch --bench-only=arrival,house,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue,darkroom --bench-size=1280x720 --bench-cloud-t=215 --seed=7
 ```
 
 Run the same Godot command from the read-only audition checkout with
@@ -44,9 +44,9 @@ lines7	--bench-cloud-t=215 --style-set=line_px=7
 ```
 
 ```sh
-FRAMES=arrival,house,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue,darkroom job-run --id eng-main-variants -- orb-test --heavy --host -- tools/style_audition.sh <OUT>/variants variants.tsv
-job-run --id eng-main-motion-day -- orb-test --heavy --host -- tools/style_motion.sh <OUT>/motion-day day
-job-run --id eng-main-motion-totality -- orb-test --heavy --host -- tools/style_motion.sh <OUT>/motion-totality totality --style-set=ground_mottle=0.7
+FRAMES=arrival,house,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue,darkroom job-run --id eng-main-variants -- tachi-run --heavy --host -- tools/style_audition.sh <OUT>/variants variants.tsv
+job-run --id eng-main-motion-day -- tachi-run --heavy --host -- tools/style_motion.sh <OUT>/motion-day day
+job-run --id eng-main-motion-totality -- tachi-run --heavy --host -- tools/style_motion.sh <OUT>/motion-totality totality --style-set=ground_mottle=0.7
 ```
 
 The motion command records 960 PNGs: ten seconds walking and six seconds turning,

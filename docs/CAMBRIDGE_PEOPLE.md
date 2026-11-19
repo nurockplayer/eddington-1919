@@ -91,7 +91,7 @@ must judge the actual screenshots before visual acceptance is claimed.
 
 ## Validation and re-entry
 
-Completed through `orb-test`:
+Completed through `tachi-run`:
 
 - `ashby.g2.json`: PASS, 14,355 triangles, nine materials, no textures.
 - `eddington_cambridge.g2.json`: PASS, 14,575 triangles, nine materials, no textures.
@@ -108,22 +108,22 @@ PR. No full-regression, six-route E2E, performance or visual PASS is claimed.
 Re-entry requires the shared resource owner to free VM capacity so the
 host-wide heavy lock can advance. Do not change another session's containers,
 raise resource limits or bypass the lock. Resume the same branch and inspect
-`orb-test --status`. The source and asset outputs are committed; scratch files,
+`tachi-run --status`. The source and asset outputs are committed; scratch files,
 rejected captures and this lane's generated `.godot`/Python caches are removed.
 
 1. Re-import the project with
-   `orb-test --heavy --host -- godot --headless --path . --editor --import`.
+   `tachi-run --heavy --host -- godot --headless --path . --editor --import`.
 2. Run all 13 `tests/test_*.gd` suites in sequence inside one
-   `orb-test --heavy --host -- <command>` job, checking `memory_pressure` before
+   `tachi-run --heavy --host -- <command>` job, checking `memory_pressure` before
    each Godot invocation. Preserve all original counts; bridge_pause is six,
    and the new portrait suite is 65.
-3. Run `orb-test --heavy --host -- ./tools/e2e_headless.sh`. All six routes must
+3. Run `tachi-run --heavy --host -- ./tools/e2e_headless.sh`. All six routes must
    pass, with careful/rushed/cherry scores 4/0/3.
 4. **Two of the four permitted windowed runs have been consumed:** the unchanged
    baseline and the rejected first after-pass. Only two remain. Capture the
    corrected honest route at 1280×720, then inspect it at 1920×1080, with seed 7,
    speed 2, `--fixed-fps 60 --always-on-top`, using the ordinary prologue bot's
-   `--shots` mode. Honour the presence/memory gates of `orb-test --heavy`.
+   `--shots` mode. Honour the presence/memory gates of `tachi-run --heavy`.
    Copy the three named bookmarks to the planned `after-*.jpg` files at JPEG
    quality 85; retain exactly six JPEGs with the existing three before-images,
    and delete every other capture/receipt.

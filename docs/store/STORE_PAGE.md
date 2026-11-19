@@ -205,7 +205,7 @@ macOS 的 RAM、儲存空間與效能目標：**Owner to confirm**；原文件�
 
 ## 8. 截圖與 capsule 拍攝清單
 
-以下供 lead 安排 windowed Godot：經 `orb-test --heavy`，在 owner-presence 判定 Owner 外出（或閒置 45 分鐘）時才會開始（Owner 2026-11-19，取代週一至週五 09:00–15:00 JST），只能同時執行一個 Godot。指令前綴為 `orb-test --heavy --host -- godot --path . --always-on-top --fixed-fps 60 --`（GPU／windowed 的 heavy 例外），每次設定 `EDD_SETTINGS_PATH` 指向 worktree 內的隔離設定檔。輸出固定放 `/Volumes/KIOXIA/eddington/store-b5/<set>/`，保留在 KIOXIA，不放 repo 或 host `/tmp`。
+以下供 lead 安排 windowed Godot：經 `tachi-run --heavy`，在 owner-presence 判定 Owner 外出（或閒置 45 分鐘）時才會開始（Owner 2026-11-19，取代週一至週五 09:00–15:00 JST），只能同時執行一個 Godot。指令前綴為 `tachi-run --heavy --host -- godot --path . --always-on-top --fixed-fps 60 --`（GPU／windowed 的 heavy 例外），每次設定 `EDD_SETTINGS_PATH` 指向 worktree 內的隔離設定檔。輸出固定放 `/Volumes/KIOXIA/eddington/store-b5/<set>/`，保留在 KIOXIA，不放 repo 或 host `/tmp`。
 
 來源工具參數：
 

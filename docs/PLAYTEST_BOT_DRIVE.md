@@ -1,13 +1,13 @@
 # v0.1 bot hold and plate-feedback verification
 
-**Default E2E is now headless (2026-10-25 JST):** `orb-test --host -- ./tools/e2e_headless.sh` runs all six routes
+**Default E2E is now headless (2026-10-25 JST):** `tachi-run --host -- ./tools/e2e_headless.sh` runs all six routes
 (`--autoplay=careful|rushed|cherry`, `--prologue-autoplay=honest|tidy|accuse`) with
 `godot --headless --path . --fixed-fps 60`, one Godot at a time, and prints a result table.
-A single route is `orb-test --host -- godot --headless --path . --fixed-fps 60 -- <route args>`. The
+A single route is `tachi-run --host -- godot --headless --path . --fixed-fps 60 -- <route args>`. The
 `--always-on-top --shots=DIR` runs recorded below are the historical screenshot runs and are
 no longer the default; use them only when someone must look at the screen or capture frames
 (Owner's windowed-run rule, 2026-10-25 and 2026-10-28 JST, window changed 2026-11-19: windowed Godot only through
-`orb-test --heavy`, which starts while the Owner is away from home (owner-presence) or after 45 min idle, with
+`tachi-run --heavy`, which starts while the Owner is away from home (owner-presence) or after 45 min idle, with
 `--fixed-fps 60`; headless runs at any time).
 `E2E_CAP_SCALE` scales route caps and the `test_score` totality-to-NIGHT handoff budget
 (default `1`); `test_score` warns and uses `1` for an invalid or non-positive value.
@@ -18,10 +18,10 @@ override is preserved. Single-suite and single-route runs should set an absolute
 path too, using a different file for each concurrent run:
 
 ```sh
-EDD_SETTINGS_PATH="$PWD/.godot/test-settings.cfg" orb-test --host -- godot --headless --path . --script res://tests/test_settings.gd
+EDD_SETTINGS_PATH="$PWD/.godot/test-settings.cfg" tachi-run --host -- godot --headless --path . --script res://tests/test_settings.gd
 ```
 
-`orb-test --host` passes the caller's environment through. Without a non-empty
+`tachi-run --host` passes the caller's environment through. Without a non-empty
 `EDD_SETTINGS_PATH`, the game still uses `user://settings.cfg` as shipped.
 
 2026-10-20 JST · Godot 4.7.2.stable.official.ed1daf0bf · macOS / Apple M2 Pro / Metal Forward+.
@@ -74,8 +74,8 @@ All commands ran in the specified worktree. No `timeout` command was used.
 
 ```sh
 godot --headless --path . --import
-orb-test --host -- godot --headless --path . --script res://tests/test_sim.gd
-orb-test --host -- godot --headless --path . --script res://tests/test_autoplay_hold.gd
+tachi-run --host -- godot --headless --path . --script res://tests/test_sim.gd
+tachi-run --host -- godot --headless --path . --script res://tests/test_autoplay_hold.gd
 ```
 
 Output tails (all exit 0):
