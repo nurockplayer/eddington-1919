@@ -1,6 +1,6 @@
 #!/bin/bash
 # One run (from the worktree root):
-# job-run --id sa-row2 -- orb-test --heavy --host -- tools/style_motion.sh <out>/day day [--style-set=line_px=5,wash=0.35]
+# job-run --id sa-row2 -- tachi-run --heavy --host -- tools/style_motion.sh <out>/day day [--style-set=line_px=5,wash=0.35]
 # Use a fresh output folder and job id for another run; state is day or totality.
 # 960 unscaled frames: 10 s at WALK, then a 6 s clockwise turn; fixed 60 Hz.
 # Pixel change: any RGB channel differs by >10% of full scale (alpha ignored).

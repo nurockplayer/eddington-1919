@@ -1,5 +1,5 @@
 extends SceneTree
-## Run through orb-test: godot --headless --path . --script res://tools/render_icon.gd
+## Run through tachi-run: godot --headless --path . --script res://tools/render_icon.gd
 
 
 func _initialize() -> void:

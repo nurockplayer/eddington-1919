@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sequential random-input runs. Replay: ./tools/monkey_headless.sh 1 SEED 1919|prologue
-# Usage: orb-test --host -- ./tools/monkey_headless.sh [count=12] [first_seed=1] [route=mixed]
+# Usage: tachi-run --host -- ./tools/monkey_headless.sh [count=12] [first_seed=1] [route=mixed]
 set -u
 GODOT=${GODOT:-godot}
 count=${1:-12}

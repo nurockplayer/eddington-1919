@@ -3,7 +3,7 @@ extends SceneTree
 ## windowed runs Mon–Fri 09:00–15:00 JST only). One run captures every view;
 ## a view whose node is missing (branch not merged) is reported and skipped.
 ##
-## Run: orb-test --heavy --host -- godot --path . --fixed-fps 60 --always-on-top \
+## Run: tachi-run --heavy --host -- godot --path . --fixed-fps 60 --always-on-top \
 ##        -s tools/look_shots.gd -- --out=$PWD/build/look [--only=study,departure,night,title,crescents,totality,darkroom]
 ## Headless the views are still set up and checked, but nothing is saved.
 

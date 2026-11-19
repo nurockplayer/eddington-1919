@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run each look variant and collect benchmark tables and contact sheets.
-# Run: orb-test --heavy --host -- tools/look_matrix.sh <out dir> [variants.tsv]
-# Windowed Godot only while the host gate is open (`heavy-window --help`); orb-test --heavy waits for it.
+# Run: tachi-run --heavy --host -- tools/look_matrix.sh <out dir> [variants.tsv]
+# Windowed Godot only while the host gate is open (`heavy-window --help`); tachi-run --heavy waits for it.
 set -u
 
 if [ "$#" -lt 1 ]; then
