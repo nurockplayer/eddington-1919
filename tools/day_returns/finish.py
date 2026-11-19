@@ -141,10 +141,14 @@ def summarize(folder, out):
         labels = ImageDraw.Draw(sheet)
         selected = {min(range(len(records)), key=lambda i: abs(records[i]['contact_s'] - t)): t
                     for t in (2.0, 2.5, 3.0, 3.5)}
+        prior_records = [json.loads(line) for line in (prior.parent.parent / 'receipts.jsonl').read_text().splitlines()]
+        prior_records = [r for r in prior_records if r['variant'] == folder.name]
+        assert all(abs(a['contact_s'] - b['contact_s']) < 1e-6
+                   for a, b in zip(records, prior_records)), 'd70ba99 frame times differ'
         with (out / 'd70ba99-world-comparison.tsv').open('w') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerow(['contact_s', 'world_changed_pixels_6pct', 'world_mean_abs_rgb'])
-            for i, record in enumerate(records):
+            for i, record in enumerate(records[:len(prior_records)]):
                 data = decoder.stdout.read(width * height * 3)
                 assert len(data) == width * height * 3, 'short d70ba99 clip'
                 control = Image.frombytes('RGB', (width, height), data)
@@ -227,7 +231,7 @@ def report(out, main_sha, sha):
         cold.append((path.stem, int(worst['frame_after_contact']), float(worst['forced_draw_ms']), float(worst['process_and_draw_ms'])))
     lines = [f'# Day returns follow-up 5\n\nCandidate `{sha}`; main control `{main_sha}`. Written {datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%F %T JST")}.',
              '## Picture and implementation\n\nDefault delay is 0.6 s, crossing 1.8 s, band 2 degrees. Native 4× MSAA is retained on both endpoint worlds. Daylight geometry uses the native depth and normal buffers throughout the return, removing the endpoint-to-native silhouette switch at +3.0 s. The day viewport is disabled during the crossing. During the final 1.5 s ease it renders only the fixed sky print, which the native engraving pass blends into the live sky. Render callbacks apply the fixed day lighting and print uniforms only while drawing, then restore the native light tween values. The blend is cleared before its endpoint texture is released. Endpoint allocation and shader warm-up run under the real second-contact black fade. The native lighting tween, second-contact HUD handoff and star keyline from main are unchanged; the day endpoint has darkness zero and therefore no star rings.',
-             'Clips: default seeds 7 and 1919, horizon and thick cloud in `clips/`. Sun-centred 300×300 crops at native pixels every 0.1 s from −0.2 to +1.6 s are in `sheets/`. `glow-vs-d70ba99-sun-1x.png` pairs +2.0, +2.5, +3.0, +3.5 s with the accepted delay-06-7 clip. `d70ba99-world-comparison.tsv` compares the fixed world region against that H.264 clip at every frame; it includes codec error, ordinary motion and main’s added star keyline. No threshold was relaxed.',
+             'Clips: default seeds 7 and 1919, horizon and thick cloud in `clips/`. Sun-centred 300×300 crops at native pixels every 0.1 s from −0.2 to +1.6 s are in `sheets/`. `glow-vs-d70ba99-sun-1x.png` pairs +2.0, +2.5, +3.0, +3.5 s with the accepted delay-06-7 clip. `d70ba99-world-comparison.tsv` compares the 421 shared frames from −1.0 to +6.0 s against that H.264 clip; it includes codec error, ordinary motion and main’s added star keyline. The candidate has 431 frames through +6.167 s to supply following pairs for the continuity table. No threshold was relaxed.',
              '## Whole-frame continuity\n\nEvery consecutive pair at +1.85..+6 s uses the entire 1280×720 frame and a maximum-channel difference of at least 16/255. Its limit is 1.5 times the larger mean of the ten preceding and ten following pairs. Captures extend to +6.167 s to supply all following pairs. No UI or sky pixels are excluded. Raw counts are in `*-whole-frame-continuity.tsv`.',
              '| View | Pairs above 1.5× | Maximum ratio |\n|---|---:|---:|']
     for r in summaries:
