@@ -6,7 +6,8 @@ const Player := preload("res://scripts/player.gd")
 const Benchmark := preload("res://tests/benchmark.gd")
 # Metres on the clearing: house frontage, west shelter aisle, open camp.
 const ROUTE := [Vector3(-10, 0, -11), Vector3(-5, 0, -11),
-	Vector3(-1.8, 0, -8), Vector3(-1.8, 0, 3), Vector3(-4, 0, 6),
+	Vector3(-4, 0, -8), Vector3(-4, 0, -3), Vector3(-4.3, 0, 0),
+	Vector3(-4, 0, 3), Vector3(-4, 0, 6),
 	Vector3(4, 0, 8), Vector3(7, 0, 8)]
 
 
