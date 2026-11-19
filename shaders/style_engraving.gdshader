@@ -26,6 +26,10 @@ uniform float third_contact_gap = 0.0;
 uniform float practice_cloud = -1.0;
 uniform vec2 wind = vec2(0.0042, 0.0026);
 uniform float cloud_scale = 0.35;
+// Reserve the existing field-star points in bright paper, in output pixels.
+uniform vec2 star_pos[12];
+uniform float star_keyline_px = 1.0;
+uniform float star_keyline_all = 1.0;
 
 #include "res://shaders/eclipse_cloud.gdshaderinc"
 
@@ -371,5 +375,37 @@ void fragment() {
 	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
 	vec3 print_colour = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
 	print_colour = mix(print_colour, ink_col, moon_ink);
+	// Only the sky around an optically visible field star gets a reserve.
+	// Keep the original white core; the corona's ruling ends at its ink edge.
+	float star_vis = clamp((darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night);
+	if (sky && star_vis > 0.0 && star_keyline_px > 0.0) {
+		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
+		vec3 t2 = cross(t1, sun_dir);
+		for (int i = 0; i < 12; i++) {
+			vec2 offset = star_pos[i] * sun_r;
+			vec3 direction = sun_dir * sqrt(1.0 - dot(offset, offset)) + t1 * offset.x + t2 * offset.y;
+			vec4 projected = PROJECTION_MATRIX * VIEW_MATRIX * vec4(direction, 0.0);
+			vec2 star_uv = projected.xy / projected.w * 0.5 + 0.5;
+			// Anchor the reserve to the output pixel grid. Every subpixel
+			// star position therefore prints the same closed round sign.
+			vec2 centre_px = floor(star_uv * VIEWPORT_SIZE) + vec2(0.5);
+			float distance_px = length(uv * VIEWPORT_SIZE - centre_px);
+			float inner_px = 1.5 * res_k;
+			float outer_px = (1.5 + star_keyline_px) * res_k;
+			if (projected.w > 0.0 && distance_px < outer_px + 0.3 * res_k) {
+				float gate = (1.0 - smoothstep(0.35, 0.80, eclipse_cloud_density(direction))) * star_vis;
+				float ring = step(inner_px, distance_px) * (1.0 - smoothstep(outer_px - 0.5 * res_k, outer_px + 0.3 * res_k, distance_px));
+				// Read the field outside the point, so its white core cannot
+				// turn on a keyline against otherwise dark paper.
+				vec2 sample_px = vec2(4.0) / VIEWPORT_SIZE;
+				vec3 response = vec3(resp_r, resp_g, resp_b);
+				float field_lum = min(min(dot(textureLod(screen_tex, star_uv + vec2(sample_px.x, 0.0), 0.0).rgb, response), dot(textureLod(screen_tex, star_uv - vec2(sample_px.x, 0.0), 0.0).rgb, response)), min(dot(textureLod(screen_tex, star_uv + vec2(0.0, sample_px.y), 0.0).rgb, response), dot(textureLod(screen_tex, star_uv - vec2(0.0, sample_px.y), 0.0).rgb, response)));
+				float field_ex = max(field_lum, 0.0) * ex;
+				float field_tone = clamp((pow(field_ex / (1.0 + field_ex), 0.4545) - tone_lo) / (tone_hi - tone_lo), 0.0, 1.0);
+				float bright = mix(smoothstep(0.72, 0.80, field_tone), 1.0, star_keyline_all);
+				print_colour = mix(print_colour, ink_col, ring * bright * gate);
+			}
+		}
+	}
 	ALBEDO = mix(print_colour, paper, bead);
 }

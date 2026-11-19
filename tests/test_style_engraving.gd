@@ -62,6 +62,7 @@ func _run() -> void:
 	for name in Engraving.PARAMS:
 		check(material.get_shader_parameter(name) == Engraving.PARAMS[name], "material parameter " + name)
 	check(material.get_shader_parameter("line_px") == 5.0, "default line spacing")
+	check(material.get_shader_parameter("star_keyline_px") == 1.0 and material.get_shader_parameter("star_keyline_all") == 1.0, "one pixel keyline around every visible star")
 	check(material.get_shader_parameter("diamond_radius") == 0.45 and material.get_shader_parameter("diamond_spikes") == 4.0 and material.get_shader_parameter("diamond_ray_floor") == 0.70, "diamond defaults")
 	check(material.get_shader_parameter("sun_r") == game.sim.SUN_R, "solar radius")
 	check(game.sky_mat.get_shader_parameter("third_contact") == Vector2.ZERO, "diamond starts off")
