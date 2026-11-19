@@ -33,7 +33,7 @@ func setup(game: Node, print_style: RefCounted) -> void:
 	for index in 2:
 		var viewport := SubViewport.new()
 		viewport.own_world_3d = true
-		viewport.size = main.get_viewport().get_visible_rect().size
+		viewport.size = main.get_viewport().size
 		viewport.msaa_3d = main.get_viewport().msaa_3d
 		viewport.scaling_3d_scale = main.get_viewport().scaling_3d_scale
 		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -91,7 +91,7 @@ func setup(game: Node, print_style: RefCounted) -> void:
 func _sync() -> void:
 	style.quad_material.set_shader_parameter("return_radius", radius())
 	for index in 2:
-		plates[index].size = main.get_viewport().get_visible_rect().size
+		plates[index].size = main.get_viewport().size
 		cameras[index].global_transform = main.player.camera.global_transform
 		cameras[index].fov = main.player.camera.fov
 		cameras[index].near = main.player.camera.near

@@ -25,6 +25,7 @@ func _run() -> void:
 		game._style.impl.start_day_return(game, game._style)
 		var front: Node = game._style.impl.day_return
 		front.set_process(false)
+		check(front.plates[0].size == root.size and front.plates[1].size == root.size, "endpoint plates use the physical render size")
 		var changes := 0
 		var previous: Color = game.ui.hint_label.get_theme_color("font_color")
 		for frame in 181:
