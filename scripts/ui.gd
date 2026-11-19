@@ -1141,8 +1141,19 @@ func _mic_drag_to(local: Vector2) -> void:
 	set_micrometer_reading((plate_point - _mic_star_point()).dot(_mic_dir()))
 
 
-static func _mic_tick_step(screen_unit_px: float) -> int:
-	return maxi(1, ceili(5.0 / screen_unit_px))
+func _mic_window_unit_px(one_px: Vector2) -> float:
+	var window_scale := float(get_window().size.y) / get_viewport().get_visible_rect().size.y
+	return one_px.length() * window_scale
+
+
+static func _mic_tick_step(window_unit_px: float, minimum_pitch := 5.0) -> int:
+	var decade := 1
+	while window_unit_px * float(decade * 10) < minimum_pitch:
+		decade *= 10
+	for multiple in [1, 2, 5]:
+		if window_unit_px * float(decade * multiple) >= minimum_pitch:
+			return decade * multiple
+	return decade * 10
 
 
 func _draw_micrometer() -> void:
@@ -1156,8 +1167,9 @@ func _draw_micrometer() -> void:
 		return
 	var along := one_px.normalized()
 	var across := along.orthogonal()
-	var screen_unit_px := mic_overlay.get_screen_transform().basis_xform(one_px).length()
-	var step := _mic_tick_step(screen_unit_px)
+	var window_unit_px := _mic_window_unit_px(one_px)
+	var step := _mic_tick_step(window_unit_px)
+	var label_step := maxi(5, _mic_tick_step(window_unit_px, 16.0))
 	# Offset the ruler from the evidence; keep zero aligned with the blue circle.
 	var ruler_zero := night + across * 24.0
 	mic_overlay.draw_line(ruler_zero - one_px * 14.0, ruler_zero + one_px * 70.0,
@@ -1167,13 +1179,13 @@ func _draw_micrometer() -> void:
 		if unit % step != 0:
 			continue
 		var tick := ruler_zero + one_px * float(unit)
-		var major := unit % (step * 2) == 0
+		var major := unit % label_step == 0
 		var half_length := 8.0 if major else 3.0
 		mic_overlay.draw_line(tick - across * half_length, tick + across * half_length,
 			Color(ACCENT, 0.35), 1.0, true)
 		if major:
-			mic_overlay.draw_string(font, tick + across * 11.0 + Vector2(0, 3), str(unit),
-				HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(10), Color(ACCENT, 0.35))
+			mic_overlay.draw_string(font, tick + across * 11.0 + Vector2(0, 6), str(unit),
+				HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(ACCENT, 0.95))
 	mic_overlay.draw_arc(night, 5.0, 0.0, TAU, 20, Color(0.74, 0.84, 0.96, 0.85), 1.0, true)
 	var cross := _plate_to_local(star + dir * micrometer_px)
 	var arm := 16.0 if Settings.mic_large_cross else 9.0

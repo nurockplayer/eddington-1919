@@ -76,12 +76,40 @@ func _check_feel() -> void:
 	var game := await _new_game([0.87, 1.75])
 	var ui = game.ui
 	ui.mic_btn.button_pressed = true
-	# 720p / 1080p, loupe off / x2: all pitches are measured in screen pixels.
-	for pitch in [2.2, 3.3, 4.4, 6.6]:
-		var tick_step: int = ui._mic_tick_step(pitch)
-		check(pitch * tick_step >= 5.0, "ruler tick pitch >= 5 screen px at unit pitch %s" % pitch)
-		check(tick_step == 1 or pitch * (tick_step - 1) < 5.0,
-			"ruler retains every graduation that fits at unit pitch %s" % pitch)
+	var saved_window := root.size
+	var saved_canvas := root.content_scale_size
+	root.content_scale_size = Vector2i(1600, 900)
+	for window in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
+		root.size = window
+		await process_frame
+		await process_frame
+		check(root.get_visible_rect().size.is_equal_approx(Vector2(1600, 900)),
+			"%s window uses the 1600x900 canvas" % window)
+		for zoom in [false, true]:
+			ui._set_loupe(zoom)
+			var star: Vector2 = ui._mic_star_point()
+			var one_px: Vector2 = ui._plate_to_local(star + ui._mic_dir()) - ui._plate_to_local(star)
+			var pitch: float = ui._mic_window_unit_px(one_px)
+			var context := "%s loupe=%s" % [window, zoom]
+			check(is_equal_approx(pitch, one_px.length() * float(window.y) / 900.0),
+				"ruler pitch includes window/canvas scaling: " + context)
+			var tick_step: int = ui._mic_tick_step(pitch)
+			var label_step: int = maxi(5, ui._mic_tick_step(pitch, 16.0))
+			check(pitch * tick_step >= 5.0, "neighbouring ticks >= 5 window px: " + context)
+			check(tick_step in [1, 2, 5, 10, 20, 50, 100], "1-2-5 decimal tick step: " + context)
+			check(label_step in [5, 10, 20, 50, 100] and label_step % tick_step == 0,
+				"round decimal numbered ticks: " + context)
+			for unit in range(-14, 71):
+				if unit % tick_step == 0 and unit % label_step == 0:
+					check(unit % 5 == 0, "numbered value is a multiple of five: %s %s" % [unit, context])
+			for reading in [0.0, 6.0, 23.0]:
+				ui.set_micrometer_reading(reading)
+				ui.mic_overlay.queue_redraw()
+				await process_frame
+	root.content_scale_size = saved_canvas
+	root.size = saved_window
+	ui._set_loupe(true)
+	await process_frame
 	var saved_step: float = Settings.mic_step
 	for step in Settings.MIC_STEPS:
 		Settings.mic_step = step
