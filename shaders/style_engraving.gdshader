@@ -267,7 +267,12 @@ void fragment() {
 			spikes = max(spikes, step(0.0, along) * step(along, reach) * step(across, diamond_radius * size * 0.36 * (1.0 - along / max(reach, 0.00001))));
 		}
 		bead = front * step(0.000001, visible_diamond) * max(step(bead_dist, diamond_radius * size), spikes);
-		moon_ink = front * step(0.000001, visible_diamond) * step(r, sqrt(transmission));
+		// Cloud changes the weight of ruling across the whole Moon, never its
+		// outline. The accepted thin gap and clearer skies keep solid ink.
+		float moon_weight = 1.0 - smoothstep(0.15, 1.0 / 1.08, dens);
+		float moon_lines = hatch(elev, k, moon_weight, l_px, 99.0);
+		moon_lines = max(moon_lines, step(1.0, moon_weight));
+		moon_ink = front * step(0.000001, visible_diamond) * step(r, 1.0) * moon_lines;
 
 		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {

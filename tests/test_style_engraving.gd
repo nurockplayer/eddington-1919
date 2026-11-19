@@ -31,6 +31,8 @@ func _run() -> void:
 	for name in {"cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
+	check(shader_text.contains("step(r, 1.0) * moon_lines") and not shader_text.contains("step(r, sqrt(transmission))"), "cloud does not resize Moon ink")
+	check(shader_text.contains("hatch(elev, k, moon_weight, l_px, 99.0)") and shader_text.contains("step(1.0, moon_weight)"), "Moon darkens through ruling through to solid ink")
 
 	var saved_quality := Settings.quality
 	var saved_scale := root.scaling_3d_scale
