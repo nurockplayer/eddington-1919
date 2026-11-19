@@ -100,9 +100,9 @@ One sentence: a humid tropical afternoon painted in gouache; a warm key when the
 
 ## Slice acceptance (engraving; replaces section 6 of the audition answer, 2026-11-17 JST)
 
-Implementation and capture commands: [engraving on main](ENGRAVING_MAIN.md). This port provides frames for the art director to rejudge rows **1, 3 and 6**; it moves no row by itself.
+Implementation and capture commands: [engraving on main](ENGRAVING_MAIN.md). The port (#383) is on main; rows **1, 3 and 6** were judged on its frames and count from its merge.
 
-Pass count: **0/9**. Met on the audition branch only, counted once the implementation branch is on main: rows 1, 3, 6. Each row is judged on the running build, in the frames `arrival`, `coelostat_still`, `totality_sky`, `totality_wide`, `totality_horizon`, `dialogue`, `darkroom` at 1280×720 unless the row says otherwise.
+Pass count: **3/9** on main (rows 1, 3, 6; since #383 merged as 407581e on 2026-11-19 15:19 JST). Each row is judged on the running build, in the frames `arrival`, `coelostat_still`, `totality_sky`, `totality_wide`, `totality_horizon`, `dialogue`, `darkroom` at 1280×720 unless the row says otherwise.
 
 | # | Row | How it is judged |
 |---|-----|------------------|
@@ -452,3 +452,7 @@ Newest last. Each round: date and time (JST), what changed, the frames judged (p
   - The accepted capture's own state (`natural-012-close-3x-accepted-d042cae-vs-1234e25.jpg`): the Moon's disc 0 differing pixels from the accepted frame (13,267 pixels close, 1,229 wide); the burst is a little smaller, since that capture has cloud of 0.12 over the Sun.
   - The worker's counts: burst paper against 6784d4c 0 at all six densities in both views; thick cloud 0 against the pass with the diamond off; cloudless 0 from d042cae; mid-totality Moon and inner corona 0 from d042cae on both bookmarks. `test_style_engraving` 305 checks, 0 failures. GitHub's checks on 1234e25 were running when this was written; the gate holds them.
   - Still not captured: the third-contact sequence at the kept defaults, and it now needs a cloud state that lets the bead through (the default sequence has 0.93 over the Sun at the contacts).
+- 2026-11-19 15:3x JST (edd-art): **#383 merged (407581e, 15:19 JST; the review of 1234e25 passed, all checks green). The count on main is 3/9: rows 1, 3 and 6.**
+  - The three rows were judged on the PR's own frames (entries of 12:4x, 14:2x and 15:0x JST; `slice_principe/accept/383/`); the merge is a squash of the accepted head, so nothing is rejudged. Row 2 holds on frames and waits for someone to watch the clips as clips; row 8 is not met (entry of 13:1x JST); rows 4, 5, 7 and 9 have no verdict yet.
+  - #385 (HUD, prompts and dialogue on slips) rebased onto main as c4ac18e, the nine commits unchanged by `git range-diff`; the acceptance of 05174f6 stands (PR comment 7001640998); ready and at the gate since 15:28 JST.
+  - #387 (the thin cloud gap at third contact, #386) rebased onto main as 5ca9168 (one commit, no conflict). Not judged: a capture run is out for the third-contact strip and clip in normal play at that head and at main (brief `.claude/briefs/accept-shots-387.md`, frames to KIOXIA `director/third-contact-gap/5ca9168/`). Open question the frames will answer: whether the pass's burst reads the cloud value the gap thins.

@@ -1,8 +1,8 @@
 # Engraving on main
 
 Príncipe defaults to engraving. This ports the judged look of `art/style-audition`
-`7406dec` onto main's geometry. Slice rows **1, 3 and 6** are available for the
-art director to rejudge; acceptance remains **0/9** until that judgement.
+`7406dec` onto main's geometry. Slice rows **1, 3 and 6** were judged on this port's
+frames; acceptance is **3/9** on main since #383 merged (2026-11-19 15:19 JST).
 
 ## Source
 
