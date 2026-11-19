@@ -40,6 +40,18 @@ func _run() -> void:
 	await process_frame
 	await process_frame  # SceneTree.process_frame fires before nodes process
 	check(is_equal_approx(m.emission_energy_multiplier, 0.0), "the glass goes dark with the coda fade")
+	var lantern: Node3D = out.oxford_lantern
+	var flame: OmniLight3D = out.oxford_lantern_light
+	check(not lantern.visible and flame.light_energy == 0.0, "the camp lantern is stowed before night")
+	check(is_equal_approx(lantern.position.y, 0.83), "the hurricane lantern stands on the bench")
+	check(flame.omni_range == 3.5 and flame.shadow_enabled, "the lantern has a local shadowed pool")
+	var globe := lantern.get_node("OxfordLanternGlass")
+	flame.light_energy = 8.0
+	await process_frame
+	await process_frame
+	var glow := globe.material_override as StandardMaterial3D
+	check(glow.emission.r > 0.9 and glow.emission.g > 0.9, "the camp lantern glows neutral paper light")
+	check(is_equal_approx(glow.emission_energy_multiplier, 8.0 * globe.GLOW), "the globe follows its own flame")
 	root3d.free()
 	_finish()
 

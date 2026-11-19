@@ -433,6 +433,9 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	if world.has("sun_crescents"):
 		var lit := 0.0 if darkness > 0.95 or night > 0.5 else SunCrescents.sunlight(vis, dens)
 		world.sun_crescents.set_eclipse(contact, lit)
+	world.doorway_daylight.light_energy = 16.0 * (1.0 - darkness) * (1.0 - night)
+	world.oxford_lantern.visible = night > 0.5
+	world.oxford_lantern_light.light_energy = 8.0 * night
 	if world.has("fireflies"):
 		world.fireflies.set_night(night > 0.5)
 	var amb_day := Color(0.55, 0.57, 0.6)

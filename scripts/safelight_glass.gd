@@ -5,13 +5,15 @@ extends MeshInstance3D
 const GLOW := 2.4  # emission per unit of light_energy
 
 var light: OmniLight3D
+var glass_colour := Color(0.35, 0.03, 0.02)
+var glow_colour := Color(1.0, 0.12, 0.05)
 
 
 func _ready() -> void:
 	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(0.35, 0.03, 0.02)
+	m.albedo_color = glass_colour
 	m.emission_enabled = true
-	m.emission = Color(1.0, 0.12, 0.05)
+	m.emission = glow_colour
 	m.roughness = 0.3
 	material_override = m
 	_sync()

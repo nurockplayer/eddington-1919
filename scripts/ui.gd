@@ -346,7 +346,7 @@ func _build_hud(root: Control) -> void:
 	prompt_label = _label("", 22, Color(1, 0.95, 0.82))
 	prompt_label.set_anchors_preset(Control.PRESET_CENTER)
 	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prompt_label.position = Vector2(-400, 26)
+	prompt_label.position = Vector2(-400, 100)
 	prompt_label.size = Vector2(800, 36)
 	prompt_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	prompt_label.add_theme_constant_override("outline_size", 6)

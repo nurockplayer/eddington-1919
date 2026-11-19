@@ -275,7 +275,7 @@ func build() -> Dictionary:
 	out.merge(_darkroom())
 	_plantation_house()
 	_vegetation()
-	_props()
+	out.merge(_props())
 	_bounds()
 	randomize()  # vegetation reseeded the global RNG; don't leak that into "new sky" restarts
 	out.eddington = npc("Eddington", Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
@@ -552,6 +552,21 @@ func _darkroom() -> Dictionary:
 	lamp.add_to_group("quality_shadow")
 	root.add_child(lamp)
 	out.lamp = lamp
+	# Daylight enters through the west doorway; the bench lamp stays off.
+	var doorway := SpotLight3D.new()
+	doorway.name = "DoorwayDaylight"
+	doorway.position = Vector3(8.05, 1.8, 3.0)
+	doorway.rotation_degrees = Vector3(-18, -90, 0)
+	doorway.light_color = Color(1.0, 0.93, 0.78)
+	doorway.light_energy = 0.0
+	doorway.light_indirect_energy = 0.0
+	doorway.light_volumetric_fog_energy = 0.0
+	doorway.spot_range = 5.0
+	doorway.spot_angle = 65.0
+	doorway.spot_attenuation = 1.0
+	doorway.shadow_enabled = true
+	root.add_child(doorway)
+	out.doorway_daylight = doorway
 	var safe := OmniLight3D.new()
 	safe.position = c + Vector3(0.2, 2.0, -1.0)
 	safe.light_color = Color(1.0, 0.15, 0.08)
@@ -759,7 +774,7 @@ func _vegetation() -> void:
 		root.add_child(mi)
 
 
-func _props() -> void:
+func _props() -> Dictionary:
 	# One kit model, uniformly scaled per crate. CRATE is the shipped mesh's measured
 	# size (art/validation/packing_crate.g2.json), so colliders match the visuals.
 	const CRATE := Vector3(0.74, 0.49, 0.50)
@@ -787,6 +802,63 @@ func _props() -> void:
 	# Comparison-plate case from Oxford.
 	var case_node := box(Vector3(0.4, 0.22, 0.32), Vector3(-2.65, 0.95, -3.45), Color(0.15, 0.18, 0.22))
 	interactable(case_node, "oxford_case", L.t("牛津比對底片盒"))
+	return _hurricane_lantern()
+
+
+## A paraffin hurricane lantern on the observing bench (period reconstruction).
+func _hurricane_lantern() -> Dictionary:
+	var lantern := Node3D.new()
+	lantern.name = "OxfordLantern"
+	lantern.position = Vector3(-2.35, 0.83, -3.13)
+	root.add_child(lantern)
+	var iron := Color(0.12, 0.11, 0.10)
+	# Eight-sided tank, chimney and two guards; no imported mesh.
+	for part in [[0.085, 0.06, 0.03, 0.085], [0.075, 0.045, 0.29, 0.045], [0.035, 0.04, 0.33, 0.035]]:
+		var mesh := CylinderMesh.new()
+		mesh.bottom_radius = part[0]
+		mesh.top_radius = part[3]
+		mesh.height = part[1]
+		mesh.radial_segments = 8
+		mesh.rings = 1
+		var mi := MeshInstance3D.new()
+		mi.mesh = mesh
+		mi.material_override = mat(iron)
+		mi.position.y = part[2]
+		lantern.add_child(mi)
+	for x in [-0.075, 0.075]:
+		box(Vector3(0.012, 0.25, 0.018), Vector3(x, 0.17, 0), iron, lantern, false)
+	for x in [-0.055, 0.055]:
+		box(Vector3(0.008, 0.10, 0.008), Vector3(x, 0.39, 0), iron, lantern, false)
+	box(Vector3(0.118, 0.008, 0.008), Vector3(0, 0.44, 0), iron, lantern, false)
+	var light := OmniLight3D.new()
+	light.name = "OxfordLanternLight"
+	light.position.y = 0.18
+	light.light_color = Color(1.0, 0.93, 0.78)
+	light.light_energy = 0.0
+	light.light_indirect_energy = 0.0
+	light.light_volumetric_fog_energy = 0.0
+	light.omni_range = 3.5
+	light.omni_attenuation = 1.0
+	light.shadow_enabled = true
+	lantern.add_child(light)
+	var glass := SafelightGlass.new()
+	glass.name = "OxfordLanternGlass"
+	var globe := CylinderMesh.new()
+	globe.top_radius = 0.045
+	globe.bottom_radius = 0.06
+	globe.height = 0.20
+	globe.radial_segments = 8
+	globe.rings = 1
+	glass.mesh = globe
+	glass.position.y = 0.17
+	glass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	glass.glass_colour = Color(0.65, 0.62, 0.52)
+	glass.glow_colour = light.light_color
+	glass.light = light
+	lantern.add_child(glass)
+	# Stowed until night: even an unlit new silhouette would alter totality.
+	lantern.hide()
+	return {"oxford_lantern": lantern, "oxford_lantern_light": light}
 
 
 func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> Node3D:
