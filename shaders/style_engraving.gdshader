@@ -13,6 +13,13 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);   // world, toward the Sun
 uniform float sun_r = 0.02;                    // the Sun's angular radius in radians
 uniform float darkness = 0.0;                  // 0 day … 1 totality
 uniform float night = 0.0;
+// Two independently lit print plates. No intermediate tone is rendered.
+uniform bool day_return_active = false;
+uniform sampler2D return_night : source_color, repeat_disable, filter_nearest;
+uniform sampler2D return_day : source_color, repeat_disable, filter_nearest;
+uniform float return_radius = -1.0;
+uniform float return_band = 0.0349066;
+uniform float return_blend = -1.0; // blend complete sky prints, preserving the ruling
 uniform float diamond_radius = 0.45; // core radius in solar radii
 uniform float diamond_spikes = 4.0; // longest spike in solar radii
 uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
@@ -190,6 +197,17 @@ void fragment() {
 	float z = max(-pv.z, 0.01);
 	vec3 ray_v = normalize(pv);
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
+	float distance = acos(clamp(dot(ray_w, sun_dir), -1.0, 1.0));
+	bool crossing = day_return_active && return_blend < 0.0;
+	bool behind = return_radius >= 2.0 * sun_r && distance < return_radius - return_band;
+	if (crossing && !behind) {
+		if (return_radius < 0.0 || distance > return_radius) {
+			ALBEDO = texture(return_night, uv).rgb;
+		} else {
+			ALBEDO = paper;
+		}
+	} else {
+	float print_darkness = day_return_active ? 0.0 : darkness;
 	float k = 2.0 / (abs(PROJECTION_MATRIX[1][1]) * VIEWPORT_SIZE.y);
 	// Line weights are given for a 720-line frame and follow the viewport height.
 	float res_k = VIEWPORT_SIZE.y / 720.0;
@@ -199,14 +217,14 @@ void fragment() {
 	float dist_f = sky ? 0.0 : smoothstep(far_start, far_end, length(pv));
 	float elev = asin(clamp(ray_w.y, -1.0, 1.0));
 	// By day the sky's ruling thins toward the horizon, so distant land can stand a tone darker against it.
-	float lit = 1.0 - max(darkness, night);
+	float lit = 1.0 - max(print_darkness, night);
 	float hz = mix(1.0, mix(sky_horizon, 1.0, smoothstep(0.0, sky_horizon_h, elev)), lit);
 	vec3 c = texture(screen_tex, uv).rgb;
 	vec3 c_t = textureLod(screen_tex, uv, max(mix(tone_lod, far_lod, dist_f) + log2(res_k), 0.0)).rgb;
 
 	// Tone: 1 = bare paper, 0 = solid ink.
-	float ex = exposure * mix(1.0, totality_gain, darkness) * mix(1.0, night_gain, night);
-	float lum = max(dot(c_t, vec3(resp_r, resp_g, resp_b)), 0.0) * ex * (sky ? mix(sky_gain, 1.0, darkness) : 1.0);
+	float ex = exposure * mix(1.0, totality_gain, print_darkness) * mix(1.0, night_gain, night);
+	float lum = max(dot(c_t, vec3(resp_r, resp_g, resp_b)), 0.0) * ex * (sky ? mix(sky_gain, 1.0, print_darkness) : 1.0);
 	float tone = pow(lum / (1.0 + lum), 0.4545);
 	float tone_raw = tone;
 	tone = clamp((tone - tone_lo) / max(tone_hi - tone_lo, 0.001), 0.0, 1.0);
@@ -280,7 +298,7 @@ void fragment() {
 		moon_lines = max(moon_lines, step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover));
 		moon_ink = front * step(r, 1.0) * moon_lines;
 
-		float w_rays = darkness * darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
+		float w_rays = print_darkness * print_darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
 		if (w_rays > 0.0) {
 			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
 			float g_ang = k / (6.2831853 * max(r * sun_r, 0.0001));
@@ -334,11 +352,11 @@ void fragment() {
 		vec3 a3;
 		if (n_w.y > flat_at) {
 			// At totality level ground stays open ruling; what stands on it prints solid.
-			dark = min(dark, mix(1.0, ground_cap, darkness));
+			dark = min(dark, mix(1.0, ground_cap, print_darkness));
 		}
 		// At totality level ground gives up its plan hatching for the page's one ruling: seen at a
 		// grazing angle the crossed families beat against each other and against the distant ruling.
-		float g_rule = n_w.y > flat_at ? darkness * ground_rule : 0.0;
+		float g_rule = n_w.y > flat_at ? print_darkness * ground_rule : 0.0;
 		if (abs(n_w.y) > flat_at) {
 			a1 = vec3(0.940, 0.0, 0.342);
 			a2 = vec3(0.087, 0.0, 0.996);
@@ -362,7 +380,7 @@ void fragment() {
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2) * (1.0 - i3);
 		ink = max(ink, smoothstep(solid_lo, solid_hi, dark) * (1.0 - dist_f));
 		// Distant land: one ruling in the sky's own lines, between a floor and a cap of tone.
-		float dark_far = clamp(max(dark, mix(far_floor, far_tot, darkness)), 0.0, mix(far_cap, 1.0, darkness));
+		float dark_far = clamp(max(dark, mix(far_floor, far_tot, print_darkness)), 0.0, mix(far_cap, 1.0, print_darkness));
 		// The floor comes in early: a sunlit palm at 40 m has lost its own lines and must not print paler than the sky.
 		float cov_floor = (far_sky * hz + far_step) * lit * smoothstep(0.0, far_in, dist_f);
 		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
@@ -390,7 +408,7 @@ void fragment() {
 	float fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
-	float blue = darkness * tot_wash;
+	float blue = print_darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone_p) * blue);
 	float nw = night * night_wash;
@@ -401,7 +419,7 @@ void fragment() {
 	print_colour = mix(print_colour, ink_col, moon_ink);
 	// Only the sky around an optically visible field star gets a reserve.
 	// Keep the original white core; the corona's ruling ends at its ink edge.
-	float star_vis = clamp((darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night);
+	float star_vis = clamp((print_darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night);
 	if (sky && star_vis > 0.0 && star_keyline_px > 0.0) {
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
 		vec3 t2 = cross(t1, sun_dir);
@@ -432,4 +450,11 @@ void fragment() {
 		}
 	}
 	ALBEDO = mix(print_colour, paper, bead);
+	if (day_return_active && return_blend > 0.0 && sky) {
+		// The sky-only endpoint has no silhouette ink. Retain the native
+		// sky-side contours when carrying its fixed glow into the ease.
+		vec3 day_sky = min(texture(return_day, uv).rgb, mix(page, ink_col, clamp(edge * outline, 0.0, 1.0) * ink_strength));
+		ALBEDO = mix(ALBEDO, day_sky, 1.0 - return_blend);
+	}
+	}
 }

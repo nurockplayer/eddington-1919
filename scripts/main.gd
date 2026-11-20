@@ -1325,6 +1325,11 @@ func _begin_totality() -> void:
 	_apply_light(1.0, 1.0, 0.0, 0.0)
 	_update_totality_hud()
 	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
+	if _style != null:
+		_style.impl.prepare_day_return(self, _style)
+		_style.impl.day_return.warm()
+	_update_totality_hud()
+	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
 	score.play("totality_drone", 1.2)
 	score.play("totality_glass", 1.2)
 	await ui.fade_to(0.0, 1.2).finished
@@ -1462,6 +1467,8 @@ func _end_totality() -> void:
 	ui.set_totality(false)
 	_sfx("third")
 	ui.show_toast(L.t("第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。") + (L.t("\n快門還開著——最後那張底片曝到了陽光。") if ruined else ""), 5.0)
+	if _style != null:
+		_style.impl.start_day_return(self, _style)
 	var tw := create_tween()
 	tw.tween_method(func(v):
 		# Daylight returns slowly at first, so the beads and the diamond (v < 0.4)

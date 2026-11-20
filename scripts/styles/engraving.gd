@@ -8,6 +8,7 @@ const SHADER := preload("res://shaders/style_engraving.gdshader")
 ## Every key is a float and can be overridden with --style-set. Keys listed in
 ## UNIFORMS are shader uniforms of the same name; the others are read here.
 const PARAMS := {
+	"return_seconds": 1.8, "return_width": 2.0, "return_delay": 0.6,
 	"exposure": 2.2, "totality_gain": 1.5, "night_gain": 3.0,
 	"resp_r": 0.60, "resp_g": 0.55, "resp_b": -0.15,
 	"tone_lo": 0.10, "tone_hi": 0.80, "sky_ink": 0.80, "sky_gain": 0.4,
@@ -43,6 +44,7 @@ const PAGES := {
 }
 const HudPaper := preload("res://scripts/hud_paper.gd")
 var hud_paper := HudPaper.new()
+var day_return: Node
 
 const DIALOGUE := {
 	"portrait": "res://assets/portraits/eddington_engraving.jpg",
@@ -86,6 +88,20 @@ func apply(main: Node, style: RefCounted) -> void:
 func light(_main: Node, style: RefCounted, _contact: float, darkness: float, night: float) -> void:
 	if style.quad_material == null:
 		return
-	hud_paper.light(darkness, night, style.params)
+	var page_darkness := darkness
+	if is_instance_valid(day_return) and day_return.active:
+		page_darkness = 0.0 if day_return.started() else 1.0
+	hud_paper.light(page_darkness, night, style.params)
 	style.quad_material.set_shader_parameter("darkness", darkness)
 	style.quad_material.set_shader_parameter("night", night)
+
+
+func prepare_day_return(main: Node, style: RefCounted) -> void:
+	day_return = preload("res://scripts/styles/day_return.gd").new()
+	main.add_child(day_return)
+	day_return.setup(main, style)
+
+
+func start_day_return(main: Node, style: RefCounted) -> void:
+	if not is_instance_valid(day_return): prepare_day_return(main, style)
+	day_return.activate()
