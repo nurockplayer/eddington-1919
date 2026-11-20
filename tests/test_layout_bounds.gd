@@ -436,14 +436,16 @@ func _test_totality_toast() -> void:
 				Settings.refresh_fonts(self)
 				ui.set_totality(true, L.t("[b]全食[/b]　剩餘 %d 秒（共 302）") % 302 + "\n" + L.t("[color=#9c9]底片就緒[/color]"),
 					preload("res://scripts/totality_cues.gd").strip_model(0.0, 302.0, [], -1.0, 4))
-				await settle()
+				await process_frame
+				await process_frame
 				var panel: Rect2 = ui.tot_panel.get_global_rect()
 				var dialogue: Rect2 = ui.dialog_panel.get_global_rect()
 				var prompt: Rect2 = ui.prompt_label.get_global_rect()
 				for note in ["", L.t("\nCottingham 只能自己趕著上發條，來不及對時。"), L.t("\n發條上滿了，但走速沒有校過。")]:
 					context = "totality toast %s %s scale %.1f note %s" % [language, viewport, text_scale, note]
 					ui.show_toast(L.t("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。") % preload("res://scripts/prompts.gd").key("shutter") + note, 7.0)
-					await settle()
+					await process_frame
+					await process_frame
 					var style: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
 					var toast_rect: Rect2 = ui.toast.get_global_rect().grow_individual(style.expand_margin_left,
 						style.expand_margin_top, style.expand_margin_right, style.expand_margin_bottom)
@@ -459,7 +461,7 @@ func _test_totality_toast() -> void:
 					check(ui.tot_panel.get_global_rect() == panel, "totality panel keeps position and size")
 					check(ui.dialog_panel.get_global_rect() == dialogue and ui.prompt_label.get_global_rect() == prompt, "dialogue and prompt keep position and size")
 				ui.set_totality(false)
-				await settle()
+				await process_frame
 				check(is_equal_approx(ui.toast.position.y, ui.hud.size.y - 150.0), "day toast returns to its original position")
 		ui.free()
 	L.apply(locale)
