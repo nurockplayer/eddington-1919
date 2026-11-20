@@ -52,6 +52,7 @@ func setup(target: Node, colours: Dictionary) -> void:
 	ui.hud.resized.connect(_layout)
 	ui.objectives.get_parent().resized.connect(_layout)
 	ui.toast.resized.connect(_toast_layout)
+	ui.toast.minimum_size_changed.connect(_toast_layout)
 	ui.tot_panel.resized.connect(_toast_layout)
 
 
@@ -173,6 +174,7 @@ func _layout() -> void:
 
 
 func _toast_layout() -> void:
+	ui.toast.size.y = ceilf(ui.toast.get_minimum_size().y)
 	ui.toast.position.y = ui.hud.size.y - 150.0
 	# Include the paper's painted margins, not just the Label's content rect.
 	var paper: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")

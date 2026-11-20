@@ -452,9 +452,9 @@ func _test_totality_toast() -> void:
 					var panel_pixels: Rect2 = transform * ui.tot_panel.get_global_rect()
 					var gap: float = 12.0 * viewport.y / 720.0
 					check(not toast_pixels.intersects(panel_pixels.grow(gap - 0.01)), "painted toast and totality panel keep scaled 12 px gap: %s / %s" % [toast_pixels, panel_pixels])
-					check(root.get_visible_rect().encloses(toast_rect), "all toast paper stays on screen")
+					check(root.get_visible_rect().encloses(toast_rect), "all toast paper stays on screen: %s in %s" % [toast_rect, root.get_visible_rect()])
 					bounds(ui.tot_panel)
-					check(ui.toast.get_visible_line_count() == ui.toast.get_line_count(), "every toast line fits")
+					check(ui.toast.get_visible_line_count() == ui.toast.get_line_count(), "every toast line fits: %d/%d in %s (minimum %s)" % [ui.toast.get_visible_line_count(), ui.toast.get_line_count(), ui.toast.size, ui.toast.get_minimum_size()])
 					check(ui.tot_label.get_content_height() <= ui.tot_label.size.y + 1, "every totality header line fits")
 					check(ui.tot_panel.get_global_rect() == panel, "totality panel keeps position and size")
 					check(ui.dialog_panel.get_global_rect() == dialogue and ui.prompt_label.get_global_rect() == prompt, "dialogue and prompt keep position and size")
