@@ -16,8 +16,10 @@ func hud_rects() -> Dictionary:
 		var control: Control = controls[key]
 		if not control.is_visible_in_tree(): continue
 		var rect := control.get_global_rect()
-		var style: StyleBox = control.get_theme_stylebox("normal" if control is Label else "panel")
-		result[key] = rect_array(root.get_stretch_transform() * style.get_draw_rect(rect))
+		var style: StyleBoxFlat = control.get_theme_stylebox("normal" if control is Label else "panel")
+		rect = rect.grow_individual(style.expand_margin_left, style.expand_margin_top,
+			style.expand_margin_right, style.expand_margin_bottom)
+		result[key] = rect_array(root.get_stretch_transform() * rect)
 	return result
 
 func _thick_cloud() -> void:
