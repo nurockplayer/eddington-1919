@@ -6,6 +6,19 @@ var thick := false
 var measure := false
 var baseline := false
 var cold := false
+var ui_only := false
+
+func hud_rects() -> Dictionary:
+	var result := {}
+	var controls := {"portrait": game.ui.dialogue_portrait, "panel": game.ui.dialog_panel,
+		"toast": game.ui.toast, "timer": game.ui.tot_panel, "clock": game.ui.clock_label}
+	for key in controls:
+		var control: Control = controls[key]
+		if not control.is_visible_in_tree(): continue
+		var rect := control.get_global_rect()
+		var style: StyleBox = control.get_theme_stylebox("normal" if control is Label else "panel")
+		result[key] = rect_array(root.get_stretch_transform() * style.get_draw_rect(rect))
+	return result
 
 func _thick_cloud() -> void:
 	# Rehearsal fixture: an optically opaque cloud instead of the authored gap.
@@ -45,6 +58,7 @@ func _run() -> void:
 		if arg == "--cost": measure = true
 		if arg == "--baseline": baseline = true
 		if arg == "--cold": cold = true
+		if arg == "--ui-only": ui_only = true
 	root.size = Vector2i(1280, 720)
 	receipts = FileAccess.open(base.path_join("receipts.jsonl"), FileAccess.WRITE)
 	await fresh()
@@ -82,6 +96,13 @@ func _run() -> void:
 		if baseline or cold:
 			if contact_frame >= 0 and i == contact_frame + 360 and baseline: _cost("day-plus6")
 			await process_frame
+			continue
+		if ui_only:
+			await process_frame
+			var original_rects := []
+			for control in [game.ui.dialogue_portrait, game.ui.dialog_panel, game.ui.toast]:
+				if control.is_visible_in_tree(): original_rects.append(rect_array(root.get_stretch_transform() * control.get_global_rect()))
+			receipts.store_line(JSON.stringify({"frame_index": i, "hud_rects": hud_rects(), "ui_rects": original_rects}))
 			continue
 		await RenderingServer.frame_post_draw
 		var front = game._style.impl.get("day_return")
