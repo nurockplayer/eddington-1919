@@ -2,16 +2,16 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-20 05:50 JST.** Slice acceptance **6/9 on main** (met 1, 3, 4, 6, 7, 9; row 2 met but the Owner hasn't watched the clips; open 5, 8). Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
+**Written 2026-11-20 12:15 JST.** Slice acceptance **7/9 on main** (met 1, 3, 4, 5, 6, 7, 9; open 2 = Owner hasn't watched the clips, 8). Row 9 re-measure on 198877e running under edd-art (`lw row9-198877e`). Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
 
-**Lead in flight:** nothing. Inbox empty (through ev-20261120-054539-4562 acked).
+**Lead in flight:** nothing. Inbox empty (through ev-20261120-121301-4869 acked).
 
 **edd-art owns (not ours to drive):**
-- Row 5: draft #392 (return daylight, Sun-led stroke) sent back to its worker at a66ebb6 (2026-11-20 JST).
+- Row 5: #392 MERGED 198877e 2026-11-20 JST (accepted at 9ca8e73).
 - Row 8: #393 MERGED 49e611d 2026-11-20 04:42 JST (darkroom by day, night lantern on bench, prompt lower). Still open: menus, panel over toast, #344 props, face clause.
 - On an art-accept comment on a draft: `lead-wait pr <n>` (fresh review).
 
-**Open draft PRs:** #392 (row 5), #356 coelostat-trim (oracle approve b3d6eb2, waits AD view), #349 ridgelines, #344 darkroom props, #341 vegetation cards, #329 totality staging (art acceptance pending; #330 waits for it), #15 (paused by Owner).
+**Open draft PRs:** #356 coelostat-trim (oracle approve b3d6eb2, waits AD view), #349 ridgelines, #344 darkroom props, #341 vegetation cards, #329 totality staging (art acceptance pending; #330 waits for it), #15 (paused by Owner).
 **Open issues:** #394, #384, #382, #381, #373, #370, #351, #346, #345, #334, #330, #285, #317/#316 (decision logs), #37, #1.
 
 **Pace 2026-11-20 05:45 JST:** Codex behind (14% vs 42% target). Owner rule 2026-11-18: act as if Claude `ahead` → no pull-forward by the lead; implementation that does go out = `cx-exec -m gpt-6.1-sol --effort high`, reading >4 calls = read-only Sol diagnosis.
