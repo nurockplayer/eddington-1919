@@ -450,7 +450,7 @@ func _test_totality_toast() -> void:
 					var transform := root.get_stretch_transform()
 					var toast_pixels: Rect2 = transform * toast_rect
 					var panel_pixels: Rect2 = transform * ui.tot_panel.get_global_rect()
-					var gap := 12.0 * viewport.y / 720.0
+					var gap: float = 12.0 * viewport.y / 720.0
 					check(not toast_pixels.intersects(panel_pixels.grow(gap - 0.01)), "painted toast and totality panel keep scaled 12 px gap: %s / %s" % [toast_pixels, panel_pixels])
 					check(root.get_visible_rect().encloses(toast_rect), "all toast paper stays on screen")
 					bounds(ui.tot_panel)
