@@ -178,5 +178,6 @@ func _toast_layout() -> void:
 	var paper: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
 	var rect: Rect2 = ui.toast.get_rect().grow_individual(paper.expand_margin_left,
 		paper.expand_margin_top, paper.expand_margin_right, paper.expand_margin_bottom)
-	if ui.tot_panel.visible and rect.intersects(ui.tot_panel.get_rect().grow(16.0)):
-		ui.toast.position.y = ui.tot_panel.position.y - 16.0 - paper.expand_margin_bottom - ui.toast.size.y
+	var gap: float = 16.0 * ui.hud.size.y / 900.0
+	if ui.tot_panel.visible and rect.intersects(ui.tot_panel.get_rect().grow(gap)):
+		ui.toast.position.y = ui.tot_panel.position.y - gap - paper.expand_margin_bottom - ui.toast.size.y
