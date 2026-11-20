@@ -2,9 +2,9 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-20 12:15 JST.** Slice acceptance **7/9 on main** (met 1, 3, 4, 5, 6, 7, 9; open 2 = Owner hasn't watched the clips, 8). Row 9 re-measure on 198877e running under edd-art (`lw row9-198877e`). Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
+**Written 2026-11-20 12:15 JST.** Slice acceptance **7/9 on main** (met 1, 3, 4, 5, 6, 7, 9; open 2 = Owner hasn't watched the clips, 8). Row 9 re-measured on 198877e 2026-11-20 12:19 JST: holds, 56.2 fps class estimate. Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
 
-**Lead in flight:** nothing. Inbox empty (through ev-20261120-121301-4869 acked).
+**Lead in flight:** nothing. Inbox empty (through ev-20261120-121914-6a68 acked).
 
 **edd-art owns (not ours to drive):**
 - Row 5: #392 MERGED 198877e 2026-11-20 JST (accepted at 9ca8e73).
