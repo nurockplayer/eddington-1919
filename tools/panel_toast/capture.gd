@@ -68,7 +68,14 @@ func _run() -> void:
 		index += 1
 		await process_frame
 	var receipt := FileAccess.open(out.path_join("capture.json"), FileAccess.WRITE)
+	var camera: Camera3D = game.player.camera
+	var transform := root.get_stretch_transform()
+	var sun_world: Vector3 = camera.global_position + game.sim.sun_dir * 10.0
+	var sun_pixels: Vector2 = transform * camera.unproject_position(sun_world)
+	var corona_edge: Vector3 = sun_world + camera.global_basis.x * tan(3.0 * game.sim.SUN_R) * 10.0
+	var corona_radius: float = sun_pixels.distance_to(transform * camera.unproject_position(corona_edge))
 	receipt.store_string(JSON.stringify({"seed": game.sim.run_seed, "bookmark": "totality_live",
+		"sun_pixels": [sun_pixels.x, sun_pixels.y], "corona_radius_pixels": corona_radius,
 		"contact_frame": contact, "content_scale_size": [root.content_scale_size.x, root.content_scale_size.y],
 		"viewport": [root.size.x, root.size.y], "frames": records}))
 	receipt.close()

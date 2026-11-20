@@ -166,20 +166,24 @@ func _layout() -> void:
 	var width := 0.0
 	for line in ui.toast.text.split("\n"):
 		width = maxf(width, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+	var paper: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
+	var right: float = ui.hud.size.x
+	if ui.tot_panel.visible:
+		var gap: float = 16.0 * ui.hud.size.y / 900.0
+		right = ui.tot_panel.position.x - gap
+		width = minf(width, right - paper.expand_margin_left - paper.expand_margin_right)
 	ui.toast.size.x = minf(width, 960.0)
 	# Refit the wrapped height after changing the width.
 	ui.toast.size.y = 0.0
 	ui.toast.position.x = (ui.hud.size.x - ui.toast.size.x) * 0.5
+	if ui.tot_panel.visible:
+		ui.toast.position.x = minf(ui.toast.position.x, right - paper.expand_margin_right - ui.toast.size.x)
 	_toast_layout()
 
 
 func _toast_layout() -> void:
 	ui.toast.size.y = ceilf(ui.toast.get_minimum_size().y)
 	ui.toast.position.y = ui.hud.size.y - 150.0
-	# Include the paper's painted margins, not just the Label's content rect.
-	var paper: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
-	var rect: Rect2 = ui.toast.get_rect().grow_individual(paper.expand_margin_left,
-		paper.expand_margin_top, paper.expand_margin_right, paper.expand_margin_bottom)
-	var gap: float = 16.0 * ui.hud.size.y / 900.0
-	if ui.tot_panel.visible and rect.intersects(ui.tot_panel.get_rect().grow(gap)):
-		ui.toast.position.y = ui.tot_panel.position.y - gap - paper.expand_margin_bottom - ui.toast.size.y
+	if ui.tot_panel.visible:
+		# Main's 90 px toast ends 60 px above the bottom; extra lines grow up.
+		ui.toast.position.y = ui.hud.size.y - 60.0 - ui.toast.size.y
