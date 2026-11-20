@@ -112,7 +112,7 @@ func warm() -> void:
 func activate() -> void:
 	active = true
 	elapsed = 0.0
-	frozen_cloud = main.t_game - 0.5 * main.sim.TIME_SCALE
+	frozen_cloud = main.sky_mat.get_shader_parameter("cloud_time")
 	for index in 2:
 		var cloud_t: float = frozen_cloud if index == 0 else main.t_game + 10.0
 		skies[index].set_shader_parameter("cloud_time", cloud_t)

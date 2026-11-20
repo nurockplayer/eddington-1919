@@ -22,9 +22,11 @@ func _run() -> void:
 		game.player.set_physics_process(false)
 		game.t_game = game.sim.TOTALITY_S
 		game._apply_light(1.0, 1.0, game.t_game, 0.0)
+		var previous_cloud: float = game.sky_mat.get_shader_parameter("cloud_time")
 		game._style.impl.start_day_return(game, game._style)
 		var front: Node = game._style.impl.day_return
 		front.set_process(false)
+		check(front.skies[0].get_shader_parameter("cloud_time") == previous_cloud, "night endpoint starts at the displayed cloud position")
 		check(not front.started() and front.plates[1].render_target_update_mode == SubViewport.UPDATE_DISABLED, "unseen day endpoint does not draw before the front")
 		check(front.plates[0].size == root.size and front.plates[1].size == root.size, "endpoint plates use the physical render size")
 		var changes := 0
