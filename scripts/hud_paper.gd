@@ -51,6 +51,8 @@ func setup(target: Node, colours: Dictionary) -> void:
 	ui.paper_layout = _layout
 	ui.hud.resized.connect(_layout)
 	ui.objectives.get_parent().resized.connect(_layout)
+	ui.toast.resized.connect(_toast_layout)
+	ui.tot_panel.resized.connect(_toast_layout)
 
 
 func light(darkness: float, night: float, params: Dictionary) -> void:
@@ -138,6 +140,7 @@ func _central_visibility() -> void:
 	ui.crosshair.visible = not ui.tot_panel.visible
 	if ui.tot_panel.visible:
 		ui.hold_bar.hide()
+	_toast_layout()
 
 
 func _layout() -> void:
@@ -166,3 +169,14 @@ func _layout() -> void:
 	# Refit the wrapped height after changing the width.
 	ui.toast.size.y = 0.0
 	ui.toast.position.x = (ui.hud.size.x - ui.toast.size.x) * 0.5
+	_toast_layout()
+
+
+func _toast_layout() -> void:
+	ui.toast.position.y = ui.hud.size.y - 150.0
+	# Include the paper's painted margins, not just the Label's content rect.
+	var paper: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
+	var rect: Rect2 = ui.toast.get_rect().grow_individual(paper.expand_margin_left,
+		paper.expand_margin_top, paper.expand_margin_right, paper.expand_margin_bottom)
+	if ui.tot_panel.visible and rect.intersects(ui.tot_panel.get_rect().grow(16.0)):
+		ui.toast.position.y = ui.tot_panel.position.y - 16.0 - paper.expand_margin_bottom - ui.toast.size.y

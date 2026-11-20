@@ -53,6 +53,11 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_totality_toast()
+	if "--totality-toast-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds totality toast: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_merged_dialogue()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	Settings.load_settings(test_path)
@@ -410,6 +415,57 @@ func _run() -> void:
 	Settings.load_settings()
 	print("test_layout_bounds: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _test_totality_toast() -> void:
+	var locale := L.current()
+	var scale := Settings.text_scale
+	var window := root.size
+	for language in L.LOCALES:
+		L.apply(language)
+		var ui = preload("res://scripts/ui.gd").new()
+		root.add_child(ui)
+		ui.hide_title()
+		var paper = preload("res://scripts/hud_paper.gd").new()
+		paper.setup(ui, preload("res://scripts/styles/engraving.gd").PAGES)
+		ui.set_objectives("")
+		for viewport in [Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(2560, 1440), Vector2i(1280, 800)]:
+			root.size = viewport
+			for text_scale in [1.0, 1.2]:
+				Settings.text_scale = text_scale
+				Settings.refresh_fonts(self)
+				ui.set_totality(true, L.t("[b]全食[/b]　剩餘 %d 秒（共 302）") % 302 + "\n" + L.t("[color=#9c9]底片就緒[/color]"),
+					preload("res://scripts/totality_cues.gd").strip_model(0.0, 302.0, [], -1.0, 4))
+				await settle()
+				var panel: Rect2 = ui.tot_panel.get_global_rect()
+				var dialogue: Rect2 = ui.dialog_panel.get_global_rect()
+				var prompt: Rect2 = ui.prompt_label.get_global_rect()
+				for note in ["", L.t("\nCottingham 只能自己趕著上發條，來不及對時。"), L.t("\n發條上滿了，但走速沒有校過。")]:
+					context = "totality toast %s %s scale %.1f note %s" % [language, viewport, text_scale, note]
+					ui.show_toast(L.t("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。") % preload("res://scripts/prompts.gd").key("shutter") + note, 7.0)
+					await settle()
+					var style: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
+					var toast_rect: Rect2 = ui.toast.get_global_rect().grow_individual(style.expand_margin_left,
+						style.expand_margin_top, style.expand_margin_right, style.expand_margin_bottom)
+					var transform := root.get_stretch_transform()
+					var toast_pixels: Rect2 = transform * toast_rect
+					var panel_pixels: Rect2 = transform * ui.tot_panel.get_global_rect()
+					var gap := 12.0 * viewport.y / 720.0
+					check(not toast_pixels.intersects(panel_pixels.grow(gap - 0.01)), "painted toast and totality panel keep scaled 12 px gap: %s / %s" % [toast_pixels, panel_pixels])
+					check(root.get_visible_rect().encloses(toast_rect), "all toast paper stays on screen")
+					bounds(ui.tot_panel)
+					check(ui.toast.get_visible_line_count() == ui.toast.get_line_count(), "every toast line fits")
+					check(ui.tot_label.get_content_height() <= ui.tot_label.size.y + 1, "every totality header line fits")
+					check(ui.tot_panel.get_global_rect() == panel, "totality panel keeps position and size")
+					check(ui.dialog_panel.get_global_rect() == dialogue and ui.prompt_label.get_global_rect() == prompt, "dialogue and prompt keep position and size")
+				ui.set_totality(false)
+				await settle()
+				check(is_equal_approx(ui.toast.position.y, ui.hud.size.y - 150.0), "day toast returns to its original position")
+		ui.free()
+	L.apply(locale)
+	Settings.text_scale = scale
+	Settings.refresh_fonts(self)
+	root.size = window
 
 
 func _test_merged_dialogue() -> void:
