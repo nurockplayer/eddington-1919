@@ -85,8 +85,13 @@ def summarize(folder, out):
             previous = image
     previous.close()
     continuity = []
+    presence = []
     for i, record in enumerate(records):
-        if not 1.85 <= record['contact_s'] <= 6.0: continue
+        if not -0.2 <= record['contact_s'] <= 6.0: continue
+        with Image.open(folder / record['frame']) as image, Image.open(folder / record['frame'].replace('/f_', '/bare_')) as bare:
+            count = changed(image.convert('RGB'), bare.convert('RGB'), whole)[0]
+        share = count / (width * height)
+        presence.append([i, record['contact_s'], count, share, 0.25, share >= 0.25])
         before = statistics.mean(whole_counts[i-10:i])
         after = statistics.mean(whole_counts[i+1:i+11])
         level = max(before, after)
@@ -97,6 +102,10 @@ def summarize(folder, out):
         writer = csv.writer(file, delimiter='\t')
         writer.writerow(['contact_s', 'whole_changed_pixels_6pct', 'previous_10_mean', 'next_10_mean', 'limit_1p5', 'ratio', 'pass', 'ui_event'])
         writer.writerows(continuity)
+    with (out / (folder.name + '-scene-presence.tsv')).open('w') as file:
+        writer = csv.writer(file, delimiter='\t')
+        writer.writerow(['frame', 'contact_s', 'pixels_different_from_bare_environment_6pct', 'share', 'minimum_share', 'pass'])
+        writer.writerows(presence)
     step = min(continuity, key=lambda r: abs(r[0]-3.0))
     decoded = []
     for packet in (Path('/Volumes/KIOXIA/eddington-1919-cache/director/day-returns/5316288'), out):
@@ -121,6 +130,7 @@ def summarize(folder, out):
         writer.writerow(['contact_s', 'consecutive_changed_pixels_6pct', 'ordinary_max_6pct'])
         writer.writerows((r[0], r[7], level) for r in exceeds)
     summary = {'variant': folder.name, 'front_left_s': left, 'world_pixels': world.histogram()[255],
+               'scene_minimum_share': min(r[3] for r in presence), 'scene_failures': sum(not r[5] for r in presence),
                'ordinary_max_changed': level, 'ordinary_mean_changed': sum(r[7] for r in ordinary)/len(ordinary),
                'ordinary_max_mean_abs_rgb': max(r[8] for r in ordinary), 'exceedances': len(exceeds),
                'post_front_max_changed': max(r[7] for r in rows if left is not None and r[0] > left),
@@ -236,14 +246,17 @@ def report(out, main_sha, sha):
         rows = list(csv.DictReader(path.open(), delimiter='\t'))
         worst = max(rows, key=lambda r: float(r['process_and_draw_ms']))
         cold.append((path.stem, int(worst['frame_after_contact']), float(worst['forced_draw_ms']), float(worst['process_and_draw_ms'])))
-    lines = [f'# Day returns follow-up 7\n\nCandidate `{sha}`; main control `{main_sha}`. Written {datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%F %T JST")}.',
+    lines = [f'# Day returns follow-up 8\n\nCandidate `{sha}`; main control `{main_sha}`. Written {datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%F %T JST")}.',
              '## Picture and implementation\n\nDefault delay is 0.6 s, crossing 1.8 s, band 2 degrees. Native 4× MSAA is retained on both endpoint worlds. Daylight geometry uses the native depth and normal buffers throughout the return, removing the endpoint-to-native silhouette switch at +3.0 s. The day viewport is disabled during the crossing. During the final 1.5 s ease it renders only the fixed sky print, which the native engraving pass blends into the live sky. Render callbacks apply the fixed day lighting and print uniforms only while drawing, then restore the native light tween values. The blend is cleared before its endpoint texture is released. Endpoint allocation and shader warm-up run under the real second-contact black fade. The native lighting tween, second-contact HUD handoff and star keyline from main are unchanged; the day endpoint has darkness zero and therefore no star rings.',
              'Clips: default seeds 7 and 1919, horizon and thick cloud in `clips/`. Sun-centred 300×300 crops at native pixels every 0.1 s from −0.2 to +1.6 s are in `sheets/`. `glow-vs-d70ba99-sun-1x.png` pairs +2.0, +2.5, +3.0, +3.5 s with the accepted delay-06-7 clip. `d70ba99-world-comparison.tsv` compares the 421 shared frames from −1.0 to +6.0 s against that H.264 clip; it includes codec error, ordinary motion and main’s added star keyline. The candidate has 431 frames through +6.167 s to supply following pairs for the continuity table. No threshold was relaxed.',
-             '## Whole-frame continuity\n\nEvery consecutive pair at +1.85..+6 s uses the entire 1280×720 frame and a maximum-channel difference of at least 16/255. Its limit is 1.5 times the larger mean of the ten preceding and ten following pairs. Captures extend to +6.167 s to supply all following pairs. The +4.517 s dialogue panel opening is named and excluded from failures; no other pair is exempt. Raw counts are in `*-whole-frame-continuity.tsv`.',
+             '## Whole-frame continuity\n\nEvery consecutive pair at −0.2..+6 s uses the entire 1280×720 frame and a maximum-channel difference of at least 16/255. Its limit is 1.5 times the larger mean of the ten preceding and ten following pairs. Captures extend to +6.167 s to supply all following pairs. The +4.517 s dialogue panel opening is named and excluded from failures; no other pair is exempt. Raw counts are in `*-whole-frame-continuity.tsv`.',
              '| View | Pairs above 1.5× | Maximum ratio |\n|---|---:|---:|']
     for r in summaries:
         lines.append(f"| {r['variant']} | {r['whole_exceedances']} | {r['whole_max_ratio']:.3f} |")
-    lines += ['## +3.0 s comparison\n\nThe fixed daylight rendering carries into the first ease frame; the fixed sky print then fades into the live sky. Old and new decoded clip counts use the same H.264 decoding and threshold; the candidate also has lossless-frame counts. `continuity-plus3p0.tsv` keeps both with the surrounding lossless means. The decoded 120×120 Sun-centre crop means and consecutive steps are in `*-sun-crop-mean.tsv`; decoded clip frames 236–244 are in `clip-frames/`.',
+    lines += ['## Scene presence\n\nEvery frame at −0.2..+6 s is compared against a same-frame draw of the bare camera environment with geometry and compositor culled. UI is identical in both draws, so it cancels. At least 25% of all pixels must differ by 16/255 in a channel. Raw series are in `*-scene-presence.tsv`.',
+              '| View | Minimum differing share | Failing frames |\n|---|---:|---:|']
+    lines += [f"| {r['variant']} | {r['scene_minimum_share']:.3%} | {r['scene_failures']} |" for r in summaries]
+    lines += ['## +3.0 s comparison\n\nThe fixed daylight rendering carries into the first ease frame; the fixed sky print then fades into the live sky. Old and new decoded clip counts use the same H.264 decoding and threshold; the candidate also has lossless-frame counts. `continuity-plus3p0.tsv` keeps both with the surrounding lossless means. The decoded 120×120 Sun-centre crop means and consecutive steps are in `*-sun-crop-mean.tsv`; decoded clip frames 55–115, 236–244 and 293–301 are in `clip-frames/`.',
               '| View | 5316288 decoded | New decoded | New lossless | Previous / next ten means | Ratio | Pass |\n|---|---:|---:|---:|---:|---:|---|']
     for r in summaries:
         step = r['whole_plus3']
@@ -259,7 +272,7 @@ def report(out, main_sha, sha):
     lines += [f'- {name}: {exact} exact / {threshold} at 6%.' for name,exact,threshold in comparisons if 'second_' not in name]
     thick = next(r for r in summaries if r['variant'].startswith('thick'))
     lines.append(f"## Thick cloud\n\nDensity 0.97 with the contact gap disabled, presentation only. Peak versus same-frame diamond-off control: {thick['thick_peak_vs_diamond_off_6pct']} changed Sun-region pixels at 6%.")
-    lines.append('## Remaining gate\n\nDirector acceptance remains pending in a PR comment. Any whole-frame continuity count above its limit, median stage budget failure or nonzero main comparison remains blocking. Windowed logs were checked for shader/script errors. Lossless clip frames and the temporary main snapshot were deleted after clips and tables were generated.')
+    lines.append('## Remaining gate\n\nPR #392 stays draft until edd-art accepts it and marks it ready. Any whole-frame continuity count above its limit, median stage budget failure or nonzero main comparison remains blocking. Windowed logs were checked for shader/script errors. Lossless clip frames and the temporary main snapshot were deleted after clips and tables were generated.')
     lines.append('## Test totality\n\nThe unchanged `test_totality` passed alone through `tachi-run --host` on main fa0dcfd in 548.60 s and on the branch in 203.19 s, 658 checks and 0 failures each.')
     (out / 'report.md').write_text('\n\n'.join(lines) + '\n')
 

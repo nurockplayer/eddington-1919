@@ -96,6 +96,16 @@ func _run() -> void:
 			"front_band": band, "params": game._style.params, "sun_dir": xyz(game.sim.sun_dir),
 			"ui_rects": ui_rects, "practice_cloud": game.sky_mat.get_shader_parameter("practice_cloud"),
 			"third_contact_gap": game.sky_mat.get_shader_parameter("third_contact_gap")})
+		if -0.2 <= seconds and seconds <= 6.0:
+			# Same frame/environment/UI, with both geometry and compositor culled.
+			# Identical UI cancels from the scene-presence comparison.
+			var camera: Camera3D = game.player.camera
+			var saved_mask := camera.cull_mask
+			camera.cull_mask = 0
+			RenderingServer.force_draw(false)
+			root.get_texture().get_image().save_png(base.path_join("scratch/bare_%05d.png" % i))
+			camera.cull_mask = saved_mask
+			RenderingServer.force_draw(false)
 		if measure and contact_frame >= 0:
 			var stages := {42: "bead", 90: "crossing", 210: "crossing-plus3p5" if horizon else "ease-plus3p5", 270: "ease-plus4p5", 360: "day-plus6"}
 			for stage in stages:

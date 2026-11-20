@@ -194,7 +194,7 @@ func _sync() -> void:
 		# entire return. No geometry renderer changes at the start of the ease.
 		camera.cull_mask = camera_mask if started() else 1 << 19
 		camera.environment = camera_environment if view_is_day and blend > 0.0 else cameras[1].environment
-		compositor.layers = compositor_layers
+		compositor.layers = compositor_layers if started() else 1 << 19
 		cameras[1].cull_mask = 1 << 19
 	for index in 2:
 		plates[index].size = main.get_viewport().size

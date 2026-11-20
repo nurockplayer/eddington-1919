@@ -92,10 +92,10 @@ def main():
                     previous = mean
             frames = out / 'clip-frames' / name
             frames.mkdir(parents=True)
-            first, last = (293, 301) if horizon else (236, 244)
-            run(['ffmpeg', '-nostdin', '-loglevel', 'error', '-i', str(clip), '-vf',
-                 f'select=between(n\\,{first}\\,{last})', '-fps_mode', 'passthrough', '-start_number', str(first),
-                 str(frames / 'frame-%03d.png')], out / 'tools' / (name + '-clip-frames.log'))
+            for first, last in ((55, 115), (236, 244), (293, 301)):
+                run(['ffmpeg', '-nostdin', '-loglevel', 'error', '-i', str(clip), '-vf',
+                     f'select=between(n\\,{first}\\,{last})', '-fps_mode', 'passthrough', '-start_number', str(first),
+                     str(frames / 'frame-%03d.png')], out / 'tools' / (name + f'-clip-frames-{first}.log'))
             subprocess.run(['python3', str(out / 'tools/finish.py'), str(folder), str(out)], check=True)
             for line in (folder / 'receipts.jsonl').read_text().splitlines():
                 record = json.loads(line)

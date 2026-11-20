@@ -32,6 +32,7 @@ func _run() -> void:
 		for frame in 181:
 			front.elapsed = frame / 60.0
 			front._sync()
+			check((front.compositor.layers & game.player.camera.cull_mask) != 0, "return compositor is visible to the camera at frame %d" % frame)
 			var v: float = frame / 180.0
 			game._apply_light(1.0 - v * 0.2, 1.0 - v * v, game.t_game + v * 10.0, 0.0)
 			var foreground: Color = game.ui.hint_label.get_theme_color("font_color")
