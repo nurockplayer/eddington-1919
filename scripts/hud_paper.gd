@@ -166,9 +166,10 @@ func _layout() -> void:
 	var width := 0.0
 	for line in ui.toast.text.split("\n"):
 		width = maxf(width, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
-	var paper: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
+	var paper: StyleBoxFlat
 	var right: float = ui.hud.size.x
 	if ui.tot_panel.visible:
+		paper = ui.toast.get_theme_stylebox("normal")
 		var gap: float = 16.0 * ui.hud.size.y / 900.0
 		right = ui.tot_panel.position.x - gap
 		width = minf(width, right - paper.expand_margin_left - paper.expand_margin_right)
