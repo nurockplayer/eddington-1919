@@ -2,13 +2,13 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-20 12:15 JST.** Slice acceptance **7/9 on main** (met 1, 3, 4, 5, 6, 7, 9; open 2 = Owner hasn't watched the clips, 8). Row 9 re-measured on 198877e 2026-11-20 12:19 JST: holds, 56.2 fps class estimate. Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
+**Written 2026-11-21 04:20 JST.** Slice acceptance **7/9 on main** (met 1, 3, 4, 5, 6, 7, 9; open 2 = Owner hasn't watched the clips, 8). Row 9 re-measured on 198877e 2026-11-20 12:19 JST: holds, 56.2 fps class estimate. Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
 
-**Lead in flight:** nothing. Inbox empty (through ev-20261120-121914-6a68 acked).
+**Lead in flight:** nothing. Inbox empty (through ev-20261121-041957-79fa acked).
 
 **edd-art owns (not ours to drive):**
 - Row 5: #392 MERGED 198877e 2026-11-20 JST (accepted at 9ca8e73).
-- Row 8: #393 MERGED 49e611d 2026-11-20 04:42 JST (darkroom by day, night lantern on bench, prompt lower). Still open: menus, panel over toast, #344 props, face clause.
+- Row 8: #393 MERGED 49e611d 2026-11-20 04:42 JST (darkroom by day, night lantern on bench, prompt lower). #398 MERGED 46469e8 2026-11-21 04:19 JST (toast clears panel and corona, item 5b). Still open: menus, #344 props, face clause.
 - On an art-accept comment on a draft: `lead-wait pr <n>` (fresh review).
 
 **Open draft PRs:** #356 coelostat-trim (oracle approve b3d6eb2, waits AD view), #349 ridgelines, #344 darkroom props, #341 vegetation cards, #329 totality staging (art acceptance pending; #330 waits for it), #15 (paused by Owner).
