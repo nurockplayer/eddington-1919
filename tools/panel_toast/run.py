@@ -23,6 +23,8 @@ def main():
         raise RuntimeError('KIOXIA has under 3 GB free; capture stopped')
     head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip()
     out = Path('/Volumes/KIOXIA/eddington-1919-cache/director/panel-toast') / head[:7]
+    if (out / 'main').exists() or (out / 'fixed').exists():
+        raise SystemExit(f'Capture output already exists at {out}; move it before rerunning. Existing output was preserved.')
     out.mkdir(parents=True, exist_ok=True)
     previous = out.parent / '2e62b35'
     shutil.copytree(previous / 'main', out / 'main')
@@ -53,7 +55,11 @@ def main():
     lines = [f"# Panel toast: sideways clearance", "", f"Candidate: {head}.",
              f"Completed: {metadata['at']}.", "", "## Tests", ""]
     for name in ['main', 'fixed']:
-        log = (out / 'checks' / f'{name}.log').read_text()
+        log_path = out / 'checks' / f'{name}.log'
+        if not log_path.exists():
+            lines.append(f"- {name}: checks not run (optional log absent: {log_path}).")
+            continue
+        log = log_path.read_text()
         result = next(line for line in reversed(log.splitlines()) if line.startswith('test_layout_bounds totality toast:'))
         lines.append(f"- {name}: `{result}`")
     lines += ["", "## Capture", "", "Seed 7, totality_live, original 1600x900 canvas, full-size 1280x720 PNGs.",
