@@ -51,6 +51,9 @@ func setup(target: Node, colours: Dictionary) -> void:
 	ui.paper_layout = _layout
 	ui.hud.resized.connect(_layout)
 	ui.objectives.get_parent().resized.connect(_layout)
+	ui.toast.resized.connect(_toast_layout)
+	ui.toast.minimum_size_changed.connect(_toast_layout)
+	ui.tot_panel.resized.connect(_toast_layout)
 
 
 func light(darkness: float, night: float, params: Dictionary) -> void:
@@ -138,6 +141,7 @@ func _central_visibility() -> void:
 	ui.crosshair.visible = not ui.tot_panel.visible
 	if ui.tot_panel.visible:
 		ui.hold_bar.hide()
+	_toast_layout()
 
 
 func _layout() -> void:
@@ -162,7 +166,25 @@ func _layout() -> void:
 	var width := 0.0
 	for line in ui.toast.text.split("\n"):
 		width = maxf(width, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+	var paper: StyleBoxFlat
+	var right: float = ui.hud.size.x
+	if ui.tot_panel.visible:
+		paper = ui.toast.get_theme_stylebox("normal")
+		var gap: float = 16.0 * ui.hud.size.y / 900.0
+		right = ui.tot_panel.position.x - gap
+		width = minf(width, right - paper.expand_margin_left - paper.expand_margin_right)
 	ui.toast.size.x = minf(width, 960.0)
 	# Refit the wrapped height after changing the width.
 	ui.toast.size.y = 0.0
 	ui.toast.position.x = (ui.hud.size.x - ui.toast.size.x) * 0.5
+	if ui.tot_panel.visible:
+		ui.toast.position.x = minf(ui.toast.position.x, right - paper.expand_margin_right - ui.toast.size.x)
+	_toast_layout()
+
+
+func _toast_layout() -> void:
+	ui.toast.size.y = ceilf(ui.toast.get_minimum_size().y)
+	ui.toast.position.y = ui.hud.size.y - 150.0
+	if ui.tot_panel.visible:
+		# Main's 90 px toast ends 60 px above the bottom; extra lines grow up.
+		ui.toast.position.y = ui.hud.size.y - 60.0 - ui.toast.size.y

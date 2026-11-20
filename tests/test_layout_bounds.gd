@@ -53,6 +53,11 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_totality_toast()
+	if "--totality-toast-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds totality toast: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_merged_dialogue()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
 	Settings.load_settings(test_path)
@@ -410,6 +415,81 @@ func _run() -> void:
 	Settings.load_settings()
 	print("test_layout_bounds: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _test_totality_toast() -> void:
+	var locale := L.current()
+	var scale := Settings.text_scale
+	var window := root.size
+	# Same seed, camera and Sun direction as the totality_live capture on main.
+	var player = preload("res://scripts/player.gd").new()
+	root.add_child(player)
+	player.set_physics_process(false)
+	player.global_position = Vector3(0, 0.05, -0.9)
+	var sun: Vector3 = Sim.new(7).sun_dir
+	player.look_at_point(player.camera.global_position + sun * 10.0)
+	player.rotation.y = player.yaw
+	player.camera.rotation.x = player.pitch
+	for language in L.LOCALES:
+		L.apply(language)
+		var ui = preload("res://scripts/ui.gd").new()
+		root.add_child(ui)
+		ui.hide_title()
+		var paper = preload("res://scripts/hud_paper.gd").new()
+		paper.setup(ui, preload("res://scripts/styles/engraving.gd").PAGES)
+		ui.set_objectives("")
+		for viewport in [Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(2560, 1440), Vector2i(1280, 800)]:
+			root.size = viewport
+			for text_scale in [1.0, 1.2]:
+				Settings.text_scale = text_scale
+				Settings.refresh_fonts(self)
+				ui.set_totality(true, L.t("[b]全食[/b]　剩餘 %d 秒（共 302）") % 302 + "\n" + L.t("[color=#9c9]底片就緒[/color]"),
+					preload("res://scripts/totality_cues.gd").strip_model(0.0, 302.0, [], -1.0, 4))
+				await process_frame
+				await process_frame
+				var panel: Rect2 = ui.tot_panel.get_global_rect()
+				var dialogue: Rect2 = ui.dialog_panel.get_global_rect()
+				var prompt: Rect2 = ui.prompt_label.get_global_rect()
+				var transform := root.get_stretch_transform()
+				var sun_world: Vector3 = player.camera.global_position + sun * 10.0
+				var sun_pixels: Vector2 = transform * player.camera.unproject_position(sun_world)
+				var corona_edge: Vector3 = sun_world + player.camera.global_basis.x * tan(3.0 * Sim.SUN_R) * 10.0
+				var corona_radius: float = sun_pixels.distance_to(transform * player.camera.unproject_position(corona_edge))
+				# Main's camera also points directly at the Sun, at the frame centre.
+				var main_sun_pixels := Vector2(viewport) * 0.5
+				for note in ["", L.t("\nCottingham 只能自己趕著上發條，來不及對時。"), L.t("\n發條上滿了，但走速沒有校過。")]:
+					context = "totality toast %s %s scale %.1f note %s" % [language, viewport, text_scale, note]
+					ui.show_toast(L.t("帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。") % preload("res://scripts/prompts.gd").key("shutter") + note, 7.0)
+					await process_frame
+					await process_frame
+					var style: StyleBoxFlat = ui.toast.get_theme_stylebox("normal")
+					var toast_rect: Rect2 = ui.toast.get_global_rect().grow_individual(style.expand_margin_left,
+						style.expand_margin_top, style.expand_margin_right, style.expand_margin_bottom)
+					var toast_pixels: Rect2 = transform * toast_rect
+					var panel_pixels: Rect2 = transform * ui.tot_panel.get_global_rect()
+					var gap: float = 12.0 * viewport.y / 720.0
+					check(not toast_pixels.intersects(panel_pixels.grow(gap - 0.01)), "painted toast and totality panel keep scaled 12 px gap: %s / %s" % [toast_pixels, panel_pixels])
+					check(toast_pixels.end.x <= panel_pixels.position.x - gap + 0.01, "toast clears panel sideways")
+					for centre in [sun_pixels, main_sun_pixels]:
+						var closest := Vector2(clampf(centre.x, toast_pixels.position.x, toast_pixels.end.x),
+							clampf(centre.y, toast_pixels.position.y, toast_pixels.end.y))
+						check(closest.distance_to(centre) >= corona_radius, "toast clears three solar radii at totality_live/main screen position %s" % centre)
+					check(is_equal_approx(toast_rect.end.y, ui.hud.size.y - 60.0 + style.expand_margin_bottom), "toast keeps main's bottom margin")
+					check(root.get_visible_rect().encloses(toast_rect), "all toast paper stays on screen: %s in %s" % [toast_rect, root.get_visible_rect()])
+					bounds(ui.tot_panel)
+					check(ui.toast.get_visible_line_count() == ui.toast.get_line_count(), "every toast line fits: %d/%d in %s (minimum %s)" % [ui.toast.get_visible_line_count(), ui.toast.get_line_count(), ui.toast.size, ui.toast.get_minimum_size()])
+					check(ui.tot_label.get_content_height() <= ui.tot_label.size.y + 1, "every totality header line fits")
+					check(ui.tot_panel.get_global_rect() == panel, "totality panel keeps position and size")
+					check(ui.dialog_panel.get_global_rect() == dialogue and ui.prompt_label.get_global_rect() == prompt, "dialogue and prompt keep position and size")
+				ui.set_totality(false)
+				await process_frame
+				check(is_equal_approx(ui.toast.position.y, ui.hud.size.y - 150.0), "day toast returns to its original position")
+		ui.free()
+	player.free()
+	L.apply(locale)
+	Settings.text_scale = scale
+	Settings.refresh_fonts(self)
+	root.size = window
 
 
 func _test_merged_dialogue() -> void:
