@@ -24,7 +24,7 @@ class MatrixStatsTest(unittest.TestCase):
                     {"bookmark": "first", "lighting": "day", "forced_draw_ms_avg": 2,
                      "draw_calls": 30},
                 ]}), encoding="utf-8")
-            rows = stats.collect(root)
+            rows = stats.collect(root, ["zeta", "alpha"])
             self.assertEqual([(r["variant"], r["bookmark"]) for r in rows],
                              [("alpha", "second"), ("alpha", "first"),
                               ("zeta", "second"), ("zeta", "first")])
@@ -32,7 +32,7 @@ class MatrixStatsTest(unittest.TestCase):
                              ("night", 1.5, 42))
             self.assertTrue(all(rows[0][key] == 0.25 for key in stats.IMAGE_KEYS))
             self.assertTrue(all(rows[1][key] == "" for key in stats.IMAGE_KEYS))
-            self.assertEqual(stats.main(["stats", str(root)]), 0)
+            self.assertEqual(stats.main(["stats", str(root), "zeta", "alpha"]), 0)
             with (root / "stats.tsv").open(encoding="utf-8", newline="") as f:
                 written = list(csv.DictReader(f, delimiter="\t"))
             self.assertEqual(len(written), 4)
@@ -42,6 +42,28 @@ class MatrixStatsTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(stats.main(["stats", tmp]), 1)
             self.assertFalse((Path(tmp) / "stats.tsv").exists())
+
+    def test_stale_variant_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ("current", "stale"):
+                (root / name).mkdir()
+                (root / name / "benchmark.json").write_text(
+                    '{"bookmarks": [{"bookmark": "first"}]}', encoding="utf-8")
+            self.assertEqual(stats.main(["stats", tmp, "current"]), 0)
+            with (root / "stats.tsv").open(encoding="utf-8", newline="") as f:
+                self.assertEqual([r["variant"] for r in csv.DictReader(f, delimiter="\t")],
+                                 ["current"])
+
+    def test_failed_variant(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "failed").mkdir()
+            (root / "failed" / "benchmark.json").write_text(
+                '{"bookmarks": [{"bookmark": "first"}]}', encoding="utf-8")
+            self.assertEqual(stats.collect(root, []), [])
+            self.assertEqual(stats.main(["stats", tmp]), 1)
+            self.assertFalse((root / "stats.tsv").exists())
 
 
 if __name__ == "__main__":
