@@ -1,6 +1,6 @@
 # Darkroom prop kit: slice acceptance row 8, item 3 (prerequisite)
 
-Report 2026-11-22 00:46:32 JST. Draft PR #344. HOLD: one inherited paper-region acceptance finding remains.
+Report 2026-11-22 00:46:32 JST. Draft PR #344. Art director accepted the frames and the inherited doorway highlight on 2026-11-22 00:5x JST. Full brief Test line is pending.
 
 Capture candidate `f20158b0c0fcdcbf30b136b6d25171ff294509ab`, baseline main `4e9f2c6d0ec1cf8569fbbed3989842e635960faa`. Captured 2026-11-22T00:43:09 JST through 2026-11-22T00:43:56 JST. Rebased product commit `507f62601bd3452a026f64176d62545f4f43e6da` is on current main `4a3004fbc6eba41ae6892b0c6c4dd5104e086f02`. The newer main changes only docs, tests and tools; rendering inputs are unchanged. The following evidence-only commit adds these images and this report without changing the game.
 
@@ -8,7 +8,7 @@ Capture candidate `f20158b0c0fcdcbf30b136b6d25171ff294509ab`, baseline main `4e9
 
 1. Rebased on current main. All seven GLBs are byte-identical to accepted `4cbc3b06cfc59852fc55dbfed90fcf2204a47520`; no Blender rebuild or material edits. SHA-256 values are in geometry-sha256.json in the external packet.
 2. Seven prop types / 13 placed instances are drawn by the existing engraving pass. The 26 native day/night instance crops retain their source pixels without rescaling. Jug, pail, tray, bottle, holder, rack and box have contour/edge line work and hatching or bounded paper reserves. No per-prop shader or tint bypass was introduced.
-3. Doorway daylight, Oxford lantern render layers/range and prompt drop 100 are unchanged. All ten measured prompt/object overlaps are zero. Oxford ink difference is 0.7714 on both heads (minimum 0.25). The strict doorway paper-region condition remains HOLD on both main and head; see below.
+3. Doorway daylight, Oxford lantern render layers/range and prompt drop 100 are unchanged. All ten measured prompt/object overlaps are zero. Oxford ink difference is 0.7714 on both heads (minimum 0.25). The director accepted the inherited doorway object-highlight exception on 2026-11-22 00:5x JST; see below.
 4. The darkroom remains a red safelight night scene. The plate/sheet, loupe and notebook remain visible on the measuring bench; see comparison-darkroom and the night bench views.
 5. All four measured UI evidence regions have zero changed pixels. Props have no colliders and remain clear of the measuring-table area. test_totality, test_plate_reading and test_micrometer passed as listed below.
 6. Palette source change: eye_white #D8CFC2 → #D1C8BC. No other existing source colour changed. Regeneration adds previously missing table entries from the existing source plus the accepted kit swatches.
@@ -30,7 +30,7 @@ Windowed 1280x720, seed 7, fixed 60 Hz, always on top, native canvas 1600x900. N
 | 4e9f2c6 | doorway_night | 0 | 1 |
 | f20158b | doorway_night | 0 | 1 |
 
-The single failing region is identical on main and head: 50 pixels, native bounds [828,355,851,358], in doorway_night. Oxford and lantern views have zero off-bench regions larger than their visible star. See doorway-paper-patch-native.png and the annotated full frames in the external packet.
+The art director accepted the identical 50-pixel region on main and head at native bounds [828,355,851,358] in doorway_night on 2026-11-22 00:5x JST: it is the lit rim of the small dish at the bench edge, an object highlight just outside the bench mask, not paper showing through. No separate correction is needed. Oxford and lantern views have zero off-bench regions larger than their visible star. See doorway-paper-patch-native.png and the annotated full frames in the external packet.
 
 ## Oxford ink
 
@@ -119,7 +119,7 @@ Command: `orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/d
 - `test_micrometer`: `156 checks, 0 failures`.
 - `test_totality`: `658 checks, 0 failures`.
 
-Those tests passed on 9429cab; the prop implementation is unchanged by the later rebases. The complete brief Test line (including look, layout, overlay and night-dress suites) is left to cx-exec and was not run here. Existing Godot shutdown resource-leak messages appear in the props and totality logs; their processes exited successfully.
+Those tests passed on 9429cab; the prop implementation is unchanged by the later rebases. The complete brief Test line (including look, layout, overlay and night-dress suites) is queued separately; its result is pending. Existing Godot shutdown resource-leak messages appear in the props and totality logs; their processes exited successfully.
 
 Capture command: `orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/p7-darkroom/f20158b0c0fcdcbf30b136b6d25171ff294509ab/tools/run.sh`. Last result line: `PACKET 232 frames; 1 acceptance failures; 2026-11-22 00:43:57 JST`. Exit 70 is the reported paper-region finding, not an infrastructure failure.
 
@@ -132,10 +132,9 @@ Capture command: `orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919
 
 ## Follow-ups
 
-Lead/director decides the inherited doorway paper finding. The full brief Test line remains with cx-exec.
+Full brief Test line is queued; append its result when the job completes. PR remains draft.
 
 ## Blocked
 
-No denied actions. The doorway paper-region acceptance fails identically on main and head. Changing lighting or the evidence surface to remove it would change main behaviour, so that decision is left to the lead.
+none.
 
-DECISION: doorway_night has the same 50-pixel off-bench paper patch on main and head, with no measurable cream-paper star; accept this inherited exception or authorize a separate lighting/evidence-surface correction? Recommendation: accept the inherited exception for #344 and keep #393 lighting unchanged.
