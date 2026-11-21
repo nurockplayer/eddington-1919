@@ -216,6 +216,8 @@ func _ready() -> void:
 	_build_pause(root)
 	_build_help(root)
 	_build_log(root)
+	for menu in [title_panel, ending_panel, pause_panel, help_panel, credits_panel, log_panel]:
+		_print_menu(menu)
 	fade = ColorRect.new()
 	fade.color = Color(0, 0, 0, 0)
 	fade.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -2361,3 +2363,81 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	else:
 		_dialogue_input(event)
+
+
+## The same square cream slips and ink rules as #385, scoped to menu roots.
+func _print_menu(node: Node) -> void:
+	const Print := preload("res://scripts/styles/engraving.gd")
+	if node is ColorRect:
+		node.color = Color.TRANSPARENT if node == pause_panel else Print.PAPER
+	if node is FadeStars or (node is TextureRect and node.get_parent() == ending_panel):
+		node.hide()
+	if node is Label:
+		node.add_theme_color_override("font_color", Print.INK)
+		if node == _pause_heading:
+			var paper := _panel_style(Print.PAPER, Print.INK)
+			paper.set_content_margin_all(0)
+			paper.set_corner_radius_all(0)
+			paper.set_border_width_all(1)
+			node.add_theme_stylebox_override("normal", paper)
+	if node is RichTextLabel:
+		node.add_theme_color_override("default_color", Print.INK)
+		# Print existing BBCode colours in ink without altering any stored text.
+		var ink := ShaderMaterial.new()
+		ink.shader = preload("res://shaders/menu_ink.gdshader")
+		ink.set_shader_parameter("ink", Print.INK)
+		node.material = ink
+	if node is PanelContainer or (node is ScrollContainer and node.get_parent() == pause_panel):
+		var paper: StyleBoxFlat = node.get_theme_stylebox("panel").duplicate() if node is PanelContainer else StyleBoxFlat.new()
+		paper.bg_color = Print.PAPER
+		paper.border_color = Print.INK
+		paper.set_corner_radius_all(0)
+		paper.set_border_width_all(1)
+		if node is ScrollContainer:
+			paper.set_content_margin_all(0)
+		node.add_theme_stylebox_override("panel", paper)
+	if node is Button:
+		var paper: StyleBoxFlat = node.get_theme_stylebox("normal").duplicate()
+		paper.bg_color = Print.PAPER
+		paper.border_color = Print.INK
+		paper.set_corner_radius_all(0)
+		paper.set_border_width_all(1)
+		var focus: StyleBoxFlat = paper.duplicate()
+		focus.bg_color = Print.INK
+		# A heavier rule as well as reversed ink makes focus readable without colour.
+		focus.set_border_width_all(3)
+		for state in ["normal", "disabled", "hover"]:
+			node.add_theme_stylebox_override(state, paper)
+		for state in ["focus", "pressed", "hover_pressed"]:
+			node.add_theme_stylebox_override(state, focus)
+		for state in ["font_color", "font_hover_color", "font_disabled_color"]:
+			node.add_theme_color_override(state, Print.INK)
+		for state in ["font_focus_color", "font_pressed_color", "font_hover_pressed_color"]:
+			node.add_theme_color_override(state, Print.PAPER)
+	if node is HSlider or node is ScrollBar:
+		var rule := StyleBoxFlat.new()
+		rule.bg_color = Print.PAPER
+		rule.border_color = Print.INK
+		rule.set_border_width_all(1)
+		var mark: StyleBoxFlat = rule.duplicate()
+		mark.bg_color = Print.INK
+		for state in (["slider", "grabber_area", "grabber_area_highlight"] if node is HSlider else ["scroll", "scroll_focus"]):
+			node.add_theme_stylebox_override(state, rule)
+		if node is HSlider:
+			var image := Image.create(8, 18, false, Image.FORMAT_RGBA8)
+			image.fill(Print.INK)
+			var focused := Image.create(12, 22, false, Image.FORMAT_RGBA8)
+			focused.fill(Print.INK)
+			focused.fill_rect(Rect2i(3, 3, 6, 16), Print.PAPER)
+			node.add_theme_icon_override("grabber", ImageTexture.create_from_image(image))
+			node.add_theme_icon_override("grabber_highlight", ImageTexture.create_from_image(focused))
+			node.add_theme_icon_override("grabber_disabled", ImageTexture.create_from_image(image))
+		else:
+			for state in ["grabber", "grabber_highlight", "grabber_pressed"]:
+				node.add_theme_stylebox_override(state, mark)
+			var blank := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+			blank.fill(Color.TRANSPARENT)
+			for icon in ["increment", "increment_highlight", "increment_pressed", "decrement", "decrement_highlight", "decrement_pressed"]:
+				node.add_theme_icon_override(icon, ImageTexture.create_from_image(blank))
+	for child in node.get_children():
+		_print_menu(child)

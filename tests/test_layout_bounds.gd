@@ -89,7 +89,7 @@ func _run() -> void:
 	for plate in sim.plates:
 		textures.append(Render.render(sim, plate))
 	var comparison := Render.render(sim, null)
-	for window in [Vector2i(1600, 900), Vector2i(1280, 800), Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(2560, 1080), Vector2i(3440, 1440)]:
+	for window in [Vector2i(1600, 900), Vector2i(1280, 800), Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(2560, 1080), Vector2i(3440, 1440), Vector2i(2560, 1440)]:
 		root.content_scale_size = Vector2i(1600, 900)
 		root.size = window
 		for scale in [1.0, 1.2]:
@@ -199,6 +199,10 @@ func _run() -> void:
 					check(not ui._choice_buttons[i].get_global_rect().intersects(ui._choice_buttons[j].get_global_rect()), "orrery choice buttons overlap")
 			ui.toggle_pause()
 			await settle()
+			ui._open_help()
+			await settle()
+			bounds(ui.help_panel)
+			ui._close_help()
 			bounds(ui.pause_panel)
 			var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
 			var buttons: Array = scroll.find_children("*", "Button", true, false)
@@ -230,6 +234,14 @@ func _run() -> void:
 			ui.toggle_pause()
 			ui.toggle_pause()
 			ui.toggle_pause()
+			ui.open_settings()
+			await settle()
+			bounds(ui.pause_panel)
+			ui.close_settings()
+			ui.toggle_log()
+			await settle()
+			bounds(ui.log_panel)
+			ui.toggle_log()
 			sim.measured = false
 			sim.first_result = null
 			sim.measured_selection = null
