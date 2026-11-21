@@ -1242,7 +1242,8 @@ func _totality_aim_point() -> Vector3:
 	var x := tan(hfov / 2.0) / 3.0
 	var y := tan(vfov / 2.0) / 3.0
 	var altitude := asin(sim.sun_dir.y)
-	var yaw_offset := asin(x / (cos(altitude) * sqrt(1.0 + x * x + y * y)))
+	# Ultrawide screens can put the horizontal third beyond this solar altitude.
+	var yaw_offset := asin(clampf(x / (cos(altitude) * sqrt(1.0 + x * x + y * y)), -1.0, 1.0))
 	var yaw := atan2(-sim.sun_dir.x, -sim.sun_dir.z) + yaw_offset
 	var pitch := atan2(sin(altitude), cos(altitude) * cos(yaw_offset)) - atan(y)
 	var direction := Vector3(-sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch))

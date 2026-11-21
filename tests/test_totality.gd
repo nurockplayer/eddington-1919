@@ -48,6 +48,7 @@ func _run() -> void:
 	_test_strip_model()
 	await _test_sim_invariance()
 	await _test_rehearsal()
+	await _test_aim_aspects()
 	await _test_ready_status()
 	await _test_empty_rack_wait()
 	await _test_shutter_read()
@@ -329,6 +330,43 @@ func _test_rehearsal() -> void:
 	game.queue_free()
 	await process_frame
 	Prompts.joypad = false
+	root.size = old_size
+	root.content_scale_size = old_scale_size
+
+
+func _test_aim_aspects() -> void:
+	var old_size := root.size
+	var old_scale_size := root.content_scale_size
+	for size in [Vector2i(1280, 720), Vector2i(1280, 800), Vector2i(3840, 1080), Vector2i(7680, 1080)]:
+		root.size = size
+		root.content_scale_size = size
+		for rehearsal in [true, false]:
+			var game: Node = load("res://scenes/main.tscn").instantiate()
+			root.add_child(game)
+			game.set_process(false)
+			game._start_game()
+			if rehearsal:
+				game._begin_rehearsal()
+			else:
+				await game._begin_totality()
+			await physics_frame
+			await process_frame
+			var label := "%s %s" % [size, "rehearsal" if rehearsal else "totality"]
+			check(is_finite(game.player.yaw) and is_finite(game.player.pitch), label + " has finite aim")
+			var camera: Camera3D = game.player.camera
+			var sun: Vector3 = camera.global_position + game.sim.sun_dir * 100.0
+			var screen := camera.unproject_position(sun)
+			check(not camera.is_position_behind(sun) and Rect2(Vector2.ZERO, Vector2(size)).has_point(screen), label + " keeps Sun on screen")
+			var half_height := tan(deg_to_rad(camera.fov) / 2.0)
+			var y := half_height / 3.0
+			var sun_y: float = game.sim.sun_dir.y
+			# At this vertical third, solar altitude bounds the horizontal slope.
+			var max_x := sqrt((1.0 + y * y) * (1.0 - sun_y * sun_y)) / sun_y
+			var target := Vector2(minf(size.x * 2.0 / 3.0, size.x / 2.0 + size.y * max_x / (2.0 * half_height)), size.y / 3.0)
+			check(screen.distance_to(target) < 1.0, label + " reaches the closest upper-right third: %s" % screen)
+			game.stop_all_audio()
+			game.queue_free()
+			await process_frame
 	root.size = old_size
 	root.content_scale_size = old_scale_size
 
