@@ -2244,12 +2244,18 @@ func _fill_help_table() -> void:
 		var part: String = entries[i]
 		var split := part.rfind(" ")
 		var action := _label(part.substr(split + 1), 20, INK)
+		var rule := _panel_style(preload("res://scripts/styles/engraving.gd").PAPER, preload("res://scripts/styles/engraving.gd").INK)
+		rule.set_corner_radius_all(0)
+		rule.set_border_width_all(1)
+		rule.set_content_margin_all(8)
+		action.add_theme_stylebox_override("normal", rule)
 		action.custom_minimum_size.x = 260
 		help_table.add_child(action)
 		var keys: String = part.substr(0, split)
 		if i >= 3:
 			keys = keyboard[i] + " / " + pad[i]
 		var value := _label(keys, 20, INK)
+		value.add_theme_stylebox_override("normal", rule)
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		help_table.add_child(value)
 
@@ -2427,6 +2433,8 @@ func _print_menu(node: Node) -> void:
 		paper.set_border_width_all(1)
 		if node is ScrollContainer:
 			paper.set_content_margin_all(0)
+		elif node.get_parent() is VBoxContainer and node.get_parent().get_parent() is ScrollContainer and pause_panel.is_ancestor_of(node):
+			paper.set_content_margin_all(10)
 		node.add_theme_stylebox_override("panel", paper)
 	if node is Button:
 		var paper: StyleBoxFlat = node.get_theme_stylebox("normal").duplicate()

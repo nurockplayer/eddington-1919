@@ -37,7 +37,7 @@ func _run() -> void:
 	root.size = Vector2i(1280, 720)
 	DisplayServer.window_set_position(Vector2i(30, 50))
 	for locale in ["en", "ja", "zh_TW", "ko"]:
-		for scale in ([1.0, 1.2] if locale in ["en", "ja"] else [1.0]):
+		for scale in [1.0, 1.2]:
 			L.apply(locale)
 			Settings.language = locale
 			Settings.text_scale = scale
