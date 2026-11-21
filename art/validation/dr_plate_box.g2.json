@@ -1,0 +1,84 @@
+{
+  "asset": "dr_plate_box",
+  "file": "assets/models/dr_plate_box.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 100,
+      "max": 150,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_canvas",
+        "E1919_pine"
+      ],
+      "max": 3,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.3,
+        0.24,
+        0.071
+      ],
+      "target": [
+        0.3,
+        0.24,
+        0.07
+      ],
+      "tolerance": 0.1,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "dr_plate_box": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "dr_plate_box"
+      ],
+      "ok": true
+    }
+  }
+}
