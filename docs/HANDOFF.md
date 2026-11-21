@@ -2,9 +2,9 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-21 04:20 JST.** Slice acceptance **7/9 on main** (met 1, 3, 4, 5, 6, 7, 9; open 2 = Owner hasn't watched the clips, 8). Row 9 re-measured on 198877e 2026-11-20 12:19 JST: holds, 56.2 fps class estimate. Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
+**Written 2026-11-21 20:50 JST.** Slice acceptance **7/9 on main** (met 1, 3, 4, 5, 6, 7, 9; open 2 = Owner hasn't watched the clips, 8). Row 9 re-measured on 198877e 2026-11-20 12:19 JST: holds, 56.2 fps class estimate. Release readiness frozen (A 13/14, B on hold); listing paused (Owner 2026-11-12). Plan = Príncipe vertical slice (Owner 2026-11-13), style = engraving. Art director = Fable 5.2 in edd-art (w7:pB); art log `docs/design/SLICE_PRINCIPE.md`.
 
-**Lead in flight:** nothing. Inbox empty (through ev-20261121-041957-79fa acked).
+**Lead in flight (2026-11-21 20:46 JST, Owner: Codex surplus, use Claude before reset ~11-22 13:45 JST):** lead-wait runs lw-cx-chart-label (#382, draft→edd-art), lw-cx-layout-720p (#381, draft→edd-art), lw-cx-glossary (#373, Luna), lw-cx-look-gates (#384+#346), lw-cx-evidence-gates (#397+#399), lw-cx-silent-skips (#394+#370+#334); worktrees eddington-1919-wt/<name>, briefs .claude/briefs/<name>.md. On each event: check acceptance, then `lead-wait pr <n>` for non-visual PRs. edd-art told budget is open (msg 20:48 JST). Asked the Owner in chat: watch row 2 clips, playtest.
 
 **edd-art owns (not ours to drive):**
 - Row 5: #392 MERGED 198877e 2026-11-20 JST (accepted at 9ca8e73).
