@@ -28,7 +28,8 @@ func _run() -> void:
 	game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await frames(12)
-	Settings.set_quality("standard", root)
+	Settings.quality = "standard"
+	Settings.apply_quality(self)
 	game.set_process(false)
 	game.player.set_physics_process(false)
 	game.player.can_move = false
@@ -38,6 +39,8 @@ func _run() -> void:
 	for tag in game.find_children("*", "Label3D", true, false):
 		tag.visible = not tag.fixed_size
 	for size in [Vector2i(1280, 720), Vector2i(2560, 1440), Vector2i(1920, 1080)]:
+		root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 		root.content_scale_size = size
 		root.size = Vector2i(1280, 720)
 		var folder := base.path_join(str(size.y))
