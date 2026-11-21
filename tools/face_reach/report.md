@@ -34,7 +34,9 @@ and measurements are under
 `/Volumes/KIOXIA/eddington-1919-cache/director/face-reach/83fdf36/`.
 The iris-mesh centre is the eye-line point; both meshes contain the paired iris
 discs, and their bounding-box centre lies halfway between them. The runner now
-walks a collision-sampled route to each starting position; that change still
-requires a measurement run.
+walks a collision-sampled route to each starting position. Its first run could
+not find a route within one metre of the requested Cottingham day start. The
+search now considers positions farther away on the same approach side; the
+revised routes still require a measurement run.
 
 Walking-phase captures and the requested reach assessment remain outstanding.

@@ -31,18 +31,9 @@ func _run() -> void:
 	await process_frame
 	game._start_game()
 	game.ui.show_toast("", 0.0)
-	if capture_dir.is_empty():
-		await survey("day")
+	await survey("day")
 	await game._begin_totality()
 	await survey_totality()
-	if not capture_dir.is_empty():
-		var capture_file := FileAccess.open(out, FileAccess.WRITE)
-		capture_file.store_string(JSON.stringify(records, "  "))
-		capture_file.close()
-		game.stop_all_audio()
-		print("face reach: %d totality views" % records.size())
-		quit()
-		return
 	await game._begin_night()
 	# Advance the night introduction as a player can, restoring normal input.
 	while game.ui.dialog_active():
@@ -79,24 +70,32 @@ func survey(scene_name: String) -> void:
 			var angle: float = npc.rotation.y + direction * PI / 2.0
 			var offset := Vector3(sin(angle), 0, cos(angle))
 			var target: Vector3 = npc.global_position + offset * 2.0
-			await walk_to(target)
+			await walk_to(target, npc.global_position, offset)
 			var start: Vector3 = game.player.global_position
 			game.player.look_at_point(eye(npc))
 			await physics_frame
 			Input.action_press("move_forward")
 			var minimum := INF
 			var best := Vector3.ZERO
+			var best_image: Image
 			for frame in 150:
 				await physics_frame
+				if not capture_dir.is_empty():
+					await RenderingServer.frame_post_draw
 				var distance: float = game.player.camera.global_position.distance_to(eye(npc))
 				if distance < minimum:
 					minimum = distance
 					best = game.player.global_position
+					if not capture_dir.is_empty():
+						best_image = root.get_texture().get_image()
 			Input.action_release("move_forward")
+			if not capture_dir.is_empty():
+				var capture_path := capture_dir.path_join("%s_%s_%d.png" % [scene_name, character, direction])
+				assert(best_image.save_png(capture_path) == OK, "Cannot save capture: %s" % capture_path)
 			records.append({"scene": scene_name, "character": character, "direction": direction,
 				"metres": minimum, "start": [start.x, start.y, start.z], "position": [best.x, best.y, best.z]})
 
-func walk_to(target: Vector3) -> void:
+func walk_to(target: Vector3, character_position: Vector3, side: Vector3) -> void:
 	# Sample the player's capsule against the actual collision world and walk a
 	# connected grid route from the position reached by the preceding approach.
 	var grid := AStarGrid2D.new()
@@ -121,10 +120,15 @@ func walk_to(target: Vector3) -> void:
 	var goal := Vector2i(roundi(target.x * 2), roundi(target.z * 2))
 	var path: Array[Vector2i] = []
 	var nearest := INF
-	for x in range(goal.x - 2, goal.x + 3):
-		for z in range(goal.y - 2, goal.y + 3):
+	for x in range(goal.x - 8, goal.x + 9):
+		for z in range(goal.y - 8, goal.y + 9):
 			var cell := Vector2i(x, z)
 			if not grid.is_in_boundsv(cell) or grid.is_point_solid(cell):
+				continue
+			var relative := Vector3(x * 0.5 - character_position.x, 0, z * 0.5 - character_position.z)
+			var forward := relative.dot(side)
+			var lateral := absf(relative.x * side.z - relative.z * side.x)
+			if forward <= 0.3 or lateral > forward:
 				continue
 			var d := Vector2(x * 0.5 - target.x, z * 0.5 - target.z).length()
 			if d >= nearest:
