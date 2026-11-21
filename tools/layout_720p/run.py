@@ -83,6 +83,9 @@ def main():
                     pair.save(pairs / frame.name)
         finally:
             git('worktree', 'remove', '--force', str(scratch))
+            for name in ['tests/test_second_contact_fade.gd.uid',
+                         'tools/day_returns/handoff.gd.uid', 'tools/panel_toast/capture.gd.uid']:
+                (REPO / name).unlink(missing_ok=True)
     (out / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
     print(f'layout_720p: counts and 48 named PNGs saved to {out}', flush=True)
 
