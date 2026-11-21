@@ -41,6 +41,11 @@ const TOTALITY_SCORE_DELAY_S := 2.0  # real seconds after second contact
 const TOTALITY_SCORE_FADE_S := 1.2
 const TOTALITY_INSECTS_FADE_S := 3.0
 const TOTALITY_INSECTS_TRIM_DB := -6.0
+# The surf ducks while the view goes dark, holds through the unscored gap after
+# second contact, and swells back under the score once it enters.
+const TOTALITY_SURF_DIP_DB := -18.0
+const TOTALITY_SURF_DIP_S := 1.5
+const TOTALITY_SURF_RETURN_S := 8.0
 const HOLD := {"drive": 3.0, "chronometer": 4.0, "plate_box": 1.2}
 
 static var next_seed := -1
@@ -108,6 +113,7 @@ var audio_third: AudioStreamPlayer
 var audio_insects: AudioStreamPlayer
 var _insects_db := -9.2
 var audio_surf: AudioStreamPlayer
+var _surf_db := -22.9
 var audio_birds: AudioStreamPlayer
 var _birds_tween: Tween
 var _birds_quiet := false
@@ -609,12 +615,12 @@ func _build_audio() -> void:
 	audio_surf = AudioStreamPlayer.new()
 	audio_surf.bus = "SFX"
 	audio_surf.stream = _wav(surf, 22050, true)
-	audio_surf.volume_db = -22.9
 	if _bed_sampled("surf"):
 		var stream: AudioStreamOggVorbis = load(BED_DIR + "bed_surf.ogg")
 		stream.loop = true
 		audio_surf.stream = stream
-		audio_surf.volume_db = _bed_target(surf, -22.9) - BED_RMS_DB["surf"]
+		_surf_db = _bed_target(surf, -22.9) - BED_RMS_DB["surf"]
+	audio_surf.volume_db = _surf_db
 	add_child(audio_surf)
 	audio_surf.play()
 	var birds := PackedFloat32Array()
@@ -1320,6 +1326,7 @@ func _begin_totality() -> void:
 	_busy = true
 	phase = Phase.TOTALITY
 	_quiet_birds()
+	create_tween().tween_property(audio_surf, "volume_db", _surf_db + TOTALITY_SURF_DIP_DB, TOTALITY_SURF_DIP_S)
 	_sync_player_input()
 	await ui.fade_to(1.0, 0.7).finished
 	# Change the view and paper layout only while the fade is fully black.
@@ -1410,6 +1417,8 @@ func _process_totality(delta: float) -> void:
 		score.play("totality_drone", TOTALITY_SCORE_FADE_S)
 		score.play("totality_glass", TOTALITY_SCORE_FADE_S)
 		_score_exposing = false
+		var surf_return := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		surf_return.tween_property(audio_surf, "volume_db", _surf_db, TOTALITY_SURF_RETURN_S)
 	var exposing: bool = sim.is_exposing()
 	ui.set_prompt((L.t("底片用完了。［%s］等待第三接觸") if plates_left <= 0 and not exposing else L.t("［%s］開始／停")) % Prompts.key("shutter"))
 	if exposing != _score_exposing:
