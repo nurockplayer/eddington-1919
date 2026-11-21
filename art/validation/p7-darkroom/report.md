@@ -1,6 +1,6 @@
 # Darkroom prop kit: slice acceptance row 8, item 3 (prerequisite)
 
-Report 2026-11-22 00:46:32 JST. Draft PR #344. Art director accepted the frames and the inherited doorway highlight on 2026-11-22 00:5x JST. Full brief Test line is pending.
+Report 2026-11-22 00:46:32 JST. Draft PR #344. Art director accepted the frames and the inherited doorway highlight on 2026-11-22 00:5x JST. Full brief Test line passed at commit 8548f724843511c929eb29c9b73308c0865a8610.
 
 Capture candidate `f20158b0c0fcdcbf30b136b6d25171ff294509ab`, baseline main `4e9f2c6d0ec1cf8569fbbed3989842e635960faa`. Captured 2026-11-22T00:43:09 JST through 2026-11-22T00:43:56 JST. Rebased product commit `507f62601bd3452a026f64176d62545f4f43e6da` is on current main `4a3004fbc6eba41ae6892b0c6c4dd5104e086f02`. The newer main changes only docs, tests and tools; rendering inputs are unchanged. The following evidence-only commit adds these images and this report without changing the game.
 
@@ -119,7 +119,9 @@ Command: `orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/d
 - `test_micrometer`: `156 checks, 0 failures`.
 - `test_totality`: `658 checks, 0 failures`.
 
-Those tests passed on 9429cab; the prop implementation is unchanged by the later rebases. The complete brief Test line (including look, layout, overlay and night-dress suites) is queued separately; its result is pending. Existing Godot shutdown resource-leak messages appear in the props and totality logs; their processes exited successfully.
+Those tests passed on 9429cab; the prop implementation is unchanged by the later rebases. The complete brief Test line passed at commit `8548f724843511c929eb29c9b73308c0865a8610` with exit 0 on 2026-11-22 01:39:50 JST. Results: props 78, lantern 29, engraving 459, look 54, layout 12243, overlay 62, night dress 19, totality 658 checks; all zero failures. The last output line was `   at: cleanup (core/object/object.cpp:2536)`, following an ObjectDB leak warning.
+
+Command: `tachi-run --host -- sh -c 'godot --headless --path . --import >/dev/null 2>&1; for t in test_darkroom_props test_darkroom_lantern test_style_engraving test_look test_layout_bounds test_overlay_hits test_night_dress test_totality; do godot --headless --path . --check-only --script res://tests/$t.gd || exit 1; perl -e "alarm shift; exec @ARGV" 1500 godot --headless --path . --script res://tests/$t.gd || exit 1; done'` Existing Godot shutdown resource-leak messages appear in the props and totality logs; their processes exited successfully.
 
 Capture command: `orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919-cache/director/p7-darkroom/f20158b0c0fcdcbf30b136b6d25171ff294509ab/tools/run.sh`. Last result line: `PACKET 232 frames; 1 acceptance failures; 2026-11-22 00:43:57 JST`. Exit 70 is the reported paper-region finding, not an infrastructure failure.
 
@@ -132,7 +134,7 @@ Capture command: `orb-test --heavy --host -- bash /Volumes/KIOXIA/eddington-1919
 
 ## Follow-ups
 
-Full brief Test line is queued; append its result when the job completes. PR remains draft.
+PR remains draft for the lead’s next step.
 
 ## Blocked
 
