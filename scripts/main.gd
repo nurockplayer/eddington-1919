@@ -37,6 +37,10 @@ const BED_DIR := "res://assets/sfx/"
 const BED_RMS_DB := {"birds": -29.70, "insects": -34.79, "surf": -23.85}
 
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
+const TOTALITY_SCORE_DELAY_S := 2.0  # real seconds after second contact
+const TOTALITY_SCORE_FADE_S := 1.2
+const TOTALITY_INSECTS_FADE_S := 3.0
+const TOTALITY_INSECTS_TRIM_DB := -6.0
 const HOLD := {"drive": 3.0, "chronometer": 4.0, "plate_box": 1.2}
 
 static var next_seed := -1
@@ -1351,10 +1355,15 @@ func _begin_totality() -> void:
 		_style.impl.day_return.warm()
 	_update_totality_hud()
 	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
-	score.play("totality_drone", 1.2)
-	score.play("totality_glass", 1.2)
 	await ui.fade_to(0.0, 1.2).finished
 	_busy = false
+	_birds_tween.kill()
+	audio_birds.stop()
+	# Second contact: a near-silent dusk bed, with the score held back.
+	audio_insects.volume_db = -60.0
+	audio_insects.play()
+	_night_bed_tween = create_tween()
+	_night_bed_tween.tween_property(audio_insects, "volume_db", _insects_db + TOTALITY_INSECTS_TRIM_DB, TOTALITY_INSECTS_FADE_S)
 	_sync_player_input()
 	var note := ""
 	if not sim.drive_wound:
@@ -1396,6 +1405,11 @@ func _process_totality(delta: float) -> void:
 	score.advance(delta)
 	if _busy or tot_done:
 		return
+	var score_start: float = TOTALITY_SCORE_DELAY_S * sim.TIME_SCALE
+	if t_game < score_start and t_game + delta * sim.TIME_SCALE >= score_start:
+		score.play("totality_drone", TOTALITY_SCORE_FADE_S)
+		score.play("totality_glass", TOTALITY_SCORE_FADE_S)
+		_score_exposing = false
 	var exposing: bool = sim.is_exposing()
 	ui.set_prompt((L.t("底片用完了。［%s］等待第三接觸") if plates_left <= 0 and not exposing else L.t("［%s］開始／停")) % Prompts.key("shutter"))
 	if exposing != _score_exposing:
@@ -1479,6 +1493,7 @@ func _since_last_plate() -> float:
 
 func _end_totality() -> void:
 	tot_done = true
+	_stop_night_bed()
 	ui.set_prompt("")
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:
 		score.stop(cue, 1.5)
