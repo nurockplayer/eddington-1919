@@ -32,7 +32,9 @@ def luminance(rgb):
 def contrast(image, rect):
     # Solid glyph interiors and paper, measured in the captured lossless frame.
     # Ignore antialias edge coverage; no palette constants enter the calculation.
-    colours = Counter(image.crop(tuple(rect)).convert('RGB').getdata())
+    left, top, right, bottom = rect
+    visible = (max(0, left), max(0, top), min(image.width, right), min(image.height, bottom))
+    colours = Counter(image.crop(visible).convert('RGB').getdata())
     samples = [rgb for rgb, count in colours.items() if count >= 3]
     lo, hi = min(samples, key=luminance), max(samples, key=luminance)
     return (luminance(hi) + 0.05) / (luminance(lo) + 0.05), lo, hi
