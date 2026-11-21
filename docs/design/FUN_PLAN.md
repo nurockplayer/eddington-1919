@@ -8,6 +8,8 @@ Two climaxes, and both have to land:
 - **Awe, at totality.** The world goes dark and the player feels they are standing inside a once-in-a-lifetime event. Carried by image, sound and timing. The Owner's test: does it feel epic?
 - **Revelation, at the measurement.** The player reads their own plates and finds that the prediction they believed does not explain what they measured. Carried by hands-on play, reasoning and how the characters react.
 
+Two threads under them (R2): **the evidence turn** (a careful observer has good reasons to trust the old theory, finds evidence that challenges it, and changes their mind without hiding the uncertainty) and **the promise kept** (who wanted to hear what the player actually saw?). The second never replaces the first.
+
 The game does not need more mechanics that show off science. It needs the sky to feel worth waiting for, and the plate the player measured to feel strong enough to change their mind about the universe.
 
 ## Ranked items
@@ -16,10 +18,13 @@ The game does not need more mechanics that show off science. It needs the sky to
 |---|---|---|---|---|
 | 1 | **Readable engraving:** cut the competing line density in sky, ground and props so the eye finds the focus, the interactables and the speakers | A′ (#415): #416 hatching cause (Sol diagnosis running), #417, #420, #421 | edd-art decides, Codex builds | no (executes the chosen style) |
 | 2 | **Totality as an event:** tension builds before second contact, the light drops sharply, about 2 s of near-silence, then the corona and the music release | #411 soundscape merged c8277dc; image side waits for #416/#417; judge on the Phase-0 clip (#422) | edd-art + Codex | no for tuning; yes for any new free-look mode |
-| 3 | **The player makes the discovery in the darkroom:** micrometer feel, verdict before Eddington explains | verdict-first is already on main (`content.gd` key `verdict`, `judgment.gd verdict_truth`, #351 PR 1 of 3); left: micrometer tactility, ledger marks on the chart, recalling the verdict in the coda (#351 PRs 2–3) | Codex, edd-art for the look | no (decided under #351) |
+| 3 | **The player makes the discovery in the darkroom:** micrometer feel, verdict before Eddington explains | built: verdict-first #374, micrometer graduations/step tick #372, bets on the chart #376, verdict recalled in ending/coda/October #378, the optional "had you already decided?" question (`content_coda.gd` `pressed`); left: judge it on real captures (F7, F14) | edd-art judges, Codex fixes | no |
 | 4 | **A working expedition camp:** instruments, plate boxes, shelter, exposure rig and darkroom kit placed where they are used | partly done (#344 darkroom props); #418/#419 darkroom figure and plate | edd-art + Codex | no |
 | 5 | **Memorable people:** engraved portraits, people seen at work, short lines reacting to the player's own evidence; no high-fidelity 3D faces | portrait card layout #421; reaction lines are new text | Codex, edd-art | **yes** for new lines or character beats |
 | 6 | **A sound memory through the game:** the gramophone, island ambience, instrument mechanics, shutter, darkroom, the reveal | music plan A approved (3 cues + departure promise); the rest is mixing | Codex | no for mixing; **yes** for paid commissions |
+| 8 | **Príncipe carries the risk of failure (R2):** 6–8 lines after the rain before the eclipse (the pledge: record honestly even with no usable plate), 2–4 lines after third contact where Eddington and Cottingham react to the sky they were too busy to watch; story_audit D2/D3, historically checked and labelled | not started | lead drafts, Codex builds, fact-check first | **yes** |
+| 9 | **Fewer "pick an answer, a wiser character grades it" beats (R2):** trim repeated approval in 1917, the darkroom explanation and the October restatement; keep Newton's credibility, Mercury 43″, 2σ, the Sobral conflict and the player's own judgement | not started; overlaps #351 coda-trim proposal | lead proposes the cut list | **yes** |
+| 10 | **Kit's promise answered (R2), after the slice passes:** a 45–90 s Cambridge reunion: the player says the saved `kit_first` line, Kit reads the sky record, a short silence; ends on three objects on one desk (plate, Ashby's loupe, Kit's handwritten page). Not the full D6 (no variable-star minigame, unsent letters or romance values) | check first what `main.gd` `departure_kit` already shows | lead drafts, Codex builds, edd-art stages | **yes** |
 | 7 | **The 1917 doubt pays off in 1919:** ledger, Mercury, Sobral and Ashby come back; trim the stretches a blind player finds long | CONVERSION_ARC A–E built; #351 coda-trim proposal | lead proposes, Codex builds | **yes** (story, ending, pacing) |
 
 No new L-size features until the Príncipe slice plays clearly and is memorable.
@@ -38,6 +43,13 @@ No new L-size features until the Príncipe slice plays clearly and is memorable.
 | F8 | Micrometer | the same step always sounds the same, whether or not the reading is near the right answer; careless measuring still adds error | clip + careful/careless/inconclusive runs | no |
 | F9 | Verdict | 0 / 0.87″ / 1.75″ / inconclusive offered before any NPC explanation; all four paths continue and are saved | 4 automated runs + save check | no (built) |
 | F10 | Performance | totality under the shelter stays ≥ 30 fps at 720p in the class estimate, 3 clean reps (Owner 2026-11-07: no Windows hardware proof needed) | forced-draw method | no |
+| F12 | Príncipe prep (item 8) | the risk lines play on both the prologue and the direct-1919 route; ≤ 45 s of new mandatory dialogue; prep controls never blocked | clips of both routes + dialogue timeline | 30 s |
+| F13 | After third contact (item 8) | reactions ≤ 25 s; play continues with and without a usable plate; fixed-seed measured values identical to before | both clips + value diff | no |
+| F14 | Darkroom discovery | measurement and verdict come before any NPC judgement of the numbers; the 1917 prediction, the player's number and the uncertainty band are readable on the chart; all four verdicts continue and save | 4 automated runs, darkroom clip, save check | **yes** |
+| F15 | "Had you already decided?" | asking or not never changes measurement, grade or telegram; no accusation of fraud in any of supports-1.75 / supports-0.87 / inconclusive | branch logs, state diff | 30 s |
+| F16 | Sobral / Ashby | with an inconclusive Príncipe result, Ashby never says the player's plates proved 1.75″; both Sobral instruments are mentioned; probable error is never shown as 1σ | clean / vague / inconclusive runs + chart frames | no |
+| F17 | Kit reunion (item 10) | the prologue route recalls `kit_first` and the recorded sky; both bond tones close; direct-1919 never cites a promise that never happened | 3 clips, flag diff, 4-locale frames | **yes** |
+| F18 | Ending | the scientific verdict and historical notes stay reachable; the last mandatory story frame shows plate, loupe and handwritten page clearly; the player never re-types a reason already given | 720p ending frame, full-run clip | **yes** |
 | F11 | Whole game | at least 2 of 3 newcomers can state their first prediction, what they observed, and why they kept or changed it; they answer both 2σ transfer questions | blind playtest per `docs/PLAYTEST_NEWCOMER.md` | reads the result |
 
 F11 needs people the team does not have while the Owner is away; until then the playtest bot (`docs/PLAYTEST_BOT_DRIVE.md`) only checks the route, not whether the player cares.
@@ -49,8 +61,10 @@ F11 needs people the team does not have while the Owner is away; until then the 
 ## Deferred and rejected
 
 - Deferred until a playtest shows the need: original score commissions, more measurement visualisation, advanced exposure aids, mid-darkroom saves.
-- Rejected: high-fidelity 3D faces, another full style audition, a bigger island map, music that hints at the right answer, a simulation that guarantees Einstein wins.
+- Deferred (R2): full D6 variable-star minigame, unsent-letter interaction, D9 Eddington private letters, the microphotograph keepsake (open with the Owner).
+- Rejected: high-fidelity 3D faces, a romance value system, another full style audition, a bigger island map, music that hints at the right answer, a simulation that guarantees Einstein wins.
 
 ## Round log
 
 - R1 2026-11-22 04:50 JST, whole game. Adopted: the two-climax frame, items 1–7, checklist F1–F11. Corrected: the verdict-first UI already exists (oracle thought it was unbuilt); the real-GTX-1650 requirement was dropped because the Owner waived Windows hardware proof on 2026-11-07.
+- R2 2026-11-22 05:35 JST, story. Adopted: the two threads, items 8–10, F12–F18 (all new text passes 4-locale max-size checks). Corrected: the darkroom chart, verdict recall, micrometer feel and the "had you already decided?" question are already built (#372 #374 #376 #378, `content_coda.gd` `pressed`), so oracle's items 1 and 3 became verification rows; its claim that `content_coda.gd:96,98` calls Kit "她" is wrong (those lines have no pronoun for Kit). Next rounds get a feature inventory of main so they stop proposing built work.
