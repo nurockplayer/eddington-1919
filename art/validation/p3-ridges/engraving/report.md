@@ -94,16 +94,31 @@ perl -e 'alarm shift; exec @ARGV' 1500 godot --headless --path . --script res://
 
 Godot emitted ObjectDB/resource-in-use exit warnings; these remain recorded in the test logs. No shader, script or style compilation failure occurred in the accepted captures. Do not treat the exit warnings as absent.
 
+
+### Layout timeout follow-up
+
+The cx-exec six-test run passed `test_ridges` (373 checks), `test_style_engraving` (459 checks), and `test_look` (54 checks), then stopped at `FAIL: deadline 900 s exceeded (res://tests/test_layout_bounds.gd)`.
+
+The focused diagnostic at `d76420c` completed successfully on 2026-11-22 01:52 JST:
+
+```sh
+orb-test --host -- sh /Volumes/KIOXIA/eddington-1919-cache/director/p3-ridges/d76420ccd14526bf90a64559487496756b7abb33/layout-profile.sh
+```
+
+The legacy command delegated to `tachi-run` on the host. The script imports, runs check-only, then executes an inherited `test_layout_bounds.gd` with timing overrides; every assertion, case, five-frame settle, and the **900-second guard** remain active (`EDD_TEST_DEADLINE=900`). Result: `test_layout_bounds: 12243 checks, 0 failures`; job exit **0**. The final log lines retain the existing ObjectDB/resource-in-use exit warnings.
+
+Measured stages: totality toast **140.471 s**, merged dialogue **112.785 s**. At the last window/scale entry, elapsed time was **721.120 s** and accumulated settle waits were **351.127 s** across **815 calls**. Waiting for layout frames accounts for much of the observed runtime; this successful run does not establish why the earlier run exceeded its deadline. No product or test change is justified by a failure that did not reproduce. The diagnostic script and complete 76-line log remain beside the other head artifacts.
+
 ## Assumptions
 
-- The explicit requirement to keep #349 draft takes precedence over the generic ready-PR instruction.
+- The latest continuation explicitly requests a ready PR; marking #349 ready does not grant lead art acceptance.
 - No engraving default needed changing. `far_in` 0.25, `far_step` 0.16 and `wash_far` 0.4 remain unchanged.
 - Capture provenance names rendered head `e1e6a56` and reference main `94a7255`; motion/tests/performance ran at `92823ac`. Later rebases add main's documentation, tests, Cambridge overlay/locale and capture-postprocessing changes, with no Príncipe rendering/gameplay-code difference. The last commit adds evidence only.
 - The inherited diff exceeds 300 lines because it contains the original ridge generator, previews and existing ridge test, plus this requested acceptance report. No vegetation-card integration is included.
 
 ## Follow-ups
 
-Lead art acceptance and cx-exec's six-test Test line. PR remains draft; whichever geometry PR lands second rebases.
+Lead art acceptance and cx-exec's six-test Test line. The focused layout diagnostic passed without changing code; the complete six-test command has not subsequently completed. Whichever geometry PR lands second rebases.
 
 ## Blocked
 
