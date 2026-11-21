@@ -113,7 +113,7 @@ Pass count: **7/9** on main (rows 1, 3, 6 since #383 merged as 407581e on 2026-1
 | 5 | Totality transition: from the last crescent to second contact and back the page changes without a grey intermediate state | art director on a capture of `totality_live` from 20 s before second contact |
 | 6 | Darkroom: reads as night under the safelight, unlike any day frame; the plate on the bench is readable | art director, `darkroom` |
 | 7 | Evidence unchanged: plate exposure, star positions and the measurement give the same numbers as on main; the plate images, the loupe, the micrometer and the result chart stay photographic and legible, never hatched | the existing suites (`test_totality`, plate and measurement suites) pass on the branch; art director on the plate viewer and the chart |
-| 8 | Reading the game: every interactable is identifiable from 3 m; dialogue and HUD text has a contrast of 4.5:1 or more on cream and on blue paper; signs, Sun crescents and fireflies are drawn; no 3D face nearer than 4 m in any scripted camera, dialogue uses the engraved portraits | art director in a play-through of the slice; contrast computed from the frame |
+| 8 | Reading the game: every interactable is identifiable from 3 m; dialogue and HUD text has a contrast of 4.5:1 or more on cream and on blue paper; signs, Sun crescents and fireflies are drawn; no 3D face shows features (eyes, mouth) at any distance the player can reach in play (down to the closest the player collider allows, measured); every dialogue line shows the engraved portrait | art director in a play-through of the slice; contrast computed from the frame |
 | 9 | Performance: 30 fps at 720p on GTX 1650 class hardware, under the shelter at totality | forced-draw method (`eddington-perf-method`), three clean repetitions |
 
 ## Log
@@ -602,3 +602,4 @@ Newest last. Each round: date and time (JST), what changed, the frames judged (p
   - #356 (edd-lead's coelostat trim): PR comment 7062156924, the trim view must be a sheet on the page with the diagram as an ink figure, not a dark full-screen panel.
   - Face clause (row 8 item 6): rewording proposed to edd-lead: no 3D face shows features at any distance reachable in play (down to 1.5 m); every dialogue line shows the engraved portrait. The old clause names scripted cameras this first-person slice does not have.
   - KIOXIA pruned from 6.3 to 20 GB free: frame dumps of merged work deleted; every mp4 clip and frames 298–302, 328–332 of each motion capture kept.
+  - 21:00 JST: edd-lead agreed the face clause with one edit (lead decision, #351 comment 7062160404): the reach is the measured minimum the player collider allows, not an assumed 1.5 m; if under 1.5 m, a frame at that minimum is judged too. Row 8 text in §6 updated.
