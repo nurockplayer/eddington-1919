@@ -20,5 +20,10 @@ faces are visible still need validation. The day and darkroom approaches still
 need reachable starting positions. The wrapper's run failed to write its output
 because the requested HEAD directory did not exist; the runner now creates it.
 
+The corrected output-directory run completed with 18 records. Its totality
+distances used the earlier head-bone approximation; the runner now targets the
+centre of each character's iris mesh. Fixed-position captures and the revised
+measurements are pending the windowed run.
+
 No windowed face frames or visual assessment have been produced. Captures and
 the requested reach assessment remain outstanding.

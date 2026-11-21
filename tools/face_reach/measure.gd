@@ -4,25 +4,26 @@ const DT := 1.0 / 60.0
 var game: Node
 var records: Array = []
 var out := ""
+var capture_dir := ""
 
 func _initialize() -> void:
 	_run.call_deferred()
 
 func eye(npc: Node3D) -> Vector3:
-	var skeletons := npc.find_children("*", "Skeleton3D", true, false)
-	if skeletons.is_empty():
-		return npc.to_global(Vector3(0, 1.63, -0.12))
-	var sk: Skeleton3D = skeletons[0]
-	var bone := sk.find_bone("head")
-	assert(bone >= 0, "Missing head bone")
-	return sk.global_transform * sk.get_bone_global_pose(bone).origin + Vector3(0, 0.08, 0)
+	var irises := npc.find_children("*irises*", "MeshInstance3D", true, false)
+	assert(irises.size() == 1, "Expected one iris mesh per character")
+	var mesh: MeshInstance3D = irises[0]
+	return mesh.to_global(mesh.mesh.get_aabb().get_center())
 
 func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="): out = arg.trim_prefix("--out=")
+		if arg.begins_with("--capture="): capture_dir = arg.trim_prefix("--capture=")
 	assert(not out.is_empty(), "Provide --out")
 	var dir_error := DirAccess.make_dir_recursive_absolute(out.get_base_dir())
 	assert(dir_error == OK, "Cannot create output directory: %s" % error_string(dir_error))
+	if not capture_dir.is_empty():
+		assert(DirAccess.make_dir_recursive_absolute(capture_dir) == OK, "Cannot create capture directory")
 	seed(7)
 	load("res://scripts/main.gd").next_seed = 7
 	game = load("res://scenes/main.tscn").instantiate()
@@ -30,9 +31,18 @@ func _run() -> void:
 	await process_frame
 	game._start_game()
 	game.ui.show_toast("", 0.0)
-	await survey("day")
+	if capture_dir.is_empty():
+		await survey("day")
 	await game._begin_totality()
 	await survey_totality()
+	if not capture_dir.is_empty():
+		var capture_file := FileAccess.open(out, FileAccess.WRITE)
+		capture_file.store_string(JSON.stringify(records, "  "))
+		capture_file.close()
+		game.stop_all_audio()
+		print("face reach: %d totality views" % records.size())
+		quit()
+		return
 	await game._begin_night()
 	# The night introduction opens dialogue; close it to restore walking.
 	game.ui.dialog_panel.hide()
@@ -51,6 +61,10 @@ func survey_totality() -> void:
 		var npc: Node3D = game.world[character]
 		game.player.look_at_point(eye(npc))
 		await physics_frame
+		if not capture_dir.is_empty():
+			await RenderingServer.frame_post_draw
+			var err := root.get_texture().get_image().save_png(capture_dir.path_join("totality_" + character + ".png"))
+			assert(err == OK, "Cannot save capture: %s" % error_string(err))
 		var camera_position: Vector3 = game.player.camera.global_position
 		var distance: float = camera_position.distance_to(eye(npc))
 		records.append({"scene": "totality", "character": character,
