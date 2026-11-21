@@ -53,6 +53,11 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_darkroom_chart()
+	if "--darkroom-chart-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds darkroom chart: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_totality_toast()
 	if "--totality-toast-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds totality toast: %d checks, %d failures" % [checks, failures])
@@ -557,3 +562,70 @@ func _test_merged_dialogue() -> void:
 	ui.free()
 	L.apply(locale)
 	Settings.text_scale = scale
+
+
+func _test_darkroom_chart() -> void:
+	var old_locale := L.current()
+	var old_scale := Settings.text_scale
+	var old_size := root.size
+	root.size = Vector2i(1280, 720)
+	var sim := Sim.new(77)
+	var plate := sim.develop({"start": 0.0, "duration": 8.0, "clear": 8.0, "cloudy": 0.0, "sunlit": false}, 0)
+	plate.included = true
+	plate.read = true
+	sim.plates = [plate]
+	var max_value := sim.reading_value({"reading": float(Render.SIZE)})
+	print("micrometer range: 0 to %.2f arcsec; 3.00 needs %.2f of %d plate pixels" % [max_value, sim.reading_for_value(3.0), Render.SIZE])
+	check(sim.reading_for_value(3.0) <= Render.SIZE, "3.00 is reachable with the player's micrometer")
+	var capture_dir := ""
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--capture-dir="):
+			capture_dir = arg.trim_prefix("--capture-dir=")
+	for locale in ["zh_TW", "en", "ja", "ko"]:
+		L.apply(locale)
+		var ui = load("res://scripts/ui.gd").new()
+		root.add_child(ui)
+		ui.hide_title()
+		for scale in [1.0, 1.2]:
+			Settings.text_scale = scale
+			Settings.refresh_fonts(self)
+			ui.chart.refresh_fonts()
+			ui.open_viewer(sim.plates, null, [null], true)
+			ui.viewer_rule.text = L.t("你寫下的規則：%s") % Content.rules_prompt(false)[-1].choices[0]
+			ui.set_viewer_report(true)
+			ui.chart.set_ledger([{"pick": 3, "kind": "original", "tag": L.t("1917 年押的：說不準")},
+				{"pick": 2, "kind": "current", "tag": L.t("現在押的")}])
+			var values := [0.0, 1.3, 1.75, 3.0, max_value]
+			for index in values.size():
+				var value: float = values[index]
+				context = "darkroom %s scale %.1f result %.2f" % [locale, scale, value]
+				plate.reading = sim.reading_for_value(value)
+				var combined := sim.combined()
+				ui.chart.set_data([{"label": "1", "value": value, "sigma": combined.sigma}], combined, true)
+				var interval := L.t("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″") % [value, combined.sigma, value - 2 * combined.sigma, value + 2 * combined.sigma]
+				ui.play(Content.verdict_prompt(interval))
+				for frame in 12:
+					await process_frame
+				var chart_rect: Rect2 = ui.chart.get_global_rect()
+				check(chart_rect.end.y + 4 <= ui.dialog_panel.get_global_rect().position.y, "axis labels clear report dialogue")
+				var painted: Dictionary = ui.chart.drawn()
+				var label: Rect2 = painted.get("result_bounds", Rect2())
+				check(label.has_area() and Rect2(Vector2.ZERO, ui.chart.size).encloses(label.grow(2)), "painted result label stays inside chart")
+				check(painted.get("result_backing", false), "opaque result backing masks crossing lines")
+				check(painted.label_px == Settings.fs(14), "row text keeps present size")
+				for endpoint in [value - 2 * combined.sigma, value + 2 * combined.sigma]:
+					var x: float = ui.chart._x(endpoint, ui.chart.size.x)
+					check(x >= 1 and x <= ui.chart.size.x - 1, "whisker endpoint stays inside chart")
+				if locale == "en":
+					for source in ["1917 年押的：說不準", "1919 年押的：說不準", "押的（1917 年至今沒改）：說不準", "現在押的：說不準"]:
+						check(L.t(source).contains("can't"), "English apostrophe uses the proportional Latin glyph")
+				if capture_dir != "":
+					await RenderingServer.frame_post_draw
+					var path := capture_dir.path_join("%s-%s-%s.png" % [locale, "default" if scale == 1.0 else "maximum", ["zero", "left", "einstein", "3", "limit"][index]])
+					check(root.get_texture().get_image().save_png(path) == OK, "windowed frame saved: " + path)
+			ui.close_viewer()
+			ui.dialog_panel.hide()
+		ui.free()
+	L.apply(old_locale)
+	Settings.text_scale = old_scale
+	root.size = old_size

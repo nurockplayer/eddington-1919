@@ -18,6 +18,8 @@ var _drawn_bars: Array = []     # per row: "bar" or "none"
 var _drawn_texts: Array = []    # every string drawn this frame
 var _drawn_ledger: Array = []
 var _drawn_ledger_bounds: Array = []
+var _drawn_result_bounds := Rect2()
+var _drawn_result_backing := false
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
@@ -43,7 +45,8 @@ func refresh_fonts() -> void:
 func drawn() -> Dictionary:
 	return {"label_px": _drawn_label_px, "hollow": _drawn_hollow, "filled": _drawn_filled,
 		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate(),
-		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate()}
+		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate(),
+		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing}
 
 
 ## Every string the last _draw() painted. draw_string output is not a node
@@ -58,7 +61,7 @@ func marker_filled(row: Dictionary) -> bool:
 
 
 func _x(v: float, w: float) -> float:
-	return 60.0 + clampf(v, -0.4, X_MAX) / X_MAX * (w - 90.0)
+	return clampf(60.0 + clampf(v, -0.4, X_MAX) / X_MAX * (w - 90.0), 8.0, w - 8.0)
 
 
 static func two_sigma_span(value: float, sigma: float) -> Vector2:
@@ -122,6 +125,8 @@ func _draw() -> void:
 	_drawn_texts.clear()
 	_drawn_ledger.clear()
 	_drawn_ledger_bounds.clear()
+	_drawn_result_bounds = Rect2()
+	_drawn_result_backing = false
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
@@ -203,4 +208,12 @@ func _draw() -> void:
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
 		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
 		_drawn_texts.append(combined_value)
-		draw_string(font, Vector2(cx + 14, y - 10.0 * Settings.text_scale), combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(16), c)
+		var px := Settings.fs(16)
+		var width := font.get_string_size(combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+		var baseline := Vector2(minf(cx + 14, w - width - 8), y - 10.0 * Settings.text_scale)
+		_drawn_result_bounds = Rect2(baseline - Vector2(0, font.get_ascent(px)),
+			Vector2(width, font.get_height(px)))
+		# The reference lines stay in place, but cannot strike through the reading.
+		draw_rect(_drawn_result_bounds.grow(2), Color(0.09, 0.08, 0.07))
+		_drawn_result_backing = true
+		draw_string(font, baseline, combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px, c)

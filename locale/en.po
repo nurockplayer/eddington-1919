@@ -179,7 +179,7 @@ msgid "1917 年押的"
 msgstr "1917 bet"
 
 msgid "1917 年押的：說不準"
-msgstr "1917: can’t say"
+msgstr "1917: can't say"
 
 msgid "1917 年的帳本"
 msgstr "The 1917 ledger"
@@ -212,7 +212,7 @@ msgid "1919 年押的"
 msgstr "1919 bet"
 
 msgid "1919 年押的：說不準"
-msgstr "1919: can’t say"
+msgstr "1919: can't say"
 
 msgid "1979 年，有人重新量了 Sobral 的底片（Harvey）：4 吋 1.90″ ± 0.11″，天體照相儀 1.55″ ± 0.34″——支持了當年團隊對那組 0.93″ 的疑慮。"
 msgstr "In 1979 the Sobral plates were measured again (Harvey): 4-inch 1.90″ ± 0.11″, astrographic 1.55″ ± 0.34″—supporting the team's doubts at the time about the 0.93″ set."
@@ -2096,7 +2096,7 @@ msgid "押的（1917 年至今沒改）"
 msgstr "Bet unchanged since 1917"
 
 msgid "押的（1917 年至今沒改）：說不準"
-msgstr "Since 1917: can’t say"
+msgstr "Since 1917: can't say"
 
 msgid "拍攝時：Cottingham 說一半在雲裡。"
 msgstr "At the time: Cottingham said half was in cloud."
@@ -2612,7 +2612,7 @@ msgid "現在押的"
 msgstr "Current bet"
 
 msgid "現在押的：說不準"
-msgstr "Now: can’t say"
+msgstr "Now: can't say"
 
 msgid "用離太陽很遠的星來檢查？"
 msgstr "Check against stars far from the Sun?"

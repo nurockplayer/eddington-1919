@@ -551,6 +551,8 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.visibility_changed.connect(func():
 		if not dialog_panel.visible:
 			dialogue_portrait.hide())
+	dialog_panel.resized.connect(_layout_viewer.call_deferred)
+	dialog_panel.visibility_changed.connect(_layout_viewer.call_deferred)
 	root.resized.connect(_layout_dialogue_portrait)
 	dialog_panel.resized.connect(_layout_dialogue_portrait)
 
@@ -845,10 +847,12 @@ func _build_viewer(root: Control) -> void:
 	var deflection_header := _label(L.t("星光偏折（太陽邊緣，角秒）"), 22, ACCENT)
 	deflection_header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(deflection_header)
+	deflection_header.resized.connect(_layout_viewer.call_deferred)
 	viewer_rule = _rich(15)
 	viewer_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	viewer_rule.visible = false
 	right.add_child(viewer_rule)
+	viewer_rule.resized.connect(_layout_viewer.call_deferred)
 	chart = preload("res://scripts/chart.gd").new()
 	chart.custom_minimum_size = Vector2(560, 420)
 	right.add_child(chart)
@@ -919,6 +923,9 @@ func _fit_chart_height() -> void:
 		shown += 1
 	labels += 10.0 * maxi(shown, 1)
 	chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, maxf(280.0, room - labels))
+	if _viewer_reporting and dialog_panel != null and dialog_panel.visible:
+		var above_dialogue := dialog_panel.get_global_rect().position.y - chart.get_global_rect().position.y - 8.0
+		chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, above_dialogue)
 
 
 ## The same for width: the thumbnails and the plate columns keep their size, and
