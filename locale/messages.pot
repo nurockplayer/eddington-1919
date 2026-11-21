@@ -1913,7 +1913,7 @@ msgid "問人是對的。可是人不一定都在。紙會在。"
 msgstr ""
 
 #: scripts/cambridge/overlay_viewer.gd:593
-msgid "單憑這張底片，仍無法判定。"
+msgid "單憑這張底片，尚無定論。"
 msgstr ""
 
 #: scripts/content.gd:65

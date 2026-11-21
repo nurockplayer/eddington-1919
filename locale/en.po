@@ -1508,7 +1508,7 @@ msgstr "Ah, you've come at the right moment. This rain has soaked everything."
 msgid "問人是對的。可是人不一定都在。紙會在。"
 msgstr "Asking is right. But people aren't always there. Paper will be."
 
-msgid "單憑這張底片，仍無法判定。"
+msgid "單憑這張底片，尚無定論。"
 msgstr "This plate alone is still inconclusive."
 
 msgid "嗯。照實說。Dyson 先生讀得懂一張空白的底片。"
