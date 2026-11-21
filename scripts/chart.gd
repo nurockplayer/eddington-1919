@@ -20,6 +20,10 @@ var _drawn_ledger: Array = []
 var _drawn_ledger_bounds: Array = []
 var _drawn_result_bounds := Rect2()
 var _drawn_result_backing := false
+var _drawn_row_bounds: Array = []
+var _drawn_marker_bounds: Array = []
+var _drawn_axis_bounds: Array = []
+var _drawn_combined_bounds := Rect2()
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
@@ -46,7 +50,9 @@ func drawn() -> Dictionary:
 	return {"label_px": _drawn_label_px, "hollow": _drawn_hollow, "filled": _drawn_filled,
 		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate(),
 		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate(),
-		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing}
+		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing,
+		"row_bounds": _drawn_row_bounds.duplicate(), "marker_bounds": _drawn_marker_bounds.duplicate(),
+		"axis_bounds": _drawn_axis_bounds.duplicate(), "combined_bounds": _drawn_combined_bounds}
 
 
 ## Every string the last _draw() painted. draw_string output is not a node
@@ -127,6 +133,10 @@ func _draw() -> void:
 	_drawn_ledger_bounds.clear()
 	_drawn_result_bounds = Rect2()
 	_drawn_result_backing = false
+	_drawn_row_bounds.clear()
+	_drawn_marker_bounds.clear()
+	_drawn_axis_bounds.clear()
+	_drawn_combined_bounds = Rect2()
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
@@ -138,7 +148,10 @@ func _draw() -> void:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
 		_drawn_texts.append(ref[1])
-		draw_string(font, Vector2(x - 40, bottom + 22.0 * Settings.text_scale), ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
+		var axis_baseline := Vector2(x - 40, bottom + 22.0 * Settings.text_scale)
+		_drawn_axis_bounds.append(Rect2(axis_baseline - Vector2(0, font.get_ascent(Settings.fs(15))),
+			font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15))))
+		draw_string(font, axis_baseline, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
 	for t in range(0, int(X_MAX) + 1):
 		var x := _x(t, w)
 		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
@@ -177,6 +190,7 @@ func _draw() -> void:
 			draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
 			draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
 		var p := Vector2(_x(r.value, w), y)
+		_drawn_marker_bounds.append(Rect2(p - Vector2(6, 6), Vector2(12, 12)))
 		if marker_filled(r):
 			draw_circle(p, 5.0, col)
 			_drawn_filled += 1
@@ -187,7 +201,10 @@ func _draw() -> void:
 			_drawn_markers.append("hollow")
 		_drawn_label_px = _label_px
 		_drawn_texts.append(r.label)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
+		var label_baseline := Vector2(4, y + 5.0 * Settings.text_scale)
+		_drawn_row_bounds.append(Rect2(label_baseline - Vector2(0, font.get_ascent(_label_px)),
+			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px)))
+		draw_string(font, label_baseline, r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	if combined.get("n", 0) > 0:
 		var y := top + 16.0 + rows.size() * step + 10.0
 		var c := Color(1.0, 0.92, 0.6)
@@ -205,7 +222,10 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
 		var combined_label := L.t("合併")
 		_drawn_texts.append(combined_label)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
+		var combined_baseline := Vector2(4, y + 5.0 * Settings.text_scale)
+		_drawn_combined_bounds = Rect2(combined_baseline - Vector2(0, font.get_ascent(Settings.fs(15))),
+			font.get_string_size(combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15)))
+		draw_string(font, combined_baseline, combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
 		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
 		_drawn_texts.append(combined_value)
 		var px := Settings.fs(16)

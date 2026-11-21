@@ -54,6 +54,7 @@ func settle() -> void:
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
 	await _test_darkroom_chart()
+	await _test_dense_report_chart()
 	if "--darkroom-chart-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds darkroom chart: %d checks, %d failures" % [checks, failures])
 		quit(1 if failures else 0)
@@ -629,3 +630,99 @@ func _test_darkroom_chart() -> void:
 	L.apply(old_locale)
 	Settings.text_scale = old_scale
 	root.size = old_size
+
+
+func _test_dense_report_chart() -> void:
+	var old_locale := L.current()
+	var old_scale := Settings.text_scale
+	var old_size := root.size
+	var old_content_size := root.content_scale_size
+	var story := root.get_node("Story")
+	var old_bet: Dictionary = story.bet_1917.duplicate(true)
+	var sim := Sim.new(77)
+	sim.plates_delivered = Sim.MAX_EXTRA_PLATES
+	# Every available holder can be exposed within totality: 12 × (8 + 4) < 302 s.
+	# Clear exposures exercise the maximum, rather than a seed's usable subset.
+	for i in sim.plates_available():
+		sim.open_shutter(i * (8.0 + Sim.PLATE_CHANGE_S))
+		sim.accumulate(8.0, 0.0)
+		var plate := sim.close_shutter(false)
+		plate.included = true
+		plate.read = true
+		plate.reading = sim.reading_for_value(plate.value)
+	sim.measured = true
+	sim.rule_id = "strict"
+	check(sim.included_usable().size() == Sim.BASE_PLATES + Sim.MAX_EXTRA_PLATES,
+		"all 12 real plate holders can contribute report rows")
+	var game = load("res://scripts/main.gd").new()
+	game.sim = sim
+	root.content_scale_size = Vector2i(1600, 900)
+	for window in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
+		root.size = window
+		for locale in L.LOCALES:
+			L.apply(locale)
+			# L.apply changes the server locale; explicitly retain CI's longer pseudo text.
+			if L.pseudo_translation != null:
+				TranslationServer.set_locale("en_XA")
+			var ui = load("res://scripts/ui.gd").new()
+			root.add_child(ui)
+			game.ui = ui
+			ui.hide_title()
+			for scale in [1.0, 1.2]:
+				Settings.text_scale = scale
+				Settings.refresh_fonts(self)
+				ui.chart.refresh_fonts()
+				ui.open_viewer(sim.plates, null, [], true)
+				for picks in [[1, 2], [3, 2], [2, 3], [3, 3]]:
+					story.bet_1917 = {"pick": picks[0], "year": 1917}
+					sim.bet_pick = picks[1]
+					game._refresh_viewer()
+					ui.set_viewer_report(true)
+					check(ui.chart.rows.size() == sim.plates_available(), "real report producer supplies the maximum rows (no Sobral rows)")
+					var c: Dictionary = sim.combined()
+					var interval := L.t("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″") % [c.value, c.sigma, c.value - 2 * c.sigma, c.value + 2 * c.sigma]
+					var prompts := [Content.verdict_prompt(interval),
+						[{"s": Content.E, "t": Content.verdict_feedback(2, 2, Judgment.interval_bounds(sim))}],
+						[Content.press_eddington(2)[0]],
+						[Content.judgment_prompt(Judgment.telegram_choices(), Judgment.reasons_for(sim).map(func(r): return L.t(r.text)))[1]]]
+					for prompt in prompts:
+						context = "12-row report %s %s scale %.1f bets %s prompt %s" % [window, locale, scale, picks, prompts.find(prompt)]
+						ui.play(prompt)
+						for frame in 12:
+							await process_frame
+						_check_report_rows(ui)
+				ui.close_viewer()
+				ui.dialog_panel.hide()
+			ui.free()
+	game.free()
+	story.bet_1917 = old_bet
+	L.apply(old_locale)
+	Settings.text_scale = old_scale
+	Settings.refresh_fonts(self)
+	root.content_scale_size = old_content_size
+	root.size = old_size
+
+
+func _check_report_rows(ui) -> void:
+	var chart: Control = ui.chart
+	var rect := Rect2(Vector2.ZERO, chart.size)
+	check(chart.get_global_rect().end.y + 4 <= ui.dialog_panel.get_global_rect().position.y,
+		"chart and axes clear dialogue")
+	var painted: Dictionary = chart.drawn()
+	check(painted.row_bounds.size() == chart.rows.size(), "every measured row was painted")
+	var font := chart.get_theme_default_font()
+	var line_height := font.get_height(Settings.fs(14))
+	for i in painted.row_bounds.size():
+		var label: Rect2 = painted.row_bounds[i]
+		var marker: Rect2 = painted.marker_bounds[i]
+		check(rect.encloses(label) and rect.encloses(marker), "row label and marker stay inside chart: %s %s" % [label, marker])
+		if i > 0:
+			var previous: Rect2 = painted.row_bounds[i - 1]
+			check(label.position.y - previous.position.y >= line_height, "row pitch >= rendered line height %.1f" % line_height)
+		for j in range(i):
+			check(not label.intersects(painted.row_bounds[j]) and not marker.intersects(painted.marker_bounds[j])
+				and not label.intersects(painted.marker_bounds[j]) and not marker.intersects(painted.row_bounds[j]),
+				"row labels and markers do not overlap another row")
+		check(not label.intersects(painted.result_bounds) and not marker.intersects(painted.result_bounds), "rows clear player's combined number")
+	for fixed: Rect2 in painted.ledger_bounds + painted.axis_bounds + [painted.result_bounds.grow(2), painted.combined_bounds]:
+		check(rect.grow(0.01).encloses(fixed), "prediction band, result and axis text stay inside chart: %s" % fixed)
