@@ -386,7 +386,6 @@ void fragment() {
 		// The floor comes in early: a sunlit palm at 40 m has lost its own lines and must not print paler than the sky.
 		float cov_floor = (far_sky * hz + far_step) * lit * smoothstep(0.0, far_in, dist_f);
 		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
-		cov_far = mix(cov_far, 0.35, ridge_totality);
 		// The ruling is the page's and stays with the sky; its weight belongs to the ground, so a walk shows the ground passing under the lines.
 		// The patches grow with distance (by distance, not depth), so that the smallest still spans ground_grain lines: a smaller one would flicker between the lines.
 		float d_g = length(pv);
@@ -401,6 +400,10 @@ void fragment() {
 		ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
 		tone_p = mix(tone, 1.0 - dark_far, dist_f);
 		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
+		// Far land at totality is sparse ruling on the horizon's cream reserve.
+		float ridge_distance = smoothstep(75.0, 550.0, length(pw.xz));
+		float ridge_lines = hatch(elev, k, mix(0.24, 0.14, ridge_distance), l_px * mix(1.5, 2.5, ridge_distance), 99.0);
+		ink = mix(ink, ridge_lines, ridge_totality);
 	}
 	ink = max(ink, edge * outline);
 	ink = mix(ink, min(ink, 0.08), box_reserve);
@@ -414,6 +417,7 @@ void fragment() {
 	float blue = print_darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone_p) * blue);
+	page = mix(page, paper * (1.0 - paper_grain * fibre), ridge_totality);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
