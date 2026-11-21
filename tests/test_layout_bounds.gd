@@ -586,6 +586,8 @@ func _test_plate_pause() -> void:
 		var ui = preload("res://scripts/ui.gd").new()
 		root.add_child(ui)
 		ui.hide_title()
+		ui.open_viewer(sim.plates, comparison, textures, false)
+		ui.chart.set_data([], {}, false)
 		for viewport in [Vector2i(1280, 720), Vector2i(1280, 800), Vector2i(1920, 1080)]:
 			root.size = viewport
 			for text_scale in [1.0, 1.2]:
@@ -593,8 +595,8 @@ func _test_plate_pause() -> void:
 				Settings.text_scale = text_scale
 				Settings.refresh_fonts(self)
 				ui.chart.refresh_fonts()
-				ui.open_viewer(sim.plates, comparison, textures, false)
-				ui.chart.set_data([], {}, false)
+				ui._layout_viewer()
+				ui.viewer.show()
 				await settle()
 				bounds(ui.viewer)
 				for button: Button in ui.thumbs.get_children():
@@ -618,15 +620,15 @@ func _test_plate_pause() -> void:
 					for j in range(i):
 						check(not rect.intersects(drawn.axis_bounds[j]), "axis labels stay separate")
 				ui.viewer.hide()
-				ui.toggle_pause()
-				await settle()
-				var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
 				if text_scale == 1.0:
+					ui.toggle_pause()
+					await settle()
+					var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
 					check(not scroll.get_v_scroll_bar().visible, "default pause needs no scrolling")
 					for child: Control in scroll.get_child(0).get_children():
 						if child.visible:
 							check(scroll.get_global_rect().grow(1).encloses(child.get_global_rect()), "default pause row fits: " + child.name)
-				ui.toggle_pause()
+					ui.toggle_pause()
 		ui.free()
 	root.size = window
 	L.apply(locale)
