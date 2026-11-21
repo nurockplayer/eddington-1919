@@ -106,7 +106,7 @@ var ending_history_toggle: Button
 var pause_panel: Control
 var help_panel: Control
 var help_content: RichTextLabel
-var help_table: GridContainer
+var help_table: VBoxContainer
 var _help_focus: Control
 var _pause_title_btn: Button
 var _settings_button: Button
@@ -1897,20 +1897,24 @@ func _build_pause(root: Control) -> void:
 	pause_panel.process_mode = Node.PROCESS_MODE_ALWAYS
 	pause_panel.z_index = 1
 	root.add_child(pause_panel)
+	var slip := PanelContainer.new()
+	pause_panel.add_child(slip)
+	slip.set_anchors_preset(Control.PRESET_FULL_RECT)
+	slip.anchor_left = 0.5
+	slip.anchor_right = 0.5
+	slip.offset_left = -150
+	slip.offset_right = 150
+	slip.offset_top = 56
+	slip.offset_bottom = -56
 	var scroll := ScrollContainer.new()
-	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
-	scroll.anchor_left = 0.5
-	scroll.anchor_right = 0.5
-	scroll.offset_left = -150
-	scroll.offset_right = 150
-	scroll.offset_top = 56
-	scroll.offset_bottom = -56
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
 	scroll.follow_focus = true
-	pause_panel.add_child(scroll)
+	scroll.get_v_scroll_bar().custom_minimum_size.x = 10
+	slip.add_child(scroll)
 	var v := VBoxContainer.new()
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	v.add_theme_constant_override("separation", 4)
+	v.add_theme_constant_override("separation", 0)
 	scroll.add_child(v)
 	_pause_heading = _label(L.t("暫停"), 36)
 	_pause_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1923,12 +1927,11 @@ func _build_pause(root: Control) -> void:
 		else:
 			toggle_pause())
 	v.add_child(r)
-	music_button = _button(L.t("音樂：開") if ScorePlayer.music_enabled() else L.t("音樂：關"))
+	music_button = _button(L.t("音樂靜音：關") if ScorePlayer.music_enabled() else L.t("音樂靜音：開"))
 	music_button.pressed.connect(func():
 		ScorePlayer.set_music_enabled(not ScorePlayer.music_enabled())
-		music_button.text = L.t("音樂：開") if ScorePlayer.music_enabled() else L.t("音樂：關")
+		music_button.text = L.t("音樂靜音：關") if ScorePlayer.music_enabled() else L.t("音樂靜音：開")
 		_sync_music_row())
-	v.add_child(music_button)
 	for bus in ["Master", "Music", "SFX"]:
 		var card := PanelContainer.new()
 		card.custom_minimum_size.y = Settings.fs(46)
@@ -1949,6 +1952,7 @@ func _build_pause(root: Control) -> void:
 		if bus == "Music":
 			music_row = row
 			music_slider = slider
+			v.add_child(music_button)
 	_sync_music_row()
 	fullscreen_button = _button(L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關"))
 	fullscreen_button.pressed.connect(_toggle_fullscreen)
@@ -2215,10 +2219,8 @@ func _build_help(root: Control) -> void:
 	help_content = _rich(18)
 	help_content.visible = false
 	v.add_child(help_content)
-	help_table = GridContainer.new()
-	help_table.columns = 2
-	help_table.add_theme_constant_override("h_separation", 16)
-	help_table.add_theme_constant_override("v_separation", 8)
+	help_table = VBoxContainer.new()
+	help_table.add_theme_constant_override("separation", 0)
 	v.add_child(help_table)
 	var back := _button(L.t("返回"))
 	back.focus_mode = Control.FOCUS_ALL
@@ -2246,18 +2248,25 @@ func _fill_help_table() -> void:
 		var action := _label(part.substr(split + 1), 20, INK)
 		var rule := _panel_style(preload("res://scripts/styles/engraving.gd").PAPER, preload("res://scripts/styles/engraving.gd").INK)
 		rule.set_corner_radius_all(0)
-		rule.set_border_width_all(1)
+		rule.set_border_width_all(0)
+		rule.border_width_bottom = 1
+		if i == 0:
+			rule.border_width_top = 1
 		rule.set_content_margin_all(8)
-		action.add_theme_stylebox_override("normal", rule)
+		var row := PanelContainer.new()
+		row.add_theme_stylebox_override("panel", rule)
+		var columns := HBoxContainer.new()
+		columns.add_theme_constant_override("separation", 16)
+		row.add_child(columns)
+		help_table.add_child(row)
 		action.custom_minimum_size.x = 260
-		help_table.add_child(action)
+		columns.add_child(action)
 		var keys: String = part.substr(0, split)
 		if i >= 3:
 			keys = keyboard[i] + " / " + pad[i]
 		var value := _label(keys, 20, INK)
-		value.add_theme_stylebox_override("normal", rule)
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		help_table.add_child(value)
+		columns.add_child(value)
 
 
 func _open_help() -> void:
@@ -2425,16 +2434,18 @@ func _print_menu(node: Node) -> void:
 		ink.shader = preload("res://shaders/menu_ink.gdshader")
 		ink.set_shader_parameter("ink", Print.INK)
 		node.material = ink
-	if node is PanelContainer or (node is ScrollContainer and node.get_parent() == pause_panel):
-		var paper: StyleBoxFlat = node.get_theme_stylebox("panel").duplicate() if node is PanelContainer else StyleBoxFlat.new()
+	if node is PanelContainer:
+		var paper: StyleBoxFlat = node.get_theme_stylebox("panel").duplicate()
 		paper.bg_color = Print.PAPER
 		paper.border_color = Print.INK
 		paper.set_corner_radius_all(0)
 		paper.set_border_width_all(1)
-		if node is ScrollContainer:
+		if node.get_parent() == pause_panel:
 			paper.set_content_margin_all(0)
 		elif node.get_parent() is VBoxContainer and node.get_parent().get_parent() is ScrollContainer and pause_panel.is_ancestor_of(node):
 			paper.set_content_margin_all(10)
+			paper.set_border_width_all(0)
+			paper.border_width_bottom = 1
 		node.add_theme_stylebox_override("panel", paper)
 	if node is Button:
 		var paper: StyleBoxFlat = node.get_theme_stylebox("normal").duplicate()
@@ -2442,6 +2453,9 @@ func _print_menu(node: Node) -> void:
 		paper.border_color = Print.INK
 		paper.set_corner_radius_all(0)
 		paper.set_border_width_all(1)
+		if pause_panel.is_ancestor_of(node):
+			paper.set_border_width_all(0)
+			paper.border_width_bottom = 1
 		var focus: StyleBoxFlat = paper.duplicate()
 		focus.bg_color = Print.INK
 		# A heavier rule as well as reversed ink makes focus readable without colour.
