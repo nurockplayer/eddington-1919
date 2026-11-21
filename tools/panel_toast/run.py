@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """job-run --id panel-toast-capture -- tachi-run --heavy --host -- python3 tools/panel_toast/run.py"""
+import argparse
 import json
 from datetime import datetime
 from pathlib import Path
@@ -18,14 +19,28 @@ def run(argv, log):
         raise RuntimeError(f'Godot error: {log}')
 
 
+def prepare_output(out, overwrite=False):
+    # report.md is written only after capture, encoding and every receipt check pass.
+    complete = out / 'report.md'
+    if complete.exists() and not overwrite:
+        raise SystemExit(f'Complete capture at {out}; use --overwrite to replace it. Existing output was preserved.')
+    complete.unlink(missing_ok=True)
+    for name in ('main', 'fixed'):
+        folder = out / name
+        if folder.exists():
+            shutil.rmtree(folder)
+    out.mkdir(parents=True, exist_ok=True)
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--overwrite', action='store_true', help='replace a complete capture')
+    args = parser.parse_args()
     if shutil.disk_usage('/Volumes/KIOXIA').free < 3 * 1024**3:
         raise RuntimeError('KIOXIA has under 3 GB free; capture stopped')
     head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip()
     out = Path('/Volumes/KIOXIA/eddington-1919-cache/director/panel-toast') / head[:7]
-    if (out / 'main').exists() or (out / 'fixed').exists():
-        raise SystemExit(f'Capture output already exists at {out}; move it before rerunning. Existing output was preserved.')
-    out.mkdir(parents=True, exist_ok=True)
+    prepare_output(out, args.overwrite)
     previous = out.parent / '2e62b35'
     shutil.copytree(previous / 'main', out / 'main')
     metadata = {'head': head, 'main': BASE, 'at': datetime.now(ZoneInfo('Asia/Tokyo')).isoformat()}
