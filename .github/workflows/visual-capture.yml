@@ -1,0 +1,110 @@
+name: visual-capture
+
+# Windowed frames of any commit, rendered on a hosted runner with lavapipe
+# (software Vulkan) under Xvfb, so art frames need not wait for the Mac's GPU.
+# The bookmarks, lighting and cameras are the commit's own tests/benchmark.gd.
+# Frames are valid for judging the look, never for performance: lavapipe draws
+# on the CPU, so every timing in benchmark.json is meaningless here.
+# Dispatch and download with tools/ci_capture.sh.
+run-name: >-
+  visual-capture ${{ inputs.ref || github.ref_name }} ${{ inputs.height || '720' }}p
+  ${{ inputs.request_id }}
+
+on:
+  push:
+    branches: [tools/ci-capture]
+    paths: [.github/visual-capture/**, .github/workflows/visual-capture.yml]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, branch or tag to render
+        required: true
+      views:
+        description: Benchmark bookmarks, comma-separated
+        default: arrival,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue,darkroom
+      height:
+        description: Window height; 16:9, rendered at that size
+        type: choice
+        options: ['720', '1080', '1440']
+        default: '720'
+      style_set:
+        description: Engraving overrides, key=value,key=value (passed as --style-set=)
+        default: ''
+      cloud_t:
+        description: Cloud time of the totality lighting state (--bench-cloud-t)
+        default: '215'
+      request_id:
+        description: Set by tools/ci_capture.sh to find this run; leave empty
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      REF: ${{ inputs.ref }}
+      VIEWS: ${{ inputs.views || 'arrival,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue,darkroom' }}
+      HEIGHT: ${{ inputs.height || '720' }}
+      STYLE_SET: ${{ inputs.style_set }}
+      CLOUD_T: ${{ inputs.cloud_t || '215' }}
+    steps:
+      - name: Check out the capture scripts
+        uses: actions/checkout@v5
+        with:
+          path: harness
+          sparse-checkout: .github/visual-capture
+          persist-credentials: false
+      # TEMP: a push to the development branch reads its inputs from a file.
+      - name: Development inputs
+        if: github.event_name == 'push'
+        run: cat harness/.github/visual-capture/push-test.env >> "$GITHUB_ENV"
+      - name: Resolve the commit
+        id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ $REF =~ ^[A-Za-z0-9._/-]+$ ]] || { echo "::error::ref '$REF' is not a commit, branch or tag name"; exit 1; }
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$(jq -rn --arg r "$REF" '$r|@uri')" --jq .sha)
+          echo "$REF -> $sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+      - name: Check out the commit to render
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.commit.outputs.sha }}
+          path: game
+          persist-credentials: false
+      - name: Install Godot 4.7.2
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable
+          zip=Godot_v4.7.2-stable_linux.x86_64.zip
+          curl -fsSL -o "$zip" "$base/$zip"
+          curl -fsSL -o SHA512-SUMS.txt "$base/SHA512-SUMS.txt"
+          grep " $zip\$" SHA512-SUMS.txt | sha512sum -c -
+          unzip -q "$zip" -d "$HOME/godot"
+          ln -s "$HOME/godot/Godot_v4.7.2-stable_linux.x86_64" "$HOME/godot/godot"
+          echo "$HOME/godot" >> "$GITHUB_PATH"
+          rm "$zip" SHA512-SUMS.txt
+      - name: Install Xvfb and a software Vulkan driver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb mesa-vulkan-drivers libgl1 libasound2t64
+      - name: Import the project
+        run: |
+          godot --headless --path game --import > import.log 2>&1 || { tail -40 import.log; exit 1; }
+          tail -3 import.log
+      - name: Render
+        run: harness/.github/visual-capture/capture.sh game out
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-capture-${{ github.run_id }}
+          path: |
+            out/manifest.jsonl
+            out/frames/
+            out/*.log
+          retention-days: 7
+          if-no-files-found: error
