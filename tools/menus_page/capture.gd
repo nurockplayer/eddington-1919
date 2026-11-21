@@ -69,7 +69,7 @@ func _run() -> void:
 			ui.toggle_pause()
 			await shot(prefix + "pause", ui.pause_panel, ui.music_row.get_child(0))
 			ui._open_help()
-			await shot(prefix + "help", ui.help_panel, ui.help_content)
+			await shot(prefix + "help", ui.help_panel, ui.help_table)
 			ui._close_help()
 			ui.toggle_pause()
 			# Populate history through the same dialogue route as play.

@@ -106,6 +106,7 @@ var ending_history_toggle: Button
 var pause_panel: Control
 var help_panel: Control
 var help_content: RichTextLabel
+var help_table: GridContainer
 var _help_focus: Control
 var _pause_title_btn: Button
 var _settings_button: Button
@@ -1902,8 +1903,8 @@ func _build_pause(root: Control) -> void:
 	scroll.anchor_right = 0.5
 	scroll.offset_left = -150
 	scroll.offset_right = 150
-	scroll.offset_top = 20
-	scroll.offset_bottom = -20
+	scroll.offset_top = 56
+	scroll.offset_bottom = -56
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
 	pause_panel.add_child(scroll)
@@ -1929,7 +1930,10 @@ func _build_pause(root: Control) -> void:
 		_sync_music_row())
 	v.add_child(music_button)
 	for bus in ["Master", "Music", "SFX"]:
+		var card := PanelContainer.new()
+		card.custom_minimum_size.y = Settings.fs(46)
 		var row := HBoxContainer.new()
+		card.add_child(row)
 		var label := _label({"Master": L.t("主音量"), "Music": L.t("音樂"), "SFX": L.t("音效")}[bus], 20)
 		label.custom_minimum_size.x = 80
 		row.add_child(label)
@@ -1941,7 +1945,7 @@ func _build_pause(root: Control) -> void:
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		slider.value_changed.connect(func(value: float): Settings.set_volume(bus, value))
 		row.add_child(slider)
-		v.add_child(row)
+		v.add_child(card)
 		if bus == "Music":
 			music_row = row
 			music_slider = slider
@@ -2025,6 +2029,7 @@ func _build_pause(root: Control) -> void:
 	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.custom_minimum_size.y = Settings.fs(46)
 
 
 func _toggle_fullscreen() -> void:
@@ -2045,6 +2050,7 @@ func _sync_music_row() -> void:
 func open_settings() -> void:
 	_pause_focus = get_viewport().gui_get_focus_owner()
 	_settings_only = true
+	(pause_panel as ColorRect).color = preload("res://scripts/styles/engraving.gd").PAPER
 	_title_focus_modes.clear()
 	for button in prologue_btn.get_parent().get_children():
 		_title_focus_modes.append(button.focus_mode)
@@ -2071,6 +2077,7 @@ func close_settings() -> void:
 	restart_button.show()
 	quit_button.show()
 	_settings_only = false
+	(pause_panel as ColorRect).color = Color.TRANSPARENT
 	var buttons := prologue_btn.get_parent().get_children()
 	for i in buttons.size():
 		buttons[i].focus_mode = _title_focus_modes[i]
@@ -2197,21 +2204,24 @@ func _build_help(root: Control) -> void:
 	help_panel.z_index = 2
 	root.add_child(help_panel)
 	var v := VBoxContainer.new()
-	v.set_anchors_preset(Control.PRESET_FULL_RECT)
-	v.offset_left = 80
-	v.offset_right = -80
-	v.offset_top = 40
-	v.offset_bottom = -40
-	v.add_theme_constant_override("separation", 16)
+	v.set_anchors_preset(Control.PRESET_CENTER)
+	v.position = Vector2(-440, -300)
+	v.custom_minimum_size.x = 880
+	v.add_theme_constant_override("separation", 14)
 	help_panel.add_child(v)
-	v.add_child(_label(L.t("操作說明"), 28, ACCENT))
+	var heading := _label(L.t("操作說明"), 36)
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(heading)
 	help_content = _rich(18)
-	help_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	help_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	help_content.visible = false
 	v.add_child(help_content)
+	help_table = GridContainer.new()
+	help_table.columns = 2
+	help_table.add_theme_constant_override("h_separation", 16)
+	help_table.add_theme_constant_override("v_separation", 8)
+	v.add_child(help_table)
 	var back := _button(L.t("返回"))
 	back.focus_mode = Control.FOCUS_ALL
-	back.add_theme_stylebox_override("focus", back.get_theme_stylebox("hover"))
 	back.pressed.connect(_close_help)
 	v.add_child(back)
 
@@ -2224,9 +2234,30 @@ func _help_text() -> String:
 	return text
 
 
+func _fill_help_table() -> void:
+	for child in help_table.get_children():
+		child.free()
+	var entries := title_controls.text.replace("\n", " · ").split(" · ")
+	var pad := ["", "", "", L.t("A 鍵"), "Back", L.t("RB／X 鍵"), "Start"]
+	var keyboard := ["", "", "", "E", "Tab", L.t("空白鍵"), "Esc"]
+	for i in entries.size():
+		var part: String = entries[i]
+		var split := part.rfind(" ")
+		var action := _label(part.substr(split + 1), 20, INK)
+		action.custom_minimum_size.x = 260
+		help_table.add_child(action)
+		var keys: String = part.substr(0, split)
+		if i >= 3:
+			keys = keyboard[i] + " / " + pad[i]
+		var value := _label(keys, 20, INK)
+		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		help_table.add_child(value)
+
+
 func _open_help() -> void:
 	_help_focus = get_viewport().gui_get_focus_owner()
 	help_content.text = _help_text()
+	_fill_help_table()
 	help_panel.show()
 	(help_panel.find_children("*", "Button", true, false)[0] as Button).grab_focus()
 
@@ -2247,6 +2278,7 @@ func _refresh_hints() -> void:
 		title_controls.text = L.t("WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停") % [Prompts.key("interact"), Prompts.key("toggle_log"), Prompts.key("shutter"), Prompts.key("pause")]
 	if help_panel and help_panel.visible:
 		help_content.text = _help_text()
+		_fill_help_table()
 	if log_title:
 		log_title.text = L.t("對話紀錄　［%s 關閉］") % Prompts.key("toggle_log")
 	if log_back:
@@ -2439,5 +2471,7 @@ func _print_menu(node: Node) -> void:
 			blank.fill(Color.TRANSPARENT)
 			for icon in ["increment", "increment_highlight", "increment_pressed", "decrement", "decrement_highlight", "decrement_pressed"]:
 				node.add_theme_icon_override(icon, ImageTexture.create_from_image(blank))
+	if node is ScrollContainer:
+		_print_menu(node.get_v_scroll_bar())
 	for child in node.get_children():
 		_print_menu(child)
