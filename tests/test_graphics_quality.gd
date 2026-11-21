@@ -139,7 +139,9 @@ func _run() -> void:
 	r = await live._sample_bookmark("arrival", "prep_early")
 	check(r.screenshot == "arrival.png", "successful sample records screenshot path")
 	check(FileAccess.file_exists(live.out_dir.path_join(r.screenshot)), "successful sample screenshot file exists")
-	live.stub_shot = false
+	var screenshot := Image.load_from_file(live.out_dir.path_join("arrival.png"))
+	check(screenshot != null and screenshot.get_size() == Vector2i(4, 4)
+		and screenshot.get_pixel(0, 0) == Color.WHITE, "successful screenshot is a readable PNG with the stub pixels")
 	DirAccess.remove_absolute(live.out_dir.path_join(r.screenshot))
 	game.sim = Benchmark.Sim.new(7)
 	game.sky_mat.set_shader_parameter("cloud_tex", ImageTexture.create_from_image(game.sim.cloud_img))
@@ -149,8 +151,9 @@ func _run() -> void:
 	var rows: Array = live.written_summary.bookmarks
 	check(rows.size() == 2 and rows[0].seed == 7 and rows[1].seed == 1919, "benchmark tags ordinary and live bookmarks with their own seeds")
 	for row in rows:
-		if row.screenshot != "":
-			DirAccess.remove_absolute(live.out_dir.path_join(row.screenshot))
+		check(row.screenshot == row.bookmark + ".png", "written summary records screenshot path for " + row.bookmark)
+		check(FileAccess.file_exists(live.out_dir.path_join(row.bookmark + ".png")), "written summary points to an existing screenshot for " + row.bookmark)
+		DirAccess.remove_absolute(live.out_dir.path_join(row.bookmark + ".png"))
 	DirAccess.remove_absolute(live.out_dir.path_join("totality_live.png"))
 	DirAccess.remove_absolute(live.out_dir)
 	live.free()

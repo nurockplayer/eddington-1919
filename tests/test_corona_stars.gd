@@ -1,5 +1,5 @@
 extends SceneTree
-# Rendered acceptance oracle: windowed capture first, then read pixels headlessly.
+# Headless scalar keyline checks; optional windowed capture pixel oracle.
 # Written 2026-11-19 JST. --capture=<artifact directory> [--variant=main]
 var checks := 0
 var failures := 0
@@ -36,15 +36,66 @@ func changed(a: Image, b: Image, point: Vector2) -> int:
 					count += 1
 	return count
 
+# Evaluate the shipping shader's scalar expressions, rather than a copied formula.
+# Dummy rendering cannot read back pixels; projection/appearance remain windowed.
+func _check_headless_keylines() -> void:
+	var source := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
+	var expressions := {}
+	for name in ["star_vis", "inner_px", "outer_px", "gate", "ring", "bright"]:
+		var pattern := RegEx.create_from_string("float " + name + " = ([^;]+);")
+		var found := pattern.search(source)
+		check(found != null, "shipping shader defines " + name)
+		if found == null:
+			return
+		expressions[name] = found.get_string(1)
+	var blend := RegEx.create_from_string("print_colour = (mix\\(print_colour, ink_col, [^;]+);").search(source)
+	check(blend != null, "shipping shader applies the keyline to print_colour")
+	if blend == null:
+		return
+	expressions["result"] = blend.get_string(1)
+	# Inputs: darkness, night, cloud density, radius, resolution scale, field tone.
+	# Expected: a dark reserve only around a visible star, retaining its core.
+	for case in [
+		[1.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0],
+		[1.0, 0.0, 0.0, 2.0, 1.0, 1.0, 0.0],
+		[0.85, 0.0, 0.0, 2.0, 1.0, 1.0, 1.0],
+		[1.0, 1.0, 0.0, 2.0, 1.0, 1.0, 1.0],
+		[1.0, 0.0, 0.80, 2.0, 1.0, 1.0, 1.0],
+		[1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+		[1.0, 0.0, 0.0, 3.0, 1.0, 1.0, 1.0],
+		[1.0, 0.0, 0.0, 4.0, 2.0, 1.0, 0.0],
+	]:
+		var values := {"print_darkness": case[0], "night": case[1],
+			"cloud_density": case[2], "distance_px": case[3], "res_k": case[4],
+			"field_tone": case[5], "star_keyline_px": 1.0, "star_keyline_all": 1.0,
+			"print_colour": 1.0, "ink_col": 0.0}
+		for name in expressions:
+			var code: String = expressions[name].replace("mix(", "lerpf(")
+			code = code.replace("eclipse_cloud_density(direction)", "cloud_density")
+			code = code.replace("step(inner_px, distance_px)", "float(distance_px >= inner_px)")
+			var expression := Expression.new()
+			var parsed := expression.parse(code, PackedStringArray(values.keys()))
+			check(parsed == OK, "CPU parses shader " + name + ": " + expression.get_error_text())
+			if parsed != OK:
+				return
+			values[name] = expression.execute(values.values(), null, false)
+			check(not expression.has_execute_failed(), "CPU evaluates shader " + name)
+			if expression.has_execute_failed():
+				return
+		check(is_equal_approx(values.result, case[6]), "keyline darkness/night/cloud/radius/scale/field " + str(case))
+
+
 func _initialize() -> void:
+	_check_headless_keylines()
 	var base := ""
 	var variant := "all1"
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--capture="): base = arg.trim_prefix("--capture=")
 		if arg.begins_with("--variant="): variant = arg.trim_prefix("--variant=")
 	if base.is_empty():
-		print("test_corona_stars: SKIP pixel checks (no --capture; run the windowed capture first)")
-		quit(0)
+		print("WINDOWED ONLY: pixel checks require --capture from a rendered run")
+		print("test_corona_stars: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
 		return
 	var receipts := FileAccess.open(base.path_join("receipts.jsonl"), FileAccess.READ)
 	print("frame\tindex\tgate\tmain_contrast_255\tcontrast_255\tchanged_within_8px")
