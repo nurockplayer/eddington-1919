@@ -23,7 +23,7 @@ mkdir -p "$out" "$scratch/fixed" "$scratch/before"
 for script in scripts/chart.gd scripts/ui.gd tests/test_layout_bounds.gd; do
   godot --headless --path "$repo" --check-only --script "res://$script"
 done
-perl -e 'alarm shift; exec @ARGV' 150 godot --headless --path "$repo" --script res://tests/test_layout_bounds.gd -- --darkroom-chart-only > "$out/fixed-test.txt" 2>&1
+perl -e 'alarm shift; exec @ARGV' 150 godot --headless --path "$repo" --script res://tests/test_layout_bounds.gd -- --darkroom-chart-only > "$out/fixed-test.txt" 2>&1 || { cat "$out/fixed-test.txt"; exit 1; }
 rtk git worktree add --detach "$scratch/main" "$base"
 cp "$repo/tests/test_layout_bounds.gd" "$scratch/main/tests/test_layout_bounds.gd"
 cp -cR "$repo/.godot" "$scratch/main/.godot"
