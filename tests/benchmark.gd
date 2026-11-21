@@ -335,7 +335,7 @@ func _run() -> void:
 			var pitch := asin(sd.y) - deg_to_rad(WIDE_FOV / 3.0)
 			target = main.player.global_position + Vector3(0.0, 1.6, 0.0) + (flat * cos(pitch) + Vector3.UP * sin(pitch)) * 10.0
 		if target == Vector3.INF:
-			target = _totality_aim_point()
+			target = main._totality_aim_point()
 		await _frames(2)
 		main.player.look_at_point(target)
 		var mouse_mode := Input.mouse_mode
