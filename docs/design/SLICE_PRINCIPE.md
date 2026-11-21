@@ -613,3 +613,6 @@ Newest last. Each round: date and time (JST), what changed, the frames judged (p
 
 ### 2026-11-22 06:57 JST — #407 face-reach accepted at 533abd8
 Judged all 15 windowed frames (KIOXIA `director/face-reach/533abd8-windowed/frames/`). The measurements hold: day Eddington at 0.446 m shows a full face, which is #409's problem; the faceless-3d acceptance distance stays 0.45 m. Whole frame: the night approaches end outside the hut, and the near figure reads as a solid black shape with no engraving, filed as #423 (VIS-7, inherited, blocks nothing). The darkroom HUD carries the totality panel: tool state, not play. Exit 145 came after the output was written (pause artifact). PR comment 7069834693; gate running.
+
+### 2026-11-22 07:01 JST: #405 menus-page sent back at 0e1d186 (fu3)
+Judged zh_TW options, max pause and help at 1280x720 (`docs/design/slice_principe/accept/405/0e1d186/options-pause-help-zhTW.jpg`). Holds: no cut title text under the slip, help is a centred table, sliders sit in inset rows. Still to fix: two settings share a row twice, a double rule between rows, music listed twice (toggle + slider), pause/options slips cut by the bottom edge with no margin or scroll mark, a grey tab above the pause slip, help rules missing on two rows. Brief `menus-page-fu3.md`.
