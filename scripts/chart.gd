@@ -132,14 +132,19 @@ func _draw() -> void:
 	var font := get_theme_default_font()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
 	var top := 30.0
-	var bottom := h - 46.0
+	var axis_px := Settings.fs(15)
+	var axis_height := font.get_height(axis_px)
+	var bottom := h - 22.0 * Settings.text_scale - axis_height - font.get_descent(axis_px) - 8.0
 	var refs := [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]
-	for ref in refs:
+	for i in refs.size():
+		var ref: Array = refs[i]
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
 		_drawn_texts.append(ref[1])
-		var origin := Vector2(x - 40, bottom + 22.0 * Settings.text_scale)
-		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(Settings.fs(15))), font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15))))
+		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
+		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
+			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
+		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
 		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
 	for t in range(0, int(X_MAX) + 1):
 		var x := _x(t, w)
@@ -147,15 +152,13 @@ func _draw() -> void:
 	if not revealed:
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)
-		_drawn_hint_bounds.append(Rect2(Vector2(70, h * 0.45 - font.get_ascent(Settings.fs(18))), font.get_string_size(unmeasured, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18))))
-		draw_string(font, Vector2(70, h * 0.45), unmeasured, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
+		_paint_hint(font, unmeasured, Color(0.7, 0.66, 0.58))
 		return
 	_paint_ledger(font, refs, top)
 	if rows.is_empty():
 		var empty_hint := L.t("沒有可量測的底片。")
 		_drawn_texts.append(empty_hint)
-		_drawn_hint_bounds.append(Rect2(Vector2(70, h * 0.45 - font.get_ascent(Settings.fs(18))), font.get_string_size(empty_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18))))
-		draw_string(font, Vector2(70, h * 0.45), empty_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.9, 0.55, 0.5))
+		_paint_hint(font, empty_hint, Color(0.9, 0.55, 0.5))
 		return
 	var n := rows.size() + 1
 	var step := minf(34.0, (bottom - top - 20.0) / n)
@@ -213,3 +216,12 @@ func _draw() -> void:
 		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
 		_drawn_texts.append(combined_value)
 		draw_string(font, Vector2(cx + 14, y - 10.0 * Settings.text_scale), combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(16), c)
+
+
+func _paint_hint(font: Font, text: String, color: Color) -> void:
+	var px := Settings.fs(18)
+	var width := size.x - 90.0
+	var text_size := font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, width, px)
+	var origin := Vector2(70, size.y * 0.45)
+	_drawn_hint_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(px)), text_size))
+	draw_multiline_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, width, px, -1, color)
