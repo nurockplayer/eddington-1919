@@ -14,9 +14,11 @@ reachable start. Its head-bone offset is an approximation, not a verified
 anatomical eye-line point.
 
 The runner now leaves the player at the position set by the totality transition
-and turns toward each character without enabling movement. Those distances are
-labelled diagnostic until the eye point and visibility are validated. The day
-and darkroom approaches still need reachable starting positions.
+and turns toward each character without enabling movement. Fixed-position
+distances are the applicable face-clause evidence; the eye point and which
+faces are visible still need validation. The day and darkroom approaches still
+need reachable starting positions. The wrapper's run failed to write its output
+because the requested HEAD directory did not exist; the runner now creates it.
 
 No windowed face frames or visual assessment have been produced. Captures and
 the requested reach assessment remain outstanding.

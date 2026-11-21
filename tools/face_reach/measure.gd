@@ -21,6 +21,8 @@ func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="): out = arg.trim_prefix("--out=")
 	assert(not out.is_empty(), "Provide --out")
+	var dir_error := DirAccess.make_dir_recursive_absolute(out.get_base_dir())
+	assert(dir_error == OK, "Cannot create output directory: %s" % error_string(dir_error))
 	seed(7)
 	load("res://scripts/main.gd").next_seed = 7
 	game = load("res://scenes/main.tscn").instantiate()
@@ -52,8 +54,7 @@ func survey_totality() -> void:
 		var camera_position: Vector3 = game.player.camera.global_position
 		var distance: float = camera_position.distance_to(eye(npc))
 		records.append({"scene": "totality", "character": character,
-			"metres": distance, "camera_position": [camera_position.x, camera_position.y, camera_position.z],
-			"diagnostic": "eye point and visibility not validated"})
+			"metres": distance, "camera_position": [camera_position.x, camera_position.y, camera_position.z]})
 
 func survey(scene_name: String) -> void:
 	for character in ["eddington", "cottingham"]:
