@@ -8,8 +8,8 @@ if [ "$#" -lt 1 ]; then
   echo "usage: tools/look_matrix.sh <out dir> [variants.tsv]" >&2
   exit 2
 fi
-if [ "${WINDOWED_OK:-0}" != 1 ] && command -v heavy-window >/dev/null 2>&1 && ! reason=$(heavy-window); then
-  echo "windowed Godot: heavy gate $reason" >&2
+if [ -e "$1" ]; then
+  echo "look matrix: output path already exists; choose a fresh directory: $1" >&2
   exit 2
 fi
 mkdir -p "$1" || exit 1
@@ -21,12 +21,18 @@ godot --headless --path . --import >/dev/null 2>&1
 ok=0
 total=0
 successful=()
+stopped=0
 while IFS= read -r line || [ -n "$line" ]; do
   case "$line" in ''|\#*) continue ;; esac
   name=${line%%$'\t'*}
   extra=${line#*$'\t'}
   if [ "$extra" = "$line" ]; then extra=; fi
   total=$((total + 1))
+  if ! reason=$(heavy-window); then
+    echo "windowed Godot: heavy gate closed before $name: $reason; stopping matrix" >&2
+    stopped=1
+    break
+  fi
   t0=$(date +%s)
   # Intentional splitting of the TSV's extra arguments.
   perl -e 'alarm shift; exec @ARGV' 600 godot --path . --resolution 1280x720 --fixed-fps 60 --always-on-top -- --benchmark="$OUT/$name" --seed="$SEED" $extra ${ONLY:+--bench-only=$ONLY} >"$OUT/$name.log" 2>&1
@@ -40,7 +46,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   fi
   printf '%s %s %ss\n' "$name" "$result" "$(( $(date +%s) - t0 ))"
 done < "$variants"
-python3 -I tools/look_matrix_stats.py "$OUT"
+python3 -I tools/look_matrix_stats.py "$OUT" "${successful[@]}"
 if [ "$ok" -gt 0 ]; then
   if command -v magick >/dev/null 2>&1; then
     mkdir -p "$OUT/sheets"
@@ -58,4 +64,4 @@ if [ "$ok" -gt 0 ]; then
   fi
 fi
 printf 'look matrix: %s/%s variants -> %s %s\n' "$ok" "$total" "$OUT" "$(date '+%F %H:%M %Z')"
-[ "$ok" -eq "$total" ]
+[ "$stopped" -eq 0 ] && [ "$ok" -eq "$total" ]
