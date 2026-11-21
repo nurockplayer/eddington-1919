@@ -247,6 +247,7 @@ void fragment() {
 	float moon_ink = 0.0;
 	float box_reserve = 0.0;
 	float case_solid = 0.0;
+	float ridge_totality = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -315,6 +316,7 @@ void fragment() {
 		n_v = normal_from_depth > 0.5 ? n_dep : n_buf;
 		vec3 n_w = normalize((INV_VIEW_MATRIX * vec4(n_v, 0.0)).xyz);
 		vec3 pw = (INV_VIEW_MATRIX * vec4(pv, 1.0)).xyz;
+		ridge_totality = step(75.0, length(pw.xz)) * step(-0.39, pw.y) * print_darkness * (1.0 - night);
 		// Local paper reserve on the plate box's top and door-facing edge.
 		// Kept separate from tone/outline defaults and inactive at night/totality.
 		vec3 box_delta = abs(pw - vec3(11.65, 1.18, 2.25));
@@ -384,6 +386,7 @@ void fragment() {
 		// The floor comes in early: a sunlit palm at 40 m has lost its own lines and must not print paler than the sky.
 		float cov_floor = (far_sky * hz + far_step) * lit * smoothstep(0.0, far_in, dist_f);
 		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
+		cov_far = mix(cov_far, 0.35, ridge_totality);
 		// The ruling is the page's and stays with the sky; its weight belongs to the ground, so a walk shows the ground passing under the lines.
 		// The patches grow with distance (by distance, not depth), so that the smallest still spans ground_grain lines: a smaller one would flicker between the lines.
 		float d_g = length(pv);
@@ -415,7 +418,7 @@ void fragment() {
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
 	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
-	vec3 print_colour = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
+	vec3 print_colour = mix(page, mix(ink_col, page, ridge_totality * 0.4), clamp(ink, 0.0, 1.0) * ink_strength);
 	print_colour = mix(print_colour, ink_col, moon_ink);
 	// Only the sky around an optically visible field star gets a reserve.
 	// Keep the original white core; the corona's ruling ends at its ink edge.
