@@ -103,6 +103,10 @@ def render(sha):
         for name in ('import.log', 'parse.log', 'capture.log'):
             files.append({'file': name, 'sha256': digest(out / name), 'nondeterministic': True,
                           'reason': 'Engine startup and import logs contain runtime timings and run-specific paths.'})
+        (out / 'execution.json').write_text(json.dumps({'started': started,
+            'finished': datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%F %T JST')}, indent=2) + '\n')
+        files.append({'file': 'execution.json', 'sha256': digest(out / 'execution.json'),
+                      'nondeterministic': True, 'reason': 'Actual run wall-clock times in JST.'})
         manifest = {'capture_id': f'phase0-{sha}', 'commit_sha': sha,
                     'capture_command': f'tools/capture_phase0.py --commit {sha}',
                     'driver_sha256': digest(REPO / 'tools/phase0/capture.gd'),
@@ -122,8 +126,9 @@ def render(sha):
                 raise RuntimeError(f'Repeat manifest differs beyond declared pixel hashes: {path} vs {out}/manifest.json')
         print(f'PHASE0 PASS: {len(stills)} stills, 3 clips, {len(previous)} repeat comparisons; {out}/manifest.json')
     finally:
-        (out / 'execution.json').write_text(json.dumps({'started': started,
-            'finished': datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%F %T JST')}, indent=2) + '\n')
+        if not (out / 'execution.json').exists():
+            (out / 'execution.json').write_text(json.dumps({'started': started,
+                'finished': datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%F %T JST')}, indent=2) + '\n')
         shutil.rmtree(scratch)
 
 
@@ -138,8 +143,9 @@ def main():
     if args.render:
         render(sha)
     else:
+        job_env = dict(os.environ, JOB_RUN_STATE=str(ROOT / '.jobs'))
         call(['job-run', '--id', f'phase0-{sha[:7]}-{os.getpid()}', '--artifact', ROOT / sha,
-              '--', 'tachi-run', '--heavy', '--host', '--', 'python3', Path(__file__).resolve(), '--render', '--commit', sha])
+              '--', 'tachi-run', '--heavy', '--host', '--', 'python3', Path(__file__).resolve(), '--render', '--commit', sha], env=job_env)
 
 
 if __name__ == '__main__':
