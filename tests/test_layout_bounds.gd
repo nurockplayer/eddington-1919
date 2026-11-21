@@ -53,6 +53,11 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_plate_pause()
+	if "--plate-pause-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds plate/pause: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_totality_toast()
 	if "--totality-toast-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds totality toast: %d checks, %d failures" % [checks, failures])
@@ -555,5 +560,76 @@ func _test_merged_dialogue() -> void:
 			check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1,
 				"merged text fits dialogue box: " + str(entry.t))
 	ui.free()
+	L.apply(locale)
+	Settings.text_scale = scale
+
+
+func _test_plate_pause() -> void:
+	var locale := L.current()
+	var scale := Settings.text_scale
+	var window := root.size
+	var sim := Sim.new(77)
+	sim.plates_delivered = sim.MAX_EXTRA_PLATES
+	for i in sim.plates_available():
+		sim.open_shutter(float(i * 24))
+		for step in 32:
+			sim.accumulate(0.25, sim.cloud_over_sun(float(i * 24) + step * 0.25))
+		sim.close_shutter(false)
+	var textures: Array = []
+	for plate in sim.plates:
+		plate.included = plate.usable
+		plate.read = true
+		textures.append(Render.render(sim, plate))
+	var comparison := Render.render(sim, null)
+	for language in L.LOCALES:
+		L.apply(language)
+		var ui = preload("res://scripts/ui.gd").new()
+		root.add_child(ui)
+		ui.hide_title()
+		ui.open_viewer(sim.plates, comparison, textures, false)
+		ui.chart.set_data([], {}, false)
+		for viewport in [Vector2i(1280, 720), Vector2i(1280, 800), Vector2i(1920, 1080)]:
+			root.size = viewport
+			for text_scale in [1.0, 1.2]:
+				context = "plate/pause %s %s scale %.1f" % [language, viewport, text_scale]
+				Settings.text_scale = text_scale
+				Settings.refresh_fonts(self)
+				ui.chart.refresh_fonts()
+				ui._layout_viewer()
+				ui.viewer.show()
+				await settle()
+				bounds(ui.viewer)
+				for button: Button in ui.thumbs.get_children():
+					var font: Font = button.get_theme_font("font")
+					var px := button.get_theme_font_size("font_size")
+					var available: Vector2 = button.size - button.get_theme_stylebox("normal").get_minimum_size()
+					var text_size := font.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, px)
+					if button.autowrap_mode != TextServer.AUTOWRAP_OFF:
+						text_size = font.get_multiline_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, available.x, px)
+					check(text_size.x <= available.x + 1 and text_size.y <= available.y + 1,
+						"full thumbnail caption fits: " + button.text)
+					check(px == roundi(14 * text_scale), "thumbnail font size preserved")
+				var drawn: Dictionary = ui.chart.drawn()
+				var chart_rect := Rect2(Vector2.ZERO, ui.chart.size).grow(1)
+				check(drawn.axis_bounds.size() == 3 and drawn.hint_bounds.size() == 1, "chart actually paints axis and placeholder")
+				for rect: Rect2 in drawn.hint_bounds:
+					check(chart_rect.encloses(rect), "chart placeholder fits: %s" % rect)
+				for i in drawn.axis_bounds.size():
+					var rect: Rect2 = drawn.axis_bounds[i]
+					check(chart_rect.encloses(rect), "axis label fits: %s" % rect)
+					for j in range(i):
+						check(not rect.intersects(drawn.axis_bounds[j]), "axis labels stay separate")
+				ui.viewer.hide()
+				if text_scale == 1.0:
+					ui.toggle_pause()
+					await settle()
+					var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
+					check(not scroll.get_v_scroll_bar().visible, "default pause needs no scrolling")
+					for child: Control in scroll.get_child(0).get_children():
+						if child.visible:
+							check(scroll.get_global_rect().grow(1).encloses(child.get_global_rect()), "default pause row fits: " + child.name)
+					ui.toggle_pause()
+		ui.free()
+	root.size = window
 	L.apply(locale)
 	Settings.text_scale = scale

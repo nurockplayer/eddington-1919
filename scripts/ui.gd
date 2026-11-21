@@ -1354,7 +1354,7 @@ func _thumb(tex: Texture2D, text: String) -> Button:
 	b.expand_icon = true
 	b.custom_minimum_size = Vector2(100, 122)
 	b.text = text
-	b.clip_text = true
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	Settings.track_font(b, 14)
@@ -2023,6 +2023,12 @@ func _build_pause(root: Control) -> void:
 	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		# Keep all rows and font sizes; reclaim vertical space from button padding.
+		for state in ["normal", "hover", "focus", "pressed", "disabled"]:
+			var style := button.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+			style.content_margin_top = 3
+			style.content_margin_bottom = 3
+			button.add_theme_stylebox_override(state, style)
 
 
 func _toggle_fullscreen() -> void:
