@@ -39,8 +39,10 @@ func _run() -> void:
 		var effect := AudioServer.get_bus_effect(0, i)
 		if effect is AudioEffectHardLimiter:
 			limiters += 1
-			check(is_equal_approx(effect.pre_gain_db, Settings.MASTER_MAKEUP_DB) and is_equal_approx(effect.ceiling_db, Settings.MASTER_CEILING_DB),
-				"Master limiter adds %.1f dB with a %.1f dB ceiling" % [Settings.MASTER_MAKEUP_DB, Settings.MASTER_CEILING_DB])
+			check(AudioServer.is_bus_effect_enabled(0, i) and not AudioServer.is_bus_bypassing_effects(0),
+				"Master limiter is enabled and the bus does not bypass effects")
+			check(is_equal_approx(effect.pre_gain_db, 6.0) and is_equal_approx(effect.ceiling_db, -1.0),
+				"Master limiter is configured for +6 dB makeup and a -1 dB ceiling")
 	check(limiters == 1, "two startup calls leave exactly one Master limiter (got %d)" % limiters)
 	check(Settings.MASTER_MAKEUP_DB > 0.0, "Master makeup gain is positive")
 	await _check_master_limiter_output()
@@ -146,6 +148,9 @@ func _run() -> void:
 
 
 func _check_master_limiter_output() -> void:
+	if AudioServer.get_driver_name() == "Dummy":
+		print("MIXING DRIVER ONLY: waveform capture; headless asserts the active limiter configuration")
+		return
 	var master_db := AudioServer.get_bus_volume_db(0)
 	var master_muted := AudioServer.is_bus_mute(0)
 	AudioServer.set_bus_volume_db(0, 0.0)
@@ -156,10 +161,7 @@ func _check_master_limiter_output() -> void:
 	AudioServer.add_bus_effect(0, capture)
 	var quiet_peak := await _capture_sine_peak(capture, 0.1)
 	if quiet_peak < 0.0:
-		if AudioServer.get_driver_name() == "Dummy":
-			print("SKIP: dummy audio driver does not mix")
-		else:
-			check(false, "Master capture receives 4096 frames within 2 seconds")
+		check(false, "Master capture receives 4096 frames within 2 seconds")
 	else:
 		var expected_quiet := 0.1 * db_to_linear(6.0)
 		print("Master limiter quiet peak: %.6f (expected %.6f, tolerance +/-1.5 dB)" % [quiet_peak, expected_quiet])
