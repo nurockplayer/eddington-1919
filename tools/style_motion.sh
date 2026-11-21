@@ -30,7 +30,7 @@ export TMPDIR="$out/runtime/tmp"
 lighting=prep_early
 [ "$state" != totality ] || lighting=totality
 godot --path . --resolution 1280x720 --fixed-fps 60 --always-on-top --log-file "$out/runtime/godot.log" -- \
-  --benchmark="$out" --bench-motion="$lighting" --bench-size=1280x720 --bench-cloud-t=215 --seed=7 "$@"
+  --benchmark="$out" --bench-motion="$lighting" --bench-cloud-t=215 --seed=7 "$@"
 python3 -I tools/style_motion_stats.py "$out"
 if command -v ffmpeg >/dev/null 2>&1; then
   ffmpeg -nostdin -hide_banner -loglevel warning -framerate 60 -start_number 1 -i "$out/f_%05d.png" \

@@ -6,6 +6,7 @@ const FOLIAGE := "res://assets/textures/principe/foliage/"
 var checks := 0
 var failures := 0
 var readback_skipped := 0
+var readback_checked := 0
 
 
 func _initialize() -> void:
@@ -96,6 +97,8 @@ func _run() -> void:
 	camp.free()
 	if readback_skipped > 0:
 		print("renderer readback skipped (headless dummy renderer): %d checks" % readback_skipped)
+	else:
+		print("renderer readback checked: %d checks" % readback_checked)
 	print("%d vegetation card checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
 
@@ -137,6 +140,7 @@ func _check_shrubs(wb) -> void:
 			readback_skipped += mm.instance_count
 		else:
 			for j in mm.instance_count:
+				readback_checked += 1
 				check(is_equal_approx(mm.get_instance_custom_data(j).r, float(j % 2)), "alternating texture variant")
 		for surface in mm.mesh.get_surface_count():
 			var m: Material = mm.mesh.surface_get_material(surface)
