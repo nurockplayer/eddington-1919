@@ -856,6 +856,7 @@ func _build_viewer(root: Control) -> void:
 	chart = preload("res://scripts/chart.gd").new()
 	chart.custom_minimum_size = Vector2(560, 420)
 	right.add_child(chart)
+	chart.item_rect_changed.connect(_layout_viewer.call_deferred)
 	viewer_steps = _rich(16)
 	right.add_child(viewer_steps)
 	var btns := GridContainer.new()

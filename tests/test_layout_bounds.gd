@@ -607,7 +607,7 @@ func _test_darkroom_chart() -> void:
 				for frame in 12:
 					await process_frame
 				var chart_rect: Rect2 = ui.chart.get_global_rect()
-				check(chart_rect.end.y + 4 <= ui.dialog_panel.get_global_rect().position.y, "axis labels clear report dialogue")
+				check(chart_rect.end.y + 4 <= ui.dialog_panel.get_global_rect().position.y, "axis labels clear report dialogue: chart %s, dialogue %s" % [chart_rect, ui.dialog_panel.get_global_rect()])
 				var painted: Dictionary = ui.chart.drawn()
 				var label: Rect2 = painted.get("result_bounds", Rect2())
 				check(label.has_area() and Rect2(Vector2.ZERO, ui.chart.size).encloses(label.grow(2)), "painted result label stays inside chart")
