@@ -102,7 +102,7 @@ func survey(scene_name: String) -> void:
 				if not capture_dir.is_empty():
 					await RenderingServer.frame_post_draw
 				var distance: float = game.player.camera.global_position.distance_to(eye(npc))
-				if distance < minimum:
+				if distance >= 0.45 and distance < minimum:
 					minimum = distance
 					best = game.player.global_position
 					if not capture_dir.is_empty():

@@ -2,7 +2,7 @@
 """Apply row 8's unfinished faces after build_person.py; only skin data changes.
 
 Close the proxy's eye/mouth openings and fair their surrounding relief onto
-smooth convex patches. Retain the nose, jaw, ears, accessories and skin weights.
+smooth convex patches. Retain the jaw, ears, accessories and skin weights.
 Run once on freshly generated eddington.glb and cottingham.glb.
 """
 import collections
@@ -84,15 +84,15 @@ def smooth(name):
         return 1 - t * t * (3 - 2 * t)
 
     def depth(x, y, z):
-        for centre, halfwidth, curvature in [(eye, .070, 1.4), (mouth, .055, 2.0)]:
-            w = weight(x, halfwidth * .7, halfwidth) * weight(y - centre, .018, .035)
-            target = front - curvature * x * x - (y - centre) ** 2
-            z += (target - z) * w
+        centre = (eye + mouth) / 2
+        w = weight(x, .055, .080) * weight(y - centre, (eye - mouth) / 2 + .015, (eye - mouth) / 2 + .045)
+        target = front - 1.4 * x * x - (y - centre) ** 2
+        z += (target - z) * w
         return z
 
     changed = 0
     for i, (x, y, z) in enumerate(positions):
-        if z < .11 or y < mouth - .035 or y > eye + .035:
+        if z < .11 or y < mouth - .045 or y > eye + .045:
             continue
         new_z = depth(x, y, z)
         if new_z == z:
