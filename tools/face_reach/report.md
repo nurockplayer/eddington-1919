@@ -41,5 +41,18 @@ measurement at `63b83dd` failed at the same Cottingham day start:
 `Assertion failed: No reachable approach near (2.35, 0.0, -4.367949)`.
 It produced no completed walking measurements.
 
-Walking-phase minima and frames remain outstanding. The route finding failure
-needs a decision or fix before the measurement and windowed captures can run.
+The measurement at `57199d6` completed. Minimum camera-to-iris distances over
+the reachable sides are:
+
+| Phase | Character | Minimum | Direction |
+| --- | --- | ---: | ---: |
+| Day | Eddington | 0.446 m | 2 |
+| Day | Cottingham | 1.658 m | 0 |
+| Darkroom | Eddington | 0.709 m | 0 |
+| Darkroom | Cottingham | 0.449 m | 2 |
+
+Day Cottingham directions 1, 2 and 3 were unreachable. Their nearest blocked
+sampled points were respectively (3.0, 0, -5.0), (2.5, 0, -7.0), and
+(0.5, 0, -7.0) m. Directions are indexed in quarter turns from the
+character's rotation. These are results of the sampled route search; walking
+frames remain pending.
