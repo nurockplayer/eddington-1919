@@ -24,10 +24,10 @@ The corrected output-directory run completed with 18 records. Its totality
 distances used the earlier head-bone approximation and are superseded by the
 windowed run at `83fdf36`, which targets the centre of the paired iris mesh:
 
-| Totality character | Fixed camera to iris midpoint | Frame assessment |
+| Totality character | Fixed camera to iris midpoint | Frame |
 | --- | ---: | --- |
-| Eddington | 0.857 m | Face visible, dark |
-| Cottingham | 0.706 m | Face visible, dark |
+| Eddington | 0.857 m | `frames/totality_eddington.png` |
+| Cottingham | 0.706 m | `frames/totality_cottingham.png` |
 
 The fixed camera was at approximately (0, 1.619, -0.9) m. The captured frames
 and measurements are under
@@ -36,7 +36,10 @@ The iris-mesh centre is the eye-line point; both meshes contain the paired iris
 discs, and their bounding-box centre lies halfway between them. The runner now
 walks a collision-sampled route to each starting position. Its first run could
 not find a route within one metre of the requested Cottingham day start. The
-search now considers positions farther away on the same approach side; the
-revised routes still require a measurement run.
+search now considers positions farther away on the same approach side. The
+measurement at `63b83dd` failed at the same Cottingham day start:
+`Assertion failed: No reachable approach near (2.35, 0.0, -4.367949)`.
+It produced no completed walking measurements.
 
-Walking-phase captures and the requested reach assessment remain outstanding.
+Walking-phase minima and frames remain outstanding. The route finding failure
+needs a decision or fix before the measurement and windowed captures can run.
