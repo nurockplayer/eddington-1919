@@ -1549,13 +1549,9 @@ func _add_departure_loupe(wb) -> void:
 	# The keepsake sits at the table's east edge, clear of the normal center-line
 	# ray to the measuring sheet so both interactions remain independently usable.
 	var p: Vector3 = world.measure_pos + Vector3(0.40, 0.042, -0.16)
-	var ring: Node3D = wb.cyl(0.105, 0.025, p, wb.P("brass"), null, false)
-	ring.name = "AshbyBrassLoupeRing"
-	var glass: Node3D = wb.cyl(0.075, 0.009, p + Vector3(0, 0.018, 0), Color(0.16, 0.22, 0.24), null, false)
-	glass.name = "AshbyBrassLoupeGlass"
-	var handle: Node3D = wb.box(Vector3(0.055, 0.025, 0.24), p + Vector3(0, 0.004, 0.15), wb.P("brass"), null, false)
-	handle.name = "AshbyBrassLoupeHandle"
-	var hotspot: Node3D = wb.hotspot(Vector3(0.40, 0.24, 0.36), p + Vector3(0, 0.10, 0.04), "mentor_loupe", L.t("Ashby 先生給的放大鏡。"))
+	var loupe: Node3D = wb.model("mentor_loupe", p)
+	loupe.name = "AshbyBrassLoupe"
+	var hotspot: Node3D = wb.hotspot(Vector3(0.32, 0.40, 0.26), p + Vector3(0, 0.19, 0), "mentor_loupe", L.t("Ashby 先生給的放大鏡。"))
 	hotspot.name = "AshbyLoupeHotspot"
 
 
@@ -1563,6 +1559,7 @@ func _add_night_workbook() -> void:
 	# Keep it on the measuring table and east of the normal sheet aim point.
 	var position: Vector3 = world.measure_pos + Vector3(0.43, 0.03, 0.23)
 	_night_departure_workbook = DepartureWorkbook.new()
+	_night_departure_workbook.field_ledger = true
 	_night_departure_workbook.name = "PríncipeDepartureWorkbook"
 	_night_departure_workbook.position = position
 	add_child(_night_departure_workbook)
