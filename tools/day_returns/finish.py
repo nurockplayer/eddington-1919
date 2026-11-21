@@ -275,6 +275,20 @@ def report(out, main_sha, sha):
     lines.append('## Remaining gate\n\nPR #392 stays draft until edd-art accepts it and marks it ready. Any whole-frame continuity count above its limit, median stage budget failure or nonzero main comparison remains blocking. Windowed logs were checked for shader/script errors. Lossless clip frames and the temporary main snapshot were deleted after clips and tables were generated.')
     lines.append('## Test totality\n\nThe unchanged `test_totality` passed alone through `tachi-run --host` on main fa0dcfd in 548.60 s and on the branch in 203.19 s, 658 checks and 0 failures each.')
     (out / 'report.md').write_text('\n\n'.join(lines) + '\n')
+    failures = []
+    for r in summaries:
+        if r['whole_exceedances'] > 0:
+            failures.append(f"FAIL whole-frame continuity: {r['variant']}: {r['whole_exceedances']} pairs above limit")
+        if r['scene_failures'] > 0:
+            failures.append(f"FAIL scene presence: {r['variant']}: {r['scene_failures']} frames below 25%")
+    for stage, p95, limit, ok in medians:
+        if not ok:
+            failures.append(f'FAIL frame budget: {stage}: median p95 {p95} ms > {limit} ms')
+    for frame, exact, threshold in comparisons:
+        if exact > 0:
+            failures.append(f'FAIL main comparison: {frame}: {exact} changed pixels > 0')
+    if failures:
+        raise SystemExit('\n'.join(failures))
 
 
 if sys.argv[1] == '--report':
