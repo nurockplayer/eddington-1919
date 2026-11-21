@@ -654,6 +654,8 @@ func _test_dense_report_chart() -> void:
 	sim.rule_id = "strict"
 	check(sim.included_usable().size() == Sim.BASE_PLATES + Sim.MAX_EXTRA_PLATES,
 		"all 12 real plate holders can contribute report rows")
+	var textures := []
+	textures.resize(sim.plates.size())
 	var game = load("res://scripts/main.gd").new()
 	game.sim = sim
 	root.content_scale_size = Vector2i(1600, 900)
@@ -672,7 +674,7 @@ func _test_dense_report_chart() -> void:
 				Settings.text_scale = scale
 				Settings.refresh_fonts(self)
 				ui.chart.refresh_fonts()
-				ui.open_viewer(sim.plates, null, [], true)
+				ui.open_viewer(sim.plates, null, textures, true)
 				for picks in [[1, 2], [3, 2], [2, 3], [3, 3]]:
 					story.bet_1917 = {"pick": picks[0], "year": 1917}
 					sim.bet_pick = picks[1]
