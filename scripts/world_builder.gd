@@ -952,6 +952,10 @@ func _person(id: String, body: Node3D) -> bool:
 	fig.name = "figure"
 	fig.rotation.y = PI  # models face +Z; NPC bodies face -Z (v0.1 convention)
 	body.add_child(fig)
+	# Row 8: the faired skin carries the engraving; no separate eye/brow marks.
+	for mi in fig.find_children("*", "MeshInstance3D", true, false):
+		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows"):
+			mi.hide()
 	for ap in fig.find_children("*", "AnimationPlayer", true, false):
 		var player := ap as AnimationPlayer
 		if player.has_animation("idle"):
