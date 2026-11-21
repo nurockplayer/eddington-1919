@@ -1,0 +1,10 @@
+{
+  "capture_head": "e1e6a56f1baa9a6d3468c6d1152d4cceeef18250",
+  "capture_main": "94a725543bb69b9fe3ad310611ec5a6bd0c39f81",
+  "head": "92823ac1f9d1272d6fbdbc73ea344e18e833c488",
+  "main": "4e9f2c6d0ec1cf8569fbbed3989842e635960faa",
+  "difference": "Motion launcher removes --bench-size; intervening main changes are docs, Cambridge overlay/locale and look-matrix tooling, with no Pr\u00edncipe rendering-code change.",
+  "final_base": "4a3004fbc6eba41ae6892b0c6c4dd5104e086f02",
+  "last_rebased_code_head": "a6b2dd12a3b6556a72fa7d423c7b68ea99617356",
+  "later_main_difference": "Additional docs, row8 evidence, tests and capture postprocessing; no Pr\u00edncipe rendering/gameplay-code change."
+}

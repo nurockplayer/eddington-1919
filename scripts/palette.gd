@@ -18,6 +18,7 @@ const C := {
 	"ebonite": Color(0.110, 0.106, 0.102),  # instrument
 	"sea_slate": Color(0.243, 0.349, 0.400),  # far
 	"hill_far": Color(0.306, 0.392, 0.314),  # far
+	"hill_near": Color(0.227, 0.322, 0.212),  # far
 	"mirror": Color(0.894, 0.906, 0.918),  # evidence
 	"plate_glass": Color(0.949, 0.937, 0.902),  # evidence
 	"pine": Color(0.612, 0.482, 0.314),  # structure
@@ -53,6 +54,7 @@ const ROUGH := {
 	"ebonite": 0.4,
 	"sea_slate": 0.2,
 	"hill_far": 0.9,
+	"hill_near": 0.9,
 	"mirror": 0.04,
 	"plate_glass": 0.1,
 	"pine": 0.85,

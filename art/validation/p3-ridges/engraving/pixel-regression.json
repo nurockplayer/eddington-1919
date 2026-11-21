@@ -1,0 +1,115 @@
+{
+  "house": {
+    "full_frame": {
+      "rect_xywh": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "pixels": 921600,
+      "any_difference": 52038,
+      "difference_above_6pct": 14054
+    }
+  },
+  "arrival": {
+    "full_frame": {
+      "rect_xywh": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "pixels": 921600,
+      "any_difference": 60794,
+      "difference_above_6pct": 15231
+    }
+  },
+  "coelostat_still": {
+    "full_frame": {
+      "rect_xywh": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "pixels": 921600,
+      "any_difference": 71701,
+      "difference_above_6pct": 25909
+    }
+  },
+  "dialogue": {
+    "full_frame": {
+      "rect_xywh": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "pixels": 921600,
+      "any_difference": 59355,
+      "difference_above_6pct": 16026
+    }
+  },
+  "totality_wide": {
+    "full_frame": {
+      "rect_xywh": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "pixels": 921600,
+      "any_difference": 26794,
+      "difference_above_6pct": 22900
+    },
+    "sun_corona_sky": {
+      "rect_xywh": [
+        520,
+        20,
+        240,
+        250
+      ],
+      "pixels": 60000,
+      "any_difference": 0,
+      "difference_above_6pct": 0
+    }
+  },
+  "totality_horizon": {
+    "full_frame": {
+      "rect_xywh": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "pixels": 921600,
+      "any_difference": 128818,
+      "difference_above_6pct": 124871
+    },
+    "open_sky": {
+      "rect_xywh": [
+        950,
+        0,
+        300,
+        90
+      ],
+      "pixels": 27000,
+      "any_difference": 0,
+      "difference_above_6pct": 0
+    }
+  },
+  "darkroom": {
+    "full_frame": {
+      "rect_xywh": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "pixels": 921600,
+      "any_difference": 0,
+      "difference_above_6pct": 0
+    }
+  }
+}
