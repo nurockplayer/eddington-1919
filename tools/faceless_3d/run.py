@@ -36,7 +36,7 @@ def main():
         dest.mkdir()
         capture = repo / 'tools/faceless_3d/capture.gd'
         if repo != REPO:
-            capture.parent.mkdir(parents=True)
+            capture.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(REPO / 'tools/faceless_3d/capture.gd', capture)
         run(['godot', '--headless', '--path', '.', '--import'], repo, dest / 'import.log')
         run(['godot', '--headless', '--path', '.', '--check-only', '--script', 'res://tools/faceless_3d/capture.gd'], repo, dest / 'parse.log')
@@ -49,7 +49,7 @@ def main():
     cases = []
     for person in ['eddington', 'cottingham']:
         cases.append(('totality_' + person, None))
-        closest = min((r for r in measurements if r['scene'] == 'day' and r['character'] == person), key=lambda r: r['metres'])
+        closest = min((r for r in measurements if r['scene'] == 'day' and r['character'] == person and 'metres' in r), key=lambda r: r['metres'])
         cases.append((f'day_{person}_{closest["direction"]}', closest['metres']))
     sheet = Image.new('RGB', (1000, len(cases) * 540), 'white')
     draw = ImageDraw.Draw(sheet)

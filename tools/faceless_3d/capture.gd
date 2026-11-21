@@ -85,7 +85,11 @@ func survey(scene_name: String) -> void:
 			var angle: float = npc.rotation.y + direction * PI / 2.0
 			var offset := Vector3(sin(angle), 0, cos(angle))
 			var target: Vector3 = npc.global_position + offset * 2.0
-			await walk_to(target, npc.global_position, offset)
+			var route: Dictionary = await walk_to(target, npc.global_position, offset)
+			if not route.reachable:
+				records.append({"scene": scene_name, "character": character, "direction": direction,
+					"status": "unreachable", "nearest_blocked_point": route.nearest_blocked_point})
+				continue
 			var start: Vector3 = game.player.global_position
 			game.player.look_at_point(eye(npc))
 			await physics_frame
@@ -110,7 +114,7 @@ func survey(scene_name: String) -> void:
 			records.append({"scene": scene_name, "character": character, "direction": direction,
 				"metres": minimum, "start": [start.x, start.y, start.z], "position": [best.x, best.y, best.z]})
 
-func walk_to(target: Vector3, character_position: Vector3, side: Vector3) -> void:
+func walk_to(target: Vector3, character_position: Vector3, side: Vector3) -> Dictionary:
 	# Sample the player's capsule against the actual collision world and walk a
 	# connected grid route from the position reached by the preceding approach.
 	var grid := AStarGrid2D.new()
@@ -135,10 +139,12 @@ func walk_to(target: Vector3, character_position: Vector3, side: Vector3) -> voi
 	var goal := Vector2i(roundi(target.x * 2), roundi(target.z * 2))
 	var path: Array[Vector2i] = []
 	var nearest := INF
+	var blocked_distance := INF
+	var blocked_point: Variant = null
 	for x in range(goal.x - 8, goal.x + 9):
 		for z in range(goal.y - 8, goal.y + 9):
 			var cell := Vector2i(x, z)
-			if not grid.is_in_boundsv(cell) or grid.is_point_solid(cell):
+			if not grid.is_in_boundsv(cell):
 				continue
 			var relative := Vector3(x * 0.5 - character_position.x, 0, z * 0.5 - character_position.z)
 			var forward := relative.dot(side)
@@ -146,13 +152,19 @@ func walk_to(target: Vector3, character_position: Vector3, side: Vector3) -> voi
 			if forward <= 0.3 or lateral > forward:
 				continue
 			var d := Vector2(x * 0.5 - target.x, z * 0.5 - target.z).length()
+			if grid.is_point_solid(cell):
+				if d < blocked_distance:
+					blocked_distance = d
+					blocked_point = [x * 0.5, 0.0, z * 0.5]
+				continue
 			if d >= nearest:
 				continue
 			var candidate := grid.get_id_path(from, cell)
 			if not candidate.is_empty():
 				path = candidate
 				nearest = d
-	assert(not path.is_empty(), "No reachable approach near %s" % target)
+	if path.is_empty():
+		return {"reachable": false, "nearest_blocked_point": blocked_point}
 	for cell in path.slice(1):
 		var point := Vector3(cell.x * 0.5, game.player.camera.global_position.y, cell.y * 0.5)
 		var reached := false
@@ -166,3 +178,4 @@ func walk_to(target: Vector3, character_position: Vector3, side: Vector3) -> voi
 			await physics_frame
 		Input.action_release("move_forward")
 		assert(reached, "Player could not walk to grid point %s" % cell)
+	return {"reachable": true}
