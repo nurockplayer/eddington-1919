@@ -77,7 +77,7 @@ func _run() -> void:
 	if forest != null:
 		check(forest.get_child_count() == 2, "two forest loops")
 		for loop_name in ["Front", "Back"]:
-			_check_forest(forest.get_node(loop_name), 13.0 if loop_name == "Front" else 17.0)
+			_check_forest(forest.get_node(loop_name), 5.0 if loop_name == "Front" else 7.0)
 	var second := Node3D.new()
 	root.add_child(second)
 	var wb2 = World.new(second)

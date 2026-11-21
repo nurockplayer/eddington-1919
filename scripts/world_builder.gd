@@ -887,7 +887,7 @@ func _forest_edge() -> void:
 	band.name = "ForestEdge"
 	band.add_to_group("veg_forest_edge")
 	root.add_child(band)
-	for spec in [["Front", 47.0, 12.0, 13.0, "v1"], ["Back", 57.0, 16.0, 17.0, "v2"]]:
+	for spec in [["Front", 47.0, 12.0, 5.0, "v1"], ["Back", 57.0, 16.0, 7.0, "v2"]]:
 		var mi := MeshInstance3D.new()
 		mi.name = spec[0]
 		mi.mesh = _forest_loop(spec[1], spec[2], -0.6, spec[3])

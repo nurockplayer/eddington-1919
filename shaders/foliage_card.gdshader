@@ -23,9 +23,10 @@ void vertex() {
 
 void fragment() {
 	vec4 c = variant > 1.5 ? texture(tex_v3, UV) : (variant > 0.5 ? texture(tex_v2, UV) : texture(tex_v1, UV));
+	if (c.a < 0.5) {
+		discard;
+	}
 	ALBEDO = c.rgb * tint.rgb;
-	ALPHA = c.a;
-	ALPHA_SCISSOR_THRESHOLD = 0.5;
 	ROUGHNESS = 0.9;
 	SPECULAR = 0.2;
 	BACKLIGHT = ALBEDO * backlight;
