@@ -48,7 +48,7 @@ func _check_headless_keylines() -> void:
 		if found == null:
 			return
 		expressions[name] = found.get_string(1)
-	var blend := RegEx.create_from_string("print_colour = (mix\\(print_colour, ink_col, [^;]+);").search(source)
+	var blend := RegEx.create_from_string("print_colour = (mix\\(print_colour, ink_col, [^;]+);").search(source, source.find("float star_vis ="))
 	check(blend != null, "shipping shader applies the keyline to print_colour")
 	if blend == null:
 		return
@@ -79,7 +79,7 @@ func _check_headless_keylines() -> void:
 			if parsed != OK:
 				return
 			values[name] = expression.execute(values.values(), null, false)
-			check(not expression.has_execute_failed(), "CPU evaluates shader " + name)
+			check(not expression.has_execute_failed(), "CPU evaluates shader " + name + ": " + expression.get_error_text())
 			if expression.has_execute_failed():
 				return
 		check(is_equal_approx(values.result, case[6]), "keyline darkness/night/cloud/radius/scale/field " + str(case))
