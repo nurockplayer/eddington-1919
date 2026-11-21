@@ -1,0 +1,85 @@
+{
+  "asset": "dr_bottle",
+  "file": "assets/models/dr_bottle.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 484,
+      "max": 500,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_amber_glass",
+        "E1919_canvas",
+        "E1919_pine"
+      ],
+      "max": 3,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        0.09,
+        0.091,
+        0.24
+      ],
+      "target": [
+        0.09,
+        0.09,
+        0.24
+      ],
+      "tolerance": 0.1,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "dr_bottle": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "dr_bottle"
+      ],
+      "ok": true
+    }
+  }
+}
