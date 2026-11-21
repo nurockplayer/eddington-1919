@@ -616,3 +616,6 @@ Judged all 15 windowed frames (KIOXIA `director/face-reach/533abd8-windowed/fram
 
 ### 2026-11-22 07:01 JST: #405 menus-page sent back at 0e1d186 (fu3)
 Judged zh_TW options, max pause and help at 1280x720 (`docs/design/slice_principe/accept/405/0e1d186/options-pause-help-zhTW.jpg`). Holds: no cut title text under the slip, help is a centred table, sliders sit in inset rows. Still to fix: two settings share a row twice, a double rule between rows, music listed twice (toggle + slider), pause/options slips cut by the bottom edge with no margin or scroll mark, a grey tab above the pause slip, help rules missing on two rows. Brief `menus-page-fu3.md`.
+
+### 2026-11-22 08:04 JST: #349 ridges sent back again at 47be6fe (round 2)
+Judged `totality_horizon` and `totality_wide` at full size (`docs/design/slice_principe/accept/349/47be6fe/main-vs-head-totality.jpg`, main left). The ridge is now paler than the palms, but it still covers the cream glow band across the whole width, it's a flat blue fill with no engraving lines, and the peak reads as a finger. Lowering the geometry has not worked, so the brief asks for a different approach (a thin profile line with sparse ruling, or a glow tied to the land's silhouette). Performance check still owed. Brief `p3-ridges-fu3.md`, Sol high.
