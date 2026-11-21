@@ -47,11 +47,6 @@ def main():
     settings.mkdir(exist_ok=True)
     env['EDD_SETTINGS_PATH'] = str(settings / 'settings.cfg')
     run(['godot', '--headless', '--path', '.', '--import'], out / 'import.log', env)
-    # Focused iteration only; cx-exec runs the brief's full Test command.
-    for test in ['test_pause_help', 'test_layout_bounds']:
-        script = f'res://tests/{test}.gd'
-        run(['godot', '--headless', '--path', '.', '--check-only', '--script', script], out / f'{test}-parse.log', env)
-        run(['godot', '--headless', '--path', '.', '--script', script], out / f'{test}.log', env)
     script = 'res://tools/menus_page/capture.gd'
     run(['godot', '--headless', '--path', '.', '--check-only', '--script', script], out / 'capture-parse.log', env)
     run(['godot', '--path', '.', '--windowed', '--resolution', '1280x720',

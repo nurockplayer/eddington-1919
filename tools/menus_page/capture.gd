@@ -2,6 +2,7 @@ extends SceneTree
 ## Native 1600×900 canvas stretched by the project's own window settings.
 const Settings := preload("res://scripts/settings.gd")
 const Content := preload("res://scripts/content.gd")
+const Judgment := preload("res://scripts/judgment.gd")
 var out := ""
 var records: Array = []
 
@@ -85,6 +86,10 @@ func _run() -> void:
 				ui.toggle_pause()
 				await shot(prefix + "pause_totality", ui.pause_panel, ui.music_row.get_child(0))
 				ui.toggle_pause()
+			# Complete the no-exposure run with its actual evidence judgment.
+			game._telegram = 3
+			game._reason = 3
+			game._grade = Judgment.grade(game.sim, "none", "nostars")
 			game._show_ending()
 			await shot(prefix + "ending", ui.ending_panel, ui.ending_telegram)
 			game.stop_all_audio()
