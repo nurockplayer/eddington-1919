@@ -896,6 +896,9 @@ func _build_viewer(root: Control) -> void:
 
 
 func _layout_viewer() -> void:
+	# Deferred layout signals can arrive after replay detaches the old scene.
+	if not is_inside_tree():
+		return
 	var window_height := float(get_viewport().get_window().size.y)
 	var growth := clampf((window_height - 720.0) / 360.0, 0.0, 1.0)
 	var extra := minf(76.0 * growth, maxf(0.0, get_viewport().get_visible_rect().size.x - 1556.0 + 32.0 * growth))
