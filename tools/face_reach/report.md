@@ -13,6 +13,10 @@ position overlaps scene geometry; its recorded minima need validation against a
 reachable start. Its head-bone offset is an approximation, not a verified
 anatomical eye-line point.
 
-No windowed face frames or visual assessment have been produced. The intended
-capture must use positions established by valid play-reachable movement; the
-measurement method and totality scope must be resolved first.
+The runner now leaves the player at the position set by the totality transition
+and turns toward each character without enabling movement. Those distances are
+labelled diagnostic until the eye point and visibility are validated. The day
+and darkroom approaches still need reachable starting positions.
+
+No windowed face frames or visual assessment have been produced. Captures and
+the requested reach assessment remain outstanding.

@@ -30,7 +30,7 @@ func _run() -> void:
 	game.ui.show_toast("", 0.0)
 	await survey("day")
 	await game._begin_totality()
-	await survey("totality")
+	await survey_totality()
 	await game._begin_night()
 	# The night introduction opens dialogue; close it to restore walking.
 	game.ui.dialog_panel.hide()
@@ -42,6 +42,18 @@ func _run() -> void:
 	game.stop_all_audio()
 	print("face reach: %d approaches" % records.size())
 	quit()
+
+func survey_totality() -> void:
+	assert(not game.player.can_move, "Totality must retain the fixed player position")
+	for character in ["eddington", "cottingham"]:
+		var npc: Node3D = game.world[character]
+		game.player.look_at_point(eye(npc))
+		await physics_frame
+		var camera_position: Vector3 = game.player.camera.global_position
+		var distance: float = camera_position.distance_to(eye(npc))
+		records.append({"scene": "totality", "character": character,
+			"metres": distance, "camera_position": [camera_position.x, camera_position.y, camera_position.z],
+			"diagnostic": "eye point and visibility not validated"})
 
 func survey(scene_name: String) -> void:
 	for character in ["eddington", "cottingham"]:
