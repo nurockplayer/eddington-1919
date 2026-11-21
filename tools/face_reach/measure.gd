@@ -44,9 +44,10 @@ func _run() -> void:
 		quit()
 		return
 	await game._begin_night()
-	# The night introduction opens dialogue; close it to restore walking.
-	game.ui.dialog_panel.hide()
-	game.player.can_move = true
+	# Advance the night introduction as a player can, restoring normal input.
+	while game.ui.dialog_active():
+		game.ui._advance()
+		await process_frame
 	await survey("darkroom")
 	var file := FileAccess.open(out, FileAccess.WRITE)
 	file.store_string(JSON.stringify(records, "  "))
@@ -71,15 +72,15 @@ func survey_totality() -> void:
 			"metres": distance, "camera_position": [camera_position.x, camera_position.y, camera_position.z]})
 
 func survey(scene_name: String) -> void:
+	assert(game.player.can_move, "Walking must be enabled by the game")
 	for character in ["eddington", "cottingham"]:
 		var npc: Node3D = game.world[character]
 		for direction in range(4):
 			var angle: float = npc.rotation.y + direction * PI / 2.0
 			var offset := Vector3(sin(angle), 0, cos(angle))
-			game.player.global_position = npc.global_position + offset * 2.0 + Vector3(0, 0.05, 0)
-			game.player.velocity = Vector3.ZERO
-			game.player.can_move = true
-			game.player.can_look = true
+			var target: Vector3 = npc.global_position + offset * 2.0
+			await walk_to(target)
+			var start: Vector3 = game.player.global_position
 			game.player.look_at_point(eye(npc))
 			await physics_frame
 			Input.action_press("move_forward")
@@ -93,4 +94,56 @@ func survey(scene_name: String) -> void:
 					best = game.player.global_position
 			Input.action_release("move_forward")
 			records.append({"scene": scene_name, "character": character, "direction": direction,
-				"metres": minimum, "position": [best.x, best.y, best.z]})
+				"metres": minimum, "start": [start.x, start.y, start.z], "position": [best.x, best.y, best.z]})
+
+func walk_to(target: Vector3) -> void:
+	# Sample the player's capsule against the actual collision world and walk a
+	# connected grid route from the position reached by the preceding approach.
+	var grid := AStarGrid2D.new()
+	grid.region = Rect2i(-32, -32, 80, 64)
+	grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
+	grid.update()
+	var shape := CapsuleShape3D.new()
+	shape.radius = 0.31
+	shape.height = 1.65
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = shape
+	query.collision_mask = game.player.collision_mask
+	query.exclude = [game.player.get_rid()]
+	var space: PhysicsDirectSpaceState3D = game.player.get_world_3d().direct_space_state
+	for x in range(-32, 48):
+		for z in range(-32, 32):
+			query.transform = Transform3D(Basis.IDENTITY, Vector3(x * 0.5, 0.9, z * 0.5))
+			if not space.intersect_shape(query, 1).is_empty():
+				grid.set_point_solid(Vector2i(x, z))
+	var from := Vector2i(roundi(game.player.global_position.x * 2), roundi(game.player.global_position.z * 2))
+	grid.set_point_solid(from, false)
+	var goal := Vector2i(roundi(target.x * 2), roundi(target.z * 2))
+	var path: Array[Vector2i] = []
+	var nearest := INF
+	for x in range(goal.x - 2, goal.x + 3):
+		for z in range(goal.y - 2, goal.y + 3):
+			var cell := Vector2i(x, z)
+			if not grid.is_in_boundsv(cell) or grid.is_point_solid(cell):
+				continue
+			var d := Vector2(x * 0.5 - target.x, z * 0.5 - target.z).length()
+			if d >= nearest:
+				continue
+			var candidate := grid.get_id_path(from, cell)
+			if not candidate.is_empty():
+				path = candidate
+				nearest = d
+	assert(not path.is_empty(), "No reachable approach near %s" % target)
+	for cell in path.slice(1):
+		var point := Vector3(cell.x * 0.5, game.player.camera.global_position.y, cell.y * 0.5)
+		var reached := false
+		for frame in 60:
+			var delta := Vector2(point.x - game.player.global_position.x, point.z - game.player.global_position.z)
+			if delta.length() < 0.16:
+				reached = true
+				break
+			game.player.look_at_point(point)
+			Input.action_press("move_forward")
+			await physics_frame
+		Input.action_release("move_forward")
+		assert(reached, "Player could not walk to grid point %s" % cell)

@@ -21,9 +21,20 @@ need reachable starting positions. The wrapper's run failed to write its output
 because the requested HEAD directory did not exist; the runner now creates it.
 
 The corrected output-directory run completed with 18 records. Its totality
-distances used the earlier head-bone approximation; the runner now targets the
-centre of each character's iris mesh. Fixed-position captures and the revised
-measurements are pending the windowed run.
+distances used the earlier head-bone approximation and are superseded by the
+windowed run at `83fdf36`, which targets the centre of the paired iris mesh:
 
-No windowed face frames or visual assessment have been produced. Captures and
-the requested reach assessment remain outstanding.
+| Totality character | Fixed camera to iris midpoint | Frame assessment |
+| --- | ---: | --- |
+| Eddington | 0.857 m | Face visible, dark |
+| Cottingham | 0.706 m | Face visible, dark |
+
+The fixed camera was at approximately (0, 1.619, -0.9) m. The captured frames
+and measurements are under
+`/Volumes/KIOXIA/eddington-1919-cache/director/face-reach/83fdf36/`.
+The iris-mesh centre is the eye-line point; both meshes contain the paired iris
+discs, and their bounding-box centre lies halfway between them. The runner now
+walks a collision-sampled route to each starting position; that change still
+requires a measurement run.
+
+Walking-phase captures and the requested reach assessment remain outstanding.
