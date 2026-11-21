@@ -590,7 +590,7 @@ func _draw_loupe() -> void:
 	draw_circle(loupe.get_center(), 4.0, Color(0.76, 0.745, 0.69, 0.82))
 	draw_circle(loupe.get_center(), 2.1, Color(0.92, 0.90, 0.83, 0.91))
 	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 25), L.t("微弱斑點：恆星？乳劑瑕疵？"), HORIZONTAL_ALIGNMENT_LEFT, 224, 14, Color(0.12, 0.12, 0.11, 0.9))
-	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 46), L.t("單憑這張底片，仍無法判定。"), HORIZONTAL_ALIGNMENT_LEFT, 224, 13, Color(0.12, 0.12, 0.11, 0.78))
+	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 46), L.t("單憑這張底片，尚無定論。"), HORIZONTAL_ALIGNMENT_LEFT, 224, 13, Color(0.12, 0.12, 0.11, 0.78))
 
 
 func _draw_arrow(from: Vector2, to: Vector2, color: Color, width: float) -> void:
