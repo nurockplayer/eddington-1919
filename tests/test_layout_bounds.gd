@@ -690,7 +690,7 @@ func _test_dense_report_chart() -> void:
 						ui.play(prompt)
 						for frame in 12:
 							await process_frame
-						_check_report_rows(ui)
+						await _check_report_rows(ui)
 				ui.close_viewer()
 				ui.dialog_panel.hide()
 			ui.free()
@@ -709,13 +709,28 @@ func _check_report_rows(ui) -> void:
 	check(chart.get_global_rect().end.y + 4 <= ui.dialog_panel.get_global_rect().position.y,
 		"chart and axes clear dialogue")
 	var painted: Dictionary = chart.drawn()
+	var scrolls := chart.find_children("*", "ScrollContainer", false, false)
+	var scroll: ScrollContainer = scrolls[0] if not scrolls.is_empty() and scrolls[0].visible else null
 	check(painted.row_bounds.size() == chart.rows.size(), "every measured row was painted")
 	var font := chart.get_theme_default_font()
 	var line_height := font.get_height(Settings.fs(14))
 	for i in painted.row_bounds.size():
 		var label: Rect2 = painted.row_bounds[i]
 		var marker: Rect2 = painted.marker_bounds[i]
-		check(rect.encloses(label) and rect.encloses(marker), "row label and marker stay inside chart: %s %s" % [label, marker])
+		var visible_label := label
+		var visible_marker := marker
+		if scroll != null:
+			scroll.scroll_vertical = maxi(0, floori(minf(label.position.y, marker.position.y)))
+			await settle()
+			var offset: Vector2 = scroll.position + scroll.get_child(0).position
+			visible_label.position += offset
+			visible_marker.position += offset
+			var row_view := Rect2(scroll.position, Vector2(scroll.get_child(0).size.x, scroll.size.y))
+			check(scroll.clip_contents and row_view.encloses(visible_label) and row_view.encloses(visible_marker),
+				"each row is fully reachable inside the clipped scroll area")
+			check(row_view.position.y >= 30.0 and row_view.end.y < painted.result_bounds.position.y - 2.0,
+				"scroll area clears the prediction band and combined reading")
+		check(rect.encloses(visible_label) and rect.encloses(visible_marker), "row label and marker stay inside chart: %s %s" % [visible_label, visible_marker])
 		if i > 0:
 			var previous: Rect2 = painted.row_bounds[i - 1]
 			check(label.position.y - previous.position.y >= line_height, "row pitch >= rendered line height %.1f" % line_height)
@@ -723,6 +738,6 @@ func _check_report_rows(ui) -> void:
 			check(not label.intersects(painted.row_bounds[j]) and not marker.intersects(painted.marker_bounds[j])
 				and not label.intersects(painted.marker_bounds[j]) and not marker.intersects(painted.row_bounds[j]),
 				"row labels and markers do not overlap another row")
-		check(not label.intersects(painted.result_bounds) and not marker.intersects(painted.result_bounds), "rows clear player's combined number")
+		check(not visible_label.intersects(painted.result_bounds) and not visible_marker.intersects(painted.result_bounds), "rows clear player's combined number")
 	for fixed: Rect2 in painted.ledger_bounds + painted.axis_bounds + [painted.result_bounds.grow(2), painted.combined_bounds]:
 		check(rect.grow(0.01).encloses(fixed), "prediction band, result and axis text stay inside chart: %s" % fixed)
