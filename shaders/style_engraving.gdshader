@@ -71,7 +71,7 @@ uniform float wobble = 1.0;           // hand wobble of the lines
 uniform float wobble_rel = 0.35;      // the wobble never exceeds this share of the line spacing
 uniform float tone_lod = 0.0;         // blur (mip level at 720 lines) of the tone the hatching follows
 // Distance: beyond far_start the land hands its surface lines over to one ruling of
-// equal altitude, the sky's own, so that far things are quiet and lie behind near ones.
+// straight page lines, the sky's own, so that far things are quiet and lie behind near ones.
 uniform float far_start = 25.0;
 uniform float far_end = 70.0;
 uniform float far_floor = 0.28;       // lightest tone of distant land (0 = bare paper)
@@ -168,6 +168,15 @@ float hatch(float u, float g, float cover, float px, float max_lod) {
 	return max(line_cov(d_even, h_even, aa), line_cov(d_odd, h_odd, aa));
 }
 
+// Page ruling shared by sky, distant land and ridges. Each constant coordinate
+// is a straight line in the perspective image. Pitch moves the phase; yaw does
+// not. hatch receives the same k everywhere, so its octave never varies by pixel
+// or camera orientation (and k * l_px is independent of viewport resolution).
+vec2 page_ruling(vec3 ray, mat4 camera) {
+	float pitch = asin(clamp(-camera[2].y, -1.0, 1.0));
+	return vec2(atan(ray.y, -ray.z), atan(ray.y + 0.62 * ray.x, -ray.z)) + vec2(pitch);
+}
+
 // |d(dot(P, a))| per pixel on the surface through the view-space point z * q
 // (q.z = -1) with view-space normal n. k: view units per pixel at depth 1.
 float grad_px(vec3 a_v, vec3 n_v, vec3 q, float z, float k) {
@@ -212,7 +221,7 @@ void fragment() {
 	// Line weights are given for a 720-line frame and follow the viewport height.
 	float res_k = VIEWPORT_SIZE.y / 720.0;
 	float l_px = line_px * res_k;
-	float r_px = ray_px * res_k;
+	vec2 ruling = page_ruling(ray_v, INV_VIEW_MATRIX);
 	// 0 near … 1 distant land. By distance, not depth, so that turning the head changes nothing.
 	float dist_f = sky ? 0.0 : smoothstep(far_start, far_end, length(pv));
 	float elev = asin(clamp(ray_w.y, -1.0, 1.0));
@@ -251,16 +260,26 @@ void fragment() {
 	bool measuring_paper = false;
 	float paper_edge = 0.0;
 	float ridge_totality = 0.0;
+	float sky_white = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
-		// Ruling: lines of equal altitude, crossed by a tilted family where the sky is dark.
-		float i1 = hatch(elev, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, l_px, 99.0);
-		float tilt = asin(clamp(dot(ray_w, normalize(vec3(0.62, 0.48, 0.62))), -1.0, 1.0));
-		float i2 = hatch(tilt, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, l_px, 99.0);
+		float cloud = eclipse_cloud_density(ray_w);
+		float cloud_core = smoothstep(0.32, 0.85, cloud);
+		float glow = exp(-distance / (sun_r * 2.5));
+		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
+		float total_dark = clamp(0.48 + 0.25 * smoothstep(0.0, 1.2, elev)
+			+ 0.18 * cloud_core - 0.24 * glow - 0.36 * horizon, 0.12, 0.90);
+		dark = mix(dark, total_dark, print_darkness);
+		// Both families are straight, even when the camera looks at the zenith.
+		float i1 = hatch(ruling.x, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, l_px, 99.0);
+		float i2 = hatch(ruling.y, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, l_px, 99.0);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
+		float cloud_edge = smoothstep(0.006, 0.018, length(vec2(dFdx(cloud), dFdy(cloud))) * res_k);
+		ink = max(ink, cloud_edge * cloud_core * 0.85 * print_darkness);
+		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
 		vec3 t2 = cross(t1, sun_dir);
@@ -298,19 +317,31 @@ void fragment() {
 		float moon_weight = 1.0 - smoothstep(0.15, 1.0 / 1.08, dens);
 		// The diamond opens line widths, retaining the cloud's full-strength weight.
 		float moon_cover = moon_weight * diamond;
-		float moon_lines = hatch(elev, k, moon_cover, l_px, 99.0);
+		float moon_lines = hatch(ruling.x, k, moon_cover, l_px, 99.0);
 		moon_lines = max(moon_lines, step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover));
 		moon_ink = front * step(r, 1.0) * moon_lines;
 
-		float w_rays = print_darkness * print_darkness * front * (1.0 - smoothstep(ray_inner, ray_outer, r));
-		if (w_rays > 0.0) {
-			float ang = atan(lp.y, lp.x) / 6.2831853;             // -0.5 … 0.5, periodic
-			float g_ang = k / (6.2831853 * max(r * sun_r, 0.0001));
-			float ray_dark = mix(dark, max(dark, diamond_ray_floor), visible_diamond * diamond_rays * (1.0 - smoothstep(1.0, 3.0, r)));
-			float rays = hatch(ang, g_ang, clamp((ray_dark - 0.04) * 1.5, 0.0, 0.8), r_px, -3.0);
-			rays = max(rays, 1.0 - smoothstep(0.96, 1.0, r));     // the Moon's disc prints solid
-			ink = mix(ink, rays, w_rays);
+		moon_ink = max(moon_ink, front * step(r, 1.0) * print_darkness * (1.0 - visible_diamond));
+		// Forty fixed white rays. One sector lookup replaces the adaptive radial
+		// hatch: its count and length never depend on radius or pixel footprint.
+		if (print_darkness > 0.0 && front > 0.0) {
+			float sector = (atan(lp.y, lp.x) / 6.2831853 + 0.5) * 40.0;
+			float id = floor(sector);
+			float seed = hash21(vec2(id, 19.0));
+			float reach = mix(1.5 + seed, 3.0 + 2.0 * seed, step(0.89, hash21(vec2(id, 43.0))));
+			float centre = 0.5 + (hash21(vec2(id, 5.0)) - 0.5) * 0.25;
+			float taper = clamp((reach - r) / (reach - 1.0), 0.0, 1.0);
+			float width = (0.18 + 0.15 * seed) * taper;
+			float aa = max(fwidth(sector), 0.001);
+			float rays = (1.0 - smoothstep(width - aa, width + aa, abs(fract(sector) - centre))) * taper;
+			float ring = 1.0 - smoothstep(1.08, 1.24, r);
+			float veil = 1.0 - smoothstep(0.55, 0.95, cloud);
+			float crown = max(ring, rays) * veil;
+			sky_white = max(sky_white, crown);
+			sky_white = max(sky_white, cloud_edge * (1.0 - cloud_core) * glow);
+			ink *= 1.0 - crown;
 		}
+
 	} else {
 		vec3 q = pv / z;
 		vec3 n_buf = normalize(texture(normal_tex, uv).xyz * 2.0 - 1.0);
@@ -482,7 +513,7 @@ void fragment() {
 	}
 	float blue = print_darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
-	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone_p) * blue);
+	page = mix(page, paper, (sky ? sky_white : smoothstep(heighten_lo, heighten_hi, tone_p)) * blue);
 	page = mix(page, paper * (1.0 - paper_grain * fibre), ridge_totality);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
@@ -523,6 +554,7 @@ void fragment() {
 				float field_lum = min(min(dot(textureLod(screen_tex, star_uv + vec2(sample_px.x, 0.0), 0.0).rgb, response), dot(textureLod(screen_tex, star_uv - vec2(sample_px.x, 0.0), 0.0).rgb, response)), min(dot(textureLod(screen_tex, star_uv + vec2(0.0, sample_px.y), 0.0).rgb, response), dot(textureLod(screen_tex, star_uv - vec2(0.0, sample_px.y), 0.0).rgb, response)));
 				float field_ex = max(field_lum, 0.0) * ex;
 				float field_tone = clamp((pow(field_ex / (1.0 + field_ex), 0.4545) - tone_lo) / (tone_hi - tone_lo), 0.0, 1.0);
+				print_colour = mix(print_colour, paper, (1.0 - smoothstep(res_k, 1.5 * res_k, distance_px)) * gate);
 				float bright = mix(smoothstep(0.72, 0.80, field_tone), 1.0, star_keyline_all);
 				print_colour = mix(print_colour, ink_col, ring * bright * gate);
 			}
