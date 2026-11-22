@@ -270,14 +270,17 @@ void fragment() {
 		float cloud_core = smoothstep(0.32, 0.85, cloud);
 		float glow = exp(-distance / (sun_r * 2.5));
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
-		float total_dark = clamp(0.48 + 0.25 * smoothstep(0.0, 1.2, elev)
-			+ 0.18 * cloud_core - 0.24 * glow - 0.36 * horizon, 0.12, 0.90);
-		dark = mix(dark, total_dark, print_darkness);
-		// Both families are straight, even when the camera looks at the zenith.
-		float i1 = hatch(ruling.x, k, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, l_px, 99.0);
-		float i2 = hatch(ruling.y, k, clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, l_px, 99.0);
+		float high_sky = smoothstep(0.0, 1.2, elev);
+		float primary = clamp(0.25 + 0.12 * high_sky + 0.16 * cloud_core - 0.10 * glow - 0.22 * horizon, 0.03, 0.55);
+		float crossed = clamp(0.08 + 0.14 * high_sky + 0.18 * cloud_core - 0.20 * glow - 0.20 * horizon, 0.0, 0.35);
+		// Map totality directly to line coverage: feeding it through the day
+		// tone clamps would saturate both families and flatten the cloud forms.
+		primary = mix(clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, primary, print_darkness);
+		crossed = mix(clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, crossed, print_darkness);
+		float i1 = hatch(ruling.x, k, primary, l_px, 99.0);
+		float i2 = hatch(ruling.y, k, crossed, l_px, 99.0);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
-		float cloud_edge = smoothstep(0.006, 0.018, length(vec2(dFdx(cloud), dFdy(cloud))) * res_k);
+		float cloud_edge = smoothstep(0.002, 0.006, length(vec2(dFdx(cloud), dFdy(cloud))) * res_k);
 		ink = max(ink, cloud_edge * cloud_core * 0.85 * print_darkness);
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
@@ -335,8 +338,8 @@ void fragment() {
 			float aa = max(fwidth(sector), 0.001);
 			float rays = (1.0 - smoothstep(width - aa, width + aa, abs(fract(sector) - centre))) * taper;
 			float ring = 1.0 - smoothstep(1.08, 1.24, r);
-			float veil = 1.0 - smoothstep(0.55, 0.95, cloud);
-			float crown = max(ring, rays) * veil;
+			// Chalk holds the inner crown; the cloud modulates the outer rays.
+			float crown = max(ring, rays * (1.0 - 0.25 * cloud_core));
 			sky_white = max(sky_white, crown);
 			sky_white = max(sky_white, cloud_edge * (1.0 - cloud_core) * glow);
 			ink *= 1.0 - crown;
