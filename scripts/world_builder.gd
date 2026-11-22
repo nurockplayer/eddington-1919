@@ -954,7 +954,7 @@ func _person(id: String, body: Node3D) -> bool:
 	body.add_child(fig)
 	# Row 8: the faired skin carries the engraving; no separate eye/brow marks.
 	for mi in fig.find_children("*", "MeshInstance3D", true, false):
-		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows") or mi.name.ends_with("_moustache"):
+		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows"):
 			mi.hide()
 	for ap in fig.find_children("*", "AnimationPlayer", true, false):
 		var player := ap as AnimationPlayer

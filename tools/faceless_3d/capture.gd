@@ -37,12 +37,6 @@ func _run() -> void:
 	await game._begin_totality()
 	await wide("totality")
 	await survey_totality()
-	await game._begin_night()
-	# Advance the night introduction as a player can, restoring normal input.
-	while game.ui.dialog_active():
-		game.ui._advance()
-		await process_frame
-	await survey("darkroom")
 	var file := FileAccess.open(out, FileAccess.WRITE)
 	file.store_string(JSON.stringify(records, "  "))
 	file.close()
