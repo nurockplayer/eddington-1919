@@ -1932,10 +1932,12 @@ func _build_pause(root: Control) -> void:
 		ScorePlayer.set_music_enabled(not ScorePlayer.music_enabled())
 		music_button.text = L.t("音樂靜音：關") if ScorePlayer.music_enabled() else L.t("音樂靜音：開")
 		_sync_music_row())
+	var first_slider: HSlider
 	for bus in ["Master", "Music", "SFX"]:
 		var card := PanelContainer.new()
 		card.custom_minimum_size.y = Settings.fs(46)
 		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
 		card.add_child(row)
 		var label := _label({"Master": L.t("主音量"), "Music": L.t("音樂"), "SFX": L.t("音效")}[bus], 20)
 		label.custom_minimum_size.x = 80
@@ -1948,11 +1950,15 @@ func _build_pause(root: Control) -> void:
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		slider.value_changed.connect(func(value: float): Settings.set_volume(bus, value))
 		row.add_child(slider)
+		if bus == "Master":
+			first_slider = slider
 		v.add_child(card)
 		if bus == "Music":
 			music_row = row
 			music_slider = slider
 			v.add_child(music_button)
+	r.focus_next = r.get_path_to(music_button)
+	music_button.focus_next = music_button.get_path_to(first_slider)
 	_sync_music_row()
 	fullscreen_button = _button(L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關"))
 	fullscreen_button.pressed.connect(_toggle_fullscreen)
@@ -2243,15 +2249,16 @@ func _fill_help_table() -> void:
 	var pad := ["", "", "", L.t("A 鍵"), "Back", L.t("RB／X 鍵"), "Start"]
 	var keyboard := ["", "", "", "E", "Tab", L.t("空白鍵"), "Esc"]
 	for i in entries.size():
+		var line := ColorRect.new()
+		line.color = preload("res://scripts/styles/engraving.gd").INK
+		line.custom_minimum_size.y = 1
+		help_table.add_child(line)
 		var part: String = entries[i]
 		var split := part.rfind(" ")
 		var action := _label(part.substr(split + 1), 20, INK)
 		var rule := _panel_style(preload("res://scripts/styles/engraving.gd").PAPER, preload("res://scripts/styles/engraving.gd").INK)
 		rule.set_corner_radius_all(0)
 		rule.set_border_width_all(0)
-		rule.border_width_bottom = 1
-		if i == 0:
-			rule.border_width_top = 1
 		rule.set_content_margin_all(8)
 		var row := PanelContainer.new()
 		row.add_theme_stylebox_override("panel", rule)
@@ -2267,6 +2274,10 @@ func _fill_help_table() -> void:
 		var value := _label(keys, 20, INK)
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		columns.add_child(value)
+	var line := ColorRect.new()
+	line.color = preload("res://scripts/styles/engraving.gd").INK
+	line.custom_minimum_size.y = 1
+	help_table.add_child(line)
 
 
 func _open_help() -> void:
@@ -2421,12 +2432,6 @@ func _print_menu(node: Node) -> void:
 		node.hide()
 	if node is Label:
 		node.add_theme_color_override("font_color", Print.INK)
-		if node == _pause_heading:
-			var paper := _panel_style(Print.PAPER, Print.INK)
-			paper.set_content_margin_all(0)
-			paper.set_corner_radius_all(0)
-			paper.set_border_width_all(1)
-			node.add_theme_stylebox_override("normal", paper)
 	if node is RichTextLabel:
 		node.add_theme_color_override("default_color", Print.INK)
 		# Print existing BBCode colours in ink without altering any stored text.
@@ -2440,6 +2445,8 @@ func _print_menu(node: Node) -> void:
 		paper.border_color = Print.INK
 		paper.set_corner_radius_all(0)
 		paper.set_border_width_all(1)
+		paper.shadow_size = 0
+		paper.set_expand_margin_all(0)
 		if node.get_parent() == pause_panel:
 			paper.set_content_margin_all(0)
 		elif node.get_parent() is VBoxContainer and node.get_parent().get_parent() is ScrollContainer and pause_panel.is_ancestor_of(node):
@@ -2453,6 +2460,8 @@ func _print_menu(node: Node) -> void:
 		paper.border_color = Print.INK
 		paper.set_corner_radius_all(0)
 		paper.set_border_width_all(1)
+		paper.shadow_size = 0
+		paper.set_expand_margin_all(0)
 		if pause_panel.is_ancestor_of(node):
 			paper.set_border_width_all(0)
 			paper.border_width_bottom = 1
@@ -2487,6 +2496,10 @@ func _print_menu(node: Node) -> void:
 			node.add_theme_icon_override("grabber_highlight", ImageTexture.create_from_image(focused))
 			node.add_theme_icon_override("grabber_disabled", ImageTexture.create_from_image(image))
 		else:
+			rule.expand_margin_left = -4
+			rule.expand_margin_right = -4
+			mark.expand_margin_left = -2
+			mark.expand_margin_right = -2
 			for state in ["grabber", "grabber_highlight", "grabber_pressed"]:
 				node.add_theme_stylebox_override(state, mark)
 			var blank := Image.create(1, 1, false, Image.FORMAT_RGBA8)
