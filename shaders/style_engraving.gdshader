@@ -344,7 +344,7 @@ void fragment() {
 			vec3 n_d = normalize(texture(normal_tex, uv - vec2(0.0, o.y)).xyz * 2.0 - 1.0);
 			vec3 n_u = normalize(texture(normal_tex, uv + vec2(0.0, o.y)).xyz * 2.0 - 1.0);
 			float n_break = 1.0 - min(min(dot(n_v, n_l), dot(n_v, n_r)), min(dot(n_v, n_d), dot(n_v, n_u)));
-			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break) * (1.0 - dist_f));
+			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break));
 		}
 
 		// Three line families per surface. Flat surfaces are hatched in plan; all

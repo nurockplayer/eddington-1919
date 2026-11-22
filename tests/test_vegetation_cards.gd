@@ -145,7 +145,7 @@ func _check_shrubs(wb) -> void:
 				high = maxf(high, vertex.y)
 				if is_equal_approx(leaves[Mesh.ARRAY_TEX_UV][i].x, 1.0):
 					tip = maxf(tip, vertex.y)
-			check(tip > 1.8 and high > tip + 0.05, "banana leaves rise above the stem and arch down at their tips")
+			check(high > 1.7 and tip < 1.5 and high > tip + 0.2, "banana leaves arch above the stem and droop below it at their tips")
 		if DisplayServer.get_name() == "headless":
 			readback_skipped += mm.instance_count
 		else:

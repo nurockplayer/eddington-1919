@@ -30,6 +30,6 @@ void fragment() {
 	// otherwise lifts the cutouts to bare paper before the distance ruling.
 	ALBEDO = c.rgb * tint.rgb * 0.22;
 	ROUGHNESS = 0.9;
-	SPECULAR = 0.2;
+	SPECULAR = 0.0;
 	BACKLIGHT = vec3(0.0);
 }
