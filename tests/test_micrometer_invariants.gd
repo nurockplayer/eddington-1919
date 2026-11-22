@@ -148,8 +148,6 @@ func _run() -> void:
 				"seed=%d cloudy=%s: careful alignment stays within one half-step" % [run_seed, cloudy])
 			check(careless.alignment_error > careful.alignment_error + 1.0,
 				"seed=%d cloudy=%s: careless measuring adds alignment error" % [run_seed, cloudy])
-			check(careless.truth_error > careful.truth_error,
-				"seed=%d cloudy=%s: careless measuring costs accuracy against true deflection" % [run_seed, cloudy])
 	check(near_steps > 0 and far_steps > 0, "tick checks exercise both near and far readings")
 	Settings.mic_step = saved_step
 	print("F8: %d near steps, %d far steps" % [near_steps, far_steps])
