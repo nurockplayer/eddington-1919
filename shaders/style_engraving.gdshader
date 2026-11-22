@@ -365,19 +365,26 @@ void fragment() {
 		moon_ink = front * step(r, 1.0) * moon_lines;
 
 		moon_ink = max(moon_ink, front * step(r, 1.0) * print_darkness * (1.0 - visible_diamond));
-		// Forty unequal white rays, tapering to 3-4 radii beyond the solar limb.
-		// Coverage fades by thinning the line; no radial bands or luminous wash.
+		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
+		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
 		if (print_darkness > 0.0 && front > 0.0) {
-			float sector = (atan(lp.y, lp.x) / 6.2831853 + 0.5) * 40.0;
+			float sector = (atan(lp.y, lp.x) / 6.2831853 + 0.5) * 240.0;
 			float id = floor(sector);
 			float seed = hash21(vec2(id, 19.0));
-			float reach = 2.8 + 2.2 * seed;
-			float centre = 0.5 + (hash21(vec2(id, 5.0)) - 0.5) * 0.18;
-			float taper = clamp((reach - r) / (reach - 1.0), 0.0, 1.0);
-			float width = (0.70 + 0.28 * seed) * pow(taper, 0.65) / sqrt(max(r, 1.0));
-			float aa = max(0.5 * fwidth(sector), 0.001);
-			float rays = line_cov(abs(fract(sector) - centre), width, aa);
-			float limb_white = 1.0 - smoothstep(1.13, 1.18, r);
+			float angle = ((id + 0.5) / 240.0 - 0.5) * 6.2831853;
+			vec2 direction = vec2(cos(angle), sin(angle));
+			float streamer = max(max(dot(direction, vec2(-0.9353, -0.3538)), dot(direction, vec2(0.5978, -0.8016))),
+				max(dot(direction, vec2(0.8916, 0.4529)), dot(direction, vec2(0.3717, 0.9284))));
+			streamer = smoothstep(0.991, 1.0, streamer);
+			float reach = mix(1.5 + seed, 3.1 + 0.9 * hash21(vec2(id, 5.0)), streamer);
+			float taper = sqrt(clamp((reach - r) / (reach - 1.0), 0.0, 1.0));
+			float across = dot(lp, vec2(-direction.y, direction.x));
+			float pixel = max(length(vec2(dFdx(across), dFdy(across))), 0.00001);
+			// Leave paper between adjacent strokes even where their centres are subpixel.
+			float half_width = min(0.55 * res_k * pixel * taper, 0.40 * 6.2831853 * r / 240.0);
+			float rays = clamp((half_width + 0.5 * pixel - abs(across)) / pixel, 0.0, 1.0)
+				- clamp((0.5 * pixel - half_width - abs(across)) / pixel, 0.0, 1.0);
+			float limb_white = 1.0 - smoothstep(1.035, 1.065, r);
 			corona_white = max(limb_white, rays) * step(1.0, r);
 			// Heightening belongs only to the sun-facing contour, within four radii.
 			vec2 toward_sun = -vec2(dFdx(distance), dFdy(distance));
