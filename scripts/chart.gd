@@ -20,6 +20,26 @@ var _drawn_ledger: Array = []
 var _drawn_ledger_bounds: Array = []
 var _drawn_result_bounds := Rect2()
 var _drawn_result_backing := false
+var _drawn_row_bounds: Array = []
+var _drawn_marker_bounds: Array = []
+var _drawn_axis_bounds: Array = []
+var _drawn_combined_bounds := Rect2()
+var _row_scroll: ScrollContainer
+var _row_content: Control
+var _drawn_row_texts: Array = []
+
+
+func _ready() -> void:
+	_row_scroll = ScrollContainer.new()
+	_row_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_row_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	_row_scroll.hide()
+	add_child(_row_scroll)
+	_row_content = Control.new()
+	_row_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_row_content.draw.connect(_draw_scrolled_rows)
+	_row_scroll.add_child(_row_content)
+
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
@@ -46,13 +66,15 @@ func drawn() -> Dictionary:
 	return {"label_px": _drawn_label_px, "hollow": _drawn_hollow, "filled": _drawn_filled,
 		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate(),
 		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate(),
-		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing}
+		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing,
+		"row_bounds": _drawn_row_bounds.duplicate(), "marker_bounds": _drawn_marker_bounds.duplicate(),
+		"axis_bounds": _drawn_axis_bounds.duplicate(), "combined_bounds": _drawn_combined_bounds}
 
 
 ## Every string the last _draw() painted. draw_string output is not a node
 ## property, so the leak watcher reads this to see the chart's text.
 func drawn_texts() -> Array:
-	return _drawn_texts.duplicate()
+	return _drawn_texts + _drawn_row_texts
 
 
 ## Weak plates are marked by shape, not only colour: hollow ring vs filled dot.
@@ -127,6 +149,11 @@ func _draw() -> void:
 	_drawn_ledger_bounds.clear()
 	_drawn_result_bounds = Rect2()
 	_drawn_result_backing = false
+	_drawn_row_bounds.clear()
+	_drawn_marker_bounds.clear()
+	_drawn_axis_bounds.clear()
+	_drawn_combined_bounds = Rect2()
+	_drawn_row_texts.clear()
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
@@ -138,58 +165,45 @@ func _draw() -> void:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
 		_drawn_texts.append(ref[1])
-		draw_string(font, Vector2(x - 40, bottom + 22.0 * Settings.text_scale), ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
+		var axis_baseline := Vector2(x - 40, bottom + 22.0 * Settings.text_scale)
+		_drawn_axis_bounds.append(Rect2(axis_baseline - Vector2(0, font.get_ascent(Settings.fs(15))),
+			font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15))))
+		draw_string(font, axis_baseline, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
 	for t in range(0, int(X_MAX) + 1):
 		var x := _x(t, w)
 		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
 	if not revealed:
+		_row_scroll.hide()
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)
 		draw_string(font, Vector2(70, h * 0.45), unmeasured, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
 		return
 	_paint_ledger(font, refs, top)
 	if rows.is_empty():
+		_row_scroll.hide()
 		var empty_hint := L.t("沒有可量測的底片。")
 		_drawn_texts.append(empty_hint)
 		draw_string(font, Vector2(70, h * 0.45), empty_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.9, 0.55, 0.5))
 		return
 	var n := rows.size() + 1
 	var step := minf(34.0, (bottom - top - 20.0) / n)
-	for i in rows.size():
-		var r: Dictionary = rows[i]
-		var y := top + 16.0 + i * step
-		var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
-		# A row with no trustworthy error is a marker only; no bar is invented for it.
-		if r.get("no_bar", false):
-			_drawn_bars.append("none")
-		else:
-			_drawn_bars.append("bar")
-			var span := two_sigma_span(r.value, r.sigma)
-			var thin := Color(col, 0.45)
-			var x2_lo := _x(span.x, w)
-			var x2_hi := _x(span.y, w)
-			draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
-			draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
-			draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
-			var x0 := _x(r.value - r.sigma, w)
-			var x1 := _x(r.value + r.sigma, w)
-			draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
-			draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
-			draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
-		var p := Vector2(_x(r.value, w), y)
-		if marker_filled(r):
-			draw_circle(p, 5.0, col)
-			_drawn_filled += 1
-			_drawn_markers.append("filled")
-		else:
-			draw_arc(p, 5.0, 0.0, TAU, 20, col, 2.0)
-			_drawn_hollow += 1
-			_drawn_markers.append("hollow")
-		_drawn_label_px = _label_px
-		_drawn_texts.append(r.label)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
+	# Crowded charts scroll only the plates: the 1917 band, combined number and
+	# reference-axis labels remain visible at their existing font sizes.
+	var crowded := step < font.get_height(_label_px)
+	_row_scroll.visible = crowded
+	var combined_y := top + 16.0 + rows.size() * step + 10.0
+	if crowded:
+		combined_y = bottom - 8.0
+		var reading_top := combined_y - 10.0 * Settings.text_scale - font.get_ascent(Settings.fs(16)) - 8.0
+		_row_scroll.position = Vector2(0, top)
+		_row_scroll.size = Vector2(w, reading_top - top)
+		var pitch := maxf(34.0, font.get_height(_label_px) + 2.0)
+		_row_content.custom_minimum_size.y = 16.0 + (rows.size() - 1) * pitch + 5.0 * Settings.text_scale + font.get_descent(_label_px) + 4.0
+		_row_content.queue_redraw()
+	else:
+		_paint_rows(self, font, w, top + 16.0, step)
 	if combined.get("n", 0) > 0:
-		var y := top + 16.0 + rows.size() * step + 10.0
+		var y := combined_y
 		var c := Color(1.0, 0.92, 0.6)
 		var span := two_sigma_span(combined.value, combined.sigma)
 		var thin := Color(c, 0.55)
@@ -205,7 +219,10 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
 		var combined_label := L.t("合併")
 		_drawn_texts.append(combined_label)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
+		var combined_baseline := Vector2(4, y + 5.0 * Settings.text_scale)
+		_drawn_combined_bounds = Rect2(combined_baseline - Vector2(0, font.get_ascent(Settings.fs(15))),
+			font.get_string_size(combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15)))
+		draw_string(font, combined_baseline, combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
 		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
 		_drawn_texts.append(combined_value)
 		var px := Settings.fs(16)
@@ -217,3 +234,56 @@ func _draw() -> void:
 		draw_rect(_drawn_result_bounds.grow(2), Color(0.09, 0.08, 0.07))
 		_drawn_result_backing = true
 		draw_string(font, baseline, combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px, c)
+
+
+func _draw_scrolled_rows() -> void:
+	var font := get_theme_default_font()
+	_paint_rows(_row_content, font, size.x, 16.0,
+		maxf(34.0, font.get_height(_label_px) + 2.0))
+
+
+func _paint_rows(canvas: Control, font: Font, w: float, first_y: float, step: float) -> void:
+	_drawn_row_bounds.clear()
+	_drawn_marker_bounds.clear()
+	_drawn_row_texts.clear()
+	_drawn_markers.clear()
+	_drawn_bars.clear()
+	_drawn_hollow = 0
+	_drawn_filled = 0
+	for i in rows.size():
+		var r: Dictionary = rows[i]
+		var y := first_y + i * step
+		var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
+		# A row with no trustworthy error is a marker only; no bar is invented for it.
+		if r.get("no_bar", false):
+			_drawn_bars.append("none")
+		else:
+			_drawn_bars.append("bar")
+			var span := two_sigma_span(r.value, r.sigma)
+			var thin := Color(col, 0.45)
+			var x2_lo := _x(span.x, w)
+			var x2_hi := _x(span.y, w)
+			canvas.draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
+			canvas.draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
+			canvas.draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
+			var x0 := _x(r.value - r.sigma, w)
+			var x1 := _x(r.value + r.sigma, w)
+			canvas.draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
+			canvas.draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
+			canvas.draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
+		var p := Vector2(_x(r.value, w), y)
+		_drawn_marker_bounds.append(Rect2(p - Vector2(6, 6), Vector2(12, 12)))
+		if marker_filled(r):
+			canvas.draw_circle(p, 5.0, col)
+			_drawn_filled += 1
+			_drawn_markers.append("filled")
+		else:
+			canvas.draw_arc(p, 5.0, 0.0, TAU, 20, col, 2.0)
+			_drawn_hollow += 1
+			_drawn_markers.append("hollow")
+		_drawn_label_px = _label_px
+		_drawn_row_texts.append(r.label)
+		var label_baseline := Vector2(4, y + 5.0 * Settings.text_scale)
+		_drawn_row_bounds.append(Rect2(label_baseline - Vector2(0, font.get_ascent(_label_px)),
+			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px)))
+		canvas.draw_string(font, label_baseline, r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
