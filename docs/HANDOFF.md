@@ -23,7 +23,7 @@ On each event: check the PR against the brief's acceptance, then `lead-wait pr <
 **edd-art owns (not ours to drive):**
 - 07:0x JST: #407 face-reach MERGED bd34741 (tools only). New inherited defect #423 VIS-7 (night exterior figures read solid black) → visual backlog, also bears on FUN_PLAN item 5a/F19.
 - Row 5: #392 MERGED 198877e 2026-11-20 JST (accepted at 9ca8e73).
-- Row 8: #393 MERGED 49e611d 2026-11-20 04:42 JST (darkroom by day, night lantern on bench, prompt lower). #398 MERGED 46469e8 2026-11-21 04:19 JST (toast clears panel and corona, item 5b). Still open: menus (#405 sent back again at a338993 21:3x JST, menus-page-fu4, edd-art's), face clause. #414 loupe-workbook MERGED 5d846c8 21:32 JST. #344 MERGED cf894a8.
+- Row 8: #393 MERGED 49e611d 2026-11-20 04:42 JST (darkroom by day, night lantern on bench, prompt lower). #398 MERGED 46469e8 2026-11-21 04:19 JST (toast clears panel and corona, item 5b). Still open: menus (#405 sent back again at a338993 21:3x JST, menus-page-fu4, edd-art's), face clause. #414 loupe-workbook MERGED 5d846c8 21:32 JST. #409 faceless-3d MERGED 3fd7c6c 23:14 JST (no eyes/mouths on 3D heads; Eddington empty-lens spectacles, Cottingham moustache; night face views dropped; chest prompt panel → #426). #344 MERGED cf894a8.
 - On an art-accept comment on a draft: `lead-wait pr <n>` (fresh review).
 
 **Open draft PRs:** #356 coelostat-trim (oracle approve b3d6eb2, waits AD view), #349 ridgelines, #344 darkroom props, #341 vegetation cards, , #15 (paused by Owner).
