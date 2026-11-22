@@ -51,6 +51,7 @@ const BOOKMARKS := [
 ]
 
 const AUDITION_BOOKMARKS := [
+	["under_roof", Vector3(-1.5, 0.05, -3.7), Vector3(0.0, 2.95, -4.5), "prep"],
 	["coelostat_still", Vector3(1.5, 0.05, -4.9), Vector3(0.1, 1.15, -6.6), "prep_early"],
 	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-1.1, 1.35, -0.9), "prep_early"],
 	# Position and target are set in _run() from the Sun's azimuth.
@@ -326,7 +327,17 @@ func _run() -> void:
 		return
 	var run_seed: int = main.sim.run_seed
 	for b in shots:
-		if b[0] == "totality_live":
+		if b[0] == "under_roof":
+			# Phase-0 census: fresh prep, frozen simulation, English HUD.
+			L.apply("en")
+			Settings.text_scale = Settings.TEXT_SCALES.max()
+			Settings.refresh_fonts(get_tree())
+			main.set_process(false)
+			main.player.set_physics_process(false)
+			main.ui.set_process(false)
+			main._start_game()
+			main.ui.visible = true
+		elif b[0] == "totality_live":
 			await _setup_totality_live()
 		else:
 			_light(b[3])
@@ -347,6 +358,12 @@ func _run() -> void:
 			target = main._totality_aim_point()
 		await _frames(2)
 		main.player.look_at_point(target)
+		if b[0] == "under_roof":
+			main.player.camera.fov = 60.0
+			main.player.camera.global_transform = Transform3D(Basis(
+				Vector3(0.470588, 0.0, 0.882353),
+				Vector3(-0.530738, 0.798871, 0.28306),
+				Vector3(-0.704886, -0.601503, 0.375939)), Vector3(-1.5, 1.67, -3.7))
 		var mouse_mode := Input.mouse_mode
 		if b[0] == "coelostat_still":
 			main.world.cottingham.visible = false
