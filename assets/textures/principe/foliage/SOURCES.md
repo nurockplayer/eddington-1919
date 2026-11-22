@@ -11,8 +11,6 @@ Each installed PNG is an unchanged copy of its `cut` entry in the [p4-leaves man
 | [coconut_frond_dry-v1.png](coconut_frond_dry-v1.png) | [`id=coconut_frond_dry`, `variant=1`](../../../../art/runs/p4-leaves/manifest.jsonl) |
 | [cacao_branch-v1.png](cacao_branch-v1.png) | [`id=cacao_branch`, `variant=1`](../../../../art/runs/p4-leaves/manifest.jsonl) |
 | [cacao_branch-v2.png](cacao_branch-v2.png) | [`id=cacao_branch`, `variant=2`](../../../../art/runs/p4-leaves/manifest.jsonl) |
-| [banana_leaf-v1.png](banana_leaf-v1.png) | [`id=banana_leaf`, `variant=1`](../../../../art/runs/p4-leaves/manifest.jsonl) |
-| [banana_leaf-v2.png](banana_leaf-v2.png) | [`id=banana_leaf`, `variant=2`](../../../../art/runs/p4-leaves/manifest.jsonl) |
 | [undergrowth-v1.png](undergrowth-v1.png) | [`id=undergrowth`, `variant=1`](../../../../art/runs/p4-leaves/manifest.jsonl) |
 | [undergrowth-v2.png](undergrowth-v2.png) | [`id=undergrowth`, `variant=2`](../../../../art/runs/p4-leaves/manifest.jsonl) |
 | [forest_edge-v1.png](forest_edge-v1.png) | [`id=forest_edge`, `variant=1`](../../../../art/runs/p4-leaves/manifest.jsonl) |

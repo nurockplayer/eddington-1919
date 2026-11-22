@@ -135,17 +135,22 @@ func _check_shrubs(wb) -> void:
 		found[String(node.name)] = true
 		var mm: MultiMesh = node.multimesh
 		check(mm.instance_count == expected.get(String(node.name), 0), "instance count: " + String(node.name))
-		check(mm.use_custom_data, "custom instance data enabled")
 		if String(node.name) == "banana_clump_multi":
-			var leaves := mm.mesh.surface_get_arrays(1)
-			var high := -INF
-			var tip := -INF
-			for i in leaves[Mesh.ARRAY_VERTEX].size():
-				var vertex: Vector3 = leaves[Mesh.ARRAY_VERTEX][i]
-				high = maxf(high, vertex.y)
-				if is_equal_approx(leaves[Mesh.ARRAY_TEX_UV][i].x, 1.0):
-					tip = maxf(tip, vertex.y)
-			check(high > 1.7 and tip < 1.5 and high > tip + 0.2, "banana leaves arch above the stem and droop below it at their tips")
+			var source: Node = load("res://assets/models/banana_clump.glb").instantiate()
+			var original: Mesh = source.find_children("*", "MeshInstance3D", true, false)[0].mesh
+			check(not mm.use_custom_data, "bananas retain main's imported instancing")
+			check(mm.mesh.get_surface_count() == original.get_surface_count(), "banana surfaces match main's model")
+			for surface in original.get_surface_count():
+				var actual := mm.mesh.surface_get_arrays(surface)
+				var expected_arrays := original.surface_get_arrays(surface)
+				for channel in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_INDEX]:
+					check(actual[channel] == expected_arrays[channel], "banana geometry matches main's model")
+				var material: BaseMaterial3D = mm.mesh.surface_get_material(surface)
+				var original_material: BaseMaterial3D = original.surface_get_material(surface)
+				check(material.albedo_color == original_material.albedo_color and material.roughness == original_material.roughness, "banana palette material matches main's model")
+			source.free()
+			continue
+		check(mm.use_custom_data, "custom instance data enabled")
 		if DisplayServer.get_name() == "headless":
 			readback_skipped += mm.instance_count
 		else:
@@ -154,7 +159,7 @@ func _check_shrubs(wb) -> void:
 				check(is_equal_approx(mm.get_instance_custom_data(j).r, float(j % 2)), "alternating texture variant")
 		for surface in mm.mesh.get_surface_count():
 			var m: Material = mm.mesh.surface_get_material(surface)
-			var palette_material: Material = wb.mat(wb.P("teak_dark")) if String(node.name) == "shrub_cocoa_multi" else wb.mat(wb.P("foliage_light").darkened(0.25))
+			var palette_material: Material = wb.mat(wb.P("teak_dark"))
 			check(_card(m) or m == palette_material, "surface uses card shader or palette mat()")
 			if _card(m):
 				check(m.get_shader_parameter("use_custom_variant"), "shrub material selects custom variant")

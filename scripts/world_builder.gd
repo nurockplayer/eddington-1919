@@ -684,7 +684,6 @@ func _card_mat(key: String, tex_a: String, tex_b := "", custom := false, sway :=
 
 static var _frond_mesh: ArrayMesh
 static var _cocoa_mesh: ArrayMesh
-static var _banana_mesh: ArrayMesh
 
 
 ## A folded strip along the original rachis, shared by every palm.
@@ -790,8 +789,10 @@ func _vegetation() -> void:
 			kit[id] = []
 		kit[id].append(xf)
 	for id in kit:
-		var mesh := _banana_card_mesh() if id == "banana_clump" else _cocoa_card_mesh()
-		card_multimesh(id + "_multi", mesh, kit[id], "veg_shrub")
+		if id == "banana_clump":
+			multimesh(id, kit[id], "veg_shrub")
+		else:
+			card_multimesh(id + "_multi", _cocoa_card_mesh(), kit[id], "veg_shrub")
 
 
 func card_multimesh(name: String, mesh: Mesh, xforms: Array, group: String) -> MultiMeshInstance3D:
@@ -855,31 +856,6 @@ func _cocoa_card_mesh() -> ArrayMesh:
 	st.set_material(_card_mat("undergrowth", "undergrowth-v1.png", "undergrowth-v2.png", true, 0.04))
 	st.commit(_cocoa_mesh)
 	return _cocoa_mesh
-
-
-func _banana_card_mesh() -> ArrayMesh:
-	if _banana_mesh != null:
-		return _banana_mesh
-	var stem := CylinderMesh.new()
-	stem.top_radius = 0.09
-	stem.bottom_radius = 0.09
-	stem.height = 1.5
-	stem.radial_segments = 8
-	stem.rings = 0
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	st.append_from(stem, 0, Transform3D(Basis.IDENTITY, Vector3(0, 0.75, 0)))
-	st.set_material(mat(P("foliage_light").darkened(0.25)))
-	_banana_mesh = st.commit()
-	st = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var leaf := _folded_card(10, 1.6, 35.0, -40.0, 0.325, 15.0)
-	for k in 6:
-		var basis := Basis(Vector3.UP, deg_to_rad(k * 60.0 + (k * 17) % 23))
-		st.append_from(leaf, 0, Transform3D(basis, Vector3(0, 1.5, 0)))
-	st.set_material(_card_mat("banana", "banana_leaf-v1.png", "banana_leaf-v2.png", true, 0.03))
-	st.commit(_banana_mesh)
-	return _banana_mesh
 
 
 func _forest_edge() -> void:
