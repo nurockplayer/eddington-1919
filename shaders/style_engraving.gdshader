@@ -247,6 +247,9 @@ void fragment() {
 	float moon_ink = 0.0;
 	float box_reserve = 0.0;
 	float case_solid = 0.0;
+	float room_value = -1.0;
+	bool measuring_paper = false;
+	float paper_edge = 0.0;
 	float ridge_totality = 0.0;
 	if (sky) {
 		dark *= sky_ink;
@@ -347,65 +350,125 @@ void fragment() {
 			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break) * (1.0 - dist_f));
 		}
 
-		// Three line families per surface. Flat surfaces are hatched in plan; all
-		// others carry level lines (constant height) crossed by two diagonals.
-		vec3 a1;
-		vec3 a2;
-		vec3 a3;
-		if (n_w.y > flat_at) {
-			// At totality level ground stays open ruling; what stands on it prints solid.
-			dark = min(dark, mix(1.0, ground_cap, print_darkness));
-		}
-		// At totality level ground gives up its plan hatching for the page's one ruling: seen at a
-		// grazing angle the crossed families beat against each other and against the distant ruling.
-		float g_rule = n_w.y > flat_at ? print_darkness * ground_rule : 0.0;
-		if (abs(n_w.y) > flat_at) {
-			a1 = vec3(0.940, 0.0, 0.342);
-			a2 = vec3(0.087, 0.0, 0.996);
-			a3 = vec3(0.766, 0.0, -0.643);
-		} else {
+		if (print_darkness < 0.001 && night > 0.5) {
+			bool foliage = c.g > c.r * 1.08 && c.g > c.b * 1.15 && pw.y > 0.08;
+			bool room = all(lessThan(abs(pw - vec3(10.0, 1.3, 3.0)), vec3(2.1, 1.5, 1.8)));
+			bool wall_board = room && (abs(pw.x - 8.0) < 0.07 || abs(pw.x - 12.0) < 0.07 || abs(pw.z - 1.3) < 0.07 || abs(pw.z - 4.7) < 0.07);
+			bool floor_board = room && pw.y < 0.06;
+			bool table_wood = room && abs(n_w.y) > flat_at && (abs(pw.y - 0.85) < 0.002 || abs(pw.y - 0.88) < 0.002 || abs(pw.y - 1.025) < 0.002);
+			measuring_paper = all(lessThan(abs(pw - vec3(10.6, 0.86, 4.1)), vec3(0.251, 0.011, 0.201)));
 			vec3 t_h = abs(n_w.x) > abs(n_w.z) ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
-			a1 = vec3(0.0, 1.0, 0.0);
-			a2 = normalize(vec3(0.0, 0.8, 0.0) + t_h * 0.6);
-			a3 = normalize(vec3(0.0, 0.8, 0.0) - t_h * 0.6);
+			vec3 a1 = abs(n_w.y) > flat_at ? vec3(0.707107, 0.0, 0.707107) : t_h * 0.8 + vec3(0.0, 0.6, 0.0);
+			vec3 a2 = abs(n_w.y) > flat_at ? vec3(0.707107, 0.0, -0.707107) : t_h * -0.6 + vec3(0.0, 0.8, 0.0);
+			// Use the visible side of two-sided canvas, including its underside.
+			vec3 facing = normalize((INV_VIEW_MATRIX * vec4(n_dep, 0.0)).xyz);
+			float unlit_face = 1.0 - smoothstep(0.0, 0.25, dot(facing, sun_dir));
+			dark = max(dark, 0.40 * unlit_face * (1.0 - night));
+			// These three shallow dirt boxes are the site's trampled paths.
+			if (n_w.y > flat_at && pw.y > 0.015 && pw.y < 0.027) dark = max(dark, 0.44);
+			if ((wall_board || floor_board || table_wood) && night > 0.5) {
+				// Level wall ruling, oblique floorboards, reverse-sloping bench wood.
+				a1 = vec3(0.0, 1.0, 0.0);
+				if (floor_board) a1 = vec3(0.940, 0.0, 0.342);
+				if (table_wood) a1 = vec3(0.707107, 0.0, -0.707107);
+				room_value = floor_board ? 0.14 : (table_wood ? 0.52 : 0.22);
+			}
+			if (foliage) {
+				// One leaf-stroke field crosses the mesh facets, with short broken strokes.
+				a1 = vec3(0.8, 0.6, 0.0);
+				a2 = vec3(-0.6, 0.8, 0.0);
+				dark = 0.48;
+				edge = smoothstep(e_thr, e_thr * 2.5, lap / z);
+			}
+			float shadow = smoothstep(0.48, 0.72, dark);
+			float first = clamp((dark - 0.20) * 0.85, 0.0, 0.32) + shadow * 0.28;
+			first = mix(first, clamp((dark - 0.06) * 1.7, 0.18, 0.55), night);
+			float weight = 1.0 - dist_f;
+			float g1 = grad_px((VIEW_MATRIX * vec4(a1, 0.0)).xyz, n_v, q, z, k);
+			float g2 = grad_px((VIEW_MATRIX * vec4(a2, 0.0)).xyz, n_v, q, z, k);
+			float u1 = dot(pw, a1);
+			if (foliage) {
+				g1 = length(vec2(dFdx(u1), dFdy(u1)));
+				first *= smoothstep(0.3, 0.6, vnoise(pw.xz * 5.0 + vec2(pw.y * 3.0)));
+			}
+			float spacing = l_px * mix(0.6, 1.0, night);
+			float i1 = hatch(u1, g1, first * weight, spacing, 99.0);
+			float i2 = hatch(dot(pw, a2), g2, shadow * mix(0.60, 0.20, night) * weight, spacing, 99.0);
+			// At grazing angles only the better-resolved family remains.
+			float grazing = smoothstep(0.15, 0.4, abs(dot(n_v, normalize(pv))));
+			if (g1 > g2) i1 *= grazing;
+			else i2 *= grazing;
+			ink = 1.0 - (1.0 - i1) * (1.0 - i2);
+			ink = max(ink, smoothstep(0.84, 0.98, dark) * weight);
+			tone_p = mix(tone_p, tone_raw, night);
+			if (measuring_paper) {
+				vec2 margin = vec2(0.25, 0.20) - abs(pw.xz - vec2(10.6, 4.1));
+				vec2 pixel = max(fwidth(pw.xz), vec2(0.0001));
+				paper_edge = 1.0 - smoothstep(0.0, 1.0, min(margin.x / pixel.x, margin.y / pixel.y));
+				room_value = 1.0;
+			}
+		} else {
+			// Three line families per surface. Flat surfaces are hatched in plan; all
+			// others carry level lines (constant height) crossed by two diagonals.
+			vec3 a1;
+			vec3 a2;
+			vec3 a3;
+			if (n_w.y > flat_at) {
+				// At totality level ground stays open ruling; what stands on it prints solid.
+				dark = min(dark, mix(1.0, ground_cap, print_darkness));
+			}
+			// At totality level ground gives up its plan hatching for the page's one ruling: seen at a
+			// grazing angle the crossed families beat against each other and against the distant ruling.
+			float g_rule = n_w.y > flat_at ? print_darkness * ground_rule : 0.0;
+			if (abs(n_w.y) > flat_at) {
+				a1 = vec3(0.940, 0.0, 0.342);
+				a2 = vec3(0.087, 0.0, 0.996);
+				a3 = vec3(0.766, 0.0, -0.643);
+			} else {
+				vec3 t_h = abs(n_w.x) > abs(n_w.z) ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+				a1 = vec3(0.0, 1.0, 0.0);
+				a2 = normalize(vec3(0.0, 0.8, 0.0) + t_h * 0.6);
+				a3 = normalize(vec3(0.0, 0.8, 0.0) - t_h * 0.6);
+			}
+			vec3 a1_v = (VIEW_MATRIX * vec4(a1, 0.0)).xyz;
+			vec3 a2_v = (VIEW_MATRIX * vec4(a2, 0.0)).xyz;
+			vec3 a3_v = (VIEW_MATRIX * vec4(a3, 0.0)).xyz;
+			float g1 = grad_px(a1_v, n_v, q, z, k);
+			float wob = (vnoise(pw.xz * 1.7 + vec2(pw.y * 0.9)) - 0.5) * min(0.04, wobble_rel * g1 * l_px) * wobble;
+			float w_base = (1.0 + (vnoise(pw.xz * 0.8 + vec2(pw.y * 1.3)) - 0.5) * 0.3 * wobble) * (1.0 - dist_f);
+			float weight = w_base * (1.0 - g_rule);
+			float i1 = hatch(dot(pw, a1) + wob, g1, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * w_base * (1.0 - g_rule), l_px, 99.0);
+			float i2 = hatch(dot(pw, a2) + wob, grad_px(a2_v, n_v, q, z, k), clamp((dark - cross_at) * 1.6, 0.0, 0.55) * weight, l_px, 99.0);
+			float i3 = hatch(dot(pw, a3) - wob, grad_px(a3_v, n_v, q, z, k), clamp((dark - third_at) * 2.2, 0.0, 0.60) * weight, l_px, 99.0);
+			ink = 1.0 - (1.0 - i1) * (1.0 - i2) * (1.0 - i3);
+			ink = max(ink, smoothstep(solid_lo, solid_hi, dark) * (1.0 - dist_f));
+			// Distant land: one ruling in the sky's own lines, between a floor and a cap of tone.
+			float dark_far = clamp(max(dark, mix(far_floor, far_tot, print_darkness)), 0.0, mix(far_cap, 1.0, print_darkness));
+			// The floor comes in early: a sunlit palm at 40 m has lost its own lines and must not print paler than the sky.
+			float cov_floor = (far_sky * hz + far_step) * lit * smoothstep(0.0, far_in, dist_f);
+			float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
+			// The ruling is the page's and stays with the sky; its weight belongs to the ground, so a walk shows the ground passing under the lines.
+			// The patches grow with distance (by distance, not depth), so that the smallest still spans ground_grain lines: a smaller one would flicker between the lines.
+			float d_g = length(pv);
+			float s_min = ground_grain * l_px * k * d_g * d_g / max(INV_VIEW_MATRIX[3].y - pw.y, 0.3);
+			float lod_g = log2(max(s_min, 0.001));
+			float n_g = patch_n(pw.xz, lod_g);
+			float w_g = mix(0.5, 0.06, ground_edge);
+			float g_mot = (smoothstep(0.5 - w_g, 0.5 + w_g, n_g) * 2.0 - 1.0) * ground_mottle * (1.0 - smoothstep(15.0, 45.0, d_g));
+			float c_g = clamp((ground_cap - 0.06) * 1.3, 0.0, 0.85);
+			cov_far = mix(cov_far, c_g + g_mot * min(c_g, 0.85 - c_g), g_rule);
+			float i_far = hatch(elev, k, cov_far, l_px, 99.0);
+			ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
+			tone_p = mix(tone, 1.0 - dark_far, dist_f);
+			edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
 		}
-		vec3 a1_v = (VIEW_MATRIX * vec4(a1, 0.0)).xyz;
-		vec3 a2_v = (VIEW_MATRIX * vec4(a2, 0.0)).xyz;
-		vec3 a3_v = (VIEW_MATRIX * vec4(a3, 0.0)).xyz;
-		float g1 = grad_px(a1_v, n_v, q, z, k);
-		float wob = (vnoise(pw.xz * 1.7 + vec2(pw.y * 0.9)) - 0.5) * min(0.04, wobble_rel * g1 * l_px) * wobble;
-		float w_base = (1.0 + (vnoise(pw.xz * 0.8 + vec2(pw.y * 1.3)) - 0.5) * 0.3 * wobble) * (1.0 - dist_f);
-		float weight = w_base * (1.0 - g_rule);
-		float i1 = hatch(dot(pw, a1) + wob, g1, clamp((dark - 0.06) * 1.7, 0.0, 0.55) * w_base * (1.0 - g_rule), l_px, 99.0);
-		float i2 = hatch(dot(pw, a2) + wob, grad_px(a2_v, n_v, q, z, k), clamp((dark - cross_at) * 1.6, 0.0, 0.55) * weight, l_px, 99.0);
-		float i3 = hatch(dot(pw, a3) - wob, grad_px(a3_v, n_v, q, z, k), clamp((dark - third_at) * 2.2, 0.0, 0.60) * weight, l_px, 99.0);
-		ink = 1.0 - (1.0 - i1) * (1.0 - i2) * (1.0 - i3);
-		ink = max(ink, smoothstep(solid_lo, solid_hi, dark) * (1.0 - dist_f));
-		// Distant land: one ruling in the sky's own lines, between a floor and a cap of tone.
-		float dark_far = clamp(max(dark, mix(far_floor, far_tot, print_darkness)), 0.0, mix(far_cap, 1.0, print_darkness));
-		// The floor comes in early: a sunlit palm at 40 m has lost its own lines and must not print paler than the sky.
-		float cov_floor = (far_sky * hz + far_step) * lit * smoothstep(0.0, far_in, dist_f);
-		float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
-		// The ruling is the page's and stays with the sky; its weight belongs to the ground, so a walk shows the ground passing under the lines.
-		// The patches grow with distance (by distance, not depth), so that the smallest still spans ground_grain lines: a smaller one would flicker between the lines.
-		float d_g = length(pv);
-		float s_min = ground_grain * l_px * k * d_g * d_g / max(INV_VIEW_MATRIX[3].y - pw.y, 0.3);
-		float lod_g = log2(max(s_min, 0.001));
-		float n_g = patch_n(pw.xz, lod_g);
-		float w_g = mix(0.5, 0.06, ground_edge);
-		float g_mot = (smoothstep(0.5 - w_g, 0.5 + w_g, n_g) * 2.0 - 1.0) * ground_mottle * (1.0 - smoothstep(15.0, 45.0, d_g));
-		float c_g = clamp((ground_cap - 0.06) * 1.3, 0.0, 0.85);
-		cov_far = mix(cov_far, c_g + g_mot * min(c_g, 0.85 - c_g), g_rule);
-		float i_far = hatch(elev, k, cov_far, l_px, 99.0);
-		ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
-		tone_p = mix(tone, 1.0 - dark_far, dist_f);
-		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
 		// Far land at totality is sparse ruling on the horizon's cream reserve.
 		float ridge_distance = smoothstep(75.0, 550.0, length(pw.xz));
 		float ridge_lines = hatch(elev, k, mix(0.24, 0.14, ridge_distance), l_px * mix(1.5, 2.5, ridge_distance), 99.0);
 		ink = mix(ink, ridge_lines, ridge_totality);
 	}
 	ink = max(ink, edge * outline);
+	if (measuring_paper) ink = paper_edge;
 	ink = mix(ink, min(ink, 0.08), box_reserve);
 	ink = max(ink, case_solid);
 
@@ -414,6 +477,9 @@ void fragment() {
 	float fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
+	if (print_darkness < 0.001 && night > 0.5) {
+		page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f) * (sky ? 1.0 : max(print_darkness, night))) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
+	}
 	float blue = print_darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone_p) * blue);
@@ -421,7 +487,13 @@ void fragment() {
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
-	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
+	if (print_darkness < 0.001 && night > 0.5) {
+		float night_value = sky ? smoothstep(heighten_lo, heighten_hi, tone_p) : smoothstep(0.25, 0.96, tone_raw);
+		if (room_value >= 0.0) night_value = room_value;
+		page = mix(page, mix(paper, safe_light, red), night_value * nw);
+	} else {
+		page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
+	}
 	vec3 print_colour = mix(page, mix(ink_col, page, ridge_totality * 0.4), clamp(ink, 0.0, 1.0) * ink_strength);
 	print_colour = mix(print_colour, ink_col, moon_ink);
 	// Only the sky around an optically visible field star gets a reserve.
