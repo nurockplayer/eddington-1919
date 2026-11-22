@@ -64,6 +64,8 @@ func _run() -> void:
 				target = game.player.global_position + Vector3(0, 1.6, 0) + (flat * cos(pitch) + Vector3.UP * sin(pitch)) * 10.0
 			if target == Vector3.INF: target = game._totality_aim_point()
 			game.player.look_at_point(target)
+			game.player.rotation.y = game.player.yaw
+			game.player.camera.rotation.x = game.player.pitch
 			if b[0] == "dialogue":
 				game.ui.visible = true
 				game.ui.hud.visible = false
@@ -76,8 +78,13 @@ func _run() -> void:
 			game.ui.dialogue_portrait.hide()
 		if size.y == 1080: continue
 		# Real second-contact staging and deterministic gameplay time.
+		game.ui.visible = true
 		game._start_game()
 		await game._begin_totality()
+		game.player.rotation.y = game.player.yaw
+		game.player.camera.rotation.x = game.player.pitch
+		game.player.can_move = false
+		game.player.can_look = false
 		game.set_process(false)
 		game.player.set_physics_process(false)
 		for i in 150:
@@ -90,6 +97,8 @@ func _run() -> void:
 		bench._light("totality")
 		game.ui.visible = false
 		game.player.look_at_point(game._totality_aim_point())
+		game.player.rotation.y = game.player.yaw
+		game.player.camera.rotation.x = game.player.pitch
 		var start_pitch: float = game.player.camera.rotation.x
 		var start_yaw: float = game.player.rotation.y
 		var folder := base.path_join("motion")
