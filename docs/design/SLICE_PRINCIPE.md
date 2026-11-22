@@ -744,3 +744,15 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
   2. **This PR's change: accepted as an improvement.** The darkroom is the frame accepted in principle at c463fcd: 0 changed pixels at 1440p against it. Ruled walls, floor and bench in four directions and a clean sheet of paper, where main has a soft red render under a dot screen.
   3. **Whole scene: not accepted.** Seen whole against main, the new darkroom is evenly lit: main's pool of safelight on the bench and wall and its dark corners are gone, so the room no longer reads as a dark room with one lamp. The shelf boxes are heavy dark blocks. Backlog with #419 (darkroom plate): the ruling density should fall off with distance from the lamp.
 - Before the gate: three forced-draw reps in the darkroom night view and the brief's test line (brief `day-surface-fu4.md`). Count stays **7/9**.
+
+### 2026-11-23 09:2x JST: #428 totality-print not accepted at 33d956a (round 2 of 3); last round is the corona alone
+- The capture job died in the 03:20 JST restart, but every frame was already on disk (720p and 1440p, main twin a53b0d4 and head; last file 03:04 JST). Nothing recaptured.
+- Whole 720p head frames first (`totality_wide`, `totality_sky`, `totality_horizon`, `play_p25`), then main against head, then native crops: `docs/design/slice_principe/accept/428/33d956a/`, main left. CI `suites` passes at this head (item 1 met).
+  - **Sky: met.** Dark blue paper under straight ruling in all four frames; the page reads as night. Much better than main's pale sky with rings.
+  - **Ghost shapes (item 3): met.** Nothing but the corona is white near the Sun.
+  - **Clouds (item 4): met well enough.** Tone from closer ruling, a thin contour, lobed tops over flat bases (`clouds-wide-native-head.jpg`). They are regular, and the largest in `totality_wide` is close to a plain dome; backlog, not this PR.
+  - **Band (item 5): met.** No speckle; the glow rises as a wash with thin lines (`band-edge-native-main-left.jpg`).
+  - **Corona (item 2): not met, and now the frame's weakest thing.** It is the first thing the eye lands on, as asked, but it is a flat white starburst: about forty fat solid wedges fused into a white blob round the Moon, cut off hard at about two radii (`corona-1440-native-main-left.jpg`). It reads as a cartoon flash pasted on the page, with no line of the engraving in it. Main's corona, on the left of the same crop, is right in drawing: hundreds of hair-fine radial lines, close at the limb and opening outward. The climax cannot merge with this.
+  - Day frames: only the sky changes (`arrival-main-left.jpg`); `darkroom` is the same picture with the capture framing shifted (504,983 px at 6%, as in #437's 720p pair).
+- **Verdicts:** technical regression none seen; this PR's change not accepted (the corona); whole scene not accepted.
+- **Round 3, the last:** the corona redrawn as fine white line work, nothing else touched (brief `totality-print-fu3.md`). If it misses again the sky merges without the corona change and the corona gets its own approach. Count stays **7/9**.
