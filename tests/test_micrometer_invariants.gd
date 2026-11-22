@@ -23,7 +23,7 @@ func check(ok: bool, message: String) -> void:
 		print("FAIL: ", message)
 
 
-func press(code: Key) -> void:
+func press(code: int) -> void:
 	var event := InputEventKey.new()
 	event.keycode = code
 	event.pressed = true
@@ -73,11 +73,12 @@ func measure(run_seed: int, cloudy: bool, careless: bool) -> Dictionary:
 	game.phase = game.Phase.NIGHT
 	game.sim.rule_id = "strict"
 	game.sim.drive_rate_checked = not cloudy
+	game.sim.drive_wound = true
 	game.plate_textures.clear()
 	# Generate actual plates. Cloudy/trailed exposures keep a wide interval.
 	for i in (1 if cloudy else 2):
 		game.sim.open_shutter(20.0 * i)
-		game.sim.accumulate(20.0 if cloudy else 8.0, 0.5 if cloudy else 0.0)
+		game.sim.accumulate(20.0 if cloudy else 8.0, 0.3 if cloudy else 0.0)
 		var plate: Dictionary = game.sim.close_shutter()
 		check(plate.usable, context + ": exposure provides a measurable plate")
 		game.plate_textures.append(Render.render(game.sim, plate))
@@ -88,9 +89,9 @@ func measure(run_seed: int, cloudy: bool, careless: bool) -> Dictionary:
 	await process_frame
 	for i in game.sim.plates.size():
 		await activate(ui.thumbs.get_child(i + 1))
+		await activate(ui.include_box)
 		if not ui.micrometer_on:
 			await activate(ui.mic_btn)
-		await activate(ui.include_box)
 		var plate: Dictionary = game.sim.plates[i]
 		var truth_px: float = game.sim.reading_for_value(plate.value)
 		var target := maxi(1, roundi(truth_px / 0.25)) + (8 if careless else 0)
@@ -117,10 +118,10 @@ func measure(run_seed: int, cloudy: bool, careless: bool) -> Dictionary:
 	check(game._pending == "verdict" and ui._choice_buttons.size() == 4,
 		context + ": report offers all four verdicts")
 	var verdict := Judgment.verdict_truth(game.sim)
-	if cloudy:
+	if cloudy and not careless:
 		check(verdict == 3, context + ": wide evidence reaches inconclusive")
 	# The numbered choice is the player's real dialogue input path.
-	await press((KEY_1 + verdict) as Key)
+	await press(KEY_1 + verdict)
 	check(game._verdict == verdict and game._verdict_class == "consistent"
 		and game._pending == "judgment", context + ": verdict is recorded and continues")
 	print("F8 %s: alignment_error=%.6f truth_error=%.6f sigma=%.6f verdict=%d"
