@@ -901,7 +901,7 @@ func _layout_viewer() -> void:
 		return
 	# In a crowded report, put the rule after the plot so a long rule cannot
 	# consume the space needed by the scroll area above the reason dialogue.
-	var crowded_report := _viewer_reporting and (chart.rows.size() + 1) * font.get_height(Settings.fs(14)) > 184.0
+	var crowded_report: bool = _viewer_reporting and (chart.rows.size() + 1) * font.get_height(Settings.fs(14)) > 184.0
 	var rule_index := 2 if crowded_report else 1
 	if viewer_rule.get_index() != rule_index:
 		_viewer_right.move_child(viewer_rule, rule_index)
