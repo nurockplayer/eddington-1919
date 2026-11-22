@@ -170,6 +170,9 @@ func _check_director_flow() -> void:
 		chapter.free()
 		return
 	_finish_dialogue(chapter)
+	chapter.score.set_process(false)
+	chapter.score.advance(2.0, false)
+	var story_before: Dictionary = root.get_node("Story").to_save()
 	check(chapter.beat == chapter.Beat.INVESTIGATE, "the opening hands over to investigation")
 
 	# First examine: the last line starts the record and ducks the rain.
@@ -185,6 +188,12 @@ func _check_director_flow() -> void:
 	check(duck.get("db", 0.0) <= ScorePlayer.SILENCE_DB and is_equal_approx(duck.get("fade", 0.0), 1.5),
 		"cambridge_rain ducks to silence over 1.5 s")
 
+	chapter.score.advance(0.75, false)
+	check(chapter.score.layers.cambridge_rain.db > ScorePlayer.SILENCE_DB and chapter.score.layers.cambridge_rain.db < Score.level_db("cambridge_rain"), "duck ramp is in progress at 0.75 s")
+	chapter.score.advance(0.75, false)
+	check(chapter.score.layers.cambridge_rain.db <= ScorePlayer.SILENCE_DB, "score reaches silence within 1.5 s")
+	check(root.get_node("Story").to_save() == story_before, "first press leaves story flags unchanged")
+
 	# Second examine while playing: the needle lifts and the score returns.
 	mark = ScorePlayer.cue_log.size()
 	chapter._interact("gramophone")
@@ -195,12 +204,20 @@ func _check_director_flow() -> void:
 	check(is_equal_approx(back.get("db", 0.0), Score.level_db("cambridge_rain")) and is_equal_approx(back.get("fade", 0.0), 3.0),
 		"cambridge_rain returns over 3 s")
 
+	chapter.score.advance(1.5, false)
+	check(chapter.score.layers.cambridge_rain.db > ScorePlayer.SILENCE_DB and chapter.score.layers.cambridge_rain.db < Score.level_db("cambridge_rain"), "return ramp is in progress at 1.5 s")
+	chapter.score.advance(1.5, false)
+	check(is_equal_approx(chapter.score.layers.cambridge_rain.db, Score.level_db("cambridge_rain")), "score returns to its original level at 3 s")
+	check(root.get_node("Story").to_save() == story_before, "stop leaves story flags unchanged")
+
 	# Third examine: the short line, and the record can play again.
 	mark = ScorePlayer.cue_log.size()
 	chapter._interact("gramophone")
 	check(chapter.ui._seq.size() == 1 and str(chapter.ui._seq[0].t).contains("又放了一次"), "playing again uses the short line")
 	_finish_dialogue(chapter)
 	check(chapter.gramophone_playing and chapter.gramophone_plays == 2, "the record plays a second time")
+
+	check(root.get_node("Story").to_save() == story_before, "replay leaves story flags unchanged")
 
 	# The finished signal: state and score come back without a re-examine.
 	mark = ScorePlayer.cue_log.size()
@@ -211,6 +228,8 @@ func _check_director_flow() -> void:
 	check(is_equal_approx(ended.get("db", 0.0), Score.level_db("cambridge_rain")) and is_equal_approx(ended.get("fade", 0.0), 3.0),
 		"the finished path restores the score over 3 s")
 
+	check(root.get_node("Story").to_save() == story_before, "natural finish leaves story flags unchanged")
+
 	# Leaving Cambridge stops a playing record.
 	mark = ScorePlayer.cue_log.size()
 	chapter._interact("gramophone")
@@ -218,3 +237,12 @@ func _check_director_flow() -> void:
 	check(chapter.gramophone_playing, "the record is playing when the montage begins")
 	chapter._montage()
 	check(not chapter.gramophone_playing, "_montage stops the record")
+
+	await create_timer(0.4).timeout
+	check(chapter._gramophone.volume_db < -16.0 and chapter._gramophone.volume_db > -80.0, "leaving fades the record instead of cutting it")
+	await create_timer(0.5).timeout
+	check(chapter._gramophone.volume_db <= -80.0 and not chapter._gramophone.playing, "departure fade reaches silence and stops the player")
+	check(_layer_since("cambridge_rain", mark).get("db", 0.0) <= ScorePlayer.SILENCE_DB, "leaving never restores the outgoing Cambridge score")
+	check(root.get_node("Story").to_save() == story_before, "gramophone departure fade leaves story flags unchanged")
+	chapter.free()
+	await process_frame
