@@ -5,6 +5,8 @@ const Fonts := preload("res://scripts/fonts.gd")
 ## Small procedural workbook prop used in the Cambridge departure room and the
 ## Príncipe darkroom. Keeps the final Kit sentence on the night page.
 
+var field_ledger := false
+
 var _leaf: MeshInstance3D
 var _cover_pivot: Node3D
 var _opened := false
@@ -12,33 +14,37 @@ var kit_line := ""
 
 
 func _ready() -> void:
-	var leather := StandardMaterial3D.new()
-	leather.albedo_color = Color(0.30, 0.21, 0.14)
-	leather.roughness = 0.9
-	var paper := StandardMaterial3D.new()
-	paper.albedo_color = Color(0.80, 0.74, 0.62)
-	paper.roughness = 0.95
-	_cover_pivot = Node3D.new()
-	_cover_pivot.name = "WorkbookCoverHinge"
-	_cover_pivot.position = Vector3(0, 0.018, -0.17)
-	add_child(_cover_pivot)
-	var cover_mesh := BoxMesh.new()
-	cover_mesh.size = Vector3(0.48, 0.035, 0.34)
-	var cover := MeshInstance3D.new()
-	cover.name = "WorkbookCover"
-	cover.mesh = cover_mesh
-	cover.material_override = leather
-	cover.position = Vector3(0, 0, 0.17)
-	_cover_pivot.add_child(cover)
-	var page_mesh := BoxMesh.new()
-	page_mesh.size = Vector3(0.44, 0.012, 0.30)
-	_leaf = MeshInstance3D.new()
-	_leaf.name = "DatedBlankPage"
-	_leaf.mesh = page_mesh
-	_leaf.material_override = paper
-	_leaf.position = Vector3(0, 0.047, 0)
-	_leaf.visible = false
-	add_child(_leaf)
+	if field_ledger:
+		preload("res://scripts/world_builder.gd").new(self).model("field_workbook", Vector3.ZERO)
+		_opened = true
+	else:
+		var leather := StandardMaterial3D.new()
+		leather.albedo_color = Color(0.30, 0.21, 0.14)
+		leather.roughness = 0.9
+		var paper := StandardMaterial3D.new()
+		paper.albedo_color = Color(0.80, 0.74, 0.62)
+		paper.roughness = 0.95
+		_cover_pivot = Node3D.new()
+		_cover_pivot.name = "WorkbookCoverHinge"
+		_cover_pivot.position = Vector3(0, 0.018, -0.17)
+		add_child(_cover_pivot)
+		var cover_mesh := BoxMesh.new()
+		cover_mesh.size = Vector3(0.48, 0.035, 0.34)
+		var cover := MeshInstance3D.new()
+		cover.name = "WorkbookCover"
+		cover.mesh = cover_mesh
+		cover.material_override = leather
+		cover.position = Vector3(0, 0, 0.17)
+		_cover_pivot.add_child(cover)
+		var page_mesh := BoxMesh.new()
+		page_mesh.size = Vector3(0.44, 0.012, 0.30)
+		_leaf = MeshInstance3D.new()
+		_leaf.name = "DatedBlankPage"
+		_leaf.mesh = page_mesh
+		_leaf.material_override = paper
+		_leaf.position = Vector3(0, 0.047, 0)
+		_leaf.visible = false
+		add_child(_leaf)
 	var date := Label3D.new()
 	date.name = "WorkbookDate"
 	date.text = L.t("1919 年 5 月 29 日")
@@ -47,9 +53,9 @@ func _ready() -> void:
 	date.pixel_size = 0.0013
 	date.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	date.modulate = Color(0.24, 0.18, 0.12)
-	date.position = Vector3(0, 0.057, -0.09)
+	date.position = Vector3(0, 0.083 if field_ledger else 0.057, -0.09)
 	date.rotation.x = deg_to_rad(-90)
-	date.visible = false
+	date.visible = field_ledger
 	add_child(date)
 	set_meta("date_label", date)
 
@@ -76,6 +82,6 @@ func write_kit_line(line: String) -> void:
 	note.width = 380
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.modulate = Color(0.24, 0.18, 0.12)
-	note.position = Vector3(0, 0.058, 0.03)
+	note.position = Vector3(0, 0.084 if field_ledger else 0.058, 0.03)
 	note.rotation.x = deg_to_rad(-90)
 	add_child(note)
