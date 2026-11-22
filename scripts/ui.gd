@@ -899,6 +899,12 @@ func _layout_viewer() -> void:
 	# Deferred layout signals can arrive after replay detaches the old scene.
 	if not is_inside_tree():
 		return
+	# In a crowded report, put the rule after the plot so a long rule cannot
+	# consume the space needed by the scroll area above the reason dialogue.
+	var crowded_report := _viewer_reporting and (chart.rows.size() + 1) * font.get_height(Settings.fs(14)) > 184.0
+	var rule_index := 2 if crowded_report else 1
+	if viewer_rule.get_index() != rule_index:
+		_viewer_right.move_child(viewer_rule, rule_index)
 	var window_height := float(get_viewport().get_window().size.y)
 	var growth := clampf((window_height - 720.0) / 360.0, 0.0, 1.0)
 	var extra := minf(76.0 * growth, maxf(0.0, get_viewport().get_visible_rect().size.x - 1556.0 + 32.0 * growth))

@@ -676,24 +676,26 @@ func _test_dense_report_chart() -> void:
 				Settings.refresh_fonts(self)
 				ui.chart.refresh_fonts()
 				ui.open_viewer(sim.plates, null, textures, true)
-				for picks in [[1, 2], [3, 2], [2, 3], [3, 3]]:
+				var c: Dictionary = sim.combined()
+				var interval := L.t("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″") % [c.value, c.sigma, c.value - 2 * c.sigma, c.value + 2 * c.sigma]
+				var prompts := [Content.verdict_prompt(interval),
+					[{"s": Content.E, "t": Content.verdict_feedback(2, 2, Judgment.interval_bounds(sim))}],
+					[Content.press_eddington(2)[0]],
+					[Content.judgment_prompt(Judgment.telegram_choices(), Judgment.reasons_for(sim).map(func(r): return L.t(r.text)))[1]]]
+				# Each prompt and each ledger arrangement is covered at every size/locale;
+				# row reachability does not need their redundant Cartesian product.
+				for index in prompts.size():
+					var picks: Array = [[1, 2], [3, 2], [2, 3], [3, 3]][index]
 					story.bet_1917 = {"pick": picks[0], "year": 1917}
 					sim.bet_pick = picks[1]
 					game._refresh_viewer()
 					ui.set_viewer_report(true)
 					check(ui.chart.rows.size() == sim.plates_available(), "real report producer supplies the maximum rows (no Sobral rows)")
-					var c: Dictionary = sim.combined()
-					var interval := L.t("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″") % [c.value, c.sigma, c.value - 2 * c.sigma, c.value + 2 * c.sigma]
-					var prompts := [Content.verdict_prompt(interval),
-						[{"s": Content.E, "t": Content.verdict_feedback(2, 2, Judgment.interval_bounds(sim))}],
-						[Content.press_eddington(2)[0]],
-						[Content.judgment_prompt(Judgment.telegram_choices(), Judgment.reasons_for(sim).map(func(r): return L.t(r.text)))[1]]]
-					for prompt in prompts:
-						context = "12-row report %s %s scale %.1f bets %s prompt %s" % [window, locale, scale, picks, prompts.find(prompt)]
-						ui.play(prompt)
-						for frame in 12:
-							await process_frame
-						await _check_report_rows(ui)
+					context = "12-row report %s %s scale %.1f bets %s prompt %d" % [window, locale, scale, picks, index]
+					ui.play(prompts[index])
+					for frame in 12:
+						await process_frame
+					await _check_report_rows(ui)
 				ui.close_viewer()
 				ui.dialog_panel.hide()
 			ui.free()
@@ -724,15 +726,16 @@ func _check_report_rows(ui) -> void:
 		var visible_marker := marker
 		if scroll != null:
 			scroll.scroll_vertical = maxi(0, floori(minf(label.position.y, marker.position.y)))
-			await settle()
+			await process_frame
+			await process_frame
 			var offset: Vector2 = scroll.position + scroll.get_child(0).position
 			visible_label.position += offset
 			visible_marker.position += offset
 			var row_view := Rect2(scroll.position, Vector2(scroll.get_child(0).size.x, scroll.size.y))
 			check(scroll.clip_contents and row_view.encloses(visible_label) and row_view.encloses(visible_marker),
-				"each row is fully reachable inside the clipped scroll area")
+				"each row is fully reachable: label %s marker %s viewport %s" % [visible_label, visible_marker, row_view])
 			check(row_view.position.y >= 30.0 and row_view.end.y < painted.result_bounds.position.y - 2.0,
-				"scroll area clears the prediction band and combined reading")
+				"scroll area %s clears prediction band and reading %s" % [row_view, painted.result_bounds])
 		check(rect.encloses(visible_label) and rect.encloses(visible_marker), "row label and marker stay inside chart: %s %s" % [visible_label, visible_marker])
 		if i > 0:
 			var previous: Rect2 = painted.row_bounds[i - 1]

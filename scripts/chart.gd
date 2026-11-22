@@ -153,7 +153,6 @@ func _draw() -> void:
 	_drawn_marker_bounds.clear()
 	_drawn_axis_bounds.clear()
 	_drawn_combined_bounds = Rect2()
-	_row_scroll.hide()
 	_drawn_row_texts.clear()
 	var w := size.x
 	var h := size.y
@@ -174,12 +173,14 @@ func _draw() -> void:
 		var x := _x(t, w)
 		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
 	if not revealed:
+		_row_scroll.hide()
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)
 		draw_string(font, Vector2(70, h * 0.45), unmeasured, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.7, 0.66, 0.58))
 		return
 	_paint_ledger(font, refs, top)
 	if rows.is_empty():
+		_row_scroll.hide()
 		var empty_hint := L.t("沒有可量測的底片。")
 		_drawn_texts.append(empty_hint)
 		draw_string(font, Vector2(70, h * 0.45), empty_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(0.9, 0.55, 0.5))
