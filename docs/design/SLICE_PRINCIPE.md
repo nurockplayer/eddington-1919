@@ -756,3 +756,11 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
   - Day frames: only the sky changes (`arrival-main-left.jpg`); `darkroom` is the same picture with the capture framing shifted (504,983 px at 6%, as in #437's 720p pair).
 - **Verdicts:** technical regression none seen; this PR's change not accepted (the corona); whole scene not accepted.
 - **Round 3, the last:** the corona redrawn as fine white line work, nothing else touched (brief `totality-print-fu3.md`). If it misses again the sky merges without the corona change and the corona gets its own approach. Count stays **7/9**.
+
+### 2026-11-23 09:0x JST: #341 veg-cards look accepted at b5a8c38 (fifth look); rebase and perf reps before the gate
+- Whole 720p head frames first (`house`, `arrival`, `totality_horizon`, then `totality_wide`), then main against head: `docs/design/slice_principe/accept/341/b5a8c38/`, main left. CI frames, base 311152f.
+  - (a) **Bananas = main: met.** Same silhouettes by the house and on the totality horizon.
+  - (b) **No wash: met.** No foliage prints as an unlined pale tint in any of the four views; the two distant forest cards are simply not drawn by day and return as the dark tree line at totality.
+  - (c) **Palms, shrubs, tree line as at e02f855: met.** Palm crowns are dense hatched leaf masses where main has combs; the shrubs are leafy bushes with fruit where main has faceted boulders; the totality horizon is a line of palm silhouettes under the glow band.
+- **Verdicts:** technical regression none seen; this PR's change accepted as an improvement; whole scene not accepted (the near shrubs print heavy and nearly black in `arrival`; the hill left of the house is still a faceted lump; ground and sky belong to other PRs).
+- The PR conflicts with main. Before the gate: rebase, one CI capture of the four views to show the vegetation unchanged, the test line, three forced-draw reps (brief `veg-cards-fu5.md`). Count stays **7/9**.
