@@ -38,6 +38,19 @@ else
 fi
 printf '%s\n' "$run_id" > "$out/run-id.txt"
 printf '%s\n' "$run_url" > "$out/run-url.txt"
-rtk gh run watch "$run_id" --repo "$repo" --exit-status
+# A run can 404 for a while after dispatch, and a dropped connection ends
+# `gh run watch` early: retry until the run itself reports completion.
+tries=0
+until rtk gh run watch "$run_id" --repo "$repo" --exit-status; do
+  conclusion=$(rtk gh run view "$run_id" --repo "$repo" --json status,conclusion \
+    --jq 'select(.status == "completed") | .conclusion' 2>/dev/null || true)
+  case "$conclusion" in
+    '') tries=$((tries + 1))
+        [ "$tries" -lt 20 ] || { echo "Run $run_id: no result after $tries retries" >&2; exit 1; }
+        sleep 30 ;;
+    success) break ;;
+    *) echo "Run $run_id concluded: $conclusion" >&2; exit 1 ;;
+  esac
+done
 rtk gh run download "$run_id" --repo "$repo" --name "visual-capture-$run_id" --dir "$out"
 printf '%s\n' "$out"/frames/*.png
