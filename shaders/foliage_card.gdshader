@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode cull_disabled;
+render_mode cull_disabled, fog_disabled;
 
 uniform sampler2D tex_v1 : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D tex_v2 : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -26,8 +26,10 @@ void fragment() {
 	if (c.a < 0.5) {
 		discard;
 	}
-	ALBEDO = c.rgb * tint.rgb;
+	// Keep the painted leaf tone in the engraving's hatch range. Aerial fog
+	// otherwise lifts the cutouts to bare paper before the distance ruling.
+	ALBEDO = c.rgb * tint.rgb * 0.22;
 	ROUGHNESS = 0.9;
 	SPECULAR = 0.2;
-	BACKLIGHT = ALBEDO * backlight;
+	BACKLIGHT = vec3(0.0);
 }

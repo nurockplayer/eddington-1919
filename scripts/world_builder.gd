@@ -873,7 +873,7 @@ func _banana_card_mesh() -> ArrayMesh:
 	_banana_mesh = st.commit()
 	st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var leaf := _folded_card(10, 1.6, 35.0, -40.0, 0.325, 15.0)
+	var leaf := _folded_card(10, 1.6, 70.0, -25.0, 0.325, 15.0)
 	for k in 6:
 		var basis := Basis(Vector3.UP, deg_to_rad(k * 60.0 + (k * 17) % 23))
 		st.append_from(leaf, 0, Transform3D(basis, Vector3(0, 1.5, 0)))

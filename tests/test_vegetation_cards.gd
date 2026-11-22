@@ -136,6 +136,16 @@ func _check_shrubs(wb) -> void:
 		var mm: MultiMesh = node.multimesh
 		check(mm.instance_count == expected.get(String(node.name), 0), "instance count: " + String(node.name))
 		check(mm.use_custom_data, "custom instance data enabled")
+		if String(node.name) == "banana_clump_multi":
+			var leaves := mm.mesh.surface_get_arrays(1)
+			var high := -INF
+			var tip := -INF
+			for i in leaves[Mesh.ARRAY_VERTEX].size():
+				var vertex: Vector3 = leaves[Mesh.ARRAY_VERTEX][i]
+				high = maxf(high, vertex.y)
+				if is_equal_approx(leaves[Mesh.ARRAY_TEX_UV][i].x, 1.0):
+					tip = maxf(tip, vertex.y)
+			check(tip > 1.8 and high > tip + 0.05, "banana leaves rise above the stem and arch down at their tips")
 		if DisplayServer.get_name() == "headless":
 			readback_skipped += mm.instance_count
 		else:
