@@ -11,9 +11,6 @@ run-name: >-
   ${{ inputs.request_id }}
 
 on:
-  push:
-    branches: [tools/ci-capture]
-    paths: [.github/visual-capture/**, .github/workflows/visual-capture.yml]
   workflow_dispatch:
     inputs:
       ref:
@@ -57,10 +54,6 @@ jobs:
           path: harness
           sparse-checkout: .github/visual-capture
           persist-credentials: false
-      # TEMP: a push to the development branch reads its inputs from a file.
-      - name: Development inputs
-        if: github.event_name == 'push'
-        run: cat harness/.github/visual-capture/push-test.env >> "$GITHUB_ENV"
       - name: Resolve the commit
         id: commit
         env:
