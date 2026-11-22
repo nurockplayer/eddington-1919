@@ -400,7 +400,6 @@ func _run() -> void:
     game.world.safelight.light_energy = 0.5
     game.world.lamp.light_energy = 1.1
     game.world.doorway_daylight.light_energy = 0.0
-    game.ui.prompt_label.position.y = 300.0
     for scene_name in ["night", "coda"]:
         if scene_name == "coda":
             game._begin_coda()
@@ -409,6 +408,7 @@ func _run() -> void:
             game._busy = false
             state = "coda"
         for id in ["mentor_loupe", "departure_workbook"]:
+            game.ui.prompt_label.position.y = 200.0 if id == "departure_workbook" else 300.0
             if scene_name == "coda":
                 game.coda_step = game.CodaStep.LOUPE if id == "mentor_loupe" else game.CodaStep.WORKBOOK
             for distance in [3.0, 1.5]:
