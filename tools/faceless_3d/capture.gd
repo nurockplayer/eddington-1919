@@ -31,6 +31,7 @@ func _run() -> void:
 	await process_frame
 	game._start_game()
 	game.ui.show_toast("", 0.0)
+	game.ui.prompt_label.modulate.a = 0.0
 	await wide("day")
 	await survey("day")
 	await game._begin_totality()
@@ -81,6 +82,9 @@ func survey(scene_name: String) -> void:
 	assert(game.player.can_move, "Walking must be enabled by the game")
 	for character in ["eddington", "cottingham"]:
 		var npc: Node3D = game.world[character]
+		if character == "cottingham":
+			await capture_cottingham(scene_name, npc)
+			continue
 		for direction in range(4):
 			var angle: float = npc.rotation.y + direction * PI / 2.0
 			var offset := Vector3(sin(angle), 0, cos(angle))
@@ -113,6 +117,27 @@ func survey(scene_name: String) -> void:
 				assert(best_image.save_png(capture_path) == OK, "Cannot save capture: %s" % capture_path)
 			records.append({"scene": scene_name, "character": character, "direction": direction,
 				"metres": minimum, "start": [start.x, start.y, start.z], "position": [best.x, best.y, best.z]})
+
+func capture_cottingham(scene_name: String, npc: Node3D) -> void:
+	var camera := Camera3D.new()
+	game.add_child(camera)
+	camera.fov = game.player.camera.fov
+	for direction in range(4):
+		var angle: float = npc.rotation.y + direction * PI / 2.0
+		var offset := Vector3(sin(angle), 0, cos(angle))
+		var target := eye(npc)
+		camera.global_position = target + offset * 0.55
+		camera.look_at(target)
+		camera.make_current()
+		await process_frame
+		await RenderingServer.frame_post_draw
+		var capture_path := capture_dir.path_join("%s_cottingham_%d.png" % [scene_name, direction])
+		assert(root.get_texture().get_image().save_png(capture_path) == OK, "Cannot save capture: %s" % capture_path)
+		records.append({"scene": scene_name, "character": "cottingham", "direction": direction,
+			"metres": camera.global_position.distance_to(target),
+			"camera_position": [camera.global_position.x, camera.global_position.y, camera.global_position.z]})
+	game.player.camera.make_current()
+	camera.queue_free()
 
 func walk_to(target: Vector3, character_position: Vector3, side: Vector3) -> Dictionary:
 	# Sample the player's capsule against the actual collision world and walk a
