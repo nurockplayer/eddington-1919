@@ -177,6 +177,39 @@ vec2 page_ruling(vec3 ray, mat4 camera) {
 	return vec2(atan(ray.y, -ray.z), atan(ray.y + 0.62 * ray.x, -ray.z)) + vec2(pitch);
 }
 
+// Three wind-driven cloud banks: joined lobed tops, clipped flat bases, no holes.
+// Return the signed contour distance and the ruling weight inside the bank.
+vec2 print_cloud(vec3 direction) {
+	vec2 p = vec2(atan(direction.x, -direction.z) + wind.x * cloud_time, asin(direction.y));
+	vec2 field = vec2(10.0, 0.0);
+	for (int bank = 0; bank < 3; bank++) {
+		float row = float(bank);
+		float cell_width = 0.72 + row * 0.34;
+		float cell = floor(p.x / cell_width);
+		for (int neighbour = -1; neighbour <= 1; neighbour++) {
+			float id = cell + float(neighbour);
+			float seed = hash21(vec2(id, row + 31.0));
+			float base = 0.045 + row * 0.27 + 0.06 * seed;
+			float height = 0.055 + row * 0.055;
+			float centre = (id + 0.5) * cell_width;
+			vec2 q = p - vec2(centre, base);
+			float contour = 10.0;
+			for (int lobe = 0; lobe < 5; lobe++) {
+				float n = float(lobe);
+				float puff = hash21(vec2(id * 5.0 + n, row + 71.0));
+				vec2 radius = vec2(cell_width * (0.10 + 0.035 * puff), height * (0.65 + 0.55 * puff));
+				vec2 offset = vec2((n - 2.0) * cell_width * 0.105, height * 0.22);
+				contour = min(contour, (length((q - offset) / radius) - 1.0) * radius.y);
+			}
+			contour = max(contour, -q.y);
+			if (contour < field.x) {
+				field = vec2(contour, clamp(1.0 - q.y / (height * 1.4), 0.0, 1.0));
+			}
+		}
+	}
+	return field;
+}
+
 // |d(dot(P, a))| per pixel on the surface through the view-space point z * q
 // (q.z = -1) with view-space normal n. k: view units per pixel at depth 1.
 float grad_px(vec3 a_v, vec3 n_v, vec3 q, float z, float k) {
@@ -261,27 +294,34 @@ void fragment() {
 	float paper_edge = 0.0;
 	float ridge_totality = 0.0;
 	float sky_white = 0.0;
+	float corona_white = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
-		float cloud = eclipse_cloud_density(ray_w);
-		float cloud_core = smoothstep(0.32, 0.85, cloud);
-		float glow = exp(-distance / (sun_r * 2.5));
+		vec2 cloud_field = vec2(10.0, 0.0);
+		if (print_darkness > 0.0) cloud_field = print_cloud(ray_w);
+		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
+		float cloud_pixel = max(length(cloud_gradient), 0.00001);
+		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
+		float cloud_weight = cloud_body * mix(0.25, 1.0, cloud_field.y);
+		float cloud_contour = 1.0 - smoothstep(0.35, 0.85, abs(cloud_field.x) / (cloud_pixel * res_k));
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
-		float primary = clamp(0.25 + 0.12 * high_sky + 0.16 * cloud_core - 0.10 * glow - 0.22 * horizon, 0.03, 0.55);
-		float crossed = clamp(0.08 + 0.14 * high_sky + 0.18 * cloud_core - 0.20 * glow - 0.20 * horizon, 0.0, 0.35);
-		// Map totality directly to line coverage: feeding it through the day
-		// tone clamps would saturate both families and flatten the cloud forms.
+		float band_lines = smoothstep(0.015, 0.19, abs(elev));
+		float primary = (0.25 + 0.12 * high_sky + 0.20 * cloud_weight) * band_lines;
+		float crossed = (0.08 + 0.14 * high_sky + 0.20 * cloud_weight) * band_lines;
+		// Clouds have no fill or gradient outline: only these weights and a hairline.
 		primary = mix(clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, primary, print_darkness);
 		crossed = mix(clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, crossed, print_darkness);
 		float i1 = hatch(ruling.x, k, primary, l_px, 99.0);
 		float i2 = hatch(ruling.y, k, crossed, l_px, 99.0);
+		// At the band's edge, retain every fourth ruled line and thin the rest away.
+		float sparse = hatch(ruling.x, k, primary, l_px * 4.0, 99.0);
+		i1 = mix(i1, mix(sparse, i1, band_lines), print_darkness);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
-		float cloud_edge = smoothstep(0.002, 0.006, length(vec2(dFdx(cloud), dFdy(cloud))) * res_k);
-		ink = max(ink, cloud_edge * cloud_core * 0.85 * print_darkness);
+		ink = max(ink, cloud_contour * band_lines * print_darkness * 0.8);
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
@@ -325,25 +365,27 @@ void fragment() {
 		moon_ink = front * step(r, 1.0) * moon_lines;
 
 		moon_ink = max(moon_ink, front * step(r, 1.0) * print_darkness * (1.0 - visible_diamond));
-		// Forty fixed white rays. One sector lookup replaces the adaptive radial
-		// hatch: its count and length never depend on radius or pixel footprint.
+		// Forty unequal white rays, tapering to 3-4 radii beyond the solar limb.
+		// Coverage fades by thinning the line; no radial bands or luminous wash.
 		if (print_darkness > 0.0 && front > 0.0) {
 			float sector = (atan(lp.y, lp.x) / 6.2831853 + 0.5) * 40.0;
 			float id = floor(sector);
 			float seed = hash21(vec2(id, 19.0));
-			float reach = mix(1.5 + seed, 3.0 + 2.0 * seed, step(0.89, hash21(vec2(id, 43.0))));
-			float centre = 0.5 + (hash21(vec2(id, 5.0)) - 0.5) * 0.25;
+			float reach = 2.8 + 2.2 * seed;
+			float centre = 0.5 + (hash21(vec2(id, 5.0)) - 0.5) * 0.18;
 			float taper = clamp((reach - r) / (reach - 1.0), 0.0, 1.0);
-			float width = (0.18 + 0.15 * seed) * taper;
-			float aa = max(fwidth(sector), 0.001);
-			float rays = (1.0 - smoothstep(width - aa, width + aa, abs(fract(sector) - centre))) * taper;
-			float ring = 1.0 - smoothstep(1.08, 1.24, r);
-			// Chalk holds the inner crown; the cloud modulates the outer rays.
-			float crown = max(ring, rays * (1.0 - 0.25 * cloud_core));
-			sky_white = max(sky_white, crown);
-			sky_white = max(sky_white, cloud_edge * (1.0 - cloud_core) * glow);
-			ink *= 1.0 - crown;
+			float width = (0.70 + 0.28 * seed) * pow(taper, 0.65) / sqrt(max(r, 1.0));
+			float aa = max(0.5 * fwidth(sector), 0.001);
+			float rays = line_cov(abs(fract(sector) - centre), width, aa);
+			float limb_white = 1.0 - smoothstep(1.13, 1.18, r);
+			corona_white = max(limb_white, rays) * step(1.0, r);
+			// Heightening belongs only to the sun-facing contour, within four radii.
+			vec2 toward_sun = -vec2(dFdx(distance), dFdy(distance));
+			float facing = max(dot(cloud_gradient, toward_sun) / max(cloud_pixel * length(toward_sun), 0.0000001), 0.0);
+			float rim = cloud_contour * smoothstep(0.15, 0.65, facing) * (1.0 - smoothstep(3.5, 4.0, r));
+			corona_white = max(corona_white, rim * step(1.18, r));
 		}
+
 
 	} else {
 		vec3 q = pv / z;
@@ -508,7 +550,7 @@ void fragment() {
 
 	// Paper: fibre grain fixed to the page; an optional thin wash of the scene's hue.
 	vec2 fp = FRAGCOORD.xy / res_k;
-	float fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
+	float fibre = (vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4) * (sky ? 1.0 - print_darkness : 1.0);
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	if (print_darkness < 0.001 && night > 0.5) {
@@ -530,6 +572,7 @@ void fragment() {
 	}
 	vec3 print_colour = mix(page, mix(ink_col, page, ridge_totality * 0.4), clamp(ink, 0.0, 1.0) * ink_strength);
 	print_colour = mix(print_colour, ink_col, moon_ink);
+	print_colour = mix(print_colour, vec3(1.0), corona_white * print_darkness);
 	// Only the sky around an optically visible field star gets a reserve.
 	// Keep the original white core; the corona's ruling ends at its ink edge.
 	float star_vis = clamp((print_darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night);
