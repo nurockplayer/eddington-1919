@@ -367,6 +367,18 @@ func diagnostic(path: String, target: Node) -> void:
     await mask(path+"-object-mask.png", target)
 
 
+func rect_array(r: Rect2) -> Array:
+    return [r.position.x,r.position.y,r.size.x,r.size.y]
+
+func hud_rects() -> Dictionary:
+    var result := {}
+    for pair in [["checklist",game.ui.objectives.get_parent()],["clock",game.ui.clock_label],["dialogue",game.ui.dialog_panel],["choices",game.ui.choice_box],["caption",game.ui.caption],["totality",game.ui.tot_panel],["viewer",game.ui.viewer],["hold",game.ui.hold_bar],["toast",game.ui.toast]]:
+        var c: Control = pair[1]
+        if c.is_visible_in_tree() and c.modulate.a > 0.01:
+            result[pair[0]] = rect_array(c.get_global_rect().grow(16 if pair[0] in ["clock","caption","toast"] else 0))
+    return result
+
+
 func _run() -> void:
     var resolution := ""
     for arg in OS.get_cmdline_user_args():
@@ -400,7 +412,7 @@ func _run() -> void:
             if scene_name == "coda":
                 game.coda_step = game.CodaStep.LOUPE if id == "mentor_loupe" else game.CodaStep.WORKBOOK
             for distance in [3.0, 1.5]:
-                var key := scene_name + "-" + id + "-" + str(distance)
+                var key: String = scene_name + "-" + id + "-" + str(distance)
                 var n: Node3D = interactables[id]
                 await physics_frame
                 var eye: Vector3
@@ -419,7 +431,7 @@ func _run() -> void:
                 await frames(3)
                 game._process_interaction(0)
                 assert(game.player.aimed_interactable() == n, "Ray misses " + prefix + " " + key)
-                var path := "frames/" + prefix + "-" + resolution + "-" + key
+                var path: String = "frames/" + prefix + "-" + resolution + "-" + key
                 await save(path + ".png", {"label":key,"distance_m":eye.distance_to(target),"interactable":id})
                 for object_id in ["mentor_loupe", "departure_workbook"]:
                     await mask(path + "-" + object_id + "-mask.png", interactables[object_id])
