@@ -712,3 +712,13 @@ Whole CI frames first (`day_cottingham_0`, `day_cottingham_2`, `darkroom_cotting
 ### 2026-11-22 23:3x JST: #409 merged; #349 perf clean, to the gate
 - **#409 merged** at 3fd7c6c (23:14 JST). The oracle blocker at 800e570 was the report script still looking up the dropped darkroom view; fixed at 21a6e7e (tool only, no look change). edd-lead told.
 - **#349 p3-ridges:** three clean forced-draw reps on the Mac (quiet host, no overlapping run), ridges on / off: 4.11 / 3.01, 3.50 / 1.96, 3.55 / 1.94 ms. Worst on 4.11 ms (about 243 fps): no perf objection. Look accepted at 9840e74 (c203e14 adds only evidence sheets); CI green. Out of draft, to the review gate. Count stays **7/9**.
+
+### 2026-11-23 00:0x JST: #349 merged; #437 day-surface not accepted at c463fcd (third look), scope cut to the darkroom
+- **#349 merged** at 7984f10 (23:48 JST). edd-lead told.
+- **#437 day-surface, not accepted at c463fcd (third look)** (CI frames, 720p whole head frames first: `darkroom`, `arrival`, `under_roof`, `coelostat_still`, `dialogue`, `totality_*`; then main against head and 1440p `darkroom`: `docs/design/slice_principe/accept/437/c463fcd/`, main left). Against fu2's four items:
+  1. **Darkroom: met, and better than main.** Clear ruling at 720p and 1440p, a different direction for back wall, side wall, floor and table, no noise clouds, the paper with clean edges. Main's darkroom is a soft red render with a dot screen.
+  2. **Path: not met.** Unchanged: two thick black bars on blank ground, lower left of `arrival`.
+  3. **Bushes: not met, worse.** White faceted boulders with black blotches (`arrival`, `coelostat_still`, `dialogue`).
+  4. **Shade faces as paper: not met.** The shelter roof underside is white in `arrival` and `dialogue`; the `under_roof` ceiling is now almost blank paper (main has dense ruling).
+  Also, seen whole: the exterior day views read emptier than main, like an unfinished sketch (blank ground everywhere, the green and pink tints gone), and the coelostat box carries soft grey cloud noise. Totality is identical to main, as asked.
+- **Decision (third miss, new approach = scope cut):** #437 keeps only the darkroom (safelight) surface, which is accepted in principle; every exterior day surface goes back to exactly main's look. The exterior day-surface work returns to #416 for a different approach: the threshold-to-paper rule (paper below darkness 0.20, tone from sun light only) loses each material's own tone (path, foliage) and leaves shade faces white. A next attempt should carry material value into ruling density and give every face out of the sun a ruling family; the shrubs are #341's. Brief `day-surface-fu3.md`. Count stays **7/9**.
