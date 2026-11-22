@@ -146,3 +146,11 @@ job-run --id p3-ridges-perf-1689fe1 -- tachi-run --heavy --host -- python3 /Volu
 Result: job failed, exit 145, ended 2026-11-22 14:09:29 JST. Last error: `subprocess.CalledProcessError: Command ['bash', 'tools/style_motion.sh', '/Volumes/KIOXIA/eddington-1919-cache/director/p3-ridges/1689fe126cb9bb2b65c579da86471fd6a83df580/motion-day', 'day'] returned non-zero exit status 143.` The interrupted day capture has 389 files and no completed movie; totality motion and performance repetitions did not start. Earlier-head motion/performance values above do not qualify this candidate.
 
 One infrastructure retry resumes only both motion runs and three performance repetitions using `resume.py`; it preserves the partial day capture and writes fresh `motion-day-retry1` and `motion-totality-retry1` folders. The exact six-test Test command remains for cx-exec. No product code, test code, or rendering changes accompany this evidence commit.
+
+## Rendering head 9840e74: CI capture handoff
+
+CI captured main `4534b57faee9b108a646cf83a94938672666c051` and head `9840e74d459e41c2236579ba74d73c78619873b7` at 1280 × 720. The seven main-left/head-right sheets and two horizon crops are in `docs/design/slice_principe/accept/349/9840e74/`. Runs 45012350835, 45017225345, and 45019042172 succeeded; the first main batch was previously downloaded. These images await lead art judgment.
+
+Whole-frame day differences, counting pixels with any RGB channel changed: arrival 58,401; house 53,905; coelostat_still 73,226; darkroom 0; dialogue 59,036, out of 921,600 pixels each. No far-land region mask was supplied, so these counts do not establish whether pixels outside that region match.
+
+The imported Mac job completed 960 frames in each motion run: day 139,895 / 179,200 changed bottom-band pixels, totality 24,535 / 179,200. It exited 1 after performance repetition 1 (`totality_sky off forced avg 3.09`; ObjectDB leak warning), with `AssertionError: ['another active run at repetition boundary']`; repetitions 2 and 3 did not run. These results do not establish three clean performance repetitions.
