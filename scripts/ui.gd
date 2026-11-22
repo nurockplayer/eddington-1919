@@ -1933,6 +1933,7 @@ func _build_pause(root: Control) -> void:
 		music_button.text = L.t("音樂靜音：關") if ScorePlayer.music_enabled() else L.t("音樂靜音：開")
 		_sync_music_row())
 	var first_slider: HSlider
+	var last_slider: HSlider
 	for bus in ["Master", "Music", "SFX"]:
 		var card := PanelContainer.new()
 		card.custom_minimum_size.y = Settings.fs(46)
@@ -1952,6 +1953,8 @@ func _build_pause(root: Control) -> void:
 		row.add_child(slider)
 		if bus == "Master":
 			first_slider = slider
+		elif bus == "SFX":
+			last_slider = slider
 		v.add_child(card)
 		if bus == "Music":
 			music_row = row
@@ -1959,6 +1962,12 @@ func _build_pause(root: Control) -> void:
 			v.add_child(music_button)
 	r.focus_next = r.get_path_to(music_button)
 	music_button.focus_next = music_button.get_path_to(first_slider)
+	music_button.focus_previous = music_button.get_path_to(r)
+	first_slider.focus_previous = first_slider.get_path_to(music_button)
+	first_slider.focus_next = first_slider.get_path_to(music_slider)
+	music_slider.focus_previous = music_slider.get_path_to(first_slider)
+	music_slider.focus_next = music_slider.get_path_to(last_slider)
+	last_slider.focus_previous = last_slider.get_path_to(music_slider)
 	_sync_music_row()
 	fullscreen_button = _button(L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關"))
 	fullscreen_button.pressed.connect(_toggle_fullscreen)
@@ -2465,6 +2474,8 @@ func _print_menu(node: Node) -> void:
 		if pause_panel.is_ancestor_of(node):
 			paper.set_border_width_all(0)
 			paper.border_width_bottom = 1
+		elif title_panel.is_ancestor_of(node):
+			paper.set_border_width_all(2)
 		var focus: StyleBoxFlat = paper.duplicate()
 		focus.bg_color = Print.INK
 		# A heavier rule as well as reversed ink makes focus readable without colour.
