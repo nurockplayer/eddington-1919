@@ -7,6 +7,7 @@ uniform sampler2D tex_v3 : source_color, filter_linear_mipmap_anisotropic, repea
 uniform bool use_custom_variant = false;
 instance uniform vec4 tint : source_color = vec4(1.0);
 instance uniform float pick = 0.0;
+instance uniform bool print_card = true;
 uniform float backlight = 0.3;
 uniform float sway = 0.0;
 varying flat float variant;
@@ -22,6 +23,9 @@ void vertex() {
 }
 
 void fragment() {
+	if (!print_card) {
+		discard;
+	}
 	vec4 c = variant > 1.5 ? texture(tex_v3, UV) : (variant > 0.5 ? texture(tex_v2, UV) : texture(tex_v1, UV));
 	if (c.a < 0.5) {
 		discard;
@@ -29,9 +33,7 @@ void fragment() {
 	// Keep the painted leaf tone in the engraving's hatch range. Aerial fog
 	// otherwise lifts the cutouts to bare paper before the distance ruling.
 	ALBEDO = c.rgb * tint.rgb * 0.22;
-	// Full roughness survives the renderer's geometric roughness limiter unchanged.
-	// The engraving pass reserves it for the foliage mask.
-	ROUGHNESS = 1.0;
+	ROUGHNESS = 0.9;
 	SPECULAR = 0.0;
 	BACKLIGHT = vec3(0.0);
 }

@@ -70,9 +70,15 @@ func _run() -> void:
 		check(post.material.get_shader_parameter("grain_seed") == seed, "reduced motion keeps grain still")
 	game._apply_light(1.0, 1.0, 0.0, 0.0)
 	check(game.sun.light_energy == 0.0, "totality sun off")
+	for layer in game.get_node("ForestEdge").get_children():
+		check(layer.get_instance_shader_parameter("print_card") == true, "totality retains the forest silhouette")
 	game._apply_light(0.0, 0.0, 400.0, 1.0)
 	check(game.sun.light_energy == 0.0, "night sun off")
+	for layer in game.get_node("ForestEdge").get_children():
+		check(layer.get_instance_shader_parameter("print_card") == true, "night retains the forest silhouette")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
+	for layer in game.get_node("ForestEdge").get_children():
+		check(layer.get_instance_shader_parameter("print_card") == false, "day omits distant wash foliage")
 	check(game.sun.light_energy >= 0.3 * 1.8, "cloud floor")
 	check(is_equal_approx(game.env.ambient_light_energy, 0.45), "ambient gain")
 	game._apply_light(0.97, 0.9, -10.0, 0.0)
