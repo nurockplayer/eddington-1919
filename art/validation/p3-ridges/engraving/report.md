@@ -123,3 +123,26 @@ Lead art acceptance and cx-exec's six-test Test line. The focused layout diagnos
 ## Blocked
 
 No product action blocked. The regression wrapper returned **145** after completed measurements and VM cleanup; lead should retain that infrastructure result alongside the complete per-command evidence rather than call the aggregate job green. No denied action and no retry.
+
+
+## Rendering head 1689fe1: capture handoff
+
+This section supersedes earlier rendering, motion, and performance claims for the current candidate. PR #349 stays draft pending lead art acceptance. Totality now flattens the ridge below eye level, drops the tower spike, and prints sparse horizontal ruling on cream paper; day rendering is unchanged.
+
+Seven native 1280 × 720 main/head pairs and two full-size horizon crops completed at rendering commit `1689fe126cb9bb2b65c579da86471fd6a83df580`. Main is left and candidate is right. JPEG sheets and PNG horizon crops are attached under `docs/design/slice_principe/accept/349/1689fe1/`. Original frames, PNG sheets, scripts, and logs remain at `/Volumes/KIOXIA/eddington-1919-cache/director/p3-ridges/1689fe126cb9bb2b65c579da86471fd6a83df580/`. These attachments carry no new visual acceptance claim.
+
+Completed inside `tachi-run --heavy --host` after import and check-only:
+
+- `test_ridges`: 373 checks, 0 failures.
+- `test_sim`: 241 checks, 0 failures.
+- `test_totality`: 658 checks, 0 failures. Existing ObjectDB exit warnings remain in the logs.
+
+Command:
+
+```sh
+job-run --id p3-ridges-perf-1689fe1 -- tachi-run --heavy --host -- python3 /Volumes/KIOXIA/eddington-1919-cache/director/p3-ridges/1689fe126cb9bb2b65c579da86471fd6a83df580/capture.py /Users/tachikoma/Developer/eddington-1919-wt/p3-ridges
+```
+
+Result: job failed, exit 145, ended 2026-11-22 14:09:29 JST. Last error: `subprocess.CalledProcessError: Command ['bash', 'tools/style_motion.sh', '/Volumes/KIOXIA/eddington-1919-cache/director/p3-ridges/1689fe126cb9bb2b65c579da86471fd6a83df580/motion-day', 'day'] returned non-zero exit status 143.` The interrupted day capture has 389 files and no completed movie; totality motion and performance repetitions did not start. Earlier-head motion/performance values above do not qualify this candidate.
+
+One infrastructure retry resumes only both motion runs and three performance repetitions using `resume.py`; it preserves the partial day capture and writes fresh `motion-day-retry1` and `motion-totality-retry1` folders. The exact six-test Test command remains for cx-exec. No product code, test code, or rendering changes accompany this evidence commit.
