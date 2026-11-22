@@ -2,9 +2,9 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-22 16:3x JST.** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`.
+**Written 2026-11-22 17:0x JST.** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`.
 
-**Claude week reset 2026-11-22 14:00 JST:** the Owner's pre-reset rules (burn / pace-to-14:00 / few lead turns) have expired; the global rule applies again (act as if Claude were `ahead`: work goes to Codex, no Claude subagents). Still in force: cpu-nice-owner-20261122 (Owner at the Mac: everything niced, one worker at a time).
+**Claude week reset 2026-11-22 14:00 JST:** the Owner's pre-reset rules (burn / pace-to-14:00 / few lead turns) have expired; the global rule applies again (act as if Claude were `ahead`: work goes to Codex, no Claude subagents). Still in force: cpu-nice-owner-20261122 (Owner at the Mac: everything niced, one worker at a time). **Owner 2026-11-22 17:0x JST: no Godot run at all (headless too) while `heavy-window --gpu` is closed** (lead-board paused-window-force-quit-20261122; harness-lead accepted, tachi-run will enforce; rule in `_codex-common.md`). Running ones finish; w1214 micrometer proof-pack light waiter could not be cancelled (auto-mode denied kill).
 
 **In flight (lead-wait):** three Codex lanes, one task at a time each, briefs `.claude/briefs/<name>-cx.md`, worktrees `eddington-1919-wt/<name>` (partial diffs from stopped Claude workers in bench-shot, chart-rows, surf-dip, audio-provenance); each task adds a `cx-<name>` lead-inbox event with exit, session id and last line; the lane's lead-wait event comes at the end.
 - lw-cx-lane-audio: DONE 14:19 JST. #441 and #433 merged 15:0x–15:1x JST.
