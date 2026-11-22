@@ -51,12 +51,11 @@ def main():
         cases.append(('totality_' + person, None))
         closest = min((r for r in measurements if r['scene'] == 'day' and r['character'] == person and 'metres' in r), key=lambda r: r['metres'])
         cases.append((f'day_{person}_{closest["direction"]}', closest['metres']))
-    for scene in ['day', 'darkroom']:
-        front = next(r for r in measurements if r['scene'] == scene and r['character'] == 'cottingham' and r['direction'] == 2)
-        if 'metres' in front:
-            cases.append((f'{scene}_cottingham_2', front['metres']))
-        else:
-            print(f'{scene} Cottingham front unreachable: {front["nearest_blocked_point"]}')
+    front = next(r for r in measurements if r['scene'] == 'day' and r['character'] == 'cottingham' and r['direction'] == 2)
+    if 'metres' in front:
+        cases.append(('day_cottingham_2', front['metres']))
+    else:
+        print(f'day Cottingham front unreachable: {front["nearest_blocked_point"]}')
     sheet = Image.new('RGB', (1000, len(cases) * 540), 'white')
     draw = ImageDraw.Draw(sheet)
     for row, (name, distance) in enumerate(cases):
