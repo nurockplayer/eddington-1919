@@ -40,8 +40,9 @@ printf '%s\n' "$run_id" > "$out/run-id.txt"
 printf '%s\n' "$run_url" > "$out/run-url.txt"
 # A run can 404 for a while after dispatch, and a dropped connection ends
 # `gh run watch` early: retry until the run itself reports completion.
+# Poll once a minute: gh's default 3 s spends the account's shared 5000/h API limit.
 tries=0
-until rtk gh run watch "$run_id" --repo "$repo" --exit-status; do
+until rtk gh run watch "$run_id" --repo "$repo" --interval 60 --exit-status; do
   conclusion=$(rtk gh run view "$run_id" --repo "$repo" --json status,conclusion \
     --jq 'select(.status == "completed") | .conclusion' 2>/dev/null || true)
   case "$conclusion" in
