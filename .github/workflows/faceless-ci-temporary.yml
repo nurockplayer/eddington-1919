@@ -38,7 +38,13 @@ jobs:
       - name: Capture each revision sequentially
         run: |
           set -euo pipefail
-          export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+          for icd in lvp_icd.x86_64.json lvp_icd.json; do
+            if [ -f "/usr/share/vulkan/icd.d/$icd" ]; then
+              export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/$icd"
+              break
+            fi
+          done
+          test -n "${VK_ICD_FILENAMES:-}"
           for repo in main mac-reference head; do
             mkdir -p "$repo/tools/faceless_3d" "$GITHUB_WORKSPACE/out/$repo/frames"
             if [ "$repo" != head ]; then cp head/tools/faceless_3d/capture.gd "$repo/tools/faceless_3d/capture.gd"; fi
