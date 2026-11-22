@@ -100,7 +100,7 @@ func _second_contact_gap() -> void:
 	var open_db: float = game.audio_open.volume_db
 	var sfx_bus := AudioServer.get_bus_index("SFX")
 	var sfx_db := AudioServer.get_bus_volume_db(sfx_bus)
-	game.phase = game.Phase.PREP
+	game._start_game()
 	var before := ambience_db(game)
 	await game._begin_totality()
 	# Second contact: the totality view is revealed and the game's own clock takes over.
@@ -114,18 +114,20 @@ func _second_contact_gap() -> void:
 	var exposed := false
 	var closed := false
 	var score_s := -1.0
+	var score_game_s := -1.0
 	while true:
 		await process_frame
 		var t := (Time.get_ticks_usec() - contact) / 1e6
 		if game.score.layers.has("totality_drone") or game.score.layers.has("totality_glass"):
 			score_s = t
+			score_game_s = game.t_game / game.sim.TIME_SCALE
 			break
 		if t > 3.0:
 			break
 		gap_max = maxf(gap_max, ambience_db(game))
 		insects_rising = insects_rising and game.audio_insects.volume_db >= insects_db
 		insects_db = game.audio_insects.volume_db
-		var expected_insects := lerpf(-60.0, game._insects_db + game.TOTALITY_INSECTS_TRIM_DB, t / game.TOTALITY_INSECTS_FADE_S)
+		var expected_insects := lerpf(-60.0, game._insects_db + game.TOTALITY_INSECTS_TRIM_DB, game._night_bed_tween.get_total_elapsed_time() / game.TOTALITY_INSECTS_FADE_S)
 		insects_ramp_error = maxf(insects_ramp_error, absf(insects_db - expected_insects))
 		if t >= 1.0 and not exposed:
 			exposed = true
@@ -156,14 +158,15 @@ func _second_contact_gap() -> void:
 	var surf_rising := true
 	var max_step := 0.0
 	var near_s := -1.0
-	while (Time.get_ticks_usec() - contact) / 1e6 < score_s + 10.0:
+	# Tween and totality deltas can lag wall time on a loaded headless host.
+	while game.t_game / game.sim.TIME_SCALE < score_game_s + 10.0:
 		await process_frame
 		var surf: float = game.audio_surf.volume_db
 		surf_rising = surf_rising and surf >= surf_prev
 		max_step = maxf(max_step, surf - surf_prev)
 		surf_prev = surf
 		if near_s < 0.0 and surf >= surf_db - 1.0:
-			near_s = (Time.get_ticks_usec() - contact) / 1e6 - score_s
+			near_s = game.t_game / game.sim.TIME_SCALE - score_game_s
 	check(surf_rising and max_step <= 2.0, "the surf swells back without an audible step (largest frame step %.2f dB)" % max_step)
 	check(near_s >= 2.0, "the surf takes more than two seconds to come back (%.2f s)" % near_s)
 	check(game.audio_surf.playing and is_equal_approx(game.audio_surf.volume_db, surf_db),
