@@ -722,6 +722,7 @@ func _check_report_rows(ui) -> void:
 	for i in painted.row_bounds.size():
 		var label: Rect2 = painted.row_bounds[i]
 		var marker: Rect2 = painted.marker_bounds[i]
+		check(is_equal_approx(marker.get_center().x, chart._x(chart.rows[i].value, chart.size.x)), "scrolled markers retain the reference-axis scale")
 		var visible_label := label
 		var visible_marker := marker
 		if scroll != null:

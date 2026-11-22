@@ -238,7 +238,7 @@ func _draw() -> void:
 
 func _draw_scrolled_rows() -> void:
 	var font := get_theme_default_font()
-	_paint_rows(_row_content, font, _row_content.size.x, 16.0,
+	_paint_rows(_row_content, font, size.x, 16.0,
 		maxf(34.0, font.get_height(_label_px) + 2.0))
 
 
