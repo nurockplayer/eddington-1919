@@ -4,7 +4,13 @@ Each mutation is restored before the next case, including on test failure.
 No game behaviour changes are retained. The normal suites are the positive control.
 """
 from pathlib import Path
+import fcntl
 import subprocess
+
+# Keep the lock file in Godot's per-checkout import directory. It must persist:
+# unlinking it would let a later process lock a different inode.
+lock_file = Path(".godot/audio-reverts.lock").open("a")
+fcntl.flock(lock_file, fcntl.LOCK_EX)
 
 
 def suite(name):
