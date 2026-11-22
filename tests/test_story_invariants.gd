@@ -173,6 +173,9 @@ func _f16(run: Dictionary, variant: int) -> void:
 	await _chart_frame(chapter)
 	chapter.chart.button.pressed.emit()
 	_finish(chapter, picks, "close")
+	check(chapter.beat == chapter.Beat.ORRERY, "ledger reaches orrery")
+	chapter._interact("orrery")
+	_finish(chapter, picks, "close")
 	# Capture the final Ashby reply before advancing into the asynchronous tableau.
 	_finish(chapter, picks)
 	deadline = Time.get_ticks_msec() + 8000
