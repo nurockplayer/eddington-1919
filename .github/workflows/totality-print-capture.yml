@@ -14,7 +14,7 @@ jobs:
           path: head
       - uses: actions/checkout@v5
         with:
-          ref: 606bcc4
+          ref: 606bcc485b7fc6cf464b5aed1f4206a6a4a99b8c
           path: main
       - name: Install Godot, Xvfb and lavapipe
         run: |
