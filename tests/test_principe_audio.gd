@@ -119,6 +119,8 @@ func _second_contact_gap() -> void:
 	game._start_game()
 	var before := ambience_db(game)
 	await game._begin_totality()
+	# Leave the fade's finished callback before manually stepping scene tweens.
+	await process_frame
 	# Second contact: drive the real timeline and tweens with real-second deltas,
 	# excluding host scheduling stalls and preventing automatic double advancement.
 	var driven: Array[Tween] = []
