@@ -7,7 +7,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 **Claude week reset 2026-11-22 14:00 JST:** the Owner's pre-reset rules (burn / pace-to-14:00 / few lead turns) have expired; the global rule applies again (act as if Claude were `ahead`: work goes to Codex, no Claude subagents). Still in force: cpu-nice-owner-20261122 (Owner at the Mac: everything niced, one worker at a time). **Owner 2026-11-22 17:0x JST: no Godot run at all (headless too) while `heavy-window --gpu` is closed** amended: headless OK on E-cores; enforced by tachi-run since 19:5x JST (harness #381). Running ones finish;
 
 **In flight (lead-wait), 2026-11-22 23:2x JST:**
-- lw-pr-434 (fresh review of 9160675, concurrent-run lock, two concurrent passes OK) and lw-pr-435 (63acf44, F16 orrery interaction; local test_coda overran 900 s on E-cores, CI suites green used instead). On events: gate result.
+- #434 and #435 oracle-approved, merge armed 23:2x–23:31 JST (no action unless CI fails).
 - #404 layout-720p: worker blocked 23:12 JST on tachi-run history CSV crash (queue.py:39; harness-lead, lead-board tachi-run-history-csv-20261122, lead-decision on #404). On fix: `cx-exec --resume 01a20338-b12e-7021-b1c8-7e3e838fc694 ../eddington-1919-wt/layout-720p <brief "runner fixed, rerun">` (Sol high). Last candidate run: 16 failures, fix ff9229d unverified. Stays draft until edd-art accepts; then lead-board pr404-ready-art-20261122.
 - portrait-coverage (lane-tools): cc5cd73 pushed, table + PR pending: `cx-exec --resume 01a201a9-017a-7c21-918b-f6fd3bf083e3` once heavy runs work again.
 - Local Godot: test_totality and test_coda overrun 900 s on E-cores → leave out of local Test lines, CI suites covers them.
