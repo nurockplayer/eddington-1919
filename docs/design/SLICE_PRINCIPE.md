@@ -757,7 +757,7 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 - **Verdicts:** technical regression none seen; this PR's change not accepted (the corona); whole scene not accepted.
 - **Round 3, the last:** the corona redrawn as fine white line work, nothing else touched (brief `totality-print-fu3.md`). If it misses again the sky merges without the corona change and the corona gets its own approach. Count stays **7/9**.
 
-### 2026-11-23 09:0x JST: #341 veg-cards look accepted at b5a8c38 (fifth look); rebase and perf reps before the gate
+### 2026-11-23 08:5x JST: #341 veg-cards look accepted at b5a8c38 (fifth look); rebase and perf reps before the gate
 - Whole 720p head frames first (`house`, `arrival`, `totality_horizon`, then `totality_wide`), then main against head: `docs/design/slice_principe/accept/341/b5a8c38/`, main left. CI frames, base 311152f.
   - (a) **Bananas = main: met.** Same silhouettes by the house and on the totality horizon.
   - (b) **No wash: met.** No foliage prints as an unlined pale tint in any of the four views; the two distant forest cards are simply not drawn by day and return as the dark tree line at totality.
