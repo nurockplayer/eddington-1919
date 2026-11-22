@@ -39,8 +39,9 @@ func activate(control: Control) -> void:
 
 
 func step(ui, direction: int, truth_px: float, context: String) -> void:
-	# Respect the real 50 ms tick throttle; do not reset its clock in the test.
-	await create_timer(0.06).timeout
+	# The throttle uses wall time, whereas SceneTree timers use frame delta.
+	# Space actual input events by 60 ms without changing the game clock.
+	OS.delay_msec(60)
 	var before: float = ui.micrometer_px
 	ui.viewer_sfx_log.clear()
 	var event := InputEventKey.new()
@@ -53,7 +54,8 @@ func step(ui, direction: int, truth_px: float, context: String) -> void:
 	check(ui.viewer_sfx_log == ["tick"] and tick.playing
 		and tick.stream == ui._viewer_sfx["mark"].stream
 		and tick.pitch_scale == 1.0 and tick.volume_db == -11.0,
-		context + ": each step plays the same stream, pitch and volume")
+		context + ": each step plays the same stream, pitch and volume (events=%s playing=%s pitch=%s volume=%s)"
+		% [ui.viewer_sfx_log, tick.playing, tick.pitch_scale, tick.volume_db])
 	var distance: float = absf(ui.micrometer_px - truth_px)
 	if distance <= 0.25:
 		near_steps += 1
