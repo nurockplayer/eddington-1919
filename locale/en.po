@@ -3776,3 +3776,9 @@ msgstr ""
 
 msgid "］讀曝光計畫"
 msgstr ""
+
+msgid "音樂靜音：開"
+msgstr "Music mute: On"
+
+msgid "音樂靜音：關"
+msgstr "Music mute: Off"
