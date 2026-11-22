@@ -35,7 +35,10 @@ def run(label, expected=None):
             ["perl", "-e", "alarm shift; exec @ARGV", "1500", "godot", "--headless", "--path", ".", "--script", SUITE],
         ]:
             result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT)
-            if result.returncode:
+            log.seek(0)
+            output = log.read()
+            log.seek(0, 2)
+            if result.returncode or "SCRIPT ERROR:" in output:
                 break
         log.seek(0)
         output = log.read()

@@ -1,7 +1,7 @@
 extends SceneTree
 ## F15/F16: deterministic measured plates, real dialogue choices, coda and chart UI.
 
-const Main := preload("res://scripts/main.gd")
+const MAIN_PATH := "res://scripts/main.gd"
 const Judgment := preload("res://scripts/judgment.gd")
 const EPILOGUE := "res://scenes/epilogue.tscn"
 const CASES := [
@@ -69,8 +69,9 @@ func _f15(case: Dictionary, ask: bool) -> Dictionary:
 	story.from_prologue = true
 	story.bet = {"pick": 2, "ashby": 1}
 	story.kit_choice = 0
-	Main.next_seed = 4242
-	var chapter = Main.new()
+	var main = load(MAIN_PATH)
+	main.next_seed = 4242
+	var chapter = main.new()
 	root.add_child(chapter)
 	await process_frame
 	chapter.set_process(false)
