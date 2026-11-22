@@ -24,6 +24,8 @@ The rejected audition styles and the four geometry PRs are not imported.
 
 ## Capture
 
+For software Vulkan captures on GitHub, run `job-run --id ci-art -- tools/ci_capture.sh <ref> /Volumes/KIOXIA/eddington-1919-cache/director/ci-capture/<label> height=720` from the repo root. The helper dispatches `visual-capture.yml`, watches its exact run, and downloads full PNGs and `manifest.jsonl`; optional inputs are `views=arrival,coelostat_still,totality_sky,totality_wide,totality_horizon,dialogue,darkroom`, `height=1080` or `height=1440`, `style_set=line_px=7,ground_mottle=0.7`, and `cloud_t=215`. The workflow uses the rendered ref's existing benchmark cameras, a fixed seed of 7 and fixed 60 fps under Xvfb/lavapipe, with no capture scaling. CI frames are valid for judging the look, never for performance numbers.
+
 From the branch root, choose a fresh job ID and an absolute KIOXIA output path.
 All windowed commands run through `job-run` and `tachi-run --heavy --host`.
 
