@@ -18,26 +18,23 @@ const C := {
 	"ebonite": Color(0.110, 0.106, 0.102),  # instrument
 	"sea_slate": Color(0.243, 0.349, 0.400),  # far
 	"hill_far": Color(0.306, 0.392, 0.314),  # far
+	"hill_near": Color(0.227, 0.322, 0.212),  # far
 	"mirror": Color(0.894, 0.906, 0.918),  # evidence
 	"plate_glass": Color(0.949, 0.937, 0.902),  # evidence
 	"pine": Color(0.612, 0.482, 0.314),  # structure
 	"stone": Color(0.549, 0.529, 0.490),  # structure
 	"skin": Color(0.761, 0.604, 0.506),  # structure
 	"linen": Color(0.780, 0.737, 0.639),  # structure
-	"linen_coat": Color(0.722, 0.663, 0.549),  # structure
 	"drill_khaki": Color(0.620, 0.561, 0.431),  # structure
 	"hair_dark": Color(0.184, 0.145, 0.118),  # structure
-	"hair_brown": Color(0.353, 0.263, 0.196),  # structure
 	"hair_grey": Color(0.416, 0.380, 0.349),  # structure
 	"straw": Color(0.749, 0.639, 0.427),  # structure
 	"felt": Color(0.329, 0.290, 0.247),  # structure
 	"leather": Color(0.239, 0.169, 0.122),  # structure
 	"eye_dark": Color(0.118, 0.102, 0.090),  # structure
-	"eye_white": Color(0.820, 0.784, 0.737),  # structure
 	"hair_greying": Color(0.290, 0.259, 0.231),  # structure
 	"wool_slate": Color(0.376, 0.408, 0.459),  # structure
 	"wool_umber": Color(0.306, 0.275, 0.243),  # structure
-	"wool_pullover": Color(0.431, 0.424, 0.408),  # structure
 	"wool_waistcoat": Color(0.286, 0.278, 0.278),  # structure
 	"enamel": Color(0.784, 0.773, 0.722),  # structure
 	"amber_glass": Color(0.227, 0.149, 0.086),  # structure
@@ -62,26 +59,23 @@ const ROUGH := {
 	"ebonite": 0.4,
 	"sea_slate": 0.2,
 	"hill_far": 0.9,
+	"hill_near": 0.9,
 	"mirror": 0.04,
 	"plate_glass": 0.1,
 	"pine": 0.85,
 	"stone": 0.9,
 	"skin": 0.7,
 	"linen": 0.92,
-	"linen_coat": 0.92,
 	"drill_khaki": 0.92,
 	"hair_dark": 0.6,
-	"hair_brown": 0.6,
 	"hair_grey": 0.6,
 	"straw": 0.85,
 	"felt": 0.95,
 	"leather": 0.55,
 	"eye_dark": 0.2,
-	"eye_white": 0.7,
 	"hair_greying": 0.6,
 	"wool_slate": 0.94,
 	"wool_umber": 0.96,
-	"wool_pullover": 0.82,
 	"wool_waistcoat": 0.82,
 	"enamel": 0.35,
 	"amber_glass": 0.12,

@@ -247,6 +247,7 @@ void fragment() {
 	float moon_ink = 0.0;
 	float box_reserve = 0.0;
 	float case_solid = 0.0;
+	float ridge_totality = 0.0;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -315,6 +316,7 @@ void fragment() {
 		n_v = normal_from_depth > 0.5 ? n_dep : n_buf;
 		vec3 n_w = normalize((INV_VIEW_MATRIX * vec4(n_v, 0.0)).xyz);
 		vec3 pw = (INV_VIEW_MATRIX * vec4(pv, 1.0)).xyz;
+		ridge_totality = step(75.0, length(pw.xz)) * step(-0.39, pw.y) * print_darkness * (1.0 - night);
 		// Local paper reserve on the plate box's top and door-facing edge.
 		// Kept separate from tone/outline defaults and inactive at night/totality.
 		vec3 box_delta = abs(pw - vec3(11.65, 1.18, 2.25));
@@ -398,6 +400,10 @@ void fragment() {
 		ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
 		tone_p = mix(tone, 1.0 - dark_far, dist_f);
 		edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
+		// Far land at totality is sparse ruling on the horizon's cream reserve.
+		float ridge_distance = smoothstep(75.0, 550.0, length(pw.xz));
+		float ridge_lines = hatch(elev, k, mix(0.24, 0.14, ridge_distance), l_px * mix(1.5, 2.5, ridge_distance), 99.0);
+		ink = mix(ink, ridge_lines, ridge_totality);
 	}
 	ink = max(ink, edge * outline);
 	ink = mix(ink, min(ink, 0.08), box_reserve);
@@ -411,11 +417,12 @@ void fragment() {
 	float blue = print_darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	page = mix(page, paper, smoothstep(heighten_lo, heighten_hi, tone_p) * blue);
+	page = mix(page, paper * (1.0 - paper_grain * fibre), ridge_totality);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
 	page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
-	vec3 print_colour = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
+	vec3 print_colour = mix(page, mix(ink_col, page, ridge_totality * 0.4), clamp(ink, 0.0, 1.0) * ink_strength);
 	print_colour = mix(print_colour, ink_col, moon_ink);
 	// Only the sky around an optically visible field star gets a reserve.
 	// Keep the original white core; the corona's ruling ends at its ink edge.

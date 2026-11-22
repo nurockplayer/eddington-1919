@@ -179,6 +179,19 @@ max_texture_px = 0
 history = "RECONSTRUCTION: no in-situ photograph of the Príncipe station is known (docs/PROVENANCE.md); open timber shelter with a canvas roof rolled back before totality."
 status = "in-game"
 
+[asset.principe_ridges]
+category = "architecture"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_ridges.py"
+export = "assets/models/principe_ridges.glb"
+dims_m = [1042.215, 1006.533, 161.236]
+tri_budget = 30000
+max_materials = 2
+max_texture_px = 0
+skip_checks = ["origin_bottom_centre"]  # terrain ring: the feet sit at -2 m so the ring tucks under the ground plane
+history = "RECONSTRUCTION: composed skyline; the two towers stand for Príncipe's phonolite plugs."
+status = "validated"
+
 [asset.horizontal_tube]
 category = "hero_prop"
 source = "blender_procedural"

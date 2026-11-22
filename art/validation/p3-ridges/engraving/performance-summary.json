@@ -1,0 +1,16 @@
+{
+  "clean_repetitions": 3,
+  "forced_p95_ms": [
+    6.36,
+    5.27,
+    5.28
+  ],
+  "median_p95_ms": 5.28,
+  "worst_p95_ms": 6.36,
+  "estimate_factor": 3,
+  "worst_target_ms": 19.080000000000002,
+  "worst_target_fps": 52.410901467505234,
+  "median_target_fps": 63.131313131313135,
+  "baseline_worst_target_fps": 56.2,
+  "budget_ms": 33.333333333333336
+}
