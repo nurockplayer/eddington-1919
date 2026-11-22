@@ -225,15 +225,24 @@ func _light(state: String) -> void:
 
 
 func _shot(path: String) -> bool:
-	if DisplayServer.get_name() == "headless":
+	var image: Image = await _drawn_frame()
+	if image == null:
 		return false
+	last_image = image
+	return last_image.save_png(path) == OK
+
+
+## The viewport's next drawn frame, or null headless: the dummy renderer never
+## draws a frame and has no pixels to read back.
+func _drawn_frame() -> Image:
+	if DisplayServer.get_name() == "headless":
+		return null
 	var drawn := [false]
 	RenderingServer.frame_post_draw.connect(func(): drawn[0] = true, CONNECT_ONE_SHOT)
 	var t0 := Time.get_ticks_msec()
 	while not drawn[0] and Time.get_ticks_msec() - t0 < 5000:
 		await get_tree().process_frame
-	last_image = get_viewport().get_texture().get_image()
-	return last_image.save_png(path) == OK
+	return get_viewport().get_texture().get_image()
 
 
 func _avg(a: PackedFloat32Array) -> float:
