@@ -400,7 +400,7 @@ func _run() -> void:
     game.world.safelight.light_energy = 0.5
     game.world.lamp.light_energy = 1.1
     game.world.doorway_daylight.light_energy = 0.0
-    game.ui.prompt_label.position.y = 550.0
+    game.ui.prompt_label.position.y = 300.0
     for scene_name in ["night", "coda"]:
         if scene_name == "coda":
             game._begin_coda()

@@ -868,6 +868,7 @@ func _process_interaction(delta: float) -> void:
 		return
 	var n: Node = player.aimed_interactable()
 	var id: String = n.get_meta("interact_id") if n else ""
+	ui.prompt_label.position.y = 300.0 if id in ["mentor_loupe", "departure_workbook"] else 550.0
 	ui.set_prompt(_prompt_for(id, n))
 	ui.crosshair.modulate = Color.WHITE if ui.paper_hud else (Color(1, 0.85, 0.5) if id != "" else Color(1, 1, 1, 0.6))
 	var holding := Input.is_action_pressed("interact")
