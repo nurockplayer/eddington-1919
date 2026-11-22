@@ -3,6 +3,7 @@ extends SceneTree
 ## totality begins, dusk insects enter before the score, the surf dips through the
 ## quiet gap after second contact, and night keeps its bed.
 const BEDS := ["birds", "insects", "surf"]
+const STEP_S := 0.02
 var checks := 0
 var failures := 0
 
@@ -87,6 +88,21 @@ func ambience_db(game: Node) -> float:
 	return linear_to_db(sqrt(power))
 
 
+func _capture_tweens(driven: Array[Tween]) -> void:
+	for tween in get_processed_tweens():
+		if tween.is_valid() and not driven.has(tween):
+			tween.pause()
+			driven.append(tween)
+
+
+func _step_totality(game: Node, driven: Array[Tween]) -> void:
+	game._process_totality(STEP_S)
+	_capture_tweens(driven)
+	for tween in driven:
+		if tween.is_valid():
+			tween.custom_step(STEP_S)
+
+
 ## F6 on the real timeline: from second contact until the first score cue the beds sit
 ## at least 12 dB under the pre-contact mix, then the surf swells back without a step.
 func _second_contact_gap() -> void:
@@ -103,9 +119,10 @@ func _second_contact_gap() -> void:
 	game._start_game()
 	var before := ambience_db(game)
 	await game._begin_totality()
-	# Second contact: the totality view is revealed and the game's own clock takes over.
-	var contact := Time.get_ticks_usec()
-	game.set_process(true)
+	# Second contact: drive the real timeline and tweens with real-second deltas,
+	# excluding host scheduling stalls and preventing automatic double advancement.
+	var driven: Array[Tween] = []
+	_capture_tweens(driven)
 	var gap_max := ambience_db(game)
 	var insects_db: float = game.audio_insects.volume_db
 	var insects_start := insects_db
@@ -114,20 +131,16 @@ func _second_contact_gap() -> void:
 	var exposed := false
 	var closed := false
 	var score_s := -1.0
-	var score_game_s := -1.0
-	while true:
-		await process_frame
-		var t := (Time.get_ticks_usec() - contact) / 1e6
+	for step in range(150):
+		_step_totality(game, driven)
+		var t: float = game.t_game / game.sim.TIME_SCALE
 		if game.score.layers.has("totality_drone") or game.score.layers.has("totality_glass"):
 			score_s = t
-			score_game_s = game.t_game / game.sim.TIME_SCALE
-			break
-		if t > 3.0:
 			break
 		gap_max = maxf(gap_max, ambience_db(game))
 		insects_rising = insects_rising and game.audio_insects.volume_db >= insects_db
 		insects_db = game.audio_insects.volume_db
-		var expected_insects := lerpf(-60.0, game._insects_db + game.TOTALITY_INSECTS_TRIM_DB, game._night_bed_tween.get_total_elapsed_time() / game.TOTALITY_INSECTS_FADE_S)
+		var expected_insects := lerpf(-60.0, game._insects_db + game.TOTALITY_INSECTS_TRIM_DB, t / game.TOTALITY_INSECTS_FADE_S)
 		insects_ramp_error = maxf(insects_ramp_error, absf(insects_db - expected_insects))
 		if t >= 1.0 and not exposed:
 			exposed = true
@@ -158,15 +171,14 @@ func _second_contact_gap() -> void:
 	var surf_rising := true
 	var max_step := 0.0
 	var near_s := -1.0
-	# Tween and totality deltas can lag wall time on a loaded headless host.
-	while game.t_game / game.sim.TIME_SCALE < score_game_s + 10.0:
-		await process_frame
+	for step in range(500):
+		_step_totality(game, driven)
 		var surf: float = game.audio_surf.volume_db
 		surf_rising = surf_rising and surf >= surf_prev
 		max_step = maxf(max_step, surf - surf_prev)
 		surf_prev = surf
 		if near_s < 0.0 and surf >= surf_db - 1.0:
-			near_s = game.t_game / game.sim.TIME_SCALE - score_game_s
+			near_s = game.t_game / game.sim.TIME_SCALE - score_s
 	check(surf_rising and max_step <= 2.0, "the surf swells back without an audible step (largest frame step %.2f dB)" % max_step)
 	check(near_s >= 2.0, "the surf takes more than two seconds to come back (%.2f s)" % near_s)
 	check(game.audio_surf.playing and is_equal_approx(game.audio_surf.volume_db, surf_db),
