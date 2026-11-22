@@ -67,7 +67,7 @@ func _f15(case: Dictionary, ask: bool) -> Dictionary:
 	var story = root.get_node("Story")
 	story.reset()
 	story.from_prologue = true
-	story.bet = {"pick": 2, "ashby": 1}
+	story.bet = {"pick": 2, "sure": 0, "ashby": 1, "year": 1919}
 	story.kit_choice = 0
 	var main = load(MAIN_PATH)
 	main.next_seed = 4242
