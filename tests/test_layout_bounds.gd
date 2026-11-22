@@ -53,8 +53,8 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
-	await _test_darkroom_chart()
 	await _test_dense_report_chart()
+	await _test_darkroom_chart()
 	if "--darkroom-chart-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds darkroom chart: %d checks, %d failures" % [checks, failures])
 		quit(1 if failures else 0)
@@ -671,6 +671,7 @@ func _test_dense_report_chart() -> void:
 			game.ui = ui
 			ui.hide_title()
 			for scale in [1.0, 1.2]:
+				print("report chart: %s %s scale %.1f" % [window, locale, scale])
 				Settings.text_scale = scale
 				Settings.refresh_fonts(self)
 				ui.chart.refresh_fonts()

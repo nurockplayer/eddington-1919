@@ -902,21 +902,21 @@ func _layout_viewer() -> void:
 	var window_height := float(get_viewport().get_window().size.y)
 	var growth := clampf((window_height - 720.0) / 360.0, 0.0, 1.0)
 	var extra := minf(76.0 * growth, maxf(0.0, get_viewport().get_visible_rect().size.x - 1556.0 + 32.0 * growth))
-	chart.custom_minimum_size.x = 560.0 - 32.0 * growth
 	viewer_mid.custom_minimum_size.x = 470.0 + extra
 	plate_stage.custom_minimum_size = Vector2(470.0 + extra, 460.0 + extra)
 	big_plate.custom_minimum_size = Vector2.ONE * (460.0 + extra)
-	chart.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
-	_fit_chart_height()
-	_fit_chart_width()
+	# Apply the fitted size once: restoring the larger minimum first grows the
+	# rect again and schedules another layout pass whenever dialogue limits it.
+	chart.custom_minimum_size = Vector2(_fit_chart_width(560.0 - 32.0 * growth),
+		_fit_chart_height(280.0 if _viewer_reporting else 420.0 + 160.0 * growth))
 
 
 ## The chart is the one control in its column that can give way: when the labels
 ## above and below it grow with a longer language, the chart gets shorter rather
 ## than pushing the column past the bottom of the screen.
-func _fit_chart_height() -> void:
+func _fit_chart_height(height: float) -> float:
 	if _viewer_right == null:
-		return
+		return height
 	var room := get_viewport().get_visible_rect().size.y - 30.0
 	var labels := 0.0
 	var shown := 0
@@ -926,17 +926,18 @@ func _fit_chart_height() -> void:
 		labels += c.get_combined_minimum_size().y
 		shown += 1
 	labels += 10.0 * maxi(shown, 1)
-	chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, maxf(280.0, room - labels))
+	height = minf(height, maxf(280.0, room - labels))
 	if _viewer_reporting and dialog_panel != null and dialog_panel.visible:
 		var above_dialogue := dialog_panel.get_global_rect().position.y - chart.get_global_rect().position.y - 8.0
-		chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, above_dialogue)
+		height = minf(height, above_dialogue)
+	return height
 
 
 ## The same for width: the thumbnails and the plate columns keep their size, and
 ## the chart takes up the slack when the two columns beside it grow.
-func _fit_chart_width() -> void:
+func _fit_chart_width(width: float) -> float:
 	if _viewer_right == null or chart == null:
-		return
+		return width
 	var row := _viewer_right.get_parent() as HBoxContainer
 	var others := 0.0
 	var columns := 0
@@ -946,7 +947,7 @@ func _fit_chart_width() -> void:
 			columns += 1
 	others += row.get_theme_constant("separation") * maxi(columns, 1)
 	var room := get_viewport().get_visible_rect().size.x - 32.0 - others
-	chart.custom_minimum_size.x = minf(chart.custom_minimum_size.x, maxf(480.0, room))
+	return minf(width, maxf(480.0, room))
 
 
 func _build_reference_plates() -> void:
