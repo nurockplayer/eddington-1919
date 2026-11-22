@@ -654,3 +654,9 @@ I looked at every still in KIOXIA `director/phase0/b7190207cd94e9fa3cd7ac025784e
 - **Regression:** the plate tiles' captions that main clipped now wrap, and at max text the second line runs past the tile bottom and over the plate image (zh_TW plates 5, 10, 11, 12; ja and ko plate 11). It was already there at 5379f6a and I missed it then: I judged the Oxford tile and not the twelve beside it. The bounds test measures the button's text box, not the painted glyphs, so it passes.
 - **Also:** Korean breaks inside words (옥스퍼드 비 / 교 건판, 판 / 독); the ja max `selected` frame shows no selection outline.
 - **Decision.** Every tile caption lies inside its tile and off the plate image, at 720p max text in all four locales; a wrap breaks between the number and its marks, never inside a word, with no lone character; the painted-caption check covers all 13 tiles. Count stays **7/9**.
+
+### 2026-11-22 16:0x JST: #341 veg-cards not accepted at b649573 (round 2)
+- Whole 720p head frames first (`house`, `arrival`, `totality_horizon`, `totality_wide`), then the main/head crops in `docs/design/slice_principe/accept/341/b649573/`.
+- **Fixed:** the totality band. The glow band now shows above a low tree line; the crowns repeat evenly, which I let go.
+- **Still open:** the ghost cards (mid-distance vegetation around the house prints as pale, broken, semi-transparent patches) and the banana (flat pale-yellow leaves with little line work, now splayed flat). Perf 0/3 clean reps (host load about 47), row 9 not judged. The local `test_layout_bounds` timeouts are host load; CI `suites` passed at this head.
+- Sent back as `veg-cards-fu2.md` (same Codex session, Sol high): find and fix the cause of the pale, broken cards. A third miss changes the approach. Count stays **7/9**.
