@@ -379,7 +379,7 @@ void fragment() {
 			float reach = mix(1.5 + seed, 3.1 + 0.9 * hash21(vec2(id, 5.0)), streamer);
 			float taper = sqrt(clamp((reach - r) / (reach - 1.0), 0.0, 1.0));
 			float across = dot(lp, vec2(-direction.y, direction.x));
-			float pixel = max(length(vec2(dFdx(across), dFdy(across))), 0.00001);
+			float pixel = max(length(vec2(dot(dFdx(lp), vec2(-direction.y, direction.x)), dot(dFdy(lp), vec2(-direction.y, direction.x)))), 0.00001);
 			// Leave paper between adjacent strokes even where their centres are subpixel.
 			float half_width = min(0.55 * res_k * pixel * taper, 0.40 * 6.2831853 * r / 240.0);
 			float rays = clamp((half_width + 0.5 * pixel - abs(across)) / pixel, 0.0, 1.0)
