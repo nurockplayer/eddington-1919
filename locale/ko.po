@@ -90,8 +90,8 @@ msgstr "%s\n\n(사실)"
 msgid "%s\n\n（虛構）"
 msgstr "%s\n\n(허구)"
 
-msgid "%s · 間距 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
-msgstr "%s · 간격 %.1f · 안정 %.1f/3초 · 남은 시간 %.0f초"
+msgid "%s · 漂移 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgstr "%s · 표류 %.1f · 안정 %.1f/3초 · 남은 시간 %.0f초"
 
 msgid "%s 協助 Cottingham 上發條"
 msgstr "%s 코팅엄이 태엽을 감는 것을 돕는다"

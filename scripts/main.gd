@@ -209,6 +209,7 @@ func _ready() -> void:
 	ui.get_child(0).add_child(calibration)
 	calibration.hide()
 	calibration.finished.connect(_close_calibration)
+	calibration.visibility_changed.connect(func(): ui.hud.visible = not calibration.visible)
 	Settings.apply_quality(get_tree())
 	_build_audio()
 	player.can_move = false

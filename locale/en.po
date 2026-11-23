@@ -91,8 +91,8 @@ msgstr "%s\n\n(Historical)"
 msgid "%s\n\n（虛構）"
 msgstr "%s\n\n(Fiction)"
 
-msgid "%s · 間距 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
-msgstr "%s · separation %.1f · steady %.1f/3 s · %.0f s left"
+msgid "%s · 漂移 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgstr "%s · drift %.1f · steady %.1f/3 s · %.0f s left"
 
 msgid "%s 協助 Cottingham 上發條"
 msgstr "%s Help Cottingham wind the drive"

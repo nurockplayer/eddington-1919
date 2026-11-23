@@ -97,7 +97,7 @@ msgid "%s\n\n（虛構）"
 msgstr ""
 
 #: scripts/coelostat_calibration.gd:150
-msgid "%s · 間距 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgid "%s · 漂移 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
 msgstr ""
 
 #: scripts/main.gd:1249

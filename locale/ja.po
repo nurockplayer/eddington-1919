@@ -90,8 +90,8 @@ msgstr "%s\n\n（史実）"
 msgid "%s\n\n（虛構）"
 msgstr "%s\n\n（虚構）"
 
-msgid "%s · 間距 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
-msgstr "%s · 間隔 %.1f · 安定 %.1f／3 秒 · 残り %.0f 秒"
+msgid "%s · 漂移 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgstr "%s · ドリフト %.1f · 安定 %.1f／3 秒 · 残り %.0f 秒"
 
 msgid "%s 協助 Cottingham 上發條"
 msgstr "%s コッティンガムの巻き上げを手伝う"
