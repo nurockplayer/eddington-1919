@@ -99,13 +99,11 @@ func _get_minimum_size() -> Vector2:
 	var font := get_theme_default_font()
 	var first_y := 30.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
-	if rows.is_empty() and get_parent() is ScrollContainer:
-		return Vector2(0, get_parent().size.y)
 	if revealed and not rows.is_empty() and get_parent() is ScrollContainer:
 		return Vector2(0, get_parent().size.y + (rows.size() - 1) * step)
 	var axis_px := Settings.fs(15)
 	var axis_space := 22.0 * Settings.text_scale + font.get_height(axis_px) + font.get_descent(axis_px) + 8.0
-	return Vector2(0, first_y + rows.size() * step + 10.0 + 14.0 + font.get_height(Settings.fs(16)) + 112.0 + axis_space)
+	return Vector2(0, first_y + maxi(1, rows.size()) * step + 10.0 + 14.0 + font.get_height(Settings.fs(16)) + 112.0 + axis_space)
 
 
 ## What the last _draw() actually painted; the chart tests read this instead of
