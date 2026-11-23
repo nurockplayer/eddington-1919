@@ -2128,14 +2128,17 @@ func _build_pause(root: Control) -> void:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size.y = Settings.fs(46)
 	# Scroll only when necessary; otherwise the paper ends at its last row.
-	var fit_slip := func():
-		var height := minf(v.get_combined_minimum_size().y, root.size.y - 112)
-		scroll.custom_minimum_size.y = height
-		slip.offset_top = -height / 2.0
-		slip.offset_bottom = height / 2.0
+	var fit_slip := _fit_pause_slip.bind(v, root, scroll, slip)
 	v.minimum_size_changed.connect(fit_slip)
 	root.resized.connect(fit_slip)
 	fit_slip.call_deferred()
+
+
+func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer) -> void:
+	var height := minf(v.get_combined_minimum_size().y, root.size.y - 112)
+	scroll.custom_minimum_size.y = height
+	slip.offset_top = -height / 2.0
+	slip.offset_bottom = height / 2.0
 
 
 func _toggle_fullscreen() -> void:

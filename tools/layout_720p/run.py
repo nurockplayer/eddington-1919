@@ -119,6 +119,14 @@ def main():
                 for name in names:
                     with Image.open(accept / name) as image:
                         assert image.size == (1280, 720), name
+                accepted = accept.parent / 'cca62db'
+                for name in names:
+                    previous_name = name.replace(head[:7], 'cca62db', 1)
+                    with Image.open(accept / name) as new, Image.open(accepted / previous_name) as old:
+                        if new.convert('RGBA').tobytes() != old.convert('RGBA').tobytes():
+                            raise RuntimeError(f'Accepted pause frame changed: {name}')
+                report['pause_unchanged'] = len(names)
+                print(f'pause404: {len(names)} frames pixel-identical to art acceptance at cca62db', flush=True)
                 report['pause_frames'] = names
                 report['accept'] = str(accept)
                 (accept / 'capture-list.txt').write_text('\n'.join(names) + '\n')

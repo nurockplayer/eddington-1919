@@ -216,7 +216,7 @@ func _run() -> void:
 			ui._close_help()
 			bounds(ui.pause_panel)
 			var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
-			var buttons: Array = scroll.find_children("*", "Button", true, false)
+			var buttons: Array = scroll.find_children("*", "Button", true, false).filter(func(button): return button.is_visible_in_tree())
 			for button in buttons:
 				scroll.ensure_control_visible(button)
 				await settle()

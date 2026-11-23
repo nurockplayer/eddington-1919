@@ -348,7 +348,7 @@ func _check_pause_menu() -> void:
 	check(sliders.size() == 3, "real pause menu has three sliders")
 	var focus: Control = root.gui_get_focus_owner()
 	check(focus is Button and focus.text == "繼續", "opening pause focuses Continue")
-	check(focus.find_next_valid_focus().find_next_valid_focus() == sliders[0], "keyboard/gamepad focus reaches the sliders")
+	check(focus.find_next_valid_focus() == sliders[0], "keyboard/gamepad focus reaches the sliders")
 	for i in sliders.size():
 		var slider: HSlider = sliders[i]
 		check(slider.focus_mode == Control.FOCUS_ALL and slider.min_value == 0.0
