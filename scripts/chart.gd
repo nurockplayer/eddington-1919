@@ -99,6 +99,8 @@ func _get_minimum_size() -> Vector2:
 	var font := get_theme_default_font()
 	var first_y := 30.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
+	if rows.is_empty() and get_parent() is ScrollContainer:
+		return Vector2(0, get_parent().size.y)
 	if revealed and not rows.is_empty() and get_parent() is ScrollContainer:
 		return Vector2(0, get_parent().size.y + (rows.size() - 1) * step)
 	var axis_px := Settings.fs(15)
