@@ -1,9 +1,7 @@
 shader_type spatial;
 render_mode unshaded, fog_disabled, depth_test_disabled, depth_draw_never, cull_disabled, shadows_disabled;
-// Style audition: engraving (scripts/styles/engraving.gd). A full-screen pass:
-// the lit frame becomes a tone, the tone becomes hatching. Line families are
-// planes in world space cut by the surface, so lines stay on the surfaces; the
-// spacing follows the pixel footprint in octaves, each second line tapering out.
+// Daylight surfaces print their own marks. This pass finishes them with paper
+// grain and selective contours, and retains the night and totality plates.
 
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear_mipmap;
 uniform sampler2D depth_tex : hint_depth_texture, repeat_disable, filter_nearest;
@@ -224,6 +222,7 @@ void fragment() {
 		}
 	} else {
 	float print_darkness = day_return_active ? 0.0 : darkness;
+	bool daylight = print_darkness < 0.95 && night <= 0.5;
 	float k = 2.0 / (abs(PROJECTION_MATRIX[1][1]) * VIEWPORT_SIZE.y);
 	// Line weights are given for a 720-line frame and follow the viewport height.
 	float res_k = VIEWPORT_SIZE.y / 720.0;
@@ -247,7 +246,7 @@ void fragment() {
 	float dark = 1.0 - tone;
 
 	// Outlines: second difference of depth (zero on any flat surface) and normal breaks.
-	vec2 o = outline_px * res_k / VIEWPORT_SIZE;
+	vec2 o = (daylight ? 0.5 : outline_px) * res_k / VIEWPORT_SIZE;
 	vec3 p_l = view_pos(depth_tex, uv - vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
 	vec3 p_r = view_pos(depth_tex, uv + vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
 	vec3 p_d = view_pos(depth_tex, uv - vec2(0.0, o.y), INV_PROJECTION_MATRIX);
@@ -269,6 +268,7 @@ void fragment() {
 	float ridge_totality = 0.0;
 	float sky_white = 0.0;
 	float corona_white = 0.0;
+	bool surface_print = false;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
@@ -289,7 +289,10 @@ void fragment() {
 		// Clouds have no fill or gradient outline: only these weights and a hairline.
 		primary = mix(clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, primary, print_darkness);
 		crossed = mix(clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, crossed, print_darkness);
-		// Preserve main's day/night sky exactly; page ruling belongs to totality.
+		if (daylight) {
+			primary *= smoothstep(0.33, 0.85, print_darkness);
+			crossed *= smoothstep(0.45, 0.95, print_darkness);
+		}
 		float tilt = asin(clamp(dot(ray_w, normalize(vec3(0.62, 0.48, 0.62))), -1.0, 1.0));
 		vec2 sky_ruling = print_darkness > 0.0 ? ruling : vec2(elev, tilt);
 		float i1 = hatch(sky_ruling.x, k, primary, l_px, 99.0);
@@ -372,7 +375,10 @@ void fragment() {
 
 	} else {
 		vec3 q = pv / z;
-		vec3 n_buf = normalize(texture(normal_tex, uv).xyz * 2.0 - 1.0);
+		vec4 surface = texture(normal_tex, uv);
+		// Forward+ normal/roughness reads decode the prepass's 7-bit roughness.
+		surface_print = daylight && abs(surface.w - 17.0 / 127.0) < 0.003;
+		vec3 n_buf = normalize(surface.xyz * 2.0 - 1.0);
 		vec3 n_dep = normalize(cross(dFdx(pv), dFdy(pv)));
 		n_dep = dot(n_dep, pv) > 0.0 ? -n_dep : n_dep;
 		n_v = normal_from_depth > 0.5 ? n_dep : n_buf;
@@ -409,7 +415,11 @@ void fragment() {
 			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break) * (1.0 - dist_f));
 		}
 
-		if (print_darkness < 0.001 && night > 0.5) {
+		if (daylight) {
+			// The rest of the day frame carries flat tone and contours.
+			ink = 0.74 * smoothstep(0.18, 0.94, dark);
+			edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * (1.0 - dist_f);
+		} else if (print_darkness < 0.001 && night > 0.5) {
 			bool foliage = c.g > c.r * 1.08 && c.g > c.b * 1.15 && pw.y > 0.08;
 			bool room = all(lessThan(abs(pw - vec3(10.0, 1.3, 3.0)), vec3(2.1, 1.5, 1.8)));
 			bool wall_board = room && (abs(pw.x - 8.0) < 0.07 || abs(pw.x - 12.0) < 0.07 || abs(pw.z - 1.3) < 0.07 || abs(pw.z - 4.7) < 0.07);
@@ -536,6 +546,9 @@ void fragment() {
 	float fibre = (vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4) * (sky ? 1.0 - print_darkness : 1.0);
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
+	if (daylight) {
+		page = paper * (1.0 - paper_grain * fibre);
+	}
 	if (print_darkness < 0.001 && night > 0.5) {
 		page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f) * (sky ? 1.0 : max(print_darkness, night))) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	}
@@ -554,6 +567,10 @@ void fragment() {
 		page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
 	}
 	vec3 print_colour = mix(page, mix(ink_col, page, ridge_totality * 0.4), clamp(ink, 0.0, 1.0) * ink_strength);
+	if (surface_print) {
+		vec3 stock = mix(c, c * tot_paper / paper, blue);
+		print_colour = mix(stock * (1.0 - paper_grain * fibre), ink_col, edge * outline * ink_strength);
+	}
 	print_colour = mix(print_colour, ink_col, moon_ink);
 	print_colour = mix(print_colour, vec3(1.0), corona_white * print_darkness);
 	// Only the sky around an optically visible field star gets a reserve.

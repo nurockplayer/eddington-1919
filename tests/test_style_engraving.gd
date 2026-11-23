@@ -3,6 +3,7 @@ extends SceneTree
 const Style := preload("res://scripts/style.gd")
 const Engraving := preload("res://scripts/styles/engraving.gd")
 const Settings := preload("res://scripts/settings.gd")
+const World := preload("res://scripts/world_builder.gd")
 
 var checks := 0
 var failures := 0
@@ -66,6 +67,15 @@ func _run() -> void:
 	for name in Engraving.PARAMS:
 		check(material.get_shader_parameter(name) == Engraving.PARAMS[name], "material parameter " + name)
 	check(material.get_shader_parameter("line_px") == 5.0, "default line spacing")
+	var pilot: Array = game.find_children("*", "MeshInstance3D", true, false).filter(
+		func(mesh): return mesh.has_meta(World.PILOT_MATERIALS))
+	var swatches := {}
+	for mesh in pilot:
+		for entry in mesh.get_meta(World.PILOT_MATERIALS):
+			var active: Material = mesh.material_override if entry[0] < 0 else mesh.get_surface_override_material(entry[0])
+			check(active == entry[2], "daylight installs the opaque surface print")
+			swatches[active.get_shader_parameter("swatch")] = true
+	check(swatches.size() == 4, "ground, timber, canvas and dense ink are bound in the scene")
 	check(material.get_shader_parameter("star_keyline_px") == 1.0 and material.get_shader_parameter("star_keyline_all") == 1.0, "one pixel keyline around every visible star")
 	check(material.get_shader_parameter("diamond_radius") == 0.45 and material.get_shader_parameter("diamond_spikes") == 4.0 and material.get_shader_parameter("diamond_ray_floor") == 0.70, "diamond defaults")
 	check(material.get_shader_parameter("sun_r") == game.sim.SUN_R, "solar radius")
@@ -80,6 +90,10 @@ func _run() -> void:
 	check(material.get_shader_parameter("darkness") == 0.0, "daylight darkness")
 	game._apply_light(0.62, 0.0, -150.0, 1.0)
 	check(material.get_shader_parameter("night") == 1.0, "night follows lighting")
+	for mesh in pilot:
+		for entry in mesh.get_meta(World.PILOT_MATERIALS):
+			var active: Material = mesh.material_override if entry[0] < 0 else mesh.get_surface_override_material(entry[0])
+			check(active == entry[1], "night restores the original material")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(material.get_shader_parameter("night") == 0.0, "night clears in daylight")
 	game.sky_mat.set_shader_parameter("third_contact_gap", 0.75)
