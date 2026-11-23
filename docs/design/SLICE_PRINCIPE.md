@@ -792,3 +792,7 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 
 ### 2026-11-23 10:0x JST: #437 day-surface to the gate (edaa330)
 - Look accepted earlier as the darkroom change only (`accept/437/edaa330/`). Now in: six suites 0 failures (wrapper rerun), darkroom night forced-draw 2.28 / 2.28 / 2.30 ms, worst 144.9 fps at x3 (main 65ddfe8 2.53 ms, 131.8 fps). Marked ready, `lead-wait pr 437`. Count stays **7/9**.
+
+### 2026-11-23 10:1x JST: #437 merged; #341 veg-cards to the gate (fe59862)
+- #437 merged 10:05 JST (oracle passed), edd-lead told.
+- #341: five suites 0 failures (wrapper rerun); under the shelter at totality 107.5 / 107.9 / 107.2 fps at x3, main 93.9 fps, headless background jobs listed in the PR comment. Marked ready, `lead-wait pr 341`. Count stays **7/9**.
