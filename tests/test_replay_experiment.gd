@@ -37,6 +37,10 @@ func dialogue(game, choices := {}) -> void:
 			if key == "verdict":
 				index = Judgment.verdict_truth(game.sim)
 			game.ui._choice_buttons[index].pressed.emit()
+			if key == "verdict":
+				# This driver disables processing and owns the report hold's clock.
+				game._process(0.0)
+				game._process(1.5)
 		else:
 			game.ui._advance()
 		await process_frame

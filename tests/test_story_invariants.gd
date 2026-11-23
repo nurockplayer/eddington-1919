@@ -58,6 +58,10 @@ func _finish(chapter, picks: Dictionary, stop := "") -> void:
 			for button in chapter.ui._choice_buttons:
 				_capture("choice", button.text, chapter._pending)
 			chapter.ui._choice_buttons[int(picks.get(key, 0))].pressed.emit()
+			if key == "verdict":
+				# This driver disables processing and owns the report hold's clock.
+				chapter._process(0.0)
+				chapter._process(1.5)
 		else:
 			chapter.ui._advance()
 	check(remaining > 0, "dialogue terminates")
