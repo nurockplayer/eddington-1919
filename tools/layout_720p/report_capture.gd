@@ -51,10 +51,10 @@ func _run() -> void:
 		var locale: String = item[1]
 		var scale: float = item[2]
 		L.apply(locale)
-		Settings.text_scale = scale
 		seed(77)
 		var game: Node = load("res://scenes/main.tscn").instantiate()
 		root.add_child(game)
+		Settings.text_scale = scale
 		game.set_process(false)
 		game.player.set_physics_process(false)
 		game.ui.set_process(false)
