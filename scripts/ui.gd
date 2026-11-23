@@ -47,6 +47,10 @@ var theme_res: Theme
 var hud: Control
 var clock_label: Label
 var objectives: RichTextLabel
+var pause_objectives: RichTextLabel
+var _objectives_bb := ""
+var _portrait_source: Texture2D
+var _portrait_oval: Texture2D
 var crosshair: Label
 var prompt_label: Label
 var hold_bar: ProgressBar
@@ -239,6 +243,9 @@ func _ready() -> void:
 	caption.modulate.a = 0.0
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(caption)
+	for modal in [dialog_panel, title_panel, pause_panel, help_panel, log_panel, credits_panel, ending_panel]:
+		modal.visibility_changed.connect(_slips_visibility)
+	_slips_visibility()
 
 
 func _panel_style(bg: Color, border := Color(0, 0, 0, 0)) -> StyleBoxFlat:
@@ -331,6 +338,7 @@ func _build_hud(root: Control) -> void:
 	hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(hud)
 	clock_label = _label("", 24)
+	clock_label.hide()
 	clock_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	clock_label.position = Vector2(-300, 14)
@@ -341,7 +349,7 @@ func _build_hud(root: Control) -> void:
 	var obj_panel := PanelContainer.new()
 	obj_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.06, 0.05, 0.04, 0.62)))
 	obj_panel.position = Vector2(18, 18)
-	obj_panel.custom_minimum_size = Vector2(470, 0)
+	obj_panel.custom_minimum_size = Vector2.ZERO
 	hud.add_child(obj_panel)
 	objectives = _rich(18)
 	obj_panel.add_child(objectives)
@@ -412,10 +420,32 @@ func _paper_text(bb: String) -> String:
 
 
 func set_objectives(bb: String) -> void:
-	objectives.text = _paper_text(bb)
-	objectives.get_parent().visible = bb != ""
+	_objectives_bb = bb
+	pause_objectives.text = bb
+	pause_objectives.visible = not bb.is_empty() and not _settings_only
+	var lines := _paper_text(bb).split("\n")
+	var current := ""
+	for line in lines:
+		if line.strip_edges().begins_with("□"):
+			current = line
+			break
+	if current.is_empty() and not bb.is_empty():
+		# Chapter tasks have a heading followed by the current instruction.
+		current = lines[1] if lines.size() > 1 else lines[0]
+		if bb.contains("✓") and lines.size() > 2:
+			current = lines[-1]
+	objectives.text = current
+	objectives.get_parent().visible = not current.is_empty() and not blocks_world_input() and not title_panel.visible and not ending_panel.visible
 	if paper_hud:
 		paper_layout.call()
+
+
+func _slips_visibility() -> void:
+	var blocked := blocks_world_input() or title_panel.visible or ending_panel.visible
+	objectives.get_parent().visible = not blocked and not objectives.text.is_empty()
+	toast.visible = not blocked and not toast.text.is_empty()
+	clock_label.visible = not blocked and not clock_label.text.is_empty()
+	prompt_label.visible = not blocked and not tot_panel.visible and not prompt_label.text.is_empty()
 
 
 func set_prompt(text: String) -> void:
@@ -432,6 +462,7 @@ func set_hold(progress: float) -> void:
 
 func show_toast(text: String, seconds := 4.0) -> void:
 	toast.text = text
+	_slips_visibility()
 	if paper_hud:
 		paper_layout.call()
 	toast.modulate.a = 1.0
@@ -534,7 +565,7 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.offset_right = 560
 	dialog_panel.offset_top = -214
 	dialog_panel.offset_bottom = -18
-	dialog_panel.custom_minimum_size = Vector2(1120, 200)
+	dialog_panel.custom_minimum_size = Vector2.ZERO
 	dialog_panel.visible = false
 	root.add_child(dialog_panel)
 	var v := VBoxContainer.new()
@@ -543,7 +574,7 @@ func _build_dialog(root: Control) -> void:
 	speaker_label = _label("", 22, ACCENT)
 	v.add_child(speaker_label)
 	text_label = _rich(21)
-	text_label.custom_minimum_size = Vector2(1080, 0)
+	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	v.add_child(text_label)
 	choice_box = VBoxContainer.new()
 	choice_box.add_theme_constant_override("separation", 6)
@@ -557,6 +588,7 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.visibility_changed.connect(func():
 		if not dialog_panel.visible:
 			dialogue_portrait.hide())
+	text_label.minimum_size_changed.connect(_layout_dialogue_portrait.call_deferred)
 	dialog_panel.resized.connect(_layout_viewer.call_deferred)
 	dialog_panel.visibility_changed.connect(_layout_viewer.call_deferred)
 	root.resized.connect(_layout_dialogue_portrait)
@@ -565,24 +597,52 @@ func _build_dialog(root: Control) -> void:
 
 
 func _layout_dialogue_portrait() -> void:
-	if not cambridge_portraits:
+	if not dialog_panel.visible:
 		return
-	# Reserve a separate bottom-left print column. Text/choices keep their own
-	# panel; the print cannot cover the central evidence or an interaction prompt.
-	var width: float = dialog_panel.get_parent().size.x
-	var span := minf(width - 48.0, 1360.0)
-	dialog_panel.offset_left = -span * 0.5 + 240.0
-	dialog_panel.offset_right = span * 0.5
-	dialog_panel.custom_minimum_size.x = 0.0
-	text_label.custom_minimum_size.x = 0.0
-	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var frame: Vector2 = dialog_panel.get_parent().size
+	var column := 240.0 if cambridge_portraits else 0.0
+	if paper_hud and not viewer.visible:
+		var image := dialogue_portrait.image
+		image.custom_minimum_size = Vector2(frame.y * 0.12, frame.y * 0.16)
+		image.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_OFF
+		Settings.track_font(dialogue_portrait.disclosure, 12)
+		dialogue_portrait.size = dialogue_portrait.get_combined_minimum_size()
+		column = dialogue_portrait.size.x + 16.0 if dialogue_portrait.visible else 0.0
+		if image.texture != _portrait_oval and image.texture != null:
+			_portrait_source = image.texture
+			var pixels := _portrait_source.get_image()
+			pixels.convert(Image.FORMAT_RGBA8)
+			pixels.resize(96, 128)
+			for y in 128:
+				for x in 96:
+					if Vector2((x - 47.5) / 47.5, (y - 63.5) / 63.5).length_squared() > 1.0:
+						pixels.set_pixel(x, y, Color.TRANSPARENT)
+			_portrait_oval = ImageTexture.create_from_image(pixels)
+			image.texture = _portrait_oval
+	elif _portrait_source != null:
+		dialogue_portrait.image.texture = _portrait_source
+	var maximum := minf(frame.x - column - 64.0, 1080.0)
+	var natural := maxf(speaker_label.get_minimum_size().x, hint_label.get_minimum_size().x)
+	var body_font := text_label.get_theme_font("normal_font")
+	var body_size := text_label.get_theme_font_size("normal_font_size")
+	for line in text_label.get_parsed_text().split("\n"):
+		natural = maxf(natural, body_font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, body_size).x)
+	for button in _choice_buttons:
+		var face := button.get_theme_font("font")
+		natural = maxf(natural, face.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x + 20.0)
+	var width := minf(maximum, natural + dialog_panel.get_theme_stylebox("panel").get_minimum_size().x)
+	dialog_panel.custom_minimum_size = Vector2.ZERO
+	dialog_panel.offset_left = (column - width) * 0.5
+	dialog_panel.offset_right = (column + width) * 0.5
+	dialog_panel.offset_bottom = -18.0
+	dialog_panel.offset_top = -18.0 - dialog_panel.get_combined_minimum_size().y
 	_position_dialogue_portrait()
 
 
 func _position_dialogue_portrait() -> void:
-	var width: float = dialog_panel.get_parent().size.x
-	var span := minf(width - 48.0, 1360.0)
-	dialogue_portrait.position = Vector2((width - span) * 0.5, dialog_panel.get_global_rect().end.y - dialogue_portrait.size.y)
+	dialogue_portrait.position = Vector2(dialog_panel.position.x - dialogue_portrait.size.x - 16.0,
+		dialog_panel.get_global_rect().end.y - dialogue_portrait.size.y)
 
 
 func dialog_active() -> bool:
@@ -633,6 +693,7 @@ func _show_entry() -> void:
 		_choice_buttons[0].grab_focus()
 	_refresh_hints()
 	dialogue_entry.emit(str(e.get("s", "")))
+	_layout_dialogue_portrait.call_deferred()
 
 
 func _choose(i: int) -> void:
@@ -725,6 +786,7 @@ func set_callout(text: String, seconds := 3.5) -> void:
 
 func set_clock(text: String) -> void:
 	clock_label.text = text
+	_slips_visibility()
 	if paper_hud:
 		clock_label.visible = not text.is_empty()
 		paper_layout.call()
@@ -2153,6 +2215,10 @@ func _build_pause(root: Control) -> void:
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, totality_pace_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size.y = Settings.fs(46)
+	pause_objectives = _rich(18)
+	pause_objectives.autowrap_mode = TextServer.AUTOWRAP_WORD
+	pause_objectives.hide()
+	v.add_child(pause_objectives)
 	# Scroll only when necessary; otherwise the paper ends at its last row.
 	var fit_slip := _fit_pause_slip.bind(v, root, scroll, slip)
 	v.minimum_size_changed.connect(fit_slip)
@@ -2191,6 +2257,7 @@ func _sync_music_row() -> void:
 func open_settings() -> void:
 	_pause_focus = get_viewport().gui_get_focus_owner()
 	_settings_only = true
+	pause_objectives.hide()
 	(pause_panel as ColorRect).color = preload("res://scripts/styles/engraving.gd").PAPER
 	_title_focus_modes.clear()
 	for button in prologue_btn.get_parent().get_children():
@@ -2218,6 +2285,7 @@ func close_settings() -> void:
 	restart_button.show()
 	quit_button.show()
 	_settings_only = false
+	pause_objectives.visible = not _objectives_bb.is_empty()
 	(pause_panel as ColorRect).color = Color.TRANSPARENT
 	var buttons := prologue_btn.get_parent().get_children()
 	for i in buttons.size():
@@ -2243,7 +2311,7 @@ func toggle_pause() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	else:
-		objectives.get_parent().visible = _pause_objectives_visible
+		objectives.get_parent().visible = _pause_objectives_visible and not dialog_active()
 		_restart_armed = false
 		_quit_armed = false
 		_title_armed = false

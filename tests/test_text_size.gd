@@ -165,6 +165,21 @@ func _run() -> void:
 	Settings.load_settings()
 	check(Settings.text_scale == 1.0, "pause cycle saves immediately")
 	ui.toggle_pause()
+	var paper = preload("res://scripts/hud_paper.gd").new()
+	var engraving = preload("res://scripts/styles/engraving.gd")
+	paper.setup(ui, engraving.PAGES)
+	paper.light(0.0, 0.0, engraving.PARAMS)
+	ui.set_objectives("[b]Preparation[/b]\n✓ Done\n□ Current step\n□ Next step")
+	ui.play([{"s": Content.E, "t": "A short printed line."}])
+	for scale in [1.0, 1.2]:
+		Settings.text_scale = scale
+		Settings.refresh_fonts(self)
+		for frame in 5:
+			await process_frame
+		check(ui.text_label.get_theme_font_size("normal_font_size") == roundi(21 * scale), "printed slip preserves supported text size")
+		check(ui.dialog_panel.size.y < 200, "short printed dialogue has no fixed minimum height")
+		check(ui.objectives.text == "□ Current step", "printed HUD contains only current task")
+		check(ui.pause_objectives.text.contains("□ Next step"), "pause retains next task at each text size")
 	ui.free()
 	chart.free()
 	overlay.free()

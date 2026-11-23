@@ -55,6 +55,9 @@ func settle() -> void:
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
 	await _test_trim_sheet()
+
+
+	await _test_printed_slips()
 	await _test_portrait_report()
 	if "--portrait-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds portrait: %d checks, %d failures" % [checks, failures])
@@ -191,8 +194,8 @@ func _run() -> void:
 			bounds(ui.objectives.get_parent())
 			var measure_line := L.t("[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]").trim_prefix("[color=#a99]").trim_suffix("[/color]")
 			var walk_line := L.t("%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）").get_slice("%s", 1).get_slice("%d", 0)
-			check(ui.objectives.text.contains(measure_line) and ui.objectives.text.contains(walk_line),
-				"PREP objectives name the measurement and the darkroom")
+			check(ui.pause_objectives.text.contains(measure_line) and ui.pause_objectives.text.contains(walk_line),
+				"pause retains PREP measurement and darkroom instructions")
 			check(ui.objectives.get_content_height() <= ui.objectives.size.y + 1.0,
 				"PREP objectives text fits its panel (content %s, label %s)" % [ui.objectives.get_content_height(), ui.objectives.size.y])
 			# aspect=expand keeps the 1600×900 base and widens: the scale is the
@@ -1085,3 +1088,66 @@ func _test_trim_sheet() -> void:
 	Settings.text_scale = scale
 	Settings.reduced_motion = motion
 	root.size = window
+
+
+func _test_printed_slips() -> void:
+	var old_locale := L.current()
+	var old_scale := Settings.text_scale
+	var old_window := root.size
+	root.content_scale_size = Vector2i(1600, 900)
+	for window in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
+		root.size = window
+		for language in L.LOCALES:
+			L.apply(language)
+			for scale in [1.0, 1.2]:
+				context = "printed slips %s %s %.1f" % [window, language, scale]
+				var ui = preload("res://scripts/ui.gd").new()
+				root.add_child(ui)
+				ui.hide_title()
+				ui.cambridge_portraits = true
+				var paper = preload("res://scripts/hud_paper.gd").new()
+				var engraving = preload("res://scripts/styles/engraving.gd")
+				paper.setup(ui, engraving.PAGES)
+				paper.light(1.0, 1.0, engraving.PARAMS)
+				Settings.text_scale = scale
+				Settings.refresh_fonts(self)
+				check(not ui.clock_label.visible, "initial clock has no shell")
+				var full := "[b]Tasks[/b]\n✓ Done\n□ " + L.t("□ 在測量桌上檢視並量測底片").trim_prefix("□ ") + "\n□ Later"
+				ui.set_objectives(full)
+				ui.show_toast(L.t("看雲：變薄就喊開始。"), 7.0)
+				await settle()
+				check(ui.objectives.text.count("□") == 1 and not ui.objectives.text.contains("Later"), "HUD shows one unfinished step")
+				bounds(ui.objectives.get_parent())
+				ui.play([{"s": Content.E, "t": L.t("看雲：變薄就喊開始。") }])
+				await settle()
+				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "dialogue suppresses task and toast")
+				check(ui.dialog_panel.size.x < 1120 and ui.dialog_panel.size.y < 200, "short line has a compact slip")
+				check(ui.dialogue_portrait.image.size.y <= root.get_visible_rect().size.y * 0.18, "oval vignette fits 18 percent frame height")
+				check(ui.dialogue_portrait.disclosure.get_line_count() == 1, "portrait disclosure is one line")
+				check(not ui.dialogue_portrait.get_global_rect().intersects(ui.dialog_panel.get_global_rect()), "portrait and dialogue have separate space")
+				bounds(ui.dialog_panel)
+				bounds(ui.dialogue_portrait)
+				check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1, "dialogue glyphs fit")
+				if language == "ko":
+					check(ui.text_label.autowrap_mode == TextServer.AUTOWRAP_WORD and ui.objectives.autowrap_mode == TextServer.AUTOWRAP_WORD, "Korean wraps at words")
+				for background in paper.slips:
+					check(background.bg_color == engraving.PAPER, "slips stay opaque cream at night and totality")
+				check(_slip_luminance(engraving.PAPER) + 0.05 >= 4.5 * (_slip_luminance(paper.foreground) + 0.05), "ink contrast is at least 4.5 to 1")
+				ui._advance()
+				ui.toggle_pause()
+				await settle()
+				check(ui.pause_objectives.is_visible_in_tree() and ui.pause_objectives.text == full, "pause exposes the full unchanged objective list")
+				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "pause suppresses HUD slips")
+				ui.toggle_pause()
+				ui.open_settings()
+				check(not ui.toast.visible and not ui.objectives.get_parent().visible, "settings suppress HUD slips")
+				ui.close_settings()
+				ui.free()
+	L.apply(old_locale)
+	Settings.text_scale = old_scale
+	root.size = old_window
+
+
+func _slip_luminance(color: Color) -> float:
+	var linear := color.srgb_to_linear()
+	return linear.r * 0.2126 + linear.g * 0.7152 + linear.b * 0.0722
