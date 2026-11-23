@@ -14,6 +14,7 @@ var evidence_dialogue := {}
 var portrait_tint := Color.WHITE
 var disclosure_wrap: int
 var serif: Font
+var serif_emphasis := {}
 var small_caps: FontVariation
 
 
@@ -25,6 +26,11 @@ func setup(target: Node, colours: Dictionary) -> void:
 	face.font_names = PackedStringArray(["Baskerville", "Georgia", "serif"])
 	face.fallbacks = [ui.font]
 	serif = face
+	for variant in ["bold_font", "italics_font", "bold_italics_font"]:
+		var emphasis: SystemFont = face.duplicate()
+		emphasis.font_weight = 700 if "bold" in variant else 400
+		emphasis.font_italic = "italics" in variant
+		serif_emphasis[variant] = emphasis
 	small_caps = FontVariation.new()
 	small_caps.base_font = serif
 	small_caps.opentype_features = {"smcp": 1}
@@ -32,7 +38,10 @@ func setup(target: Node, colours: Dictionary) -> void:
 		label.add_theme_font_override("font", serif)
 	for label in [ui.objectives, ui.tot_label]:
 		label.add_theme_font_override("normal_font", serif)
+		for variant in serif_emphasis:
+			label.add_theme_font_override(variant, serif_emphasis[variant])
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	ui.toast.autowrap_mode = TextServer.AUTOWRAP_WORD
 	ui.objectives.get_parent().custom_minimum_size = Vector2.ZERO
 	disclosure_wrap = ui.dialogue_portrait.disclosure.autowrap_mode
 	ui.dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -135,11 +144,15 @@ func _choices() -> void:
 		for label in [ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
 			label.remove_theme_font_override("font")
 		ui.text_label.remove_theme_font_override("normal_font")
+		for variant in serif_emphasis:
+			ui.text_label.remove_theme_font_override(variant)
 		return
 	for label in [ui.speaker_label, ui.hint_label]:
 		label.add_theme_font_override("font", small_caps)
 	ui.dialogue_portrait.disclosure.add_theme_font_override("font", serif)
 	ui.text_label.add_theme_font_override("normal_font", serif)
+	for variant in serif_emphasis:
+		ui.text_label.add_theme_font_override(variant, serif_emphasis[variant])
 	ui.dialogue_portrait.image.self_modulate = portrait_tint
 	ui.dialog_panel.add_theme_stylebox_override("panel", panel_slips[ui.dialog_panel])
 	ui.dialogue_portrait.add_theme_stylebox_override("panel", panel_slips[ui.dialogue_portrait])
@@ -240,7 +253,5 @@ func _fit_toast() -> void:
 
 func _toast_layout() -> void:
 	ui.toast.size.y = ceilf(ui.toast.get_minimum_size().y)
-	ui.toast.position.y = ui.hud.size.y - 150.0
-	if ui.tot_panel.visible:
-		# Main's 90 px toast ends 60 px above the bottom; extra lines grow up.
-		ui.toast.position.y = ui.hud.size.y - 60.0 - ui.toast.size.y
+	# Every toast grows upward from the same bottom margin, including rehearsal.
+	ui.toast.position.y = ui.hud.size.y - 60.0 - ui.toast.size.y

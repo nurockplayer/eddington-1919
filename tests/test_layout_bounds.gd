@@ -1146,7 +1146,7 @@ func _test_printed_slips() -> void:
 				var rehearsal := L.t("你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。") + L.t("按遊戲的曝光模型，星點夠量測，但霧或拖影會影響品質。") + L.t("\n你：『停！』　Eddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。")
 				ui.show_toast(rehearsal, 7.0)
 				await settle()
-				var toast_style := ui.toast.get_theme_stylebox("normal")
+				var toast_style: StyleBox = ui.toast.get_theme_stylebox("normal")
 				var toast_rect: Rect2 = ui.toast.get_global_rect().grow_individual(toast_style.expand_margin_left, toast_style.expand_margin_top, toast_style.expand_margin_right, toast_style.expand_margin_bottom)
 				check(root.get_visible_rect().encloses(toast_rect), "long rehearsal toast and its paper stay inside frame")
 				check(absf(ui.toast.get_global_rect().end.y - (ui.hud.size.y - 60.0)) <= 1.0, "toast grows upward from its bottom margin")
@@ -1190,7 +1190,7 @@ func _check_slip_bottom(ui, left: float) -> void:
 func _check_korean_rich(label: RichTextLabel) -> void:
 	var text := label.get_parsed_text()
 	var word := RegEx.new()
-	word.compile("[가-힣\\u2060]+")
+	word.compile("[가-힣\u2060]+")
 	for match in word.search_all(text):
 		check(label.get_character_line(match.get_start()) == label.get_character_line(match.get_end() - 1), "Korean rich text keeps word intact: " + match.get_string())
 	check(label.get_content_width() <= label.size.x + 1.0, "Korean rich text fits its slip width")
@@ -1203,7 +1203,7 @@ func _check_korean_label(label: Label) -> void:
 	paragraph.add_string(label.text, label.get_theme_font("font"), label.get_theme_font_size("font_size"))
 	check(paragraph.get_line_count() == label.get_line_count(), "toast probe matches rendered line count")
 	var word := RegEx.new()
-	word.compile("[가-힣\\u2060]+")
+	word.compile("[가-힣\u2060]+")
 	for match in word.search_all(label.text):
 		var contained := false
 		for line in paragraph.get_line_count():
