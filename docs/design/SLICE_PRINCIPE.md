@@ -859,3 +859,10 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 - Before, in real play and not only in the capture tool: the card was 356 px wide and lay over the dialogue, hiding the first words of the line and the text of all four choices. Now the card keeps to its column left of the dialogue in all four frames; speaker name, line and choices are whole; the caption wraps inside the card; zh_TW, clear before, has not moved.
 - To the backlog (#421 / #426): the dialogue box lies over the plate caption under the plate view and over the note under the chart at scale 1.2; the card's caption is pale grey on cream; card and box are plain panels.
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. edd-lead gates. Count stays **7/9**.
+
+### 2026-11-23 15:4x JST: #459 report chart rows accepted at fdd3e6e
+- Whole 1280x720 frames, `12-ko-max-top` alone first, then a 2x crop of the three 12-plate charts at max text, then `12-en-default-top` (`slice_principe/accept/459/fdd3e6e/`). `4-ja-max-top` in the folder not opened this round.
+- The 14:3x case is met: no plate row, label or bar inside the pinned header or the pinned combined-and-labels block at top, middle or bottom of the scroll; rows end at a clean edge (en default cuts plate 4 at the edge, which also tells the player there is more). The three labelled predictions and the combined mark with value stay on screen. Marks on the sim values: plate 1 1.44 at x 1014, plate 3 1.75 at 1052, combined 1.64 at 1039.
+- Against main: 12 plates readable row by row where main overprinted them.
+- Backlog (#426): at max text three rows of twelve show at once; thin scrollbar; blank band between the last row and the combined mark at the bottom of the scroll and in the 1-plate chart; dark panel. The blank portrait card in these frames is the defect #460 removes; the branch predates it.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. edd-lead rebases and gates; frames again if the rebase changes more than the portrait card. Count stays **7/9**.
