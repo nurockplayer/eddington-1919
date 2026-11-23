@@ -105,6 +105,11 @@ static func render(tree: SceneTree, all_entries: Array) -> String:
 		for entry in all_entries:
 			if entry.chapter != chapter:
 				continue
+			var source_name: String = entry.s % entry.format_arg if entry.has("format_arg") else entry.s
+			var key: String = source_name + "\t" + entry.mood
+			if rows.has(key):
+				rows[key].count += 1
+				continue
 			var names := PackedStringArray()
 			for locale in LOCALES:
 				L.apply(locale)
@@ -116,11 +121,7 @@ static func render(tree: SceneTree, all_entries: Array) -> String:
 			var path := "none"
 			if ui.dialogue_portrait.visible:
 				path = ui.dialogue_portrait.image.texture.resource_path
-			var source_name: String = entry.s % entry.format_arg if entry.has("format_arg") else entry.s
-			var key: String = source_name + "\t" + path
-			if not rows.has(key):
-				rows[key] = {"speaker": source_name, "path": path, "names": " / ".join(names), "count": 0}
-			rows[key].count += 1
+			rows[key] = {"speaker": source_name, "path": path, "names": " / ".join(names), "count": 1}
 		text += "## %s\n\n| Speaker (source) | Line count | Portrait path | Displayed name (en / ja / zh-TW / ko) |\n| --- | ---: | --- | --- |\n" % CHAPTERS[chapter]
 		var keys := rows.keys()
 		keys.sort()
