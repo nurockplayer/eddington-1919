@@ -872,7 +872,7 @@ func _build_viewer(root: Control) -> void:
 	right.add_child(chart_scroll)
 	chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chart_scroll.add_child(chart)
-	chart.item_rect_changed.connect(_layout_viewer.call_deferred)
+	chart_scroll.resized.connect(_layout_viewer.call_deferred)
 	viewer_steps = _rich(16)
 	right.add_child(viewer_steps)
 	var btns := GridContainer.new()
