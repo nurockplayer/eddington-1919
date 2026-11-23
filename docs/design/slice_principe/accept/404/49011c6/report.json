@@ -1,0 +1,85 @@
+{
+  "head": "49011c66de4bbb9dbf95cf26ef7c99bab3a603e8",
+  "baseline": "test_layout_bounds plate/pause: 4857 checks, 350 failures",
+  "at": "2026-11-23 09:44:37 JST",
+  "native_probe": {
+    "canvas_transform": "[X: (1.0, 0.0), Y: (0.0, 1.0), O: (16.0, 571.0)]",
+    "case": "zh_TW plate 12 max 1280x720",
+    "glyph_core_pixels": 1,
+    "icon_draw_rect": "[P: (21.0, 575.0), S: (89.0, 89.0)]",
+    "lines": [
+      "\u7b2c 12 \u865f \u2713",
+      "\u8b80"
+    ],
+    "masked_nontext_changed_pixels": 3497,
+    "masking_preserves_geometry": false,
+    "original_caption": "[P: (27.5, 656.25), S: (77.5, 43.75)]",
+    "original_raster_match": 1.0,
+    "restored_changed_pixels": 4310,
+    "restored_max_rgb_delta": 0.772549029439688,
+    "tile": "[P: (16.0, 571.0), S: (100.0, 122.0)]",
+    "viewport": "[P: (0.0, 0.0), S: (1600.0, 900.0)]",
+    "window": "(1280, 720)"
+  },
+  "baseline_captions": {
+    "en": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 12
+    },
+    "ja": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 3
+    },
+    "zh_TW": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 12
+    },
+    "ko": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 6
+    }
+  },
+  "fix": "test_layout_bounds plate/pause: 5939 checks, 0 failures",
+  "fix_captions": {
+    "en": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 0
+    },
+    "ja": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 0
+    },
+    "zh_TW": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 0
+    },
+    "ko": {
+      "cases": 156,
+      "overflows": 0,
+      "max_overflow": 0.0,
+      "image_overlaps": 0,
+      "semantic_violations": 0
+    }
+  }
+}
