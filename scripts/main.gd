@@ -144,20 +144,25 @@ var _score_exposing := false
 
 func _ready() -> void:
 	_ensure_inputs()
-	_came_from_departure = Story.from_prologue or replay_from_prologue
+	var darkroom := Story.darkroom_resume
+	Story.darkroom_resume = {}
+	_came_from_departure = Story.from_prologue or replay_from_prologue if darkroom.is_empty() else darkroom.from_departure
 	replay_from_prologue = false
 	_is_replay = replay_pending
 	replay_pending = false
-	if not _came_from_departure:
-		Story.reset(_is_replay)
-	# Conversion arc A: every run starts from the 1917 page, never the last run's revision.
-	if Story.prologue_done and not Story.bet_1917.is_empty():
-		Story.bet = Story.bet_1917.duplicate(true)
-	Story.kit_first = -1
+	if darkroom.is_empty():
+		if not _came_from_departure:
+			Story.reset(_is_replay)
+		# Conversion arc A: new runs start from the 1917 page.
+		if Story.prologue_done and not Story.bet_1917.is_empty():
+			Story.bet = Story.bet_1917.duplicate(true)
+		Story.kit_first = -1
 	var args := _user_args()
 	_style = Style.from_args(args)
 	# A restart's chosen sky wins over the command line, which only seeds the first run.
 	var seed_ := next_seed if next_seed >= 0 else int(args.get("seed", "-1"))
+	if not darkroom.is_empty():
+		seed_ = darkroom.seed
 	if seed_ < 0:
 		seed_ = randi() % 100000
 	sim = Sim.new(seed_)
@@ -217,7 +222,9 @@ func _ready() -> void:
 	ui.set_objectives("")
 	ui.hud.visible = false
 	_update_sky_prep()
-	if Story.from_prologue:
+	if not darkroom.is_empty():
+		_restore_darkroom(darkroom)
+	elif Story.from_prologue:
 		Story.from_prologue = false
 		# The departure montage ends black; start here black and fade the new day in.
 		ui.fade.color.a = 1.0
@@ -1074,6 +1081,7 @@ func _interact(id: String) -> void:
 			"oxford_case":
 				if _needs_comparison_fetch():
 					_comparison_fetched = true
+					_save_darkroom()
 					_say(Content.comparison_fetched(), "")
 					_refresh_objectives()
 				else:
@@ -1086,6 +1094,7 @@ func _interact(id: String) -> void:
 			"departure_workbook":
 				if Story.departure_done and not _departure_workbook_seen:
 					_departure_workbook_seen = true
+					_save_darkroom()
 					_night_departure_workbook.call("open_workbook")
 					_say(DepartureContent.principe_workbook(Story.bond_tone, sim.plates, plate_changed), "")
 		return
@@ -1184,11 +1193,13 @@ func _on_dialogue_done(results: Dictionary) -> void:
 				_begin_rehearsal()
 		"rules":
 			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
+			_save_darkroom()
 			_refresh_objectives()
 			# Conversion arc move A: the bet comes before the plates, once per run.
 			_say(Content.bet_prompt(Story.bet if Story.prologue_done else {}), "bet")
 		"bet":
 			_record_bet(results)
+			_save_darkroom()
 			_open_viewer()
 		"reselect_reason":
 			sim.reselect_reason = ["quality", "result", "none"][int(results.get("reselect_reason", 2))]
@@ -1592,6 +1603,45 @@ func _end_totality() -> void:
 func _begin_night() -> void:
 	_busy = true
 	await ui.fade_to(1.0, 1.2).finished
+	_setup_darkroom()
+	_save_darkroom()
+	await ui.show_caption(L.t("接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"), 2.4).finished
+	await ui.fade_to(0.0, 1.0).finished
+	_busy = false
+	player.can_move = true
+	_refresh_objectives()
+	_say(Content.night_intro(sim.plates.size()), "")
+	if bot:
+		bot.on_phase("night")
+
+
+func _save_darkroom() -> void:
+	if Checkpoint.enabled():
+		Checkpoint.save("darkroom", {
+			"seed": sim.run_seed, "sim": sim.darkroom_state(), "from_departure": _came_from_departure,
+			"plate_changed": plate_changed, "comparison_fetched": _comparison_fetched,
+			"workbook_seen": _departure_workbook_seen,
+		})
+
+
+func _restore_darkroom(data: Dictionary) -> void:
+	sim.restore_darkroom(data.sim)
+	plate_changed = data.plate_changed
+	_comparison_fetched = data.comparison_fetched
+	_departure_workbook_seen = data.workbook_seen
+	ui.hide_title()
+	ui.pause_enabled = true
+	ui.hud.visible = true
+	_setup_darkroom()
+	_refresh_objectives()
+	if sim.bet_pick >= 0:
+		_open_viewer()
+	elif sim.rule_id != "":
+		_say(Content.bet_prompt(Story.bet if Story.prologue_done else {}), "bet")
+	_sync_player_input()
+
+
+func _setup_darkroom() -> void:
 	audio_surf.stop()
 	audio_birds.stop()
 	_start_night_bed()
@@ -1619,14 +1669,6 @@ func _begin_night() -> void:
 	player.global_position = world.darkroom_spot + Vector3(0, 0.05, 0)
 	player.velocity = Vector3.ZERO
 	player.look_at_point(world.measure_pos)
-	await ui.show_caption(L.t("接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"), 2.4).finished
-	await ui.fade_to(0.0, 1.0).finished
-	_busy = false
-	player.can_move = true
-	_refresh_objectives()
-	_say(Content.night_intro(sim.plates.size()), "")
-	if bot:
-		bot.on_phase("night")
 
 
 func _add_departure_loupe(wb) -> void:
@@ -1760,6 +1802,7 @@ func _on_reading_set(i: int, px: float) -> void:
 	sim.plates[i].read = true
 	if sim.measured and not sim.reselected_after_seeing:
 		sim.first_result = sim.combined()
+	_save_darkroom()
 	_refresh_viewer()
 	ui._select_plate(i, plate_textures[i], false)
 
@@ -1820,6 +1863,7 @@ func _on_plate_toggled(i: int, on: bool) -> void:
 	if sim.measured:
 		return
 	sim.plates[i].included = on
+	_save_darkroom()
 	_refresh_viewer()
 
 
@@ -1853,12 +1897,14 @@ func _finish_measurement() -> void:
 	ui.set_viewer_locked(true)
 	if not sim.reselected_after_seeing:
 		sim.first_result = sim.combined()
+	_save_darkroom()
 	_refresh_viewer()
 	_refresh_objectives()
 
 
 func _on_reselect() -> void:
 	sim.measured = false
+	_save_darkroom()
 	ui.set_viewer_locked(false)
 	_refresh_viewer()
 	_refresh_objectives()
@@ -1994,9 +2040,10 @@ func _show_ending() -> void:
 	_stop_night_bed()
 	_play_resolution()
 	phase = Phase.ENDING
-	# A 尾章-only run ending must not cost the player their story checkpoint.
 	if _came_from_departure:
 		Checkpoint.clear()
+	else:
+		Checkpoint.complete_standalone_darkroom()
 	ui.pause_enabled = false
 	ui.hud.visible = false
 	player.can_move = false

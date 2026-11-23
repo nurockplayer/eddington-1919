@@ -1,9 +1,7 @@
 class_name Checkpoint
 extends RefCounted
-## One automatic checkpoint per chapter: departure, Príncipe and the October 1919
-## epilogue. Story state is written together with the chapter name, so a player who
-## quits between chapters resumes at the start of the chapter they reached.
-## No slots, no mid-chapter saves.
+## One automatic checkpoint: chapter starts or the darkroom after totality.
+## Chapter and live darkroom checkpoints both carry their own Story state.
 
 const Settings := preload("res://scripts/settings.gd")
 
@@ -15,11 +13,13 @@ static var force_enabled := false
 const LABELS := {
 	"departure": "繼續：出發前夜",
 	"principe": "繼續：普林西比",
+	"darkroom": "繼續：普林西比",
 	"epilogue": "繼續：1919 年 10 月",
 }
 const SCENES := {
 	"departure": "res://scenes/departure.tscn",
 	"principe": "res://scenes/main.tscn",
+	"darkroom": "res://scenes/main.tscn",
 	"epilogue": "res://scenes/epilogue.tscn",
 }
 const BOT_ARGS := ["autoplay", "prologue-autoplay", "benchmark"]
@@ -44,13 +44,26 @@ static func enabled() -> bool:
 	return true
 
 
-static func save(chapter: String) -> void:
+static func save(chapter: String, darkroom: Dictionary = {}) -> void:
 	if not enabled():
 		return
 	var story := _story()
 	if story == null:
 		return
 	var data := {"version": VERSION, "chapter": chapter, "story": story.to_save()}
+	if chapter == "darkroom":
+		data["darkroom"] = darkroom
+		if not darkroom.from_departure:
+			# A standalone 1919 run can be played alongside a story chapter.
+			var previous := _read()
+			if previous.get("chapter") == "darkroom":
+				previous = previous.get("previous_chapter", {})
+			if not previous.is_empty():
+				data["previous_chapter"] = previous
+	_write(data)
+
+
+static func _write(data: Dictionary) -> void:
 	var tmp := path() + ".tmp"
 	var file := FileAccess.open(tmp, FileAccess.WRITE)
 	if file == null:
@@ -86,12 +99,26 @@ static func restore() -> String:
 	if story == null:
 		return ""
 	story.from_save(data["story"])
+	if chapter == "darkroom":
+		story.darkroom_resume = data["darkroom"]
 	return chapter
 
 
 static func clear() -> void:
 	if enabled() and FileAccess.file_exists(path()):
 		DirAccess.remove_absolute(path())
+
+
+static func complete_standalone_darkroom() -> void:
+	if not enabled():
+		return
+	var data := _read()
+	if data.get("chapter") != "darkroom" or data.darkroom.from_departure:
+		return
+	if data.has("previous_chapter"):
+		_write(data.previous_chapter)
+	else:
+		clear()
 
 
 static func label(chapter: String) -> String:
@@ -113,6 +140,8 @@ static func _read() -> Dictionary:
 	if int(value.get("version", 0)) != VERSION:
 		return {}
 	if not value.get("story", null) is Dictionary:
+		return {}
+	if value.get("chapter") == "darkroom" and not value.get("darkroom") is Dictionary:
 		return {}
 	return value
 
