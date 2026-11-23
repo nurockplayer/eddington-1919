@@ -429,6 +429,9 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	for ridge in get_tree().get_nodes_in_group("far_ridges"):
 		# At totality the far land is a low profile; even the towers stay below eye level.
 		ridge.scale.y = lerpf(1.0, 0.006, smoothstep(0.85, 0.98, darkness) * (1.0 - night))
+	# Distant cards print only as the inked totality/night tree line, never a day wash.
+	for layer in $ForestEdge.get_children():
+		layer.set_instance_shader_parameter("print_card", darkness > 0.95 or night > 0.5)
 	sky_mat.set_shader_parameter("contact", contact)
 	sky_mat.set_shader_parameter("darkness", darkness)
 	sky_mat.set_shader_parameter("cloud_time", cloud_t)
