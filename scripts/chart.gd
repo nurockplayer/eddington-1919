@@ -177,15 +177,30 @@ func _draw() -> void:
 		return
 	var first_y := 34.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
+	var fixed_y := bottom - 14.0 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
 	for i in rows.size():
 		var r: Dictionary = rows[i]
 		var y := first_y + i * step
 		var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
+		var label_bounds := Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(_label_px)),
+			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px))
+		var marker_bounds := Rect2(Vector2(_x(r.value, w), y) - Vector2(6, 6), Vector2(12, 12))
+		var visible_row := minf(label_bounds.position.y, marker_bounds.position.y) >= top and maxf(label_bounds.end.y, marker_bounds.end.y) <= fixed_y - 24.0
+		_drawn_row_bounds.append({"label": label_bounds, "marker": marker_bounds, "visible": visible_row})
+		_drawn_label_px = _label_px
+		_drawn_texts.append(r.label)
+		_drawn_markers.append("filled" if marker_filled(r) else "hollow")
+		_drawn_bars.append("none" if r.get("no_bar", false) else "bar")
+		if marker_filled(r):
+			_drawn_filled += 1
+		else:
+			_drawn_hollow += 1
+		if not visible_row:
+			continue
 		# A row with no trustworthy error is a marker only; no bar is invented for it.
 		if r.get("no_bar", false):
-			_drawn_bars.append("none")
+			pass
 		else:
-			_drawn_bars.append("bar")
 			var span := two_sigma_span(r.value, r.sigma)
 			var thin := Color(col, 0.45)
 			var x2_lo := _x(span.x, w)
@@ -201,20 +216,11 @@ func _draw() -> void:
 		var p := Vector2(_x(r.value, w), y)
 		if marker_filled(r):
 			draw_circle(p, 5.0, col)
-			_drawn_filled += 1
-			_drawn_markers.append("filled")
 		else:
 			draw_arc(p, 5.0, 0.0, TAU, 20, col, 2.0)
-			_drawn_hollow += 1
-			_drawn_markers.append("hollow")
-		_drawn_label_px = _label_px
-		_drawn_texts.append(r.label)
-		_drawn_row_bounds.append({"label": Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(_label_px)),
-			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px)), "marker": Rect2(p - Vector2(6, 6), Vector2(12, 12))})
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	# Cover scrolled rows in the fixed result and axis bands.
-	var fixed_y := bottom - 14.0 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
-	draw_rect(Rect2(0, fixed_y - 24.0, w, scroll + h - fixed_y + 24.0), Color(0.09, 0.08, 0.07, 0.95))
+	draw_rect(Rect2(0, fixed_y - 24.0, w, scroll + h - fixed_y + 24.0), Color(0.09, 0.08, 0.07, 1.0))
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, fixed_y - 12.0), Vector2(x, bottom), ref[2], 2.0, 6.0)

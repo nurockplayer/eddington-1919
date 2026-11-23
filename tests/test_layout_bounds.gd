@@ -688,22 +688,28 @@ func _test_report_chart_rows() -> void:
 					check(painted.markers.size() == count and painted.label_px == Settings.fs(14), "all markers and full-size row labels retained")
 					check(ui.chart.rows == rows and ui.chart.combined == combined, "player measurements preserved")
 					check(ui.chart.drawn_texts().has("%.2f″ ± %.2f″" % [combined.value, combined.sigma]), "combined value preserved")
-					var ink: Array = painted.ledger_bounds.duplicate()
-					ink.append_array(painted.axis_bounds)
-					ink.append(painted.result_bounds)
-					ink.append_array(painted.get("combined_bounds", []))
-					for row: Dictionary in row_bounds:
-						ink.append(row.label)
-						ink.append(row.marker)
-					for i in ink.size():
-						var rect: Rect2 = ink[i]
-						check(Rect2(Vector2.ZERO, ui.chart.size).encloses(rect), "painted content fits chart: %s" % rect)
-						for j in range(i):
-							check(not rect.intersects(ink[j]), "painted labels/markers do not overlap: %s / %s" % [rect, ink[j]])
+					for row_index in count:
+						var row: Dictionary = row_bounds[row_index]
 						if clip is ScrollContainer:
-							clip.scroll_vertical = int(rect.position.y)
+							clip.scroll_vertical = maxi(0, int(minf(row.label.position.y, row.marker.position.y) - 32.0))
 							await process_frame
+							await process_frame
+						painted = ui.chart.drawn()
+						check(painted.row_bounds[row_index].visible, "painted row reachable by scrolling")
+						var ink: Array = painted.ledger_bounds.duplicate()
+						ink.append_array(painted.axis_bounds)
+						ink.append(painted.result_bounds)
+						ink.append_array(painted.combined_bounds)
+						for drawn_row: Dictionary in painted.row_bounds:
+							if drawn_row.visible:
+								ink.append(drawn_row.label)
+								ink.append(drawn_row.marker)
+						for i in ink.size():
+							var rect: Rect2 = ink[i]
+							check(Rect2(Vector2.ZERO, ui.chart.size).encloses(rect), "painted content fits chart: %s" % rect)
 							check(clip.get_global_rect().grow(1).encloses(Rect2(ui.chart.global_position + rect.position, rect.size)), "painted content reachable by scrolling")
+							for j in range(i):
+								check(not rect.intersects(ink[j]), "painted labels/markers do not overlap: %s / %s" % [rect, ink[j]])
 					for fraction in [0.0, 0.5, 1.0]:
 						if clip is ScrollContainer:
 							var bar: VScrollBar = clip.get_v_scroll_bar()
