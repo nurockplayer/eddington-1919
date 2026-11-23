@@ -14,7 +14,7 @@ func _save(game: Node, out: String, name: String, scroll: String) -> void:
 	var ui = game.ui
 	var viewport: Control = ui.chart.get_parent()
 	if viewport is ScrollContainer:
-		var bar := viewport.get_v_scroll_bar()
+		var bar: VScrollBar = viewport.get_v_scroll_bar()
 		if scroll == "bottom":
 			viewport.scroll_vertical = int(bar.max_value - bar.page)
 		elif scroll == "middle":
