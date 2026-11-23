@@ -1,5 +1,7 @@
 # Speaker / portrait coverage
 
+Generated from commit `c863115d8ca25e3f5f5bfaf3a04f8a43582dd465`.
+
 Regenerate: `tachi-run --host -- godot --headless --path . --script res://tools/portrait_coverage.gd`
 
 Acceptance row: **F4**, portrait clause made judgeable; existing gaps remain.
