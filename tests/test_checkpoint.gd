@@ -3,7 +3,6 @@ extends SceneTree
 ## the ending that clears it. Run: godot --headless --path . --script res://tests/test_checkpoint.gd
 
 const StoryScript := preload("res://scripts/story.gd")
-const Main := preload("res://scripts/main.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 
 var checks := 0
@@ -325,7 +324,8 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 	story.epilogue_done = stage == "result reselection"
 	if prologue:
 		story.bet_1917 = {"pick": 1, "sure": 2, "ashby": 1, "year": 1917}
-	Main.next_seed = 77
+	var main_script = load("res://scripts/main.gd")
+	main_script.next_seed = 77
 	if not await _open_title():
 		return {}
 	var game = current_scene
@@ -371,14 +371,14 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		var bets: Array = [story.bet_1917.duplicate(true), story.bet.duplicate(true)]
 		var scene_id: int = game.get_instance_id()
 		game._return_to_title()
-		await _wait_for(func(): return current_scene != null and current_scene.phase == Main.Phase.TITLE, 20.0)
+		await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.TITLE, 20.0)
 		await settle()
 		var button: Button = current_scene.ui.continue_btn
 		check(button != null and button.has_focus(), stage + ": cold title offers Continue")
 		if button == null:
 			return {}
 		await _pad(JOY_BUTTON_A)
-		var arrived := await _wait_for(func(): return current_scene != null and current_scene.phase == Main.Phase.NIGHT, 20.0)
+		var arrived := await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.NIGHT, 20.0)
 		check(arrived, stage + ": title Continue returns to the darkroom")
 		if not arrived:
 			return {}
@@ -404,7 +404,7 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		return {}
 	_dialogue(game, {"telegram": 1})
 	if prologue:
-		check(game.phase == Main.Phase.CODA, stage + ": the prologue route reaches its coda")
+		check(game.phase == main_script.Phase.CODA, stage + ": the prologue route reaches its coda")
 		game._interact("mentor_loupe")
 		_dialogue(game, {"kit_first": 1})
 		if stage == "quality reselection":
