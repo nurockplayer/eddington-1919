@@ -38,11 +38,15 @@ static func render(sim, plate) -> ImageTexture:
 	var fog: float = 0.0 if comparison else plate.fog
 	var stars: int = sim.STAR_COUNT if comparison else plate.stars
 	var trail: float = 0.0 if comparison else plate.trail
-	# FICTION: the residual extends the baseline smear in its observed direction.
-	# Zero residual retains the original centred 0.012-unit/second trail.
-	var residual_shift := 0.0
+	# FICTION: residual drift skews the trail in its observed direction.
+	var trail_skew := 0.0
 	if not comparison and sim.drive_wound:
-		residual_shift = (trail - 0.012 * plate.duration) * 13.0 * signf(sim.drive_error)
+		trail_skew = (trail - 0.012 * plate.duration) * 13.0 * signf(sim.drive_error)
+	var length := trail * 26.0
+	var steps := maxi(1, int(length * 1.5))
+	# Subtract the mean square of the evenly spaced samples so skew leaves
+	# their centroid at plate.value's position, including its simulated bias.
+	var mean_square := float(steps + 1) / (12.0 * (steps - 1)) if steps > 1 else 0.0
 	var blank: bool = not comparison and plate.duration < 0.5
 	var c := Vector2(SIZE, SIZE) * 0.5
 	# Cloud mottling + fog veil.
@@ -74,10 +78,9 @@ static func render(sim, plate) -> ImageTexture:
 				var offset: Vector2 = sim.star_offsets[s]
 				p += offset.normalized() * EXAGGERATION * plate.value / maxf(offset.length(), 1.0)
 			var bright := 1.2 - s * 0.06
-			var length := trail * 26.0
-			var steps := maxi(1, int(length * 1.5))
 			for k in steps:
-				var off := TRAIL_DIR * (length * (float(k) / maxf(steps - 1, 1) - 0.5) + residual_shift)
+				var t := float(k) / (steps - 1) - 0.5 if steps > 1 else 0.0
+				var off := TRAIL_DIR * (length * t + trail_skew * (t * t - mean_square))
 				_splat(buf, p + off, 1.6, bright / sqrt(steps) * (1.0 + 0.4 * minf(length, 3.0) / 3.0))
 	for y in SIZE:
 		for x in SIZE:
