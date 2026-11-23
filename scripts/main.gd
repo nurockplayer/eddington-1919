@@ -1424,8 +1424,6 @@ func _process_totality(delta: float) -> void:
 		score.play("totality_drone", TOTALITY_SCORE_FADE_S)
 		score.play("totality_glass", TOTALITY_SCORE_FADE_S)
 		_score_exposing = false
-		var surf_return := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		surf_return.tween_property(audio_surf, "volume_db", _surf_db, TOTALITY_SURF_RETURN_S)
 	var exposing: bool = sim.is_exposing()
 	ui.set_prompt((L.t("底片用完了。［%s］等待第三接觸") if plates_left <= 0 and not exposing else L.t("［%s］開始／停")) % Prompts.key("shutter"))
 	if exposing != _score_exposing:
@@ -1433,6 +1431,10 @@ func _process_totality(delta: float) -> void:
 		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else ScorePlayer.Score.level_db("totality_glass"), 0.4 if exposing else 1.2)
 	var dt: float = delta * sim.TIME_SCALE
 	t_game += dt
+	if t_game >= score_start:
+		var surf_elapsed := minf((t_game - score_start) / sim.TIME_SCALE, TOTALITY_SURF_RETURN_S)
+		audio_surf.volume_db = Tween.interpolate_value(_surf_db + TOTALITY_SURF_DIP_DB,
+			-TOTALITY_SURF_DIP_DB, surf_elapsed, TOTALITY_SURF_RETURN_S, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
 	var dens: float = sim.cloud_over_sun(t_game)
 	if sim.is_exposing():
 		sim.accumulate(dt, dens)
