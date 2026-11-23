@@ -280,15 +280,12 @@ void fragment() {
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
 		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
 		float cloud_weight = cloud_body * (0.4 + 0.3 * step(0.6, cloud_field.y) + 0.3 * step(0.85, cloud_field.y));
-		float contour_distance = min(abs(cloud_field.x), min(abs(0.6 - cloud_field.y), abs(0.85 - cloud_field.y)));
-		float cloud_contour = 1.0 - smoothstep(0.35, 0.85, contour_distance / (cloud_pixel * res_k));
-		float corona_clear = 1.0 - smoothstep(0.35, 0.85, cloud_field.y);
-		float cloud_veil = hatch(ruling.x, k, 1.0 - corona_clear, l_px, 99.0);
+		float cloud_contour = 1.0 - smoothstep(0.35, 0.85, abs(cloud_field.x) / (cloud_pixel * res_k));
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
 		float band_lines = smoothstep(0.015, 0.19, abs(elev));
-		float primary = (0.25 + 0.12 * high_sky + 0.20 * cloud_weight) * band_lines;
-		float crossed = (0.08 + 0.14 * high_sky + 0.20 * cloud_weight) * band_lines;
+		float primary = (0.04 + 0.06 * high_sky + 0.65 * cloud_weight) * band_lines;
+		float crossed = (0.02 * high_sky + 0.40 * cloud_weight) * band_lines;
 		// Clouds have no fill or gradient outline: only these weights and a hairline.
 		primary = mix(clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, primary, print_darkness);
 		crossed = mix(clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, crossed, print_darkness);
@@ -356,8 +353,7 @@ void fragment() {
 				max(dot(direction, vec2(0.8916, 0.4529)), dot(direction, vec2(0.3717, 0.9284))));
 			streamer = smoothstep(0.991, 1.0, streamer);
 			float reach = mix(1.5 + seed, 3.1 + 0.9 * hash21(vec2(id, 5.0)), streamer);
-			reach = mix(1.0, reach, corona_clear);
-			float taper = sqrt(clamp((reach - r) / max(reach - 1.0, 0.00001), 0.0, 1.0));
+			float taper = sqrt(clamp((reach - r) / (reach - 1.0), 0.0, 1.0));
 			float across = dot(lp, vec2(-direction.y, direction.x));
 			float pixel = max(length(vec2(dot(dFdx(lp), vec2(-direction.y, direction.x)), dot(dFdy(lp), vec2(-direction.y, direction.x)))), 0.00001);
 			// Leave paper between adjacent strokes even where their centres are subpixel.
@@ -365,12 +361,12 @@ void fragment() {
 			float rays = clamp((half_width + 0.5 * pixel - abs(across)) / pixel, 0.0, 1.0)
 				- clamp((0.5 * pixel - half_width - abs(across)) / pixel, 0.0, 1.0);
 			float limb_white = 1.0 - smoothstep(1.035, 1.065, r);
-			corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil) * (1.0 - cloud_contour);
-			// Heightening belongs only to the sun-facing contour, within four radii.
-			vec2 toward_sun = -vec2(dFdx(distance), dFdy(distance));
-			float facing = max(dot(cloud_gradient, toward_sun) / max(cloud_pixel * length(toward_sun), 0.0000001), 0.0);
-			float rim = cloud_contour * smoothstep(0.15, 0.65, facing) * (1.0 - smoothstep(3.5, 4.0, r));
-			corona_white = max(corona_white, rim * step(1.18, r));
+			// A clear Sun keeps the accepted complete starburst. Thin cloud uses
+			// the very same contour and ruling as the drawn cloud, never shorter rays
+			// or a white trace of the simulation's carved density levels.
+			float sun_cloud = eclipse_cloud_density(sun_dir);
+			float cloud_veil = max(ink, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud);
+			corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil);
 		}
 
 

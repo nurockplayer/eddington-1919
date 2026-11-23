@@ -373,6 +373,8 @@ func _run() -> void:
 			for frame in (72 if b[0] == "play_p12" else 150):
 				main._process(1.0 / 60.0)
 				await _frames(1)
+			if not is_nan(cloud_t_arg(OS.get_cmdline_user_args())):
+				main._apply_light(main.sky_mat.get_shader_parameter("contact"), main.sky_mat.get_shader_parameter("darkness"), totality_cloud_t, 0.0)
 		var r := await _sample_bookmark(b[0], b[3])
 		if b[0] == "coelostat_still":
 			main.world.cottingham.visible = true
@@ -384,6 +386,8 @@ func _run() -> void:
 			Input.mouse_mode = mouse_mode
 			main.ui.visible = false
 		r["seed"] = main.sim.run_seed
+		r["cloud_time"] = main.sky_mat.get_shader_parameter("cloud_time")
+		r["cloud_over_sun"] = main.sim.cloud_over_sun(r.cloud_time)
 		results.append(r)
 		print("[BENCH] ", JSON.stringify(r))
 	_write_summary(results, run_seed, hidden)
