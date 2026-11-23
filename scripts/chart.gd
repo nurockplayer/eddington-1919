@@ -100,13 +100,13 @@ func _paint_ledger(font: Font, refs: Array, top: float) -> void:
 			continue
 		var width := font.get_string_size(entry.tag, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
 		var x := size.x - width - 4.0 if pick == 3 else _x(refs[pick][0], size.x) + 9.0
-		var rect := Rect2(clampf(x, 4.0, size.x - width - 4.0), 0.0, width, height)
+		var rect := Rect2(clampf(x, 4.0, size.x - width - 4.0), top - 30.0, width, height)
 		if not items.is_empty():
 			var previous: Rect2 = items[-1].rect
 			if previous.grow(4.0).intersects(rect):
 				# Two full-size lines do not fit in 30 px. Stagger vertically, then
 				# separate horizontally so even the largest locale font stays clear.
-				rect.position.y = maxf(0.0, top - height)
+				rect.position.y = maxf(top - 30.0, top - height)
 				rect.position.x = minf(maxf(rect.position.x, previous.end.x + 8.0), size.x - width - 4.0)
 				previous.position.x = minf(previous.position.x, rect.position.x - previous.size.x - 8.0)
 				items[-1].rect = previous
@@ -149,33 +149,24 @@ func _draw() -> void:
 	_drawn_row_bounds.clear()
 	_drawn_combined_bounds.clear()
 	var w := size.x
-	var h := size.y
+	var viewport := get_parent() as ScrollContainer
+	var scroll := float(viewport.scroll_vertical) if viewport else 0.0
+	var h := viewport.size.y if viewport else size.y
 	var font := get_theme_default_font()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
-	var top := 30.0
+	var top := scroll + 30.0
 	var axis_px := Settings.fs(15)
 	var axis_height := font.get_height(axis_px)
-	var bottom := h - 22.0 * Settings.text_scale - axis_height - font.get_descent(axis_px) - 8.0
+	var bottom := scroll + h - 22.0 * Settings.text_scale - axis_height - font.get_descent(axis_px) - 8.0
 	var refs := [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]
-	for i in refs.size():
-		var ref: Array = refs[i]
+	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
-		_drawn_texts.append(ref[1])
-		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
-		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
-			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
-		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
-		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
-	for t in range(0, int(X_MAX) + 1):
-		var x := _x(t, w)
-		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
 	if not revealed:
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)
 		_paint_hint(font, unmeasured, Color(0.7, 0.66, 0.58))
 		return
-	_paint_ledger(font, refs, top)
 	if rows.is_empty():
 		var empty_hint := L.t("沒有可量測的底片。")
 		_drawn_texts.append(empty_hint)
@@ -218,8 +209,27 @@ func _draw() -> void:
 		_drawn_row_bounds.append({"label": Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(_label_px)),
 			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px)), "marker": Rect2(p - Vector2(6, 6), Vector2(12, 12))})
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
+	# Cover scrolled rows in the fixed result and axis bands.
+	var fixed_y := bottom - font.get_height(Settings.fs(16)) - 30.0
+	draw_rect(Rect2(0, fixed_y - 12.0, w, scroll + h - fixed_y + 12.0), Color(0.09, 0.08, 0.07, 0.95))
+	for ref in refs:
+		var x := _x(ref[0], w)
+		draw_dashed_line(Vector2(x, fixed_y - 12.0), Vector2(x, bottom), ref[2], 2.0, 6.0)
+	for i in refs.size():
+		var ref: Array = refs[i]
+		var x := _x(ref[0], w)
+		_drawn_texts.append(ref[1])
+		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
+		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
+			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
+		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
+		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
+	for t in range(0, int(X_MAX) + 1):
+		var x := _x(t, w)
+		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
+	_paint_ledger(font, refs, top)
 	if combined.get("n", 0) > 0:
-		var y := first_y + rows.size() * step + 10.0
+		var y := fixed_y
 		var c := Color(1.0, 0.92, 0.6)
 		var span := two_sigma_span(combined.value, combined.sigma)
 		var thin := Color(c, 0.55)
