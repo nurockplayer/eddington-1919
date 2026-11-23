@@ -4,9 +4,9 @@ name: all-suites
 on:
   push:
     branches: [main]
-    paths-ignore: ["docs/**", "**.md"]
+    paths: ["**", "!docs/**", "!**.md", "docs/audio/SOURCES.md"]
   pull_request:
-    paths-ignore: ["docs/**", "**.md"]
+    paths: ["**", "!docs/**", "!**.md", "docs/audio/SOURCES.md"]
   workflow_dispatch:
 
 permissions:
