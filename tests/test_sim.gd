@@ -90,6 +90,13 @@ func _init() -> void:
 	check(trailed.sigma > good.sigma, "trailed plate has a larger error")
 	check(trailed.value < good.value + 0.3, "trailed plate biased low (%.2f vs %.2f)" % [trailed.value, good.value])
 
+	sim2.drive_wound = true
+	check(is_equal_approx(sim2.drift_rate(), 0.05), "winding alone retains the untrimmed drift endpoint")
+	sim2.drive_error = -0.5
+	check(is_equal_approx(sim2.drift_rate(), 0.031), "opposite partial residual retains its trail magnitude")
+	sim2.drive_error = 0.5
+	check(is_equal_approx(sim2.drift_rate(), 0.031), "positive partial residual has the same trail magnitude")
+
 	var sim3 = Sim.new(7)
 	sim3.open_shutter(290.0)
 	sim3.accumulate(5.0, 0.2)
