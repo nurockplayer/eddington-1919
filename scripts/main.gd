@@ -866,7 +866,7 @@ func _process_prep(delta: float) -> void:
 				while previous < until:
 					var dt := minf(0.05, until - previous)
 					var density := _rehearsal_cloud(previous + dt * 0.5)
-					var game_dt := dt * sim.TIME_SCALE
+					var game_dt: float = dt * sim.TIME_SCALE
 					_rehearsal_exposure.duration += game_dt
 					_rehearsal_exposure.clear += (1.0 - density) * game_dt
 					_rehearsal_exposure.cloudy += density * game_dt
