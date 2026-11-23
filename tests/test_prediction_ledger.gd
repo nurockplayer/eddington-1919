@@ -192,7 +192,7 @@ func _test_replay_page(story: Node) -> void:
 	await process_frame
 
 
-## The verdict is followed by the bet against the player's own plates.
+## A verdict given in conversation holds before confronting the bet.
 func _test_confrontation_flow(story: Node) -> void:
 	var game = await _new_game(story, false, {"pick": 1, "sure": 0, "ashby": 0, "year": 1919})
 	game.sim.plates = [{"number": 1, "usable": true, "quality": "good", "included": true,
@@ -201,10 +201,49 @@ func _test_confrontation_flow(story: Node) -> void:
 	game.sim.rule_id = "strict"
 	game.sim.measured = true
 	game.sim.bet_pick = 1
-	game._start_judgment()
-	game.ui._choose(Judgment.verdict_truth(game.sim))
+	var eddington: Node3D = game.world.eddington
+	eddington.position = game.world.eddington_night
+	game.player.global_position = eddington.global_position + Vector3(0.25, 0.05, 1.0)
+	game.player.look_at_point(eddington.global_position + Vector3.UP * 1.3)
+	await physics_frame
+	await process_frame
+
+	var key := InputEventKey.new()
+	key.physical_keycode = KEY_E
+	key.pressed = true
+	root.push_input(key)
+	key.pressed = false
+	root.push_input(key)
+	check(game._pending == "verdict" and game.ui.dialog_active() and not game.ui.viewer.visible,
+		"Eddington opens the verdict by conversation without the viewer")
+	var verdict := Judgment.verdict_truth(game.sim)
+	key.physical_keycode = 0
+	key.keycode = KEY_1 + verdict
+	key.pressed = true
+	root.push_input(key)
+	key.pressed = false
+	root.push_input(key)
+	check(game._verdict == verdict and not game.ui.dialog_active(), "conversation confirms the first verdict")
+	check(not game.player.can_move and not game.player.can_look, "the conversation hold locks player movement and look")
 	game._process(0.0)
-	game._process(1.5)
+	game._process(1.49)
+	key.keycode = 0
+	key.physical_keycode = KEY_E
+	key.pressed = true
+	root.push_input(key)
+	key.pressed = false
+	root.push_input(key)
+	check(not game.ui.dialog_active(), "pressing E during the hold cannot reopen the verdict")
+	key.physical_keycode = 0
+	key.keycode = KEY_4
+	key.pressed = true
+	root.push_input(key)
+	key.pressed = false
+	root.push_input(key)
+	check(game._verdict == verdict, "a second answer cannot replace the confirmed verdict")
+	game._process(0.02)
+	check(game._pending == "judgment" and game.ui.dialog_active() and game.ui._seq_i == 0,
+		"conversation feedback starts at the original deadline")
 	var text := _text(game)
 	check(text.contains("你押的是 0.87") and text.contains("容不下它"),
 		"the verdict confronts the bet before the telegram choices")

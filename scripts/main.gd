@@ -831,7 +831,7 @@ func _sync_style_sky() -> void:
 
 
 func _ui_free() -> bool:
-	return not get_tree().paused and not ui.log_open() and not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
+	return _verdict_hold_s <= 0.0 and not get_tree().paused and not ui.log_open() and not ui.dialog_active() and not ui.viewer.visible and not ui.ending_panel.visible and not ui.title_panel.visible and not _busy
 
 
 func _sync_player_input() -> void:
