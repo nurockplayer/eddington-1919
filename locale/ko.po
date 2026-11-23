@@ -1550,14 +1550,14 @@ msgstr "같은 변광성의 밝기를 한 줄 한 줄 적어 두었다. 글씨�
 msgid "向 Eddington 報告 →"
 msgstr "에딩턴에게 보고 →"
 
-msgid "和你自己的誤差範圍相符"
-msgstr "당신 자신의 오차 범위와 일치"
-
 msgid "向右"
 msgstr "오른쪽으로"
 
 msgid "向左"
 msgstr "왼쪽으로"
+
+msgid "和你自己的誤差範圍相符"
+msgstr "당신 자신의 오차 범위와 일치"
 
 msgid "和出發時一樣高"
 msgstr "출발할 때와 같은 높이입니다"

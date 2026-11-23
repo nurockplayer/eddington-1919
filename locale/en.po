@@ -1553,14 +1553,14 @@ msgstr "Brightness estimates for the same variable star, line after line, in han
 msgid "向 Eddington 報告 →"
 msgstr "Report to Eddington →"
 
-msgid "和你自己的誤差範圍相符"
-msgstr "consistent with your own error range"
-
 msgid "向右"
 msgstr "Rightward"
 
 msgid "向左"
 msgstr "Leftward"
+
+msgid "和你自己的誤差範圍相符"
+msgstr "consistent with your own error range"
 
 msgid "和出發時一樣高"
 msgstr "At the same height it started"

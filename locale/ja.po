@@ -1550,14 +1550,14 @@ msgstr "同じ変光星について、一行ごとの明るさの見積もり。
 msgid "向 Eddington 報告 →"
 msgstr "エディントン教授に報告 →"
 
-msgid "和你自己的誤差範圍相符"
-msgstr "あなた自身の誤差範囲と一致"
-
 msgid "向右"
 msgstr "右へ"
 
 msgid "向左"
 msgstr "左へ"
+
+msgid "和你自己的誤差範圍相符"
+msgstr "あなた自身の誤差範囲と一致"
 
 msgid "和出發時一樣高"
 msgstr "出たときと同じ高さ"

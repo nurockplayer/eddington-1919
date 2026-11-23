@@ -2,6 +2,7 @@ extends Control
 ## FICTION: illustrative tracking diagram, not a documented pre-eclipse check.
 ## Cottingham handles the mechanism; the player observes and requests changes.
 const Settings := preload("res://scripts/settings.gd")
+const Print := preload("res://scripts/styles/engraving.gd")
 const Prompts := preload("res://scripts/prompts.gd")
 signal finished
 const DEADBAND := preload("res://scripts/eclipse_sim.gd").DRIVE_DEADBAND
@@ -24,22 +25,35 @@ var caption: Label
 var status: Label
 var controls: Label
 var hint: Label
+var sheet: PanelContainer
+var diagram: Control
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	sheet = PanelContainer.new()
+	sheet.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	sheet.offset_left = 32
+	sheet.offset_right = -32
+	sheet.offset_top = 24
+	sheet.offset_bottom = -24
+	var paper := StyleBoxFlat.new()
+	paper.bg_color = Print.PAPER
+	paper.border_color = Print.INK
+	paper.set_border_width_all(1)
+	paper.set_content_margin_all(24)
+	sheet.add_theme_stylebox_override("panel", paper)
+	add_child(sheet)
 	var box := VBoxContainer.new()
-	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	box.offset_left = 48
-	box.offset_right = -48
-	box.offset_top = 36
-	box.offset_bottom = -36
-	add_child(box)
+	box.add_theme_constant_override("separation", 16)
+	sheet.add_child(box)
 	caption = _label(box, L.t("追蹤示意圖——示意重建，非史料"))
-	var space := Control.new()
-	space.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(space)
+	diagram = Control.new()
+	diagram.custom_minimum_size.y = 180
+	diagram.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	diagram.draw.connect(_draw_diagram)
+	box.add_child(diagram)
 	status = _label(box, "")
 	hint = _label(box, L.t("觀察星像的移動，再請 Cottingham 微調。位置是否居中並不重要。"))
 	controls = _label(box, "")
@@ -49,6 +63,8 @@ func _ready() -> void:
 func _label(parent: Control, text_: String) -> Label:
 	var label := Label.new()
 	label.text = text_
+	label.add_theme_color_override("font_color", Print.INK)
+	Settings.track_font(label, 22)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	parent.add_child(label)
@@ -72,7 +88,7 @@ func open(state) -> void:
 	hint.text = L.t("觀察星像的移動，再請 Cottingham 微調。位置是否居中並不重要。")
 	show()
 	_refresh_text()
-	queue_redraw()
+	diagram.queue_redraw()
 
 
 func advance(delta: float) -> void:
@@ -109,7 +125,7 @@ func advance(delta: float) -> void:
 		hinted = true
 		hint.text = L.t("Cottingham：「看看它剛才在哪裡，現在又在哪裡。試著微調一下。」")
 	_refresh_text()
-	queue_redraw()
+	diagram.queue_redraw()
 	if elapsed >= 45.0:
 		finished.emit()
 
@@ -137,20 +153,26 @@ func _refresh_text() -> void:
 	controls.text = L.t("［%s］請他調慢／調快　［%s］微調\n［%s］記錄　［%s］保留設定離開　［%s］暫停") % [Prompts.key("trim"), Prompts.key("trim_fine"), Prompts.key("trim_record"), Prompts.key("trim_leave"), Prompts.key("pause")]
 
 
-func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.055, 0.065, 0.08, 0.98))
-	var center := size * Vector2(0.5, 0.4)
-	var ink := Color(0.88, 0.83, 0.68)
-	draw_line(center - Vector2(10, 0), center + Vector2(10, 0), ink, 2.0)
-	draw_line(center - Vector2(0, 10), center + Vector2(0, 10), ink, 2.0)
+func _draw_diagram() -> void:
+	var center := diagram.size * 0.5
+	var ink := Print.INK
+	diagram.draw_line(Vector2.ZERO, Vector2(diagram.size.x, 0), ink, 1.0)
+	diagram.draw_line(Vector2(0, diagram.size.y), diagram.size, ink, 1.0)
 	if Settings.reduced_motion:
 		# Fixed rows; the sampled horizontal separation changes only once a second.
 		var font := get_theme_default_font()
-		draw_string(font, center + Vector2(-150, -45), L.t("剛才"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, ink)
-		draw_string(font, center + Vector2(-150, 55), L.t("現在"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, ink)
-		draw_circle(center + Vector2(previous_mark, -50), 5.0, ink)
-		draw_circle(center + Vector2(now_mark, 50), 5.0, ink)
+		diagram.draw_string(font, center + Vector2(-150, -45), L.t("剛才"), HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(22), ink)
+		diagram.draw_string(font, center + Vector2(-150, 55), L.t("現在"), HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(22), ink)
+		_tracking_mark(center + Vector2(0, -50), previous_mark)
+		_tracking_mark(center + Vector2(0, 50), now_mark)
 	else:
 		# Wrapping recentres only the drawing, never the rate or success rule.
-		var x := wrapf(displacement, -size.x * 0.3, size.x * 0.3)
-		draw_circle(center + Vector2(x, 0), 5.0, ink)
+		var x := wrapf(displacement, -diagram.size.x * 0.3, diagram.size.x * 0.3)
+		_tracking_mark(center, x)
+
+
+func _tracking_mark(center: Vector2, offset: float) -> void:
+	diagram.draw_line(center - Vector2(10, 0), center + Vector2(10, 0), Print.INK, 1.0)
+	diagram.draw_line(center - Vector2(0, 10), center + Vector2(0, 10), Print.INK, 1.0)
+	var star := center + Vector2(offset, 0)
+	diagram.draw_polyline(PackedVector2Array([star + Vector2(0, -6), star + Vector2(5, 0), star + Vector2(0, 6), star + Vector2(-5, 0), star + Vector2(0, -6)]), Print.INK, 1.0)

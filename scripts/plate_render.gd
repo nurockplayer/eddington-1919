@@ -38,6 +38,11 @@ static func render(sim, plate) -> ImageTexture:
 	var fog: float = 0.0 if comparison else plate.fog
 	var stars: int = sim.STAR_COUNT if comparison else plate.stars
 	var trail: float = 0.0 if comparison else plate.trail
+	# FICTION: the residual extends the baseline smear in its observed direction.
+	# Zero residual retains the original centred 0.012-unit/second trail.
+	var residual_shift := 0.0
+	if not comparison and sim.drive_wound:
+		residual_shift = (trail - 0.012 * plate.duration) * 13.0 * signf(sim.drive_error)
 	var blank: bool = not comparison and plate.duration < 0.5
 	var c := Vector2(SIZE, SIZE) * 0.5
 	# Cloud mottling + fog veil.
@@ -72,7 +77,7 @@ static func render(sim, plate) -> ImageTexture:
 			var length := trail * 26.0
 			var steps := maxi(1, int(length * 1.5))
 			for k in steps:
-				var off := TRAIL_DIR * (length * (float(k) / maxf(steps - 1, 1) - 0.5))
+				var off := TRAIL_DIR * (length * (float(k) / maxf(steps - 1, 1) - 0.5) + residual_shift)
 				_splat(buf, p + off, 1.6, bright / sqrt(steps) * (1.0 + 0.4 * minf(length, 3.0) / 3.0))
 	for y in SIZE:
 		for x in SIZE:
