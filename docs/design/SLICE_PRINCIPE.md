@@ -810,3 +810,6 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 ### 2026-11-23 10:5x JST: #428 after the rebase (3374269): look accepted
 - CI frames at 720p, whole, one at a time: `totality_wide-720.jpg`, `totality_sky-720.jpg`, `darkroom-720.jpg` (`accept/428/3374269/`). Sky, corona and clouds as c56ad66. The wide frame's ground, ridges and vegetation are main's (the old tall ridge silhouettes are gone with main's lower far ridges and tree line; the horizon glow now runs the full width): decided to keep main's side, which owns everything outside the sky. Darkroom identical to main (worker's count: 0 px).
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted (as 10:0x JST; add: no landmark silhouette on the totality horizon since the ridges were lowered, F5 / F29). Owed: the six-suite test line (`totality-print-fu6.md`), then ready and gate. Count stays **7/9**.
+
+### 2026-11-23 11:0x JST: #428 to the gate (3374269)
+- Six suites 0 failures in the wrapper rerun; acceptance comment posted with the three frames; marked ready, `lead-wait pr 428`. Count stays **7/9**.
