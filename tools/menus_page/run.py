@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Run under job-run --id menus-page-shots -- orb-test --heavy --host."""
-from collections import Counter
 from datetime import datetime
 import json
 import os
@@ -29,15 +28,40 @@ def luminance(rgb):
     return sum(a * b for a, b in zip(linear, (0.2126, 0.7152, 0.0722)))
 
 
-def contrast(image, rect):
-    # Solid glyph interiors and paper, measured in the captured lossless frame.
-    # Ignore antialias edge coverage; no palette constants enter the calculation.
+def contrast(image, rect, background):
+    # Only pixels changed by suppressing this text belong to its glyphs.
     left, top, right, bottom = rect
     visible = (max(0, left), max(0, top), min(image.width, right), min(image.height, bottom))
-    colours = Counter(image.crop(visible).convert('RGB').getdata())
-    samples = [rgb for rgb, count in colours.items() if count >= 3]
-    lo, hi = min(samples, key=luminance), max(samples, key=luminance)
-    return (luminance(hi) + 0.05) / (luminance(lo) + 0.05), lo, hi
+    foreground = image.convert('RGB')
+    background = background.convert('RGB')
+    pixels = {}
+    for y in range(visible[1], visible[3]):
+        for x in range(visible[0], visible[2]):
+            ink, paper = foreground.getpixel((x, y)), background.getpixel((x, y))
+            if ink != paper:
+                lo, hi = sorted((luminance(ink), luminance(paper)))
+                pixels[x, y] = ((hi + 0.05) / (lo + 0.05), ink, paper)
+    if not pixels:
+        raise ValueError('No captured text pixels in contrast region')
+    glyphs = []
+    while pixels:
+        point, sample = pixels.popitem()
+        pending = [point]
+        strongest = sample
+        while pending:
+            x, y = pending.pop()
+            for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1),
+                           (-1, -1), (-1, 1), (1, -1), (1, 1)):
+                neighbour = (x + dx, y + dy)
+                if neighbour in pixels:
+                    sample = pixels.pop(neighbour)
+                    if sample[0] > strongest[0]:
+                        strongest = sample
+                    pending.append(neighbour)
+        # The strongest coverage excludes antialias edges within each glyph;
+        # the weakest glyph determines whether the assessed text passes.
+        glyphs.append(strongest)
+    return min(glyphs, key=lambda sample: sample[0])
 
 
 def main():
@@ -66,17 +90,19 @@ def main():
              'Sheets: `sheet-en.jpg`, `sheet-ja.jpg`, `sheet-zh_TW.jpg`, `sheet-ko.jpg`. '
              'Each tile and native JPEG is named `<locale>_<default|max>_<screen>`. '
              'Maximum text size is 1.2. Focus uses reversed ink and a heavier rule.', '',
-             'Contrast uses the darkest and lightest repeated solid pixels (at least three occurrences) '
-             'inside the recorded body/focused-text rectangles in `frames.json`, before JPEG encoding. '
-             'Antialias edge coverage is excluded; RGB samples and ratios are retained below.', '',
+             'Contrast uses pixels changed by suppressing the assessed body/focused text, paired '
+             'with the same pixels in the lossless text-background capture. Each connected glyph '
+             'uses its strongest coverage to exclude antialias edges; the weakest glyph is reported. '
+             'Lossless frame/background pairs, RGB samples and separate ratios are retained.', '',
              '| Frame | Body | Focused row | Body RGB (ink/paper) | Focus RGB (ink/paper) |',
              '|---|---:|---:|---|---|']
     for record in records:
         frame = record['frame']
         with Image.open(out / f'{frame}.png') as source:
             image = source.convert('RGB')
-            body, blo, bhi = contrast(image, record['body'])
-            focus, flo, fhi = contrast(image, record['focus'])
+            with Image.open(out / record['text_background']) as background:
+                body, blo, bhi = contrast(image, record['body'], background)
+                focus, flo, fhi = contrast(image, record['focus'], background)
             assert min(body, focus) >= 4.5, (frame, body, focus)
             record.update(body_contrast=body, focus_contrast=focus,
                           body_rgb=[blo, bhi], focus_rgb=[flo, fhi])
@@ -98,9 +124,6 @@ def main():
         sheet.save(out / f'sheet-{locale}.jpg', quality=94, subsampling=0)
     (out / 'frames.json').write_text(json.dumps(records, indent=2) + '\n')
     (out / 'report.md').write_text('\n'.join(lines) + '\n')
-    # Delete only lossless scratch produced by this capture, after all sheets exist.
-    for record in records:
-        (out / f"{record['frame']}.png").unlink()
     print(f'menus-page: {len(records)} frames, 4 JPEG sheets, all measured contrast >= 4.5:1; {out}', flush=True)
 
 

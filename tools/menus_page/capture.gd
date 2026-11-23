@@ -24,7 +24,38 @@ func shot(id: String, panel: Control, body: Control) -> void:
 	var factor := Vector2(image.get_size()) / root.get_visible_rect().size
 	var body_rect := body.get_global_rect()
 	var focus_rect := focus.get_global_rect().grow(-10)
-	records.append({"frame": id, "body": rect_pixels(body_rect, factor), "focus": rect_pixels(focus_rect, factor)})
+	var restore: Array[Callable] = []
+	suppress_text(body, restore)
+	suppress_text(focus, restore)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var background_path := id + "_text_background.png"
+	assert(root.get_texture().get_image().save_png(out.path_join(background_path)) == OK)
+	for reset in restore:
+		reset.call()
+	records.append({"frame": id, "body": rect_pixels(body_rect, factor), "focus": rect_pixels(focus_rect, factor), "text_background": background_path})
+
+func suppress_text(node: Node, restore: Array[Callable]) -> void:
+	if node is Label or node is RichTextLabel:
+		var characters: int = node.visible_characters
+		var behavior: int = node.visible_characters_behavior
+		node.visible_characters_behavior = TextServer.VC_GLYPHS_AUTO
+		node.visible_characters = 0
+		restore.append(func():
+			node.visible_characters_behavior = behavior
+			node.visible_characters = characters)
+	elif node is Button:
+		for key in ["font_color", "font_focus_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_disabled_color", "font_shadow_color", "font_outline_color"]:
+			var had_override: bool = node.has_theme_color_override(key)
+			var color: Color = node.get_theme_color(key)
+			node.add_theme_color_override(key, Color.TRANSPARENT)
+			restore.append(func():
+				if had_override:
+					node.add_theme_color_override(key, color)
+				else:
+					node.remove_theme_color_override(key))
+	for child in node.get_children():
+		suppress_text(child, restore)
 
 func rect_pixels(rect: Rect2, factor: Vector2) -> Array:
 	return [roundi(rect.position.x * factor.x), roundi(rect.position.y * factor.y), roundi(rect.end.x * factor.x), roundi(rect.end.y * factor.y)]
