@@ -155,12 +155,10 @@ func _run() -> void:
 			# A chapter checkpoint adds one 繼續 button; the longer row must still fit.
 			Checkpoint.force_enabled = true
 			Checkpoint.save("principe")
-			var resume_game: Node = load("res://scenes/main.tscn").instantiate()
-			root.add_child(resume_game)
-			resume_game.process_mode = Node.PROCESS_MODE_DISABLED
-			resume_game.ui.process_mode = Node.PROCESS_MODE_PAUSABLE
-			await settle()
-			var resume_ui = resume_game.ui
+			# The title reads the checkpoint in UI._ready(), without the 3D world.
+			var resume_ui = preload("res://scripts/ui.gd").new()
+			resume_ui.process_mode = Node.PROCESS_MODE_PAUSABLE
+			root.add_child(resume_ui)
 			# The new UI loads the settings file this suite does not use; keep the pass at its scale.
 			Settings.text_scale = scale
 			Settings.refresh_fonts(self)
@@ -180,8 +178,7 @@ func _run() -> void:
 				for button in resume_buttons:
 					check(is_equal_approx(button.get_global_rect().position.y, resume_row_y),
 						"zh-TW checkpoint title buttons stay on one row: " + button.text)
-			resume_game.stop_all_audio()
-			resume_game.free()
+			resume_ui.free()
 			Checkpoint.clear()
 			Checkpoint.force_enabled = false
 			Settings.text_scale = scale
