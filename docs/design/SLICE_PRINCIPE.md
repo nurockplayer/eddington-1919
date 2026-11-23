@@ -843,3 +843,6 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 - Numbers (worker's, wrapper rerun exit 0 for the six suites): sim-truth check 6 states 0 failures, Sun 100%, whole sky 99.46 to 99.58%, 3374269 fails all six; p95 3.39 / 3.43 / 3.41 ms against main 3.13 ms, worst 97.2 fps at x3. Diff since 3374269 is the shader's totality cloud and corona block, the checker and tests.
 - To the visual backlog: thin and veiling cloud are nearly the same hatch weight (three weights exist in the shader, the steps do not read), so in the clear state the Sun shines out of what looks like overcast; under thick cloud nothing marks where the Sun is; eclipsed Sun small in the 720p frame; no landmark on the totality horizon (F5 / F29); play panels dark (#426). Not looked at this round: `play_p25` clear, 1440p crops beyond a glance at the 720p frames.
 - **Verdicts:** technical regression none seen (suites green, change confined to totality); this PR's change accepted; whole scene not accepted. Count stays **7/9**.
+
+### 2026-11-23 14:1x JST: #428 merged (baa29ad)
+- Merged 14:14 JST through the gate (oracle failed with exit 5, codex approved the head; CI suites and leak-gate passed). edd-lead told. Count stays **7/9**.
