@@ -710,6 +710,8 @@ func _test_judgment_reasons() -> void:
 	check(game.ui._seq.size() == 1 and game.ui._choice_buttons.size() == 4, "only verdict choices exist before the answer")
 	var evidence_before: Dictionary = game.sim.combined().duplicate(true)
 	game.ui._choose(0) # Wrong: this interval contains only 1.75″.
+	game._process(0.0)
+	game._process(1.5)
 	check(game._verdict == 0, "real verdict dialogue stores the answer")
 	var correction_shown: bool = game.ui.text_label.text.contains("還不能支持 零")
 	check(correction_shown and game.ui._choice_buttons.is_empty(), "wrong verdict feedback is shown before telegram choices exist")
@@ -736,6 +738,8 @@ func _test_judgment_reasons() -> void:
 	var wrong_reaction: Array = game.ui._seq.duplicate(true)
 	game._start_judgment()
 	game.ui._choose(Judgment.verdict_truth(game.sim))
+	game._process(0.0)
+	game._process(1.5)
 	check(game.ui.text_label.text == "細線只容得下 1.75，排除另外兩個預測。說這些底片支持它，是公允的判斷。" and game.ui._choice_buttons.is_empty(), "correct verdict is acknowledged before telegram choices")
 	game.ui._advance()
 	game.ui._choose(1)
@@ -748,6 +752,8 @@ func _test_judgment_reasons() -> void:
 		check(game._pending == "verdict" and game.ui._seq[0].key == "verdict", "Report opens the verdict stage")
 		check(game.ui._seq[0].t == "先看你的數字：%s。粗線是你的數字加減一個誤差，細線是兩倍誤差。你自己判斷——你的底片支持哪一個？" % ("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″" % [c.value, c.sigma, bounds.lo, bounds.hi]), "real first choice contains no feedback")
 		game.ui._choose(verdict)
+		game._process(0.0)
+		game._process(1.5)
 		check(game._verdict == verdict and game._verdict_truth == 2 and game._verdict_class == expected_classes[verdict], "real results handler stores verdict and class %d" % verdict)
 		game.ui._advance()
 		check(game.ui._seq[game.ui._seq_i].key == "telegram", "every verdict advances to the telegram")
@@ -780,6 +786,8 @@ func _test_judgment_reasons() -> void:
 	_read_included(game.sim)
 	game._start_judgment()
 	game.ui._choose(Judgment.verdict_truth(game.sim))
+	game._process(0.0)
+	game._process(1.5)
 	game.ui._advance()
 	game.ui._choose(2)
 	game.ui._choose(4)
@@ -994,6 +1002,8 @@ func _test_report_rule_layout() -> void:
 				"verdict":
 					check(game.ui._seq[game.ui._seq_i].key == "verdict", "real report starts at verdict")
 					await _click_control(game.ui._choice_buttons[Judgment.verdict_truth(game.sim)])
+					game._process(0.0)
+					game._process(1.5)
 				"feedback":
 					game.ui._advance()
 				"telegram":

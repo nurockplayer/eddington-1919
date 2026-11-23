@@ -38,6 +38,7 @@ func _run() -> void:
 	await process_frame
 	await _test_replay_page(story)
 	await _test_confrontation_flow(story)
+	await _test_verdict_hold(story)
 	_test_confrontation()
 	await _test_ending_and_coda(story)
 	story.reset()
@@ -202,10 +203,107 @@ func _test_confrontation_flow(story: Node) -> void:
 	game.sim.bet_pick = 1
 	game._start_judgment()
 	game.ui._choose(Judgment.verdict_truth(game.sim))
+	game._process(0.0)
+	game._process(1.5)
 	var text := _text(game)
 	check(text.contains("你押的是 0.87") and text.contains("容不下它"),
 		"the verdict confronts the bet before the telegram choices")
 	check(text.contains("容得下 1.75"), "the confrontation names the prediction the range does hold")
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+
+
+## Confirm through real UI input; advance only unpaused, log-closed game time.
+func _test_verdict_hold(story: Node) -> void:
+	var game = await _new_game(story, true, {"pick": 1, "sure": 0, "ashby": 1, "year": 1917})
+	game.sim.plates = [{"number": 1, "index": 0, "start": 10.0, "duration": 6.0,
+		"sunlit": false, "usable": true, "quality": "good", "included": true,
+		"trail": 0.1, "fog": 0.0, "stars": 8, "value": 1.75, "sigma": 0.1,
+		"read": true, "reading": game.sim.reading_for_value(1.75)}]
+	game.plate_textures = [null]
+	game.sim.rule_id = "strict"
+	game.sim.measured = true
+	game.sim.bet_pick = 2
+	var plates: Array = game.sim.plates.duplicate(true)
+	var combined: Dictionary = game.sim.combined().duplicate(true)
+	var expected_grade := Judgment.grade(game.sim, "hopeful", "measured")
+	for verdict in 4:
+		game.phase = game.Phase.NIGHT
+		game._run_record_index = -1
+		game.ui.ending_panel.hide()
+		game._open_viewer()
+		game.ui.report_btn.pressed.emit()
+		var history_size: int = game.ui.history.size()
+		var run_count: int = story.runs.size()
+		var choice := InputEventKey.new()
+		choice.keycode = KEY_1 + verdict
+		choice.pressed = true
+		root.push_input(choice)
+		choice.pressed = false
+		root.push_input(choice)
+		check(game._verdict == verdict, "report input records verdict %d" % verdict)
+		check(not game.ui.dialog_active(), "confirmation starts a silent evidence hold")
+		if game.ui.dialog_active():
+			break  # A reverted hold must fail here, without driving the wrong dialogue.
+		var inputs: Array[InputEvent] = [InputEventKey.new(), InputEventMouseButton.new(), InputEventJoypadButton.new()]
+		inputs[0].keycode = KEY_SPACE
+		inputs[1].button_index = MOUSE_BUTTON_LEFT
+		inputs[1].position = game.ui.chart.get_global_rect().get_center()
+		inputs[2].button_index = JOY_BUTTON_A
+		for event in inputs:
+			event.pressed = true
+			root.push_input(event)
+			event.pressed = false
+			root.push_input(event)
+		game._process(2.0) # The confirmation frame cannot count time before it was drawn.
+		game._process(0.75)
+		game.ui.toggle_pause()
+		game._process(10.0)
+		check(not game.ui.dialog_active(), "pause freezes the verdict hold")
+		game.ui.toggle_pause()
+		game.ui.toggle_log()
+		game._process(10.0)
+		check(not game.ui.dialog_active(), "dialogue log freezes the verdict hold")
+		game.ui.toggle_log()
+		game._process(0.74)
+		check(not game.ui.dialog_active() and game.ui.history.size() == history_size + 1,
+			"queued keyboard, mouse and gamepad input cannot add NPC feedback before 1.5 s")
+		check(game.ui.viewer.is_visible_in_tree() and game.ui.chart.is_visible_in_tree()
+			and game.ui.chart.revealed and game.ui.chart.combined == combined,
+			"the player's combined chart stays visible throughout the hold")
+		var bounds := Judgment.interval_bounds(game.sim)
+		check(game.ui.viewer_note.text.contains("%.2f–%.2f″" % [bounds.lo, bounds.hi])
+			and game.ui.chart.ledger.map(func(mark): return mark.pick) == [1, 2],
+			"the report retains the 2σ band and original/current ledger marks")
+		game._process(0.02)
+		check(game.ui.dialog_active() and game._pending == "judgment" and game.ui._seq_i == 0,
+			"the first existing NPC feedback starts after 1.5 unpaused seconds")
+		var guard := 30
+		while game.ui.dialog_active() and game._pending == "judgment" and guard > 0:
+			guard -= 1
+			var entry: Dictionary = game.ui._seq[game.ui._seq_i]
+			if entry.has("choices"):
+				game.ui._choose(1 if entry.key == "telegram" else (1 if entry.key == "press" else 0))
+			else:
+				game.ui._advance()
+		check(guard > 0 and game._telegram == 1 and game._grade == expected_grade,
+			"verdict %d reaches the unchanged telegram and grade" % verdict)
+		while game.ui.dialog_active():
+			game.ui._advance()
+		game._coda_transition.custom_step(3.0)
+		check(game.phase == game.Phase.ENDING and story.runs.size() == run_count + 1
+			and story.runs[-1].verdict == verdict and story.runs[-1].telegram_id == "hopeful",
+			"verdict %d reaches ending with exactly one saved verdict" % verdict)
+		check(game.sim.plates == plates and game.sim.combined() == combined,
+			"the delay leaves plate values and combined measurements unchanged")
+	game.phase = game.Phase.NIGHT
+	game.sim.plates = []
+	game.plate_textures = []
+	game._open_viewer()
+	game.ui.report_btn.pressed.emit()
+	check(game._pending == "judgment" and game.ui._seq[0].key == "telegram",
+		"no measurements still proceed directly to the telegram")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame

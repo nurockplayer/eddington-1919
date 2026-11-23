@@ -796,6 +796,14 @@ static func prepare_replay(seed_value: int, same_sky: bool, from_prologue: bool)
 
 
 func _process(delta: float) -> void:
+	if _verdict_hold_s > 0.0 and not get_tree().paused and not ui.log_open():
+		# Begin counting only after the confirmed report has had a frame to appear.
+		if _verdict_hold_first_frame:
+			_verdict_hold_first_frame = false
+		else:
+			_verdict_hold_s -= delta
+			if _verdict_hold_s <= 0.0:
+				_verdict_feedback()
 	_update_npc_look()
 	if player.global_position.y < -3.0:
 		player.velocity = Vector3.ZERO
@@ -1162,12 +1170,8 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			_verdict = results.verdict
 			_verdict_truth = Judgment.verdict_truth(sim)
 			_verdict_class = Judgment.verdict_class(_verdict, _verdict_truth)
-			var tele := Judgment.telegram_choices()
-			var rea := _reasons.map(func(r): return L.t(r.text))
-			var against: Array = []
-			if sim.bet_pick >= 0:
-				against.append({"s": Content.E, "t": Content.bet_vs_plates(sim.bet_pick, Judgment.interval_bounds(sim))})
-			_say([{"s": Content.E, "t": Content.verdict_feedback(_verdict, _verdict_truth, Judgment.interval_bounds(sim))}] + against + (Content.press_eddington(sim.bet_pick) if sim.bet_pick >= 0 else []) + Content.judgment_prompt(tele, rea), "judgment")
+			_verdict_hold_s = 1.5
+			_verdict_hold_first_frame = true
 		"judgment":
 			_pressed_eddington = int(results.get("press", -1)) == 0
 			_after_judgment(results)
@@ -1831,10 +1835,21 @@ var _grade: Dictionary
 var _verdict := -1
 var _verdict_truth := -1
 var _verdict_class := ""
+var _verdict_hold_s := 0.0
+var _verdict_hold_first_frame := false
 var _pressed_eddington := false
 var _telegram := 0
 var _reason := 0
 var _reasons: Array = []
+
+
+func _verdict_feedback() -> void:
+	var tele := Judgment.telegram_choices()
+	var rea := _reasons.map(func(r): return L.t(r.text))
+	var against: Array = []
+	if sim.bet_pick >= 0:
+		against.append({"s": Content.E, "t": Content.bet_vs_plates(sim.bet_pick, Judgment.interval_bounds(sim))})
+	_say([{"s": Content.E, "t": Content.verdict_feedback(_verdict, _verdict_truth, Judgment.interval_bounds(sim))}] + against + (Content.press_eddington(sim.bet_pick) if sim.bet_pick >= 0 else []) + Content.judgment_prompt(tele, rea), "judgment")
 
 
 func _start_judgment() -> void:
