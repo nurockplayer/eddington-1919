@@ -54,6 +54,11 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_portrait_report()
+	if "--portrait-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds portrait: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_plate_pause()
 	if "--plate-pause-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds plate/pause: %d checks, %d failures" % [checks, failures])
@@ -513,6 +518,52 @@ func _test_totality_toast() -> void:
 	Settings.text_scale = scale
 	Settings.refresh_fonts(self)
 	root.size = window
+
+
+func _test_portrait_report() -> void:
+	var old_locale := L.current()
+	var old_scale := Settings.text_scale
+	var old_window := root.size
+	root.content_scale_size = Vector2i(1600, 900)
+	for window in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
+		root.size = window
+		for language in L.LOCALES:
+			L.apply(language)
+			for scale in [1.0, 1.2]:
+				context = "portrait %s %s scale %.1f" % [window, language, scale]
+				var ui = preload("res://scripts/ui.gd").new()
+				root.add_child(ui)
+				Settings.text_scale = scale
+				Settings.refresh_fonts(self)
+				ui.hide_title()
+				ui.cambridge_portraits = true
+				var paper = preload("res://scripts/hud_paper.gd").new()
+				var engraving = preload("res://scripts/styles/engraving.gd")
+				paper.setup(ui, engraving.PAGES)
+				paper.light(0.0, 1.0, engraving.PARAMS)
+				ui.viewer.visible = true
+				var seq := Content.verdict_prompt("1.44″ ± 0.25″")
+				ui.play(seq)
+				await settle()
+				var first: Rect2 = ui.dialogue_portrait.get_global_rect()
+				_check_portrait(ui, first)
+				ui.play(seq)
+				await settle()
+				var settled: Rect2 = ui.dialogue_portrait.get_global_rect()
+				_check_portrait(ui, settled)
+				check(first.is_equal_approx(settled), "fresh portrait matches settled: %s / %s" % [first, settled])
+				ui.free()
+	L.apply(old_locale)
+	Settings.text_scale = old_scale
+	root.size = old_window
+
+
+func _check_portrait(ui, card: Rect2) -> void:
+	check(ui.dialogue_portrait.visible and ui.dialogue_portrait.image.texture != null, "portrait visible and loaded")
+	check(card.size.x <= 224.1 and card.size.y <= 400.0, "portrait card size sane: %s" % card)
+	check(root.get_visible_rect().encloses(ui.dialogue_portrait.image.get_global_rect()), "portrait image on screen")
+	for node in [ui.speaker_label, ui.text_label] + ui._choice_buttons:
+		check(not card.intersects(node.get_global_rect()), "portrait overlaps %s: %s / %s" % [node.name, card, node.get_global_rect()])
 
 
 func _test_merged_dialogue() -> void:
