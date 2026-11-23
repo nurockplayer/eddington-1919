@@ -22,6 +22,7 @@ var disclosure: Label
 
 func setup(muted: Color) -> void:
 	name = "DialoguePortrait"
+	size = Vector2(224, 256)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mount := StyleBoxFlat.new()
 	mount.bg_color = Color(0.12, 0.105, 0.085, 0.98)
@@ -40,7 +41,9 @@ func setup(muted: Color) -> void:
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(image)
 	disclosure = Label.new()
+	disclosure.size.x = 204
 	disclosure.text = L.t("重建肖像，非歷史照片")
+	disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	disclosure.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Settings.track_font(disclosure, 18)
 	disclosure.add_theme_color_override("font_color", muted)

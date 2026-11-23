@@ -559,6 +559,7 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.visibility_changed.connect(_layout_viewer.call_deferred)
 	root.resized.connect(_layout_dialogue_portrait)
 	dialog_panel.resized.connect(_layout_dialogue_portrait)
+	dialogue_portrait.resized.connect(_position_dialogue_portrait)
 
 
 func _layout_dialogue_portrait() -> void:
@@ -573,7 +574,12 @@ func _layout_dialogue_portrait() -> void:
 	dialog_panel.custom_minimum_size.x = 0.0
 	text_label.custom_minimum_size.x = 0.0
 	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	dialogue_portrait.size = Vector2(224, 256)
+	_position_dialogue_portrait()
+
+
+func _position_dialogue_portrait() -> void:
+	var width: float = dialog_panel.get_parent().size.x
+	var span := minf(width - 48.0, 1360.0)
 	dialogue_portrait.position = Vector2((width - span) * 0.5, dialog_panel.get_global_rect().end.y - dialogue_portrait.size.y)
 
 
