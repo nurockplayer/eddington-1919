@@ -47,6 +47,7 @@ func _run() -> void:
 	_test_bands()
 	_test_strip_model()
 	await _test_sim_invariance()
+	await _test_totality_pacing()
 	await _test_rehearsal()
 	await _test_aim_aspects()
 	await _test_ready_status()
@@ -184,6 +185,93 @@ func _test_sim_invariance() -> void:
 
 
 # ------------------------------------------- A integration: read on the toast
+
+func _test_totality_pacing() -> void:
+	var normal
+	for slower in [false, true]:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game.sim = Sim.new(77)
+		game.sim.drive_wound = true
+		game.sim.drive_rate_checked = true
+		game.sim.drive_error = 0.0
+		game._start_game()
+		Settings.slower_totality = slower
+		var rate := 1.25 if slower else 2.5
+		await game._begin_totality()
+		check(game.ui.totality_pace_button.disabled, "pacing locks at second contact")
+		var shutter := InputEventAction.new()
+		shutter.action = "shutter"
+		await _rehearsal_press(shutter)
+		check(game.sim.is_exposing(), "the player opens the shutter in either mode")
+		for logged in [false, true]:
+			if logged:
+				game.ui.toggle_log()
+			else:
+				game.ui.toggle_pause()
+			game._process_totality(1.0)
+			check(game.t_game == 0.0 and game.sim._open.duration == 0.0,
+				"pause and dialogue log each freeze the totality clock and exposure")
+			if logged:
+				game.ui.toggle_log()
+			else:
+				game.ui.toggle_pause()
+		game._process_totality(1.0)
+		check(game.t_game == rate and game.sim._open.duration == rate,
+			"one unpaused real second advances the clock and exposure by %s" % rate)
+		check(game.sky_mat.get_shader_parameter("cloud_time") == rate
+			and game.ui.tot_strip.model.t == rate, "rendered cloud and HUD use the totality clock")
+		var look := InputEventMouseMotion.new()
+		look.relative = Vector2(20, 0)
+		var yaw: float = game.player.yaw
+		game.player._unhandled_input(look)
+		check(is_equal_approx(game.player.yaw, yaw - 20.0 * game.player.MOUSE_SENS * Settings.look_speed),
+			"identical mouse motion turns the same amount at both rates")
+		game._process_totality((5.0 - rate) / rate)
+		await _rehearsal_press(shutter)
+		check(not game.sim.is_exposing() and game.change_left == Sim.PLATE_CHANGE_S,
+			"the player stops the exposure and starts a plate change")
+		game._process_totality(1.0)
+		check(game.change_left == Sim.PLATE_CHANGE_S - rate, "plate change uses the totality clock")
+		var start := ceilf((game.sim.gaps[2].t + 2.0) / GAME_STEP) * GAME_STEP
+		game._process_totality((start - game.t_game) / rate)
+		await _rehearsal_press(shutter)
+		for frame in roundi(8.0 / (STEP * rate)):
+			game._process_totality(STEP)
+		await _rehearsal_press(shutter)
+		game._process_totality((283.0 - game.t_game) / rate)
+		check(not game._warned_end, "warning has not fired with 19 game seconds remaining")
+		game._process_totality(2.0 / rate)
+		check(game._warned_end, "warning has fired with 17 game seconds remaining")
+		await _rehearsal_press(shutter)
+		game._process_totality(20.0 / rate)
+		check(game.tot_done and game.t_game == Sim.TOTALITY_S and game.sim.plates.back().sunlit
+			and is_equal_approx(game.sim.plates.back().duration, 17.0),
+			"third contact clamps overshoot to 302, including exposure time")
+		for plate in game.sim.plates:
+			plate.included = plate.quality == "good"
+		_read_included(game.sim)
+		check(game.sim.included_usable().map(func(p): return p.number) == [2],
+			"matching quality-based selection includes the usable late-gap plate")
+		if slower:
+			check(game.sim.plates.size() == normal.plates.size(), "both modes develop the same plate count")
+			for i in normal.plates.size():
+				var expected: Dictionary = normal.plates[i]
+				var actual: Dictionary = game.sim.plates[i]
+				for key in expected:
+					check(absf(actual[key] - expected[key]) <= 1e-6 if expected[key] is float
+						else actual[key] == expected[key], "plate %d %s matches across pacing modes" % [i + 1, key])
+			check(game.sim.selection_report() == normal.selection_report()
+				and Judgment.grade(game.sim, "hopeful", "measured") == Judgment.grade(normal, "hopeful", "measured"),
+				"selection and grade match across pacing modes")
+		else:
+			normal = game.sim
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
+	Settings.slower_totality = false
+
 
 func _rehearsal_press(event) -> void:
 	event.pressed = true

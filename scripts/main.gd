@@ -78,6 +78,7 @@ var _rehearsal_pitch := 0.0
 var _rehearsal_position := Vector3.ZERO
 var _rehearsal_velocity := Vector3.ZERO
 var t_game := 0.0                # totality clock, game-seconds
+var _totality_rate := Sim.TIME_SCALE
 var change_left := 0.0           # plate change in progress
 var plate_changed := false       # a plate change was made this run (the workbook remembers it)
 var plates_left := 0
@@ -1383,6 +1384,8 @@ func _begin_totality() -> void:
 		return
 	_busy = true
 	phase = Phase.TOTALITY
+	_totality_rate = Sim.TIME_SCALE * 0.5 if Settings.slower_totality else Sim.TIME_SCALE
+	ui.totality_pace_button.disabled = true
 	_quiet_birds()
 	create_tween().tween_property(audio_surf, "volume_db", _surf_db + TOTALITY_SURF_DIP_DB, TOTALITY_SURF_DIP_S)
 	_sync_player_input()
@@ -1470,8 +1473,11 @@ func _process_totality(delta: float) -> void:
 	score.advance(delta)
 	if _busy or tot_done:
 		return
-	var score_start: float = TOTALITY_SCORE_DELAY_S * sim.TIME_SCALE
-	if t_game < score_start and t_game + delta * sim.TIME_SCALE >= score_start:
+	var previous := t_game
+	t_game = minf(previous + delta * _totality_rate, sim.TOTALITY_S)
+	var dt := t_game - previous
+	var score_start := TOTALITY_SCORE_DELAY_S * _totality_rate
+	if previous < score_start and t_game >= score_start:
 		score.play("totality_drone", TOTALITY_SCORE_FADE_S)
 		score.play("totality_glass", TOTALITY_SCORE_FADE_S)
 		_score_exposing = false
@@ -1480,15 +1486,13 @@ func _process_totality(delta: float) -> void:
 	if exposing != _score_exposing:
 		_score_exposing = exposing
 		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else ScorePlayer.Score.level_db("totality_glass"), 0.4 if exposing else 1.2)
-	var dt: float = delta * sim.TIME_SCALE
-	t_game += dt
 	if t_game >= score_start:
-		var surf_elapsed := minf((t_game - score_start) / sim.TIME_SCALE, TOTALITY_SURF_RETURN_S)
+		var surf_elapsed := minf((t_game - score_start) / _totality_rate, TOTALITY_SURF_RETURN_S)
 		audio_surf.volume_db = Tween.interpolate_value(_surf_db + TOTALITY_SURF_DIP_DB,
 			-TOTALITY_SURF_DIP_DB, surf_elapsed, TOTALITY_SURF_RETURN_S, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
 	var dens: float = sim.cloud_over_sun(t_game)
-	if sim.is_exposing():
-		sim.accumulate(dt, dens)
+	if exposing:
+		sim.accumulate_cloud(previous, t_game)
 	if change_left > 0.0:
 		change_left = maxf(change_left - dt, 0.0)
 	_apply_light(1.0, 1.0, t_game, 0.0)

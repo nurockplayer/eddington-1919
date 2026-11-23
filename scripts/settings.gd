@@ -23,6 +23,7 @@ static var mic_step := 1.0
 static var mic_large_cross := false
 static var reduced_motion := false
 static var hold_toggle := false
+static var slower_totality := false
 static var fullscreen := false
 static var video_apply_count := 0
 static var video_call: Callable = _window_call
@@ -89,6 +90,7 @@ static func load_settings(path := settings_path()) -> void:
 	mic_large_cross = bool(cfg.get_value("ui", "mic_large_cross", false))
 	reduced_motion = bool(cfg.get_value("ui", "reduced_motion", false))
 	hold_toggle = bool(cfg.get_value("input", "hold_toggle", false))
+	slower_totality = bool(cfg.get_value("gameplay", "slower_totality", false))
 	text_scale = float(cfg.get_value("ui", "text_scale", 1.0))
 	if text_scale not in TEXT_SCALES:
 		text_scale = 1.0
@@ -110,6 +112,7 @@ static func save_settings(path := settings_path()) -> Error:
 	cfg.set_value("input", "mic_step", mic_step)
 	cfg.set_value("ui", "mic_large_cross", mic_large_cross)
 	cfg.set_value("input", "hold_toggle", hold_toggle)
+	cfg.set_value("gameplay", "slower_totality", slower_totality)
 	return cfg.save(path)
 
 
@@ -206,6 +209,11 @@ static func toggle_reduced_motion(path := settings_path()) -> Error:
 
 static func toggle_hold_toggle(path := settings_path()) -> Error:
 	hold_toggle = not hold_toggle
+	return save_settings(path)
+
+
+static func toggle_totality_pace(path := settings_path()) -> Error:
+	slower_totality = not slower_totality
 	return save_settings(path)
 
 
