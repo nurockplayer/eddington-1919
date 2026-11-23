@@ -331,6 +331,7 @@ func _run() -> void:
 	check(story.runs.size() == 1, "first completion records once")
 	check(not game.ui.ending_text.text.contains(HEADING), "first ending has no comparison")
 	var first: Dictionary = story.runs[0].duplicate(true)
+	check(first.drive_error == game.sim.drive_error, "completed run retains the actual trim residual")
 	check(first.exposures.size() == 12 and first.combined.n > 0, "first record contains real exposures and measurement")
 	for i in first.exposures.size():
 		for key in ["number", "start", "duration", "included", "usable", "quality"]:

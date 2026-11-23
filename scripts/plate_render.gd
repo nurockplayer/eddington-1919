@@ -14,7 +14,7 @@ const TRAIL_DIR := Vector2(0.83, 0.56)
 
 static func render_example(kind: String) -> ImageTexture:
 	# A fixed teaching field, independent of the player's run and plate selection.
-	var sim := {"run_seed": 19190529, "STAR_COUNT": 12, "star_offsets": PackedVector2Array()}
+	var sim := {"run_seed": 19190529, "drive_wound": false, "drive_error": 1.0, "STAR_COUNT": 12, "star_offsets": PackedVector2Array()}
 	for i in sim.STAR_COUNT:
 		var angle: float = TAU * i / sim.STAR_COUNT
 		sim.star_offsets.append(Vector2(cos(angle), sin(angle)) * (3.2 + 0.4 * (i % 3)))

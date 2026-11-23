@@ -242,9 +242,15 @@ func _trim_checks(game) -> int:
 	game.player.set_physics_process(false)
 	var trails := []
 	var images := []
-	for mode in ["success", "partial", "abandoned", "gamepad", "reduced"]:
+	var partial_residual := 0.0
+	failures += await _trim_sheet_checks()
+	for mode in ["success", "partial", "abandoned", "gamepad", "reduced", "zero", "opposite"]:
 		game.sim = load("res://scripts/eclipse_sim.gd").new(77)
 		game.sim.drive_wound = true
+		if mode == "zero":
+			game.sim.drive_error = 0.0
+		elif mode == "opposite":
+			game.sim.drive_error = -partial_residual
 		game.phase = game.Phase.PREP
 		game.prep_left = 100.0
 		game._interact_needs_release = false
@@ -253,7 +259,15 @@ func _trim_checks(game) -> int:
 		var panel = game.calibration
 		if not panel.visible or game.player.can_move or game.player.can_look:
 			failures += 1
-		game._process_prep(1.0)
+		if mode == "zero":
+			game._process_prep(2.9)
+			if game.sim.drive_rate_checked:
+				failures += 1
+			game._process_prep(0.1)
+			if not game.sim.drive_rate_checked:
+				failures += 1
+		else:
+			game._process_prep(1.0)
 		var before: float = game.prep_left
 		await _event(KEY_ESCAPE, true)
 		await _event(KEY_ESCAPE, false)
@@ -306,16 +320,29 @@ func _trim_checks(game) -> int:
 				failures += 1
 		if mode in ["success", "gamepad", "reduced"] and not game.sim.drive_rate_checked:
 			failures += 1
-		if mode == "partial" and game.sim.drive_rate_checked:
-			failures += 1
+		if mode == "partial":
+			partial_residual = game.sim.drive_error
+			if game.sim.drive_rate_checked:
+				failures += 1
 		if mode == "abandoned":
 			# Hint after ten active seconds, no automatic correction; expiry closes.
 			game._process_prep(9.0)
 			if not panel.hinted or game.sim.drive_error != 1.0:
 				failures += 1
+			# Slower and faster change the sampled drift in the corresponding direction.
+			await _event(KEY_LEFT, true)
+			game._process_prep(5.0)
+			await _event(KEY_LEFT, false)
+			var slower: float = panel.measured_drift
+			await _event(KEY_RIGHT, true)
+			game._process_prep(1.0)
+			await _event(KEY_RIGHT, false)
+			if not (slower < 24.0 and panel.measured_drift > slower):
+				failures += 1
+			var residual: float = game.sim.drive_error
 			game.prep_left = 0.1
 			game._process_prep(0.1)
-			if panel.visible or game.phase != game.Phase.TOTALITY:
+			if panel.visible or game.phase != game.Phase.TOTALITY or game.sim.drive_error != residual:
 				failures += 1
 			await create_timer(2.1).timeout
 		else:
@@ -343,11 +370,16 @@ func _trim_checks(game) -> int:
 			trails.append(plate.trail)
 			images.append(load("res://scripts/plate_render.gd").render(game.sim, plate).get_image().get_data())
 		print("trim %s: verified=%s residual=%.4f trail=%s" % [mode, game.sim.drive_rate_checked, game.sim.drive_error, trails.back() if not trails.is_empty() else -1])
-	if trails.size() != 5 or not (trails[0] < trails[1] and trails[1] < trails[2]):
+	if trails.size() != 7 or not (trails[0] < trails[1] and trails[1] < trails[2]):
 		print("FAIL: successful trim < partial trim < abandoned in developed-plate trail: ", trails)
 		failures += 1
-	if images.size() != 5 or images[0] == images[1] or images[1] == images[2]:
+	if images.size() != 7 or images[0] == images[1] or images[1] == images[2]:
 		failures += 1
+	# Equal opposite residuals keep magnitude but reverse the rendered extension.
+	if trails.size() == 7:
+		if not is_equal_approx(trails[1], trails[6]) or not is_equal_approx(trails[5], 0.12) or images[1] == images[6]:
+			print("FAIL: zero/opposite residual trail magnitude/direction")
+			failures += 1
 	# Attempt cap and both leave bindings preserve the current setting.
 	for leave in [KEY_B, JOY_BUTTON_B, -1]:
 		game.phase = game.Phase.PREP
@@ -364,4 +396,44 @@ func _trim_checks(game) -> int:
 			failures += 1
 	Settings.reduced_motion = false
 	print("input trim → shutter → developed/rendered plate: %d failures" % failures)
+	return failures
+
+
+func _trim_sheet_checks() -> int:
+	var failures := 0
+	var language := L.current()
+	var scale := Settings.text_scale
+	var window := root.size
+	var content_size := root.content_scale_size
+	root.content_scale_size = Vector2i.ZERO
+	Settings.text_scale = 1.2
+	const Print := preload("res://scripts/styles/engraving.gd")
+	var contrast := (Print.PAPER.srgb_to_linear().get_luminance() + 0.05) / (Print.INK.srgb_to_linear().get_luminance() + 0.05)
+	if contrast < 4.5:
+		failures += 1
+	for locale in ["en", "ja", "zh_TW", "ko"]:
+		L.apply(locale)
+		for viewport in [Vector2i(1280, 720), Vector2i(2560, 1440)]:
+			root.size = viewport
+			var panel := preload("res://scripts/coelostat_calibration.gd").new()
+			root.add_child(panel)
+			panel.open(load("res://scripts/eclipse_sim.gd").new(77))
+			for frame in 5:
+				await process_frame
+			var paper: StyleBoxFlat = panel.sheet.get_theme_stylebox("panel")
+			if paper.bg_color != Print.PAPER or paper.border_color != Print.INK:
+				failures += 1
+			for label in [panel.caption, panel.status, panel.hint, panel.controls]:
+				if not panel.sheet.get_global_rect().encloses(label.get_global_rect()) or label.get_theme_color("font_color") != Print.INK:
+					print("FAIL: trim sheet fit/ink ", locale, " ", viewport, " ", label.text)
+					failures += 1
+			if panel.diagram.size.y < 180:
+				failures += 1
+			panel.queue_free()
+			await process_frame
+	L.apply(language)
+	Settings.text_scale = scale
+	root.content_scale_size = content_size
+	root.size = window
+	print("trim sheet: 8 max-text layouts, contrast %.2f:1, %d failures" % [contrast, failures])
 	return failures
