@@ -28,7 +28,7 @@ func _initialize() -> void:
 
 func _generate() -> void:
 	var file := FileAccess.open(REPORT, FileAccess.WRITE)
-	file.store_string(render(self))
+	file.store_string(render(self, authored_entries()))
 	file.close()
 	print("Wrote ", REPORT)
 	quit()
@@ -53,6 +53,8 @@ static func entries(source: String, constants: Dictionary, chapter: int) -> Arra
 	speaker.compile('"s"\\s*:\\s*(L\\.t\\("(?:[^"\\\\]|\\\\.)*"\\)|"(?:[^"\\\\]|\\\\.)*"|[A-Za-z_][A-Za-z_0-9.]*)')
 	var mood := RegEx.new()
 	mood.compile('"mood"\\s*:\\s*"([^"]+)"')
+	var format_arg := RegEx.new()
+	format_arg.compile('^\\s*%\\s*L\\.t\\(([A-Za-z_][A-Za-z_0-9.]*)\\)')
 	var function_name := ""
 	for line in source.split("\n"):
 		if line.begins_with("static func ") or line.begins_with("func "):
@@ -62,17 +64,22 @@ static func entries(source: String, constants: Dictionary, chapter: int) -> Arra
 		for found in speaker.search_all(line):
 			var tail: String = line.substr(found.get_end()).split("}")[0]
 			var expression := mood.search(tail)
-			result.append({"chapter": 2 if function_name == "principe_workbook" else chapter,
+			var item := {"chapter": 2 if function_name == "principe_workbook" else chapter,
 				"s": speaker_value(found.get_string(1), constants),
-				"mood": expression.get_string(1) if expression else "neutral", "t": "Coverage"})
+				"mood": expression.get_string(1) if expression else "neutral", "t": "Coverage"}
+			var argument := format_arg.search(tail)
+			if argument:
+				item["format_arg"] = speaker_value(argument.get_string(1), constants)
+			result.append(item)
 	return result
 
 
 static func authored_entries() -> Array:
 	var result := []
 	for i in SOURCES.size():
-		var script: Script = load(SOURCES[i])
-		result.append_array(entries(FileAccess.get_file_as_string(SOURCES[i]), script.get_script_constant_map(), [0, 1, 2, 2, 3, 2][i]))
+		# main's inline entries use Content.E/C; loading main would also load its 3D world.
+		var constants: Dictionary = {"Content": UI.Content} if SOURCES[i] == "res://scripts/main.gd" else load(SOURCES[i]).get_script_constant_map()
+		result.append_array(entries(FileAccess.get_file_as_string(SOURCES[i]), constants, [0, 1, 2, 2, 3, 2][i]))
 	return result
 
 
@@ -87,7 +94,7 @@ static func chapter_ui(tree: SceneTree, chapter: int) -> Node:
 	return ui
 
 
-static func render(tree: SceneTree, all_entries: Array = authored_entries()) -> String:
+static func render(tree: SceneTree, all_entries: Array) -> String:
 	var text := "# Speaker / portrait coverage\n\nRegenerate: `tachi-run --host -- godot --headless --path . --script res://tools/portrait_coverage.gd`\n\n"
 	text += "Acceptance row: **F4**, portrait clause made judgeable; existing gaps remain.\n\n"
 	text += "Counts are authored dialogue entry sites (`s` dictionaries), across all conditional and choice branches, not one playthrough. A repeated or data-driven entry template counts once; choices, captions, toasts and text embedded within an entry are not extra lines. Inline entries in `main.gd` are included. The Príncipe workbook in Departure's content file and the May coda belong to Príncipe; October is the separate epilogue.\n\n"
@@ -101,14 +108,18 @@ static func render(tree: SceneTree, all_entries: Array = authored_entries()) -> 
 			var names := PackedStringArray()
 			for locale in LOCALES:
 				L.apply(locale)
-				ui.play([entry])
+				var shown: Dictionary = entry.duplicate()
+				if entry.has("format_arg"):
+					shown.s = L.t(entry.s) % L.t(entry.format_arg)
+				ui.play([shown])
 				names.append(ui.speaker_label.text if not ui.speaker_label.text.is_empty() else "(blank)")
 			var path := "none"
 			if ui.dialogue_portrait.visible:
 				path = ui.dialogue_portrait.image.texture.resource_path
-			var key: String = entry.s + "\t" + path
+			var source_name: String = entry.s % entry.format_arg if entry.has("format_arg") else entry.s
+			var key: String = source_name + "\t" + path
 			if not rows.has(key):
-				rows[key] = {"speaker": entry.s, "path": path, "names": " / ".join(names), "count": 0}
+				rows[key] = {"speaker": source_name, "path": path, "names": " / ".join(names), "count": 0}
 			rows[key].count += 1
 		text += "## %s\n\n| Speaker (source) | Line count | Portrait path | Displayed name (en / ja / zh-TW / ko) |\n| --- | ---: | --- | --- |\n" % CHAPTERS[chapter]
 		var keys := rows.keys()
