@@ -117,7 +117,8 @@ func metadata(state: String, ui: String) -> Dictionary:
 	var basis: Array = []
 	for vector in [transform.basis.x, transform.basis.y, transform.basis.z, transform.origin]:
 		basis.append([snappedf(vector.x, 0.000001), snappedf(vector.y, 0.000001), snappedf(vector.z, 0.000001)])
-	return {"scene": "res://scenes/main.tscn", "state": state, "camera_transform": basis,
+	return {"scene": "res://scenes/main.tscn", "state": state,
+		"phase": game.Phase.keys()[game.phase].to_lower(), "camera_transform": basis,
 		"fov": camera.fov, "resolution": [root.size.x, root.size.y], "locale": locale,
 		"seed": 7, "ui_state": ui, "text_scale": Settings.text_scale,
 		"event_time": {"frame": event_frame, "seconds": event_frame * DT, "clock": "simulation", "zone": "JST"}}

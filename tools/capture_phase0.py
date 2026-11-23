@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -14,6 +15,84 @@ from zoneinfo import ZoneInfo
 REPO = Path(__file__).resolve().parents[1]
 ROOT = Path('/Volumes/KIOXIA/eddington-1919-cache/director/phase0')
 REASON = 'Live GPU shader TIME, particle animation and temporal rendering history; fixed seed and 60 Hz do not guarantee identical pixels.'
+GOLDENS = dict(arrival='prep_early', shelter='prep_late', coelostat='prep_early',
+               house='prep_early', totality_sky='totality', totality_horizon='totality', darkroom='night')
+STILLS = {f'golden_{name}': (state, 'hidden', [1280, 720], 'en') for name, state in GOLDENS.items()}
+STILLS.update({f'{name}_{w}x{h}': (GOLDENS[name], 'hidden', [w, h], 'en')
+               for name in ('arrival', 'totality_sky') for w, h in ((1920, 1080), (2560, 1440))})
+STILLS.update({name: ('prep', 'hud', [1280, 720], 'en') for name in ('nearest_npc', 'sign_approach', 'under_roof')})
+STILLS.update({name: ('title' if name == 'title' else 'prep', name, [1280, 720], 'en')
+               for name in ('title', 'settings', 'pause')})
+STILLS.update({f'{name}_{locale}': (state, ui, [1280, 720], locale)
+               for locale in ('en', 'ja', 'zh_TW', 'ko')
+               for name, state, ui in (('hud', 'prep', 'hud'), ('dialogue', 'prep', 'dialogue'),
+                                       ('plate', 'night', 'plate_inspection'), ('results', 'night', 'measurement_results'))})
+CLIPS = dict(arrival_walk_turn=990, second_contact=330, dialogue_open_close=330)
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(f'Invalid Phase-0 capture: {message}')
+
+
+def validate_metadata(record, frame):
+    for key in ('scene', 'state', 'ui_state', 'locale', 'phase'):
+        require(isinstance(record[key], str) and record[key], f'missing {key}')
+    require(record['scene'] == 'res://scenes/main.tscn', 'scene')
+    require(record['seed'] == 7 and record['text_scale'] == 1.2, 'seed/text scale')
+    camera = record['camera_transform']
+    require(len(camera) == 4 and all(len(row) == 3 for row in camera), 'camera transform')
+    require(all(isinstance(v, (int, float)) and math.isfinite(v) for row in camera for v in row), 'camera values')
+    require(isinstance(record['fov'], (int, float)) and 0 < record['fov'] < 180, 'fov')
+    event = record['event_time']
+    require(event['frame'] == frame and event['clock'] == 'simulation' and event['zone'] == 'JST'
+            and math.isclose(event['seconds'], frame / 60, abs_tol=0.00001), 'event frame/time')
+
+
+def validate_receipts(out, receipts):
+    for key in ('renderer', 'godot_version'):
+        require(isinstance(receipts[key], str) and receipts[key], key)
+    captures = receipts['captures']
+    require(len(captures) == 36 and {c['id'] for c in captures} == STILLS.keys() | CLIPS.keys(),
+            'expected 33 named stills and three named clips')
+    for capture in captures:
+        name = capture['id']
+        validate_metadata(capture, -30 if name in CLIPS else 0)
+        if name in STILLS:
+            state, ui, resolution, locale = STILLS[name]
+            require(capture['kind'] == 'still' and capture['file'] == name + '.png', f'{name}: still file')
+            require((capture['state'], capture['ui_state'], capture['resolution'], capture['locale'])
+                    == (state, ui, resolution, locale), f'{name}: still metadata')
+            require((out / capture['file']).stat().st_size > 0, f'{name}: empty still')
+            continue
+        count = CLIPS[name]
+        require(capture['kind'] == 'clip' and capture['file'] == name + '.mp4', f'{name}: clip file')
+        require((capture['fps'], capture['frame_count'], capture['trigger_frame'], capture['pre_trigger_seconds'],
+                 capture['close_trigger_frame']) == (60, count, 30, 0.5, 180 if name == 'dialogue_open_close' else None),
+                f'{name}: frame/trigger contract')
+        frames = capture['frames']
+        require(len(frames) == count, f'{name}: missing frame receipts')
+        folder = out / 'scratch' / name
+        require({p.name for p in folder.glob('*.png')} == {f'f_{i:05}.png' for i in range(count)},
+                f'{name}: missing scratch frames')
+        for i, record in enumerate(frames):
+            validate_metadata(record, i - 30)
+            require(record['resolution'] == [1280, 720] and record['locale'] == 'en'
+                    and record['state'] == name, f'{name}: frame metadata')
+            require((folder / f'f_{i:05}.png').stat().st_size > 0, f'{name}: empty frame')
+            require(isinstance(record['fade_alpha'], (int, float)) and 0 <= record['fade_alpha'] <= 1,
+                    f'{name}: fade receipt')
+            phase = 'totality' if name == 'second_contact' and i >= 30 else 'prep'
+            ui = 'dialogue' if name == 'dialogue_open_close' and 30 <= i < 180 else 'hud'
+            require(record['phase'] == phase and record['ui_state'] == ui, f'{name}: missing phase/UI transition')
+        require(all(capture[key] == value for key, value in frames[0].items()), f'{name}: initial frame receipt')
+        if name == 'second_contact':
+            require(frames[0]['fade_alpha'] < 0.01 and max(f['fade_alpha'] for f in frames) > 0.9
+                    and frames[-1]['fade_alpha'] < 0.01, 'second contact: missing fade transition')
+        if name == 'arrival_walk_turn':
+            require(frames[30]['camera_transform'][3] != frames[330]['camera_transform'][3]
+                    and frames[630]['camera_transform'][:3] != frames[810]['camera_transform'][:3],
+                    'arrival: missing walk/turn')
 
 
 def call(argv, **kwargs):
@@ -70,12 +149,14 @@ def render(sha):
         if any(error in log_text for error in ('SCRIPT ERROR', 'SHADER ERROR', 'Assertion failed', 'Shader compilation failed')):
             raise RuntimeError(f'Godot capture failed: {out}/capture.log')
         receipts = json.loads((out / 'receipts.json').read_text())
+        validate_receipts(out, receipts)
         captures = receipts['captures']
         for capture in captures:
             if capture['kind'] == 'clip':
                 call(['ffmpeg', '-nostdin', '-v', 'error', '-framerate', '60', '-i',
                       scratch / capture['id'] / 'f_%05d.png', '-c:v', 'libx264', '-crf', '10',
                       '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out / capture['file']])
+                require((out / capture['file']).stat().st_size > 0, f"{capture['id']}: empty clip")
         stills = [capture for capture in captures if capture['kind'] == 'still']
         tiles = []
         for capture in stills:
@@ -119,11 +200,14 @@ def render(sha):
                     'golden_source': 'tests/benchmark.gd BOOKMARKS[0:7]; tools/look_shots.gd frame/UI/save helpers',
                     'renderer': receipts['renderer'], 'godot_version': receipts['godot_version'],
                     'time_zone': 'JST', 'captures': captures, 'coverage': coverage, 'files': files}
-        (out / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + '\n')
-        previous = sorted(base.glob('run-*/manifest.json'))[:-1]
+        candidate = out / 'candidate-manifest.json'
+        candidate.write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + '\n')
+        previous = [marker.parent / 'manifest.json' for marker in sorted(base.glob('run-*/success'))]
         for path in previous:
             if comparable(json.loads(path.read_text())) != comparable(manifest):
-                raise RuntimeError(f'Repeat manifest differs beyond declared pixel hashes: {path} vs {out}/manifest.json')
+                raise RuntimeError(f'Repeat manifest differs beyond declared pixel hashes: {path} vs {candidate}')
+        candidate.rename(out / 'manifest.json')
+        (out / 'success').write_text('Output validation and repeat comparison passed.\n')
         print(f'PHASE0 PASS: {len(stills)} stills, 3 clips, {len(previous)} repeat comparisons; {out}/manifest.json')
     finally:
         if not (out / 'execution.json').exists():
