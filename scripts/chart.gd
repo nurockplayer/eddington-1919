@@ -217,6 +217,8 @@ func _draw() -> void:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
 	_row_canvas.visible = false
+	if not revealed or rows.is_empty():
+		_paint_axis(font, refs, w, bottom, axis_px, axis_height, compact)
 	if not revealed:
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)
@@ -262,22 +264,7 @@ func _draw() -> void:
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, fixed_y - 12.0), Vector2(x, bottom), ref[2], 2.0, 6.0)
-	var compact_x := 4.0
-	for i in refs.size():
-		var ref: Array = refs[i]
-		var x := _x(ref[0], w)
-		_drawn_texts.append(ref[1])
-		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
-		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
-			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
-		if compact:
-			origin = Vector2(compact_x, bottom + font.get_ascent(axis_px))
-			compact_x += text_size.x + 8.0
-		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
-		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
-	for t in range(0, int(X_MAX) + 1):
-		var x := _x(t, w)
-		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
+	_paint_axis(font, refs, w, bottom, axis_px, axis_height, compact)
 	_paint_ledger(font, refs, top + 2.0)
 	if combined.get("n", 0) > 0:
 		var y := fixed_y
@@ -311,6 +298,25 @@ func _draw() -> void:
 		draw_rect(_drawn_result_bounds.grow(2), Color(0.09, 0.08, 0.07))
 		_drawn_result_backing = true
 		draw_string(font, baseline, combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px, c)
+
+
+func _paint_axis(font: Font, refs: Array, w: float, bottom: float, axis_px: int, axis_height: float, compact: bool) -> void:
+	var compact_x := 4.0
+	for i in refs.size():
+		var ref: Array = refs[i]
+		var x := _x(ref[0], w)
+		_drawn_texts.append(ref[1])
+		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
+		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
+			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
+		if compact:
+			origin = Vector2(compact_x, bottom + font.get_ascent(axis_px))
+			compact_x += text_size.x + 8.0
+		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
+		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
+	for t in range(0, int(X_MAX) + 1):
+		var x := _x(t, w)
+		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
 
 
 func _paint_hint(font: Font, text: String, color: Color) -> void:
