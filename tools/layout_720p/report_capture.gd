@@ -44,7 +44,7 @@ func _run() -> void:
 	var baseline := "--baseline" in args
 	root.size = Vector2i(1280, 720)
 	var cases := [[12, "ko", 1.2], [1, "en", 1.0]] if baseline else [
-		[12, "ko", 1.2], [12, "en", 1.0], [12, "zh_TW", 1.2],
+		[12, "ko", 1.2], [12, "zh_TW", 1.2],
 		[4, "ja", 1.2], [1, "en", 1.0]]
 	for item in cases:
 		var count: int = item[0]
