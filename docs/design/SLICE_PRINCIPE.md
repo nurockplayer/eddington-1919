@@ -800,3 +800,9 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 ### 2026-11-23 10:2x JST: #341 merged; #428 perf in, rebase sent
 - #341 merged 10:18 JST (oracle passed), edd-lead told.
 - #428 at c56ad66: forced-draw at `totality_sky` 720p, worst p95 3.75 ms, 88.9 fps at x3; +0.86 ms p95 against main abd9fc8 (a headless job overlapped each repetition). Accepted. The PR conflicts with main after #437 and #341: rebase and one recapture of `totality_sky`, `totality_wide`, `darkroom` sent (`totality-print-fu5.md`). Count stays **7/9**.
+
+### 2026-11-23 10:2x JST: #404 accepted at cca62db (two-column pause slip)
+- edd-lead's PR. Windowed whole 1280x720 frames, same state as 09:5x JST, candidate alone: `pause-cca62db-ko-max.jpg`, `pause-cca62db-zh_TW-max.jpg`, `pause-cca62db-en-max.jpg`, `pause-cca62db-ja-default.jpg` (`accept/404/cca62db/`); main's side was judged at 09:5x JST. ja max not opened. Oxford captures still identical to ff9229d by edd-lead's count (not re-checked by me at this head).
+- The four cases: (1) the objective slip is hidden while paused, no paper's text is cut: met. (2) The slip ends under its last row and sits centred: met at both text sizes. (3) Column order: Resume, the three volumes and Music mute down the left; Start over, Return to title, Quit game at the foot of the right: met. (4) ko wraps `길게 누르기 상호작용:` / `누르고 있기`: met.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Backlog, not this PR (#426): in a row made taller by its neighbour's wrap the slider stays at the top while its label centres (ko Music); the heading's side rules stop short of the first row; the small clock tab at the top centre stays on screen while the objective slip hides; the pause slip is plain paper with no engraved ornament.
+- edd-lead runs the gate. Count stays **7/9**.
