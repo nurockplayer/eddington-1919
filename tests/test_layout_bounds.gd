@@ -54,10 +54,12 @@ func settle(frames := 5) -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
-	await _test_trim_sheet()
-
-
 	await _test_printed_slips()
+	if "--printed-slips-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds printed slips: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
+	await _test_trim_sheet()
 	await _test_portrait_report()
 	if "--portrait-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds portrait: %d checks, %d failures" % [checks, failures])
@@ -973,7 +975,7 @@ func _check_pause_columns(ui, scroll: ScrollContainer, language: String) -> void
 			last_button_bottom = maxf(last_button_bottom, button.get_global_rect().end.y)
 	check(absf(ui.quit_button.get_global_rect().end.y - last_button_bottom) <= 1.0, "quit is the last menu button")
 	var gap: float = scroll.get_parent().get_global_rect().end.y - ui.pause_objectives.get_global_rect().end.y
-	check(gap >= -1.0 and gap <= 1.0, "pause paper ends under last row: gap %.1f" % gap)
+	check(absf(gap - 18.0) <= 1.0, "pause paper ends at last row plus its bottom margin: gap %.1f" % gap)
 	_check_pause_text(scroll, language)
 
 
@@ -1121,7 +1123,7 @@ func _test_printed_slips() -> void:
 				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "dialogue suppresses task and toast")
 				check(ui.dialog_panel.size.x < 1120 and ui.dialog_panel.size.y < 200, "short line has a compact slip")
 				check(ui.dialogue_portrait.image.size.y <= root.get_visible_rect().size.y * 0.18, "oval vignette fits 18 percent frame height")
-				check(ui.dialogue_portrait.disclosure.get_line_count() == 1, "portrait disclosure is one line")
+				check(ui.dialogue_portrait.size.x <= ui.dialogue_portrait.image.size.x + 21.0, "portrait card fits oval and disclosure wraps beneath")
 				check(not ui.dialogue_portrait.get_global_rect().intersects(ui.dialog_panel.get_global_rect()), "portrait and dialogue have separate space")
 				bounds(ui.dialog_panel)
 				bounds(ui.dialogue_portrait)
@@ -1131,7 +1133,33 @@ func _test_printed_slips() -> void:
 				for background in paper.slips:
 					check(background.bg_color == engraving.PAPER, "slips stay opaque cream at night and totality")
 				check(_slip_luminance(engraving.PAPER) + 0.05 >= 4.5 * (_slip_luminance(paper.foreground) + 0.05), "ink contrast is at least 4.5 to 1")
+				var portrait_rect: Rect2 = ui.dialogue_portrait.get_global_rect()
+				var line_rect: Rect2 = ui.dialog_panel.get_global_rect()
+				ui.play([{"s": Content.E, "t": L.t("看雲：變薄就喊開始。"), "choices": [L.t("看雲：變薄就喊開始。"), L.t("□ 在測量桌上檢視並量測底片")] }])
+				await settle()
+				check(ui.dialogue_portrait.get_global_rect().position.is_equal_approx(portrait_rect.position), "portrait stays fixed between line and choices")
+				_check_slip_bottom(ui, line_rect.position.x)
+				ui.play([{"s": "Unknown", "t": L.t("看雲：變薄就喊開始。") }])
+				await settle()
+				_check_slip_bottom(ui, line_rect.position.x)
 				ui._advance()
+				var rehearsal := L.t("你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。") + L.t("按遊戲的曝光模型，星點夠量測，但霧或拖影會影響品質。") + L.t("\n你：『停！』　Eddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。")
+				ui.show_toast(rehearsal, 7.0)
+				await settle()
+				var toast_style := ui.toast.get_theme_stylebox("normal")
+				var toast_rect: Rect2 = ui.toast.get_global_rect().grow_individual(toast_style.expand_margin_left, toast_style.expand_margin_top, toast_style.expand_margin_right, toast_style.expand_margin_bottom)
+				check(root.get_visible_rect().encloses(toast_rect), "long rehearsal toast and its paper stay inside frame")
+				check(absf(ui.toast.get_global_rect().end.y - (ui.hud.size.y - 60.0)) <= 1.0, "toast grows upward from its bottom margin")
+				if language == "ko":
+					_check_korean_label(ui.toast)
+					ui.set_objectives("아침의 뇌우는 열한 시 반쯤 그쳤다. 부분일식이 이미 시작되었고, 태양은 구름 뒤에서 나타났다 사라졌다.")
+					await settle()
+					_check_korean_rich(ui.objectives)
+					ui.play([{"s": Content.E, "t": rehearsal }])
+					await settle()
+					_check_korean_rich(ui.text_label)
+					ui._advance()
+				ui.set_objectives(full)
 				ui.toggle_pause()
 				await settle()
 				check(ui.pause_objectives.is_visible_in_tree() and ui.pause_objectives.text == full, "pause exposes the full unchanged objective list")
@@ -1149,3 +1177,38 @@ func _test_printed_slips() -> void:
 func _slip_luminance(color: Color) -> float:
 	var linear := color.srgb_to_linear()
 	return linear.r * 0.2126 + linear.g * 0.7152 + linear.b * 0.0722
+
+
+func _check_slip_bottom(ui, left: float) -> void:
+	var rect: Rect2 = ui.dialog_panel.get_global_rect()
+	check(absf(rect.position.x - left) <= 1.0, "line, choice and no-portrait slips share a left edge")
+	check(absf(rect.end.y - (ui.hud.size.y - 18.0)) <= 1.0, "dialogue and portrait share bottom margin")
+	check(absf(ui.dialog_panel.size.y - ui.dialog_panel.get_combined_minimum_size().y) <= 1.0, "dialogue slip has no empty paper under its text")
+	bounds(ui.dialog_panel)
+
+
+func _check_korean_rich(label: RichTextLabel) -> void:
+	var text := label.get_parsed_text()
+	var word := RegEx.new()
+	word.compile("[가-힣\\u2060]+")
+	for match in word.search_all(text):
+		check(label.get_character_line(match.get_start()) == label.get_character_line(match.get_end() - 1), "Korean rich text keeps word intact: " + match.get_string())
+	check(label.get_content_width() <= label.size.x + 1.0, "Korean rich text fits its slip width")
+
+
+func _check_korean_label(label: Label) -> void:
+	var paragraph := TextParagraph.new()
+	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+	paragraph.width = label.size.x - label.get_theme_stylebox("normal").get_minimum_size().x
+	paragraph.add_string(label.text, label.get_theme_font("font"), label.get_theme_font_size("font_size"))
+	check(paragraph.get_line_count() == label.get_line_count(), "toast probe matches rendered line count")
+	var word := RegEx.new()
+	word.compile("[가-힣\\u2060]+")
+	for match in word.search_all(label.text):
+		var contained := false
+		for line in paragraph.get_line_count():
+			var span := paragraph.get_line_range(line)
+			if span.x <= match.get_start() and span.y >= match.get_end():
+				contained = true
+		check(contained, "Korean toast keeps word intact: " + match.get_string())
+	check(paragraph.get_size().x <= paragraph.width + 1.0, "Korean toast fits its slip width")
