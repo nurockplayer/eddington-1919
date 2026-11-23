@@ -225,6 +225,7 @@ func _draw() -> void:
 		_paint_hint(font, unmeasured, Color(0.7, 0.66, 0.58))
 		return
 	if rows.is_empty():
+		_paint_ledger(font, refs, top + 2.0)
 		var empty_hint := L.t("沒有可量測的底片。")
 		_drawn_texts.append(empty_hint)
 		_paint_hint(font, empty_hint, Color(0.9, 0.55, 0.5))
