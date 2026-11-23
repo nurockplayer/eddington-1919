@@ -813,3 +813,8 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 
 ### 2026-11-23 11:0x JST: #428 to the gate (3374269)
 - Six suites 0 failures in the wrapper rerun; acceptance comment posted with the three frames; marked ready, `lead-wait pr 428`. Count stays **7/9**.
+
+### 2026-11-23 11:1x JST: #428 back to draft, cloud acceptance withdrawn (review blocker at 3374269)
+- The review (oracle failed with exit 5, codex took it) found one blocker and it is right: at totality the PR draws three procedural cloud banks (`print_cloud`) that do not follow the simulated field (`eclipse_cloud_density`, what `cloud_over_sun` and the exposure result use). The player is told to look up and expose when the cloud is thin, so the picture must be the sim's truth. I accepted the cloud shapes in round 2 on their look and never asked where they came from: my miss.
+- Stays accepted: blue paper, hairline corona and streamers, horizon band, silhouettes. Withdrawn: the clouds. Wanted: cloud shapes drawn from the simulated field in the same contour-and-hatching language, crossing and veiling the corona as the sim says (thick at 0.6 and over plainly veiled, under about 0.35 clear), main's cloud-dependent Moon ruling not masked (`totality-print-fu7.md`, Sol high).
+- Rule for this seat from now on: before accepting any picture the player reads to make a choice (cloud, stars, plate, gauge), check it is driven by the simulation's value, with frames at several simulated states. Count stays **7/9**.
