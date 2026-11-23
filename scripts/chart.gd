@@ -52,7 +52,7 @@ func _get_minimum_size() -> Vector2:
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
 	var axis_px := Settings.fs(15)
 	var axis_space := 22.0 * Settings.text_scale + font.get_height(axis_px) + font.get_descent(axis_px) + 8.0
-	return Vector2(0, first_y + rows.size() * step + 10.0 + 14.0 + font.get_height(Settings.fs(16)) + 12.0 + axis_space)
+	return Vector2(0, first_y + rows.size() * step + 10.0 + 14.0 + font.get_height(Settings.fs(16)) + 112.0 + axis_space)
 
 
 ## What the last _draw() actually painted; the chart tests read this instead of
@@ -156,9 +156,11 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
 	var top := scroll + 30.0
 	var axis_px := Settings.fs(15)
-	var axis_height := font.get_height(axis_px)
-	var bottom := scroll + h - 22.0 * Settings.text_scale - axis_height - font.get_descent(axis_px) - 8.0
 	var refs := [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]
+	var axis_height := font.get_height(axis_px)
+	for ref in refs:
+		axis_height = maxf(axis_height, font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px).y)
+	var bottom := scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
