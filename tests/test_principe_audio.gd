@@ -197,7 +197,7 @@ func _second_contact_gap(hold_log := false) -> void:
 			check(not game.ui.log_open() and is_equal_approx(game.audio_surf.volume_db, held_surf),
 				"closing Tab resumes recovery without an immediate jump")
 		if hold_log and step == 201:
-			check(game.score.layers["totality_glass"].elapsed > STEP_S,
+			check(is_equal_approx(game.score.layers["totality_glass"].elapsed, STEP_S),
 				"score fade progress resumes with the surf after closing the log")
 		if hold_log and step == 300:
 			check(game.audio_surf.volume_db < surf_db - 1.0,
