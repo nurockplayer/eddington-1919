@@ -796,3 +796,7 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 ### 2026-11-23 10:1x JST: #437 merged; #341 veg-cards to the gate (fe59862)
 - #437 merged 10:05 JST (oracle passed), edd-lead told.
 - #341: five suites 0 failures (wrapper rerun); under the shelter at totality 107.5 / 107.9 / 107.2 fps at x3, main 93.9 fps, headless background jobs listed in the PR comment. Marked ready, `lead-wait pr 341`. Count stays **7/9**.
+
+### 2026-11-23 10:2x JST: #341 merged; #428 perf in, rebase sent
+- #341 merged 10:18 JST (oracle passed), edd-lead told.
+- #428 at c56ad66: forced-draw at `totality_sky` 720p, worst p95 3.75 ms, 88.9 fps at x3; +0.86 ms p95 against main abd9fc8 (a headless job overlapped each repetition). Accepted. The PR conflicts with main after #437 and #341: rebase and one recapture of `totality_sky`, `totality_wide`, `darkroom` sent (`totality-print-fu5.md`). Count stays **7/9**.
