@@ -59,6 +59,11 @@ func _run() -> void:
 		print("test_layout_bounds portrait: %d checks, %d failures" % [checks, failures])
 		quit(1 if failures else 0)
 		return
+	await _test_report_chart_rows()
+	if "--report-chart-rows-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds report rows: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_plate_pause()
 	if "--plate-pause-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds plate/pause: %d checks, %d failures" % [checks, failures])
@@ -633,6 +638,112 @@ func _test_merged_dialogue() -> void:
 	Settings.text_scale = scale
 
 
+func _test_report_chart_rows() -> void:
+	var old_locale := L.current()
+	var old_scale := Settings.text_scale
+	var old_size := root.size
+	root.size = Vector2i(1280, 720)
+	for locale in ["zh_TW", "en", "ja", "ko"]:
+		L.apply(locale)
+		for scale in [1.0, 1.2]:
+			Settings.text_scale = scale
+			var ui = load("res://scripts/ui.gd").new()
+			root.add_child(ui)
+			ui.hide_title()
+			for count in [1, 4, 12]:
+				context = "report rows %s scale %.1f plates %d" % [locale, scale, count]
+				var sim := Sim.new(77)
+				var rows: Array = []
+				var textures: Array = []
+				for i in count:
+					var plate := sim.develop({"start": float(i * 24), "duration": 8.0, "clear": 8.0, "cloudy": 0.0, "sunlit": false}, i)
+					plate.included = true
+					plate.read = true
+					plate.reading = sim.reading_for_value(1.2 + i * 0.04)
+					sim.plates.append(plate)
+					rows.append({"label": str(i + 1), "value": sim.reading_value(plate), "sigma": plate.sigma, "weak": i % 2 == 1})
+					textures.append(null)
+				ui.open_viewer(sim.plates, null, textures, true)
+				ui.viewer_rule.text = L.t("你寫下的規則：%s") % Content.rules_prompt(false)[-1].choices[0]
+				ui.set_viewer_report(true)
+				var combined := sim.combined()
+				ui.chart.set_data(rows, combined, true)
+				ui.chart.set_ledger([{"pick": 3, "kind": "original", "tag": L.t("1917 年押的：說不準")},
+					{"pick": 2, "kind": "current", "tag": L.t("現在押的")}])
+				var prompts := Content.verdict_prompt("%.2f″ ± %.2f″" % [combined.value, combined.sigma])
+				prompts.append_array(Content.judgment_prompt(Judgment.telegram_choices(), Judgment.reasons_for(sim).map(func(r): return L.t(r.text))))
+				for prompt in prompts:
+					ui.play([prompt])
+					for frame in 12:
+						await process_frame
+					var clip: Control = ui.chart.get_parent() if ui.chart.get_parent() is ScrollContainer else ui.chart
+					check(clip.get_global_rect().end.y + 4 <= ui.dialog_panel.get_global_rect().position.y, "chart viewport clears dialogue")
+					bounds(ui.dialog_panel)
+					for button: Button in ui._choice_buttons:
+						button.grab_focus()
+						check(button.has_focus() and not button.disabled, "report choice remains focusable")
+					var painted: Dictionary = ui.chart.drawn()
+					var row_bounds: Array = painted.get("row_bounds", [])
+					check(row_bounds.size() == count, "every measured row has painted bounds")
+					check(painted.markers.size() == count and painted.label_px == Settings.fs(14), "all markers and full-size row labels retained")
+					check(ui.chart.rows == rows and ui.chart.combined == combined, "player measurements preserved")
+					check(ui.chart.drawn_texts().has("%.2f″ ± %.2f″" % [combined.value, combined.sigma]), "combined value preserved")
+					for row_index in count:
+						var row: Dictionary = row_bounds[row_index]
+						if clip is ScrollContainer:
+							clip.scroll_vertical = maxi(0, int(minf(row.label.position.y, row.marker.position.y) - 30.0))
+							await process_frame
+							await process_frame
+						painted = ui.chart.drawn()
+						check(painted.row_bounds[row_index].visible, "painted row reachable by scrolling: row=%s scroll=%s viewport=%s" % [painted.row_bounds[row_index], clip.scroll_vertical, clip.size])
+						var ink: Array = painted.ledger_bounds.duplicate()
+						ink.append_array(painted.axis_bounds)
+						ink.append(painted.result_bounds)
+						ink.append_array(painted.combined_bounds)
+						for drawn_row: Dictionary in painted.row_bounds:
+							if drawn_row.visible:
+								ink.append(drawn_row.label)
+								ink.append(drawn_row.marker)
+						for i in ink.size():
+							var rect: Rect2 = ink[i]
+							check(Rect2(Vector2.ZERO, ui.chart.size).encloses(rect), "painted content fits chart: %s" % rect)
+							check(clip.get_global_rect().grow(1).encloses(Rect2(ui.chart.global_position + rect.position, rect.size)), "painted content reachable by scrolling")
+							for j in range(i):
+								check(not rect.intersects(ink[j]), "painted labels/markers do not overlap: %s / %s" % [rect, ink[j]])
+					for fraction in [0.0, 0.5, 1.0]:
+						if clip is ScrollContainer:
+							var bar: VScrollBar = clip.get_v_scroll_bar()
+							clip.scroll_vertical = int((bar.max_value - bar.page) * fraction)
+						await process_frame
+						await process_frame
+						painted = ui.chart.drawn()
+						var row_clip: Rect2 = painted.row_clip
+						var header := Rect2(0, row_clip.position.y - 30.0, ui.chart.size.x, 30.0)
+						var footer := Rect2(0, row_clip.end.y, ui.chart.size.x, clip.size.y)
+						for row: Dictionary in painted.row_bounds:
+							var ink: Rect2 = row.painted
+							check(not ink.intersects(header) and not ink.intersects(footer), "painted plate row clears pinned bands: %s" % ink)
+						var fixed: Array = painted.axis_bounds.duplicate()
+						fixed.append_array(painted.combined_bounds)
+						fixed.append(painted.result_bounds)
+						check(painted.axis_bounds.size() == 3 and painted.combined_bounds.size() == 2 and painted.result_bounds.has_area(), "prediction labels and combined result painted")
+						for rect: Rect2 in fixed:
+							check(clip.get_global_rect().grow(1).encloses(Rect2(ui.chart.global_position + rect.position, rect.size)), "prediction and combined result visible: %s" % rect)
+					if clip is ScrollContainer:
+						clip.scroll_vertical = 0
+						var page := InputEventKey.new()
+						page.keycode = KEY_PAGEDOWN
+						page.pressed = true
+						ui._input(page)
+						check(clip.scroll_vertical > 0 or ui.chart.size.y <= clip.size.y, "Page Down reaches chart without changing report choice")
+				ui.close_viewer()
+				ui.dialog_panel.hide()
+			ui.free()
+	L.apply(old_locale)
+	Settings.text_scale = old_scale
+	root.size = old_size
+
+
 func _test_darkroom_chart() -> void:
 	var old_locale := L.current()
 	var old_scale := Settings.text_scale
@@ -675,7 +786,7 @@ func _test_darkroom_chart() -> void:
 				ui.play(Content.verdict_prompt(interval))
 				for frame in 12:
 					await process_frame
-				var chart_rect: Rect2 = ui.chart.get_global_rect()
+				var chart_rect: Rect2 = ui.chart_scroll.get_global_rect()
 				check(chart_rect.end.y + 4 <= ui.dialog_panel.get_global_rect().position.y, "axis labels clear report dialogue: chart %s, dialogue %s" % [chart_rect, ui.dialog_panel.get_global_rect()])
 				var painted: Dictionary = ui.chart.drawn()
 				var label: Rect2 = painted.get("result_bounds", Rect2())
@@ -785,8 +896,13 @@ func _test_plate_pause() -> void:
 							print("Caption %s tile %d %s scale %.1f %s: overflow %.2f image_overlap %s ink %s tile %s" % [language, index, viewport, text_scale, "selected" if selected else "unselected", overflow, image_overlap, ink, tile])
 							check(overflow == 0, "painted caption stays wholly inside tile %d: %s / %s" % [index, ink, tile])
 							check(not image_overlap, "painted caption avoids plate image %d" % index)
+				ui.chart.set_data([{"label": "1", "value": 1.0, "sigma": 0.1, "weak": false}], {}, false)
+				await settle()
+				var with_rows_rect: Rect2 = ui.chart.get_global_rect()
 				ui.chart.set_data([], {}, false)
 				await settle()
+				check(ui.chart.get_global_rect().is_equal_approx(with_rows_rect), "empty chart matches chart with rows")
+				check(ui.chart.size.y >= ui.chart_scroll.size.y - 2.0, "empty chart fills its viewport")
 				var drawn: Dictionary = ui.chart.drawn()
 				var chart_rect := Rect2(Vector2.ZERO, ui.chart.size).grow(1)
 				check(drawn.axis_bounds.size() == 3 and drawn.hint_bounds.size() == 1, "chart actually paints axis and placeholder")

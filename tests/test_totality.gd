@@ -964,15 +964,28 @@ func _test_report_rule_layout() -> void:
 		for frame in 4:
 			await process_frame
 		var note_before: String = game.ui.viewer_note.text
+		var chart_height_before: float = game.ui.chart_scroll.custom_minimum_size.y
 		await _click_control(game.ui.report_btn)
 		for stage in ["verdict", "feedback", "telegram", "reason"]:
 			for frame in 4:
 				await process_frame
-			var chart_rect: Rect2 = game.ui.chart.get_global_rect()
+			var chart_rect: Rect2 = game.ui.chart_scroll.get_global_rect()
 			var dialog_rect: Rect2 = game.ui.dialog_panel.get_global_rect()
 			print("report layout scale=%s stage=%s chart=%s dialogue=%s" % [scale, stage, chart_rect, dialog_rect])
 			check(root.get_visible_rect().encloses(chart_rect) and not dialog_rect.intersects(chart_rect),
-				"scale %s %s leaves the whole chart visible" % [scale, stage])
+				"scale %s %s leaves the chart viewport visible" % [scale, stage])
+			var painted: Dictionary = game.ui.chart.drawn()
+			var fixed: Array = painted.ledger_bounds.duplicate()
+			fixed.append_array(painted.axis_bounds)
+			fixed.append_array(painted.combined_bounds)
+			fixed.append(painted.result_bounds)
+			check(painted.axis_bounds.size() == 3 and painted.combined_bounds.size() == 2 and painted.result_bounds.has_area()
+				and painted.row_bounds.size() == 12, "scale %s %s paints pinned content and all rows" % [scale, stage])
+			for rect: Rect2 in fixed:
+				check(chart_rect.grow(1).encloses(Rect2(game.ui.chart.global_position + rect.position, rect.size)),
+					"scale %s %s keeps pinned content visible" % [scale, stage])
+			var bar: VScrollBar = game.ui.chart_scroll.get_v_scroll_bar()
+			check(bar.max_value - bar.page > 0, "scale %s %s makes rows scrollable" % [scale, stage])
 			check(root.get_visible_rect().encloses(dialog_rect), "scale %s %s dialogue fits viewport" % [scale, stage])
 			var rule_rect: Rect2 = game.ui.viewer_rule.get_global_rect()
 			check(root.get_visible_rect().encloses(rule_rect) and not dialog_rect.intersects(rule_rect),
@@ -994,8 +1007,7 @@ func _test_report_rule_layout() -> void:
 		check(game.ui.viewer_note.text == note_before and not note_before.contains("你寫下的規則"), "report rule leaves the measurement note unchanged")
 		game.ui.close_viewer()
 		game._open_viewer()
-		var growth := clampf((float(game.get_viewport().get_window().size.y) - 720.0) / 360.0, 0.0, 1.0)
-		check(is_equal_approx(game.ui.chart.custom_minimum_size.y, 420.0 + 160.0 * growth), "reopening the viewer restores the measurement chart height")
+		check(is_equal_approx(game.ui.chart_scroll.custom_minimum_size.y, chart_height_before), "reopening the viewer restores the measurement chart height")
 		game.stop_all_audio()
 		game.queue_free()
 		await process_frame

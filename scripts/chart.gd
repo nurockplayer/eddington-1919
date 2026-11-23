@@ -22,12 +22,64 @@ var _drawn_result_bounds := Rect2()
 var _drawn_result_backing := false
 var _drawn_axis_bounds: Array = []
 var _drawn_hint_bounds: Array = []
+var _drawn_row_bounds: Array = []
+var _drawn_combined_bounds: Array = []
+
+
+class RowCanvas extends Control:
+	var chart: Control
+
+	func _draw() -> void:
+		var font := get_theme_default_font()
+		var w := size.x
+		var first_y: float = 30.0 + font.get_ascent(chart._label_px) - 5.0 * Settings.text_scale
+		var step := maxf(34.0, font.get_height(chart._label_px) + 8.0)
+		for i in chart.rows.size():
+			var r: Dictionary = chart.rows[i]
+			var y: float = first_y + i * step
+			var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
+			if not r.get("no_bar", false):
+				var span: Vector2 = chart.two_sigma_span(r.value, r.sigma)
+				var thin := Color(col, 0.45)
+				var x2_lo: float = chart._x(span.x, w)
+				var x2_hi: float = chart._x(span.y, w)
+				draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
+				draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
+				draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
+				var x0: float = chart._x(r.value - r.sigma, w)
+				var x1: float = chart._x(r.value + r.sigma, w)
+				draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
+				draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
+				draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
+			var point := Vector2(chart._x(r.value, w), y)
+			if chart.marker_filled(r):
+				draw_circle(point, 5.0, col)
+			else:
+				draw_arc(point, 5.0, 0.0, TAU, 20, col, 2.0)
+			draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, chart._label_px, col)
+
+
+var _row_clip: Control
+var _row_canvas: RowCanvas
+var _drawn_row_clip := Rect2()
+
+
+func _ready() -> void:
+	_row_clip = Control.new()
+	_row_clip.clip_contents = true
+	_row_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_row_clip)
+	_row_canvas = RowCanvas.new()
+	_row_canvas.chart = self
+	_row_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_row_clip.add_child(_row_canvas)
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
 	rows = p_rows
 	combined = p_combined
 	revealed = p_revealed
+	update_minimum_size()
 	queue_redraw()
 
 
@@ -39,7 +91,19 @@ func set_ledger(p_ledger: Array) -> void:
 ## Redraw with the current text size (ui calls this after cycling the scale).
 func refresh_fonts() -> void:
 	_label_px = Settings.fs(14)
+	update_minimum_size()
 	queue_redraw()
+
+
+func _get_minimum_size() -> Vector2:
+	var font := get_theme_default_font()
+	var first_y := 30.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
+	if revealed and not rows.is_empty() and get_parent() is ScrollContainer:
+		return Vector2(0, get_parent().size.y + (rows.size() - 1) * step)
+	var axis_px := Settings.fs(15)
+	var axis_space := 22.0 * Settings.text_scale + font.get_height(axis_px) + font.get_descent(axis_px) + 8.0
+	return Vector2(0, first_y + rows.size() * step + 10.0 + 14.0 + font.get_height(Settings.fs(16)) + 112.0 + axis_space)
 
 
 ## What the last _draw() actually painted; the chart tests read this instead of
@@ -49,7 +113,8 @@ func drawn() -> Dictionary:
 		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate(),
 		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate(),
 		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing,
-		"axis_bounds": _drawn_axis_bounds.duplicate(), "hint_bounds": _drawn_hint_bounds.duplicate()}
+		"axis_bounds": _drawn_axis_bounds.duplicate(), "hint_bounds": _drawn_hint_bounds.duplicate(),
+		"row_bounds": _drawn_row_bounds.duplicate(true), "row_clip": _drawn_row_clip, "combined_bounds": _drawn_combined_bounds.duplicate()}
 
 
 ## Every string the last _draw() painted. draw_string output is not a node
@@ -86,13 +151,13 @@ func _paint_ledger(font: Font, refs: Array, top: float) -> void:
 			continue
 		var width := font.get_string_size(entry.tag, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
 		var x := size.x - width - 4.0 if pick == 3 else _x(refs[pick][0], size.x) + 9.0
-		var rect := Rect2(clampf(x, 4.0, size.x - width - 4.0), 0.0, width, height)
+		var rect := Rect2(clampf(x, 4.0, size.x - width - 4.0), top - 30.0, width, height)
 		if not items.is_empty():
 			var previous: Rect2 = items[-1].rect
 			if previous.grow(4.0).intersects(rect):
 				# Two full-size lines do not fit in 30 px. Stagger vertically, then
 				# separate horizontally so even the largest locale font stays clear.
-				rect.position.y = maxf(0.0, top - height)
+				rect.position.y = maxf(top - 30.0, top - height)
 				rect.position.x = minf(maxf(rect.position.x, previous.end.x + 8.0), size.x - width - 4.0)
 				previous.position.x = minf(previous.position.x, rect.position.x - previous.size.x - 8.0)
 				items[-1].rect = previous
@@ -132,76 +197,78 @@ func _draw() -> void:
 	_drawn_result_backing = false
 	_drawn_axis_bounds.clear()
 	_drawn_hint_bounds.clear()
+	_drawn_row_bounds.clear()
+	_drawn_combined_bounds.clear()
 	var w := size.x
-	var h := size.y
+	var viewport := get_parent() as ScrollContainer
+	var scroll := float(viewport.scroll_vertical) if viewport else 0.0
+	var h := viewport.size.y if viewport and revealed and not rows.is_empty() else size.y
 	var font := get_theme_default_font()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
-	var top := 30.0
+	var top := scroll + 28.0
 	var axis_px := Settings.fs(15)
-	var axis_height := font.get_height(axis_px)
-	var bottom := h - 22.0 * Settings.text_scale - axis_height - font.get_descent(axis_px) - 8.0
 	var refs := [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]
-	for i in refs.size():
-		var ref: Array = refs[i]
+	var axis_height := font.get_height(axis_px)
+	for ref in refs:
+		axis_height = maxf(axis_height, font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px).y)
+	var compact := h < 240.0
+	var bottom := scroll + h - axis_height if compact else scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
+	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
-		_drawn_texts.append(ref[1])
-		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
-		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
-			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
-		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
-		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
-	for t in range(0, int(X_MAX) + 1):
-		var x := _x(t, w)
-		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
+	_row_canvas.visible = false
+	if not revealed or rows.is_empty():
+		_paint_axis(font, refs, w, bottom, axis_px, axis_height, compact)
 	if not revealed:
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)
 		_paint_hint(font, unmeasured, Color(0.7, 0.66, 0.58))
 		return
-	_paint_ledger(font, refs, top)
 	if rows.is_empty():
+		_paint_ledger(font, refs, top + 2.0)
 		var empty_hint := L.t("沒有可量測的底片。")
 		_drawn_texts.append(empty_hint)
 		_paint_hint(font, empty_hint, Color(0.9, 0.55, 0.5))
 		return
-	var n := rows.size() + 1
-	var step := minf(34.0, (bottom - top - 20.0) / n)
+	var first_y := 30.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
+	var combined_height := maxf(font.get_height(Settings.fs(15)), font.get_height(Settings.fs(16)))
+	var fixed_y := bottom - combined_height * 0.5 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
+	var fixed_start := fixed_y - combined_height * 0.5 if compact else fixed_y - 24.0
+	_drawn_row_clip = Rect2(0, top + 2.0, w, maxf(0.0, fixed_start - top - 2.0))
+	_row_clip.position = _drawn_row_clip.position
+	_row_clip.size = _drawn_row_clip.size
+	_row_canvas.position = -_drawn_row_clip.position
+	_row_canvas.size = size
+	_row_canvas.visible = true
+	_row_canvas.queue_redraw()
 	for i in rows.size():
 		var r: Dictionary = rows[i]
-		var y := top + 16.0 + i * step
+		var y := first_y + i * step
 		var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
-		# A row with no trustworthy error is a marker only; no bar is invented for it.
-		if r.get("no_bar", false):
-			_drawn_bars.append("none")
-		else:
-			_drawn_bars.append("bar")
-			var span := two_sigma_span(r.value, r.sigma)
-			var thin := Color(col, 0.45)
-			var x2_lo := _x(span.x, w)
-			var x2_hi := _x(span.y, w)
-			draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
-			draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
-			draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
-			var x0 := _x(r.value - r.sigma, w)
-			var x1 := _x(r.value + r.sigma, w)
-			draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
-			draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
-			draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
-		var p := Vector2(_x(r.value, w), y)
-		if marker_filled(r):
-			draw_circle(p, 5.0, col)
-			_drawn_filled += 1
-			_drawn_markers.append("filled")
-		else:
-			draw_arc(p, 5.0, 0.0, TAU, 20, col, 2.0)
-			_drawn_hollow += 1
-			_drawn_markers.append("hollow")
+		var label_bounds := Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(_label_px)),
+			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px))
+		var marker_bounds := Rect2(Vector2(_x(r.value, w), y) - Vector2(6, 6), Vector2(12, 12))
+		var visible_row := minf(label_bounds.position.y, marker_bounds.position.y) >= top + 2.0 and maxf(label_bounds.end.y, marker_bounds.end.y) <= fixed_start
+		var ink := label_bounds.merge(marker_bounds).merge(Rect2(0, y - 6, w, 12))
+		_drawn_row_bounds.append({"label": label_bounds, "marker": marker_bounds, "visible": visible_row, "painted": ink.intersection(_drawn_row_clip)})
 		_drawn_label_px = _label_px
 		_drawn_texts.append(r.label)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
+		_drawn_markers.append("filled" if marker_filled(r) else "hollow")
+		_drawn_bars.append("none" if r.get("no_bar", false) else "bar")
+		if marker_filled(r):
+			_drawn_filled += 1
+		else:
+			_drawn_hollow += 1
+	# Cover scrolled rows in the fixed result and axis bands.
+	draw_rect(Rect2(0, fixed_start, w, scroll + h - fixed_start), Color(0.09, 0.08, 0.07, 1.0))
+	for ref in refs:
+		var x := _x(ref[0], w)
+		draw_dashed_line(Vector2(x, fixed_y - 12.0), Vector2(x, bottom), ref[2], 2.0, 6.0)
+	_paint_axis(font, refs, w, bottom, axis_px, axis_height, compact)
+	_paint_ledger(font, refs, top + 2.0)
 	if combined.get("n", 0) > 0:
-		var y := top + 16.0 + rows.size() * step + 10.0
+		var y := fixed_y
 		var c := Color(1.0, 0.92, 0.6)
 		var span := two_sigma_span(combined.value, combined.sigma)
 		var thin := Color(c, 0.55)
@@ -217,18 +284,40 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
 		var combined_label := L.t("合併")
 		_drawn_texts.append(combined_label)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
+		_drawn_combined_bounds.append(Rect2(Vector2(4, fixed_start if compact else y + 5.0 * Settings.text_scale - font.get_ascent(Settings.fs(15))),
+			font.get_string_size(combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15))))
+		_drawn_combined_bounds.append(Rect2(cx - 8, y - 8, 16, 16))
+		draw_string(font, Vector2(4, fixed_start + font.get_ascent(Settings.fs(15)) if compact else y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
 		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
 		_drawn_texts.append(combined_value)
 		var px := Settings.fs(16)
 		var width := font.get_string_size(combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
-		var baseline := Vector2(minf(cx + 14, w - width - 8), y - 10.0 * Settings.text_scale)
+		var baseline := Vector2(minf(cx + 14, w - width - 8), fixed_start + font.get_ascent(px) if compact else y + 14.0 + font.get_ascent(px))
 		_drawn_result_bounds = Rect2(baseline - Vector2(0, font.get_ascent(px)),
 			Vector2(width, font.get_height(px)))
 		# The reference lines stay in place, but cannot strike through the reading.
 		draw_rect(_drawn_result_bounds.grow(2), Color(0.09, 0.08, 0.07))
 		_drawn_result_backing = true
 		draw_string(font, baseline, combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px, c)
+
+
+func _paint_axis(font: Font, refs: Array, w: float, bottom: float, axis_px: int, axis_height: float, compact: bool) -> void:
+	var compact_x := 4.0
+	for i in refs.size():
+		var ref: Array = refs[i]
+		var x := _x(ref[0], w)
+		_drawn_texts.append(ref[1])
+		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
+		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
+			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
+		if compact:
+			origin = Vector2(compact_x, bottom + font.get_ascent(axis_px))
+			compact_x += text_size.x + 8.0
+		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
+		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
+	for t in range(0, int(X_MAX) + 1):
+		var x := _x(t, w)
+		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
 
 
 func _paint_hint(font: Font, text: String, color: Color) -> void:
