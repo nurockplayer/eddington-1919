@@ -16,6 +16,7 @@ func _run() -> void:
 	var scene: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
+	scene.set_process(false)
 	var groups := get_nodes_in_group("far_ridges")
 	check(groups.size() == 1, "one ridge group")
 	var meshes: Array[Node] = []
@@ -74,5 +75,15 @@ func _run() -> void:
 	check(short_slender, "vertices above 112 m stay within the tower bearings")
 	check(tall_peak, "tall tower exceeds 155 m")
 	check(short_peak, "short tower exceeds 122 m near 168")
+	scene.phase = scene.Phase.PREP
+	await scene._begin_totality()
+	check(is_equal_approx(groups[0].scale.y, 0.006), "totality entry applies the authored low ridge profile")
+	await scene._end_totality()
+	check(is_equal_approx(groups[0].scale.y, 1.0), "third contact restores daylight ridge geometry")
+	# Night must also restore full height when entered from a flattened profile.
+	scene._apply_light(1.0, 1.0, 0.0, 0.0)
+	await scene._begin_night()
+	check(is_equal_approx(groups[0].scale.y, 1.0), "night restores full ridge geometry")
+	scene.stop_all_audio()
 	print("test_ridges: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

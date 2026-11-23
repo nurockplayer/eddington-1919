@@ -74,6 +74,7 @@ func _run() -> void:
 	game.queue_free()
 	await process_frame
 	await _second_contact_gap()
+	await _second_contact_gap(true)
 	print("%d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
@@ -105,7 +106,7 @@ func _step_totality(game: Node, driven: Array[Tween]) -> void:
 
 ## F6 on the real timeline: from second contact until the first score cue the beds sit
 ## at least 12 dB under the pre-contact mix, then the surf swells back without a step.
-func _second_contact_gap() -> void:
+func _second_contact_gap(hold_log := false) -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
@@ -174,7 +175,33 @@ func _second_contact_gap() -> void:
 	var max_step := 0.0
 	var near_s := -1.0
 	for step in range(500):
+		if hold_log and step == 200:
+			# Start a real exposure fade so score progress is observable at the hold.
+			game._toggle_shutter()
 		_step_totality(game, driven)
+		if hold_log and step == 200:
+			var held_surf: float = game.audio_surf.volume_db
+			var held_time: float = game.t_game
+			var held_score: Dictionary = game.score.layers.duplicate(true)
+			var tab := InputEventKey.new()
+			tab.physical_keycode = KEY_TAB
+			tab.pressed = true
+			root.push_input(tab)
+			check(game.ui.log_open(), "Tab opens the log midway through surf recovery")
+			for held_step in range(500):
+				_step_totality(game, driven)
+			check(is_equal_approx(game.audio_surf.volume_db, held_surf), "the log holds the surf level for ten real seconds")
+			check(game.t_game == held_time and game.score.layers == held_score,
+				"the log holds totality time and score fade progress alongside the surf")
+			root.push_input(tab)
+			check(not game.ui.log_open() and is_equal_approx(game.audio_surf.volume_db, held_surf),
+				"closing Tab resumes recovery without an immediate jump")
+		if hold_log and step == 201:
+			check(game.score.layers["totality_glass"].elapsed > STEP_S,
+				"score fade progress resumes with the surf after closing the log")
+		if hold_log and step == 300:
+			check(game.audio_surf.volume_db < surf_db - 1.0,
+				"two seconds after closing the log the surf still has recovery remaining")
 		var surf: float = game.audio_surf.volume_db
 		surf_rising = surf_rising and surf >= surf_prev
 		max_step = maxf(max_step, surf - surf_prev)
