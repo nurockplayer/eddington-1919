@@ -55,6 +55,8 @@ const AUDITION_BOOKMARKS := [
 	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-1.1, 1.35, -0.9), "prep_early"],
 	# Position and target are set in _run() from the Sun's azimuth.
 	["totality_wide", Vector3.ZERO, Vector3.ZERO, "totality"],
+	["play_p12", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
+	["play_p25", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
 ]
 const WIDE_FOV := 85.0
 const WIDE_BACK := 13.0
@@ -357,6 +359,22 @@ func _run() -> void:
 			main.ui.cambridge_portraits = true
 			main.ui.play([{"s": "Eddington", "t": AUDITION_LINE}])
 			await _frames(4)
+		if b[0] in ["play_p12", "play_p25"]:
+			# Freeze the real second-contact sequence at 1.2 / 2.5 gameplay seconds.
+			main.ui.visible = true
+			main._start_game()
+			await main._begin_totality()
+			main.player.rotation.y = main.player.yaw
+			main.player.camera.rotation.x = main.player.pitch
+			main.player.can_move = false
+			main.player.can_look = false
+			main.player.set_physics_process(false)
+			main.set_process(false)
+			for frame in (72 if b[0] == "play_p12" else 150):
+				main._process(1.0 / 60.0)
+				await _frames(1)
+			if not is_nan(cloud_t_arg(OS.get_cmdline_user_args())):
+				main._apply_light(main.sky_mat.get_shader_parameter("contact"), main.sky_mat.get_shader_parameter("darkness"), totality_cloud_t, 0.0)
 		var r := await _sample_bookmark(b[0], b[3])
 		if b[0] == "coelostat_still":
 			main.world.cottingham.visible = true
@@ -368,6 +386,8 @@ func _run() -> void:
 			Input.mouse_mode = mouse_mode
 			main.ui.visible = false
 		r["seed"] = main.sim.run_seed
+		r["cloud_time"] = main.sky_mat.get_shader_parameter("cloud_time")
+		r["cloud_over_sun"] = main.sim.cloud_over_sun(r.cloud_time)
 		results.append(r)
 		print("[BENCH] ", JSON.stringify(r))
 	_write_summary(results, run_seed, hidden)
