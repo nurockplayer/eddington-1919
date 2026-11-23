@@ -51,6 +51,8 @@ const BOOKMARKS := [
 ]
 
 const AUDITION_BOOKMARKS := [
+	["under_roof_gameplay", Vector3(-1.5, 0.05, -3.7), Vector3(0, 2.95, -4.5), "prep_early"],
+	["doorway_night", Vector3(6.7, 0.05, 3.0), Vector3(10.0, 1.2, 3.0), "night"],
 	["coelostat_still", Vector3(1.5, 0.05, -4.9), Vector3(0.1, 1.15, -6.6), "prep_early"],
 	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-1.1, 1.35, -0.9), "prep_early"],
 	# Position and target are set in _run() from the Sun's azimuth.
@@ -198,6 +200,10 @@ func _ready() -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
 	apply_quality_arg(OS.get_cmdline_user_args())
+	if OS.get_cmdline_user_args().has("--bench-msaa-2x"):
+		get_viewport().msaa_3d = Viewport.MSAA_2X
+	if OS.get_cmdline_user_args().has("--bench-msaa-1x"):
+		get_viewport().msaa_3d = Viewport.MSAA_DISABLED
 	apply_capture_args(OS.get_cmdline_user_args())
 	# --bench-stress=N renders the 3D scene at N× resolution scale (N² pixels) so the
 	# GPU, not the display refresh, limits the frame: frame time then reflects scene cost.
@@ -350,6 +356,9 @@ func _run() -> void:
 		await _frames(2)
 		main.player.look_at_point(target)
 		var mouse_mode := Input.mouse_mode
+		if b[0] == "under_roof_gameplay":
+			main._start_game()
+			main.ui.visible = true
 		if b[0] == "coelostat_still":
 			main.world.cottingham.visible = false
 		if b[0] == "dialogue":
@@ -376,6 +385,8 @@ func _run() -> void:
 			if not is_nan(cloud_t_arg(OS.get_cmdline_user_args())):
 				main._apply_light(main.sky_mat.get_shader_parameter("contact"), main.sky_mat.get_shader_parameter("darkness"), totality_cloud_t, 0.0)
 		var r := await _sample_bookmark(b[0], b[3])
+		if b[0] == "under_roof_gameplay":
+			main.ui.visible = false
 		if b[0] == "coelostat_still":
 			main.world.cottingham.visible = true
 		main.player.camera.fov = fov
@@ -442,7 +453,9 @@ func _sample_bookmark(bookmark: String, lighting: String) -> Dictionary:
 		RenderingServer.force_draw(false)
 		forced.append((Time.get_ticks_usec() - f0) / 1000.0)
 	var png := "%s.png" % bookmark
-	var captured := await _shot(out_dir.path_join(png))
+	var captured := false
+	if not OS.get_cmdline_user_args().has("--bench-no-screenshot"):
+		captured = await _shot(out_dir.path_join(png))
 	var r := {
 		"bookmark": bookmark, "lighting": lighting, "screenshot": png if captured else "",
 		"image": image_stats(last_image) if last_image != null else {},
