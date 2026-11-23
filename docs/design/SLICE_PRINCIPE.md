@@ -951,3 +951,6 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Since 942a9d6: one condition in `_ui_free()` (`scripts/main.gd`) blocks world input during the hold, plus tests. The plate-table route I judged is drawn by the same code; carried on that ground.
 - **Not seen:** the direct-conversation route, where the verdict is given in the world without the plate table. There the player and camera now stand still for 1.5 s with the E prompt hidden. Whether that reads as a held beat or as a hang has not been judged by anyone; asked edd-lead for one clip of that route after the merge. It does not hold the merge: the fix closes a real defect (a second answer overwrote the verdict).
 - **Verdicts:** technical regression none seen; this PR's change accepted (carried); whole scene not accepted. Count stays **7/9**.
+
+### 2026-11-24 07:37 JST: #356 merged (4e8a319)
+- Merged head fe5f2dd = f5cd598 rebased plus a test fixture (edd-lead); no frame of fe5f2dd was looked at. Still owed from the acceptance entries: the open/close clip of the trim sheet, the Korean mid-word break, the star wrapping across the field. Count stays **7/9**.
