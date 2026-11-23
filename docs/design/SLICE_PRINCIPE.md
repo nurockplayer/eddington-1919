@@ -779,7 +779,7 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 - Asked for: no other paper's text cut by the pause slip (how is edd-lead's call: hide the objective slip while paused, or keep the two apart); slip ends under its last row; column order with Resume and the three volumes plus mute together on the left, Start over / Return to title / Quit game together at the foot of the right; no one-syllable last line in ko. Same ten frames again.
 - **Verdicts:** technical regression: the objective-slip overlap; this PR's change: not accepted yet; whole scene: not accepted (as 09:3x JST). Count stays **7/9**.
 
-### 2026-11-23 10:0x JST: #341 veg-cards, recapture after the rebase accepted (fe59862)
+### 2026-11-23 09:5x JST: #341 veg-cards, recapture after the rebase accepted (fe59862)
 - CI recapture at 720p (KIOXIA `director/veg-cards/fe598620…/`): `arrival` and `totality_wide` looked at whole, native; `house` and `totality_horizon` on the worker's sheets beside b5a8c38. Palms, bananas, shrubs and the tree line are as accepted at b5a8c38; main's far ridges and faces show, as expected. No new frames committed: the accepted set stays `accept/341/b5a8c38/`.
 - Perf: the worker's own rule (no other managed job active) cannot be met while two headless test runs hold the host; one discarded repetition gave 3.08 ms p95, 108 fps at x3. Decided: repetitions count with headless background jobs active when not paused and no windowed or GPU job overlaps; main measured in the same session (`veg-cards-fu6.md`).
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted (unchanged). Owed before the gate: three repetitions plus main, the test line. Count stays **7/9**.
