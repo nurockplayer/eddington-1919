@@ -189,6 +189,7 @@ var _viewer_locked := false
 var _viewer_reporting := false
 var pause_enabled := false
 var _pause_focus: Control
+var _pause_objectives_visible := false
 var _credits_focus: Control
 var _log_focus: Control
 
@@ -1957,8 +1958,10 @@ func _build_pause(root: Control) -> void:
 	slip.anchor_right = 0.5
 	slip.offset_left = -360
 	slip.offset_right = 360
-	slip.offset_top = 56
-	slip.offset_bottom = -56
+	slip.anchor_top = 0.5
+	slip.anchor_bottom = 0.5
+	slip.offset_top = 0
+	slip.offset_bottom = 0
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
@@ -2102,6 +2105,19 @@ func _build_pause(root: Control) -> void:
 			return
 		quit_pressed.emit())
 	rows.add_child(quit_button)
+	# Fill the two visual columns in reading order, keeping each group together.
+	var volume_cards := [first_slider.get_parent().get_parent(), music_row.get_parent(), last_slider.get_parent().get_parent()]
+	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, language_button]
+	var right := [invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	for i in left.size():
+		rows.move_child(left[i], i * 2)
+		if i < right.size():
+			rows.move_child(right[i], i * 2 + 1)
+	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, language_button, invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	for i in focus_order.size():
+		var button: Control = focus_order[i]
+		button.focus_next = button.get_path_to(focus_order[(i + 1) % focus_order.size()])
+		button.focus_previous = button.get_path_to(focus_order[(i - 1 + focus_order.size()) % focus_order.size()])
 	for button in [r, music_button, fullscreen_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 	# Keep the engraved rows in two columns so both text sizes fit at 720p.
@@ -2111,6 +2127,15 @@ func _build_pause(root: Control) -> void:
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size.y = Settings.fs(46)
+	# Scroll only when necessary; otherwise the paper ends at its last row.
+	var fit_slip := func():
+		var height := minf(v.get_combined_minimum_size().y, root.size.y - 112)
+		scroll.custom_minimum_size.y = height
+		slip.offset_top = -height / 2.0
+		slip.offset_bottom = height / 2.0
+	v.minimum_size_changed.connect(fit_slip)
+	root.resized.connect(fit_slip)
+	fit_slip.call_deferred()
 
 
 func _toggle_fullscreen() -> void:
@@ -2171,6 +2196,8 @@ func toggle_pause() -> void:
 	var p := not get_tree().paused
 	if p:
 		_pause_focus = get_viewport().gui_get_focus_owner()
+		_pause_objectives_visible = objectives.get_parent().visible
+		objectives.get_parent().hide()
 	get_tree().paused = p
 	pause_panel.visible = p
 	if p:
@@ -2181,6 +2208,7 @@ func toggle_pause() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	else:
+		objectives.get_parent().visible = _pause_objectives_visible
 		_restart_armed = false
 		_quit_armed = false
 		_title_armed = false

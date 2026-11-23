@@ -5,6 +5,8 @@ const Content := preload("res://scripts/content.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 var out := ""
 var records: Array = []
+var pause_only := false
+var build := ""
 
 func _initialize() -> void:
 	_run.call_deferred()
@@ -33,16 +35,24 @@ func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.trim_prefix("--out=")
+		elif arg == "--pause-only":
+			pause_only = true
+		elif arg.begins_with("--build="):
+			build = arg.trim_prefix("--build=")
 	assert(not out.is_empty())
 	root.size = Vector2i(1280, 720)
 	DisplayServer.window_set_position(Vector2i(30, 50))
 	for locale in ["en", "ja", "zh_TW", "ko"]:
 		for scale in [1.0, 1.2]:
+			if pause_only and locale != "ja" and scale == 1.0:
+				continue
 			L.apply(locale)
 			Settings.language = locale
 			Settings.text_scale = scale
 			Settings.fullscreen = false
 			assert(Settings.save_settings() == OK)
+			if pause_only:
+				seed(7)
 			load("res://scripts/main.gd").next_seed = 7
 			var game: Node = load("res://scenes/main.tscn").instantiate()
 			root.add_child(game)
@@ -51,6 +61,24 @@ func _run() -> void:
 			var ui = game.ui
 			ui.set_process(false)
 			await settle(20)
+			if pause_only:
+				game._start_game()
+				game.player.can_move = false
+				game.player.can_look = false
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+				ui.show_toast("", 0.0)
+				ui.toast.modulate.a = 0.0
+				ui.toggle_pause()
+				ui.music_slider.grab_focus()
+				await shot("%s-%s-%s" % [build, locale, "max" if scale > 1.0 else "default"], ui.pause_panel, ui.music_row.get_child(0))
+				assert(ui.music_slider.has_focus())
+				ui.toggle_pause()
+				game.stop_all_audio()
+				game.free()
+				root.get_node("Story").reset()
+				load("res://scripts/ui.gd").history.clear()
+				await settle()
+				continue
 			var prefix := "%s_%s_" % [locale, "max" if scale > 1.0 else "default"]
 			ui.prologue_btn.grab_focus()
 			await shot(prefix + "title", ui.title_panel, ui.title_panel.find_children("*", "RichTextLabel", true, false)[0])
@@ -97,7 +125,7 @@ func _run() -> void:
 			root.get_node("Story").reset()
 			load("res://scripts/ui.gd").history.clear()
 			await settle()
-	var file := FileAccess.open(out.path_join("frames.json"), FileAccess.WRITE)
+	var file := FileAccess.open(out.path_join(build + "-frames.json" if pause_only else "frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(records, "\t"))
 	file.close()
 	print("menus-page captures: %d frames" % records.size())

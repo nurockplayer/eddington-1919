@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from PIL import Image, ImageChops
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -92,6 +93,38 @@ def main():
             run(['godot', '--path', '.', '--windowed', '--resolution', '1280x720',
                  '--fixed-fps', '60', '--always-on-top', '--script', script, '--', str(folder)],
                 REPO, out / 'fix-capture.log', env)
+            previous = REPO / 'docs/design/slice_principe/accept/404/49011c6'
+            for image in folder.glob('*.png'):
+                with Image.open(image) as new, Image.open(previous / image.name) as old:
+                    if ImageChops.difference(new.convert('RGB'), old.convert('RGB')).getbbox():
+                        raise RuntimeError(f'Oxford capture changed: {image.name}')
+            report['oxford_unchanged'] = 10
+            accept = Path('/Volumes/KIOXIA/eddington-1919-cache/director/accept/404') / head[:7]
+            accept.mkdir(parents=True, exist_ok=True)
+            main_build = Path(temp) / 'main'
+            git('worktree', 'add', '--detach', str(main_build), '92f291b')
+            try:
+                pause_script = 'res://tools/menus_page/capture.gd'
+                shutil.copyfile(REPO / 'tools/menus_page/capture.gd', main_build / 'tools/menus_page/capture.gd')
+                run(['godot', '--headless', '--path', '.', '--import'], main_build, out / 'main-import.log', env)
+                for build, cwd in [(head[:7], REPO), ('92f291b', main_build)]:
+                    capture_env = dict(os.environ, EDD_SETTINGS_PATH=str(accept / f'{build}-settings.cfg'))
+                    run(['godot', '--path', '.', '--windowed', '--resolution', '1280x720',
+                         '--fixed-fps', '60', '--always-on-top', '--script', pause_script, '--',
+                         f'--out={accept}', '--pause-only', f'--build={build}'],
+                        cwd, out / f'{build}-pause.log', capture_env)
+                names = [f'{build}-{locale}-{size}.png' for build in [head[:7], '92f291b']
+                         for locale, size in [('en', 'max'), ('ja', 'max'), ('zh_TW', 'max'),
+                                              ('ko', 'max'), ('ja', 'default')]]
+                for name in names:
+                    with Image.open(accept / name) as image:
+                        assert image.size == (1280, 720), name
+                report['pause_frames'] = names
+                report['accept'] = str(accept)
+                (accept / 'capture-list.txt').write_text('\n'.join(names) + '\n')
+                print(f'pause404: 10 whole frames saved to {accept}', flush=True)
+            finally:
+                git('worktree', 'remove', '--force', str(main_build))
         finally:
             git('worktree', 'remove', '--force', str(scratch))
     (out / 'report.json').write_text(json.dumps(report, indent=2) + '\n')

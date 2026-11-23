@@ -232,7 +232,7 @@ func _run() -> void:
 				scroll.ensure_control_visible(button)
 				await settle()
 				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "armed pause button reachable: " + button.text)
-				check(scroll.size.x <= 301.0, "armed pause column stays 300 px: " + button.text)
+				check(button.size.x <= scroll.size.x / 2.0 + 1.0, "armed pause text stays in its column: " + button.text)
 				var content_width: float = button.size.x - button.get_theme_stylebox("normal").get_minimum_size().x
 				var font := button.get_theme_font("font")
 				var font_size := button.get_theme_font_size("font_size")
@@ -747,19 +747,79 @@ func _test_plate_pause() -> void:
 					for j in range(i):
 						check(not rect.intersects(drawn.axis_bounds[j]), "axis labels stay separate")
 				ui.viewer.hide()
+				ui.hud.show()
+				ui.set_objectives("Pause objective text")
 				ui.toggle_pause()
 				await settle()
+				check(not ui.objectives.get_parent().is_visible_in_tree(), "modal pause hides objective slip")
 				var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
 				check(not scroll.get_v_scroll_bar().visible, "pause needs no scrolling")
 				for child: Control in scroll.get_child(0).get_children():
 					if child.visible:
 						check(scroll.get_global_rect().grow(1).encloses(child.get_global_rect()), "pause row fits: " + child.name)
+				_check_pause_columns(ui, scroll, language)
+				ui.hold_button.pressed.emit()
+				await settle()
+				_check_pause_text(scroll, language)
+				ui.hold_button.pressed.emit()
 				ui.toggle_pause()
+				check(ui.objectives.get_parent().is_visible_in_tree(), "resume restores objective slip")
+				ui.set_objectives("")
+				ui.toggle_pause()
+				ui.toggle_pause()
+				check(not ui.objectives.get_parent().visible, "resume preserves an already hidden objective slip")
+				ui.hud.hide()
 		game.stop_all_audio()
 		game.free()
 	root.size = window
 	L.apply(locale)
 	Settings.text_scale = scale
+
+
+func _check_pause_columns(ui, scroll: ScrollContainer, language: String) -> void:
+	var left: Array = [ui._resume_button]
+	for slider in scroll.find_children("*", "HSlider", true, false):
+		left.append(slider.get_parent().get_parent())
+	left.append(ui.music_button)
+	for i in range(1, left.size()):
+		check(absf(left[i].global_position.x - left[0].global_position.x) <= 1.0,
+			"resume, volumes and mute share the left column")
+		check(left[i].global_position.y >= left[i - 1].get_global_rect().end.y - 1.0,
+			"left column orders resume, three volumes, mute")
+	var right: Array = [ui.restart_button, ui._pause_title_btn, ui.quit_button]
+	for i in right.size():
+		check(right[i].global_position.x >= left[0].get_global_rect().end.x,
+			"start over, title and quit occupy the right column")
+		check(absf(right[i].global_position.x - right[0].global_position.x) <= 1.0,
+			"start over, title and quit share a column")
+		if i > 0:
+			check(absf(right[i].global_position.y - right[i - 1].get_global_rect().end.y) <= 1.0,
+				"right column ends with adjacent start over, title, quit")
+	var last_row_bottom := 0.0
+	for button in scroll.find_children("*", "Button", true, false):
+		if button.is_visible_in_tree():
+			check(scroll.get_global_rect().grow(1).encloses(button.get_global_rect()), "pause button fits: " + button.text)
+			last_row_bottom = maxf(last_row_bottom, button.get_global_rect().end.y)
+	check(absf(ui.quit_button.get_global_rect().end.y - last_row_bottom) <= 1.0, "quit sits at the foot of the menu")
+	var gap: float = scroll.get_parent().get_global_rect().end.y - last_row_bottom
+	check(gap >= -1.0 and gap <= 1.0, "pause paper ends under last row: gap %.1f" % gap)
+	_check_pause_text(scroll, language)
+
+
+func _check_pause_text(scroll: ScrollContainer, language: String) -> void:
+	for button in scroll.find_children("*", "Button", true, false):
+		if not button.is_visible_in_tree():
+			continue
+		var margin := Vector2.ZERO
+		for state in ["normal", "hover", "pressed", "disabled", "hover_pressed", "focus"]:
+			margin = margin.max(button.get_theme_stylebox(state).get_minimum_size())
+		var paragraph := NativeCaption.paragraph_for(button, button.size.x - margin.x)
+		check(paragraph.get_size().y <= button.size.y - margin.y + 1.0, "pause text fits its row: " + button.text)
+		if language == "ko":
+			var span := paragraph.get_line_range(paragraph.get_line_count() - 1)
+			var last: String = button.text.substr(span.x, span.y - span.x).strip_edges()
+			check(not (last.length() == 1 and last.unicode_at(0) >= 0xac00 and last.unicode_at(0) <= 0xd7a3),
+				"Korean pause last line is not one syllable: " + button.text + " / " + last)
 
 
 ## Native text is reconstructed without theme mutations; the original raster
