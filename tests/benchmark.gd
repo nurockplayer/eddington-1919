@@ -202,6 +202,8 @@ func _ready() -> void:
 	apply_quality_arg(OS.get_cmdline_user_args())
 	if OS.get_cmdline_user_args().has("--bench-msaa-2x"):
 		get_viewport().msaa_3d = Viewport.MSAA_2X
+	if OS.get_cmdline_user_args().has("--bench-msaa-1x"):
+		get_viewport().msaa_3d = Viewport.MSAA_DISABLED
 	apply_capture_args(OS.get_cmdline_user_args())
 	# --bench-stress=N renders the 3D scene at N× resolution scale (N² pixels) so the
 	# GPU, not the display refresh, limits the frame: frame time then reflects scene cost.
