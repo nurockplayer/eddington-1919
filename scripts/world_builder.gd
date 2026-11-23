@@ -290,7 +290,7 @@ func build() -> Dictionary:
 const ENGRAVING_SURFACE := preload("res://shaders/engraving_surface.gdshader")
 const PILOT_MATERIALS := "engraving_pilot_materials"
 const EARTH := Color("e2d1b3")
-const LAND := Color("dfe0cd")
+const LAND := Color("efe6d2")
 enum Swatch { PAPER, TIMBER, CANVAS, DENSE }
 var engraving_pilot := false
 var _pilot_materials := {}
@@ -531,7 +531,9 @@ func _shelter_and_instrument() -> Dictionary:
 	out.drive_pos = Vector3(0.62, 0.92, -6.6)
 	# Horizontal tube (lens near the coelostat, plate end toward the shelter front).
 	var carrier: Node3D
-	if model("horizontal_tube", Vector3(0, 0, -3.75)):
+	var telescope := model("horizontal_tube", Vector3(0, 0, -3.75))
+	if telescope:
+		_pilot_model(telescope, {"iron": Swatch.DENSE, "brass": Swatch.DENSE, "ebonite": Swatch.DENSE, "teak_dark": Swatch.DENSE})
 		# Production model (art/assets.toml: horizontal_tube); the same box colliders.
 		collider(Vector3(0.46, 0.46, 3.5), Vector3(0, 1.35, -3.75))
 		for z in [-5.0, -2.5]:

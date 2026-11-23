@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode ambient_light_disabled, specular_disabled, fog_disabled;
 
-// Paper, timber, canvas and dense ink. Coordinates are in mesh-local metres.
+// Object-anchored ruling; ground and path share world coordinates.
 uniform int swatch = 0;
 uniform vec3 stock : source_color = vec3(0.937255, 0.901961, 0.823529);
 uniform vec3 paper : source_color = vec3(0.937255, 0.901961, 0.823529);
@@ -14,16 +14,29 @@ varying vec3 to_middle;
 varying vec3 to_light;
 
 void vertex() {
-	origin = VERTEX;
+	origin = earth ? (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz : VERTEX;
 	axis = NORMAL;
 }
 
-float stroke(float phase, float duty, float viewport_height) {
+float line_mark(float phase, float along, float duty) {
+	float line_id = floor(phase + 0.5);
+	float seed = fract(sin(line_id * 127.1) * 43758.5453);
+	phase += 0.025 * sin(along * 0.17 + seed * 6.283185);
 	float pixel = max(length(vec2(dFdx(phase), dFdy(phase))), 0.0001);
-	// At a four-pixel pitch (1080p equivalent) all contrast has become tone.
-	float resolved = 1.0 - smoothstep(1.0 / 6.0, 1.0 / 4.0, pixel * viewport_height / 1080.0);
 	float from_centre = abs(fract(phase + 0.5) - 0.5);
-	float line = 1.0 - smoothstep(duty * 0.5 - pixel * 0.5, duty * 0.5 + pixel * 0.5, from_centre);
+	return 1.0 - smoothstep(duty * 0.5 - pixel * 0.5, duty * 0.5 + pixel * 0.5, from_centre);
+}
+
+float stroke(float phase, float along, float duty, float viewport_height) {
+	float pixel = max(length(vec2(dFdx(phase), dFdy(phase))), 0.0001);
+	float pitch_px = 1080.0 / (pixel * viewport_height);
+	// Blend anchored powers of two: visible near-camera pitches stay 6–16 px.
+	float level = max(0.0, floor(log2(max(pitch_px / 8.0, 1.0))));
+	float frequency = exp2(level);
+	float blend = smoothstep(12.0, 16.0, pitch_px / frequency);
+	float line = mix(line_mark(phase * frequency, along * frequency, duty),
+		line_mark(phase * frequency * 2.0, along * frequency * 2.0, duty), blend);
+	float resolved = smoothstep(4.0, 6.0, pitch_px);
 	return mix(duty, line, resolved);
 }
 
@@ -59,14 +72,14 @@ void fragment() {
 		}
 		float across = across_along.x / pitch;
 		float along = across_along.y / pitch;
-		float first = stroke(across + 0.08 * sin(along * 0.8), 0.18, VIEWPORT_SIZE.y);
+		float first = stroke(across, along, 0.12, VIEWPORT_SIZE.y);
 		float extra = 0.0;
-		if (swatch != 0) {
-			extra = stroke(along * 0.73 + across * 0.44, 0.22, VIEWPORT_SIZE.y);
+		if (swatch == 1) {
+			extra = stroke(across * 0.94 + along * 0.342, along, 0.10, VIEWPORT_SIZE.y);
 		}
-		middle = mix(stock, ink, 0.12 + 0.47 * first);
-		shadow = mix(middle, ink, 0.21 + 0.49 * extra);
-		if (swatch == 1) lit = mix(stock, ink, 0.23 * first);
+		middle = mix(stock, ink, 0.08 + 0.67 * first);
+		shadow = mix(middle, ink, 0.52 + 0.22 * extra);
+		if (swatch == 1) lit = mix(stock, ink, 0.18 * first);
 	}
 	EMISSION = shadow;
 	to_middle = middle - shadow;
@@ -76,7 +89,7 @@ void fragment() {
 void light() {
 	if (LIGHT_IS_DIRECTIONAL) {
 		float key = ATTENUATION * max(0.0, dot(NORMAL, LIGHT));
-		DIFFUSE_LIGHT += to_middle * smoothstep(0.02, 0.31, key)
-			+ to_light * smoothstep(0.22, 0.58, key);
+		DIFFUSE_LIGHT += to_middle * smoothstep(0.01, 0.16, key)
+			+ to_light * smoothstep(0.18, 0.44, key);
 	}
 }

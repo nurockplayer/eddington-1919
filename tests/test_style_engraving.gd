@@ -70,11 +70,15 @@ func _run() -> void:
 	var pilot: Array = game.find_children("*", "MeshInstance3D", true, false).filter(
 		func(mesh): return mesh.has_meta(World.PILOT_MATERIALS))
 	var swatches := {}
+	var telescope_ink := 0
 	for mesh in pilot:
 		for entry in mesh.get_meta(World.PILOT_MATERIALS):
 			var active: Material = mesh.material_override if entry[0] < 0 else mesh.get_surface_override_material(entry[0])
 			check(active == entry[2], "daylight installs the opaque surface print")
 			swatches[active.get_shader_parameter("swatch")] = true
+			if "horizontal_tube" in str(mesh.get_path()) and active.get_shader_parameter("swatch") == World.Swatch.DENSE:
+				telescope_ink += 1
+	check(telescope_ink >= 3, "telescope dark parts take the dense-ink swatch")
 	check(swatches.size() == 4, "ground, timber, canvas and dense ink are bound in the scene")
 	check(material.get_shader_parameter("star_keyline_px") == 1.0 and material.get_shader_parameter("star_keyline_all") == 1.0, "one pixel keyline around every visible star")
 	check(material.get_shader_parameter("diamond_radius") == 0.45 and material.get_shader_parameter("diamond_spikes") == 4.0 and material.get_shader_parameter("diamond_ray_floor") == 0.70, "diamond defaults")
