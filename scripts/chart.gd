@@ -32,7 +32,7 @@ class RowCanvas extends Control:
 	func _draw() -> void:
 		var font := get_theme_default_font()
 		var w := size.x
-		var first_y: float = 28.0 + font.get_ascent(chart._label_px) - 5.0 * Settings.text_scale
+		var first_y: float = 30.0 + font.get_ascent(chart._label_px) - 5.0 * Settings.text_scale
 		var step := maxf(34.0, font.get_height(chart._label_px) + 8.0)
 		for i in chart.rows.size():
 			var r: Dictionary = chart.rows[i]
@@ -97,7 +97,7 @@ func refresh_fonts() -> void:
 
 func _get_minimum_size() -> Vector2:
 	var font := get_theme_default_font()
-	var first_y := 28.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var first_y := 30.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
 	var axis_px := Settings.fs(15)
 	var axis_space := 22.0 * Settings.text_scale + font.get_height(axis_px) + font.get_descent(axis_px) + 8.0
@@ -225,7 +225,7 @@ func _draw() -> void:
 		_drawn_texts.append(empty_hint)
 		_paint_hint(font, empty_hint, Color(0.9, 0.55, 0.5))
 		return
-	var first_y := 28.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var first_y := 30.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
 	var combined_height := maxf(font.get_height(Settings.fs(15)), font.get_height(Settings.fs(16)))
 	var fixed_y := bottom - combined_height * 0.5 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
