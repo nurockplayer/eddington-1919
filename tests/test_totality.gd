@@ -233,8 +233,9 @@ func _test_rehearsal() -> void:
 	var available_before: int = game.sim.plates_available()
 	var prep_before: float = game.prep_left
 	var clocks_before: Array = [game.t_game, game.change_left, game._tick_acc, game.tot_done]
-	var cases := ["early", "inside", "late", "never", "never stop"]
-	var expected := ["你在雲變薄前就開了：那張會起霧。", "你在薄的那段裡開、在變厚前停：那張會是清楚的。", "你停得晚，雲回來了：星像會被霧蓋掉一半。", "窗口過去了，你沒有開：那一段就沒有底片。", "你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"]
+	var cases := ["early", "brief", "late", "never", "never stop", "long unprepared", "long prepared"]
+	var expected := ["你在雲變薄前就開了，厚雲也算進曝光。", "你在雲薄時開始、變厚前停。", "你停得晚，雲回來後還在曝光。", "窗口過去了，你沒有開：這次練習沒有曝光。", "你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。", "你在雲薄時開始、變厚前停。", "你在雲薄時開始、變厚前停。"]
+	var qualities := ["unusable", "unusable", "poor", "", "poor", "poor", "good"]
 	var shutter := InputEventAction.new()
 	shutter.action = "shutter"
 	game.player.global_position = Vector3(0, 0.05, 0)
@@ -243,6 +244,8 @@ func _test_rehearsal() -> void:
 	await physics_frame
 	check(_visible_sun_obstruction(game) != "", "visible shelter blocks the Sun before rehearsal")
 	for i in cases.size():
+		game.sim.drive_wound = i == 6
+		game.sim.drive_rate_checked = i == 6
 		game._interact("eddington")
 		game.ui._advance()
 		check(game.ui._choice_buttons.size() == 4, "PREP offers rehearsal and keeps dismiss last")
@@ -261,8 +264,19 @@ func _test_rehearsal() -> void:
 			check(game.player.pitch > 0.0, "practice turns the camera toward the Sun")
 		var thin: float = game.sky_mat.get_shader_parameter("practice_cloud")
 		check(thin < thick, "practice sky shader shows thinner cloud over the Sun")
-		if i == 1 or i == 2 or i == 4:
+		if i in [1, 2, 4, 5, 6]:
 			await _rehearsal_press(shutter)
+		if i == 1:
+			var raw_before: Dictionary = game._rehearsal_exposure.duplicate(true)
+			paused = true
+			game._process_prep(1.0)
+			await _rehearsal_press(shutter)
+			check(game._rehearsal_time == 4.0 and game._rehearsal_exposure == raw_before and game._rehearsal_step == 1, "pause freezes practice time, exposure and shutter input")
+			paused = false
+			game._process_prep(0.1)
+			check(is_equal_approx(game._rehearsal_exposure.duration, 0.25) and is_equal_approx(game._rehearsal_exposure.clear, 0.22) and is_equal_approx(game._rehearsal_exposure.cloudy, 0.03), "brief practice accumulates displayed cloud at the live time compression")
+		if i == 5 or i == 6:
+			game._process_prep(4.0)
 		if i == 2 or i == 3:
 			game._process_prep(6.0)
 		if i == 4:
@@ -274,11 +288,24 @@ func _test_rehearsal() -> void:
 		if i != 3 and i != 4:
 			await _rehearsal_press(shutter)
 		check(game.ui.toast.text.contains(expected[i]), "%s timing gives its feedback" % cases[i])
+		if i != 3:
+			var developed: Dictionary = game.sim.develop(game._rehearsal_exposure, 0)
+			check(developed.quality == qualities[i], "%s has the expected development quality" % cases[i])
+			check(game.ui.toast.text.contains(Content.rehearsal_feedback("inside", developed.quality).trim_prefix("你在雲薄時開始、變厚前停。")), "%s quality feedback follows accumulated practice development" % cases[i])
+			check(not game.ui.toast.text.contains(str(developed.value)) and not game.ui.viewer.visible, "practice exposes no generated deflection or plate viewer")
+		if i == 1:
+			check(game.ui.toast.text.contains("不足以留下可量測的星點") and not game.ui.toast.text.contains("較清楚"), "4.0–4.1 s practice never promises a usable or clear plate")
+
 		check(game.ui.toast.text.contains("這一小會兒"), "rehearsal describes the brief real-time change without a game-clock number")
 		check(game._rehearsal_step == 2 and game.prep_left == prep_before, "change wait freezes preparation")
 		if i == 4:
 			await _rehearsal_press(shutter)
 			check(game.ui.toast.text == "Eddington 還在換片……", "press during automatic change reports the wait")
+		if i == 1:
+			paused = true
+			await create_timer(1.8, true).timeout
+			check(game.rehearsing, "pause freezes the practice plate-change wait")
+			paused = false
 		var change_seconds := Sim.PLATE_CHANGE_S / Sim.TIME_SCALE
 		await create_timer(change_seconds * 0.5).timeout
 		check(game.rehearsing, "rehearsal keeps input locked midway through the real change rhythm")
@@ -292,6 +319,7 @@ func _test_rehearsal() -> void:
 		check(is_equal_approx(game.player.global_position.z, 0.0), "rehearsal returns the player to the original position")
 		check(game.sky_mat.get_shader_parameter("practice_cloud") == -1.0, "rehearsal restores the sky shader")
 		check(game.sim.plates == plates_before and game.sim.gaps == gaps_before and game.sim.run_seed == seed_before and game.sim.plates_available() == available_before, "rehearsal preserves simulation and inventory")
+		check(game.sim.drive_wound == (i == 6) and game.sim.drive_rate_checked == (i == 6), "practice preserves drive preparation")
 		check(not game.sim.is_exposing() and not game._ever_exposed and not game.plate_changed, "dry run leaves exposure history untouched")
 		check([game.t_game, game.change_left, game._tick_acc, game.tot_done] == clocks_before, "dry run leaves totality clocks untouched")
 	game._process_prep(0.5)

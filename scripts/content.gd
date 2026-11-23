@@ -39,6 +39,33 @@ static func eddington_prep(plates: int, drive_wound: bool, drive_rate_checked: b
 	]
 
 
+## FICTION: hypothetical feedback from the illustrative development model, not an observation.
+static func rehearsal_feedback(timing: String, quality: String) -> String:
+	if timing == "never":
+		return L.t("窗口過去了，你沒有開：這次練習沒有曝光。")
+	var action := L.t("你在雲薄時開始、變厚前停。")
+	match timing:
+		"early":
+			action = L.t("你在雲變薄前就開了，厚雲也算進曝光。")
+		"late":
+			action = L.t("你停得晚，雲回來後還在曝光。")
+		"no_stop":
+			action = L.t("你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。")
+	var result := ""
+	match quality:
+		"unusable":
+			result = L.t("按遊戲的曝光模型，這次收集的光不足以留下可量測的星點。")
+		"poor":
+			result = L.t("按遊戲的曝光模型，星點夠量測，但霧或拖影會影響品質。")
+		"good":
+			result = L.t("按遊戲的曝光模型，這次會留下夠量測、較清楚的星點。")
+	return action + result + L.t("這只是假想練習，不預告全食時的雲。")
+
+
+static func rehearsal_change() -> String:
+	return L.t("\nEddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。")
+
+
 static func cottingham_first() -> Array:
 	return [
 		{"s": C, "t": L.t("啊，你來得正好。這場雨把什麼都弄濕了。")},

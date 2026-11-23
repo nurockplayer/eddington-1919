@@ -20,6 +20,9 @@ msgstr "\nIn 1919 you changed it to: %s."
 msgid "\nCottingham 只能自己趕著上發條，來不及對時。"
 msgstr "\nCottingham had to wind the drive in haste, with no time to check the timing."
 
+msgid "\nEddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"
+msgstr "\nEddington changes the plate—pressing does nothing during this brief wait. Call stop before third contact."
+
 msgid "\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]"
 msgstr "\n[b]Historically[/b] [color=#8f8676](HISTORICAL_RECORD; see docs/PROVENANCE.md)[/color]"
 
@@ -971,6 +974,9 @@ msgstr "By how much? Across a room, far less than an atom. No one could see it."
 msgid "你"
 msgstr "You"
 
+msgid "你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。"
+msgstr "You never called stop; the rehearsal closed the shutter for you. In totality, you must call stop. "
+
 msgid "你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"
 msgstr "You never called stop, and the cloud came back: half the star images will be fogged over. In a real totality you have to call it yourself."
 
@@ -991,6 +997,9 @@ msgstr "You've come. The rain has stopped at last—that thunderstorm after ten 
 
 msgid "你停得晚，雲回來了：星像會被霧蓋掉一半。"
 msgstr "You stopped late, after the cloud returned: half the star images would be fogged over."
+
+msgid "你停得晚，雲回來後還在曝光。"
+msgstr "You stopped late, still exposing after thick cloud returned. "
 
 msgid "你先在驅動箱上[b]%s上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
 msgstr ""
@@ -1042,6 +1051,12 @@ msgstr "In the darkroom you said the plates supported %s. This line in the ledge
 
 msgid "你在薄的那段裡開、在變厚前停：那張會是清楚的。"
 msgstr "You opened while the cloud was thin and stopped before it thickened: that plate would be clear."
+
+msgid "你在雲薄時開始、變厚前停。"
+msgstr "You started in thin cloud and stopped before it thickened. "
+
+msgid "你在雲變薄前就開了，厚雲也算進曝光。"
+msgstr "You opened before the cloud thinned, exposing through thick cloud too. "
 
 msgid "你在雲變薄前就開了：那張會起霧。"
 msgstr "You opened before the cloud thinned: that plate would be fogged."
@@ -2125,6 +2140,15 @@ msgstr ""
 msgid "按住 %s "
 msgstr ""
 
+msgid "按遊戲的曝光模型，星點夠量測，但霧或拖影會影響品質。"
+msgstr "The game’s exposure model gives enough stars to measure, but fog or trails reduce quality. "
+
+msgid "按遊戲的曝光模型，這次收集的光不足以留下可量測的星點。"
+msgstr "The game’s exposure model says too little light was collected for measurable stars. "
+
+msgid "按遊戲的曝光模型，這次會留下夠量測、較清楚的星點。"
+msgstr "The game’s exposure model gives enough relatively clear stars to measure. "
+
 msgid "接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"
 msgstr "The next six nights\nin the darkroom, the plates are developed one by one (time compressed)"
 
@@ -2536,6 +2560,15 @@ msgstr "Reduce motion: Off"
 msgid "測微器"
 msgstr "Micrometer"
 
+msgid "測微器大十字線：開"
+msgstr "Micrometer large crosshair: On"
+
+msgid "測微器大十字線：關"
+msgstr "Micrometer large crosshair: Off"
+
+msgid "測微器步幅：%s×"
+msgstr "Micrometer step: %s×"
+
 msgid "測量桌"
 msgstr "Measuring table"
 
@@ -2694,6 +2727,9 @@ msgstr "Space"
 
 msgid "窗"
 msgstr "Window"
+
+msgid "窗口過去了，你沒有開：這次練習沒有曝光。"
+msgstr "The window passed without an opening: no exposure in this rehearsal."
 
 msgid "窗口過去了，你沒有開：那一段就沒有底片。"
 msgstr "The window passed and you never opened the shutter: no plate from that stretch."
@@ -3043,6 +3079,9 @@ msgstr "The most accurate thing in the room. It never argues, just ticks away, s
 msgid "這兩件事本來就不一樣。"
 msgstr "Those two things were never the same."
 
+msgid "這只是假想練習，不預告全食時的雲。"
+msgstr "This is hypothetical practice, not a forecast of totality’s clouds."
+
 msgid "這回的誤差較大；把不確定也記下來。"
 msgstr "The error is larger this time; record the uncertainty too."
 
@@ -3363,20 +3402,17 @@ msgstr "Sound effects"
 msgid "音樂"
 msgstr "Music"
 
+msgid "音樂靜音：開"
+msgstr "Music mute: On"
+
+msgid "音樂靜音：關"
+msgstr "Music mute: Off"
+
 msgid "音樂：開"
 msgstr "Music: On"
 
 msgid "音樂：關"
 msgstr "Music: Off"
-
-msgid "測微器大十字線：開"
-msgstr "Micrometer large crosshair: On"
-
-msgid "測微器大十字線：關"
-msgstr "Micrometer large crosshair: Off"
-
-msgid "測微器步幅：%s×"
-msgstr "Micrometer step: %s×"
 
 msgid "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
 msgstr "Micrometer: set the crosshair on the reference star's position on the eclipse plate. ←/→ (arrow keys/D-pad) move 0.25 division; Shift or L2 fine-tune 0.05. The mouse can drag the crosshair. When it is set, press 'Record reading' or the A button; only then does the plate count as measured. 1 division = 1 pixel on the plate."
@@ -3776,9 +3812,3 @@ msgstr ""
 
 msgid "］讀曝光計畫"
 msgstr ""
-
-msgid "音樂靜音：開"
-msgstr "Music mute: On"
-
-msgid "音樂靜音：關"
-msgstr "Music mute: Off"

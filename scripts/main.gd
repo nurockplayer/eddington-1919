@@ -68,6 +68,7 @@ var rehearsing := false
 var _rehearsal_step := 0
 var _rehearsal_time := 0.0
 var _rehearsal_opened := 0.0
+var _rehearsal_exposure: Dictionary = {}
 var _rehearsal_roof_visible := true
 var _rehearsal_yaw := 0.0
 var _rehearsal_pitch := 0.0
@@ -857,14 +858,25 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process_prep(delta: float) -> void:
 	if rehearsing:
 		if _rehearsal_step < 2 and _ui_free():
+			var previous := _rehearsal_time
 			_rehearsal_time += delta
-			var thin := smoothstep(2.5, 3.0, _rehearsal_time) * (1.0 - smoothstep(9.0, 9.5, _rehearsal_time))
-			sky_mat.set_shader_parameter("practice_cloud", lerpf(0.93, 0.12, thin))
+			if _rehearsal_step == 1:
+				# FICTION: integrate the displayed practice cloud, in compressed game seconds.
+				var until := minf(_rehearsal_time, 12.5)
+				while previous < until:
+					var dt := minf(0.05, until - previous)
+					var density := _rehearsal_cloud(previous + dt * 0.5)
+					var game_dt: float = dt * sim.TIME_SCALE
+					_rehearsal_exposure.duration += game_dt
+					_rehearsal_exposure.clear += (1.0 - density) * game_dt
+					_rehearsal_exposure.cloudy += density * game_dt
+					previous += dt
+			sky_mat.set_shader_parameter("practice_cloud", _rehearsal_cloud(_rehearsal_time))
 			if _rehearsal_step == 0 and _rehearsal_time >= 9.5:
-				_finish_rehearsal(L.t("窗口過去了，你沒有開：那一段就沒有底片。"))
+				_finish_rehearsal(Content.rehearsal_feedback("never", ""))
 			elif _rehearsal_step == 1 and _rehearsal_time >= 12.5:
 				_sfx("close")
-				_finish_rehearsal(L.t("你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"))
+				_finish_rehearsal(_rehearsal_feedback(false))
 		return
 	if _ui_free():
 		prep_left -= delta
@@ -1271,6 +1283,7 @@ func _begin_rehearsal() -> void:
 	rehearsing = true
 	_rehearsal_step = 0
 	_rehearsal_time = 0.0
+	_rehearsal_exposure = {}
 	_rehearsal_roof_visible = world.roof.visible
 	_rehearsal_yaw = player.yaw
 	_rehearsal_pitch = player.pitch
@@ -1289,21 +1302,35 @@ func _begin_rehearsal() -> void:
 	ui.show_toast(L.t("Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。") % Prompts.key("shutter"), 12.0)
 
 
+func _rehearsal_cloud(t: float) -> float:
+	var thin := smoothstep(2.5, 3.0, t) * (1.0 - smoothstep(9.0, 9.5, t))
+	return lerpf(0.93, 0.12, thin)
+
+
+func _rehearsal_feedback(stopped: bool) -> String:
+	var timing := "inside"
+	if not stopped:
+		timing = "no_stop"
+	elif _rehearsal_opened < 3.0:
+		timing = "early"
+	elif _rehearsal_time >= 9.0:
+		timing = "late"
+	# develop() uses the current drive preparation and a local RNG; no live exposure is opened.
+	var plate: Dictionary = sim.develop(_rehearsal_exposure, 0)
+	return Content.rehearsal_feedback(timing, plate.quality)
+
+
 func _rehearse_shutter() -> void:
 	match _rehearsal_step:
 		0:
 			_sfx("open")
 			_rehearsal_opened = _rehearsal_time
+			_rehearsal_exposure = {"start": _rehearsal_time * sim.TIME_SCALE, "duration": 0.0, "clear": 0.0, "cloudy": 0.0, "sunlit": false}
 			ui.show_toast(L.t("你：『開始！』　Cottingham 移開遮光板（空的）。再按一次喊『停』。"), 7.0)
 			_rehearsal_step = 1
 		1:
 			_sfx("close")
-			var feedback := L.t("你在薄的那段裡開、在變厚前停：那張會是清楚的。")
-			if _rehearsal_opened < 3.0:
-				feedback = L.t("你在雲變薄前就開了：那張會起霧。")
-			elif _rehearsal_time >= 9.0:
-				feedback = L.t("你停得晚，雲回來了：星像會被霧蓋掉一半。")
-			_finish_rehearsal(feedback)
+			_finish_rehearsal(_rehearsal_feedback(true))
 		2:
 			ui.show_toast(L.t("Eddington 還在換片……"), 1.5)
 
@@ -1311,7 +1338,7 @@ func _rehearse_shutter() -> void:
 func _finish_rehearsal(feedback: String) -> void:
 	_sfx("change")
 	_rehearsal_step = 2
-	ui.show_toast(L.t("Eddington：") + feedback + L.t("\n你：『停！』　Eddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"), 7.0)
+	ui.show_toast(L.t("Eddington：") + feedback + Content.rehearsal_change(), 7.0)
 	await get_tree().create_timer(sim.PLATE_CHANGE_S / sim.TIME_SCALE, false).timeout
 	sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	world.roof.visible = _rehearsal_roof_visible
