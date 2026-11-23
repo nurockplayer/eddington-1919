@@ -22,12 +22,15 @@ var _drawn_result_bounds := Rect2()
 var _drawn_result_backing := false
 var _drawn_axis_bounds: Array = []
 var _drawn_hint_bounds: Array = []
+var _drawn_row_bounds: Array = []
+var _drawn_combined_bounds: Array = []
 
 
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
 	rows = p_rows
 	combined = p_combined
 	revealed = p_revealed
+	update_minimum_size()
 	queue_redraw()
 
 
@@ -39,7 +42,17 @@ func set_ledger(p_ledger: Array) -> void:
 ## Redraw with the current text size (ui calls this after cycling the scale).
 func refresh_fonts() -> void:
 	_label_px = Settings.fs(14)
+	update_minimum_size()
 	queue_redraw()
+
+
+func _get_minimum_size() -> Vector2:
+	var font := get_theme_default_font()
+	var first_y := 34.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
+	var axis_px := Settings.fs(15)
+	var axis_space := 22.0 * Settings.text_scale + font.get_height(axis_px) + font.get_descent(axis_px) + 8.0
+	return Vector2(0, first_y + rows.size() * step + 10.0 + 14.0 + font.get_height(Settings.fs(16)) + 12.0 + axis_space)
 
 
 ## What the last _draw() actually painted; the chart tests read this instead of
@@ -49,7 +62,8 @@ func drawn() -> Dictionary:
 		"markers": _drawn_markers.duplicate(), "bars": _drawn_bars.duplicate(),
 		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate(),
 		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing,
-		"axis_bounds": _drawn_axis_bounds.duplicate(), "hint_bounds": _drawn_hint_bounds.duplicate()}
+		"axis_bounds": _drawn_axis_bounds.duplicate(), "hint_bounds": _drawn_hint_bounds.duplicate(),
+		"row_bounds": _drawn_row_bounds.duplicate(true), "combined_bounds": _drawn_combined_bounds.duplicate()}
 
 
 ## Every string the last _draw() painted. draw_string output is not a node
@@ -132,6 +146,8 @@ func _draw() -> void:
 	_drawn_result_backing = false
 	_drawn_axis_bounds.clear()
 	_drawn_hint_bounds.clear()
+	_drawn_row_bounds.clear()
+	_drawn_combined_bounds.clear()
 	var w := size.x
 	var h := size.y
 	var font := get_theme_default_font()
@@ -165,11 +181,11 @@ func _draw() -> void:
 		_drawn_texts.append(empty_hint)
 		_paint_hint(font, empty_hint, Color(0.9, 0.55, 0.5))
 		return
-	var n := rows.size() + 1
-	var step := minf(34.0, (bottom - top - 20.0) / n)
+	var first_y := 34.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
 	for i in rows.size():
 		var r: Dictionary = rows[i]
-		var y := top + 16.0 + i * step
+		var y := first_y + i * step
 		var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
 		# A row with no trustworthy error is a marker only; no bar is invented for it.
 		if r.get("no_bar", false):
@@ -199,9 +215,11 @@ func _draw() -> void:
 			_drawn_markers.append("hollow")
 		_drawn_label_px = _label_px
 		_drawn_texts.append(r.label)
+		_drawn_row_bounds.append({"label": Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(_label_px)),
+			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px)), "marker": Rect2(p - Vector2(6, 6), Vector2(12, 12))})
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	if combined.get("n", 0) > 0:
-		var y := top + 16.0 + rows.size() * step + 10.0
+		var y := first_y + rows.size() * step + 10.0
 		var c := Color(1.0, 0.92, 0.6)
 		var span := two_sigma_span(combined.value, combined.sigma)
 		var thin := Color(c, 0.55)
@@ -217,12 +235,15 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
 		var combined_label := L.t("合併")
 		_drawn_texts.append(combined_label)
+		_drawn_combined_bounds.append(Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(Settings.fs(15))),
+			font.get_string_size(combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15))))
+		_drawn_combined_bounds.append(Rect2(cx - 8, y - 8, 16, 16))
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
 		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
 		_drawn_texts.append(combined_value)
 		var px := Settings.fs(16)
 		var width := font.get_string_size(combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
-		var baseline := Vector2(minf(cx + 14, w - width - 8), y - 10.0 * Settings.text_scale)
+		var baseline := Vector2(minf(cx + 14, w - width - 8), y + 14.0 + font.get_ascent(px))
 		_drawn_result_bounds = Rect2(baseline - Vector2(0, font.get_ascent(px)),
 			Vector2(width, font.get_height(px)))
 		# The reference lines stay in place, but cannot strike through the reading.

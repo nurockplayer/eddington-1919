@@ -59,6 +59,11 @@ func _run() -> void:
 		print("test_layout_bounds portrait: %d checks, %d failures" % [checks, failures])
 		quit(1 if failures else 0)
 		return
+	await _test_report_chart_rows()
+	if "--report-chart-rows-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds report rows: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_plate_pause()
 	if "--plate-pause-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds plate/pause: %d checks, %d failures" % [checks, failures])
@@ -633,6 +638,87 @@ func _test_merged_dialogue() -> void:
 	Settings.text_scale = scale
 
 
+func _test_report_chart_rows() -> void:
+	var old_locale := L.current()
+	var old_scale := Settings.text_scale
+	var old_size := root.size
+	root.size = Vector2i(1280, 720)
+	for locale in ["zh_TW", "en", "ja", "ko"]:
+		L.apply(locale)
+		for scale in [1.0, 1.2]:
+			Settings.text_scale = scale
+			var ui = load("res://scripts/ui.gd").new()
+			root.add_child(ui)
+			ui.hide_title()
+			for count in [1, 4, 12]:
+				context = "report rows %s scale %.1f plates %d" % [locale, scale, count]
+				var sim := Sim.new(77)
+				var rows: Array = []
+				var textures: Array = []
+				for i in count:
+					var plate := sim.develop({"start": float(i * 24), "duration": 8.0, "clear": 8.0, "cloudy": 0.0, "sunlit": false}, i)
+					plate.included = true
+					plate.read = true
+					plate.reading = sim.reading_for_value(1.2 + i * 0.04)
+					sim.plates.append(plate)
+					rows.append({"label": str(i + 1), "value": sim.reading_value(plate), "sigma": plate.sigma, "weak": i % 2 == 1})
+					textures.append(null)
+				ui.open_viewer(sim.plates, null, textures, true)
+				ui.viewer_rule.text = L.t("你寫下的規則：%s") % Content.rules_prompt(false)[-1].choices[0]
+				ui.set_viewer_report(true)
+				var combined := sim.combined()
+				ui.chart.set_data(rows, combined, true)
+				ui.chart.set_ledger([{"pick": 3, "kind": "original", "tag": L.t("1917 年押的：說不準")},
+					{"pick": 2, "kind": "current", "tag": L.t("現在押的")}])
+				var prompts := Content.verdict_prompt("%.2f″ ± %.2f″" % [combined.value, combined.sigma])
+				prompts.append_array(Content.judgment_prompt(Judgment.telegram_choices(), Judgment.reasons_for(sim).map(func(r): return L.t(r.text))))
+				for prompt in prompts:
+					ui.play([prompt])
+					for frame in 12:
+						await process_frame
+					var clip: Control = ui.chart.get_parent() if ui.chart.get_parent() is ScrollContainer else ui.chart
+					check(clip.get_global_rect().end.y + 4 <= ui.dialog_panel.get_global_rect().position.y, "chart viewport clears dialogue")
+					bounds(ui.dialog_panel)
+					for button: Button in ui._choice_buttons:
+						button.grab_focus()
+						check(button.has_focus() and not button.disabled, "report choice remains focusable")
+					var painted: Dictionary = ui.chart.drawn()
+					var row_bounds: Array = painted.get("row_bounds", [])
+					check(row_bounds.size() == count, "every measured row has painted bounds")
+					check(painted.markers.size() == count and painted.label_px == Settings.fs(14), "all markers and full-size row labels retained")
+					check(ui.chart.rows == rows and ui.chart.combined == combined, "player measurements preserved")
+					check(ui.chart.drawn_texts().has("%.2f″ ± %.2f″" % [combined.value, combined.sigma]), "combined value preserved")
+					var ink: Array = painted.ledger_bounds.duplicate()
+					ink.append_array(painted.axis_bounds)
+					ink.append(painted.result_bounds)
+					ink.append_array(painted.get("combined_bounds", []))
+					for row: Dictionary in row_bounds:
+						ink.append(row.label)
+						ink.append(row.marker)
+					for i in ink.size():
+						var rect: Rect2 = ink[i]
+						check(Rect2(Vector2.ZERO, ui.chart.size).encloses(rect), "painted content fits chart: %s" % rect)
+						for j in range(i):
+							check(not rect.intersects(ink[j]), "painted labels/markers do not overlap: %s / %s" % [rect, ink[j]])
+						if clip is ScrollContainer:
+							clip.scroll_vertical = int(rect.position.y)
+							await process_frame
+							check(clip.get_global_rect().grow(1).encloses(Rect2(ui.chart.global_position + rect.position, rect.size)), "painted content reachable by scrolling")
+					if clip is ScrollContainer:
+						clip.scroll_vertical = 0
+						var page := InputEventKey.new()
+						page.keycode = KEY_PAGEDOWN
+						page.pressed = true
+						ui._input(page)
+						check(clip.scroll_vertical > 0 or ui.chart.size.y <= clip.size.y, "Page Down reaches chart without changing report choice")
+				ui.close_viewer()
+				ui.dialog_panel.hide()
+			ui.free()
+	L.apply(old_locale)
+	Settings.text_scale = old_scale
+	root.size = old_size
+
+
 func _test_darkroom_chart() -> void:
 	var old_locale := L.current()
 	var old_scale := Settings.text_scale
@@ -675,7 +761,7 @@ func _test_darkroom_chart() -> void:
 				ui.play(Content.verdict_prompt(interval))
 				for frame in 12:
 					await process_frame
-				var chart_rect: Rect2 = ui.chart.get_global_rect()
+				var chart_rect: Rect2 = ui.chart_scroll.get_global_rect()
 				check(chart_rect.end.y + 4 <= ui.dialog_panel.get_global_rect().position.y, "axis labels clear report dialogue: chart %s, dialogue %s" % [chart_rect, ui.dialog_panel.get_global_rect()])
 				var painted: Dictionary = ui.chart.drawn()
 				var label: Rect2 = painted.get("result_bounds", Rect2())

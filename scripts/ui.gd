@@ -169,6 +169,7 @@ var measure_btn: Button
 var reselect_btn: Button
 var report_btn: Button
 var chart: Control
+var chart_scroll: ScrollContainer
 var _viewer_right: VBoxContainer
 var viewer_rule: RichTextLabel
 var viewer_note: RichTextLabel
@@ -474,7 +475,7 @@ func _process(delta: float) -> void:
 		var pan := Input.get_vector("gamepad_look_left", "gamepad_look_right", "gamepad_look_up", "gamepad_look_down")
 		if pan != Vector2.ZERO:
 			_show_loupe(_loupe_center + pan * 120.0 * delta)
-	var scroll := _active_menu_scroll()
+	var scroll := chart_scroll if viewer.visible and _viewer_reporting and not get_tree().paused and not log_panel.visible else _active_menu_scroll()
 	if scroll:
 		_menu_scroll_remainder += Input.get_axis("gamepad_look_up", "gamepad_look_down") * 900.0 * delta
 		var pixels := int(_menu_scroll_remainder)
@@ -864,8 +865,13 @@ func _build_viewer(root: Control) -> void:
 	right.add_child(viewer_rule)
 	viewer_rule.resized.connect(_layout_viewer.call_deferred)
 	chart = preload("res://scripts/chart.gd").new()
-	chart.custom_minimum_size = Vector2(560, 420)
-	right.add_child(chart)
+	chart_scroll = ScrollContainer.new()
+	chart_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	chart_scroll.focus_mode = Control.FOCUS_ALL
+	chart_scroll.custom_minimum_size = Vector2(560, 420)
+	right.add_child(chart_scroll)
+	chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chart_scroll.add_child(chart)
 	chart.item_rect_changed.connect(_layout_viewer.call_deferred)
 	viewer_steps = _rich(16)
 	right.add_child(viewer_steps)
@@ -912,18 +918,16 @@ func _layout_viewer() -> void:
 	var window_height := float(get_viewport().get_window().size.y)
 	var growth := clampf((window_height - 720.0) / 360.0, 0.0, 1.0)
 	var extra := minf(76.0 * growth, maxf(0.0, get_viewport().get_visible_rect().size.x - 1556.0 + 32.0 * growth))
-	chart.custom_minimum_size.x = 560.0 - 32.0 * growth
+	chart_scroll.custom_minimum_size.x = 560.0 - 32.0 * growth
 	viewer_mid.custom_minimum_size.x = 470.0 + extra
 	plate_stage.custom_minimum_size = Vector2(470.0 + extra, 460.0 + extra)
 	big_plate.custom_minimum_size = Vector2.ONE * (460.0 + extra)
-	chart.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
+	chart_scroll.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
 	_fit_chart_height()
 	_fit_chart_width()
 
 
-## The chart is the one control in its column that can give way: when the labels
-## above and below it grow with a longer language, the chart gets shorter rather
-## than pushing the column past the bottom of the screen.
+## Fit the chart viewport; its content keeps the height needed by measured rows.
 func _fit_chart_height() -> void:
 	if _viewer_right == null:
 		return
@@ -931,15 +935,15 @@ func _fit_chart_height() -> void:
 	var labels := 0.0
 	var shown := 0
 	for c: Control in _viewer_right.get_children():
-		if c == chart or not c.visible:
+		if c == chart_scroll or not c.visible:
 			continue
 		labels += c.get_combined_minimum_size().y
 		shown += 1
 	labels += 10.0 * maxi(shown, 1)
-	chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, maxf(280.0, room - labels))
+	chart_scroll.custom_minimum_size.y = minf(chart_scroll.custom_minimum_size.y, maxf(280.0, room - labels))
 	if _viewer_reporting and dialog_panel != null and dialog_panel.visible:
-		var above_dialogue := dialog_panel.get_global_rect().position.y - chart.get_global_rect().position.y - 8.0
-		chart.custom_minimum_size.y = minf(chart.custom_minimum_size.y, above_dialogue)
+		var above_dialogue := dialog_panel.get_global_rect().position.y - chart_scroll.get_global_rect().position.y - 8.0
+		chart_scroll.custom_minimum_size.y = minf(chart_scroll.custom_minimum_size.y, above_dialogue)
 
 
 ## The same for width: the thumbnails and the plate columns keep their size, and
@@ -956,7 +960,7 @@ func _fit_chart_width() -> void:
 			columns += 1
 	others += row.get_theme_constant("separation") * maxi(columns, 1)
 	var room := get_viewport().get_visible_rect().size.x - 32.0 - others
-	chart.custom_minimum_size.x = minf(chart.custom_minimum_size.x, maxf(480.0, room))
+	chart_scroll.custom_minimum_size.x = minf(chart_scroll.custom_minimum_size.x, maxf(480.0, room))
 
 
 func _build_reference_plates() -> void:
@@ -1539,6 +1543,7 @@ func set_viewer_locked(locked: bool) -> void:
 
 func set_viewer_report(reporting: bool) -> void:
 	_viewer_reporting = reporting
+	chart_scroll.scroll_vertical = 0
 	if reporting:
 		_set_loupe(false)
 	viewer_rule.visible = reporting and viewer_rule.text != ""
@@ -2484,6 +2489,10 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	var scroll := _active_menu_scroll()
+	if viewer.visible and _viewer_reporting and not get_tree().paused and not log_panel.visible and (event.is_action_pressed("ui_page_up") or event.is_action_pressed("ui_page_down")):
+		chart_scroll.scroll_vertical += int(chart_scroll.size.y * 0.8) * (1 if event.is_action_pressed("ui_page_down") else -1)
+		get_viewport().set_input_as_handled()
+		return
 	if scroll and (event.is_action("ui_up") or event.is_action("ui_down")):
 		if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down"):
 			scroll.scroll_vertical += 80 if event.is_action_pressed("ui_down") else -80
