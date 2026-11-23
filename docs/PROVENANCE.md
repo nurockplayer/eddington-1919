@@ -32,6 +32,7 @@
 |---|---|
 | 玩家（年輕助手）以及「看雲、喊開始／停」的角色 | FICTION。歷史上手持遮光板的是另一位觀測者，遊戲裡仍由 Cottingham 操作遮光板，玩家只負責喊。 |
 | 雨後時鐘驅動需要重新上發條、對天文鐘校走速；沒幫忙時 Cottingham 只能自己趕 | FICTION。不暗示 Cottingham 疏失：只是缺人手，而不是他做錯事。 |
+| 空拍練習的雲與事後回饋 | FICTION／示意遊戲模型。以練習累積的曝光、雲量和當前時鐘準備，沿用遊戲沖片規則；不模擬歷史底片，不預告正式全食的雲或偏折結果。 |
 | 全部對白（Eddington、Cottingham） | FICTION／戲劇化。刻意讓 Eddington 保持謹慎，不讓他說出後世才有的確定性。 |
 | 站點配置、遮陽棚、暗房、服裝、帽子 | RECONSTRUCTION。普林西比站沒有已知的現場照片。 |
 | 人物外貌（r06） | Eddington：無鬍、深色向後梳的頭髮、細框或無框眼鏡、身形清瘦（約 1915 年肖像，Lemos 2019 圖 4；Payne-Gaposchkin）。Cottingham：濃密八字鬍、軟呢帽（約 1910 年 Thrapston 店門合照，Lemos 圖 5，僅憑圖說辨認）。1919 年兩人在島上的衣著、身高、帽子均無紀錄，屬 RECONSTRUCTION：參考 1919 年 Sobral 合照（淺色亞麻／斜紋布西裝、草帽，沒有遮陽盔），r06 把 Eddington 原本的遮陽盔改成草帽。詳見 `art/people/REFERENCE.md`。 |

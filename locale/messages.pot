@@ -4789,3 +4789,43 @@ msgstr ""
 #: scripts/ui.gd:385
 msgid "［空白鍵／E／左鍵］開始・停"
 msgstr ""
+
+#: scripts/content.gd:45
+msgid "窗口過去了，你沒有開：這次練習沒有曝光。"
+msgstr ""
+
+#: scripts/content.gd:46
+msgid "你在雲薄時開始、變厚前停。"
+msgstr ""
+
+#: scripts/content.gd:49
+msgid "你在雲變薄前就開了，厚雲也算進曝光。"
+msgstr ""
+
+#: scripts/content.gd:51
+msgid "你停得晚，雲回來後還在曝光。"
+msgstr ""
+
+#: scripts/content.gd:53
+msgid "你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。"
+msgstr ""
+
+#: scripts/content.gd:57
+msgid "按遊戲的曝光模型，這次收集的光不足以留下可量測的星點。"
+msgstr ""
+
+#: scripts/content.gd:59
+msgid "按遊戲的曝光模型，星點夠量測，但霧或拖影會影響品質。"
+msgstr ""
+
+#: scripts/content.gd:61
+msgid "按遊戲的曝光模型，這次會留下夠量測、較清楚的星點。"
+msgstr ""
+
+#: scripts/content.gd:62
+msgid "這只是假想練習，不預告全食時的雲。"
+msgstr ""
+
+#: scripts/content.gd:66
+msgid "\nEddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"
+msgstr ""
