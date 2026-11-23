@@ -846,3 +846,10 @@ Whole 1280×720 frames first (Mac GPU route, code 91b69cd; a55d20c adds only the
 
 ### 2026-11-23 14:1x JST: #428 merged (baa29ad)
 - Merged 14:14 JST through the gate (oracle failed with exit 5, codex approved the head; CI suites and leak-gate passed). edd-lead told. Count stays **7/9**.
+
+### 2026-11-23 14:3x JST: #459 recapture at e41104d, the 13:4x case met, one new case back
+- Whole 1280x720 frames, `12-ko-max-top` alone first, then bottom, zh_TW middle, ja 4 plates, en 1 plate; then a 2x crop of the three 12-plate charts (`slice_principe/accept/459/e41104d/`). Marks still sit on the sim values (combined 1.64 at x 1039, 1.57 at 1030, 1.44 at 1014).
+- Met: the three labelled predictions and the combined mark with band and value are on screen in all five frames with no scrolling; ja 4 plates no longer clips the labels.
+- New, from the pinning: plate rows are still drawn under the pinned parts. Dimmed rows and their labels show through behind the combined mark, its value and the prediction labels (ko top: plates 5 to 7; zh_TW middle: 10 to 12), and a full-strength row runs through the "current bet" header and its marker (ko bottom: plate 12; zh_TW middle: plate 6). Wanted: no plate row, label or bar is drawn inside the pinned header or the pinned combined-and-labels block at any scroll position; the scrolling rows end at a clean edge.
+- Let go: at max text only three rows of twelve show at once; blank band in the 1-plate chart; thin scrollbar as the only cue. Inherited: portrait panel over the dialogue (#460 in progress), dark panel (#426). `12-en-default` not recaptured, not judged.
+- **Verdicts:** technical regression none seen; this PR's change not accepted yet (one case); whole scene not accepted. Count stays **7/9**.
