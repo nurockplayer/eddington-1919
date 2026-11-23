@@ -695,7 +695,7 @@ func _test_report_chart_rows() -> void:
 							await process_frame
 							await process_frame
 						painted = ui.chart.drawn()
-						check(painted.row_bounds[row_index].visible, "painted row reachable by scrolling")
+						check(painted.row_bounds[row_index].visible, "painted row reachable by scrolling: row=%s scroll=%s viewport=%s" % [painted.row_bounds[row_index], clip.scroll_vertical, clip.size])
 						var ink: Array = painted.ledger_bounds.duplicate()
 						ink.append_array(painted.axis_bounds)
 						ink.append(painted.result_bounds)
