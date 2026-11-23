@@ -177,37 +177,11 @@ vec2 page_ruling(vec3 ray, mat4 camera) {
 	return vec2(atan(ray.y, -ray.z), atan(ray.y + 0.62 * ray.x, -ray.z)) + vec2(pitch);
 }
 
-// Three wind-driven cloud banks: joined lobed tops, clipped flat bases, no holes.
-// Return the signed contour distance and the ruling weight inside the bank.
+// Engrave the live field's 0.35 contour; the second component retains density
+// for line weights and solar veiling. No separate cloud geometry is invented.
 vec2 print_cloud(vec3 direction) {
-	vec2 p = vec2(atan(direction.x, -direction.z) + wind.x * cloud_time, asin(direction.y));
-	vec2 field = vec2(10.0, 0.0);
-	for (int bank = 0; bank < 3; bank++) {
-		float row = float(bank);
-		float cell_width = 0.72 + row * 0.34;
-		float cell = floor(p.x / cell_width);
-		for (int neighbour = -1; neighbour <= 1; neighbour++) {
-			float id = cell + float(neighbour);
-			float seed = hash21(vec2(id, row + 31.0));
-			float base = 0.045 + row * 0.27 + 0.06 * seed;
-			float height = 0.055 + row * 0.055;
-			float centre = (id + 0.5) * cell_width;
-			vec2 q = p - vec2(centre, base);
-			float contour = 10.0;
-			for (int lobe = 0; lobe < 5; lobe++) {
-				float n = float(lobe);
-				float puff = hash21(vec2(id * 5.0 + n, row + 71.0));
-				vec2 radius = vec2(cell_width * (0.10 + 0.035 * puff), height * (0.65 + 0.55 * puff));
-				vec2 offset = vec2((n - 2.0) * cell_width * 0.105, height * 0.22);
-				contour = min(contour, (length((q - offset) / radius) - 1.0) * radius.y);
-			}
-			contour = max(contour, -q.y);
-			if (contour < field.x) {
-				field = vec2(contour, clamp(1.0 - q.y / (height * 1.4), 0.0, 1.0));
-			}
-		}
-	}
-	return field;
+	float density = eclipse_cloud_density(direction);
+	return vec2(0.35 - density, density);
 }
 
 // |d(dot(P, a))| per pixel on the surface through the view-space point z * q
@@ -305,8 +279,11 @@ void fragment() {
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
 		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
-		float cloud_weight = cloud_body * mix(0.25, 1.0, cloud_field.y);
-		float cloud_contour = 1.0 - smoothstep(0.35, 0.85, abs(cloud_field.x) / (cloud_pixel * res_k));
+		float cloud_weight = cloud_body * (0.4 + 0.3 * step(0.6, cloud_field.y) + 0.3 * step(0.85, cloud_field.y));
+		float contour_distance = min(abs(cloud_field.x), min(abs(0.6 - cloud_field.y), abs(0.85 - cloud_field.y)));
+		float cloud_contour = 1.0 - smoothstep(0.35, 0.85, contour_distance / (cloud_pixel * res_k));
+		float corona_clear = 1.0 - smoothstep(0.35, 0.85, cloud_field.y);
+		float cloud_veil = hatch(ruling.x, k, 1.0 - corona_clear, l_px, 99.0);
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
 		float band_lines = smoothstep(0.015, 0.19, abs(elev));
@@ -315,8 +292,11 @@ void fragment() {
 		// Clouds have no fill or gradient outline: only these weights and a hairline.
 		primary = mix(clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, primary, print_darkness);
 		crossed = mix(clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, crossed, print_darkness);
-		float i1 = hatch(ruling.x, k, primary, l_px, 99.0);
-		float i2 = hatch(ruling.y, k, crossed, l_px, 99.0);
+		// Preserve main's day/night sky exactly; page ruling belongs to totality.
+		float tilt = asin(clamp(dot(ray_w, normalize(vec3(0.62, 0.48, 0.62))), -1.0, 1.0));
+		vec2 sky_ruling = print_darkness > 0.0 ? ruling : vec2(elev, tilt);
+		float i1 = hatch(sky_ruling.x, k, primary, l_px, 99.0);
+		float i2 = hatch(sky_ruling.y, k, crossed, l_px, 99.0);
 		// At the band's edge, retain every fourth ruled line and thin the rest away.
 		float sparse = hatch(ruling.x, k, primary, l_px * 4.0, 99.0);
 		i1 = mix(i1, mix(sparse, i1, band_lines), print_darkness);
@@ -358,13 +338,12 @@ void fragment() {
 		// Cloud changes the weight of ruling across the whole Moon, never its
 		// outline. The accepted thin gap and clearer skies keep solid ink.
 		float moon_weight = 1.0 - smoothstep(0.15, 1.0 / 1.08, dens);
-		// The diamond opens line widths, retaining the cloud's full-strength weight.
-		float moon_cover = moon_weight * diamond;
-		float moon_lines = hatch(ruling.x, k, moon_cover, l_px, 99.0);
+		// Totality and the diamond both retain the cloud-dependent Moon ruling.
+		float moon_cover = moon_weight * max(diamond, print_darkness);
+		float moon_lines = hatch(sky_ruling.x, k, moon_cover, l_px, 99.0);
 		moon_lines = max(moon_lines, step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover));
 		moon_ink = front * step(r, 1.0) * moon_lines;
 
-		moon_ink = max(moon_ink, front * step(r, 1.0) * print_darkness * (1.0 - visible_diamond));
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
 		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
 		if (print_darkness > 0.0 && front > 0.0) {
@@ -377,7 +356,8 @@ void fragment() {
 				max(dot(direction, vec2(0.8916, 0.4529)), dot(direction, vec2(0.3717, 0.9284))));
 			streamer = smoothstep(0.991, 1.0, streamer);
 			float reach = mix(1.5 + seed, 3.1 + 0.9 * hash21(vec2(id, 5.0)), streamer);
-			float taper = sqrt(clamp((reach - r) / (reach - 1.0), 0.0, 1.0));
+			reach = mix(1.0, reach, corona_clear);
+			float taper = sqrt(clamp((reach - r) / max(reach - 1.0, 0.00001), 0.0, 1.0));
 			float across = dot(lp, vec2(-direction.y, direction.x));
 			float pixel = max(length(vec2(dot(dFdx(lp), vec2(-direction.y, direction.x)), dot(dFdy(lp), vec2(-direction.y, direction.x)))), 0.00001);
 			// Leave paper between adjacent strokes even where their centres are subpixel.
@@ -385,7 +365,7 @@ void fragment() {
 			float rays = clamp((half_width + 0.5 * pixel - abs(across)) / pixel, 0.0, 1.0)
 				- clamp((0.5 * pixel - half_width - abs(across)) / pixel, 0.0, 1.0);
 			float limb_white = 1.0 - smoothstep(1.035, 1.065, r);
-			corona_white = max(limb_white, rays) * step(1.0, r);
+			corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil) * (1.0 - cloud_contour);
 			// Heightening belongs only to the sun-facing contour, within four radii.
 			vec2 toward_sun = -vec2(dFdx(distance), dFdy(distance));
 			float facing = max(dot(cloud_gradient, toward_sun) / max(cloud_pixel * length(toward_sun), 0.0000001), 0.0);
