@@ -271,8 +271,10 @@ func talk(choices: Array = [], random_choices := true) -> void:
 			await _dwell()
 			await _tap(KEY_E)
 		await _frames(2)
-		# The verdict hands off synchronously; leave the telegram for the next talk.
+		# Let the report's silent hold finish before the next talk handles feedback.
 		if verdict_only and main._pending != "verdict":
+			while main._verdict_hold_s > 0.0:
+				await _frames(1)
 			break
 
 

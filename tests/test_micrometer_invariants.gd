@@ -124,6 +124,9 @@ func measure(run_seed: int, cloudy: bool, careless: bool) -> Dictionary:
 		check(verdict == 3, context + ": wide evidence reaches inconclusive")
 	# The numbered choice is the player's real dialogue input path.
 	await press(KEY_1 + verdict)
+	# Automatic processing is disabled; advance the report hold explicitly.
+	game._process(0.0)
+	game._process(1.5)
 	check(game._verdict == verdict and game._verdict_class == "consistent"
 		and game._pending == "judgment", context + ": verdict is recorded and continues")
 	print("F8 %s: alignment_error=%.6f truth_error=%.6f sigma=%.6f verdict=%d"

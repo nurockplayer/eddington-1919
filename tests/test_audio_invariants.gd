@@ -123,6 +123,11 @@ func _principe(chapter) -> void:
 	# Advance the real totality clock explicitly; this avoids waiting minutes or
 	# depending on random clouds. Only the exposure's sky sample is fixed clear.
 	chapter.set_process(false)
+	if chapter._verdict_hold_s > 0.0:
+		# This driver owns the clock, including the report's silent interval.
+		chapter._process(0.0)
+		chapter._process(1.5)
+		return
 	if chapter._busy:
 		return
 	match chapter.phase:

@@ -65,6 +65,8 @@ func _run() -> void:
 		game.sim.bet_pick = 2
 		game._pending = "verdict"
 		game._on_dialogue_done({"verdict": Judgment.verdict_truth(game.sim)})
+		game._process(0.0)
+		game._process(1.5)
 		var keys: Array = game.ui._seq.map(func(e): return e.get("key", ""))
 		check(keys.find("press") >= 0 and keys.find("press") < keys.find("telegram"), "press appears before telegram")
 		while game.ui._seq[game.ui._seq_i].get("key", "") != "press":
@@ -91,6 +93,8 @@ func _run() -> void:
 	no_bet.sim.bet_pick = -1
 	no_bet._pending = "verdict"
 	no_bet._on_dialogue_done({"verdict": Judgment.verdict_truth(no_bet.sim)})
+	no_bet._process(0.0)
+	no_bet._process(1.5)
 	check(not no_bet.ui._seq.any(func(e): return e.get("key", "") == "press"), "no bet offers no press")
 	dispose(no_bet)
 	await process_frame
