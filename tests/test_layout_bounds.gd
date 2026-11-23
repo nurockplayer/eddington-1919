@@ -902,6 +902,7 @@ func _test_plate_pause() -> void:
 				ui.chart.set_data([], {}, false)
 				await settle()
 				check(ui.chart.get_global_rect().is_equal_approx(with_rows_rect), "empty chart matches chart with rows")
+				check(ui.chart.size.y >= ui.chart_scroll.size.y - 2.0, "empty chart fills its viewport")
 				var drawn: Dictionary = ui.chart.drawn()
 				var chart_rect := Rect2(Vector2.ZERO, ui.chart.size).grow(1)
 				check(drawn.axis_bounds.size() == 3 and drawn.hint_bounds.size() == 1, "chart actually paints axis and placeholder")

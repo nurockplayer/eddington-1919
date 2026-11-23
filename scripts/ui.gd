@@ -871,6 +871,7 @@ func _build_viewer(root: Control) -> void:
 	chart_scroll.custom_minimum_size = Vector2(560, 420)
 	right.add_child(chart_scroll)
 	chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chart.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	chart_scroll.add_child(chart)
 	chart_scroll.get_v_scroll_bar().value_changed.connect(func(_value): chart.queue_redraw())
 	chart_scroll.resized.connect(_layout_viewer.call_deferred)
