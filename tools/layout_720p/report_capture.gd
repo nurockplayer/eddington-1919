@@ -67,7 +67,7 @@ func _run() -> void:
 		game.sim.rule_id = "strict"
 		game.sim.bet_pick = 2
 		game.sim.measured = true
-		Story.bet_1917 = {"pick": 3, "year": 1917}
+		root.get_node("Story").bet_1917 = {"pick": 3, "year": 1917}
 		game.plate_textures.clear()
 		for i in count:
 			var plate: Dictionary = game.sim.develop({"start": float(i * 24), "duration": 8.0,
