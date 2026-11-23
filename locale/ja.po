@@ -2587,7 +2587,7 @@ msgid "牛津比對底片盒"
 msgstr "オックスフォード比較用乾板の箱"
 
 msgid "牛津比對片"
-msgstr "オックスフォード比較用乾板"
+msgstr "Oxford 比較乾板"
 
 msgid "牛津（無日）"
 msgstr "オックスフォード（太陽なし）"

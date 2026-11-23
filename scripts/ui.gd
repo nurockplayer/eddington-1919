@@ -189,6 +189,7 @@ var _viewer_locked := false
 var _viewer_reporting := false
 var pause_enabled := false
 var _pause_focus: Control
+var _pause_objectives_visible := false
 var _credits_focus: Control
 var _log_focus: Control
 
@@ -1364,16 +1365,57 @@ func _exit_tree() -> void:
 
 func _thumb(tex: Texture2D, text: String) -> Button:
 	var b := Button.new()
-	b.icon = tex
-	b.expand_icon = true
 	b.custom_minimum_size = Vector2(100, 122)
-	b.text = text
-	b.clip_text = true
-	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	Settings.track_font(b, 14)
+	b.accessibility_name = text
 	b.focus_mode = Control.FOCUS_ALL
+	var card := VBoxContainer.new()
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(card)
+	card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	card.offset_left = 6
+	card.offset_right = -6
+	card.offset_top = 6
+	card.offset_bottom = -6
+	var image := TextureRect.new()
+	image.name = "PlateImage"
+	image.texture = tex
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(image)
+	var caption := _label(text, 14)
+	caption.name = "PlateCaption"
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Explicit phrase breaks are fitted to the card width below.
+	caption.autowrap_mode = TextServer.AUTOWRAP_WORD
+	card.add_child(caption)
+	card.resized.connect(_fit_thumb_caption.bind(b))
+	caption.theme_changed.connect(_fit_thumb_caption.bind(b))
 	return b
+
+
+func _fit_thumb_caption(button: Button) -> void:
+	var card: VBoxContainer = button.get_child(0)
+	var caption: Label = card.get_child(1)
+	var text := button.accessibility_name
+	var font := caption.get_theme_font("font")
+	var px := caption.get_theme_font_size("font_size")
+	if font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x > card.size.x:
+		var marks := text.find(" ✓")
+		if marks >= 0:
+			text = text.substr(0, marks) + "\n" + text.substr(marks + 1)
+		else:
+			var lines := PackedStringArray([""])
+			for word in text.split(" "):
+				var line := lines[-1] + (" " if lines[-1] != "" else "") + word
+				if lines[-1] != "" and font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x > card.size.x:
+					lines.append(word)
+				else:
+					lines[-1] = line
+			text = "\n".join(lines)
+	caption.text = text
 
 
 func _thumb_text(i: int) -> String:
@@ -1385,7 +1427,8 @@ func refresh_thumbs() -> void:
 	var kids := thumbs.get_children()
 	for i in _viewer_plates.size():
 		if i + 1 < kids.size():
-			kids[i + 1].text = _thumb_text(i)
+			kids[i + 1].accessibility_name = _thumb_text(i)
+			_fit_thumb_caption(kids[i + 1])
 	_refresh_viewer_steps()
 	_sync_micrometer_controls()
 
@@ -1913,13 +1956,15 @@ func _build_pause(root: Control) -> void:
 	slip.set_anchors_preset(Control.PRESET_FULL_RECT)
 	slip.anchor_left = 0.5
 	slip.anchor_right = 0.5
-	slip.offset_left = -150
-	slip.offset_right = 150
-	slip.offset_top = 56
-	slip.offset_bottom = -56
+	slip.offset_left = -360
+	slip.offset_right = 360
+	slip.anchor_top = 0.5
+	slip.anchor_bottom = 0.5
+	slip.offset_top = 0
+	slip.offset_bottom = 0
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.follow_focus = true
 	scroll.get_v_scroll_bar().custom_minimum_size.x = 10
 	slip.add_child(scroll)
@@ -1930,6 +1975,12 @@ func _build_pause(root: Control) -> void:
 	_pause_heading = _label(L.t("暫停"), 36)
 	_pause_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(_pause_heading)
+	var rows := GridContainer.new()
+	rows.columns = 2
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("h_separation", 12)
+	rows.add_theme_constant_override("v_separation", 0)
+	v.add_child(rows)
 	var r := _button(L.t("繼續"))
 	_resume_button = r
 	r.pressed.connect(func():
@@ -1937,7 +1988,7 @@ func _build_pause(root: Control) -> void:
 			close_settings()
 		else:
 			toggle_pause())
-	v.add_child(r)
+	rows.add_child(r)
 	music_button = _button(L.t("音樂靜音：關") if ScorePlayer.music_enabled() else L.t("音樂靜音：開"))
 	music_button.pressed.connect(func():
 		ScorePlayer.set_music_enabled(not ScorePlayer.music_enabled())
@@ -1966,11 +2017,11 @@ func _build_pause(root: Control) -> void:
 			first_slider = slider
 		elif bus == "SFX":
 			last_slider = slider
-		v.add_child(card)
+		rows.add_child(card)
 		if bus == "Music":
 			music_row = row
 			music_slider = slider
-			v.add_child(music_button)
+			rows.add_child(music_button)
 	r.focus_next = r.get_path_to(music_button)
 	music_button.focus_next = music_button.get_path_to(first_slider)
 	music_button.focus_previous = music_button.get_path_to(r)
@@ -1982,51 +2033,51 @@ func _build_pause(root: Control) -> void:
 	_sync_music_row()
 	fullscreen_button = _button(L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關"))
 	fullscreen_button.pressed.connect(_toggle_fullscreen)
-	v.add_child(fullscreen_button)
+	rows.add_child(fullscreen_button)
 	text_size_button = _button(_text_size_caption())
 	text_size_button.pressed.connect(_cycle_text_size)
-	v.add_child(text_size_button)
+	rows.add_child(text_size_button)
 	quality_button = _button(_quality_caption())
 	quality_button.pressed.connect(_cycle_quality)
-	v.add_child(quality_button)
+	rows.add_child(quality_button)
 	# Dialogue is built when a scene starts, so a language change reloads the title.
 	language_button = _button(_language_caption())
 	language_button.pressed.connect(_cycle_language)
-	v.add_child(language_button)
+	rows.add_child(language_button)
 	var look := _button(L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	look.pressed.connect(func():
 		Settings.cycle_look_speed()
 		look.text = L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
-	v.add_child(look)
+	rows.add_child(look)
 	var invert := _button(L.t("上下反轉：開") if Settings.invert_y else L.t("上下反轉：關"))
 	invert.pressed.connect(func():
 		Settings.toggle_invert_y()
 		invert.text = L.t("上下反轉：開") if Settings.invert_y else L.t("上下反轉：關"))
-	v.add_child(invert)
+	rows.add_child(invert)
 	var motion := _button(L.t("減少晃動：開") if Settings.reduced_motion else L.t("減少晃動：關"))
 	motion.pressed.connect(func():
 		Settings.toggle_reduced_motion()
 		motion.text = L.t("減少晃動：開") if Settings.reduced_motion else L.t("減少晃動：關"))
-	v.add_child(motion)
+	rows.add_child(motion)
 	hold_button = _button(L.t("長按互動：按一下") if Settings.hold_toggle else L.t("長按互動：按住"))
 	hold_button.pressed.connect(func():
 		Settings.toggle_hold_toggle()
 		hold_button.text = L.t("長按互動：按一下") if Settings.hold_toggle else L.t("長按互動：按住"))
-	v.add_child(hold_button)
+	rows.add_child(hold_button)
 	var help := _button(L.t("操作說明"))
 	help.pressed.connect(_open_help)
-	v.add_child(help)
+	rows.add_child(help)
 	var mic_step := _button(L.t("測微器步幅：%s×") % str(Settings.mic_step))
 	mic_step.pressed.connect(func():
 		Settings.cycle_mic_step()
 		mic_step.text = L.t("測微器步幅：%s×") % str(Settings.mic_step))
-	v.add_child(mic_step)
+	rows.add_child(mic_step)
 	var mic_cross := _button(L.t("測微器大十字線：開") if Settings.mic_large_cross else L.t("測微器大十字線：關"))
 	mic_cross.pressed.connect(func():
 		Settings.toggle_mic_large_cross()
 		mic_cross.text = L.t("測微器大十字線：開") if Settings.mic_large_cross else L.t("測微器大十字線：關")
 		mic_overlay.queue_redraw())
-	v.add_child(mic_cross)
+	rows.add_child(mic_cross)
 	_pause_title_btn = _button(L.t("回到標題"))
 	var pause_title := _pause_title_btn
 	pause_title.pressed.connect(func():
@@ -2035,7 +2086,7 @@ func _build_pause(root: Control) -> void:
 			pause_title.text = L.t("再按一次：回到標題")
 			return
 		_return_to_title())
-	v.add_child(pause_title)
+	rows.add_child(pause_title)
 	# Restart and quit throw away the run, and there is no save: ask twice.
 	restart_button = _button(L.t("從頭開始"))
 	restart_button.pressed.connect(func():
@@ -2045,7 +2096,7 @@ func _build_pause(root: Control) -> void:
 			return
 		get_tree().paused = false
 		restart_pressed.emit(true))
-	v.add_child(restart_button)
+	rows.add_child(restart_button)
 	quit_button = _button(L.t("離開遊戲"))
 	quit_button.pressed.connect(func():
 		if not _quit_armed:
@@ -2053,13 +2104,41 @@ func _build_pause(root: Control) -> void:
 			quit_button.text = L.t("再按一次：離開（進度不會保留）")
 			return
 		quit_pressed.emit())
-	v.add_child(quit_button)
+	rows.add_child(quit_button)
+	# Fill the two visual columns in reading order, keeping each group together.
+	var volume_cards := [first_slider.get_parent().get_parent(), music_row.get_parent(), last_slider.get_parent().get_parent()]
+	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, language_button]
+	var right := [invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	for i in left.size():
+		rows.move_child(left[i], i * 2)
+		if i < right.size():
+			rows.move_child(right[i], i * 2 + 1)
+	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, language_button, invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	for i in focus_order.size():
+		var button: Control = focus_order[i]
+		button.focus_next = button.get_path_to(focus_order[(i + 1) % focus_order.size()])
+		button.focus_previous = button.get_path_to(focus_order[(i - 1 + focus_order.size()) % focus_order.size()])
 	for button in [r, music_button, fullscreen_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
-	# Long labels (the armed 「再按一次：…」 texts at 大) wrap inside the 300 px column instead of widening it.
+	# Keep the engraved rows in two columns so both text sizes fit at 720p.
+	for row: Control in rows.get_children():
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Long confirmation labels wrap within their column.
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size.y = Settings.fs(46)
+	# Scroll only when necessary; otherwise the paper ends at its last row.
+	var fit_slip := _fit_pause_slip.bind(v, root, scroll, slip)
+	v.minimum_size_changed.connect(fit_slip)
+	root.resized.connect(fit_slip)
+	fit_slip.call_deferred()
+
+
+func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer) -> void:
+	var height := minf(v.get_combined_minimum_size().y, root.size.y - 112)
+	scroll.custom_minimum_size.y = height
+	slip.offset_top = -height / 2.0
+	slip.offset_bottom = height / 2.0
 
 
 func _toggle_fullscreen() -> void:
@@ -2120,6 +2199,8 @@ func toggle_pause() -> void:
 	var p := not get_tree().paused
 	if p:
 		_pause_focus = get_viewport().gui_get_focus_owner()
+		_pause_objectives_visible = objectives.get_parent().visible
+		objectives.get_parent().hide()
 	get_tree().paused = p
 	pause_panel.visible = p
 	if p:
@@ -2130,6 +2211,7 @@ func toggle_pause() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	else:
+		objectives.get_parent().visible = _pause_objectives_visible
 		_restart_armed = false
 		_quit_armed = false
 		_title_armed = false
@@ -2469,7 +2551,7 @@ func _print_menu(node: Node) -> void:
 		paper.set_expand_margin_all(0)
 		if node.get_parent() == pause_panel:
 			paper.set_content_margin_all(0)
-		elif node.get_parent() is VBoxContainer and node.get_parent().get_parent() is ScrollContainer and pause_panel.is_ancestor_of(node):
+		elif node.get_parent() is GridContainer and pause_panel.is_ancestor_of(node):
 			paper.set_content_margin_all(10)
 			paper.set_border_width_all(0)
 			paper.border_width_bottom = 1

@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Settings := preload("res://scripts/settings.gd")
+const NativeCaption := preload("res://tools/layout_720p/native_caption.gd")
 const Content := preload("res://scripts/content.gd")
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Render := preload("res://scripts/plate_render.gd")
@@ -53,6 +54,11 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_plate_pause()
+	if "--plate-pause-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds plate/pause: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_darkroom_chart()
 	if "--darkroom-chart-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds darkroom chart: %d checks, %d failures" % [checks, failures])
@@ -210,7 +216,7 @@ func _run() -> void:
 			ui._close_help()
 			bounds(ui.pause_panel)
 			var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
-			var buttons: Array = scroll.find_children("*", "Button", true, false)
+			var buttons: Array = scroll.find_children("*", "Button", true, false).filter(func(button): return button.is_visible_in_tree())
 			for button in buttons:
 				scroll.ensure_control_visible(button)
 				await settle()
@@ -226,7 +232,7 @@ func _run() -> void:
 				scroll.ensure_control_visible(button)
 				await settle()
 				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "armed pause button reachable: " + button.text)
-				check(scroll.size.x <= 301.0, "armed pause column stays 300 px: " + button.text)
+				check(button.size.x <= scroll.size.x / 2.0 + 1.0, "armed pause text stays in its column: " + button.text)
 				var content_width: float = button.size.x - button.get_theme_stylebox("normal").get_minimum_size().x
 				var font := button.get_theme_font("font")
 				var font_size := button.get_theme_font_size("font_size")
@@ -641,3 +647,214 @@ func _test_darkroom_chart() -> void:
 	L.apply(old_locale)
 	Settings.text_scale = old_scale
 	root.size = old_size
+
+
+func _test_plate_pause() -> void:
+	var locale := L.current()
+	var scale := Settings.text_scale
+	var window := root.size
+	var sim := Sim.new(77)
+	sim.plates_delivered = sim.MAX_EXTRA_PLATES
+	for i in sim.plates_available():
+		sim.open_shutter(float(i * 24))
+		for step in 32:
+			sim.accumulate(0.25, sim.cloud_over_sun(float(i * 24) + step * 0.25))
+		sim.close_shutter(false)
+	var textures: Array = []
+	for plate in sim.plates:
+		plate.included = plate.usable
+		plate.read = true
+		textures.append(Render.render(sim, plate))
+	var comparison := Render.render(sim, null)
+	for language in L.LOCALES:
+		L.apply(language)
+		root.size = Vector2i(1280, 720)
+		# Match tools/layout_720p/capture.gd: the main scene also refreshes the
+		# viewer note, chart and thumbnail captions after opening the viewer.
+		seed(77)
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game.player.set_physics_process(false)
+		game.ui.set_process(false)
+		var ui = game.ui
+		ui.hide_title()
+		ui.hud.hide()
+		game.sim = sim
+		game.plate_textures = textures
+		game.comparison_tex = comparison
+		for viewport in [Vector2i(1280, 720), Vector2i(1280, 800), Vector2i(1920, 1080)]:
+			root.size = viewport
+			for text_scale in [1.0, 1.2]:
+				context = "plate/pause %s %s scale %.1f" % [language, viewport, text_scale]
+				Settings.text_scale = text_scale
+				Settings.refresh_fonts(self)
+				ui.chart.refresh_fonts()
+				game._open_viewer()
+				await settle()
+				bounds(ui.viewer)
+				check(ui.thumbs.columns == 4, "four thumbnail columns retained")
+				check(ui.thumbs.get_child_count() == 13, "all thirteen tiles checked")
+				for index in ui.thumbs.get_child_count():
+					var button: Button = ui.thumbs.get_child(index)
+					var before := failures
+					var captions := button.find_children("*Caption", "Label", true, false)
+					var text: String = button.text if captions.is_empty() else captions[0].text
+					var expected: String = ui._thumb_text(index - 1) if index > 0 else L.t("牛津比對片")
+					var text_node: Control = button if captions.is_empty() else captions[0]
+					var lines: PackedStringArray
+					if captions.is_empty():
+						lines = NativeCaption.geometry(button).lines
+					else:
+						var paragraph := NativeCaption.paragraph_for(text_node, text_node.size.x)
+						lines = PackedStringArray()
+						for i in paragraph.get_line_count():
+							var span := paragraph.get_line_range(i)
+							lines.append(text.substr(span.x, span.y - span.x).strip_edges())
+					check(text_node.get_theme_font_size("font_size") == roundi(14 * text_scale), "thumbnail font size preserved")
+					check(text.replace("\n", " ") == expected, "full thumbnail caption preserved")
+					for line in lines:
+						check(line.strip_edges().length() > 1, "no single-character caption line: " + line)
+					if language == "ko":
+						check(" ".join(lines) == expected, "Korean caption words stay intact: " + " / ".join(lines))
+					if index > 0 and lines.size() > 1:
+						var marks := expected.find(" ✓")
+						check("\n".join(lines) == expected.substr(0, marks) + "\n" + expected.substr(marks + 1), "caption wraps only between number and marks: " + " / ".join(lines))
+					print("Caption semantic %s tile %d %s scale %.1f violation %s lines %s" % [language, index, viewport, text_scale, failures > before, " / ".join(lines)])
+					if DisplayServer.get_name() != "headless":
+						for selected in [true, false]:
+							ui.thumbs.get_child(index if selected else (index + 1) % 13).grab_focus()
+							await settle()
+							var measured := await _caption_painted_bounds(button)
+							var ink: Rect2 = measured.caption
+							var tile := button.get_global_rect().grow(-1)
+							var overflow := maxf(0, maxf(maxf(tile.position.x - ink.position.x, ink.end.x - tile.end.x), maxf(tile.position.y - ink.position.y, ink.end.y - tile.end.y)))
+							var image_rect: Rect2 = measured.image
+							var image_overlap := ink.intersects(image_rect)
+							print("Caption %s tile %d %s scale %.1f %s: overflow %.2f image_overlap %s ink %s tile %s" % [language, index, viewport, text_scale, "selected" if selected else "unselected", overflow, image_overlap, ink, tile])
+							check(overflow == 0, "painted caption stays wholly inside tile %d: %s / %s" % [index, ink, tile])
+							check(not image_overlap, "painted caption avoids plate image %d" % index)
+				ui.chart.set_data([], {}, false)
+				await settle()
+				var drawn: Dictionary = ui.chart.drawn()
+				var chart_rect := Rect2(Vector2.ZERO, ui.chart.size).grow(1)
+				check(drawn.axis_bounds.size() == 3 and drawn.hint_bounds.size() == 1, "chart actually paints axis and placeholder")
+				for rect: Rect2 in drawn.hint_bounds:
+					check(chart_rect.encloses(rect), "chart placeholder fits: %s" % rect)
+				for i in drawn.axis_bounds.size():
+					var rect: Rect2 = drawn.axis_bounds[i]
+					check(chart_rect.encloses(rect), "axis label fits: %s" % rect)
+					for j in range(i):
+						check(not rect.intersects(drawn.axis_bounds[j]), "axis labels stay separate")
+				ui.viewer.hide()
+				ui.hud.show()
+				ui.set_objectives("Pause objective text")
+				ui.toggle_pause()
+				await settle()
+				check(not ui.objectives.get_parent().is_visible_in_tree(), "modal pause hides objective slip")
+				var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
+				check(not scroll.get_v_scroll_bar().visible, "pause needs no scrolling")
+				for child: Control in scroll.get_child(0).get_children():
+					if child.visible:
+						check(scroll.get_global_rect().grow(1).encloses(child.get_global_rect()), "pause row fits: " + child.name)
+				_check_pause_columns(ui, scroll, language)
+				ui.hold_button.pressed.emit()
+				await settle()
+				_check_pause_text(scroll, language)
+				ui.hold_button.pressed.emit()
+				ui.toggle_pause()
+				check(ui.objectives.get_parent().is_visible_in_tree(), "resume restores objective slip")
+				ui.set_objectives("")
+				ui.toggle_pause()
+				ui.toggle_pause()
+				check(not ui.objectives.get_parent().visible, "resume preserves an already hidden objective slip")
+				ui.hud.hide()
+		game.stop_all_audio()
+		game.free()
+	root.size = window
+	L.apply(locale)
+	Settings.text_scale = scale
+
+
+func _check_pause_columns(ui, scroll: ScrollContainer, language: String) -> void:
+	var left: Array = [ui._resume_button]
+	for slider in scroll.find_children("*", "HSlider", true, false):
+		left.append(slider.get_parent().get_parent())
+	left.append(ui.music_button)
+	for i in range(1, left.size()):
+		check(absf(left[i].global_position.x - left[0].global_position.x) <= 1.0,
+			"resume, volumes and mute share the left column")
+		check(left[i].global_position.y >= left[i - 1].get_global_rect().end.y - 1.0,
+			"left column orders resume, three volumes, mute")
+	var right: Array = [ui.restart_button, ui._pause_title_btn, ui.quit_button]
+	for i in right.size():
+		check(right[i].global_position.x >= left[0].get_global_rect().end.x,
+			"start over, title and quit occupy the right column")
+		check(absf(right[i].global_position.x - right[0].global_position.x) <= 1.0,
+			"start over, title and quit share a column")
+		if i > 0:
+			check(absf(right[i].global_position.y - right[i - 1].get_global_rect().end.y) <= 1.0,
+				"right column ends with adjacent start over, title, quit")
+	var last_row_bottom := 0.0
+	for button in scroll.find_children("*", "Button", true, false):
+		if button.is_visible_in_tree():
+			check(scroll.get_global_rect().grow(1).encloses(button.get_global_rect()), "pause button fits: " + button.text)
+			last_row_bottom = maxf(last_row_bottom, button.get_global_rect().end.y)
+	check(absf(ui.quit_button.get_global_rect().end.y - last_row_bottom) <= 1.0, "quit sits at the foot of the menu")
+	var gap: float = scroll.get_parent().get_global_rect().end.y - last_row_bottom
+	check(gap >= -1.0 and gap <= 1.0, "pause paper ends under last row: gap %.1f" % gap)
+	_check_pause_text(scroll, language)
+
+
+func _check_pause_text(scroll: ScrollContainer, language: String) -> void:
+	for button in scroll.find_children("*", "Button", true, false):
+		if not button.is_visible_in_tree():
+			continue
+		var margin := Vector2.ZERO
+		for state in ["normal", "hover", "pressed", "disabled", "hover_pressed", "focus"]:
+			margin = margin.max(button.get_theme_stylebox(state).get_minimum_size())
+		var paragraph := NativeCaption.paragraph_for(button, button.size.x - margin.x)
+		check(paragraph.get_size().y <= button.size.y - margin.y + 1.0, "pause text fits its row: " + button.text)
+		if language == "ko":
+			var span := paragraph.get_line_range(paragraph.get_line_count() - 1)
+			var last: String = button.text.substr(span.x, span.y - span.x).strip_edges()
+			check(not (last.length() == 1 and last.unicode_at(0) >= 0xac00 and last.unicode_at(0) <= 0xd7a3),
+				"Korean pause last line is not one syllable: " + button.text + " / " + last)
+
+
+## Native text is reconstructed without theme mutations; the original raster
+## must contain its glyphs. Separate Label captions still use a transparent frame.
+func _caption_painted_bounds(button: Button) -> Dictionary:
+	await RenderingServer.frame_post_draw
+	var painted := root.get_texture().get_image()
+	if button.icon != null:
+		var measured := await NativeCaption.measure(self, button, painted, NativeCaption.geometry(button))
+		check(measured.cores > 0 and measured.raster_match >= 0.90, "native reconstruction matches untouched caption raster: %.3f" % measured.raster_match)
+		return measured
+	var captions := button.find_children("*Caption", "Label", true, false)
+	var text_node: Label = captions[0]
+	var color := text_node.self_modulate
+	# Theme overrides trigger caption fitting and can move the plate image.
+	text_node.self_modulate = Color.TRANSPARENT
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var blank := root.get_texture().get_image()
+	text_node.self_modulate = color
+	var pixel_scale := Vector2(painted.get_size()) / root.get_visible_rect().size
+	var tile := button.get_global_rect()
+	var region := Rect2i(((tile.position - Vector2(40, 40)) * pixel_scale).floor(), ((tile.size + Vector2(80, 80)) * pixel_scale).ceil())
+	region = region.intersection(Rect2i(Vector2i.ZERO, painted.get_size()))
+	var ink := Rect2i()
+	var pixels := 0
+	for y in range(region.position.y, region.end.y):
+		for x in range(region.position.x, region.end.x):
+			var a := painted.get_pixel(x, y)
+			var b := blank.get_pixel(x, y)
+			if maxf(absf(a.r - b.r), maxf(absf(a.g - b.g), absf(a.b - b.b))) > 0.03:
+				var pixel := Rect2i(x, y, 1, 1)
+				ink = pixel if pixels == 0 else ink.merge(pixel)
+				pixels += 1
+	check(pixels > 0, "tile caption actually painted")
+	var images := button.find_children("*", "TextureRect", true, false)
+	check(images.size() == 1, "tile image measured")
+	return {"caption": Rect2(Vector2(ink.position) / pixel_scale, Vector2(ink.size) / pixel_scale), "image": images[0].get_global_rect()}

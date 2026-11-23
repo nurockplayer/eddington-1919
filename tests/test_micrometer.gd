@@ -311,7 +311,7 @@ func _run() -> void:
 		await _button(JOY_BUTTON_A)
 		check(game4.sim.plates[0].get("read", false) and is_equal_approx(ui4.micrometer_px, 0.25),
 			"D-pad and A record after selection is locked")
-		check(ui4.thumbs.get_child(1).text.contains("✓讀") and ui4.thumbs.get_child(1).modulate != Color.WHITE,
+		check(ui4.thumbs.get_child(1).accessibility_name.contains("✓讀") and ui4.thumbs.get_child(1).modulate != Color.WHITE,
 			"recording flashes the thumbnail read mark")
 		await create_timer(0.4).timeout
 		check(ui4.thumbs.get_child(1).modulate == Color.WHITE, "thumbnail pulse returns to normal")
@@ -319,7 +319,7 @@ func _run() -> void:
 		check(ui4.viewer_note.text.contains("第2號還沒讀數，不會算進去。"), "partial reading keeps the not-counted note")
 		Settings.reduced_motion = true
 		_read_plate(game4, 0, 1.75)
-		check(ui4.thumbs.get_child(1).text.contains("✓讀") and ui4.thumbs.get_child(1).modulate == Color.WHITE,
+		check(ui4.thumbs.get_child(1).accessibility_name.contains("✓讀") and ui4.thumbs.get_child(1).modulate == Color.WHITE,
 			"reduced motion records the mark without a pulse")
 		Settings.reduced_motion = reduced_before
 		ui4.mic_btn.button_pressed = false

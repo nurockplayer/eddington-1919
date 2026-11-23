@@ -46,8 +46,10 @@ static func track_font(node: Control, px: int) -> void:
 static func _apply_font(node: Control) -> void:
 	var size := fs(int(node.get_meta("base_font_size")))
 	if node is RichTextLabel:
+		node.begin_bulk_theme_override()
 		for key in ["normal_font_size", "bold_font_size", "italics_font_size", "bold_italics_font_size", "mono_font_size"]:
 			node.add_theme_font_size_override(key, size)
+		node.end_bulk_theme_override()
 	else:
 		node.add_theme_font_size_override("font_size", size)
 

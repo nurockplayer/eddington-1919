@@ -208,7 +208,7 @@ func _run() -> void:
 	for i in plates.size():
 		ui._select_plate(i, textures[i], false)
 		check(not ui.plate_info.text.contains("星像清楚") and not ui.plate_info.text.contains("拖長或被雲霧蓋住") and not ui.plate_info.text.contains("量得偏折") and not ui.plate_info.text.contains("±"), "player quality and values stay hidden before measuring")
-		check(not ui.thumbs.get_child(i + 1).text.contains("清楚") and not ui.thumbs.get_child(i + 1).text.contains("拖長"), "player thumbnails contain no quality captions")
+		check(not ui.thumbs.get_child(i + 1).accessibility_name.contains("清楚") and not ui.thumbs.get_child(i + 1).accessibility_name.contains("拖長"), "player thumbnails contain no quality captions")
 	ui.loupe_btn.grab_focus()
 	await pad(JOY_BUTTON_A)
 	var zoom := ui.big_plate.texture as AtlasTexture
