@@ -160,7 +160,8 @@ func _draw() -> void:
 	var axis_height := font.get_height(axis_px)
 	for ref in refs:
 		axis_height = maxf(axis_height, font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px).y)
-	var bottom := scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
+	var compact := h < 180.0
+	var bottom := scroll + h - axis_height - 4.0 if compact else scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
@@ -212,11 +213,12 @@ func _draw() -> void:
 			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px)), "marker": Rect2(p - Vector2(6, 6), Vector2(12, 12))})
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	# Cover scrolled rows in the fixed result and axis bands.
-	var fixed_y := bottom - font.get_height(Settings.fs(16)) - 30.0
-	draw_rect(Rect2(0, fixed_y - 12.0, w, scroll + h - fixed_y + 12.0), Color(0.09, 0.08, 0.07, 0.95))
+	var fixed_y := bottom - 14.0 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
+	draw_rect(Rect2(0, fixed_y - 24.0, w, scroll + h - fixed_y + 24.0), Color(0.09, 0.08, 0.07, 0.95))
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, fixed_y - 12.0), Vector2(x, bottom), ref[2], 2.0, 6.0)
+	var compact_x := 4.0
 	for i in refs.size():
 		var ref: Array = refs[i]
 		var x := _x(ref[0], w)
@@ -224,6 +226,9 @@ func _draw() -> void:
 		var text_size := font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px)
 		var origin := Vector2(clampf(x - 40, 4, w - text_size.x - 4),
 			bottom + 22.0 * Settings.text_scale + (axis_height + 3.0) * (i % 2))
+		if compact:
+			origin = Vector2(compact_x, bottom + font.get_ascent(axis_px))
+			compact_x += text_size.x + 8.0
 		_drawn_axis_bounds.append(Rect2(origin - Vector2(0, font.get_ascent(axis_px)), text_size))
 		draw_string(font, origin, ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), ref[2])
 	for t in range(0, int(X_MAX) + 1):
@@ -255,7 +260,7 @@ func _draw() -> void:
 		_drawn_texts.append(combined_value)
 		var px := Settings.fs(16)
 		var width := font.get_string_size(combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
-		var baseline := Vector2(minf(cx + 14, w - width - 8), y + 14.0 + font.get_ascent(px))
+		var baseline := Vector2(minf(cx + 14, w - width - 8), y + 5.0 * Settings.text_scale if compact else y + 14.0 + font.get_ascent(px))
 		_drawn_result_bounds = Rect2(baseline - Vector2(0, font.get_ascent(px)),
 			Vector2(width, font.get_height(px)))
 		# The reference lines stay in place, but cannot strike through the reading.
