@@ -246,6 +246,7 @@ func _test_rehearsal() -> void:
 	for i in cases.size():
 		game.sim.drive_wound = i == 6
 		game.sim.drive_rate_checked = i == 6
+		game.sim.drive_error = 0.0 if i == 6 else 1.0
 		game._interact("eddington")
 		game.ui._advance()
 		check(game.ui._choice_buttons.size() == 4, "PREP offers rehearsal and keeps dismiss last")
