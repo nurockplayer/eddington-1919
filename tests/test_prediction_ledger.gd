@@ -231,6 +231,8 @@ func _test_verdict_hold(story: Node) -> void:
 	for verdict in 4:
 		game.phase = game.Phase.NIGHT
 		game._run_record_index = -1
+		game._coda_transition = null
+		game.ui.history.clear()
 		game.ui.ending_panel.hide()
 		game._open_viewer()
 		game.ui.report_btn.pressed.emit()
@@ -297,9 +299,10 @@ func _test_verdict_hold(story: Node) -> void:
 			"verdict %d reaches ending with exactly one saved verdict" % verdict)
 		check(game.sim.plates == plates and game.sim.combined() == combined,
 			"the delay leaves plate values and combined measurements unchanged")
-	game.phase = game.Phase.NIGHT
-	game.sim.plates = []
-	game.plate_textures = []
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+	game = await _new_game(story, false, {})
 	game._open_viewer()
 	game.ui.report_btn.pressed.emit()
 	check(game._pending == "judgment" and game.ui._seq[0].key == "telegram",
