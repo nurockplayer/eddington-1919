@@ -54,6 +54,7 @@ func settle() -> void:
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_trim_sheet()
 	await _test_portrait_report()
 	if "--portrait-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds portrait: %d checks, %d failures" % [checks, failures])
@@ -91,6 +92,8 @@ func _run() -> void:
 	var sim := Sim.new(77)
 	sim.plates_delivered = sim.MAX_EXTRA_PLATES
 	sim.drive_rate_checked = true
+	sim.drive_error = 0.0 if true else 1.0
+	sim.drive_wound = true
 	# Run the maximum 12 exposures through the same shutter and cloud model.
 	for i in sim.plates_available():
 		var start := float(i * 24)
@@ -1025,3 +1028,60 @@ func _caption_painted_bounds(button: Button) -> Dictionary:
 	var images := button.find_children("*", "TextureRect", true, false)
 	check(images.size() == 1, "tile image measured")
 	return {"caption": Rect2(Vector2(ink.position) / pixel_scale, Vector2(ink.size) / pixel_scale), "image": images[0].get_global_rect()}
+
+
+func _test_trim_sheet() -> void:
+	var locale := L.current()
+	var scale := Settings.text_scale
+	var window := root.size
+	var motion := Settings.reduced_motion
+	for language in ["en", "ja", "zh_TW", "ko"]:
+		L.apply(language)
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game.player.set_physics_process(false)
+		game.ui.set_process(false)
+		game.ui.hide_title()
+		game.phase = game.Phase.PREP
+		game.sim.drive_wound = true
+		game.sim.drive_error = 0.0
+		for viewport in [Vector2i(1280, 720), Vector2i(1280, 800), Vector2i(1920, 1080), Vector2i(2560, 1440)]:
+			root.size = viewport
+			for text_scale in [1.0, 1.2]:
+				Settings.text_scale = text_scale
+				Settings.refresh_fonts(self)
+				for reduced in [false, true]:
+					Settings.reduced_motion = reduced
+					context = "trim %s %s scale %.1f reduced %s" % [language, viewport, text_scale, reduced]
+					game.sim.drive_rate_checked = false
+					game._interact_needs_release = false
+					game.ui.hud.show()
+					game.ui.set_objectives("Objective slip")
+					game._interact("drive")
+					await settle()
+					var panel = game.calibration
+					check(panel.visible, "real drive interaction opens sheet")
+					check(not game.ui.objectives.is_visible_in_tree() and not game.ui.clock_label.is_visible_in_tree(), "no objective or clock behind sheet")
+					bounds(panel.sheet)
+					for label in [panel.caption, panel.status, panel.verified, panel.hint, panel.controls]:
+						check(panel.sheet.get_global_rect().encloses(label.get_global_rect()), "sheet encloses text")
+						check(label.get_minimum_size().y <= label.size.y + 1.0, "text fits reserved height")
+					var output_scale: Vector2 = panel.diagram.get_screen_transform().get_scale().abs()
+					check(panel._stroke_width() * minf(output_scale.x, output_scale.y) >= 1.0, "each ink stroke is at least one output pixel")
+					var sheet_rect: Rect2 = panel.sheet.get_global_rect()
+					var figure_rect: Rect2 = panel.diagram.get_global_rect()
+					check(sheet_rect.size.x <= panel.size.x - 48.0, "sheet leaves world visible beside it")
+					check(panel.verified.modulate.a == 0.0, "unverified row is reserved without ink")
+					panel.advance(3.0)
+					await settle()
+					check(panel.verified.modulate.a == 1.0, "verification fills reserved row")
+					check(panel.sheet.get_global_rect() == sheet_rect and panel.diagram.get_global_rect() == figure_rect, "verification moves neither sheet rules nor cross wires")
+					game._close_calibration()
+					check(game.ui.objectives.is_visible_in_tree() and game.ui.clock_label.is_visible_in_tree(), "leaving sheet restores HUD")
+		game.stop_all_audio()
+		game.free()
+	L.apply(locale)
+	Settings.text_scale = scale
+	Settings.reduced_motion = motion
+	root.size = window

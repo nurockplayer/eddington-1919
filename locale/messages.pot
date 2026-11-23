@@ -14,7 +14,7 @@ msgstr ""
 msgid "\n1919 年你改成：%s。"
 msgstr ""
 
-#: scripts/main.gd:1295
+#: scripts/main.gd:1403
 msgid "\nCottingham 只能自己趕著上發條，來不及對時。"
 msgstr ""
 
@@ -26,43 +26,43 @@ msgstr ""
 msgid "\n[color=#8f8676][font_size=%d]虛構與示意：玩家角色、全部對白、時鐘驅動需要協助的情節、雲的細節、底片影像與所有數值。場景為推測重建；普林西比站沒有已知的現場照片，原始底片也已佚失。[/font_size][/color]"
 msgstr ""
 
-#: scripts/main.gd:1644
+#: scripts/main.gd:1767
 msgid "\n[color=#fd8]合併：%.2f″ ± %.2f″（兩倍誤差 %.2f–%.2f″）[/color]"
 msgstr ""
 
-#: scripts/main.gd:1243
+#: scripts/main.gd:1333
 msgid "\n你：『停！』　Eddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"
 msgstr ""
 
-#: scripts/ui.gd:2166
+#: scripts/ui.gd:2349
 msgid "\n全食時：空白鍵（或 RB／X）喊開始與停。"
 msgstr ""
 
-#: scripts/main.gd:1421
+#: scripts/main.gd:1542
 msgid "\n快門還開著——最後那張底片曝到了陽光。"
 msgstr ""
 
-#: scripts/ui.gd:1401
+#: scripts/ui.gd:1519
 msgid "\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。"
 msgstr ""
 
-#: scripts/main.gd:1297
-msgid "\n發條上滿了，但走速沒有校過。"
+#: scripts/main.gd:1405
+msgid "\n發條上滿了，但走速尚未驗證。"
 msgstr ""
 
-#: scripts/main.gd:1657
+#: scripts/main.gd:1780
 msgid "\n第%d號還沒讀數，不會算進去。"
 msgstr ""
 
-#: scripts/main.gd:1648
+#: scripts/main.gd:1771
 msgid "\n第一次量：%.2f″ ± %.2f″"
 msgstr ""
 
-#: scripts/main.gd:1650
+#: scripts/main.gd:1773
 msgid "\n第一次量：沒有量出任何數值。"
 msgstr ""
 
-#: scripts/main.gd:1645
+#: scripts/main.gd:1768
 msgid "\n細線是兩倍誤差：Eddington 的判準是，兩倍誤差之內容得下哪個預測、又排除了哪個。"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgstr ""
 msgid "\n（和你的底片放在一起看——兩套儀器、隔一個大西洋。）"
 msgstr ""
 
-#: scripts/ui.gd:1312
+#: scripts/ui.gd:1429
 msgid " ✓讀"
 msgstr ""
 
@@ -84,7 +84,7 @@ msgid_plural "%.2f″ ± %.2f″（量 %d 張）"
 msgstr[0] ""
 msgstr[1] ""
 
-#: scripts/main.gd:1743
+#: scripts/main.gd:1866
 msgid "%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″"
 msgstr ""
 
@@ -96,11 +96,15 @@ msgstr ""
 msgid "%s\n\n（虛構）"
 msgstr ""
 
-#: scripts/main.gd:1176
+#: scripts/coelostat_calibration.gd:150
+msgid "%s · 漂移 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgstr ""
+
+#: scripts/main.gd:1249
 msgid "%s 協助 Cottingham 上發條"
 msgstr ""
 
-#: scripts/main.gd:1174
+#: scripts/main.gd:1247
 msgid "%s 向 Eddington 報到"
 msgstr ""
 
@@ -108,12 +112,12 @@ msgstr ""
 msgid "%s 和 %s"
 msgstr ""
 
-#: scripts/main.gd:1175
+#: scripts/main.gd:1248
 msgid "%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）"
 msgstr ""
 
-#: scripts/main.gd:1177
-msgid "%s 用天文鐘替他校走速"
+#: scripts/main.gd:1250
+msgid "%s 觀察追蹤、請 Cottingham 微調走速"
 msgstr ""
 
 #: scripts/content.gd:231
@@ -156,7 +160,7 @@ msgstr ""
 msgid "%s（%s）"
 msgstr ""
 
-#: scripts/content_coda.gd:24 scripts/ui.gd:573
+#: scripts/content_coda.gd:24 scripts/ui.gd:608
 msgid "%s：%s"
 msgstr ""
 
@@ -216,11 +220,11 @@ msgstr ""
 msgid "1917 年 11 月 10 日，聯合常設日食委員會決定：如果可能，派隊到巴西的 Sobral 和非洲西岸外海的普林西比島。"
 msgstr ""
 
-#: scripts/main.gd:1622
+#: scripts/main.gd:1745
 msgid "1917 年押的"
 msgstr ""
 
-#: scripts/main.gd:1622
+#: scripts/main.gd:1745
 msgid "1917 年押的：說不準"
 msgstr ""
 
@@ -248,11 +252,11 @@ msgstr ""
 msgid "1919 年 3 月 8 日，兩支日食隊從利物浦搭船出發。"
 msgstr ""
 
-#: scripts/cambridge/departure_director.gd:167 scripts/cambridge/departure_props.gd:44
+#: scripts/cambridge/departure_director.gd:167 scripts/cambridge/departure_props.gd:50
 msgid "1919 年 5 月 29 日"
 msgstr ""
 
-#: scripts/cambridge/content_departure.gd:164 scripts/main.gd:195
+#: scripts/cambridge/content_departure.gd:164 scripts/main.gd:224
 msgid "1919 年 5 月 29 日・普林西比"
 msgstr ""
 
@@ -260,11 +264,11 @@ msgstr ""
 msgid "1919 年 5 月 29 日有一次日全食。那天，太陽會停在金牛座一片星場的前面——那裡的亮星，多得不尋常。"
 msgstr ""
 
-#: scripts/main.gd:1629
+#: scripts/main.gd:1752
 msgid "1919 年押的"
 msgstr ""
 
-#: scripts/main.gd:1629
+#: scripts/main.gd:1752
 msgid "1919 年押的：說不準"
 msgstr ""
 
@@ -276,7 +280,7 @@ msgstr ""
 msgid "43 角秒很小：一度是 3600 角秒，它還不到一度的八十分之一。可是一百多年的紀錄量下來，這個差比量測誤差大得多，而且每個世紀都往同一邊多走，不會抵消。"
 msgstr ""
 
-#: scripts/prompts.gd:8
+#: scripts/prompts.gd:8 scripts/ui.gd:2357
 msgid "A 鍵"
 msgstr ""
 
@@ -292,8 +296,12 @@ msgstr ""
 msgid "Ashby 先生寫的：0.87。\n你寫的：%s（%s）。"
 msgstr ""
 
-#: scripts/main.gd:1484 scripts/main.gd:979
+#: scripts/main.gd:1039 scripts/main.gd:1606
 msgid "Ashby 先生給的放大鏡。"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "B 鍵"
 msgstr ""
 
 #: scripts/content.gd:20
@@ -321,7 +329,7 @@ msgid "Cottingham：「一半在雲裡，一半透了光。」"
 msgstr ""
 
 #: scripts/content.gd:362
-msgid "Cottingham：「二十秒了——驅動沒對過時，再久星像會拖長。」"
+msgid "Cottingham：「二十秒了——走速尚未驗證，留意曝光時間。」"
 msgstr ""
 
 #: scripts/content.gd:361
@@ -332,12 +340,16 @@ msgstr ""
 msgid "Cottingham：「太短了，大概什麼都沒留下。」"
 msgstr ""
 
-#: scripts/main.gd:950
-msgid "Cottingham：「好，接著去天文鐘那裡。」"
+#: scripts/main.gd:1014
+msgid "Cottingham：「好，放開按鍵，再看追蹤示意圖。」"
 msgstr ""
 
 #: scripts/content.gd:338
 msgid "Cottingham：「整段幾乎都在雲後面。」"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:126
+msgid "Cottingham：「看看它剛才在哪裡，現在又在哪裡。試著微調一下。」"
 msgstr ""
 
 #: scripts/content.gd:334
@@ -360,7 +372,7 @@ msgstr ""
 msgid "Eddington 前幾天問我，這棟樓裡誰的紀錄最乾淨。"
 msgstr ""
 
-#: scripts/main.gd:1356
+#: scripts/main.gd:1472
 msgid "Eddington 抬頭看了一眼：「雲還是很厚……繼續。」"
 msgstr ""
 
@@ -372,7 +384,7 @@ msgstr ""
 msgid "Eddington 的清單。（把茶杯推過來，已經涼了）恭喜。真的。"
 msgstr ""
 
-#: scripts/main.gd:1237 scripts/main.gd:1316
+#: scripts/main.gd:1327 scripts/main.gd:1423
 msgid "Eddington 還在換片……"
 msgstr ""
 
@@ -380,7 +392,7 @@ msgstr ""
 msgid "Eddington 那個箱子，我後來又想了一次。這回在一面牆上開個小洞，讓一道光照進去。"
 msgstr ""
 
-#: scripts/main.gd:1243
+#: scripts/main.gd:1333
 msgid "Eddington："
 msgstr ""
 
@@ -398,8 +410,12 @@ msgid_plural "Eddington：「還有 %d 張底片。」"
 msgstr[0] ""
 msgstr[1] ""
 
-#: scripts/main.gd:1218
+#: scripts/main.gd:1308
 msgid "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。"
+msgstr ""
+
+#: scripts/prompts.gd:9
+msgid "E／Enter"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:26
@@ -438,11 +454,11 @@ msgstr ""
 msgid "Q／E"
 msgstr ""
 
-#: scripts/prompts.gd:8
+#: scripts/prompts.gd:8 scripts/ui.gd:2357
 msgid "RB／X 鍵"
 msgstr ""
 
-#: scripts/main.gd:1039
+#: scripts/main.gd:1104
 msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是莊園的工人砌的。報告謝了莊園主人，卻沒有寫下任何一個工人的名字。"
 msgstr ""
 
@@ -482,7 +498,7 @@ msgstr ""
 msgid "Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。"
 msgstr ""
 
-#: scripts/ui.gd:2190
+#: scripts/ui.gd:2412
 msgid "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停"
 msgstr ""
 
@@ -502,11 +518,11 @@ msgstr ""
 msgid "[b]你留下的證據[/b]"
 msgstr ""
 
-#: scripts/main.gd:1373
+#: scripts/main.gd:1495
 msgid "[b]全食[/b]　[font_size=%d][color=#e88]%d[/color][/font_size] 秒"
 msgstr ""
 
-#: scripts/main.gd:1375
+#: scripts/main.gd:1497
 msgid "[b]全食[/b]　剩餘 %d 秒（共 302）"
 msgstr ""
 
@@ -530,19 +546,19 @@ msgstr ""
 msgid "[b]史實與虛構[/b]\n%s"
 msgstr ""
 
-#: scripts/main.gd:1196
+#: scripts/main.gd:1269
 msgid "[b]夜晚・暗房[/b]\n%s"
 msgstr ""
 
-#: scripts/main.gd:1188
+#: scripts/main.gd:1261
 msgid "[b]夜晚・暗房[/b]\n□ %s"
 msgstr ""
 
-#: scripts/main.gd:1192
+#: scripts/main.gd:1265
 msgid "[b]夜晚・暗房[/b]\n□ 去拿牛津比對底片\n%s"
 msgstr ""
 
-#: scripts/main.gd:1194
+#: scripts/main.gd:1267
 msgid "[b]夜晚・暗房[/b]\n□ 向 Eddington 報告你的判斷"
 msgstr ""
 
@@ -550,15 +566,15 @@ msgstr ""
 msgid "[b]本子上的兩次試驗｜上回 → 這回[/b]\n[font_size=%d]%s[/font_size]"
 msgstr ""
 
-#: scripts/main.gd:1173
+#: scripts/main.gd:1246
 msgid "[b]準備（全食之前）[/b]"
 msgstr ""
 
-#: scripts/ui.gd:1362
+#: scripts/ui.gd:1480
 msgid "[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。"
 msgstr ""
 
-#: scripts/ui.gd:1372
+#: scripts/ui.gd:1490
 msgid "[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）"
 msgstr ""
 
@@ -570,7 +586,7 @@ msgstr ""
 msgid "[b]製作[/b]\n%s\n以 Godot Engine 製作"
 msgstr ""
 
-#: scripts/ui.gd:1496
+#: scripts/ui.gd:1614
 msgid "[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n"
 msgstr ""
 
@@ -578,19 +594,19 @@ msgstr ""
 msgid "[center][b]製作名單[/b]\n%s · v%s[/center]"
 msgstr ""
 
-#: scripts/main.gd:1368
+#: scripts/main.gd:1490
 msgid "[color=#9c9]底片就緒[/color]"
 msgstr ""
 
-#: scripts/main.gd:1173
+#: scripts/main.gd:1246
 msgid "[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]"
 msgstr ""
 
-#: scripts/main.gd:1178
+#: scripts/main.gd:1251
 msgid "[color=#a99]可選：讀曝光計畫、看牛津比對底片[/color]"
 msgstr ""
 
-#: scripts/main.gd:1366
+#: scripts/main.gd:1488
 msgid "[color=#aaa]Eddington 換片中…[/color]"
 msgstr ""
 
@@ -618,35 +634,35 @@ msgstr ""
 msgid "[color=#b8ad98]點選卡片放進計畫；再點一次可以拿回來。%s和 Eddington 會說出他們的想法。[/color]"
 msgstr ""
 
-#: scripts/main.gd:1180
+#: scripts/main.gd:1253
 msgid "[color=#db8]準備好了就告訴 Eddington，或等倒數結束[/color]"
 msgstr ""
 
-#: scripts/ui.gd:1398
+#: scripts/ui.gd:1516
 msgid "[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]"
 msgstr ""
 
-#: scripts/ui.gd:1383
+#: scripts/ui.gd:1501
 msgid "[color=#e88]幾乎沒有曝光。[/color]"
 msgstr ""
 
-#: scripts/main.gd:1370
+#: scripts/main.gd:1492
 msgid "[color=#e88]底片用完了[/color]"
 msgstr ""
 
-#: scripts/ui.gd:1381
+#: scripts/ui.gd:1499
 msgid "[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]"
 msgstr ""
 
-#: scripts/main.gd:1364
+#: scripts/main.gd:1486
 msgid "[color=#fd8]● 曝光中 %.1f 秒[/color]"
 msgstr ""
 
-#: scripts/ui.gd:1389
+#: scripts/ui.gd:1507
 msgid "[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]"
 msgstr ""
 
-#: scripts/ui.gd:1396
+#: scripts/ui.gd:1514
 msgid "[color=#fd8]這張還沒讀數——用測微器對好參考星再記下，才會算進結果。[/color]"
 msgstr ""
 
@@ -709,7 +725,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: scripts/content.gd:87
-msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
+msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速尚未驗證時，留下的誤差越大，長曝光的星像越容易拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
 msgstr ""
 
 #: scripts/ending.gd:48
@@ -832,27 +848,31 @@ msgstr ""
 msgid "……（看了你一眼）這句話留著。過幾天，也許有人會想聽。"
 msgstr ""
 
-#: scripts/ui.gd:1736 scripts/ui.gd:1779
+#: scripts/prompts.gd:9
+msgid "←／→"
+msgstr ""
+
+#: scripts/ui.gd:1854 scripts/ui.gd:1897
 msgid "↑↓ 或右搖桿：捲動"
 msgstr ""
 
-#: scripts/ui.gd:1335
+#: scripts/ui.gd:1453
 msgid "① 選片"
 msgstr ""
 
-#: scripts/ui.gd:1335
+#: scripts/ui.gd:1453
 msgid "② 測微器讀數 %d/%d"
 msgstr ""
 
-#: scripts/ui.gd:1335
+#: scripts/ui.gd:1453
 msgid "③ 向 Eddington 報告"
 msgstr ""
 
-#: scripts/main.gd:1190
+#: scripts/main.gd:1263
 msgid "□ 到測量桌：先寫下選片規則，再量底片"
 msgstr ""
 
-#: scripts/main.gd:1190
+#: scripts/main.gd:1263
 msgid "□ 在測量桌上檢視並量測底片"
 msgstr ""
 
@@ -864,7 +884,7 @@ msgstr ""
 msgid "　　"
 msgstr ""
 
-#: scripts/ui.gd:1541
+#: scripts/ui.gd:1659
 msgid "　離開　"
 msgstr ""
 
@@ -1012,7 +1032,7 @@ msgstr ""
 msgid "『看了數字再決定』——這正是規則要先寫的原因。數字一出來，人人都想留下自己喜歡的那幾張。"
 msgstr ""
 
-#: scripts/ui.gd:416 scripts/ui.gd:686
+#: scripts/ui.gd:437 scripts/ui.gd:721
 msgid "・"
 msgstr ""
 
@@ -1044,7 +1064,7 @@ msgstr ""
 msgid "一張底片判斷不了。要另一張同一片天的底片才知道。"
 msgstr ""
 
-#: scripts/main.gd:1719
+#: scripts/main.gd:1842
 msgid "一張都還沒讀。選中的底片要用測微器讀過，才有數字可以報告。"
 msgstr ""
 
@@ -1084,11 +1104,11 @@ msgstr ""
 msgid "上一回的曝光"
 msgstr ""
 
-#: scripts/ui.gd:1910 scripts/ui.gd:1913
+#: scripts/ui.gd:2058 scripts/ui.gd:2061
 msgid "上下反轉：開"
 msgstr ""
 
-#: scripts/ui.gd:1910 scripts/ui.gd:1913
+#: scripts/ui.gd:2058 scripts/ui.gd:2061
 msgid "上下反轉：關"
 msgstr ""
 
@@ -1097,10 +1117,10 @@ msgid "上了發條並校過走速"
 msgstr ""
 
 #: scripts/content.gd:31 scripts/ending.gd:58
-msgid "上了發條但沒校走速"
+msgid "上了發條但走速尚未驗證"
 msgstr ""
 
-#: scripts/main.gd:721
+#: scripts/main.gd:773
 msgid "上午的雷雨在十一點半左右停了。日偏食已經開始，太陽在雲後時隱時現。\n找 Eddington 報到——他在望遠鏡旁。"
 msgstr ""
 
@@ -1112,7 +1132,7 @@ msgstr ""
 msgid "下一次這麼好的機會，要等很多年。"
 msgstr ""
 
-#: scripts/main.gd:822
+#: scripts/main.gd:888
 msgid "下午 %d:%02d　·　全食倒數 %d:%02d（時間壓縮）"
 msgstr ""
 
@@ -1152,7 +1172,7 @@ msgstr ""
 msgid "不行。不提，就是替讀的人決定他不必知道。丟不丟是一回事，藏起來是另一回事。"
 msgstr ""
 
-#: scripts/ui.gd:1876
+#: scripts/ui.gd:2011
 msgid "主音量"
 msgstr ""
 
@@ -1212,11 +1232,11 @@ msgstr ""
 msgid "他還提到一件事：上一次拿日食底片來比，底片因為用了平面鏡反射，整張是反的，得翻過來、膜面對膜面才比得了。"
 msgstr ""
 
-#: scripts/ui.gd:1091 scripts/ui.gd:809
+#: scripts/ui.gd:1138 scripts/ui.gd:847
 msgid "位移為示意放大；真實的位移比一個星點還小得多。"
 msgstr ""
 
-#: scripts/ui.gd:1905 scripts/ui.gd:1908
+#: scripts/ui.gd:2053 scripts/ui.gd:2056
 msgid "低"
 msgstr ""
 
@@ -1232,7 +1252,7 @@ msgstr ""
 msgid "你"
 msgstr ""
 
-#: scripts/main.gd:815
+#: scripts/main.gd:876
 msgid "你一直沒喊停，雲回來了：星像會被霧蓋掉一半。真的全食裡，要自己喊。"
 msgstr ""
 
@@ -1256,16 +1276,16 @@ msgstr ""
 msgid "你來了。雨總算停了——十點多那場雷雨，是我們上島以來最大的一場。"
 msgstr ""
 
-#: scripts/main.gd:1234
+#: scripts/main.gd:1324
 msgid "你停得晚，雲回來了：星像會被霧蓋掉一半。"
 msgstr ""
 
 #: scripts/content.gd:46
-msgid "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
+msgid "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
 msgstr ""
 
 #: scripts/content.gd:46
-msgid "你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
+msgid "你先在驅動箱上[b]按住 %s 上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
 msgstr ""
 
 #: scripts/judgment.gd:337
@@ -1316,11 +1336,11 @@ msgstr ""
 msgid "你在暗房說底片支持 %s。帳上這一行，要寫得比那天小心。"
 msgstr ""
 
-#: scripts/main.gd:1230
+#: scripts/main.gd:1320
 msgid "你在薄的那段裡開、在變厚前停：那張會是清楚的。"
 msgstr ""
 
-#: scripts/main.gd:1232
+#: scripts/main.gd:1322
 msgid "你在雲變薄前就開了：那張會起霧。"
 msgstr ""
 
@@ -1328,16 +1348,12 @@ msgstr ""
 msgid "你寫下的是：第一次的數字不合預期。誠實——但這正是不能改的理由。第一次的結果還在本子上。"
 msgstr ""
 
-#: scripts/main.gd:1659
+#: scripts/main.gd:1782
 msgid "你寫下的規則：%s"
 msgstr ""
 
 #: scripts/content.gd:221
 msgid "你寫的是「說不準」。現在，你的底片能說準一點了嗎？%s"
-msgstr ""
-
-#: scripts/main.gd:954
-msgid "你對著天文鐘一秒一秒報數。Cottingham：「慢了一點……好，對上了。」"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:284
@@ -1352,7 +1368,7 @@ msgstr ""
 msgid "你按星點數判斷，而不是按心情。"
 msgstr ""
 
-#: scripts/main.gd:1680
+#: scripts/main.gd:1803
 msgid "你改了選片。寫下來：為什麼？"
 msgstr ""
 
@@ -1456,7 +1472,7 @@ msgstr ""
 msgid "你看過數值之後又改了選擇。也許有理由——但必須寫下：排除了哪一張、為什麼、在看到結果之前還是之後。"
 msgstr ""
 
-#: scripts/main.gd:760
+#: scripts/main.gd:812
 msgid "你繞回了觀測站。"
 msgstr ""
 
@@ -1488,19 +1504,19 @@ msgstr ""
 msgid "你願意簽的，比你願意相信的多。"
 msgstr ""
 
-#: scripts/ui.gd:603
+#: scripts/ui.gd:638
 msgid "你：%s"
 msgstr ""
 
-#: scripts/main.gd:1310
+#: scripts/main.gd:1417
 msgid "你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。\n%s"
 msgstr ""
 
-#: scripts/main.gd:1324
+#: scripts/main.gd:1431
 msgid "你：「開始！」　Cottingham 移開遮光板。"
 msgstr ""
 
-#: scripts/main.gd:1226
+#: scripts/main.gd:1316
 msgid "你：『開始！』　Cottingham 移開遮光板（空的）。再按一次喊『停』。"
 msgstr ""
 
@@ -1512,7 +1528,7 @@ msgstr ""
 msgid "信"
 msgstr ""
 
-#: scripts/ui.gd:780
+#: scripts/ui.gd:818
 msgid "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
 msgstr ""
 
@@ -1528,7 +1544,7 @@ msgstr ""
 msgid "先全部量，看了數字再決定留哪些。"
 msgstr ""
 
-#: scripts/main.gd:1004
+#: scripts/main.gd:1064
 msgid "先到測量桌看看底片吧。"
 msgstr ""
 
@@ -1588,7 +1604,7 @@ msgstr ""
 msgid "先跳過這顆，等量多幾張再說。"
 msgstr ""
 
-#: scripts/chart.gd:141
+#: scripts/chart.gd:158
 msgid "先選片，再量測。數值會在量測後顯示。"
 msgstr ""
 
@@ -1604,11 +1620,11 @@ msgstr ""
 msgid "全是雲，無結果"
 msgstr ""
 
-#: scripts/ui.gd:1892 scripts/ui.gd:1975 scripts/ui.gd:2004 scripts/ui.gd:2035
+#: scripts/ui.gd:2040 scripts/ui.gd:2152 scripts/ui.gd:2182 scripts/ui.gd:2216
 msgid "全螢幕：開"
 msgstr ""
 
-#: scripts/ui.gd:1892 scripts/ui.gd:1975 scripts/ui.gd:2004 scripts/ui.gd:2035
+#: scripts/ui.gd:2040 scripts/ui.gd:2152 scripts/ui.gd:2182 scripts/ui.gd:2216
 msgid "全螢幕：關"
 msgstr ""
 
@@ -1644,11 +1660,11 @@ msgstr ""
 msgid "兩邊都看過了——可以關上"
 msgstr ""
 
-#: scripts/main.gd:1635
+#: scripts/main.gd:1758
 msgid "共 %d 張，已勾選 %d 張。\n星像要自己看：星點夠不夠五顆、有沒有拖長、有沒有被雲霧蓋住。"
 msgstr ""
 
-#: scripts/main.gd:1640
+#: scripts/main.gd:1763
 msgid "共 %d 張：星像清楚 %d、可量但有瑕疵 %d、星不足五顆 %d。\n已勾選 %d 張。"
 msgstr ""
 
@@ -1656,15 +1672,15 @@ msgstr ""
 msgid "再去看一次吧。看看角落那個「14」。我在這裡等。"
 msgstr ""
 
-#: scripts/ui.gd:1944
+#: scripts/ui.gd:2092
 msgid "再按一次：回到標題"
 msgstr ""
 
-#: scripts/ui.gd:1953
+#: scripts/ui.gd:2101
 msgid "再按一次：從頭開始"
 msgstr ""
 
-#: scripts/ui.gd:1962
+#: scripts/ui.gd:2110
 msgid "再按一次：離開（進度不會保留）"
 msgstr ""
 
@@ -1688,7 +1704,7 @@ msgstr ""
 msgid "再看一眼：早了不到三天，在七十多年的等待裡，那幾乎就是準時。"
 msgstr ""
 
-#: scripts/main.gd:1185
+#: scripts/main.gd:1258
 msgid "再讀工作簿最後一頁"
 msgstr ""
 
@@ -1716,6 +1732,10 @@ msgstr ""
 msgid "到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。"
 msgstr ""
 
+#: scripts/coelostat_calibration.gd:164
+msgid "剛才"
+msgstr ""
+
 #: scripts/cambridge/content_departure.gd:66
 msgid "劃一條線，旁邊寫正確的數字，簽上縮寫。"
 msgstr ""
@@ -1732,7 +1752,7 @@ msgstr ""
 msgid "劍橋天文台・1919 年 3 月，出發前一晚\n（重建場景）"
 msgstr ""
 
-#: scripts/ui.gd:1492
+#: scripts/ui.gd:1610
 msgid "劍橋，1917 → 普林西比，1919"
 msgstr ""
 
@@ -1768,7 +1788,7 @@ msgstr ""
 msgid "去看看吧。無論你看見什麼，都把它記下來。"
 msgstr ""
 
-#: scripts/ui.gd:715
+#: scripts/ui.gd:753
 msgid "參考底片"
 msgstr ""
 
@@ -1804,7 +1824,7 @@ msgstr ""
 msgid "只有拖長或起霧的底片可用。你照規則量了它們，也該把這份不確定寫進電報。"
 msgstr ""
 
-#: scripts/ui.gd:1530
+#: scripts/ui.gd:1648
 msgid "只玩尾章：普林西比，1919"
 msgstr ""
 
@@ -1848,7 +1868,7 @@ msgstr ""
 msgid "可用底片 %d 張%s。時鐘驅動：%s。"
 msgstr ""
 
-#: scripts/main.gd:1046
+#: scripts/main.gd:1111
 msgid "可用底片：%d 張。"
 msgstr ""
 
@@ -1860,11 +1880,11 @@ msgstr ""
 msgid "可能是很暗的星。"
 msgstr ""
 
-#: scripts/ui.gd:1374
+#: scripts/ui.gd:1492
 msgid "可辨識的星點：%d 顆"
 msgstr ""
 
-#: scripts/chart.gd:201
+#: scripts/chart.gd:218
 msgid "合併"
 msgstr ""
 
@@ -1880,7 +1900,7 @@ msgstr ""
 msgid "同一片雲。"
 msgstr ""
 
-#: scripts/ui.gd:1709
+#: scripts/ui.gd:1827
 msgid "同一片雲：換個做法，再量一次"
 msgstr ""
 
@@ -1892,8 +1912,16 @@ msgstr ""
 msgid "同一顆變星，一行一行的亮度估計，字跡工整得近乎固執。\n最新一頁的角落，畫著一個很小的問號。"
 msgstr ""
 
-#: scripts/ui.gd:848
+#: scripts/ui.gd:889
 msgid "向 Eddington 報告 →"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:147
+msgid "向右"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:147
+msgid "向左"
 msgstr ""
 
 #: scripts/ending.gd:67
@@ -1928,11 +1956,11 @@ msgstr ""
 msgid "回到桌邊"
 msgstr ""
 
-#: scripts/ui.gd:1939 scripts/ui.gd:2044
+#: scripts/ui.gd:2087 scripts/ui.gd:2226
 msgid "回到標題"
 msgstr ""
 
-#: scripts/ui.gd:1665 scripts/ui.gd:1812 scripts/ui.gd:1826
+#: scripts/ui.gd:1783 scripts/ui.gd:1930 scripts/ui.gd:1944
 msgid "回顧證據與評語"
 msgstr ""
 
@@ -1952,7 +1980,7 @@ msgstr ""
 msgid "在太陽的邊上，最多 1.75 角秒。大約是三公里外，一枚硬幣的寬度。"
 msgstr ""
 
-#: scripts/main.gd:1185 scripts/main.gd:1495
+#: scripts/main.gd:1258 scripts/main.gd:1618
 msgid "在工作簿記下你看到的天空"
 msgstr ""
 
@@ -1976,7 +2004,7 @@ msgstr ""
 msgid "多出來那一點，我也找不到對應的星。底片上那裡只有一點點白——可能是很暗的星，也可能只是藥膜的瑕疵。"
 msgstr ""
 
-#: scripts/ui.gd:1170
+#: scripts/ui.gd:1246
 msgid "夜裡的位置"
 msgstr ""
 
@@ -1988,7 +2016,7 @@ msgstr ""
 msgid "夠。"
 msgstr ""
 
-#: scripts/ui.gd:248
+#: scripts/ui.gd:254
 msgid "大"
 msgstr ""
 
@@ -1996,11 +2024,11 @@ msgstr ""
 msgid "大概是。"
 msgstr ""
 
-#: scripts/cambridge/content_1917.gd:102 scripts/world_builder.gd:500
+#: scripts/cambridge/content_1917.gd:102 scripts/world_builder.gd:516
 msgid "天文鐘"
 msgstr ""
 
-#: scripts/main.gd:1053
+#: scripts/main.gd:1118
 msgid "天文鐘的滴答聲在潮濕的空氣裡顯得很響。"
 msgstr ""
 
@@ -2024,7 +2052,7 @@ msgstr ""
 msgid "太陽系儀還在架上。"
 msgstr ""
 
-#: scripts/main.gd:1360
+#: scripts/main.gd:1476
 msgid "太陽西緣開始發亮——第三接觸快到了！"
 msgstr ""
 
@@ -2110,10 +2138,6 @@ msgstr ""
 
 #: scripts/judgment.gd:180
 msgid "完整的量測要回國後才做得完，比例尺和校驗片都還得一張張比；Sobral 的結果我們也還不知道。電報發出去就收不回來了。"
-msgstr ""
-
-#: scripts/content.gd:45
-msgid "定天鏡靠這具重錘時鐘轉動，跟著太陽走。發條得上滿，走速還要對著天文鐘校一次——不然曝光一長，星像就拖成短線。"
 msgstr ""
 
 #: scripts/content.gd:222
@@ -2208,7 +2232,7 @@ msgstr ""
 msgid "對得上"
 msgstr ""
 
-#: scripts/ui.gd:2063 scripts/ui.gd:2194
+#: scripts/ui.gd:2245 scripts/ui.gd:2417
 msgid "對話紀錄　［%s 關閉］"
 msgstr ""
 
@@ -2216,7 +2240,7 @@ msgstr ""
 msgid "對，範圍就是這樣讀的。"
 msgstr ""
 
-#: scripts/ui.gd:248
+#: scripts/ui.gd:254
 msgid "小"
 msgstr ""
 
@@ -2256,15 +2280,15 @@ msgstr ""
 msgid "差異的原因"
 msgstr ""
 
-#: scripts/ui.gd:713
+#: scripts/ui.gd:751
 msgid "已沖洗的底片"
 msgstr ""
 
-#: scripts/ui.gd:1394
+#: scripts/ui.gd:1512
 msgid "已記下讀數：%.2f 格。"
 msgstr ""
 
-#: scripts/main.gd:1298
+#: scripts/main.gd:1406
 msgid "帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。"
 msgstr ""
 
@@ -2308,11 +2332,11 @@ msgstr ""
 msgid "底片上畫的北向箭頭是斜的。"
 msgstr ""
 
-#: scripts/world_builder.gd:530
+#: scripts/world_builder.gd:547
 msgid "底片匣箱"
 msgstr ""
 
-#: scripts/main.gd:928
+#: scripts/main.gd:991
 msgid "底片匣都拿完了"
 msgstr ""
 
@@ -2334,11 +2358,11 @@ msgstr[1] ""
 msgid "底片放斜了約 3 度"
 msgstr ""
 
-#: scripts/world_builder.gd:480
+#: scripts/world_builder.gd:493
 msgid "底片架"
 msgstr ""
 
-#: scripts/main.gd:935
+#: scripts/main.gd:998
 msgid "底片架：可用底片 %d 張"
 msgstr ""
 
@@ -2346,7 +2370,7 @@ msgstr ""
 msgid "底片櫃"
 msgstr ""
 
-#: scripts/main.gd:1335
+#: scripts/main.gd:1447
 msgid "底片用完了。［%s］等待第三接觸"
 msgstr ""
 
@@ -2378,7 +2402,7 @@ msgstr ""
 msgid "從箱裡看"
 msgstr ""
 
-#: scripts/ui.gd:1949 scripts/ui.gd:2042
+#: scripts/ui.gd:2097 scripts/ui.gd:2224
 msgid "從頭開始"
 msgstr ""
 
@@ -2398,7 +2422,7 @@ msgstr ""
 msgid "怎麼改？"
 msgstr ""
 
-#: scripts/chart.gd:131
+#: scripts/chart.gd:143
 msgid "愛因斯坦 1.75″"
 msgstr ""
 
@@ -2586,6 +2610,10 @@ msgstr ""
 msgid "我讀了兩遍。寫得很清楚。"
 msgstr ""
 
+#: scripts/content.gd:45
+msgid "我負責定天鏡的驅動。你看追蹤示意圖，告訴我怎麼微調；移動越少，長曝光的星像越清楚。"
+msgstr ""
+
 #: scripts/content.gd:18
 msgid "我負責換底片，Cottingham 拿遮光板控制曝光。[b]你替我們看雲[/b]：雲變薄就喊「開始」，雲變厚、或全食快結束時喊「停」。"
 msgstr ""
@@ -2666,7 +2694,7 @@ msgstr ""
 msgid "抄錄的人草率，或是憑空編造"
 msgstr ""
 
-#: scripts/ui.gd:1088
+#: scripts/ui.gd:1135
 msgid "把十字線對準參考星，再按「記下讀數」。"
 msgstr ""
 
@@ -2678,11 +2706,11 @@ msgstr ""
 msgid "把底片夾上去，轉動螺旋，一次讀一顆星的位置。讀數比肉眼能分辨的細得多。\n今晚用不到它——今晚只需要看片台和眼睛。"
 msgstr ""
 
-#: scripts/chart.gd:72 scripts/main.gd:1627
+#: scripts/chart.gd:78 scripts/main.gd:1750
 msgid "押的（1917 年至今沒改）"
 msgstr ""
 
-#: scripts/chart.gd:72 scripts/main.gd:1627
+#: scripts/chart.gd:78 scripts/main.gd:1750
 msgid "押的（1917 年至今沒改）：說不準"
 msgstr ""
 
@@ -2702,15 +2730,15 @@ msgstr ""
 msgid "拍攝時：曝光太短。"
 msgstr ""
 
-#: scripts/ui.gd:921
+#: scripts/ui.gd:968
 msgid "拖長：每顆星都拉成同方向的短線（時鐘走速不準）"
 msgstr ""
 
-#: scripts/main.gd:1187
+#: scripts/main.gd:1260
 msgid "拿起 Ashby 先生給的放大鏡"
 msgstr ""
 
-#: scripts/main.gd:1464
+#: scripts/main.gd:1590
 msgid "接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"
 msgstr ""
 
@@ -2726,7 +2754,7 @@ msgstr ""
 msgid "換你了。你在本子上押的是什麼？"
 msgstr ""
 
-#: scripts/ui.gd:1936 scripts/ui.gd:2150
+#: scripts/ui.gd:2073 scripts/ui.gd:2330
 msgid "操作說明"
 msgstr ""
 
@@ -2758,15 +2786,15 @@ msgstr ""
 msgid "收起來"
 msgstr ""
 
-#: scripts/ui.gd:937
+#: scripts/ui.gd:984
 msgid "收起參考"
 msgstr ""
 
-#: scripts/ui.gd:1826
+#: scripts/ui.gd:1944
 msgid "收起回顧"
 msgstr ""
 
-#: scripts/ui.gd:1831
+#: scripts/ui.gd:1949
 msgid "收起歷史"
 msgstr ""
 
@@ -2806,7 +2834,7 @@ msgstr ""
 msgid "放大未重合點"
 msgstr ""
 
-#: scripts/ui.gd:778
+#: scripts/ui.gd:816
 msgid "放大鏡 ×2"
 msgstr ""
 
@@ -2838,7 +2866,7 @@ msgstr ""
 msgid "數字沒有偏到需要儀器來解釋。別替不合期望的結果先找好理由。"
 msgstr ""
 
-#: scripts/ui.gd:248
+#: scripts/ui.gd:254
 msgid "文字大小：%s"
 msgstr ""
 
@@ -2846,8 +2874,12 @@ msgstr ""
 msgid "新天體。（笑了一下，不是嘲笑）一張底片、一個白點、一個晚上。如果我每次這樣想都寫下來，皇家天文學會早就把我請出去了。"
 msgstr ""
 
-#: scripts/ui.gd:1715
+#: scripts/ui.gd:1833
 msgid "新的天空：換一種雲況"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "方向鍵左／右"
 msgstr ""
 
 #: scripts/judgment.gd:228
@@ -2874,19 +2906,19 @@ msgstr ""
 msgid "明白了。"
 msgstr ""
 
-#: scripts/main.gd:1681
+#: scripts/main.gd:1804
 msgid "星像品質：它拖長、起霧或星不夠"
 msgstr ""
 
 #: scripts/judgment.gd:119
-msgid "星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。"
+msgid "星像平均拖長 %.2f——走速尚未驗證。數值偏低，可能是儀器，不是星。"
 msgstr ""
 
 #: scripts/judgment.gd:29
-msgid "星像拖長了——走速沒校過。數值偏低，可能是儀器，不是星。"
+msgid "星像拖長了——走速尚未驗證。數值偏低，可能是儀器，不是星。"
 msgstr ""
 
-#: scripts/ui.gd:1387
+#: scripts/ui.gd:1505
 msgid "星像清楚。"
 msgstr ""
 
@@ -2894,7 +2926,7 @@ msgstr ""
 msgid "星像確實拖長了——可是拖長只會把數字拉低，這個結果並沒有偏低。"
 msgstr ""
 
-#: scripts/ui.gd:819
+#: scripts/ui.gd:857
 msgid "星光偏折（太陽邊緣，角秒）"
 msgstr ""
 
@@ -2906,7 +2938,7 @@ msgstr ""
 msgid "星點不足五顆的不量；星像拖長或被雲霧蓋住的，不和清楚的平均。"
 msgstr ""
 
-#: scripts/ui.gd:921
+#: scripts/ui.gd:968
 msgid "星點清楚：小而圓"
 msgstr ""
 
@@ -2923,22 +2955,18 @@ msgid "是啊。年鑑上那一行，可以闔上了。"
 msgstr ""
 
 #: scripts/content.gd:321
-msgid "時鐘走得很穩。謝謝你那天替我報秒。"
+msgid "時鐘走得很穩。謝謝你那天觀察追蹤、請我微調。"
 msgstr ""
 
-#: scripts/world_builder.gd:451 scripts/world_builder.gd:463
+#: scripts/world_builder.gd:464 scripts/world_builder.gd:476
 msgid "時鐘驅動"
-msgstr ""
-
-#: scripts/main.gd:920
-msgid "時鐘驅動：發條已上滿"
 msgstr ""
 
 #: scripts/ending.gd:79
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
 msgstr ""
 
-#: scripts/ui.gd:1857 scripts/ui.gd:2011
+#: scripts/ui.gd:1981 scripts/ui.gd:2189
 msgid "暫停"
 msgstr ""
 
@@ -2946,7 +2974,7 @@ msgstr ""
 msgid "曝光的要領再說一次？"
 msgstr ""
 
-#: scripts/world_builder.gd:497
+#: scripts/world_builder.gd:512
 msgid "曝光計畫"
 msgstr ""
 
@@ -3086,7 +3114,7 @@ msgstr ""
 msgid "桌角那個信封，上面寫著你的名字。"
 msgstr ""
 
-#: scripts/ui.gd:1905 scripts/ui.gd:1908 scripts/ui.gd:248
+#: scripts/ui.gd:2053 scripts/ui.gd:2056 scripts/ui.gd:254
 msgid "標準"
 msgstr ""
 
@@ -3098,7 +3126,7 @@ msgstr ""
 msgid "標記「未解決：需要另一張同天區的底片」"
 msgstr ""
 
-#: scripts/ui.gd:1672 scripts/ui.gd:1816 scripts/ui.gd:1831
+#: scripts/ui.gd:1790 scripts/ui.gd:1934 scripts/ui.gd:1949
 msgid "歷史上發生了什麼"
 msgstr ""
 
@@ -3106,7 +3134,7 @@ msgstr ""
 msgid "歷史上，普林西比的觀測者是 Eddington 與 Cottingham 兩人。你和他們同行——這是虛構的。"
 msgstr ""
 
-#: scripts/ui.gd:785
+#: scripts/ui.gd:823
 msgid "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
 msgstr ""
 
@@ -3170,7 +3198,7 @@ msgstr ""
 msgid "沒有先寫下的規則，事後就說不清為什麼留這張、丟那張。"
 msgstr ""
 
-#: scripts/chart.gd:147
+#: scripts/chart.gd:164
 msgid "沒有可量測的底片。"
 msgstr ""
 
@@ -3234,27 +3262,39 @@ msgstr ""
 msgid "清單？"
 msgstr ""
 
-#: scripts/ui.gd:1926 scripts/ui.gd:1929
+#: scripts/ui.gd:2063 scripts/ui.gd:2066
 msgid "減少晃動：開"
 msgstr ""
 
-#: scripts/ui.gd:1926 scripts/ui.gd:1929
+#: scripts/ui.gd:2063 scripts/ui.gd:2066
 msgid "減少晃動：關"
 msgstr ""
 
-#: scripts/ui.gd:793
+#: scripts/ui.gd:831
 msgid "測微器"
 msgstr ""
 
-#: scripts/world_builder.gd:540
+#: scripts/ui.gd:2081 scripts/ui.gd:2084
+msgid "測微器大十字線：開"
+msgstr ""
+
+#: scripts/ui.gd:2081 scripts/ui.gd:2084
+msgid "測微器大十字線：關"
+msgstr ""
+
+#: scripts/ui.gd:2076 scripts/ui.gd:2079
+msgid "測微器步幅：%s×"
+msgstr ""
+
+#: scripts/world_builder.gd:582
 msgid "測量桌"
 msgstr ""
 
-#: scripts/main.gd:941
+#: scripts/main.gd:1004
 msgid "測量桌——今晚才會用到"
 msgstr ""
 
-#: scripts/main.gd:1055
+#: scripts/main.gd:1120
 msgid "測量桌。今晚，底片會在這裡被逐張比對。"
 msgstr ""
 
@@ -3270,7 +3310,7 @@ msgstr ""
 msgid "無"
 msgstr ""
 
-#: scripts/chart.gd:131
+#: scripts/chart.gd:143
 msgid "無偏折 0″"
 msgstr ""
 
@@ -3310,23 +3350,23 @@ msgstr ""
 msgid "爐火很小。煤也得省著用。"
 msgstr ""
 
-#: scripts/content.gd:105 scripts/content.gd:106 scripts/main.gd:1812
+#: scripts/content.gd:105 scripts/content.gd:106 scripts/main.gd:1936
 msgid "牛津比對底片"
 msgstr ""
 
-#: scripts/world_builder.gd:789
+#: scripts/world_builder.gd:946
 msgid "牛津比對底片盒"
 msgstr ""
 
-#: scripts/ui.gd:1217
+#: scripts/ui.gd:1293
 msgid "牛津比對片"
 msgstr ""
 
-#: scripts/ui.gd:1001
+#: scripts/ui.gd:1048
 msgid "牛津（無日）"
 msgstr ""
 
-#: scripts/chart.gd:131
+#: scripts/chart.gd:143
 msgid "牛頓式 0.87″"
 msgstr ""
 
@@ -3338,15 +3378,19 @@ msgstr ""
 msgid "猜沒有錯。只是要寫明是猜。"
 msgstr ""
 
+#: scripts/coelostat_calibration.gd:165
+msgid "現在"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:391
 msgid "現在你告訴我。（拿起你的紙）如果日食那張底片上的星「移動」了——我們怎麼知道，那不是有人把底片放反、放斜了？"
 msgstr ""
 
-#: scripts/main.gd:1631
+#: scripts/main.gd:1754
 msgid "現在押的"
 msgstr ""
 
-#: scripts/main.gd:1631
+#: scripts/main.gd:1754
 msgid "現在押的：說不準"
 msgstr ""
 
@@ -3374,11 +3418,11 @@ msgstr ""
 msgid "畢宿星團那一帶，夠亮、能在日冕旁邊拍得到的星——從星表裡挑出來，列一張清單。每一顆，都找一張舊底片核對位置。"
 msgstr ""
 
-#: scripts/ui.gd:270
+#: scripts/ui.gd:276
 msgid "畫質：低"
 msgstr ""
 
-#: scripts/ui.gd:270
+#: scripts/ui.gd:276
 msgid "畫質：標準"
 msgstr ""
 
@@ -3390,19 +3434,19 @@ msgstr ""
 msgid "疊上去……一顆都對不上。"
 msgstr ""
 
-#: scripts/main.gd:950
+#: scripts/main.gd:1014
 msgid "發條上滿了。"
 msgstr ""
 
 #: scripts/content.gd:323
-msgid "發條是滿的，可惜沒來得及對時——長一點的曝光，星像都有點拖。"
+msgid "發條是滿的，走速尚未驗證；底片留下了當時設定的結果。"
 msgstr ""
 
 #: scripts/content.gd:51
-msgid "發條滿了。現在到天文鐘那裡替我報秒，我來調走速。"
+msgid "發條滿了。在驅動箱再按一次，看追蹤示意圖，你觀察、我調走速。"
 msgstr ""
 
-#: scripts/main.gd:1085
+#: scripts/main.gd:1157
 msgid "目標已更新。"
 msgstr ""
 
@@ -3434,7 +3478,7 @@ msgstr ""
 msgid "示意圖，不按比例。"
 msgstr ""
 
-#: scripts/ui.gd:936
+#: scripts/ui.gd:983
 msgid "示意圖，不是你的底片。"
 msgstr ""
 
@@ -3442,7 +3486,7 @@ msgstr ""
 msgid "示意圖：落差放大了許多。真的箱子裡，比一個原子還小。"
 msgstr ""
 
-#: scripts/ui.gd:859
+#: scripts/ui.gd:900
 msgid "示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"
 msgstr ""
 
@@ -3450,7 +3494,7 @@ msgstr ""
 msgid "空桌子"
 msgstr ""
 
-#: scripts/prompts.gd:9
+#: scripts/prompts.gd:9 scripts/ui.gd:2358
 msgid "空白鍵"
 msgstr ""
 
@@ -3458,7 +3502,7 @@ msgstr ""
 msgid "窗"
 msgstr ""
 
-#: scripts/main.gd:812
+#: scripts/main.gd:873
 msgid "窗口過去了，你沒有開：那一段就沒有底片。"
 msgstr ""
 
@@ -3466,15 +3510,15 @@ msgstr ""
 msgid "窗簾拆了。整整四年，我第一次在這個房間看見外面的路燈。"
 msgstr ""
 
-#: scripts/ui.gd:1312
+#: scripts/ui.gd:1429
 msgid "第 %d 號%s%s"
 msgstr ""
 
-#: scripts/main.gd:1818
+#: scripts/main.gd:1942
 msgid "第 %d 號底片"
 msgstr ""
 
-#: scripts/ui.gd:1001
+#: scripts/ui.gd:1048
 msgid "第 %d 號（全食）・位移已放大（示意）"
 msgstr ""
 
@@ -3526,15 +3570,15 @@ msgstr ""
 msgid "第 25 號"
 msgstr ""
 
-#: scripts/main.gd:1616
+#: scripts/main.gd:1739
 msgid "第%d號"
 msgstr ""
 
-#: scripts/ui.gd:1507
+#: scripts/ui.gd:1625
 msgid "第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。"
 msgstr ""
 
-#: scripts/main.gd:1681
+#: scripts/main.gd:1804
 msgid "第一次的數字不合我的預期"
 msgstr ""
 
@@ -3546,7 +3590,7 @@ msgstr ""
 msgid "第一次量：沒有量出任何數值。"
 msgstr ""
 
-#: scripts/main.gd:1421
+#: scripts/main.gd:1542
 msgid "第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。"
 msgstr ""
 
@@ -3610,7 +3654,7 @@ msgstr ""
 msgid "範圍很寬，也是一個答案。你以前不會這樣說。"
 msgstr ""
 
-#: scripts/ui.gd:764
+#: scripts/ui.gd:802
 msgid "納入量測"
 msgstr ""
 
@@ -3630,11 +3674,11 @@ msgstr ""
 msgid "細線容得下多個預測，或一個都容不下。這些底片還不能分辨它們；說尚無定論，是誠實的判斷。"
 msgstr ""
 
-#: scripts/cambridge/content_epilogue.gd:36 scripts/main.gd:1144
+#: scripts/cambridge/content_epilogue.gd:36 scripts/main.gd:1217
 msgid "給 Kit：%s"
 msgstr ""
 
-#: scripts/ui.gd:1860 scripts/ui.gd:2012
+#: scripts/ui.gd:1990 scripts/ui.gd:2190
 msgid "繼續"
 msgstr ""
 
@@ -3694,7 +3738,7 @@ msgstr ""
 msgid "被丟下的星光"
 msgstr ""
 
-#: scripts/ui.gd:1533 scripts/ui.gd:1718
+#: scripts/ui.gd:1651 scripts/ui.gd:1836
 msgid "製作名單"
 msgstr ""
 
@@ -3706,15 +3750,19 @@ msgstr ""
 msgid "要改，現在還來得及。"
 msgstr ""
 
-#: scripts/ui.gd:1905 scripts/ui.gd:1908
+#: scripts/ui.gd:2053 scripts/ui.gd:2056
 msgid "視角靈敏度：%s"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:58 scripts/coelostat_calibration.gd:88
+msgid "觀察星像的移動，再請 Cottingham 微調。位置是否居中並不重要。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:498
 msgid "記下每張底片的狀況：雲、曝光秒數、溫度、時鐘驅動"
 msgstr ""
 
-#: scripts/ui.gd:803
+#: scripts/ui.gd:841
 msgid "記下讀數"
 msgstr ""
 
@@ -3726,7 +3774,7 @@ msgstr ""
 msgid "記得寫上是兩個人各自對的。不是為了我——是為了下一個看這張紙的人。"
 msgstr ""
 
-#: scripts/ui.gd:1537 scripts/ui.gd:1995
+#: scripts/ui.gd:1655 scripts/ui.gd:2173
 msgid "設定"
 msgstr ""
 
@@ -3734,7 +3782,7 @@ msgstr ""
 msgid "註明：%s 獨立複核過一次"
 msgstr ""
 
-#: scripts/ui.gd:261
+#: scripts/ui.gd:267
 msgid "語言：%s"
 msgstr ""
 
@@ -3746,7 +3794,7 @@ msgstr ""
 msgid "誤差與上回相同；量值照實並列。"
 msgstr ""
 
-#: scripts/main.gd:1681
+#: scripts/main.gd:1804
 msgid "說不上來"
 msgstr ""
 
@@ -3798,15 +3846,15 @@ msgstr ""
 msgid "讀 Dyson 的信"
 msgstr ""
 
-#: scripts/ui.gd:1392
+#: scripts/ui.gd:1510
 msgid "讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]"
 msgstr ""
 
-#: scripts/ui.gd:1096
+#: scripts/ui.gd:1143
 msgid "讀數：%.2f 格"
 msgstr ""
 
-#: scripts/ui.gd:806
+#: scripts/ui.gd:844
 msgid "讀數：0.00 格"
 msgstr ""
 
@@ -3834,6 +3882,10 @@ msgstr ""
 msgid "走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。"
 msgstr ""
 
+#: scripts/coelostat_calibration.gd:152
+msgid "走速已驗證；可記錄目前設定。"
+msgstr ""
+
 #: scripts/judgment.gd:247
 msgid "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
 msgstr ""
@@ -3842,19 +3894,19 @@ msgstr ""
 msgid "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
 msgstr ""
 
-#: scripts/content.gd:125
-msgid "走速：早上已對著天文鐘校過。"
+#: scripts/content.gd:126
+msgid "走速：尚未驗證；星像拖長的程度也取決於留下的走速誤差。"
 msgstr ""
 
-#: scripts/content.gd:126
-msgid "走速：沒有校過——曝光越久，星像拖得越長。"
+#: scripts/content.gd:125
+msgid "走速：已在追蹤示意圖中驗證。"
 msgstr ""
 
 #: scripts/content.gd:402
 msgid "起/曝（約秒）：%s；選片：%s；可用 %d 張"
 msgstr ""
 
-#: scripts/ui.gd:921
+#: scripts/ui.gd:968
 msgid "起霧：雲光蓋住，星點淡、數得到的少"
 msgstr ""
 
@@ -3870,12 +3922,20 @@ msgstr ""
 msgid "轉一點就對上了。可是為什麼要轉？底片的藥膜面上應該有鉛筆記號，告訴我們北邊在哪裡。"
 msgstr ""
 
-#: scripts/ui.gd:1774 scripts/ui.gd:1996 scripts/ui.gd:2155
+#: scripts/coelostat_calibration.gd:149
+msgid "近乎靜止"
+msgstr ""
+
+#: scripts/ui.gd:1892 scripts/ui.gd:2174 scripts/ui.gd:2339
 msgid "返回"
 msgstr ""
 
-#: scripts/ui.gd:2077 scripts/ui.gd:2196
+#: scripts/ui.gd:2259 scripts/ui.gd:2419
 msgid "返回　%s"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:51
+msgid "追蹤示意圖——示意重建，非史料"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:531
@@ -4063,7 +4123,7 @@ msgid "那多出來的一點，你覺得是什麼？"
 msgstr ""
 
 #: scripts/content.gd:324
-msgid "那天我一個人趕著上發條，沒時間對時。下次我們先把這件事做完。"
+msgid "那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。"
 msgstr ""
 
 #: scripts/content.gd:63
@@ -4142,15 +4202,15 @@ msgstr ""
 msgid "都在測量桌上了。[b]先按星像好壞挑片，再量[/b]。量完了，再告訴我你怎麼想。"
 msgstr ""
 
-#: scripts/cambridge/dialogue_portrait.gd:42
+#: scripts/cambridge/dialogue_portrait.gd:45
 msgid "重建肖像，非歷史照片"
 msgstr ""
 
-#: scripts/ui.gd:842
+#: scripts/ui.gd:883
 msgid "重新選片"
 msgstr ""
 
-#: scripts/ui.gd:1690
+#: scripts/ui.gd:1808
 msgid "重玩從 1919 年 5 月 29 日的準備開始；上一回的紀錄會留著，結尾會和這一回並排比較。"
 msgstr ""
 
@@ -4204,7 +4264,7 @@ msgstr ""
 msgid "量測儀"
 msgstr ""
 
-#: scripts/ui.gd:836
+#: scripts/ui.gd:877
 msgid "量測所選底片"
 msgstr ""
 
@@ -4216,15 +4276,15 @@ msgstr ""
 msgid "量錯了，或算漏了什麼。很有可能。六十年來，每一張水星底片都有人重新量過，每一顆行星的質量也重新算過。可是那個數字還在。"
 msgstr ""
 
-#: scripts/ui.gd:1931 scripts/ui.gd:1934
+#: scripts/ui.gd:2068 scripts/ui.gd:2071
 msgid "長按互動：按一下"
 msgstr ""
 
-#: scripts/ui.gd:1931 scripts/ui.gd:1934
+#: scripts/ui.gd:2068 scripts/ui.gd:2071
 msgid "長按互動：按住"
 msgstr ""
 
-#: scripts/ui.gd:783
+#: scripts/ui.gd:821
 msgid "閃爍比對"
 msgstr ""
 
@@ -4232,7 +4292,7 @@ msgstr ""
 msgid "開始——就位等待全食。"
 msgstr ""
 
-#: scripts/ui.gd:1527
+#: scripts/ui.gd:1645
 msgid "開始遊戲：序章・劍橋，1917"
 msgstr ""
 
@@ -4252,15 +4312,15 @@ msgstr ""
 msgid "隔著雲，有希望"
 msgstr ""
 
-#: scripts/ui.gd:1722
+#: scripts/ui.gd:1840
 msgid "離開"
 msgstr ""
 
-#: scripts/ui.gd:851
+#: scripts/ui.gd:892
 msgid "離開桌子"
 msgstr ""
 
-#: scripts/ui.gd:1958 scripts/ui.gd:2043
+#: scripts/ui.gd:2106 scripts/ui.gd:2225
 msgid "離開遊戲"
 msgstr ""
 
@@ -4276,7 +4336,7 @@ msgstr ""
 msgid "雲太厚，底片上沒有足夠的星點可以量。"
 msgstr ""
 
-#: scripts/ui.gd:1489
+#: scripts/ui.gd:1607
 msgid "雲層之後"
 msgstr ""
 
@@ -4316,47 +4376,35 @@ msgstr ""
 msgid "電報的理由%s：『%s』→『%s』。"
 msgstr ""
 
-#: scripts/ui.gd:1876
+#: scripts/ui.gd:2011
 msgid "音效"
 msgstr ""
 
-#: scripts/ui.gd:1876
+#: scripts/ui.gd:2011
 msgid "音樂"
 msgstr ""
 
-#: scripts/ui.gd:1868 scripts/ui.gd:1871
-msgid "音樂：開"
+#: scripts/ui.gd:1998 scripts/ui.gd:2001
+msgid "音樂靜音：開"
 msgstr ""
 
-#: scripts/ui.gd:1868 scripts/ui.gd:1871
-msgid "音樂：關"
+#: scripts/ui.gd:1998 scripts/ui.gd:2001
+msgid "音樂靜音：關"
 msgstr ""
 
-#: scripts/ui.gd:1920 scripts/ui.gd:1923
-msgid "顯微測微器大十字線：開"
-msgstr ""
-
-#: scripts/ui.gd:1920 scripts/ui.gd:1923
-msgid "顯微測微器大十字線：關"
-msgstr ""
-
-#: scripts/ui.gd:1915 scripts/ui.gd:1918
-msgid "顯微測微器步幅：%s×"
-msgstr ""
-
-#: scripts/ui.gd:795
+#: scripts/ui.gd:833
 msgid "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
 msgstr ""
 
-#: scripts/main.gd:1036
+#: scripts/main.gd:1101
 msgid "驅動箱就在我旁邊——按一下 %s 開始上發條。"
 msgstr ""
 
-#: scripts/main.gd:1036
+#: scripts/main.gd:1101
 msgid "驅動箱就在我旁邊——按住 %s 上發條。"
 msgstr ""
 
-#: scripts/ui.gd:1905 scripts/ui.gd:1908
+#: scripts/ui.gd:2053 scripts/ui.gd:2056
 msgid "高"
 msgstr ""
 
@@ -4368,7 +4416,7 @@ msgstr ""
 msgid "黃銅做的小太陽系，發條帶著行星各走各的路；一本舊年鑑就擱在旁邊。\n照牛頓的引力算，記在年鑑上的預測，和後來望遠鏡裡看到的——對一對。"
 msgstr ""
 
-#: scripts/ui.gd:714
+#: scripts/ui.gd:752
 msgid "點選檢視；勾選要量測的底片。\n先依星像品質決定，再按「量測」。"
 msgstr ""
 
@@ -4688,7 +4736,7 @@ msgstr ""
 msgid "；"
 msgstr ""
 
-#: scripts/ui.gd:2197
+#: scripts/ui.gd:2420
 msgid "［%s／%s］開始・停"
 msgstr ""
 
@@ -4696,49 +4744,49 @@ msgstr ""
 msgid "［%s］%s"
 msgstr ""
 
-#: scripts/main.gd:902
+#: scripts/main.gd:967
 msgid "［%s］Ashby 先生給的放大鏡。"
 msgstr ""
 
-#: scripts/main.gd:897
+#: scripts/main.gd:962
 msgid "［%s］再讀工作簿最後一頁。"
 msgstr ""
 
-#: scripts/main.gd:916
+#: scripts/main.gd:981
 msgid "［%s］和 %s 說話"
 msgstr ""
 
-#: scripts/main.gd:910
+#: scripts/main.gd:975
 msgid "［%s］和 Eddington 說話"
 msgstr ""
 
-#: scripts/main.gd:897 scripts/main.gd:912
+#: scripts/main.gd:962 scripts/main.gd:977
 msgid "［%s］在工作簿記下你看到的天空。"
 msgstr ""
 
-#: scripts/main.gd:934
+#: scripts/main.gd:997
 msgid "［%s］把 %d 個底片匣放上架子"
 msgid_plural "［%s］把 %d 個底片匣放上架子"
 msgstr[0] ""
 msgstr[1] ""
 
-#: scripts/main.gd:899
+#: scripts/main.gd:964
 msgid "［%s］拿起 Ashby 先生給的放大鏡。"
 msgstr ""
 
-#: scripts/main.gd:906
+#: scripts/main.gd:971
 msgid "［%s］檢視底片"
 msgstr ""
 
-#: scripts/main.gd:924
+#: scripts/main.gd:987
 msgid "［%s］看天文鐘"
 msgstr ""
 
-#: scripts/main.gd:908 scripts/main.gd:939
+#: scripts/main.gd:1002 scripts/main.gd:973
 msgid "［%s］看牛津比對底片"
 msgstr ""
 
-#: scripts/cambridge/director.gd:207 scripts/ui.gd:2201
+#: scripts/cambridge/director.gd:207 scripts/ui.gd:2424
 msgid "［%s］繼續"
 msgstr ""
 
@@ -4828,4 +4876,192 @@ msgstr ""
 
 #: scripts/content.gd:66
 msgid "\nEddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。"
+msgstr ""
+
+#: scripts/main.gd:1314
+msgid "\n發條上滿了，但走速尚未驗證。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:134
+msgid "%s · 間距 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgstr ""
+
+#: scripts/main.gd:1194
+msgid "%s 觀察追蹤、請 Cottingham 微調走速"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "B 鍵"
+msgstr ""
+
+#: scripts/content.gd:334
+msgid "Cottingham：「二十秒了——走速尚未驗證，留意曝光時間。」"
+msgstr ""
+
+#: scripts/main.gd:961
+msgid "Cottingham：「好，放開按鍵，再看追蹤示意圖。」"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:110
+msgid "Cottingham：「看看它剛才在哪裡，現在又在哪裡。試著微調一下。」"
+msgstr ""
+
+#: scripts/prompts.gd:9
+msgid "E／Enter"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:75
+msgid "Sobral 的底片在 Greenwich 量完了。\n4 吋鏡頭：1.98″ ± 0.12″。\n天體照相儀：約 0.93″；星像模糊，當天的焦距和比例尺可能變了。"
+msgstr ""
+
+#: scripts/content.gd:87
+msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速尚未驗證時，留下的誤差越大，長曝光的星像越容易拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
+msgstr ""
+
+#: scripts/prompts.gd:9
+msgid "←／→"
+msgstr ""
+
+#: scripts/content.gd:31 scripts/ending.gd:58
+msgid "上了發條但走速尚未驗證"
+msgstr ""
+
+#: scripts/content.gd:46
+msgid "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
+msgstr ""
+
+#: scripts/content.gd:46
+msgid "你先在驅動箱上[b]按住 %s 上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:149
+msgid "剛才"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:131
+msgid "向右"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:131
+msgid "向左"
+msgstr ""
+
+#: scripts/cambridge/overlay_viewer.gd:593
+msgid "單憑這張底片，仍無法判定。"
+msgstr ""
+
+#: scripts/content.gd:45
+msgid "我負責定天鏡的驅動。你看追蹤示意圖，告訴我怎麼微調；移動越少，長曝光的星像越清楚。"
+msgstr ""
+
+#: scripts/prompts.gd:8
+msgid "方向鍵左／右"
+msgstr ""
+
+#: scripts/judgment.gd:99
+msgid "星像平均拖長 %.2f——走速尚未驗證。數值偏低，可能是儀器，不是星。"
+msgstr ""
+
+#: scripts/judgment.gd:29
+msgid "星像拖長了——走速尚未驗證。數值偏低，可能是儀器，不是星。"
+msgstr ""
+
+#: scripts/content.gd:293
+msgid "時鐘走得很穩。謝謝你那天觀察追蹤、請我微調。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:150
+msgid "現在"
+msgstr ""
+
+#: scripts/content.gd:295
+msgid "發條是滿的，走速尚未驗證；底片留下了當時設定的結果。"
+msgstr ""
+
+#: scripts/content.gd:51
+msgid "發條滿了。在驅動箱再按一次，看追蹤示意圖，你觀察、我調走速。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:44 scripts/coelostat_calibration.gd:72
+msgid "觀察星像的移動，再請 Cottingham 微調。位置是否居中並不重要。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:136
+msgid "走速已驗證；可記錄目前設定。"
+msgstr ""
+
+#: scripts/content.gd:126
+msgid "走速：尚未驗證；星像拖長的程度也取決於留下的走速誤差。"
+msgstr ""
+
+#: scripts/content.gd:125
+msgid "走速：已在追蹤示意圖中驗證。"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:133
+msgid "近乎靜止"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:39
+msgid "追蹤示意圖——示意重建，非史料"
+msgstr ""
+
+#: scripts/content.gd:296
+msgid "那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:42
+msgid "（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）"
+msgstr ""
+
+#: scripts/cambridge/content_epilogue.gd:53
+msgid "（桌角有一個沒寄出的信封，寫著你的名字。）"
+msgstr ""
+
+#: scripts/main.gd:932
+msgid "［%s］觀察追蹤、請 Cottingham 微調"
+msgstr ""
+
+#: scripts/coelostat_calibration.gd:153
+msgid "［%s］請他調慢／調快　［%s］微調\n［%s］記錄　［%s］保留設定離開　［%s］暫停"
+msgstr ""
+
+#: scripts/main.gd:1000
+msgid "［%s］讀曝光計畫"
+msgstr ""
+
+#: scripts/main.gd:1385 scripts/main.gd:1390 scripts/main.gd:1447
+msgid "［%s］開始／停"
+msgstr ""
+
+#: scripts/ui.gd:2422 scripts/ui.gd:622
+msgid "［1–%d 或點擊］選擇"
+msgstr ""
+
+#: scripts/ui.gd:2424 scripts/ui.gd:549 scripts/ui.gd:622
+msgid "［E／空白鍵／點擊］繼續"
+msgstr ""
+
+#: scripts/main.gd:984
+msgid "［按 %s 開始］上發條"
+msgstr ""
+
+#: scripts/main.gd:993
+msgid "［按 %s 開始］拿底片匣（手上 %d，箱裡還有 %d）"
+msgstr ""
+
+#: scripts/main.gd:984
+msgid "［按住 %s］上發條"
+msgstr ""
+
+#: scripts/main.gd:994
+msgid "［按住 %s］拿底片匣（手上 %d，箱裡還有 %d）"
+msgstr ""
+
+#: scripts/ui.gd:2422
+msgid "［方向鍵／A 鍵］選擇"
+msgstr ""
+
+#: scripts/ui.gd:391
+msgid "［空白鍵／E／左鍵］開始・停"
 msgstr ""

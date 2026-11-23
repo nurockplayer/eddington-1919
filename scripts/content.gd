@@ -28,7 +28,7 @@ static func briefing() -> Array:
 
 static func eddington_prep(plates: int, drive_wound: bool, drive_rate_checked: bool, carried: int) -> Array:
 	var handoff := L.tn("（你手上的 %d 張會交給 Cottingham）", carried) % carried if carried > 0 else ""
-	var drive := L.t("上了發條並校過走速") if drive_rate_checked else (L.t("上了發條但沒校走速") if drive_wound else L.t("還沒上發條"))
+	var drive := L.t("上了發條並校過走速") if drive_rate_checked else (L.t("上了發條但走速尚未驗證") if drive_wound else L.t("還沒上發條"))
 	return [
 		{"s": E, "t": L.t("可用底片 %d 張%s。時鐘驅動：%s。") % [plates, handoff, drive]},
 		{"s": E, "t": L.t("還有什麼事嗎？"), "key": "prep", "choices": [L.t("開始——就位等待全食。"), L.t("曝光的要領再說一次？"), L.t("先空拍一次，練練喊開始和停？"), L.t("沒事。")],
@@ -69,13 +69,13 @@ static func rehearsal_change() -> String:
 static func cottingham_first() -> Array:
 	return [
 		{"s": C, "t": L.t("啊，你來得正好。這場雨把什麼都弄濕了。")},
-		{"s": C, "t": L.t("定天鏡靠這具重錘時鐘轉動，跟著太陽走。發條得上滿，走速還要對著天文鐘校一次——不然曝光一長，星像就拖成短線。")},
-		{"s": C, "t": L.t("你先在驅動箱上[b]按一下 %s 開始上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。") % Prompts.key("interact") if Settings.hold_toggle else L.t("你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。") % Prompts.key("interact")},
+		{"s": C, "t": L.t("我負責定天鏡的驅動。你看追蹤示意圖，告訴我怎麼微調；移動越少，長曝光的星像越清楚。")},
+		{"s": C, "t": L.t("你先在驅動箱上[b]按一下 %s 開始上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。") % Prompts.key("interact") if Settings.hold_toggle else L.t("你先在驅動箱上[b]按住 %s 上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。") % Prompts.key("interact")},
 	]
 
 
 static func cottingham_after_wind() -> Array:
-	return [{"s": C, "t": L.t("發條滿了。現在到天文鐘那裡替我報秒，我來調走速。")}]
+	return [{"s": C, "t": L.t("發條滿了。在驅動箱再按一次，看追蹤示意圖，你觀察、我調走速。")}]
 
 
 static func cottingham_done() -> Array:
@@ -111,7 +111,7 @@ static func after_totality(exposed: int) -> Array:
 
 static func plan_text() -> Array:
 	var lines: Array = [
-		{"s": L.t("曝光計畫（筆記，遊戲內重建）"), "t": L.t("· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]")},
+		{"s": L.t("曝光計畫（筆記，遊戲內重建）"), "t": L.t("· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速尚未驗證時，留下的誤差越大，長曝光的星像越容易拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]")},
 	]
 
 	var tree := Engine.get_main_loop() as SceneTree
@@ -149,8 +149,8 @@ static func drive_note(plan: Array, played: bool, rate_checked: bool) -> String:
 	if played and not plan.has("conditions"):
 		return ""
 	if rate_checked:
-		return L.t("走速：早上已對著天文鐘校過。")
-	return L.t("走速：沒有校過——曝光越久，星像拖得越長。")
+		return L.t("走速：已在追蹤示意圖中驗證。")
+	return L.t("走速：尚未驗證；星像拖長的程度也取決於留下的走速誤差。")
 
 
 ## The 1917 plan board remembered in the darkroom; empty without the prologue.
@@ -345,10 +345,10 @@ static func press_eddington(pick: int) -> Array:
 
 static func cottingham_coda(sim) -> String:
 	if sim.drive_rate_checked:
-		return L.t("時鐘走得很穩。謝謝你那天替我報秒。")
+		return L.t("時鐘走得很穩。謝謝你那天觀察追蹤、請我微調。")
 	if sim.drive_wound:
-		return L.t("發條是滿的，可惜沒來得及對時——長一點的曝光，星像都有點拖。")
-	return L.t("那天我一個人趕著上發條，沒時間對時。下次我們先把這件事做完。")
+		return L.t("發條是滿的，走速尚未驗證；底片留下了當時設定的結果。")
+	return L.t("那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。")
 
 
 # --- M5 totality (Director-owned; docs/design/M5_TOTALITY.md). FICTION. Hindsight and
@@ -386,7 +386,7 @@ static func totality_read_night(band: String) -> String:
 static func totality_long(rate_checked: bool) -> String:
 	if rate_checked:
 		return L.t("Cottingham：「二十秒了。」")
-	return L.t("Cottingham：「二十秒了——驅動沒對過時，再久星像會拖長。」")
+	return L.t("Cottingham：「二十秒了——走速尚未驗證，留意曝光時間。」")
 
 
 static func totality_last_plate() -> String:

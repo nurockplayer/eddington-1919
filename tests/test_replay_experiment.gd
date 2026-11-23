@@ -20,10 +20,12 @@ func check(ok: bool, message: String) -> void:
 
 
 func wait_for(predicate: Callable, message: String) -> void:
+	print("REPLAY WAIT: ", message)
 	var deadline := Time.get_ticks_msec() + 15000
 	while not predicate.call() and Time.get_ticks_msec() < deadline:
 		await process_frame
 	check(predicate.call(), message)
+	print("REPLAY WAIT DONE: ", message)
 
 
 func dialogue(game, choices := {}) -> void:
@@ -77,18 +79,53 @@ func replay(game, same_sky := true):
 	next.player.set_physics_process(false)
 	Settings.text_scale = 1.2
 	Settings.refresh_fonts(self)
+	print("REPLAY: starting reloaded title")
 	next.ui.start_pressed.emit()
 	await wait_for(func(): return next.phase != next.Phase.TITLE, "replayed title start reaches 1919")
 	return next
 
 
 func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
+	print("REPLAY RUN: rule=%d expose=%s" % [rule, expose])
 	await dialogue(game)
 	game._interact("eddington")
 	await dialogue(game)
 	check(game.sim.briefed, "preparation briefing completed")
 	game._hold_complete("drive")
-	game._hold_complete("chronometer")
+	game._interact_needs_release = false
+	game._interact("drive")
+	# Keep the replay suite's manually advanced clock during calibration too.
+	# Inputs follow the displayed movement; no hidden correct setting is read.
+	for step in 450:
+		var drift: float = game.calibration.measured_drift
+		for action in ["ui_left", "trim_fine"]:
+			var event := InputEventAction.new()
+			event.action = action
+			event.pressed = absf(drift) > 0.65 if action == "ui_left" else absf(drift) < 5.0
+			Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		game._process_prep(0.1)
+		await process_frame
+		if game.sim.drive_rate_checked:
+			break
+	for action in ["ui_left", "trim_fine"]:
+		var event := InputEventAction.new()
+		event.action = action
+		event.pressed = false
+		Input.parse_input_event(event)
+	Input.flush_buffered_events()
+	check(game.sim.drive_rate_checked, "observed trim input verifies the replay drive")
+	var record := InputEventAction.new()
+	record.action = "interact"
+	record.pressed = true
+	Input.parse_input_event(record)
+	Input.flush_buffered_events()
+	await process_frame
+	record.pressed = false
+	Input.parse_input_event(record)
+	Input.flush_buffered_events()
+	await process_frame
+	check(not game.calibration.visible, "record input closes replay calibration")
 	for holder in 8:
 		game._hold_complete("plate_box")
 	game._interact("eddington")
@@ -108,7 +145,12 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 		game._process_totality(0.1 / game.sim.TIME_SCALE)
 	await wait_for(func(): return game._pending == "after_totality" and game.ui.dialog_active(), "third contact closes on the spoken aftermath")
 	await dialogue(game)
-	await wait_for(func(): return game.phase == game.Phase.NIGHT and not game._busy, "third contact develops the real plates and reaches night")
+	# Plate rendering is synchronous. Once it yields to the night caption, start
+	# the asynchronous transition deadline rather than charging rendering to it.
+	await wait_for(func(): return game.phase == game.Phase.NIGHT, "third contact develops the real plates and reaches night")
+	await wait_for(func(): return not game._busy, "night caption and fade complete")
+	if game.phase != game.Phase.NIGHT or game._busy:
+		return
 	await dialogue(game)
 	if game._needs_comparison_fetch():
 		game._interact("oxford_case")
@@ -289,6 +331,7 @@ func _run() -> void:
 	check(story.runs.size() == 1, "first completion records once")
 	check(not game.ui.ending_text.text.contains(HEADING), "first ending has no comparison")
 	var first: Dictionary = story.runs[0].duplicate(true)
+	check(first.drive_error == game.sim.drive_error, "completed run retains the actual trim residual")
 	check(first.exposures.size() == 12 and first.combined.n > 0, "first record contains real exposures and measurement")
 	for i in first.exposures.size():
 		for key in ["number", "start", "duration", "included", "usable", "quality"]:

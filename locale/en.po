@@ -47,6 +47,9 @@ msgstr "\nThe shutter is still open—the last plate caught the sunlight."
 msgid "\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。"
 msgstr "\nPress 'Blink comparison': the same star jumps between the two plates—that jump is what you are measuring.\nThe displacement is exaggerated so the eye can see it; the real measurement uses the micrometer."
 
+msgid "\n發條上滿了，但走速尚未驗證。"
+msgstr "\nThe drive is wound, but its rate is not verified."
+
 msgid "\n發條上滿了，但走速沒有校過。"
 msgstr "\nThe drive is fully wound, but its rate was never checked."
 
@@ -88,6 +91,9 @@ msgstr "%s\n\n(Historical)"
 msgid "%s\n\n（虛構）"
 msgstr "%s\n\n(Fiction)"
 
+msgid "%s · 漂移 %.1f · 穩定 %.1f／3 秒 · 本次剩餘 %.0f 秒"
+msgstr "%s · drift %.1f · steady %.1f/3 s · %.0f s left"
+
 msgid "%s 協助 Cottingham 上發條"
 msgstr "%s Help Cottingham wind the drive"
 
@@ -102,6 +108,9 @@ msgstr "%s Carry plate holders from the darkroom (the tin-roofed hut) to the tel
 
 msgid "%s 用天文鐘替他校走速"
 msgstr "%s Check his drive rate against the chronometer"
+
+msgid "%s 觀察追蹤、請 Cottingham 微調走速"
+msgstr "%s Observe tracking and ask Cottingham to trim the rate"
 
 msgid "%s、%s 和 %s"
 msgstr "%s, %s and %s"
@@ -238,6 +247,9 @@ msgstr "Ashby wrote: 0.87.\nYou wrote: %s (%s)."
 msgid "Ashby 先生給的放大鏡。"
 msgstr "The magnifying glass Ashby gave you."
 
+msgid "B 鍵"
+msgstr "B button"
+
 msgid "Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。"
 msgstr "Cottingham is at the coelostat. The morning damp has made the clock drive sulky; he needs a pair of hands."
 
@@ -256,6 +268,9 @@ msgstr "Cottingham, I can't yet say whether you'll have to go home alone."
 msgid "Cottingham：「一半在雲裡，一半透了光。」"
 msgstr "Cottingham: 'Half in cloud, half let the light through.'"
 
+msgid "Cottingham：「二十秒了——走速尚未驗證，留意曝光時間。」"
+msgstr "Cottingham: “Twenty seconds—the rate is not verified. Mind the exposure time.”"
+
 msgid "Cottingham：「二十秒了——驅動沒對過時，再久星像會拖長。」"
 msgstr "Cottingham: 'Twenty seconds—and with the drive unchecked, any longer and the star images will trail.'"
 
@@ -268,8 +283,14 @@ msgstr "Cottingham: 'Too short. Probably nothing was caught.'"
 msgid "Cottingham：「好，接著去天文鐘那裡。」"
 msgstr "Cottingham: 'Good, then on to the chronometer.'"
 
+msgid "Cottingham：「好，放開按鍵，再看追蹤示意圖。」"
+msgstr "Cottingham: “Good. Release the button, then look at the tracking diagram.”"
+
 msgid "Cottingham：「整段幾乎都在雲後面。」"
 msgstr "Cottingham: 'Almost the whole of it was behind cloud.'"
+
+msgid "Cottingham：「看看它剛才在哪裡，現在又在哪裡。試著微調一下。」"
+msgstr "Cottingham: “Watch where it was and where it is now. Try one small adjustment.”"
 
 msgid "Cottingham：「這幾秒雲很薄，我看得見日冕的邊。」"
 msgstr "Cottingham: 'The cloud was thin for those seconds; I could see the edge of the corona.'"
@@ -317,6 +338,9 @@ msgstr[1] "Eddington: \"%d plates left.\""
 
 msgid "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。"
 msgstr "Eddington: No plates—we practise the eye and the calls only. Watch the cloud over the sun: when it thins, press [%s] and call 'start'; before it thickens, call 'stop'."
+
+msgid "E／Enter"
+msgstr "E/Enter"
 
 msgid "Greenwich 來信了。Dyson 寫的，在桌上。你先看。"
 msgstr "A letter has come from Greenwich. It's from Dyson—on the table. You read it first."
@@ -578,6 +602,9 @@ msgid_plural "· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）�
 msgstr[0] "· You measured %d plate, combined %.2f″ ± %.2f″ (illustrative simulation)."
 msgstr[1] "· You measured %d plates, combined %.2f″ ± %.2f″ (illustrative simulation)."
 
+msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速尚未驗證時，留下的誤差越大，長曝光的星像越容易拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
+msgstr "· Total eclipse 302 seconds. Exposures are expected to run from 2 to 20 seconds; changing a plate takes about 4 seconds.\n· A star image needs enough 'clear sky': a few seconds will do when the cloud is thin; under thick cloud, any length of exposure gives only fog.\n· With an unverified rate, greater residual error means more trailing in long exposures.\n· The moment the sky brightens, take one short exposure and close; changing the plate takes four seconds. If the sky is still bright when it is done, take a second—the two can check one another. The second is a chance, not a guarantee.\n· [b]Close the shutter before third contact, without fail.[/b]"
+
 msgid "· 全食 302 秒。曝光預計 2 到 20 秒不等，換片約 4 秒。\n· 星像需要足夠「清楚的天空」：雲薄時幾秒就夠；厚雲下再久也只是一片霧。\n· 走速未校時，曝光超過約 6 秒星像就會拖長。\n· 天一透光，先拍一張短的就關；換片要四秒。換好了天還亮著，再拍第二張——兩張能互相檢查。第二張是機會，不是保證。\n· [b]第三接觸前務必關上快門。[/b]"
 msgstr "· Total eclipse 302 seconds. Exposures are expected to run from 2 to 20 seconds; changing a plate takes about 4 seconds.\n· A star image needs enough 'clear sky': a few seconds will do when the cloud is thin; under thick cloud, any length of exposure gives only fog.\n· With the drive rate unchecked, star images begin to trail after about 6 seconds.\n· The moment the sky brightens, take one short exposure and close; changing the plate takes four seconds. If the sky is still bright when it is done, take a second—the two can check one another. The second is a chance, not a guarantee.\n· [b]Close the shutter before third contact, without fail.[/b]"
 
@@ -670,6 +697,9 @@ msgstr "…There's still one point here that doesn't match, and you didn't see i
 
 msgid "……（看了你一眼）這句話留著。過幾天，也許有人會想聽。"
 msgstr "…(Looks at you.) Keep that sentence. In a few days, someone may want to hear it."
+
+msgid "←／→"
+msgstr "Left/Right"
 
 msgid "↑↓ 或右搖桿：捲動"
 msgstr "↑↓ or right stick: scroll"
@@ -872,6 +902,9 @@ msgstr "wound, and the drive rate checked"
 msgid "上了發條但沒校走速"
 msgstr "wound, but the drive rate not checked"
 
+msgid "上了發條但走速尚未驗證"
+msgstr "wound, rate not verified"
+
 msgid "上午的雷雨在十一點半左右停了。日偏食已經開始，太陽在雲後時隱時現。\n找 Eddington 報到——他在望遠鏡旁。"
 msgstr "The morning thunderstorm eased off around half past eleven. The partial eclipse has begun; the sun comes and goes behind the cloud.\nReport to Eddington—he is by the telescope."
 
@@ -1004,8 +1037,14 @@ msgstr "You stopped late, still exposing after thick cloud returned. "
 msgid "你先在驅動箱上[b]%s上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
 msgstr ""
 
+msgid "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
+msgstr "First [b]press %s to start winding[/b] at the drive box. Release it, then press again to view the [b]tracking diagram[/b] and ask me to trim the rate."
+
 msgid "你先在驅動箱上[b]按一下 %s 開始上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
 msgstr "First [b]press %s on the drive box to start winding[/b], then go to the [b]astronomical clock[/b] on the table and call the seconds for me."
+
+msgid "你先在驅動箱上[b]按住 %s 上發條[/b]，放開按鍵，再按一次看[b]追蹤示意圖[/b]，請我微調。"
+msgstr "First [b]hold %s to wind[/b] at the drive box. Release it, then press again to view the [b]tracking diagram[/b] and ask me to trim the rate."
 
 msgid "你先在驅動箱上[b]按住 %s 上發條[/b]，然後到桌上的[b]天文鐘[/b]那裡替我報秒。"
 msgstr "First [b]hold %s on the drive box to wind[/b], then go to the [b]astronomical clock[/b] on the table and call the seconds for me."
@@ -1370,6 +1409,9 @@ msgstr "So far, yes. Which is why you are going to measure it."
 msgid "到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。"
 msgstr "Take the old Hyades plate from the cabinet and check the first star on the list."
 
+msgid "剛才"
+msgstr "Previous"
+
 msgid "劃一條線，旁邊寫正確的數字，簽上縮寫。"
 msgstr "Strike a line through it, write the correct figure beside it, and initial it."
 
@@ -1510,6 +1552,12 @@ msgstr "Brightness estimates for the same variable star, line after line, in han
 
 msgid "向 Eddington 報告 →"
 msgstr "Report to Eddington →"
+
+msgid "向右"
+msgstr "Rightward"
+
+msgid "向左"
+msgstr "Leftward"
 
 msgid "和你自己的誤差範圍相符"
 msgstr "consistent with your own error range"
@@ -2035,6 +2083,9 @@ msgstr "I read it three times. Not because it was hard to follow—because so fe
 msgid "我讀了兩遍。寫得很清楚。"
 msgstr "I read it twice. It is very clear."
 
+msgid "我負責定天鏡的驅動。你看追蹤示意圖，告訴我怎麼微調；移動越少，長曝光的星像越清楚。"
+msgstr "I handle the coelostat drive. Watch the tracking diagram and ask me for adjustments. Less movement means sharper stars in long exposures."
+
 msgid "我負責換底片，Cottingham 拿遮光板控制曝光。[b]你替我們看雲[/b]：雲變薄就喊「開始」，雲變厚、或全食快結束時喊「停」。"
 msgstr "I change the plates; Cottingham works the shutter to control the exposure. [b]You watch the cloud for us[/b]: call 'start' when it thins, 'stop' when it thickens, or when totality is nearly over."
 
@@ -2257,6 +2308,9 @@ msgstr "A new object. (A small laugh, not unkind.) One plate, one white speck, o
 msgid "新的天空：換一種雲況"
 msgstr "New sky: a different cloud"
 
+msgid "方向鍵左／右"
+msgstr "D-pad left/right"
+
 msgid "日冕很美，我也看了一眼。但美不是量測——量測在底片上。"
 msgstr "The corona was beautiful; I looked at it too. But beauty is not measurement—measurement is on the plates."
 
@@ -2278,8 +2332,14 @@ msgstr "Understood."
 msgid "星像品質：它拖長、起霧或星不夠"
 msgstr "Star image quality: trailed, fogged, or too few stars"
 
+msgid "星像平均拖長 %.2f——走速尚未驗證。數值偏低，可能是儀器，不是星。"
+msgstr "Mean star trailing %.2f—the rate was not verified. The low result may come from the instrument rather than the stars."
+
 msgid "星像平均拖長 %.2f——走速沒校過。數值偏低，可能是儀器，不是星。"
 msgstr "Mean trailing of star images: %.2f—the drive rate wasn't checked. The low value may be due to the instrument, rather than the stars."
+
+msgid "星像拖長了——走速尚未驗證。數值偏低，可能是儀器，不是星。"
+msgstr "The stars trailed—the rate was not verified. The low result may come from the instrument rather than the stars."
 
 msgid "星像拖長了——走速沒校過。數值偏低，可能是儀器，不是星。"
 msgstr "The star images are trailed—the drive rate wasn't checked. The low value may be due to the instrument, rather than the stars."
@@ -2313,6 +2373,9 @@ msgstr "Yes. That line in the almanac can be closed."
 
 msgid "時鐘走得很穩。謝謝你那天替我報秒。"
 msgstr "The clock ran very steadily. Thank you for calling the seconds for me that day."
+
+msgid "時鐘走得很穩。謝謝你那天觀察追蹤、請我微調。"
+msgstr "The drive ran steadily. Thank you for watching the tracking and asking me to adjust it."
 
 msgid "時鐘驅動"
 msgstr "Clock drive"
@@ -2638,6 +2701,9 @@ msgstr "Newton's theory itself"
 msgid "猜沒有錯。只是要寫明是猜。"
 msgstr "There is nothing wrong with guessing. It only has to be marked as a guess."
 
+msgid "現在"
+msgstr "Now"
+
 msgid "現在你告訴我。（拿起你的紙）如果日食那張底片上的星「移動」了——我們怎麼知道，那不是有人把底片放反、放斜了？"
 msgstr "Now you tell me. (Picks up your sheet.) If the stars on the eclipse plate have 'moved'—how do we know it isn't that someone set the plate face-down, or askew?"
 
@@ -2682,6 +2748,12 @@ msgstr "The drive is fully wound."
 
 msgid "發條是滿的，可惜沒來得及對時——長一點的曝光，星像都有點拖。"
 msgstr "The drive was fully wound, but there was no time to check it against the clock—on the longer exposures the star images are a little trailed."
+
+msgid "發條是滿的，走速尚未驗證；底片留下了當時設定的結果。"
+msgstr "The drive was wound, but its rate was not verified. The plates kept the result of that setting."
+
+msgid "發條滿了。在驅動箱再按一次，看追蹤示意圖，你觀察、我調走速。"
+msgstr "It is wound. Press again at the drive box to view the tracking diagram. You observe; I adjust the rate."
 
 msgid "發條滿了。現在到天文鐘那裡替我報秒，我來調走速。"
 msgstr "The drive is fully wound. Now go to the astronomical clock and call the seconds for me; I'll set the rate."
@@ -2932,6 +3004,9 @@ msgstr ""
 msgid "視角靈敏度：%s"
 msgstr "Look sensitivity: %s"
 
+msgid "觀察星像的移動，再請 Cottingham 微調。位置是否居中並不重要。"
+msgstr "Watch the star image move, then ask Cottingham to adjust. It does not need to be centred."
+
 msgid "記下每張底片的狀況：雲、曝光秒數、溫度、時鐘驅動"
 msgstr "Record the condition of each plate: cloud, exposure in seconds, temperature, clock drive"
 
@@ -3025,11 +3100,20 @@ msgstr "Come on, let's go outside. You said you'd show me."
 msgid "走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。"
 msgstr "The rate is set. During totality you watch the cloud, I take the shutter, and Professor Eddington changes the plates. Three people, just enough."
 
+msgid "走速已驗證；可記錄目前設定。"
+msgstr "Rate verified; you can record the current setting."
+
 msgid "走速校過了。星像還是拖長，是曝光太久，不是走速沒校。"
 msgstr "The drive rate was checked. The star images are trailed anyway: the exposure was too long, not the drive unchecked."
 
 msgid "走速校過了，星像沒有拖。別把不合期望的數字推給儀器。"
 msgstr "The drive rate was checked and the star images are not trailed. Don't push a number you did not expect onto the instrument."
+
+msgid "走速：尚未驗證；星像拖長的程度也取決於留下的走速誤差。"
+msgstr "Drive rate: not verified; trailing also depends on the residual rate error."
+
+msgid "走速：已在追蹤示意圖中驗證。"
+msgstr "Drive rate: verified in the tracking diagram."
 
 msgid "走速：早上已對著天文鐘校過。"
 msgstr "Drive rate: checked against the astronomical clock this morning."
@@ -3052,11 +3136,17 @@ msgstr "Skipping is a choice too—but write down that you skipped it."
 msgid "轉一點就對上了。可是為什麼要轉？底片的藥膜面上應該有鉛筆記號，告訴我們北邊在哪裡。"
 msgstr "A small turn brings it into line. But why should it need turning? There should be a pencil mark on the emulsion side of the plate to tell us where north is."
 
+msgid "近乎靜止"
+msgstr "Nearly still"
+
 msgid "返回"
 msgstr "Back"
 
 msgid "返回　%s"
 msgstr "Back  %s"
+
+msgid "追蹤示意圖——示意重建，非史料"
+msgstr "Tracking diagram—illustrative reconstruction, not historical evidence"
 
 msgid "這 %d 張"
 msgstr ""
@@ -3207,6 +3297,9 @@ msgstr "And that extra point—what do you think it is?"
 
 msgid "那天我一個人趕著上發條，沒時間對時。下次我們先把這件事做完。"
 msgstr "That day I was hurrying to wind it alone, with no time to check it. Next time we finish that first."
+
+msgid "那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。"
+msgstr "I was winding it alone in a hurry that day, and the rate was not verified. Next time, let us finish this first."
 
 msgid "那就一起回家，照實說。"
 msgstr "Then we go home together and say so."
@@ -3731,6 +3824,12 @@ msgstr "[%s] Look at the Oxford comparison plate"
 
 msgid "［%s］繼續"
 msgstr "[%s] Continue"
+
+msgid "［%s］觀察追蹤、請 Cottingham 微調"
+msgstr "[%s] Observe tracking and ask Cottingham to adjust"
+
+msgid "［%s］請他調慢／調快　［%s］微調\n［%s］記錄　［%s］保留設定離開　［%s］暫停"
+msgstr "[%s] Request slower/faster  [%s] Fine trim\n[%s] Record  [%s] Leave with setting  [%s] Pause"
 
 msgid "［%s］讀曝光計畫"
 msgstr "[%s] Read the exposure plan"

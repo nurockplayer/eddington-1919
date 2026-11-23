@@ -1,5 +1,5 @@
 extends SceneTree
-## Presentation-only contact gap; the immutable main simulation remains the oracle.
+## Presentation-only contact gap; pin the approved simulation as the oracle.
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
@@ -19,8 +19,9 @@ func check(ok: bool, message: String) -> void:
 
 
 func _run() -> void:
-	# Main 0d09113: pin the exposure/plate oracle, including its seeded cloud field.
-	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "c6628ffd041798c554ebbe3fddb96ace7101283be89db9f8a13887ecfa566eb7", "simulation is byte-identical to main")
+	# P2 (#351) intentionally changes drive drift; pin that approved simulation,
+	# including the unchanged exposure/plate and seeded cloud model.
+	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "b3a9c3bf179b79d44ecd6bd0f39bf79878884bda1deaa83a9ab88fa7ef451af2", "simulation matches the approved P2 oracle")
 	var shader := FileAccess.get_file_as_string("res://shaders/eclipse_sky.gdshader")
 	var shared_cloud := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
 	check(shared_cloud.contains("dens = mix(dens, min(dens, 0.55), third_contact_gap * near_contact_sun);"), "shared cloud applies the contact veil")
@@ -85,8 +86,8 @@ func _check_seed(seed_: int) -> void:
 			p.sky_read = Cues.sky_band(p.clear, p.duration)
 		else:
 			ref.close_shutter(true)
-	check(var_to_bytes(game.sim.plates) == var_to_bytes(ref.plates), "seed %d: plate bytes identical to main before/at third contact" % seed_)
-	check(var_to_bytes(Judgment.grade(game.sim, "hopeful", "measured")) == var_to_bytes(Judgment.grade(ref, "hopeful", "measured")), "seed %d: scoring bytes identical to main" % seed_)
+	check(var_to_bytes(game.sim.plates) == var_to_bytes(ref.plates), "seed %d: plate bytes identical to the simulation oracle before/at third contact" % seed_)
+	check(var_to_bytes(Judgment.grade(game.sim, "hopeful", "measured")) == var_to_bytes(Judgment.grade(ref, "hopeful", "measured")), "seed %d: scoring bytes identical to the simulation oracle" % seed_)
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame

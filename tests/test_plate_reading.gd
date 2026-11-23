@@ -81,6 +81,7 @@ func click_at(point: Vector2) -> void:
 
 
 func _run() -> void:
+	_check_trailed_micrometer_target()
 	var textures := []
 	for kind in ["sharp", "trailed", "fogged"]:
 		var tex := Render.render_example(kind)
@@ -308,6 +309,26 @@ func next_blink(ui) -> void:
 	while ui.big_plate.texture is AtlasTexture and ui.big_plate.texture.atlas == current and Time.get_ticks_msec() < deadline:
 		await process_frame
 	check(ui.big_plate.texture is AtlasTexture and ui.big_plate.texture.atlas != current, "blink advances through real frame time")
+
+
+func _check_trailed_micrometer_target() -> void:
+	for residual in [0.0, 1.0]:
+		var sim := Sim.new(77)
+		sim.drive_wound = true
+		sim.drive_error = residual
+		sim.open_shutter(220.0)
+		sim.accumulate(10.0, 0.0)
+		var plate := sim.close_shutter()
+		var reference := Vector2.ONE * (Render.SIZE * 0.5) + sim.star_offsets[0] * Render.SUN_PX
+		var axis := sim.star_offsets[0].normalized()
+		var expected := reference + axis * sim.reading_for_value(plate.value)
+		var visible := star_centroid(Render.render(sim, plate).get_image(), expected)
+		var error := visible - expected
+		print("trailed micrometer: residual=%.1f trail=%.2f expected=%s visible=%s radial error=%.3f px off-axis=%.3f px" %
+			[residual, plate.trail, expected, visible, error.dot(axis), axis.cross(error)])
+		check(plate.usable and is_equal_approx(plate.trail, 0.12 + 0.38 * residual),
+			"usable 10 s exposure with residual %.1f" % residual)
+		check(error.length() < 1.0, "visible star centre agrees with micrometer at residual %.1f" % residual)
 
 
 func star_centroid(image: Image, around: Vector2) -> Vector2:
