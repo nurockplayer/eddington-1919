@@ -68,4 +68,4 @@ Default main presentation (engraving; no debug overrides). Paths and names are o
 | 年鑑・水星（1919 年 10 月補記） | 1 | none | Almanac · Mercury (note added October 1919) / 年鑑・水星（1919年10月の追記） / 年鑑・水星（1919 年 10 月補記） / 연감 · 수성(1919년 10월 추기) |
 | 筆記本 | 1 | none | The notebook / ノート / 筆記本 / 공책 |
 
-Source fingerprint: `37540304b434d4c86d5eaebee39462f5fdedf6b6da4fb41279bef125ac304ca1`
+Source fingerprint: `28a760757cf24eaf0cab63830bd05126ce74613311240e638ef1c110b07278f6`
