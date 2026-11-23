@@ -202,7 +202,7 @@ func _draw() -> void:
 	var w := size.x
 	var viewport := get_parent() as ScrollContainer
 	var scroll := float(viewport.scroll_vertical) if viewport else 0.0
-	var h := viewport.size.y if viewport else size.y
+	var h := viewport.size.y if viewport and revealed and not rows.is_empty() else size.y
 	var font := get_theme_default_font()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
 	var top := scroll + 28.0
