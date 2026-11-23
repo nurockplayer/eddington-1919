@@ -37,6 +37,7 @@ const BED_DIR := "res://assets/sfx/"
 const BED_RMS_DB := {"birds": -29.70, "insects": -34.79, "surf": -23.85}
 
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
+const EXPOSURE_STEP_S := 0.25    # game seconds between cloud samples during exposure
 const TOTALITY_SCORE_DELAY_S := 2.0  # real seconds after second contact
 const TOTALITY_SCORE_FADE_S := 1.2
 const TOTALITY_INSECTS_FADE_S := 3.0
@@ -1492,7 +1493,13 @@ func _process_totality(delta: float) -> void:
 			-TOTALITY_SURF_DIP_DB, surf_elapsed, TOTALITY_SURF_RETURN_S, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
 	var dens: float = sim.cloud_over_sun(t_game)
 	if exposing:
-		sim.accumulate_cloud(previous, t_game)
+		# Weight each game-time sample by the exposed part of its interval.
+		var cursor := previous
+		while cursor < t_game:
+			var sample_time := (floorf(cursor / EXPOSURE_STEP_S) + 1.0) * EXPOSURE_STEP_S
+			var end := minf(sample_time, t_game)
+			sim.accumulate(end - cursor, sim.cloud_over_sun(sample_time))
+			cursor = end
 	if change_left > 0.0:
 		change_left = maxf(change_left - dt, 0.0)
 	_apply_light(1.0, 1.0, t_game, 0.0)

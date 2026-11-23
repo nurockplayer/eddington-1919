@@ -12,7 +12,6 @@ const PlateRender := preload("res://scripts/plate_render.gd")
 
 const TOTALITY_S := 302.0        # HISTORICAL_RECORD: ~302 s of totality at Príncipe
 const TIME_SCALE := 2.5          # game compresses totality ×2.5 (~2 real minutes)
-const EXPOSURE_STEP_S := 0.25    # common game-time cloud sampling grid
 ## Illustrative setting error: added in quadrature to every plate the player reads
 ## with the micrometer, so a careless setting widens that plate's uncertainty.
 const SET_SIGMA := 0.08
@@ -226,15 +225,6 @@ func accumulate(dt: float, density: float) -> void:
 	_open.duration += dt
 	_open.clear += (1.0 - density) * dt
 	_open.cloudy += density * dt
-
-
-## Weight each cloud sample by the exposed part of its game-time interval.
-func accumulate_cloud(from: float, until: float) -> void:
-	while from < until:
-		var sample_time := (floorf(from / EXPOSURE_STEP_S) + 1.0) * EXPOSURE_STEP_S
-		var end := minf(sample_time, until)
-		accumulate(end - from, cloud_over_sun(sample_time))
-		from = end
 
 
 func close_shutter(sunlit := false) -> Dictionary:

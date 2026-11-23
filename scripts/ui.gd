@@ -2130,13 +2130,13 @@ func _build_pause(root: Control) -> void:
 	rows.add_child(quit_button)
 	# Fill the two visual columns in reading order, keeping each group together.
 	var volume_cards := [first_slider.get_parent().get_parent(), music_row.get_parent(), last_slider.get_parent().get_parent()]
-	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, language_button]
-	var right := [invert, motion, hold_button, totality_pace_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button]
+	var right := [invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button, language_button]
 	for i in left.size():
 		rows.move_child(left[i], i * 2)
 		if i < right.size():
 			rows.move_child(right[i], i * 2 + 1)
-	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, language_button, invert, motion, hold_button, totality_pace_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button, language_button, invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
 	for i in focus_order.size():
 		var button: Control = focus_order[i]
 		button.focus_next = button.get_path_to(focus_order[(i + 1) % focus_order.size()])
