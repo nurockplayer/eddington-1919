@@ -47,8 +47,8 @@ func bounds(node: Node) -> void:
 		bounds(child)
 
 
-func settle() -> void:
-	for frame in 5:
+func settle(frames := 5) -> void:
+	for frame in frames:
 		await process_frame
 
 
@@ -232,7 +232,7 @@ func _run() -> void:
 			var buttons: Array = scroll.find_children("*", "Button", true, false).filter(func(button): return button.is_visible_in_tree())
 			for button in buttons:
 				scroll.ensure_control_visible(button)
-				await settle()
+				await settle(2)
 				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "pause button reachable: " + button.text)
 			for i in buttons.size():
 				for j in range(i + 1, buttons.size()):
@@ -243,7 +243,7 @@ func _run() -> void:
 			await settle()
 			for button: Button in armed_buttons:
 				scroll.ensure_control_visible(button)
-				await settle()
+				await settle(2)
 				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "armed pause button reachable: " + button.text)
 				check(button.size.x <= scroll.size.x / 2.0 + 1.0, "armed pause text stays in its column: " + button.text)
 				var content_width: float = button.size.x - button.get_theme_stylebox("normal").get_minimum_size().x
@@ -632,7 +632,8 @@ func _test_merged_dialogue() -> void:
 				continue
 			seen[entry.t] = true
 			ui.play([entry])
-			await settle()
+			# Allow deferred sizing and the container sort before checking bounds.
+			await settle(2)
 			bounds(ui.dialog_panel)
 			check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1,
 				"merged text fits dialogue box: " + str(entry.t))
