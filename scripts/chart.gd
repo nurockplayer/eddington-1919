@@ -26,6 +26,55 @@ var _drawn_row_bounds: Array = []
 var _drawn_combined_bounds: Array = []
 
 
+class RowCanvas extends Control:
+	var chart: Control
+
+	func _draw() -> void:
+		var font := get_theme_default_font()
+		var w := size.x
+		var first_y: float = 28.0 + font.get_ascent(chart._label_px) - 5.0 * Settings.text_scale
+		var step := maxf(34.0, font.get_height(chart._label_px) + 8.0)
+		for i in chart.rows.size():
+			var r: Dictionary = chart.rows[i]
+			var y: float = first_y + i * step
+			var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
+			if not r.get("no_bar", false):
+				var span: Vector2 = chart.two_sigma_span(r.value, r.sigma)
+				var thin := Color(col, 0.45)
+				var x2_lo: float = chart._x(span.x, w)
+				var x2_hi: float = chart._x(span.y, w)
+				draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
+				draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
+				draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
+				var x0: float = chart._x(r.value - r.sigma, w)
+				var x1: float = chart._x(r.value + r.sigma, w)
+				draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
+				draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
+				draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
+			var point := Vector2(chart._x(r.value, w), y)
+			if chart.marker_filled(r):
+				draw_circle(point, 5.0, col)
+			else:
+				draw_arc(point, 5.0, 0.0, TAU, 20, col, 2.0)
+			draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, chart._label_px, col)
+
+
+var _row_clip: Control
+var _row_canvas: RowCanvas
+var _drawn_row_clip := Rect2()
+
+
+func _ready() -> void:
+	_row_clip = Control.new()
+	_row_clip.clip_contents = true
+	_row_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_row_clip)
+	_row_canvas = RowCanvas.new()
+	_row_canvas.chart = self
+	_row_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_row_clip.add_child(_row_canvas)
+
+
 func set_data(p_rows: Array, p_combined: Dictionary, p_revealed: bool) -> void:
 	rows = p_rows
 	combined = p_combined
@@ -63,7 +112,7 @@ func drawn() -> Dictionary:
 		"ledger": _drawn_ledger.duplicate(true), "ledger_bounds": _drawn_ledger_bounds.duplicate(),
 		"result_bounds": _drawn_result_bounds, "result_backing": _drawn_result_backing,
 		"axis_bounds": _drawn_axis_bounds.duplicate(), "hint_bounds": _drawn_hint_bounds.duplicate(),
-		"row_bounds": _drawn_row_bounds.duplicate(true), "combined_bounds": _drawn_combined_bounds.duplicate()}
+		"row_bounds": _drawn_row_bounds.duplicate(true), "row_clip": _drawn_row_clip, "combined_bounds": _drawn_combined_bounds.duplicate()}
 
 
 ## Every string the last _draw() painted. draw_string output is not a node
@@ -165,6 +214,7 @@ func _draw() -> void:
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
+	_row_canvas.visible = false
 	if not revealed:
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)
@@ -180,6 +230,13 @@ func _draw() -> void:
 	var combined_height := maxf(font.get_height(Settings.fs(15)), font.get_height(Settings.fs(16)))
 	var fixed_y := bottom - combined_height * 0.5 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
 	var fixed_start := fixed_y - combined_height * 0.5 if compact else fixed_y - 24.0
+	_drawn_row_clip = Rect2(0, top + 2.0, w, maxf(0.0, fixed_start - top - 2.0))
+	_row_clip.position = _drawn_row_clip.position
+	_row_clip.size = _drawn_row_clip.size
+	_row_canvas.position = -_drawn_row_clip.position
+	_row_canvas.size = size
+	_row_canvas.visible = true
+	_row_canvas.queue_redraw()
 	for i in rows.size():
 		var r: Dictionary = rows[i]
 		var y := first_y + i * step
@@ -187,8 +244,9 @@ func _draw() -> void:
 		var label_bounds := Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(_label_px)),
 			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px))
 		var marker_bounds := Rect2(Vector2(_x(r.value, w), y) - Vector2(6, 6), Vector2(12, 12))
-		var visible_row := minf(label_bounds.position.y, marker_bounds.position.y) >= top and maxf(label_bounds.end.y, marker_bounds.end.y) <= fixed_start
-		_drawn_row_bounds.append({"label": label_bounds, "marker": marker_bounds, "visible": visible_row})
+		var visible_row := minf(label_bounds.position.y, marker_bounds.position.y) >= top + 2.0 and maxf(label_bounds.end.y, marker_bounds.end.y) <= fixed_start
+		var ink := label_bounds.merge(marker_bounds).merge(Rect2(0, y - 6, w, 12))
+		_drawn_row_bounds.append({"label": label_bounds, "marker": marker_bounds, "visible": visible_row, "painted": ink.intersection(_drawn_row_clip)})
 		_drawn_label_px = _label_px
 		_drawn_texts.append(r.label)
 		_drawn_markers.append("filled" if marker_filled(r) else "hollow")
@@ -197,30 +255,6 @@ func _draw() -> void:
 			_drawn_filled += 1
 		else:
 			_drawn_hollow += 1
-		if not visible_row:
-			continue
-		# A row with no trustworthy error is a marker only; no bar is invented for it.
-		if r.get("no_bar", false):
-			pass
-		else:
-			var span := two_sigma_span(r.value, r.sigma)
-			var thin := Color(col, 0.45)
-			var x2_lo := _x(span.x, w)
-			var x2_hi := _x(span.y, w)
-			draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
-			draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
-			draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
-			var x0 := _x(r.value - r.sigma, w)
-			var x1 := _x(r.value + r.sigma, w)
-			draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
-			draw_line(Vector2(x0, y - 5), Vector2(x0, y + 5), col, 2.0)
-			draw_line(Vector2(x1, y - 5), Vector2(x1, y + 5), col, 2.0)
-		var p := Vector2(_x(r.value, w), y)
-		if marker_filled(r):
-			draw_circle(p, 5.0, col)
-		else:
-			draw_arc(p, 5.0, 0.0, TAU, 20, col, 2.0)
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	# Cover scrolled rows in the fixed result and axis bands.
 	draw_rect(Rect2(0, fixed_start, w, scroll + h - fixed_start), Color(0.09, 0.08, 0.07, 1.0))
 	for ref in refs:

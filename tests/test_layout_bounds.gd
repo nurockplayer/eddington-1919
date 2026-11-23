@@ -717,6 +717,12 @@ func _test_report_chart_rows() -> void:
 						await process_frame
 						await process_frame
 						painted = ui.chart.drawn()
+						var row_clip: Rect2 = painted.row_clip
+						var header := Rect2(0, row_clip.position.y - 30.0, ui.chart.size.x, 30.0)
+						var footer := Rect2(0, row_clip.end.y, ui.chart.size.x, clip.size.y)
+						for row: Dictionary in painted.row_bounds:
+							var ink: Rect2 = row.painted
+							check(not ink.intersects(header) and not ink.intersects(footer), "painted plate row clears pinned bands: %s" % ink)
 						var fixed: Array = painted.axis_bounds.duplicate()
 						fixed.append_array(painted.combined_bounds)
 						fixed.append(painted.result_bounds)
