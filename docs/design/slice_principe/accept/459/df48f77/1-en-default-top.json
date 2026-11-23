@@ -1,0 +1,20 @@
+{
+  "combined": {
+    "n": 1,
+    "sigma": 0.248802130215961,
+    "value": 1.44373340861269
+  },
+  "frame": "1-en-default-top.png",
+  "locale": "en",
+  "plates": [
+    {
+      "deflection_arcsec": 1.44373340861269,
+      "plate": 1,
+      "uncertainty_arcsec": 0.248802130215961
+    }
+  ],
+  "scroll": "top",
+  "scroll_vertical": 0,
+  "text_scale": 1.0,
+  "units": "arcseconds"
+}

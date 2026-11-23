@@ -1,0 +1,75 @@
+{
+  "combined": {
+    "n": 12,
+    "sigma": 0.0718229884275687,
+    "value": 1.64373405224443
+  },
+  "frame": "12-ko-max-top.png",
+  "locale": "ko",
+  "plates": [
+    {
+      "deflection_arcsec": 1.44373340861269,
+      "plate": 1,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.44373340861269,
+      "plate": 2,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.74717739268997,
+      "plate": 3,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.63348792978184,
+      "plate": 4,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.93946053565084,
+      "plate": 5,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.64039629036236,
+      "plate": 6,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.89942448185714,
+      "plate": 7,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.58009720067653,
+      "plate": 8,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.44373340861269,
+      "plate": 9,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.71414244276421,
+      "plate": 10,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.79568871869948,
+      "plate": 11,
+      "uncertainty_arcsec": 0.248802130215961
+    },
+    {
+      "deflection_arcsec": 1.44373340861269,
+      "plate": 12,
+      "uncertainty_arcsec": 0.248802130215961
+    }
+  ],
+  "scroll": "top",
+  "scroll_vertical": 0,
+  "text_scale": 1.2,
+  "units": "arcseconds"
+}
