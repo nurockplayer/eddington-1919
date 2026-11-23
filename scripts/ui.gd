@@ -13,6 +13,7 @@ const FadeStars := preload("res://scripts/fade_stars.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 var paper_hud := false
 var paper_layout := Callable()
+var paper_toast_layout := Callable()
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -464,7 +465,7 @@ func show_toast(text: String, seconds := 4.0) -> void:
 	toast.text = text
 	_slips_visibility()
 	if paper_hud:
-		paper_layout.call()
+		paper_toast_layout.call()
 	toast.modulate.a = 1.0
 	_toast_t = seconds
 	_append_history(L.t("・") + text)
@@ -588,11 +589,10 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.visibility_changed.connect(func():
 		if not dialog_panel.visible:
 			dialogue_portrait.hide())
-	text_label.minimum_size_changed.connect(_layout_dialogue_portrait.call_deferred)
+	dialog_panel.minimum_size_changed.connect(_layout_dialogue_portrait.call_deferred)
 	dialog_panel.resized.connect(_layout_viewer.call_deferred)
 	dialog_panel.visibility_changed.connect(_layout_viewer.call_deferred)
 	root.resized.connect(_layout_dialogue_portrait)
-	dialog_panel.resized.connect(_layout_dialogue_portrait)
 	dialogue_portrait.resized.connect(_position_dialogue_portrait)
 
 
@@ -633,10 +633,10 @@ func _layout_dialogue_portrait() -> void:
 		natural = maxf(natural, face.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x + 20.0)
 	var width := minf(maximum, natural + dialog_panel.get_theme_stylebox("panel").get_minimum_size().x)
 	dialog_panel.custom_minimum_size = Vector2.ZERO
-	dialog_panel.offset_left = (column - width) * 0.5
-	dialog_panel.offset_right = (column + width) * 0.5
-	dialog_panel.offset_bottom = -18.0
-	dialog_panel.offset_top = -18.0 - dialog_panel.get_combined_minimum_size().y
+	# Apply the width once so fit_content never wraps at a temporary width.
+	dialog_panel.size = Vector2(width, 0.0)
+	dialog_panel.position = Vector2((frame.x + column - dialog_panel.size.x) * 0.5,
+		frame.y - 18.0 - dialog_panel.size.y)
 	_position_dialogue_portrait()
 
 

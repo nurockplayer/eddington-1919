@@ -968,13 +968,13 @@ func _check_pause_columns(ui, scroll: ScrollContainer, language: String) -> void
 		if i > 0:
 			check(absf(right[i].global_position.y - right[i - 1].get_global_rect().end.y) <= 1.0,
 				"right column ends with adjacent start over, title, quit")
-	var last_row_bottom := 0.0
+	var last_button_bottom := 0.0
 	for button in scroll.find_children("*", "Button", true, false):
 		if button.is_visible_in_tree():
 			check(scroll.get_global_rect().grow(1).encloses(button.get_global_rect()), "pause button fits: " + button.text)
-			last_row_bottom = maxf(last_row_bottom, button.get_global_rect().end.y)
-	check(absf(ui.quit_button.get_global_rect().end.y - last_row_bottom) <= 1.0, "quit sits at the foot of the menu")
-	var gap: float = scroll.get_parent().get_global_rect().end.y - last_row_bottom
+			last_button_bottom = maxf(last_button_bottom, button.get_global_rect().end.y)
+	check(absf(ui.quit_button.get_global_rect().end.y - last_button_bottom) <= 1.0, "quit is the last menu button")
+	var gap: float = scroll.get_parent().get_global_rect().end.y - ui.pause_objectives.get_global_rect().end.y
 	check(gap >= -1.0 and gap <= 1.0, "pause paper ends under last row: gap %.1f" % gap)
 	_check_pause_text(scroll, language)
 

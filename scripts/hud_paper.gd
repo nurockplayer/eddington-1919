@@ -67,6 +67,7 @@ func setup(target: Node, colours: Dictionary) -> void:
 	ui.dialogue_entry.connect(func(_speaker: String): _choices())
 	ui.tot_panel.visibility_changed.connect(_central_visibility)
 	ui.paper_layout = _layout
+	ui.paper_toast_layout = _fit_toast
 	ui.hud.resized.connect(_layout)
 	ui.objectives.get_parent().resized.connect(_layout)
 	ui.toast.resized.connect(_toast_layout)
@@ -212,6 +213,10 @@ func _layout() -> void:
 			ui.clock_label.position.y = 18.0
 	else:
 		ui.clock_label.position.y = 18.0
+	_fit_toast()
+
+
+func _fit_toast() -> void:
 	var font: Font = ui.toast.get_theme_font("font")
 	var font_size: int = ui.toast.get_theme_font_size("font_size")
 	var width := 0.0
