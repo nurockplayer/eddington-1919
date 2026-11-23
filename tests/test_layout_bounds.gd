@@ -691,7 +691,7 @@ func _test_report_chart_rows() -> void:
 					for row_index in count:
 						var row: Dictionary = row_bounds[row_index]
 						if clip is ScrollContainer:
-							clip.scroll_vertical = maxi(0, int(minf(row.label.position.y, row.marker.position.y) - 32.0))
+							clip.scroll_vertical = maxi(0, int(minf(row.label.position.y, row.marker.position.y) - 28.0))
 							await process_frame
 							await process_frame
 						painted = ui.chart.drawn()

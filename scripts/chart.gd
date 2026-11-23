@@ -48,7 +48,7 @@ func refresh_fonts() -> void:
 
 func _get_minimum_size() -> Vector2:
 	var font := get_theme_default_font()
-	var first_y := 34.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var first_y := 28.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
 	var axis_px := Settings.fs(15)
 	var axis_space := 22.0 * Settings.text_scale + font.get_height(axis_px) + font.get_descent(axis_px) + 8.0
@@ -154,14 +154,14 @@ func _draw() -> void:
 	var h := viewport.size.y if viewport else size.y
 	var font := get_theme_default_font()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.09, 0.08, 0.07, 0.95))
-	var top := scroll + 30.0
+	var top := scroll + 28.0
 	var axis_px := Settings.fs(15)
 	var refs := [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]
 	var axis_height := font.get_height(axis_px)
 	for ref in refs:
 		axis_height = maxf(axis_height, font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px).y)
-	var compact := h < 180.0
-	var bottom := scroll + h - axis_height - 4.0 if compact else scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
+	var compact := h < 240.0
+	var bottom := scroll + h - axis_height if compact else scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
@@ -175,9 +175,11 @@ func _draw() -> void:
 		_drawn_texts.append(empty_hint)
 		_paint_hint(font, empty_hint, Color(0.9, 0.55, 0.5))
 		return
-	var first_y := 34.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
+	var first_y := 28.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
-	var fixed_y := bottom - 14.0 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
+	var combined_height := maxf(font.get_height(Settings.fs(15)), font.get_height(Settings.fs(16)))
+	var fixed_y := bottom - combined_height * 0.5 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
+	var fixed_start := fixed_y - combined_height * 0.5 if compact else fixed_y - 24.0
 	for i in rows.size():
 		var r: Dictionary = rows[i]
 		var y := first_y + i * step
@@ -185,7 +187,7 @@ func _draw() -> void:
 		var label_bounds := Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(_label_px)),
 			font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px))
 		var marker_bounds := Rect2(Vector2(_x(r.value, w), y) - Vector2(6, 6), Vector2(12, 12))
-		var visible_row := minf(label_bounds.position.y, marker_bounds.position.y) >= top and maxf(label_bounds.end.y, marker_bounds.end.y) <= fixed_y - 24.0
+		var visible_row := minf(label_bounds.position.y, marker_bounds.position.y) >= top and maxf(label_bounds.end.y, marker_bounds.end.y) <= fixed_start
 		_drawn_row_bounds.append({"label": label_bounds, "marker": marker_bounds, "visible": visible_row})
 		_drawn_label_px = _label_px
 		_drawn_texts.append(r.label)
@@ -220,7 +222,7 @@ func _draw() -> void:
 			draw_arc(p, 5.0, 0.0, TAU, 20, col, 2.0)
 		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _label_px, col)
 	# Cover scrolled rows in the fixed result and axis bands.
-	draw_rect(Rect2(0, fixed_y - 24.0, w, scroll + h - fixed_y + 24.0), Color(0.09, 0.08, 0.07, 1.0))
+	draw_rect(Rect2(0, fixed_start, w, scroll + h - fixed_start), Color(0.09, 0.08, 0.07, 1.0))
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, fixed_y - 12.0), Vector2(x, bottom), ref[2], 2.0, 6.0)
@@ -240,7 +242,7 @@ func _draw() -> void:
 	for t in range(0, int(X_MAX) + 1):
 		var x := _x(t, w)
 		draw_line(Vector2(x, bottom), Vector2(x, bottom + 5), Color(0.5, 0.5, 0.5), 1.0)
-	_paint_ledger(font, refs, top)
+	_paint_ledger(font, refs, top + 2.0)
 	if combined.get("n", 0) > 0:
 		var y := fixed_y
 		var c := Color(1.0, 0.92, 0.6)
@@ -258,15 +260,15 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([Vector2(cx, y - 8), Vector2(cx + 8, y), Vector2(cx, y + 8), Vector2(cx - 8, y)]), c)
 		var combined_label := L.t("合併")
 		_drawn_texts.append(combined_label)
-		_drawn_combined_bounds.append(Rect2(Vector2(4, y + 5.0 * Settings.text_scale - font.get_ascent(Settings.fs(15))),
+		_drawn_combined_bounds.append(Rect2(Vector2(4, fixed_start if compact else y + 5.0 * Settings.text_scale - font.get_ascent(Settings.fs(15))),
 			font.get_string_size(combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15))))
 		_drawn_combined_bounds.append(Rect2(cx - 8, y - 8, 16, 16))
-		draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
+		draw_string(font, Vector2(4, fixed_start + font.get_ascent(Settings.fs(15)) if compact else y + 5.0 * Settings.text_scale), combined_label, HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(15), c)
 		var combined_value := "%.2f″ ± %.2f″" % [combined.value, combined.sigma]
 		_drawn_texts.append(combined_value)
 		var px := Settings.fs(16)
 		var width := font.get_string_size(combined_value, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
-		var baseline := Vector2(minf(cx + 14, w - width - 8), y + 5.0 * Settings.text_scale if compact else y + 14.0 + font.get_ascent(px))
+		var baseline := Vector2(minf(cx + 14, w - width - 8), fixed_start + font.get_ascent(px) if compact else y + 14.0 + font.get_ascent(px))
 		_drawn_result_bounds = Rect2(baseline - Vector2(0, font.get_ascent(px)),
 			Vector2(width, font.get_height(px)))
 		# The reference lines stay in place, but cannot strike through the reading.
