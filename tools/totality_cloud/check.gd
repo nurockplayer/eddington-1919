@@ -39,12 +39,12 @@ func _agreement(image: Image, game: Node, t: float) -> Dictionary:
 	for y in range(2, image.get_height(), 4):
 		for x in range(2, image.get_width(), 4):
 			var pixel := image.get_pixel(x, y)
-			if pixel.g < 0.99:
+			if pixel.g < 0.5:
 				continue # The diagnostic's green channel identifies actual sky pixels.
 			var ray: Vector3 = game.player.camera.project_ray_normal(Vector2(x + 0.5, y + 0.5))
 			var density := _density(game.sim, ray, t)
 			if absf(density - 0.35) < 0.02:
-				continue # Exclude the one-pixel antialiasing boundary from binary IoU.
+				continue # Exclude the one-pixel antialiasing boundary from binary agreement.
 			var agrees := (pixel.r >= 0.5) == (density >= 0.35)
 			count += 1
 			matched += int(agrees)
@@ -56,6 +56,7 @@ func _agreement(image: Image, game: Node, t: float) -> Dictionary:
 
 func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(out)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
@@ -63,6 +64,7 @@ func _run() -> void:
 	game.player.can_move = false
 	game.player.can_look = false
 	game.ui.hide()
+	game.world.roof.hide()
 	game.player.global_position = Vector3(0.0, 0.05, -0.9)
 	game.player.look_at_point(game._totality_aim_point())
 	game.player.rotation.y = game.player.yaw
