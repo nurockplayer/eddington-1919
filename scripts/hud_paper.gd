@@ -194,8 +194,8 @@ func _layout() -> void:
 	var task: Control = ui.objectives.get_parent()
 	var face: Font = ui.objectives.get_theme_font("normal_font")
 	var px: int = ui.objectives.get_theme_font_size("normal_font_size")
-	var width: float = face.get_string_size(ui.objectives.get_parsed_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
-	ui.objectives.custom_minimum_size.x = minf(width, ui.hud.size.x * 0.32)
+	var task_width: float = face.get_string_size(ui.objectives.get_parsed_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	ui.objectives.custom_minimum_size.x = minf(task_width, ui.hud.size.x * 0.32)
 	task.size = task.get_combined_minimum_size()
 	# Size the labels around their text, preserving the centred prompt and clock
 	# whenever there is room alongside the task panel.
