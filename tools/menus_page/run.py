@@ -7,8 +7,6 @@ from pathlib import Path
 import subprocess
 from zoneinfo import ZoneInfo
 
-from PIL import Image, ImageDraw
-
 REPO = Path(__file__).resolve().parents[2]
 
 
@@ -65,6 +63,8 @@ def contrast(image, rect, background):
 
 
 def main():
+    from PIL import Image, ImageDraw
+
     head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip()
     out = Path('/Volumes/KIOXIA/eddington-1919-cache/director/menus-page') / head
     out.mkdir(parents=True, exist_ok=True)
