@@ -8,6 +8,11 @@ const L := preload("res://scripts/l10n.gd")
 const TC := preload("res://assets/fonts/NotoSansTC-Regular.otf")
 const JP := preload("res://assets/fonts/NotoSansJP-Regular.otf")
 const KR := preload("res://assets/fonts/NotoSansKR-Regular.otf")
+const SERIF_FACES := {
+	"ja": preload("res://assets/fonts/NotoSerifJP-Game.otf"),
+	"ko": preload("res://assets/fonts/NotoSerifKR-Game.otf"),
+	"zh_TW": preload("res://assets/fonts/NotoSerifTC-Game.otf"),
+}
 ## Primary face first, the rest as fallbacks.
 const ORDERS := {
 	"zh_TW": ["TC", "JP", "KR"],

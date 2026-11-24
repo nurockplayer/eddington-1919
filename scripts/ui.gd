@@ -2034,6 +2034,9 @@ func _toggle_ending_history() -> void:
 
 func _build_pause(root: Control) -> void:
 	pause_panel = ColorRect.new()
+	if Fonts.SERIF_FACES.has(L.current()):
+		pause_panel.theme = Theme.new()
+		pause_panel.theme.default_font = Fonts.SERIF_FACES[L.current()]
 	(pause_panel as ColorRect).color = Color(0, 0, 0, 0.6)
 	pause_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pause_panel.visible = false
@@ -2057,6 +2060,13 @@ func _build_pause(root: Control) -> void:
 	_pause_heading = _label(L.t("暫停"), 36)
 	_pause_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page.add_child(_pause_heading)
+	var title_rule := HSeparator.new()
+	var ink := StyleBoxLine.new()
+	ink.color = preload("res://scripts/styles/engraving.gd").INK
+	ink.thickness = 1
+	title_rule.add_theme_stylebox_override("separator", ink)
+	title_rule.add_theme_constant_override("separation", ink.thickness)
+	page.add_child(title_rule)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
@@ -2233,9 +2243,6 @@ func _build_pause(root: Control) -> void:
 	tasks.add_theme_constant_override("separation", 10)
 	_pause_tasks.add_child(tasks)
 	var rule := HSeparator.new()
-	var ink := StyleBoxLine.new()
-	ink.color = preload("res://scripts/styles/engraving.gd").INK
-	ink.thickness = 1
 	rule.add_theme_stylebox_override("separator", ink)
 	tasks.add_child(rule)
 	tasks.add_child(_label(L.t("你的工作筆記"), 22))
@@ -2244,15 +2251,15 @@ func _build_pause(root: Control) -> void:
 	tasks.add_child(pause_objectives)
 	_pause_tasks.hide()
 	# Scroll only when necessary; otherwise the paper ends at its last row.
-	var fit_slip := _fit_pause_slip.bind(v, root, scroll, slip)
+	var fit_slip := _fit_pause_slip.bind(v, root, scroll, slip, title_rule)
 	v.minimum_size_changed.connect(fit_slip)
 	_pause_heading.minimum_size_changed.connect(fit_slip)
 	root.resized.connect(fit_slip)
 	fit_slip.call_deferred()
 
 
-func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer) -> void:
-	var heading := _pause_heading.get_combined_minimum_size().y
+func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer, title_rule: HSeparator) -> void:
+	var heading := _pause_heading.get_combined_minimum_size().y + title_rule.get_combined_minimum_size().y
 	scroll.custom_minimum_size.y = minf(v.get_combined_minimum_size().y, root.size.y - 32.0 - heading)
 	var height := heading + scroll.custom_minimum_size.y
 	slip.offset_top = -height / 2.0

@@ -30,6 +30,28 @@ func po_entries(path: String) -> Array:
 	return entries
 
 
+func serif_coverage_checks() -> void:
+	for locale in Fonts.SERIF_FACES:
+		# Traditional Chinese is the source catalogue; ja and ko also need their
+		# msgids for entries that fall back to source.
+		var file: String = "messages.pot" if locale == "zh_TW" else locale + ".po"
+		var text := FileAccess.get_file_as_string("res://locale/" + file)
+		check(not text.is_empty(), "read " + file + " for serif coverage")
+		var supported: String = Fonts.SERIF_FACES[locale].get_supported_chars()
+		var checked := {}
+		for line in text.split("\n"):
+			var start := line.find('"')
+			if start == -1 or line.begins_with("#"):
+				continue
+			var value: String = JSON.parse_string(line.substr(start))
+			for character in value:
+				var codepoint: int = character.unicode_at(0)
+				if codepoint < 32 or checked.has(codepoint):
+					continue
+				checked[codepoint] = true
+				check(supported.contains(character), "%s serif covers U+%04X (%s)" % [locale, codepoint, character])
+
+
 ## The language button reloads the scene: the title must come back, not a panel,
 ## and the chosen text size must survive the reload.
 func reload_check() -> void:
@@ -247,6 +269,7 @@ func _run() -> void:
 	check(L.t("設定") == "설정", "ko translates 設定, got " + L.t("設定"))
 	check(L.t("語言：%s") % L.NAMES["ko"] == "언어: 한국어", "ko language caption")
 	check(L.t("沒有這一句") == "沒有這一句", "unknown string returns itself")
+	serif_coverage_checks()
 	for locale in L.LOCALES:
 		var font := Fonts.for_locale(locale)
 		check(font != null, locale + " has a UI font")
