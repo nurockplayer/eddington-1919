@@ -1130,3 +1130,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Not blockers: the pause panel stays cream over the blue totality page, the brightest thing on screen there; the slips took the page's paper in #493, the panel has not (a later slips run, if the Owner's play finds it harsh). The totality clock beside it counts "302 s" while the row says "about 4 min": two clocks, the story's and the player's, as decided on #474.
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
 
+### 2026-11-25 02:47 JST: #500 names in speaker labels and name tags (#494) accepted at 71aa33d
+- Frames taken at 1b60691: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/names-494/1b60691…/`; copies in `accept/500/1b60691/`. The head 71aa33d is that work rebased onto main with #499; the PR's own diff is seven files (locale catalogues, six lines of `world_builder.gd`, a test, `tools/i18n.py`), and edd-lead states the rebase merged locale files only. No frame of 71aa33d itself.
+- Opened whole at native size, candidate: ja and ko dialogue (720p large), ja and ko name tags (720p large), ja darkroom dialogue (1080p), zh_TW dialogue (720p large). Baseline: the ja darkroom frame at half size only.
+- ja and ko: the speaker label and both name tags now read エディントン / コッティンガム and 에딩턴 / 코팅엄, the same as the body text. zh_TW keeps Latin in label, tags and body, as decided. The label is in the CJK serif and sits on the slip like the Latin small caps did.
+- Darkroom (owed from #496): the tinted portrait and the red slip beside the #485 figure hold together; nothing on the slip outshines the plate.
+- Inherited, not this PR: in the darkroom the name tag is a small dark smudge on the wall up left of him, unreadable (baseline the same with the Latin name). Tags stay sans while the slips are serif. The darkroom frame's black opening and white streak are the wide capture camera cutting through the wall, baseline too; not judged as the room.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
+
