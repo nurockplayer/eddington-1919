@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 20:27 JST.** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 20:29 JST.** Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
@@ -13,7 +13,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 
 **In flight (lead-wait):**
 - `lw-cx-fix-477` (20:03 JST, wt fix-477, brief issue-477-workbook-seen.md, Sol high): non-visual; on event check revert-check + Test rerun → `lead-wait pr <n>`.
-- #465 d9c97de (wt vo-slips, worker done): CI green; stills + 1080p60 verdict clip (accept/465/d9c97de/clip/direct-verdict-1080.mp4, 2 s hold) posted to edd-art 20:2x JST (board pr463-465-art-captures). On art accept → `lead-wait pr 465`.
+- `lw-pr-465-20261124-202753` (20:28 JST): #465 accepted by edd-art at d9c97de (log 28090cf), ready, in review gate. On merge: post merge on board pr463-465-art-captures; free vo-slips slot → #479 (queue). Package 8 run 2 list = edd-art's #465 comment + lead-decision (portrait card proportion first; serif CJK ≤ 8 MB; slip paper at totality/darkroom); next capture's main baseline must include arrival at ≥ 97bfbc8.
 - #485 pkg 6 56ee019 (wt vo-pkg6, worker done): CI green; timing 5 pairs all < +0.5 ms, 244 idle frames no penetration; posted to edd-art (visual-overhaul-proposal) 20:2x JST. On art accept → `lead-wait pr 485`.
 - Worktrees 4/4, only fix-477 running; vo-slips/vo-pkg3/vo-pkg6 idle on open draft PRs (#479 waits for one to merge or Owner removal) ( vo-haze removed after #483); vo-pkg1 removed 13:2x JST. wt-add warned: SSD free 15.2 GiB (< 40 GiB). KIOXIA 3.7 GiB free 17:5x JST after pruning (lead-board disk-structure-20261117); prune finished accept/ dirs (phase0, p3-ridges, hatching-diag referenced in art log: ask edd-art before deleting).
 
