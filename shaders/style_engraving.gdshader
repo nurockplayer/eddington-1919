@@ -516,14 +516,16 @@ void fragment() {
 			float cov_far = max(clamp((dark_far - 0.06) * 1.3, 0.0, 0.85) * dist_f, cov_floor);
 			// The ruling is the page's and stays with the sky; its weight belongs to the ground, so a walk shows the ground passing under the lines.
 			// The patches grow with distance (by distance, not depth), so that the smallest still spans ground_grain lines: a smaller one would flicker between the lines.
-			float d_g = length(pv);
-			float s_min = ground_grain * l_px * k * d_g * d_g / max(INV_VIEW_MATRIX[3].y - pw.y, 0.3);
-			float lod_g = log2(max(s_min, 0.001));
-			float n_g = patch_n(pw.xz, lod_g);
-			float w_g = mix(0.5, 0.06, ground_edge);
-			float g_mot = (smoothstep(0.5 - w_g, 0.5 + w_g, n_g) * 2.0 - 1.0) * ground_mottle * (1.0 - smoothstep(15.0, 45.0, d_g));
-			float c_g = clamp((ground_cap - 0.06) * 1.3, 0.0, 0.85);
-			cov_far = mix(cov_far, c_g + g_mot * min(c_g, 0.85 - c_g), g_rule);
+			if (g_rule > 0.0) {
+				float d_g = length(pv);
+				float s_min = ground_grain * l_px * k * d_g * d_g / max(INV_VIEW_MATRIX[3].y - pw.y, 0.3);
+				float lod_g = log2(max(s_min, 0.001));
+				float n_g = patch_n(pw.xz, lod_g);
+				float w_g = mix(0.5, 0.06, ground_edge);
+				float g_mot = (smoothstep(0.5 - w_g, 0.5 + w_g, n_g) * 2.0 - 1.0) * ground_mottle * (1.0 - smoothstep(15.0, 45.0, d_g));
+				float c_g = clamp((ground_cap - 0.06) * 1.3, 0.0, 0.85);
+				cov_far = mix(cov_far, c_g + g_mot * min(c_g, 0.85 - c_g), g_rule);
+			}
 			float i_far = hatch(elev, k, cov_far, l_px, 99.0);
 			ink = 1.0 - (1.0 - ink) * (1.0 - i_far);
 			tone_p = mix(tone, 1.0 - dark_far, dist_f);
