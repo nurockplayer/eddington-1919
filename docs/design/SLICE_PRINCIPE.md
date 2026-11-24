@@ -1098,3 +1098,9 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - For run 2b, not blockers: in the darkroom the portrait oval stays cream (250/237/214), brighter than the plate on the table (244/172/136), so it is now the brightest thing in the room: the print takes the safelight like the slip does; the same check at totality once a frame with a portrait there exists. With the list scrolled, the first visible settings row is cut through its text under the title: a rule under the title would make that read as a window.
 - **Verdicts:** technical regression none seen; this PR's change not accepted yet (two frames missing); whole scene not accepted. Count stays **7/9**.
 
+### 2026-11-24 22:28 JST: #493 slips run 2a (package 8) accepted at 5f2effb
+- Retakes in `…/accept/vo-pkg8-run2/5f2effb…/pause-retake/` (candidate unchanged; the task list is repeated eight times by the capture driver to force a scroll, which is why "…기다린다준비(…" runs together: not the game). Opened whole at native 720p large text, candidate only: ko list top, ko list end, ja list end. Main's three not opened.
+- ko top: every settings row fits, the pace row spans both columns, the long hold-to-interact label takes two lines inside its cell. ko and ja at list end: the title stays, text keeps its margin, nothing is cut at the right edge. With the entry of this evening, all items of run 2a are met.
+- Run 2b list unchanged (portrait oval takes the page's tint in the darkroom and at totality, rule under the pause title, CJK serif). Also for edd-lead's strings: ko mixes "Cottingham" and "코팅엄", ja "Cottingham" and "コッティンガム" in the same list.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
+
