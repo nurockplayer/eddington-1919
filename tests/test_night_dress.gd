@@ -32,7 +32,7 @@ func _check_rays(main: Node, body: StaticBody3D, phase: String) -> void:
 	body.collision_layer |= 1 << 19
 	await physics_frame
 	for offset in [0.0, -0.5, 0.5]:
-		var target := center + Vector3.RIGHT * offset
+		var target: Vector3 = center + Vector3.RIGHT * offset
 		var query := PhysicsRayQueryParameters3D.create(target + Vector3.BACK, target - Vector3.BACK)
 		query.collision_mask = 1 << 19
 		var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
