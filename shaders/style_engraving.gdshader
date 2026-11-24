@@ -417,7 +417,8 @@ void fragment() {
 
 		if (daylight) {
 			// The rest of the day frame carries flat tone and contours.
-			ink = smoothstep(0.12, 0.72, dark);
+			float shade_side = 1.0 - smoothstep(0.0, 0.35, dot(n_w, sun_dir));
+			ink = max(smoothstep(0.12, 0.72, dark), 0.88 * shade_side);
 			edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * (1.0 - dist_f);
 		} else if (print_darkness < 0.001 && night > 0.5) {
 			bool foliage = c.g > c.r * 1.08 && c.g > c.b * 1.15 && pw.y > 0.08;

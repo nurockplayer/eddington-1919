@@ -18,11 +18,10 @@ void vertex() {
 	axis = NORMAL;
 }
 
-float line_mark(float phase, float along, float duty) {
+float line_mark(float phase, float along, float duty, float pixel) {
 	float line_id = floor(phase + 0.5);
 	float seed = fract(sin(line_id * 127.1) * 43758.5453);
 	phase += 0.025 * sin(along * 0.17 + seed * 6.283185);
-	float pixel = max(length(vec2(dFdx(phase), dFdy(phase))), 0.0001);
 	float from_centre = abs(fract(phase + 0.5) - 0.5);
 	return 1.0 - smoothstep(duty * 0.5 - pixel * 0.5, duty * 0.5 + pixel * 0.5, from_centre);
 }
@@ -34,8 +33,8 @@ float stroke(float phase, float along, float duty, float viewport_height) {
 	float level = max(0.0, floor(log2(max(pitch_px / 8.0, 1.0))));
 	float frequency = exp2(level);
 	float blend = smoothstep(12.0, 16.0, pitch_px / frequency);
-	float line = mix(line_mark(phase * frequency, along * frequency, duty),
-		line_mark(phase * frequency * 2.0, along * frequency * 2.0, duty), blend);
+	float line = mix(line_mark(phase * frequency, along * frequency, duty, pixel * frequency),
+		line_mark(phase * frequency * 2.0, along * frequency * 2.0, duty, pixel * frequency * 2.0), blend);
 	float resolved = smoothstep(4.0, 6.0, pitch_px);
 	return mix(duty, line, resolved);
 }
