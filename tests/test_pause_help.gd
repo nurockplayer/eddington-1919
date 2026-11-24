@@ -45,6 +45,15 @@ func press_escape() -> void:
 
 
 func _run() -> void:
+	var had_override := OS.has_environment("EDD_SETTINGS_PATH")
+	var previous_path := OS.get_environment("EDD_SETTINGS_PATH")
+	var settings_path := preload("res://scripts/settings.gd").settings_path()
+	var temp_path := ProjectSettings.globalize_path("res://.godot/pause-help-%d.cfg" % OS.get_process_id())
+	var settings := ConfigFile.new()
+	settings.load(settings_path)
+	settings.set_value("gameplay", "slower_totality", false)
+	settings.save(temp_path)
+	OS.set_environment("EDD_SETTINGS_PATH", temp_path)
 	var story := root.get_node("Story")
 	check(change_scene_to_file(MAIN) == OK, "load main scene")
 	await settle()
@@ -105,5 +114,10 @@ func _run() -> void:
 	check(not load("res://scripts/main.gd").replay_from_prologue, "回到標題 clears the replay origin flag")
 	check(load("res://scripts/main.gd").next_seed == -1, "回到標題 clears the replay seed")
 	check(load("res://scripts/ui.gd").history.is_empty(), "回到標題 clears the dialogue log")
+	DirAccess.remove_absolute(temp_path)
+	if had_override:
+		OS.set_environment("EDD_SETTINGS_PATH", previous_path)
+	else:
+		OS.unset_environment("EDD_SETTINGS_PATH")
 	print("test_pause_help: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

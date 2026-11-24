@@ -316,9 +316,14 @@ func _check_chapter_routes() -> void:
 
 
 func _check_pause_menu() -> void:
-	# Exercise real input and persistence while preserving the user's settings bytes.
-	var had_settings := FileAccess.file_exists(Settings.settings_path())
-	var original := FileAccess.get_file_as_bytes(Settings.settings_path()) if had_settings else PackedByteArray()
+	var had_override := OS.has_environment("EDD_SETTINGS_PATH")
+	var previous_path := OS.get_environment("EDD_SETTINGS_PATH")
+	var temp_path := ProjectSettings.globalize_path("res://.godot/settings-pause-%d.cfg" % OS.get_process_id())
+	var settings := ConfigFile.new()
+	settings.load(Settings.settings_path())
+	settings.set_value("gameplay", "slower_totality", false)
+	settings.save(temp_path)
+	OS.set_environment("EDD_SETTINGS_PATH", temp_path)
 	var startup_video_calls := Settings.video_apply_count
 	var main = load("res://scripts/main.gd").new()
 	root.add_child(main)
@@ -408,12 +413,11 @@ func _check_pause_menu() -> void:
 	check(ui.fullscreen_button.text == ("全螢幕：開" if Settings.fullscreen else "全螢幕：關"), "opening pause refreshes the fullscreen button")
 	ui.toggle_pause()
 	main.free()
-	if had_settings:
-		var file := FileAccess.open(Settings.settings_path(), FileAccess.WRITE)
-		file.store_buffer(original)
-		file.close()
+	DirAccess.remove_absolute(temp_path)
+	if had_override:
+		OS.set_environment("EDD_SETTINGS_PATH", previous_path)
 	else:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.settings_path()))
+		OS.unset_environment("EDD_SETTINGS_PATH")
 	ScorePlayer.load_settings()
 	Settings.load_settings()
 	Settings.apply_audio()
