@@ -1096,10 +1096,8 @@ func _interact(id: String) -> void:
 					_say([{"s": Content.E, "t": L.t("先到測量桌看看底片吧。")}], "")
 			"departure_workbook":
 				if Story.departure_done and not _departure_workbook_seen:
-					_departure_workbook_seen = true
-					_save_darkroom()
 					_night_departure_workbook.call("open_workbook")
-					_say(DepartureContent.principe_workbook(Story.bond_tone, sim.plates, plate_changed), "")
+					_say(DepartureContent.principe_workbook(Story.bond_tone, sim.plates, plate_changed), "night_workbook")
 		return
 	if phase != Phase.PREP:
 		return
@@ -1194,6 +1192,9 @@ func _on_dialogue_done(results: Dictionary) -> void:
 				return  # The transition owns the HUD handover under black.
 			elif results.get("prep", -1) == 2:
 				_begin_rehearsal()
+		"night_workbook":
+			_departure_workbook_seen = true
+			_save_darkroom()
 		"rules":
 			sim.rule_id = ["strict", "after", "none"][int(results.get("rule", 0))]
 			_save_darkroom()
