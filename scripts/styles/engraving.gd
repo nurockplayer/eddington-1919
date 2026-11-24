@@ -4,6 +4,7 @@ extends RefCounted
 ## this script gives it a frame with a clear key, hard shadows and no grade.
 
 const SHADER := preload("res://shaders/style_engraving.gdshader")
+const World := preload("res://scripts/world_builder.gd")
 
 ## Every key is a float and can be overridden with --style-set. Keys listed in
 ## UNIFORMS are shader uniforms of the same name; the others are read here.
@@ -45,6 +46,8 @@ const PAGES := {
 const HudPaper := preload("res://scripts/hud_paper.gd")
 var hud_paper := HudPaper.new()
 var day_return: Node
+var pilot_meshes: Array[MeshInstance3D] = []
+var pilot_day := false
 
 const DIALOGUE := {
 	"portrait": "res://assets/portraits/eddington_engraving.jpg",
@@ -81,6 +84,10 @@ func apply(main: Node, style: RefCounted) -> void:
 	var uniforms := PAGES.duplicate()
 	uniforms.merge({"sun_dir": main.sim.sun_dir, "sun_r": main.sim.SUN_R, "star_pos": main.sim.star_offsets})
 	style.add_quad(main, SHADER, uniforms)
+	for mesh: MeshInstance3D in main.find_children("*", "MeshInstance3D", true, false):
+		if mesh.has_meta(World.PILOT_MATERIALS):
+			pilot_meshes.append(mesh)
+	print_pilot(true)
 	hud_paper.setup(main.ui, PAGES)
 	style.set_post(main, p.vignette, 0.0)
 
@@ -91,9 +98,17 @@ func light(_main: Node, style: RefCounted, _contact: float, darkness: float, nig
 	var page_darkness := darkness
 	if is_instance_valid(day_return) and day_return.active:
 		page_darkness = 0.0 if day_return.started() else 1.0
+	print_pilot(night <= 0.5 and (darkness < 0.95 or is_instance_valid(day_return) and day_return.active))
 	hud_paper.light(page_darkness, night, style.params)
 	style.quad_material.set_shader_parameter("darkness", darkness)
 	style.quad_material.set_shader_parameter("night", night)
+
+
+func print_pilot(day: bool) -> void:
+	if day != pilot_day:
+		pilot_day = day
+		for mesh in pilot_meshes:
+			World.print_pilot(mesh, mesh, day)
 
 
 func prepare_day_return(main: Node, style: RefCounted) -> void:

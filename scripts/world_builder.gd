@@ -287,6 +287,53 @@ func build() -> Dictionary:
 	return out
 
 
+const ENGRAVING_SURFACE := preload("res://shaders/engraving_surface.gdshader")
+const PILOT_MATERIALS := "engraving_pilot_materials"
+const EARTH := Color("e2d1b3")
+const LAND := Color("efe6d2")
+enum Swatch { PAPER, TIMBER, CANVAS, DENSE }
+var engraving_pilot := false
+var _pilot_materials := {}
+
+
+func _pilot_surface(mesh: MeshInstance3D, surface: int, swatch: int, stock: Color, earth := false) -> void:
+	if not engraving_pilot:
+		return
+	var key := [swatch, stock, earth]
+	if not _pilot_materials.has(key):
+		var material := ShaderMaterial.new()
+		material.shader = ENGRAVING_SURFACE
+		material.set_shader_parameter("swatch", swatch)
+		material.set_shader_parameter("stock", stock)
+		material.set_shader_parameter("earth", earth)
+		_pilot_materials[key] = material
+	var original := mesh.material_override if surface < 0 else mesh.get_surface_override_material(surface)
+	var materials: Array = mesh.get_meta(PILOT_MATERIALS, [])
+	materials.append([surface, original, _pilot_materials[key]])
+	mesh.set_meta(PILOT_MATERIALS, materials)
+
+
+static func print_pilot(source: MeshInstance3D, target: MeshInstance3D, day: bool) -> void:
+	for entry in source.get_meta(PILOT_MATERIALS):
+		var material: Material = entry[2] if day else entry[1]
+		if entry[0] < 0:
+			target.material_override = material
+		else:
+			target.set_surface_override_material(entry[0], material)
+
+
+func _pilot_model(node: Node3D, swatches: Dictionary) -> void:
+	if not engraving_pilot:
+		return
+	for mi: MeshInstance3D in node.find_children("*", "MeshInstance3D", true, false):
+		for i in mi.mesh.get_surface_count():
+			var name_ := mi.mesh.surface_get_material(i).resource_name.trim_prefix("E1919_")
+			if swatches.has(name_):
+				var swatch: int = swatches[name_]
+				var stock := EARTH if swatch == Swatch.TIMBER or name_ == "brick" else Color("efe6d2")
+				_pilot_surface(mi, i, swatch, stock)
+
+
 ## Invisible walls so the player cannot walk off the island.
 func _bounds() -> void:
 	for w in [[Vector3(0, 2, -42), Vector3(90, 4, 1)], [Vector3(0, 2, 42), Vector3(90, 4, 1)], [Vector3(-42, 2, 0), Vector3(1, 4, 90)], [Vector3(42, 2, 0), Vector3(1, 4, 90)]]:
@@ -317,6 +364,7 @@ func _ground() -> void:
 	# r05: world-space macro patches (albedo) + fine breakup (detail), so the
 	# ground reads as a worn, rain-soaked clearing rather than a blurred carpet.
 	mi.material_override = _ground_material() if look else _ground_material_v04()
+	_pilot_surface(mi, -1, Swatch.PAPER, LAND, true)
 	body.add_child(mi)
 	root.add_child(body)
 	_paths()
@@ -363,6 +411,7 @@ func _paths() -> void:
 		var path := box(d[0], d[1], P("laterite_wet"), null, false, Vector3(0, deg_to_rad(d[2]), 0))
 		if look:
 			(path as MeshInstance3D).material_override = dirt_mat
+		_pilot_surface(path as MeshInstance3D, -1, Swatch.PAPER, EARTH, true)
 	for p in [Vector3(2.6, 0.03, -0.4), Vector3(-2.8, 0.03, -6.8), Vector3(5.2, 0.03, 2.4), Vector3(0.6, 0.03, 3.0)]:
 		var puddle := cyl(randf_range(0.4, 0.9), 0.01, p, Color(0.16, 0.17, 0.2))
 		(puddle as MeshInstance3D).material_override = mat(Color(0.12, 0.14, 0.18), 0.05, 0.3)
@@ -431,6 +480,7 @@ func _shelter_and_instrument() -> Dictionary:
 	out.roof = roof
 	var shelter := model("sun_shelter", Vector3(0, 0, -3.75))
 	if shelter:
+		_pilot_model(shelter, {"canvas": Swatch.CANVAS})
 		# Production model (art/assets.toml: sun_shelter). The canvas moves under `roof`
 		# so the game's existing roof toggle hides it; the rolled canvas on the rear
 		# beam shows exactly while the roof is hidden.
@@ -458,6 +508,10 @@ func _shelter_and_instrument() -> Dictionary:
 	var drive: Node3D
 	var coelostat := model("coelostat", Vector3(0, 0, -6.6))
 	if coelostat:
+		_pilot_model(coelostat, {
+			"brick": Swatch.PAPER, "stone": Swatch.PAPER, "mirror": Swatch.PAPER,
+			"iron": Swatch.DENSE, "brass": Swatch.DENSE, "teak_dark": Swatch.TIMBER,
+		})
 		# Production model (art/assets.toml: coelostat). Colliders stay simple boxes.
 		collider(Vector3(1.0, 1.06, 1.0), Vector3(0, 0.53, -6.6))
 		# The drive housing stays solid AND interactable, like the old primitive box.
@@ -477,7 +531,9 @@ func _shelter_and_instrument() -> Dictionary:
 	out.drive_pos = Vector3(0.62, 0.92, -6.6)
 	# Horizontal tube (lens near the coelostat, plate end toward the shelter front).
 	var carrier: Node3D
-	if model("horizontal_tube", Vector3(0, 0, -3.75)):
+	var telescope := model("horizontal_tube", Vector3(0, 0, -3.75))
+	if telescope:
+		_pilot_model(telescope, {"iron": Swatch.DENSE, "brass": Swatch.DENSE, "ebonite": Swatch.DENSE, "teak_dark": Swatch.DENSE})
 		# Production model (art/assets.toml: horizontal_tube); the same box colliders.
 		collider(Vector3(0.46, 0.46, 3.5), Vector3(0, 1.35, -3.75))
 		for z in [-5.0, -2.5]:
@@ -929,7 +985,9 @@ func _props() -> Dictionary:
 	for c in crates:
 		var size: Vector3 = CRATE * float(c[0])
 		var centre: Vector3 = c[1] + Vector3(0, size.y / 2.0, 0)
-		if model("packing_crate", c[1], c[2], c[0]):
+		var crate := model("packing_crate", c[1], c[2], c[0])
+		if crate:
+			_pilot_model(crate, {"pine": Swatch.TIMBER, "teak_dark": Swatch.TIMBER, "iron": Swatch.DENSE})
 			collider(size, centre, c[2])
 		else:
 			box(size, centre, P("pine"), null, true, Vector3(0, deg_to_rad(c[2]), 0))

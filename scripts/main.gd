@@ -171,6 +171,7 @@ func _ready() -> void:
 	_build_environment()
 	var wb = World.new(self)
 	wb.look = not args.has("no-grade")
+	wb.engraving_pilot = _style != null
 	world = wb.build()
 	world.sun_crescents = SunCrescents.new()
 	world.sun_crescents.setup(wb.palm_crowns, sim.sun_dir)

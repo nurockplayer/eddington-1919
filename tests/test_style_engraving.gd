@@ -3,6 +3,7 @@ extends SceneTree
 const Style := preload("res://scripts/style.gd")
 const Engraving := preload("res://scripts/styles/engraving.gd")
 const Settings := preload("res://scripts/settings.gd")
+const World := preload("res://scripts/world_builder.gd")
 
 var checks := 0
 var failures := 0
@@ -66,6 +67,19 @@ func _run() -> void:
 	for name in Engraving.PARAMS:
 		check(material.get_shader_parameter(name) == Engraving.PARAMS[name], "material parameter " + name)
 	check(material.get_shader_parameter("line_px") == 5.0, "default line spacing")
+	var pilot: Array = game.find_children("*", "MeshInstance3D", true, false).filter(
+		func(mesh): return mesh.has_meta(World.PILOT_MATERIALS))
+	var swatches := {}
+	var telescope_ink := 0
+	for mesh in pilot:
+		for entry in mesh.get_meta(World.PILOT_MATERIALS):
+			var active: Material = mesh.material_override if entry[0] < 0 else mesh.get_surface_override_material(entry[0])
+			check(active == entry[2], "daylight installs the opaque surface print")
+			swatches[active.get_shader_parameter("swatch")] = true
+			if "horizontal_tube" in str(mesh.get_path()) and active.get_shader_parameter("swatch") == World.Swatch.DENSE:
+				telescope_ink += 1
+	check(telescope_ink >= 3, "telescope dark parts take the dense-ink swatch")
+	check(swatches.size() == 4, "ground, timber, canvas and dense ink are bound in the scene")
 	check(material.get_shader_parameter("star_keyline_px") == 1.0 and material.get_shader_parameter("star_keyline_all") == 1.0, "one pixel keyline around every visible star")
 	check(material.get_shader_parameter("diamond_radius") == 0.45 and material.get_shader_parameter("diamond_spikes") == 4.0 and material.get_shader_parameter("diamond_ray_floor") == 0.70, "diamond defaults")
 	check(material.get_shader_parameter("sun_r") == game.sim.SUN_R, "solar radius")
@@ -80,6 +94,10 @@ func _run() -> void:
 	check(material.get_shader_parameter("darkness") == 0.0, "daylight darkness")
 	game._apply_light(0.62, 0.0, -150.0, 1.0)
 	check(material.get_shader_parameter("night") == 1.0, "night follows lighting")
+	for mesh in pilot:
+		for entry in mesh.get_meta(World.PILOT_MATERIALS):
+			var active: Material = mesh.material_override if entry[0] < 0 else mesh.get_surface_override_material(entry[0])
+			check(active == entry[1], "night restores the original material")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(material.get_shader_parameter("night") == 0.0, "night clears in daylight")
 	game.sky_mat.set_shader_parameter("third_contact_gap", 0.75)
@@ -96,6 +114,19 @@ func _run() -> void:
 	Settings.apply_quality(self)
 	check(not game.env.sdfgi_enabled, "standard quality preserves SDFGI off")
 	check(not game.env.volumetric_fog_enabled, "standard quality preserves volumetric fog off")
+	game._start_game()
+	game._update_sky_prep()
+	game._begin_rehearsal()
+	game._process(0.0)
+	var thick: float = material.get_shader_parameter("practice_cloud")
+	game._process(3.0)
+	var thin: float = material.get_shader_parameter("practice_cloud")
+	check(is_equal_approx(thick, 0.93) and is_equal_approx(thin, 0.12)
+		and material.get_shader_parameter("darkness") < 0.01, "early rehearsal sends thick and thin cloud to the compositor")
+	check(shader_text.contains("if (daylight && practice_cloud >= 0.0)")
+		and shader_text.contains("rehearsal_wash = front * sqrt(practice_cloud)")
+		and shader_text.contains("page = mix(page, vec3(0.23), rehearsal_wash);"),
+		"rehearsal density reaches the paper even at zero eclipse darkness")
 	game.free()
 
 	var overridden := Style.from_args({"style-set": "wash=0.3,line_px=7,diamond_radius=0.4,diamond_spikes=3,diamond_rays=0.5,diamond_ray_floor=0.85"})

@@ -1,4 +1,5 @@
 extends Node
+const World := preload("res://scripts/world_builder.gd")
 ## Presentation-only endpoint renders; the director and exposure oracle keep
 ## their native light tween. Only visual instances are mirrored, never scripts.
 var main: Node
@@ -63,6 +64,8 @@ func setup(game: Node, print_style: RefCounted) -> void:
 			copy.global_transform = source.global_transform
 			if source is MeshInstance3D and source.get_skin_reference() != null:
 				RenderingServer.instance_attach_skeleton(copy.get_instance(), source.get_skin_reference().get_skeleton())
+			if source.has_meta(World.PILOT_MATERIALS):
+				World.print_pilot(source, copy, index == 1)
 			if source == main.sun:
 				var density: float = main.sim.cloud_over_sun(main.t_game + 10.0)
 				copy.light_energy = 0.0 if index == 0 else (style.params.sun_floor + 1.4 * main._crescent(0.8) * (1.0 - density * 0.85)) * main._look_sun
@@ -111,6 +114,7 @@ func warm() -> void:
 
 func activate() -> void:
 	active = true
+	style.impl.print_pilot(true)
 	elapsed = 0.0
 	frozen_cloud = main.sky_mat.get_shader_parameter("cloud_time")
 	for index in 2:

@@ -1,11 +1,14 @@
 // Shared presentation cloud: sky light, engraved burst and Moon ink.
+float eclipse_cloud_texture(vec3 d) {
+	vec2 plane = d.xz / max(d.y, 0.06);
+	return texture(cloud_tex, plane * cloud_scale - wind * cloud_time).r;
+}
+
 float eclipse_cloud_density(vec3 d) {
 	float h = d.y;
 	float dens = 0.0;
 	if (h > 0.0) {
-		vec2 plane = d.xz / max(h, 0.06);
-		vec2 uv = plane * cloud_scale - wind * cloud_time;
-		dens = texture(cloud_tex, uv).r;
+		dens = eclipse_cloud_texture(d);
 		dens = mix(dens, 0.97, smoothstep(0.35, 0.05, h));   // haze toward horizon
 	} else {
 		dens = 1.0;
