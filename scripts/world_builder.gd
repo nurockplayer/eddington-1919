@@ -1126,6 +1126,8 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 		dome.material_override = mat(Color(0.86, 0.82, 0.7))
 		dome.position = Vector3(0, 1.78, 0)
 		body.add_child(dome)
+		cyl(0.012, 0.02, Vector3(-0.05, 1.63, -0.12), Color(0.1, 0.1, 0.1), body, false, Vector3(deg_to_rad(90), 0, 0))
+		cyl(0.012, 0.02, Vector3(0.05, 1.63, -0.12), Color(0.1, 0.1, 0.1), body, false, Vector3(deg_to_rad(90), 0, 0))
 	else:
 		cyl(0.22, 0.02, Vector3(0, 1.72, 0), Color(0.85, 0.75, 0.5), body)
 		cyl(0.13, 0.1, Vector3(0, 1.77, 0), Color(0.85, 0.75, 0.5), body)
@@ -1255,7 +1257,7 @@ func _person(id: String, body: Node3D) -> bool:
 	_tone_linen(fig, 0.48 if observer else 0.61, false)
 	# The brim and faired skin carry the face contour.
 	for mi in fig.find_children("*", "MeshInstance3D", true, false):
-		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows") or mi.name.ends_with("_glasses"):
+		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows"):
 			mi.hide()
 	for ap in fig.find_children("*", "AnimationPlayer", true, false):
 		var player := ap as AnimationPlayer
