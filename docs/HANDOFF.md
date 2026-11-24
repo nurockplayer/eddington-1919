@@ -6,7 +6,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
-**Codex burn (Owner 2026-11-24 20:0x JST):** Codex 100% used 00:05 JST 11-25, resets 2026-11-25 02:52 JST; fill every free worktree slot (Sol high). Queue: #480 rest (duration labels, ja/zh-TW locked-row frames; touches the pause panel like run 2b, so start it after 2b, stacked or as its resume); pkg 2 after #484 verdict.
+**Codex burn (Owner 2026-11-24 20:0x JST):** Codex 100% used 00:05 JST 11-25, resets 2026-11-25 02:52 JST; fill every free worktree slot (Sol high). Queue: pkg 2 after #484 verdict.
 
 **Waiting on edd-art:** #484 pkg 3 run 1 72cdaff, CI green, perf +0.38 ms. Sent 20:16 JST. On accept → `lead-wait pr 484`, then pkg 2. Worktree vo-pkg3 idle.
 
