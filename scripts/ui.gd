@@ -2161,10 +2161,16 @@ func _build_pause(root: Control) -> void:
 
 
 func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer) -> void:
-	var height := minf(v.get_combined_minimum_size().y, root.size.y - 112)
+	var height := minf(v.get_combined_minimum_size().y, root.size.y - 32)
 	scroll.custom_minimum_size.y = height
 	slip.offset_top = -height / 2.0
 	slip.offset_bottom = height / 2.0
+
+
+func lock_totality_pace() -> void:
+	totality_pace_button.disabled = true
+	totality_pace_button.text += "\n" + L.t("全食期間無法變更")
+	totality_pace_button.add_theme_color_override("font_disabled_color", INK.lerp(PAPER, 0.25))
 
 
 func _toggle_fullscreen() -> void:

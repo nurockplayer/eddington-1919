@@ -3426,6 +3426,9 @@ msgstr "Totality pace: Normal"
 msgid "全食節奏：較慢"
 msgstr "Totality pace: Slower"
 
+msgid "全食期間無法變更"
+msgstr "Locked during totality"
+
 msgid "閃爍比對"
 msgstr "Blink comparison"
 

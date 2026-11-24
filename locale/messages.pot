@@ -4292,6 +4292,10 @@ msgstr ""
 msgid "全食節奏：較慢"
 msgstr ""
 
+#: scripts/ui.gd:2172
+msgid "全食期間無法變更"
+msgstr ""
+
 #: scripts/ui.gd:821
 msgid "閃爍比對"
 msgstr ""

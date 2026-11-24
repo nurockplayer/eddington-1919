@@ -1386,7 +1386,7 @@ func _begin_totality() -> void:
 	_busy = true
 	phase = Phase.TOTALITY
 	_totality_rate = Sim.TIME_SCALE * 0.5 if Settings.slower_totality else Sim.TIME_SCALE
-	ui.totality_pace_button.disabled = true
+	ui.lock_totality_pace()
 	_quiet_birds()
 	create_tween().tween_property(audio_surf, "volume_db", _surf_db + TOTALITY_SURF_DIP_DB, TOTALITY_SURF_DIP_S)
 	_sync_player_input()
