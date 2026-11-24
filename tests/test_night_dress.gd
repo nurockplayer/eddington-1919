@@ -37,7 +37,7 @@ func _check_rays(main: Node, body: StaticBody3D, phase: String) -> void:
 		query.collision_mask = 1 << 19
 		var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
 		check((not hit.is_empty() and hit.collider == body) if offset == 0.0 else hit.is_empty(),
-			"%s %s interaction ray at offset %.1f" % [phase, body.name, offset])
+			"%s %s interaction ray at offset %.1f" % [phase, body.get_meta("interact_id"), offset])
 	body.collision_layer &= ~(1 << 19)
 
 
