@@ -261,7 +261,7 @@ void fragment() {
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
 		if (d_near > 75.0 && d_near < 1000.0) edge = mix(edge, 1.0, day_weight);
 		vec2 cloud_field = vec2(10.0, 0.0);
-		if (night <= 0.5) cloud_field = print_cloud(ray_w, print_darkness);
+		if (night <= 0.5 && (print_darkness > 0.0 || practice_cloud >= 0.0)) cloud_field = print_cloud(ray_w, print_darkness);
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
 		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
