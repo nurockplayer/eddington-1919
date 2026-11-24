@@ -35,9 +35,19 @@ func _run() -> void:
 	check(shader_text.contains("step(r, 1.0) * moon_lines") and not shader_text.contains("step(r, sqrt(transmission))"), "cloud does not resize Moon ink")
 	check(shader_text.contains("hatch(sky_ruling.x, k, moon_cover, l_px, 99.0)") and shader_text.contains("step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover)"), "Moon line widths and clear-sky solid ink arrive continuously")
 
-	check(shader_text.contains("float density = eclipse_cloud_density(direction);") and shader_text.contains("return vec2(0.35 - density, density);"), "drawn cloud contour comes from the live exposure field")
+	check(shader_text.contains("float density = eclipse_cloud_density(direction);")
+		and shader_text.contains("cloud_field = print_cloud(ray_w, print_darkness);"),
+		"daylight and totality contours come from the live exposure field")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or opaque Moon overlay")
 	check(shader_text.contains("max(ink, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "live cloud ruling veils the corona over the Sun")
+	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
+		and shader_text.contains("if (!before_second_contact && print_darkness > 0.0 && front > 0.0)"),
+		"engraving hides Moon ink and corona before second contact")
+	var sky_shader := FileAccess.get_file_as_string("res://shaders/eclipse_sky.gdshader")
+	check(sky_shader.contains("totality_darkness = before_second_contact ? 0.0 : darkness")
+		and sky_shader.contains("totality_darkness * cloud_visibility * corona")
+		and sky_shader.contains("1.0 - in_moon * 0.9, totality_darkness"),
+		"underlying sky hides the corona and full Moon disc before second contact")
 
 	var saved_quality := Settings.quality
 	var saved_scale := root.scaling_3d_scale
@@ -89,6 +99,8 @@ func _run() -> void:
 	check(game._look_sun == 1.8, "sun gain")
 	game._apply_light(1.0, 1.0, 230.0, 0.0)
 	check(material.get_shader_parameter("darkness") == 1.0, "totality darkness")
+	check(game.sky_mat.get_shader_parameter("before_second_contact") == false
+		and material.get_shader_parameter("before_second_contact") == false, "totality reveals both solar layers")
 	check(material.get_shader_parameter("night") == 0.0, "totality is daytime")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(material.get_shader_parameter("darkness") == 0.0, "daylight darkness")
@@ -115,6 +127,13 @@ func _run() -> void:
 	check(not game.env.sdfgi_enabled, "standard quality preserves SDFGI off")
 	check(not game.env.volumetric_fog_enabled, "standard quality preserves volumetric fog off")
 	game._start_game()
+	for seconds in [30.0, 10.0, 0.0]:
+		game.prep_left = seconds
+		game._update_sky_prep()
+		check(game.sky_mat.get_shader_parameter("before_second_contact") == true
+			and material.get_shader_parameter("before_second_contact") == true,
+			"approach darkness leaves the corona and full Moon disc hidden at %.0f seconds" % seconds)
+	game.prep_left = game.PREP_S
 	game._update_sky_prep()
 	game._begin_rehearsal()
 	game._process(0.0)
@@ -123,10 +142,6 @@ func _run() -> void:
 	var thin: float = material.get_shader_parameter("practice_cloud")
 	check(is_equal_approx(thick, 0.93) and is_equal_approx(thin, 0.12)
 		and material.get_shader_parameter("darkness") < 0.01, "early rehearsal sends thick and thin cloud to the compositor")
-	check(shader_text.contains("if (daylight && practice_cloud >= 0.0)")
-		and shader_text.contains("rehearsal_wash = front * sqrt(practice_cloud)")
-		and shader_text.contains("page = mix(page, vec3(0.23), rehearsal_wash);"),
-		"rehearsal density reaches the paper even at zero eclipse darkness")
 	game.free()
 	_test_eclipse_pilot_bindings()
 
@@ -149,28 +164,22 @@ func _test_eclipse_pilot_bindings() -> void:
 	# Complete the real second-contact fades without waiting on wall time.
 	get_processed_tweens().back().custom_step(1.0)
 	get_processed_tweens().back().custom_step(2.0)
-	var front: Node = game._style.impl.day_return
-	var pilot: Array[MeshInstance3D] = []
-	for i in front.sources.size():
-		var source: VisualInstance3D = front.sources[i]
-		if source.has_meta(World.PILOT_MATERIALS):
-			pilot.append(source)
-			_check_pilot_binding(source, source, false, "totality restores original materials")
-			_check_pilot_binding(source, front.mirrors[0][i], false, "dark return endpoint uses original materials")
-			_check_pilot_binding(source, front.mirrors[1][i], true, "day return endpoint uses engraving materials")
+	var pilot: Array[MeshInstance3D] = game._style.impl.pilot_meshes
+	for mesh in pilot:
+		_check_original_pilot_binding(mesh, "totality restores original materials")
 	game.t_game = game.sim.TOTALITY_S
 	game._process_totality(0.0)
-	# Check before the lighting tween can independently restore daylight.
-	for source in pilot:
-		_check_pilot_binding(source, source, true, "third contact reinstates daylight materials")
+	game._day_return.custom_step(game.PASSAGE_S)
+	for mesh in pilot:
+		_check_original_pilot_binding(mesh, "live daylight recovery retains original materials")
 	game.free()
 
 
-func _check_pilot_binding(source: MeshInstance3D, target: MeshInstance3D, day: bool, message: String) -> void:
-	for entry in source.get_meta(World.PILOT_MATERIALS):
+func _check_original_pilot_binding(mesh: MeshInstance3D, message: String) -> void:
+	for entry in mesh.get_meta(World.PILOT_MATERIALS):
 		var surface: int = entry[0]
-		var active: Material = target.material_override if surface < 0 else target.get_surface_override_material(surface)
-		check(active == entry[2 if day else 1], "%s (%s, surface %d)" % [message, source.get_path(), surface])
+		var active: Material = mesh.material_override if surface < 0 else mesh.get_surface_override_material(surface)
+		check(active == entry[1], "%s (%s, surface %d)" % [message, mesh.get_path(), surface])
 
 
 func _test_hud_paper(game: Node) -> void:

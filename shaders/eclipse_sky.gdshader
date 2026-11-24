@@ -13,6 +13,7 @@ uniform float cloud_scale = 0.35;
 uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);
 uniform float sun_r = 0.02;
 uniform float contact = 0.8;      // 0 moon far off the disc … 1 centred (totality)
+uniform bool before_second_contact = false;
 uniform float darkness = 0.0;     // 0 daylight … 1 totality
 uniform vec2 third_contact = vec2(0.0); // x: Baily's beads, y: diamond ring (0..1)
 uniform float star_vis = 0.0;
@@ -93,15 +94,16 @@ void sky() {
 		// Daylight glare around the Sun.
 		solar += (1.0 - darkness) * vec3(1.0, 0.95, 0.85) * 0.8 * exp(-max(r - 1.0, 0.0) * 0.45);
 		// Corona with streamers.
+		float totality_darkness = before_second_contact ? 0.0 : darkness;
 		float a = atan(lp.y, lp.x);
 		float streamers = 0.55 + 0.45 * sin(a * 3.0 + 1.3) * sin(a * 7.0 - 0.4);
 		float corona = (r > 1.0) ? pow(1.0 / r, 3.2) * (0.6 + 0.8 * streamers * exp(-(r - 1.0) * 0.6)) : 0.0;
-		solar += darkness * cloud_visibility * corona * vec3(1.6, 1.65, 1.8);
+		solar += totality_darkness * cloud_visibility * corona * vec3(1.6, 1.65, 1.8);
 		// Faint prominences at the limb.
 		float prom = smoothstep(1.06, 1.0, r) * step(1.0, r) * pow(max(sin(a * 5.0 + 2.0), 0.0), 8.0);
-		solar += darkness * cloud_visibility * prom * vec3(2.5, 0.6, 0.7);
+		solar += totality_darkness * cloud_visibility * prom * vec3(2.5, 0.6, 0.7);
 		// The moon disc stays black against the corona.
-		solar *= mix(1.0, 1.0 - in_moon, darkness);
+		solar *= mix(1.0, 1.0 - in_moon, totality_darkness);
 		// Third contact: sunlight breaks through valleys on the Moon's limb, first
 		// as a few beads, then one blinding point, the diamond on the corona's ring.
 		if (third_contact.x + third_contact.y > 0.0) {
@@ -117,7 +119,7 @@ void sky() {
 			solar += third_contact.y * vec3(9.0, 8.6, 7.6) * exp(-dd * dd / 0.006);
 			solar += third_contact.y * vec3(1.6, 1.5, 1.3) * exp(-dd * 1.6);  // its glare
 		}
-		col *= mix(1.0, 1.0 - in_moon * 0.9, darkness);
+		col *= mix(1.0, 1.0 - in_moon * 0.9, totality_darkness);
 		// Field stars, only visible near totality.
 		for (int i = 0; i < 12; i++) {
 			float sd = length(lp - star_pos[i]) * sun_r;

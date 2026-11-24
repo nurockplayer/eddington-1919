@@ -14,8 +14,11 @@ float eclipse_cloud_density(vec3 d) {
 		dens = 1.0;
 	}
 	if (practice_cloud >= 0.0 && h > 0.0) {
-		float near_practice_sun = smoothstep(0.96, 0.995, dot(d, sun_dir));
-		dens = mix(dens, practice_cloud, near_practice_sun);
+		// Rehearsal fixes the density at the Sun. The drifting field still
+		// supplies the shape and density variation around it.
+		float near_practice_sun = smoothstep(0.96, 0.999, dot(d, sun_dir));
+		float variation = (dens - eclipse_cloud_texture(sun_dir)) * smoothstep(0.0, 0.12, practice_cloud);
+		dens = clamp((practice_cloud + variation) * near_practice_sun, 0.0, 1.0);
 	}
 	// Keep a visible veil, opening only near the Sun for the final beads/ring.
 	float near_contact_sun = smoothstep(0.96, 0.995, dot(d, sun_dir));
