@@ -1062,3 +1062,7 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Perf is edd-lead's (paired medians under +0.1 ms on the Mac).
 - **Verdicts:** technical regression: the dialogue facing (back 1); this PR's change not accepted yet; whole scene not accepted. Count stays **7/9**.
 
+### 2026-11-24 20:31 JST: #465 merged as 557efe9; correction to my time stamps of this evening
+- #465 is on main as 557efe9. `git diff d9c97de 557efe9` outside `docs/` and `.claude/` shows only #483's four files (main had moved), so the d9c97de frames stand for the slips and the bb15bad frames for the ridge. Not seen on a frame captured from 557efe9.
+- Correction: the three entries above headed 20:40, 20:45 and 21:00 JST were written between about 20:26 and 20:30 JST; I wrote the times without running `date`. The same holds for the PR comments on #465 and #485 that carry those times. The entries of 19:55 to 20:05 JST were not checked against the clock either. Order and content are unaffected.
+
