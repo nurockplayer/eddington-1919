@@ -300,6 +300,13 @@ func _read_plate(game, index: int) -> void:
 	game.ui.reading_set.emit(index, game.sim.reading_for_value(game.sim.plates[index].value))
 
 
+func _plate_button_positions(ui) -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+	for button: Control in [ui.include_box, ui.loupe_btn, ui.blink_btn, ui.mic_btn]:
+		positions.append(button.get_global_rect().position)
+	return positions
+
+
 func _enter_darkroom(game) -> void:
 	game.sim.drive_wound = true
 	game.sim.drive_rate_checked = true
@@ -400,6 +407,7 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		check(game._departure_workbook_seen, stage + ": finishing the workbook dialogue marks it seen")
 	game._interact("measure")
 	_dialogue(game, {"rule": 0, "bet": 2, "bet_sure": 1, "bet_keep": 3})
+	var first_plate_info: String = game.ui.plate_info.text
 	_include(game, 0, true)
 	_read_plate(game, 0)
 	if stage != "first reading":
@@ -417,6 +425,14 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 			stage + ": the first result differs from the revised result")
 
 	if resume:
+		var fresh_plate_info: String
+		var fresh_button_positions: Array[Vector2]
+		if stage == "first reading":
+			await settle()
+			fresh_plate_info = game.ui.plate_info.text
+			check(first_plate_info.begins_with(fresh_plate_info + "\n"),
+				"the fresh viewer shows the blink hint once before the plate is reselected")
+			fresh_button_positions = _plate_button_positions(game.ui)
 		var expected: Dictionary = Checkpoint.darkroom_state(game.sim)
 		var bets: Array = [story.bet_1917.duplicate(true), story.bet.duplicate(true)]
 		var expected_story: Dictionary = story.to_save()
@@ -451,6 +467,11 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 			check(story.to_save() == expected_story, "Continue restores the story state from before the standalone run")
 		check(game.ui.viewer.visible and game.ui._viewer_locked == expected.measured,
 			stage + ": the restored viewer shows the correct measurement state")
+		if stage == "first reading":
+			await settle()
+			check(game.ui.plate_info.text == fresh_plate_info, "the blink hint stays hidden after Continue")
+			check(_plate_button_positions(game.ui) == fresh_button_positions,
+				"Continue keeps the plate viewer buttons at their fresh-run positions")
 		check(game._came_from_departure == prologue and game.plate_changed
 			and game._departure_workbook_seen == read_workbook and game._comparison_fetched == prologue,
 			stage + ": the darkroom keeps route and workbook context")

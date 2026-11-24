@@ -29,6 +29,7 @@ signal quit_pressed
 ## The pause menu is closed; the chapter resets Story and returns to the title.
 signal title_pressed
 signal plate_toggled(index: int, on: bool)
+signal blink_hint_shown
 ## The player recorded a micrometer reading (reference star 0, plate pixels).
 signal reading_set(index: int, px: float)
 signal measure_pressed
@@ -167,7 +168,7 @@ var _comparison_texture: Texture2D
 var _blink_elapsed := 0.0
 var _blink_oxford := false
 var _blink_had_loupe := false
-var _blink_hint_shown := false
+var blink_hint_seen := false
 var _plate_texture: Texture2D
 var _loupe_center := Vector2.ZERO
 var loupe_start := Vector2(-1, -1)
@@ -1594,9 +1595,10 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	elif _viewer_locked and p.included and not p.usable:
 		lines.append(L.t("[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]"))
 	plate_info.text = "\n".join(lines)
-	if not blink_btn.disabled and not _blink_hint_shown:
+	if not blink_btn.disabled and not blink_hint_seen:
 		plate_info.text += L.t("\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。")
-		_blink_hint_shown = true
+		blink_hint_seen = true
+		blink_hint_shown.emit()
 
 
 func set_viewer_locked(locked: bool) -> void:

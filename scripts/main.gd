@@ -208,6 +208,7 @@ func _ready() -> void:
 	ui.title_pressed.connect(_return_to_title)
 	ui.dialogue_done.connect(_on_dialogue_done)
 	ui.plate_toggled.connect(_on_plate_toggled)
+	ui.blink_hint_shown.connect(_save_darkroom)
 	ui.measure_pressed.connect(_on_measure)
 	ui.reading_set.connect(_on_reading_set)
 	ui.reselect_pressed.connect(_on_reselect)
@@ -1634,6 +1635,7 @@ func _save_darkroom() -> void:
 			"seed": sim.run_seed, "sim": Checkpoint.darkroom_state(sim), "from_departure": _came_from_departure,
 			"plate_changed": plate_changed, "comparison_fetched": _comparison_fetched,
 			"workbook_seen": _departure_workbook_seen,
+			"blink_hint_seen": ui.blink_hint_seen,
 		})
 
 
@@ -1642,6 +1644,7 @@ func _restore_darkroom(data: Dictionary) -> void:
 	plate_changed = data.plate_changed
 	_comparison_fetched = data.comparison_fetched
 	_departure_workbook_seen = data.workbook_seen
+	ui.blink_hint_seen = data.get("blink_hint_seen", false)
 	ui.hide_title()
 	ui.pause_enabled = true
 	ui.hud.visible = true
