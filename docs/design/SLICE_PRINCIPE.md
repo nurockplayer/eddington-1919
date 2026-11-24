@@ -1119,3 +1119,7 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - With 2a (#493) and this, package 8's list from #465 is done.
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
 
+### 2026-11-24 23:42 JST: #496 acceptance carried to 61a8617 (rebase, no new frame)
+- The rebase keeps the PR's own commit unchanged (`git range-diff`: e0a49d4 = b025d1c) and adds one commit that touches only `tests/test_style_engraving.gd`. What differs in drawn code between e0a49d4 and 61a8617 is main's: #485 (figures, accepted at 9929a87) and #492 (blink hint, accepted at 963cbb2). Neither touches the slips, the type or the portrait tint.
+- So the e0a49d4 frames stand; I asked for no capture run. Not seen: the tinted portrait beside the new figures in one frame; the naming follow-up's frames will show it.
+
