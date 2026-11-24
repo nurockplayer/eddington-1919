@@ -521,7 +521,7 @@ func _test_totality_toast() -> void:
 					check(ui.dialog_panel.get_global_rect() == dialogue and ui.prompt_label.get_global_rect() == prompt, "dialogue and prompt keep position and size")
 				ui.set_totality(false)
 				await process_frame
-				check(is_equal_approx(ui.toast.position.y, ui.hud.size.y - 150.0), "day toast returns to its original position")
+				check(is_equal_approx(ui.toast.get_global_rect().end.y, ui.hud.size.y - 60.0), "day toast keeps its bottom margin")
 		ui.free()
 	player.free()
 	L.apply(locale)
@@ -1061,6 +1061,7 @@ func _test_trim_sheet() -> void:
 					game._interact_needs_release = false
 					game.ui.hud.show()
 					game.ui.set_objectives("Objective slip")
+					game.ui.set_clock("12:00")
 					game._interact("drive")
 					await settle()
 					var panel = game.calibration

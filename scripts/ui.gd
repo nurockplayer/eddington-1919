@@ -422,7 +422,7 @@ func _paper_text(bb: String) -> String:
 	if L.current() == "ko":
 		# UAX line breaking permits syllable breaks in Hangul. Keep words whole.
 		var syllables := RegEx.new()
-		syllables.compile("([가-힣])(?=[가-힣])")
+		syllables.compile(r"([\x{AC00}-\x{D7A3}])(?=[\x{AC00}-\x{D7A3}])")
 		bb = syllables.sub(bb, "$1\u2060", true)
 	return bb
 
