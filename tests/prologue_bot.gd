@@ -711,7 +711,7 @@ func _continue_honest_to_ending() -> void:
 	# standalone 1919 careful route. This attached helper stays passive until its
 	# routines are called, and never edits Story or gameplay state.
 	await route.walk([Vector3(1.2, 0, 1.6), Vector3(-1.1, 0, 0.4)])
-	var briefing_id: String = await route.interact(Vector3(-1.1, 1.6, -0.9))
+	var briefing_id: String = await route.interact(route.EDD_HEAD)
 	if briefing_id != "eddington":
 		failures.append("honest 1919 briefing aim expected eddington, got " + briefing_id)
 		return
