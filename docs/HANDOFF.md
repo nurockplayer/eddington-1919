@@ -12,6 +12,6 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 
 **Merged today:** #472 pkg 1 pilot 2871bc4 (gate round 2, 11:38 JST armed). #474 P5 slower totality (11:27 JST; follow-ups #480: pause right column empty cell, Normal/Slower duration labels, ja/zh-TW locked-row frames). #475 P4 0fed703 (fu #477, #476; worktree mech-p4 cleanup: retry `git-worktree-janitor --run --merged-pr 475 --repo .`; also clean mech-p5 for #474).
 
-**Next when a slot frees:** visual package 3 (passage into totality: paper dims/cools over last minute, decision 3; clips aimed at the sky from shelter edge) — write brief from VISUAL_OVERHAUL_PROPOSAL pkg 3. Order P0,1,3,6,2,4,5,7,9,10 (8 alongside). Then queued fu briefs (fu-provenance-ci-paths, fu-phase0-baseline, fu-menus-contrast, fu-report-chart-rows), Sol high.
+**Next when a slot frees** (remove vo-pkg1 first): queued fu briefs, Sol high: fu-provenance-ci-paths, fu-phase0-baseline, fu-menus-contrast, fu-report-chart-rows; then pkg 6. Order P0,1,3,6,2,4,5,7,9,10 (8 alongside).
 
 **Standing:** Owner 11-23: Codex surplus, use freely; otherwise act as if Claude `ahead`. dot paused → Godot tests via CI `suites`. Re-draft visual PRs until art accepts (workers flip them to ready). Owner asks in dot thread pending (info only): lw-dot-row2-clips-main, lw-dot-third-contact-clip, lw-owner-playtest-eclipse. edd-art owns rows 5/8 visuals, #423, #425, #440. Wake-ups: none.
