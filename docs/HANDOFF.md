@@ -2,20 +2,21 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 20:30 JST.** Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 20:37 JST.** Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
-**Codex burn (Owner 2026-11-24 20:0x JST):** Codex 93% used, resets 2026-11-25 02:52 JST; fill every free worktree slot (Sol high). Queue: #479 brief `.claude/briefs/issue-479-engraving-tests.md` → next free slot; then #476, #480, #470.
+**Codex burn (Owner 2026-11-24 20:0x JST):** Codex 93% used, resets 2026-11-25 02:52 JST; fill every free worktree slot (Sol high). Queue (#479 out 20:36 JST): package 8 run 2, then #476, #480, #470.
 
 
 **Waiting on edd-art:** #484 pkg 3 run 1 72cdaff, CI green, perf settled (5 pairs median +0.38 ms; cooling −0.77, cloud +0.51, forest cards +0.71 savings). Sent 20:16 JST. On accept → `lead-wait pr 484`, then pkg 2. Worktree vo-pkg3 idle (clean, = origin); removing it for #479 was denied by auto mode (open PR): Owner may run `! git worktree remove --force ../eddington-1919-wt/vo-pkg3` or wait for the next run to finish.
 
 **In flight (lead-wait):**
 - `lw-cx-fix-477` (20:03 JST, wt fix-477, brief issue-477-workbook-seen.md, Sol high): non-visual; on event check revert-check + Test rerun → `lead-wait pr <n>`.
-- `lw-pr-465-20261124-202753` (20:28 JST): #465 accepted by edd-art at d9c97de (log 28090cf), ready, in review gate. On merge: post merge on board pr463-465-art-captures; free vo-slips slot → #479 (queue). Package 8 run 2 list = edd-art's #465 comment + lead-decision (portrait card proportion first; serif CJK ≤ 8 MB; slip paper at totality/darkroom); next capture's main baseline must include arrival at ≥ 97bfbc8.
+- #465 MERGED 557efe9 (20:3x JST; board notice posted; wt vo-slips removed). Package 8 run 2 = edd-art's #465 comment list + lead-decision (portrait card proportion first; serif CJK ≤ 8 MB; slip paper at totality/darkroom); next capture's main baseline must include arrival at ≥ 97bfbc8. Dispatch at the next free slot.
+- `lw-cx-fix-479` (20:36 JST, wt fix-479, Sol high, brief issue-479-engraving-tests.md): non-visual test PR; on event check Test rerun → `lead-wait pr <n>`.
 - `lw-cx-vo-pkg6-fu5` (20:29 JST, resume 01a20cbf…, Sol high, brief vo-pkg6-run1-fu5.md): edd-art did not accept #485 at 56ee019 (log 6493c53): men face player in dialogue; Eddington's hands (day: on work; night: at measuring table). Worker recaptures edd-art's list. On event: post frames to edd-art (visual-overhaul-proposal); on accept → `lead-wait pr 485`.
-- Worktrees 4/4, fix-477 + vo-pkg6 running; vo-slips (#465 in gate)/vo-pkg3 idle on open draft PRs (#479 waits for one to merge or Owner removal) ( vo-haze removed after #483); vo-pkg1 removed 13:2x JST. wt-add warned: SSD free 15.2 GiB (< 40 GiB). KIOXIA 3.7 GiB free 17:5x JST after pruning (lead-board disk-structure-20261117); prune finished accept/ dirs (phase0, p3-ridges, hatching-diag referenced in art log: ask edd-art before deleting).
+- Worktrees 4/4, fix-477, fix-479, vo-pkg6 running; vo-pkg3 idle (#484 awaiting edd-art) on open draft PRs (#479 waits for one to merge or Owner removal) ( vo-haze removed after #483); vo-pkg1 removed 13:2x JST. wt-add warned: SSD free 15.2 GiB (< 40 GiB). KIOXIA 3.7 GiB free 17:5x JST after pruning (lead-board disk-structure-20261117); prune finished accept/ dirs (phase0, p3-ridges, hatching-diag referenced in art log: ask edd-art before deleting).
 
 **Merged today:** #483 haze bb15bad (20:0x JST; board notice posted incl. #472/#474). #472 pkg 1 pilot 2871bc4 (gate round 2, 11:38 JST armed). #474 P5 slower totality (11:27 JST; follow-ups #480: pause right column empty cell, Normal/Slower duration labels, ja/zh-TW locked-row frames). #475 P4 0fed703 (fu #477, #476; worktree mech-p4 cleanup: retry `git-worktree-janitor --run --merged-pr 475 --repo .`; also clean mech-p5 for #474).
 
