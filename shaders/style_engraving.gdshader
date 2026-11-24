@@ -17,6 +17,7 @@ uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
 uniform float diamond_ray_floor = 0.70;
 uniform float diamond = 0.0;
 uniform float contact = 1.0;
+uniform bool before_second_contact = false;
 // The sky's live cloud field, including the rehearsal override.
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
@@ -253,6 +254,7 @@ void fragment() {
 	float sky_white = 0.0;
 	float corona_white = 0.0;
 	float sun_rim = 0.0;
+	float sun_crescent = 0.0;
 	bool surface_print = false;
 	if (sky) {
 		dark *= sky_ink;
@@ -302,6 +304,11 @@ void fragment() {
 			float crescent = max(r - 1.0, 1.0 - length(lp - moon_c));
 			float sun_pixel = max(fwidth(crescent), 0.00001);
 			sun_rim = front * (1.0 - smoothstep(0.2, 0.9, abs(crescent) / (sun_pixel * res_k)));
+		} else if (before_second_contact && front > 0.0 && r < 1.0) {
+			float in_sun = 1.0 - smoothstep(0.96, 1.0, r);
+			float outside_moon = smoothstep(1.0, 1.04, length(lp - moon_c));
+			float transmission = 1.0 - clamp(eclipse_cloud_density(ray_w) * 1.08, 0.0, 1.0);
+			sun_crescent = in_sun * outside_moon * transmission;
 		}
 		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
 		vec3 bead_dir = normalize(sun_dir + sun_r * (t1 * bead_c.x + t2 * bead_c.y));
@@ -335,11 +342,11 @@ void fragment() {
 		float moon_cover = moon_weight * max(diamond, print_darkness);
 		float moon_lines = hatch(sky_ruling.x, k, moon_cover, l_px, 99.0);
 		moon_lines = max(moon_lines, step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover));
-		moon_ink = front * step(r, 1.0) * moon_lines;
+		moon_ink = before_second_contact ? 0.0 : front * step(r, 1.0) * moon_lines;
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
 		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
-		if (print_darkness > 0.0 && front > 0.0) {
+		if (!before_second_contact && print_darkness > 0.0 && front > 0.0) {
 			float sector = (atan(lp.y, lp.x) / 6.2831853 + 0.5) * 240.0;
 			float id = floor(sector);
 			float seed = hash21(vec2(id, 19.0));
@@ -573,6 +580,7 @@ void fragment() {
 		print_colour = mix(print_colour, surface_colour, day_weight);
 	}
 	print_colour = mix(print_colour, ink_col, sun_rim * 0.42);
+	print_colour = mix(print_colour, vec3(1.0), sun_crescent);
 	print_colour = mix(print_colour, ink_col, moon_ink);
 	print_colour = mix(print_colour, vec3(1.0), corona_white * print_darkness);
 	// Only the sky around an optically visible field star gets a reserve.

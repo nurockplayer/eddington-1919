@@ -452,7 +452,7 @@ func _crescent(contact: float) -> float:
 	return clampf(1.0 - overlap / PI, 0.0, 1.0)
 
 
-func _apply_light(contact: float, darkness: float, cloud_t: float, night: float) -> void:
+func _apply_light(contact: float, darkness: float, cloud_t: float, night: float, before_second_contact := false) -> void:
 	for ridge in get_tree().get_nodes_in_group("far_ridges"):
 		# At totality the far land is a low profile; even the towers stay below eye level.
 		ridge.scale.y = lerpf(1.0, 0.006, smoothstep(0.85, 0.98, darkness) * (1.0 - night))
@@ -462,6 +462,7 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 		layer.set_instance_shader_parameter("print_card", forest_ink > 0.0)
 		layer.set_instance_shader_parameter("print_coverage", forest_ink)
 	sky_mat.set_shader_parameter("contact", contact)
+	sky_mat.set_shader_parameter("before_second_contact", before_second_contact)
 	sky_mat.set_shader_parameter("darkness", darkness)
 	sky_mat.set_shader_parameter("cloud_time", cloud_t)
 	sky_mat.set_shader_parameter("third_contact_gap", Cues.third_contact_cloud_gap(cloud_t - sim.TOTALITY_S))
@@ -499,7 +500,7 @@ func _update_sky_prep() -> void:
 	var darkness := pow(f, 3.0) * 0.45
 	if _style != null:
 		darkness = 1.0 - smoothstep(0.0, PASSAGE_S, prep_left)
-	_apply_light(contact, darkness, -prep_left, 0.0)
+	_apply_light(contact, darkness, -prep_left, 0.0, true)
 
 
 # ------------------------------------------------------------------------ Audio
@@ -855,7 +856,7 @@ func _process(delta: float) -> void:
 func _sync_style_sky() -> void:
 	if _style == null:
 		return
-	for name in ["contact", "cloud_tex", "cloud_time", "third_contact_gap", "practice_cloud", "wind", "cloud_scale"]:
+	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "third_contact_gap", "practice_cloud", "wind", "cloud_scale"]:
 		_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
 	_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)
 
