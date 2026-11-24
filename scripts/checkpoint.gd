@@ -76,7 +76,7 @@ static func save(chapter: String, darkroom: Dictionary = {}) -> void:
 		if not darkroom.from_departure:
 			# A standalone 1919 run can be played alongside a story chapter.
 			var previous := _read()
-			if previous.get("chapter") == "darkroom":
+			if previous.get("chapter") == "darkroom" and not previous.darkroom.from_departure:
 				previous = previous.get("previous_chapter", {})
 			if not previous.is_empty():
 				data["previous_chapter"] = previous

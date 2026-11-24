@@ -300,6 +300,45 @@ func _read_plate(game, index: int) -> void:
 	game.ui.reading_set.emit(index, game.sim.reading_for_value(game.sim.plates[index].value))
 
 
+func _enter_darkroom(game) -> void:
+	game.sim.drive_wound = true
+	game.sim.drive_rate_checked = true
+	game.sim.drive_error = 0.025
+	game.sim.plates_delivered = 2
+	for exposure in [[100.0, 17.0, 0.12], [220.0, 35.0, 0.4]]:
+		game.sim.open_shutter(exposure[0])
+		game.sim.accumulate(exposure[1], exposure[2])
+		game.sim.close_shutter()
+	game.plate_changed = true
+	await game._begin_night()
+	_dialogue(game)
+
+
+func _submit_darkroom_report(game) -> bool:
+	game.ui.report_btn.pressed.emit()
+	_dialogue(game, {"verdict": Judgment.verdict_truth(game.sim)})
+	if not await _wait_for(func(): return game._pending == "judgment", 5.0):
+		return false
+	_dialogue(game, {"telegram": 1})
+	return true
+
+
+func _finish_standalone_from_title(game) -> bool:
+	game.ui.start_btn.pressed.emit()
+	if not await _wait_for(func(): return game.phase == game.Phase.PREP, 5.0):
+		return false
+	await _enter_darkroom(game)
+	game._interact("measure")
+	_dialogue(game, {"rule": 0, "bet": 2, "bet_sure": 1, "bet_keep": 3})
+	for index in [0, 1]:
+		_include(game, index, true)
+		_read_plate(game, index)
+	game.ui.measure_btn.pressed.emit()
+	if not await _submit_darkroom_report(game):
+		return false
+	return await _wait_for(func(): return game.ui.ending_panel.visible, 20.0)
+
+
 func _check_darkroom(story) -> void:
 	Engine.time_scale = 6.0
 	for stage in ["first reading", "first result", "quality reselection", "result reselection"]:
@@ -332,17 +371,7 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 	if not prologue:
 		game.ui.start_btn.pressed.emit()
 		await _wait_for(func(): return game.phase == game.Phase.PREP, 5.0)
-	game.sim.drive_wound = true
-	game.sim.drive_rate_checked = true
-	game.sim.drive_error = 0.025
-	game.sim.plates_delivered = 2
-	for exposure in [[100.0, 17.0, 0.12], [220.0, 35.0, 0.4]]:
-		game.sim.open_shutter(exposure[0])
-		game.sim.accumulate(exposure[1], exposure[2])
-		game.sim.close_shutter()
-	game.plate_changed = true
-	await game._begin_night()
-	_dialogue(game)
+	await _enter_darkroom(game)
 	if prologue:
 		game._interact("oxford_case")
 		_dialogue(game)
@@ -369,10 +398,20 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 	if resume:
 		var expected: Dictionary = Checkpoint.darkroom_state(game.sim)
 		var bets: Array = [story.bet_1917.duplicate(true), story.bet.duplicate(true)]
+		var expected_story: Dictionary = story.to_save()
 		var scene_id: int = game.get_instance_id()
 		game._return_to_title()
 		await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.TITLE, 20.0)
 		await settle()
+		if stage == "result reselection":
+			var standalone_ended := await _finish_standalone_from_title(current_scene)
+			check(standalone_ended, "the standalone run reaches its ending over a story darkroom save")
+			if not standalone_ended:
+				return {}
+			current_scene._return_to_title()
+			await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.TITLE, 20.0)
+			await settle()
+			check(Checkpoint.peek() == "darkroom", "standalone ending leaves the story darkroom available to Continue")
 		var button: Button = current_scene.ui.continue_btn
 		check(button != null and button.has_focus(), stage + ": cold title offers Continue")
 		if button == null:
@@ -387,6 +426,8 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		check(game.sim.plates == expected.plates, stage + ": raw and developed plates, readings and inclusion match")
 		check(Checkpoint.darkroom_state(game.sim) == expected, stage + ": rule, committed reading and selection history match")
 		check([story.bet_1917, story.bet] == bets, stage + ": original and current bets match")
+		if stage == "result reselection":
+			check(story.to_save() == expected_story, "Continue restores the story state from before the standalone run")
 		check(game.ui.viewer.visible and game.ui._viewer_locked == expected.measured,
 			stage + ": the restored viewer shows the correct measurement state")
 		check(game._came_from_departure == prologue and game.plate_changed
@@ -398,11 +439,8 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		_include(game, 1, true)
 		_read_plate(game, 1)
 		game.ui.measure_btn.pressed.emit()
-	game.ui.report_btn.pressed.emit()
-	_dialogue(game, {"verdict": Judgment.verdict_truth(game.sim)})
-	if not await _wait_for(func(): return game._pending == "judgment", 5.0):
+	if not await _submit_darkroom_report(game):
 		return {}
-	_dialogue(game, {"telegram": 1})
 	if prologue:
 		check(game.phase == main_script.Phase.CODA, stage + ": the prologue route reaches its coda")
 		game._interact("mentor_loupe")
