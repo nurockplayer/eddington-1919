@@ -613,9 +613,9 @@ func _layout_dialogue_portrait() -> void:
 		image.custom_minimum_size = Vector2(frame.y * 0.12, frame.y * 0.16)
 		image.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD
-		Settings.track_font(dialogue_portrait.disclosure, 12)
+		Settings.track_font(dialogue_portrait.disclosure, 16)
 		var mount := dialogue_portrait.get_theme_stylebox("panel").get_minimum_size()
-		dialogue_portrait.size = Vector2(image.custom_minimum_size.x + mount.x, 0.0)
+		dialogue_portrait.size = Vector2(maxf(image.custom_minimum_size.x, 240.0 * Settings.text_scale) + mount.x, 0.0)
 		column = dialogue_portrait.size.x + 16.0
 		if image.texture != _portrait_oval and image.texture != null:
 			_portrait_source = image.texture

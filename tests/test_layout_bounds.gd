@@ -1100,7 +1100,7 @@ func _test_printed_slips() -> void:
 		root.size = window
 		for language in L.LOCALES:
 			L.apply(language)
-			for scale in [1.0, 1.2]:
+			for scale in Settings.TEXT_SCALES:
 				context = "printed slips %s %s %.1f" % [window, language, scale]
 				var ui = preload("res://scripts/ui.gd").new()
 				root.add_child(ui)
@@ -1124,7 +1124,20 @@ func _test_printed_slips() -> void:
 				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "dialogue suppresses task and toast")
 				check(ui.dialog_panel.size.x < 1120 and ui.dialog_panel.size.y < 200, "short line has a compact slip")
 				check(ui.dialogue_portrait.image.size.y <= root.get_visible_rect().size.y * 0.18, "oval vignette fits 18 percent frame height")
-				check(ui.dialogue_portrait.size.x <= ui.dialogue_portrait.image.size.x + 21.0, "portrait card fits oval and disclosure wraps beneath")
+				var disclosure: Label = ui.dialogue_portrait.disclosure
+				check(disclosure.get_theme_font_size("font_size") >= ui.hint_label.get_theme_font_size("font_size"), "disclosure is at least control hint size")
+				var paragraph := TextParagraph.new()
+				paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+				paragraph.width = disclosure.size.x - disclosure.get_theme_stylebox("normal").get_minimum_size().x
+				paragraph.add_string(disclosure.text, disclosure.get_theme_font("font"), disclosure.get_theme_font_size("font_size"))
+				check(paragraph.get_line_count() == disclosure.get_line_count(), "disclosure probe matches rendered lines")
+				check(paragraph.get_size().x <= paragraph.width + 1.0, "disclosure fits its card")
+				if language == "ko":
+					_check_korean_label(disclosure)
+				if language in ["ko", "ja", "zh_TW"]:
+					for line in paragraph.get_line_count():
+						var span := paragraph.get_line_range(line)
+						check(disclosure.text.substr(span.x, span.y - span.x).strip_edges().length() != 1, "no single-character CJK line")
 				check(not ui.dialogue_portrait.get_global_rect().intersects(ui.dialog_panel.get_global_rect()), "portrait and dialogue have separate space")
 				bounds(ui.dialog_panel)
 				bounds(ui.dialogue_portrait)
