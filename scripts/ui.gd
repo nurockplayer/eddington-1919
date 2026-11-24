@@ -601,6 +601,7 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.visibility_changed.connect(_layout_viewer.call_deferred)
 	root.resized.connect(_layout_dialogue_portrait)
 	dialogue_portrait.resized.connect(_position_dialogue_portrait)
+	dialogue_portrait.minimum_size_changed.connect(_layout_dialogue_portrait.call_deferred)
 
 
 func _layout_dialogue_portrait() -> void:
@@ -608,14 +609,11 @@ func _layout_dialogue_portrait() -> void:
 		return
 	var frame: Vector2 = dialog_panel.get_parent().size
 	var column := 240.0 if cambridge_portraits else 0.0
-	if paper_hud and not viewer.visible:
+	var printed := paper_hud and not viewer.visible
+	dialogue_portrait.set_paper(printed)
+	if printed:
 		var image := dialogue_portrait.image
-		image.custom_minimum_size = Vector2(frame.y * 0.12, frame.y * 0.16)
-		image.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD
-		Settings.track_font(dialogue_portrait.disclosure, 16)
-		var mount := dialogue_portrait.get_theme_stylebox("panel").get_minimum_size()
-		dialogue_portrait.size = Vector2(maxf(image.custom_minimum_size.x, 320.0 * Settings.text_scale) + mount.x, 0.0)
+		dialogue_portrait.reset_size()
 		column = dialogue_portrait.size.x + 16.0
 		if image.texture != _portrait_oval and image.texture != null:
 			_portrait_source = image.texture
@@ -628,8 +626,9 @@ func _layout_dialogue_portrait() -> void:
 						pixels.set_pixel(x, y, Color.TRANSPARENT)
 			_portrait_oval = ImageTexture.create_from_image(pixels)
 			image.texture = _portrait_oval
-	elif _portrait_source != null:
+	elif _portrait_source != null and dialogue_portrait.image.texture == _portrait_oval:
 		dialogue_portrait.image.texture = _portrait_source
+		dialogue_portrait.reset_size()
 	var maximum := minf(frame.x - column - 64.0, 1080.0)
 	var natural := maxf(speaker_label.get_minimum_size().x, hint_label.get_minimum_size().x)
 	var body_font := text_label.get_theme_font("normal_font")
@@ -643,7 +642,7 @@ func _layout_dialogue_portrait() -> void:
 	dialog_panel.custom_minimum_size = Vector2.ZERO
 	# Apply the width once so fit_content never wraps at a temporary width.
 	dialog_panel.size = Vector2(width, 0.0)
-	var left := 32.0 + column if paper_hud and not viewer.visible else (frame.x + column - dialog_panel.size.x) * 0.5
+	var left := 32.0 + column if printed else (frame.x + column - dialog_panel.size.x) * 0.5
 	dialog_panel.position = Vector2(left, frame.y - 18.0 - dialog_panel.size.y)
 	_position_dialogue_portrait()
 
@@ -2050,19 +2049,22 @@ func _build_pause(root: Control) -> void:
 	slip.anchor_bottom = 0.5
 	slip.offset_top = 0
 	slip.offset_bottom = 0
+	var page := VBoxContainer.new()
+	page.add_theme_constant_override("separation", 0)
+	slip.add_child(page)
+	_pause_heading = _label(L.t("暫停"), 36)
+	_pause_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	page.add_child(_pause_heading)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.follow_focus = true
 	scroll.get_v_scroll_bar().custom_minimum_size.x = 10
-	slip.add_child(scroll)
+	page.add_child(scroll)
 	var v := VBoxContainer.new()
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_theme_constant_override("separation", 0)
 	scroll.add_child(v)
-	_pause_heading = _label(L.t("暫停"), 36)
-	_pause_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(_pause_heading)
 	var rows := GridContainer.new()
 	rows.columns = 2
 	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2131,10 +2133,6 @@ func _build_pause(root: Control) -> void:
 	# Dialogue is built when a scene starts, so a language change reloads the title.
 	language_button = _button(_language_caption())
 	language_button.pressed.connect(_cycle_language)
-	# Keep the grid position when the language button is hidden in pause.
-	var language_slot := MarginContainer.new()
-	language_slot.add_child(language_button)
-	rows.add_child(language_slot)
 	var look := _button(L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	look.pressed.connect(func():
 		Settings.cycle_look_speed()
@@ -2161,7 +2159,6 @@ func _build_pause(root: Control) -> void:
 	totality_pace_button.pressed.connect(func():
 		Settings.toggle_totality_pace()
 		totality_pace_button.text = pace_caption.call())
-	rows.add_child(totality_pace_button)
 	var help := _button(L.t("操作說明"))
 	help.pressed.connect(_open_help)
 	rows.add_child(help)
@@ -2205,12 +2202,13 @@ func _build_pause(root: Control) -> void:
 	rows.add_child(quit_button)
 	# Fill the two visual columns in reading order, keeping each group together.
 	var volume_cards := [first_slider.get_parent().get_parent(), music_row.get_parent(), last_slider.get_parent().get_parent()]
-	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button]
-	var right := [invert, motion, hold_button, help, mic_step, mic_cross, language_slot, restart_button, pause_title, quit_button]
+	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look]
+	var right := [invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
 	for i in left.size():
 		rows.move_child(left[i], i * 2)
-		if i < right.size():
-			rows.move_child(right[i], i * 2 + 1)
+		rows.move_child(right[i], i * 2 + 1)
+	v.add_child(totality_pace_button)
+	v.add_child(language_button)
 	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button, language_button, invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
 	for i in focus_order.size():
 		var button: Control = focus_order[i]
@@ -2246,13 +2244,15 @@ func _build_pause(root: Control) -> void:
 	# Scroll only when necessary; otherwise the paper ends at its last row.
 	var fit_slip := _fit_pause_slip.bind(v, root, scroll, slip)
 	v.minimum_size_changed.connect(fit_slip)
+	_pause_heading.minimum_size_changed.connect(fit_slip)
 	root.resized.connect(fit_slip)
 	fit_slip.call_deferred()
 
 
 func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer) -> void:
-	var height := minf(v.get_combined_minimum_size().y, root.size.y - 32)
-	scroll.custom_minimum_size.y = height
+	var heading := _pause_heading.get_combined_minimum_size().y
+	scroll.custom_minimum_size.y = minf(v.get_combined_minimum_size().y, root.size.y - 32.0 - heading)
+	var height := heading + scroll.custom_minimum_size.y
 	slip.offset_top = -height / 2.0
 	slip.offset_bottom = height / 2.0
 
