@@ -268,6 +268,7 @@ void fragment() {
 	float ridge_totality = 0.0;
 	float sky_white = 0.0;
 	float corona_white = 0.0;
+	float rehearsal_wash = 0.0;
 	bool surface_print = false;
 	if (sky) {
 		dark *= sky_ink;
@@ -310,6 +311,22 @@ void fragment() {
 		float r = length(lp);
 		float front = step(0.0, dot(ray_w, sun_dir));
 		vec2 moon_c = vec2((1.0 - contact) * 2.1, 0.12 * (1.0 - contact));
+		if (daylight && practice_cloud >= 0.0) {
+			// The override is uniform across the disc. Shape its moving edge with
+			// the live cloud texture, and print its density independently of eclipse ruling.
+			vec2 bank = (lp + vec2(4.9, 0.35)) * vec2(0.90, 1.65);
+			float field = length(bank) - mix(2.8, 7.0, practice_cloud)
+				+ 1.6 * (0.5 - eclipse_cloud_texture(ray_w));
+			float pixel = max(length(vec2(dFdx(field), dFdy(field))), 0.00001);
+			float body = 1.0 - smoothstep(-pixel, pixel, field);
+			float rim = 1.0 - smoothstep(0.3, 1.0, abs(field) / (pixel * res_k));
+			float crescent = max(r - 1.0, 1.0 - length(lp - moon_c));
+			float sun_pixel = max(fwidth(crescent), 0.00001);
+			float sun_body = 1.0 - smoothstep(-sun_pixel, sun_pixel, crescent);
+			float sun_rim = 1.0 - smoothstep(0.2, 0.9, abs(crescent) / (sun_pixel * res_k));
+			rehearsal_wash = front * sqrt(practice_cloud) * max(0.76 * body, rim) * (1.0 - 0.38 * sun_body);
+			ink = front * sun_rim * 0.42;
+		}
 		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
 		vec3 bead_dir = normalize(sun_dir + sun_r * (t1 * bead_c.x + t2 * bead_c.y));
 		float dens = eclipse_cloud_density(bead_dir);
@@ -549,6 +566,7 @@ void fragment() {
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	if (daylight) {
 		page = paper * (1.0 - paper_grain * fibre);
+		page = mix(page, vec3(0.23), rehearsal_wash);
 	}
 	if (print_darkness < 0.001 && night > 0.5) {
 		page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f) * (sky ? 1.0 : max(print_darkness, night))) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
