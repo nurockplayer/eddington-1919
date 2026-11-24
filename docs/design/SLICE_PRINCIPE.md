@@ -1123,3 +1123,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - The rebase keeps the PR's own commit unchanged (`git range-diff`: e0a49d4 = b025d1c) and adds one commit that touches only `tests/test_style_engraving.gd`. What differs in drawn code between e0a49d4 and 61a8617 is main's: #485 (figures, accepted at 9929a87) and #492 (blink hint, accepted at 963cbb2). Neither touches the slips, the type or the portrait tint.
 - So the e0a49d4 frames stand; I asked for no capture run. Not seen: the tinted portrait beside the new figures in one frame; the naming follow-up's frames will show it.
 
+### 2026-11-25 00:26 JST: #499 pace wording in the pause panel (rest of #480) accepted at b01e0d7
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/pause-480/b01e0d7…/` (720p large text; main 4c92501, whose settings isolation was not recorded); copies in `accept/499/b01e0d7/`. Opened whole at native size, candidate only: en slower, ko slower, ja locked, zh_TW locked. The pace row alone, as a crop: en and ko normal ("about 2 min" / "약 2분"). ja and zh_TW normal and slower: my crop missed the row, not seen. Main: not opened.
+- The row now says what the choice costs: "Totality pace: Slower (about 4 min)" against "Normal (about 2 min)"; it fits on one line across both columns in en and ko at 720p large. In totality the row is greyed with a second line ("皆既日食中は変更不可" / "全食期間無法變更") and reads as locked without looking like a button.
+- This answers my open point from #474 (the "Normal/Slower" wording). The numbers are the game's, derived from its timing; I did not check them against a clip.
+- Not blockers: the pause panel stays cream over the blue totality page, the brightest thing on screen there; the slips took the page's paper in #493, the panel has not (a later slips run, if the Owner's play finds it harsh). The totality clock beside it counts "302 s" while the row says "about 4 min": two clocks, the story's and the player's, as decided on #474.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
+
