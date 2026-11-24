@@ -48,9 +48,9 @@ void fragment() {
 	vec3 lit = stock;
 	vec3 middle = stock;
 	vec3 shadow = stock;
-	if (swatch == 3) {
+	if (swatch == 3 || swatch == 4) {
 		float facing = abs(dot(normalize(NORMAL), VIEW));
-		float rim = 1.0 - smoothstep(0.14, 0.31, facing);
+		float rim = 1.0 - smoothstep(0.14, swatch == 4 ? 0.55 : 0.31, facing);
 		float highlight = smoothstep(0.92, 0.99, facing);
 		shadow = mix(ink, paper, rim);
 		middle = shadow;
