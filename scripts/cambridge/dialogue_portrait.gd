@@ -63,7 +63,9 @@ func set_paper(paper: bool) -> void:
 	image.custom_minimum_size = Vector2(162, 216) if paper else Vector2(PRINT_SIZE, PRINT_SIZE)
 	image.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if paper else Control.SIZE_FILL
 	disclosure.autowrap_mode = TextServer.AUTOWRAP_OFF if paper else TextServer.AUTOWRAP_WORD_SMART
-	disclosure.text = _disclosure_text.replace(", ", ",").replace(",", ",\n").replace("、", "、\n").replace("，", "，\n") if paper else _disclosure_text
+	var ideographic_comma := String.chr(0x3001)
+	var fullwidth_comma := String.chr(0xff0c)
+	disclosure.text = _disclosure_text.replace(", ", ",").replace(",", ",\n").replace(ideographic_comma, ideographic_comma + "\n").replace(fullwidth_comma, fullwidth_comma + "\n") if paper else _disclosure_text
 	Settings.track_font(disclosure, 16 if paper else 18)
 
 
