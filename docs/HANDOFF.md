@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 23:29 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 23:33 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
@@ -11,16 +11,16 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 **Waiting on edd-art:** #484 pkg 3 run 1 72cdaff, CI green, perf +0.38 ms. Sent 20:16 JST. On accept → `lead-wait pr 484`, then pkg 2. Worktree vo-pkg3 idle.
 
 **In flight (lead-wait):**
-- `lw-pr-493` (23:29 JST, head eb8880c, CI green; diff since accepted 5f2effb = render-neutral i18n fix + engraving test aligned to scene paper). On merge: remove wt vo-pkg8; resume #496 worker (session 01a20dbe…, wt vo-pkg8b) to rebase on main.
-- #496 run 2b ACCEPTED by edd-art at e0a49d4 (log 62159af); package 8 list done with 2a+2b. Stacked on #493: after #493 merges, resume worker (session 01a20dbe…) to rebase on main, then ready + `lead-wait pr 496`. On merge remove wt vo-pkg8b.
+- `lw-cx-vo-pkg8b-fu1` (23:33 JST, resume 01a20dbe…): rebase #496 onto main (after #493). On event: CI green and render unchanged → `gh pr ready 496` + `lead-wait pr 496 --reason` (accepted e0a49d4, rebased). On merge remove wt vo-pkg8b; then naming PR + #480 rest.
+- #496 run 2b ACCEPTED by edd-art at e0a49d4 (log 62159af); package 8 list done.
 - Totality dialogue: not reachable in play (Sol 23:03 JST, repro 5/5); only toasts beside the clock; told edd-art; wt removed.
 - Naming lead-decision 23:00 JST on #494: ja/ko/zh_TW speaker labels + name tags take locale transliteration; follow-up PR after #496 merges (queue with #480 rest).
 - #492 MERGED 22:08 JST; wt fix-476 removed. Inherited defects #494.
-- Worktrees 3/4: vo-pkg8, vo-pkg8b, vo-pkg3 (idle).
+- Worktrees 2/4: vo-pkg8b, vo-pkg3 (idle).
 - #470 closed 22:45 JST (edd-art: not a hang, log 928c195).
 - Janitor refuses eddington worktrees (submodule); after MERGED: `git worktree remove --force` + `git branch -D` by hand.
 
-**Merged today:** #485 pkg 6 figures (22:3x JST, wt vo-pkg6 removed). #492 blink hint (22:08 JST). #487 workbook seen 827e762 (21:3x JST, wt removed). #489 engraving tests 2f9fec9 (21:28 JST, wt removed). #465 pkg 8 run 1 557efe9. #483 haze bb15bad. #472 pkg 1 2871bc4. #474 P5 (fu #480). #475 P4 0fed703 (fu #477 done, #476 out; old wts mech-p4/mech-p5 still to clean by hand).
+**Merged today:** #493 pkg 8 run 2a eb4cc4b (23:3x JST, wt vo-pkg8 removed). #485 pkg 6 figures (22:3x JST, wt vo-pkg6 removed). #492 blink hint (22:08 JST). #487 workbook seen 827e762 (21:3x JST, wt removed). #489 engraving tests 2f9fec9 (21:28 JST, wt removed). #465 pkg 8 run 1 557efe9. #483 haze bb15bad. #472 pkg 1 2871bc4. #474 P5 (fu #480). #475 P4 0fed703 (fu #477 done, #476 out; old wts mech-p4/mech-p5 still to clean by hand).
 
 **Next when a slot frees:** #480 rest after run 2b; pkg 2 after #484 (order P0,1,3,6,2,4,5,7,9,10).
 
