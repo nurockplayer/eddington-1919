@@ -1029,3 +1029,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - #472 and #474 are on main (2871bc4, 2656a8d); rows 1 and 3 still to be re-scored from main frames.
 - **Verdicts:** technical regression not judged (head is behind main); this PR's change not accepted yet; whole scene not accepted. Count stays **7/9**.
 
+### 2026-11-24 20:05 JST: #483 horizon ridge and telescope rim (follow-up to #472) accepted at bb15bad
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/483/bb15bad…/` (1080p, seed 7, isolated settings; main 0f2a747); copies in `accept/483/bb15bad/`. Opened whole at native size, candidate first: arrival, coelostat still, −30 s, Eddington talk. Then main beside the candidate as crops (telescope in the coelostat view, ridge at −30 s). Not opened: partial phase, totality wide (281 px differ from main, counted by me), darkroom (0 px), main's whole frames. No 720p frames exist.
+- Ridge: one flat tone and one contour, in arrival, talk and the coelostat view; the grey fog gradient is gone. At −30 s the horizontal bands across the ridge are on main too (crop): package 3 run 1.
+- Telescope: light rim on the tube's edges and bands; in the coelostat view the tube was one black mass on main and now reads as a box with two bands.
+- The diff touches the style pass only for geometry between 75 and 1000 units, not the sky; the −30 s frame shows the cloud outlines unchanged beside it.
+- Perf is edd-lead's (paired medians −1.00 / +0.12 ms on the Mac; GTX 1650 unknown).
+- **Verdicts:** technical regression none seen (darkroom identical, totality 281 px); this PR's change accepted; whole scene not accepted. Count stays **7/9**.
+
