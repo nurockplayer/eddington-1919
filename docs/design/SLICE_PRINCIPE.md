@@ -1083,3 +1083,9 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Still not seen by me: the idle clips of a5d256c and Cottingham's of 56ee019.
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted (house, stand-in cloud, passage into totality; figures' tones are still smooth gradients). Count stays **7/9**.
 
+### 2026-11-24 21:58 JST: #492 blink hint after Continue (issue #476) accepted at 963cbb2
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/fix-476/963cbb2…/` (windowed, seed 77, isolated settings; main b0c9d45); copies in `accept/492/963cbb2/`. Opened whole at native size, candidate first: en 1080p, ko 720p large text; then main en 1080p. Not opened: main ko 720p, the two side-by-side sheets.
+- After Continue the three-line blink hint no longer comes back, and Include, Loupe, Blink comparison and Micrometer sit directly under the plate caption in both locales; on main the hint pushes them 130 px down. That these are the fresh-run positions rests on the test (`test_checkpoint`), I did not open a fresh-run frame beside them.
+- Inherited, both builds, for edd-lead's backlog: the thumbnail outline is on the Oxford plate while the viewer shows Plate 1; the ko frame writes both "Eddington" and "에딩턴".
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene (plate table after resume) accepted as on #475. Count stays **7/9**.
+
