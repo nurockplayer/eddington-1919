@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 22:44 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 22:45 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
@@ -15,7 +15,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 - `lw-cx-vo-pkg8b-run2b` (22:28 JST, Sol high, wt vo-pkg8b on branch art/vo-pkg8-run2b stacked on 5f2effb; brief .claude/briefs/vo-pkg8-run2b.md): CJK serif subset ≤ 8 MB, portrait oval tint darkroom/totality, rule under pause title, ko/ja name spellings (Cottingham, #494 Eddington). On event: post frames to edd-art (lead-board reply visual-overhaul-proposal-20261124).
 - #492 MERGED 22:08 JST; wt fix-476 removed. Inherited defects #494.
 - Worktrees 3/4: vo-pkg8, vo-pkg8b, vo-pkg3 (idle); one slot free, nothing queued that does not touch the pause panel.
-- #470 clip sent to edd-art 22:4x JST (KIOXIA accept/463-route/d6df6f8/); wt cap-470 removed. On verdict: hang → file follow-up fix; else close #470.
+- #470 closed 22:45 JST (edd-art: not a hang, log 928c195).
 - Janitor refuses eddington worktrees (submodule); after MERGED: `git worktree remove --force` + `git branch -D` by hand.
 
 **Merged today:** #485 pkg 6 figures (22:3x JST, wt vo-pkg6 removed). #492 blink hint (22:08 JST). #487 workbook seen 827e762 (21:3x JST, wt removed). #489 engraving tests 2f9fec9 (21:28 JST, wt removed). #465 pkg 8 run 1 557efe9. #483 haze bb15bad. #472 pkg 1 2871bc4. #474 P5 (fu #480). #475 P4 0fed703 (fu #477 done, #476 out; old wts mech-p4/mech-p5 still to clean by hand).
