@@ -2059,7 +2059,10 @@ func _build_pause(root: Control) -> void:
 	# Dialogue is built when a scene starts, so a language change reloads the title.
 	language_button = _button(_language_caption())
 	language_button.pressed.connect(_cycle_language)
-	rows.add_child(language_button)
+	# Keep the grid position when the language button is hidden in pause.
+	var language_slot := MarginContainer.new()
+	language_slot.add_child(language_button)
+	rows.add_child(language_slot)
 	var look := _button(L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	look.pressed.connect(func():
 		Settings.cycle_look_speed()
@@ -2131,7 +2134,7 @@ func _build_pause(root: Control) -> void:
 	# Fill the two visual columns in reading order, keeping each group together.
 	var volume_cards := [first_slider.get_parent().get_parent(), music_row.get_parent(), last_slider.get_parent().get_parent()]
 	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button]
-	var right := [invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button, language_button]
+	var right := [invert, motion, hold_button, help, mic_step, mic_cross, language_slot, restart_button, pause_title, quit_button]
 	for i in left.size():
 		rows.move_child(left[i], i * 2)
 		if i < right.size():
