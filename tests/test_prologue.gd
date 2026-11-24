@@ -505,8 +505,10 @@ func _test_dialogue_history() -> void:
 	ui._advance()
 	ui._choose(1)
 	check(speakers == ["Ashby", "Kit", "Eddington"], "dialogue_entry reports each displayed speaker across a selected choice branch")
+	for _i in 4:
+		await process_frame
+	check(is_equal_approx(ui.dialog_panel.offset_bottom, -18.0) and is_equal_approx(ui.dialog_panel.size.y, ui.dialog_panel.get_combined_minimum_size().y), "dialogue fits its text above the shared bottom margin")
 	ui._advance()
-	check(is_equal_approx(ui.dialog_panel.offset_top, -214.0) and is_equal_approx(ui.dialog_panel.offset_bottom, -18.0), "default dialogue panel uses the low-third placement in every chapter (speaker faces stay visible)")
 	# The authored three-choice trial must grow upward from the Cambridge bottom edge.
 	ui.dialog_panel.offset_top = -214
 	ui.dialog_panel.offset_bottom = -18

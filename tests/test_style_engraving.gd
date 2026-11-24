@@ -150,26 +150,23 @@ func _test_hud_paper(game: Node) -> void:
 	check(ui.crosshair.modulate == Color.WHITE, "interaction cannot fade or tint the crosshair slip")
 	ui.title_panel.visible = was_title
 	game._busy = was_busy
-	check(ui.dialogue_portrait.disclosure.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "translated portrait caption wraps inside its card")
+	check(ui.dialogue_portrait.disclosure.autowrap_mode == TextServer.AUTOWRAP_WORD, "translated portrait caption wraps at words inside its card")
 	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
 		game._apply_light(0.62, state[0], -150.0, state[1])
-		var dark: bool = state[0] > 0 or state[1] > 0
 		for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption]:
 			check(label.has_theme_stylebox_override("normal"), "HUD text has its own slip: " + str(label.get_path()))
 			if label.has_theme_stylebox_override("normal"):
-				_check_slip(label.get_theme_stylebox("normal"), label.get_theme_color("font_color"), dark)
+				_check_slip(label.get_theme_stylebox("normal"), label.get_theme_color("font_color"))
 		check(not ui.crosshair.has_theme_stylebox_override("normal"), "crosshair mark has no slip")
 		check(ui.crosshair.get_theme_constant("outline_size") > 0, "crosshair has a contrasting edge")
-		if state[1] > 0:
-			check(ui.dialog_panel.get_theme_stylebox("panel").bg_color == Engraving.INK, "night slips use warm page ink")
+		check(ui.dialog_panel.get_theme_stylebox("panel").bg_color == Engraving.PAPER, "dialogue keeps cream stock in every lighting state")
 		for panel in [ui.objectives.get_parent(), ui.tot_panel, ui.dialog_panel, ui.dialogue_portrait]:
 			var slip: StyleBoxFlat = panel.get_theme_stylebox("panel")
 			var text: Color = ui.hint_label.get_theme_color("font_color")
-			_check_slip(slip, text, dark)
+			_check_slip(slip, text)
 		check(ui.hint_label.get_theme_color("font_color") == ui.speaker_label.get_theme_color("font_color"), "dialogue hint has the same ink as its speaker")
 		check(ui.dialogue_portrait.disclosure.get_theme_color("font_color") == ui.hint_label.get_theme_color("font_color"), "portrait caption has the same ink as dialogue")
-		if dark:
-			check(ui.dialogue_portrait.image.self_modulate.get_luminance() < 0.5, "portrait paper takes the page wash")
+		check(ui.dialogue_portrait.image.self_modulate == Color.WHITE, "portrait retains its approved print on cream stock")
 	game._apply_light(0.62, 0, -150, 0)
 	ui.set_objectives("[color=#a99]Grey line[/color]")
 	check(not ui.objectives.text.contains("[color"), "authored objective colour cannot override page ink")
@@ -218,9 +215,9 @@ func _test_choices_caption(game: Node) -> void:
 	game._apply_light(0.62, 0, -150, 0)
 
 
-func _check_slip(slip: StyleBoxFlat, text: Color, dark: bool) -> void:
+func _check_slip(slip: StyleBoxFlat, text: Color) -> void:
 	check(slip.bg_color.a == 1.0, "slip is solid")
-	check((slip.bg_color.get_luminance() < text.get_luminance()) == dark, "slip follows page polarity")
+	check(slip.bg_color == Engraving.PAPER and slip.bg_color.get_luminance() > text.get_luminance(), "slip uses dark ink on cream stock")
 	var a := text.srgb_to_linear().get_luminance()
 	var b := slip.bg_color.srgb_to_linear().get_luminance()
 	check((maxf(a, b) + 0.05) / (minf(a, b) + 0.05) >= 4.5, "slip text contrast >= 4.5")

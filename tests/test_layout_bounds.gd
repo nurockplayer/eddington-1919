@@ -47,13 +47,18 @@ func bounds(node: Node) -> void:
 		bounds(child)
 
 
-func settle() -> void:
-	for frame in 5:
+func settle(frames := 5) -> void:
+	for frame in frames:
 		await process_frame
 
 
 func _run() -> void:
 	load("res://scripts/main.gd")._ensure_inputs()
+	await _test_printed_slips()
+	if "--printed-slips-only" in OS.get_cmdline_user_args():
+		print("test_layout_bounds printed slips: %d checks, %d failures" % [checks, failures])
+		quit(1 if failures else 0)
+		return
 	await _test_trim_sheet()
 	await _test_portrait_report()
 	if "--portrait-only" in OS.get_cmdline_user_args():
@@ -152,12 +157,10 @@ func _run() -> void:
 			# A chapter checkpoint adds one 繼續 button; the longer row must still fit.
 			Checkpoint.force_enabled = true
 			Checkpoint.save("principe")
-			var resume_game: Node = load("res://scenes/main.tscn").instantiate()
-			root.add_child(resume_game)
-			resume_game.process_mode = Node.PROCESS_MODE_DISABLED
-			resume_game.ui.process_mode = Node.PROCESS_MODE_PAUSABLE
-			await settle()
-			var resume_ui = resume_game.ui
+			# The title reads the checkpoint in UI._ready(), without the 3D world.
+			var resume_ui = preload("res://scripts/ui.gd").new()
+			resume_ui.process_mode = Node.PROCESS_MODE_PAUSABLE
+			root.add_child(resume_ui)
 			# The new UI loads the settings file this suite does not use; keep the pass at its scale.
 			Settings.text_scale = scale
 			Settings.refresh_fonts(self)
@@ -177,8 +180,7 @@ func _run() -> void:
 				for button in resume_buttons:
 					check(is_equal_approx(button.get_global_rect().position.y, resume_row_y),
 						"zh-TW checkpoint title buttons stay on one row: " + button.text)
-			resume_game.stop_all_audio()
-			resume_game.free()
+			resume_ui.free()
 			Checkpoint.clear()
 			Checkpoint.force_enabled = false
 			Settings.text_scale = scale
@@ -191,8 +193,8 @@ func _run() -> void:
 			bounds(ui.objectives.get_parent())
 			var measure_line := L.t("[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]").trim_prefix("[color=#a99]").trim_suffix("[/color]")
 			var walk_line := L.t("%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）").get_slice("%s", 1).get_slice("%d", 0)
-			check(ui.objectives.text.contains(measure_line) and ui.objectives.text.contains(walk_line),
-				"PREP objectives name the measurement and the darkroom")
+			check(ui.pause_objectives.text.contains(measure_line) and ui.pause_objectives.text.contains(walk_line),
+				"pause retains PREP measurement and darkroom instructions")
 			check(ui.objectives.get_content_height() <= ui.objectives.size.y + 1.0,
 				"PREP objectives text fits its panel (content %s, label %s)" % [ui.objectives.get_content_height(), ui.objectives.size.y])
 			# aspect=expand keeps the 1600×900 base and widens: the scale is the
@@ -232,7 +234,7 @@ func _run() -> void:
 			var buttons: Array = scroll.find_children("*", "Button", true, false).filter(func(button): return button.is_visible_in_tree())
 			for button in buttons:
 				scroll.ensure_control_visible(button)
-				await settle()
+				await settle(2)
 				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "pause button reachable: " + button.text)
 			for i in buttons.size():
 				for j in range(i + 1, buttons.size()):
@@ -243,7 +245,7 @@ func _run() -> void:
 			await settle()
 			for button: Button in armed_buttons:
 				scroll.ensure_control_visible(button)
-				await settle()
+				await settle(2)
 				check(scroll.get_global_rect().grow(1.0).encloses(button.get_global_rect()), "armed pause button reachable: " + button.text)
 				check(button.size.x <= scroll.size.x / 2.0 + 1.0, "armed pause text stays in its column: " + button.text)
 				var content_width: float = button.size.x - button.get_theme_stylebox("normal").get_minimum_size().x
@@ -519,7 +521,7 @@ func _test_totality_toast() -> void:
 					check(ui.dialog_panel.get_global_rect() == dialogue and ui.prompt_label.get_global_rect() == prompt, "dialogue and prompt keep position and size")
 				ui.set_totality(false)
 				await process_frame
-				check(is_equal_approx(ui.toast.position.y, ui.hud.size.y - 150.0), "day toast returns to its original position")
+				check(is_equal_approx(ui.toast.get_global_rect().end.y, ui.hud.size.y - 60.0), "day toast keeps its bottom margin")
 		ui.free()
 	player.free()
 	L.apply(locale)
@@ -632,7 +634,8 @@ func _test_merged_dialogue() -> void:
 				continue
 			seen[entry.t] = true
 			ui.play([entry])
-			await settle()
+			# Allow deferred sizing and the container sort before checking bounds.
+			await settle(2)
 			bounds(ui.dialog_panel)
 			check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1,
 				"merged text fits dialogue box: " + str(entry.t))
@@ -965,14 +968,14 @@ func _check_pause_columns(ui, scroll: ScrollContainer, language: String) -> void
 		if i > 0:
 			check(absf(right[i].global_position.y - right[i - 1].get_global_rect().end.y) <= 1.0,
 				"right column ends with adjacent start over, title, quit")
-	var last_row_bottom := 0.0
+	var last_button_bottom := 0.0
 	for button in scroll.find_children("*", "Button", true, false):
 		if button.is_visible_in_tree():
 			check(scroll.get_global_rect().grow(1).encloses(button.get_global_rect()), "pause button fits: " + button.text)
-			last_row_bottom = maxf(last_row_bottom, button.get_global_rect().end.y)
-	check(absf(ui.quit_button.get_global_rect().end.y - last_row_bottom) <= 1.0, "quit sits at the foot of the menu")
-	var gap: float = scroll.get_parent().get_global_rect().end.y - last_row_bottom
-	check(gap >= -1.0 and gap <= 1.0, "pause paper ends under last row: gap %.1f" % gap)
+			last_button_bottom = maxf(last_button_bottom, button.get_global_rect().end.y)
+	check(absf(ui.quit_button.get_global_rect().end.y - last_button_bottom) <= 1.0, "quit is the last menu button")
+	var gap: float = scroll.get_parent().get_global_rect().end.y - ui.pause_objectives.get_global_rect().end.y
+	check(absf(gap - 18.0) <= 1.0, "pause paper ends at last row plus its bottom margin: gap %.1f" % gap)
 	_check_pause_text(scroll, language)
 
 
@@ -1058,6 +1061,7 @@ func _test_trim_sheet() -> void:
 					game._interact_needs_release = false
 					game.ui.hud.show()
 					game.ui.set_objectives("Objective slip")
+					game.ui.set_clock("12:00")
 					game._interact("drive")
 					await settle()
 					var panel = game.calibration
@@ -1085,3 +1089,140 @@ func _test_trim_sheet() -> void:
 	Settings.text_scale = scale
 	Settings.reduced_motion = motion
 	root.size = window
+
+
+func _test_printed_slips() -> void:
+	var old_locale := L.current()
+	var old_scale := Settings.text_scale
+	var old_window := root.size
+	root.content_scale_size = Vector2i(1600, 900)
+	for window in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
+		root.size = window
+		for language in L.LOCALES:
+			L.apply(language)
+			for scale in Settings.TEXT_SCALES:
+				context = "printed slips %s %s %.1f" % [window, language, scale]
+				var ui = preload("res://scripts/ui.gd").new()
+				root.add_child(ui)
+				ui.hide_title()
+				ui.cambridge_portraits = true
+				var paper = preload("res://scripts/hud_paper.gd").new()
+				var engraving = preload("res://scripts/styles/engraving.gd")
+				paper.setup(ui, engraving.PAGES)
+				paper.light(1.0, 1.0, engraving.PARAMS)
+				Settings.text_scale = scale
+				Settings.refresh_fonts(self)
+				check(not ui.clock_label.visible, "initial clock has no shell")
+				var full := "[b]Tasks[/b]\n✓ Done\n□ " + L.t("□ 在測量桌上檢視並量測底片").trim_prefix("□ ") + "\n□ Later"
+				ui.set_objectives(full)
+				ui.show_toast(L.t("看雲：變薄就喊開始。"), 7.0)
+				await settle()
+				check(ui.objectives.text.count("□") == 1 and not ui.objectives.text.contains("Later"), "HUD shows one unfinished step")
+				bounds(ui.objectives.get_parent())
+				ui.play([{"s": Content.E, "t": L.t("看雲：變薄就喊開始。") }])
+				await settle()
+				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "dialogue suppresses task and toast")
+				check(ui.dialog_panel.size.x < 1120 and ui.dialog_panel.size.y < 200, "short line has a compact slip")
+				check(ui.dialogue_portrait.image.size.y <= root.get_visible_rect().size.y * 0.18, "oval vignette fits 18 percent frame height")
+				var disclosure: Label = ui.dialogue_portrait.disclosure
+				check(disclosure.get_theme_font_size("font_size") >= ui.hint_label.get_theme_font_size("font_size"), "disclosure is at least control hint size")
+				var paragraph := TextParagraph.new()
+				paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+				paragraph.width = disclosure.size.x - disclosure.get_theme_stylebox("normal").get_minimum_size().x
+				paragraph.add_string(disclosure.text, disclosure.get_theme_font("font"), disclosure.get_theme_font_size("font_size"))
+				check(paragraph.get_line_count() == disclosure.get_line_count(), "disclosure probe matches rendered lines")
+				check(paragraph.get_size().x <= paragraph.width + 1.0, "disclosure fits its card")
+				if language == "ko":
+					_check_korean_label(disclosure)
+				if language in ["ko", "ja", "zh_TW"]:
+					for line in paragraph.get_line_count():
+						var span := paragraph.get_line_range(line)
+						check(disclosure.text.substr(span.x, span.y - span.x).strip_edges().length() != 1, "no single-character CJK line")
+				check(not ui.dialogue_portrait.get_global_rect().intersects(ui.dialog_panel.get_global_rect()), "portrait and dialogue have separate space")
+				bounds(ui.dialog_panel)
+				bounds(ui.dialogue_portrait)
+				check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1, "dialogue glyphs fit")
+				if language == "ko":
+					check(ui.text_label.autowrap_mode == TextServer.AUTOWRAP_WORD and ui.objectives.autowrap_mode == TextServer.AUTOWRAP_WORD, "Korean wraps at words")
+				for background in paper.slips:
+					check(background.bg_color == engraving.PAPER, "slips stay opaque cream at night and totality")
+				check(_slip_luminance(engraving.PAPER) + 0.05 >= 4.5 * (_slip_luminance(paper.foreground) + 0.05), "ink contrast is at least 4.5 to 1")
+				var portrait_rect: Rect2 = ui.dialogue_portrait.get_global_rect()
+				var line_rect: Rect2 = ui.dialog_panel.get_global_rect()
+				ui.play([{"s": Content.E, "t": L.t("看雲：變薄就喊開始。"), "choices": [L.t("看雲：變薄就喊開始。"), L.t("□ 在測量桌上檢視並量測底片")] }])
+				await settle()
+				check(ui.dialogue_portrait.get_global_rect().position.is_equal_approx(portrait_rect.position), "portrait stays fixed between line and choices")
+				_check_slip_bottom(ui, line_rect.position.x)
+				ui.play([{"s": "Unknown", "t": L.t("看雲：變薄就喊開始。") }])
+				await settle()
+				_check_slip_bottom(ui, line_rect.position.x)
+				ui._advance()
+				var rehearsal := L.t("你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。") + L.t("按遊戲的曝光模型，星點夠量測，但霧或拖影會影響品質。") + L.t("\n你：『停！』　Eddington 換片——這一小會兒按了也沒用。第三接觸之前一定要喊停。")
+				ui.show_toast(rehearsal, 7.0)
+				await settle()
+				var toast_style: StyleBox = ui.toast.get_theme_stylebox("normal")
+				var toast_rect: Rect2 = ui.toast.get_global_rect().grow_individual(toast_style.expand_margin_left, toast_style.expand_margin_top, toast_style.expand_margin_right, toast_style.expand_margin_bottom)
+				check(root.get_visible_rect().encloses(toast_rect), "long rehearsal toast and its paper stay inside frame")
+				check(absf(ui.toast.get_global_rect().end.y - (ui.hud.size.y - 60.0)) <= 1.0, "toast grows upward from its bottom margin")
+				if language == "ko":
+					_check_korean_label(ui.toast)
+					ui.set_objectives("아침의 뇌우는 열한 시 반쯤 그쳤다. 부분일식이 이미 시작되었고, 태양은 구름 뒤에서 나타났다 사라졌다.")
+					await settle()
+					_check_korean_rich(ui.objectives)
+					ui.play([{"s": Content.E, "t": rehearsal }])
+					await settle()
+					_check_korean_rich(ui.text_label)
+					ui._advance()
+				ui.set_objectives(full)
+				ui.toggle_pause()
+				await settle()
+				check(ui.pause_objectives.is_visible_in_tree() and ui.pause_objectives.text == full, "pause exposes the full unchanged objective list")
+				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "pause suppresses HUD slips")
+				ui.toggle_pause()
+				ui.open_settings()
+				check(not ui.toast.visible and not ui.objectives.get_parent().visible, "settings suppress HUD slips")
+				ui.close_settings()
+				ui.free()
+	L.apply(old_locale)
+	Settings.text_scale = old_scale
+	root.size = old_window
+
+
+func _slip_luminance(color: Color) -> float:
+	var linear := color.srgb_to_linear()
+	return linear.r * 0.2126 + linear.g * 0.7152 + linear.b * 0.0722
+
+
+func _check_slip_bottom(ui, left: float) -> void:
+	var rect: Rect2 = ui.dialog_panel.get_global_rect()
+	check(absf(rect.position.x - left) <= 1.0, "line, choice and no-portrait slips share a left edge")
+	check(absf(rect.end.y - (ui.hud.size.y - 18.0)) <= 1.0, "dialogue and portrait share bottom margin")
+	check(absf(ui.dialog_panel.size.y - ui.dialog_panel.get_combined_minimum_size().y) <= 1.0, "dialogue slip has no empty paper under its text")
+	bounds(ui.dialog_panel)
+
+
+func _check_korean_rich(label: RichTextLabel) -> void:
+	var text := label.get_parsed_text()
+	var word := RegEx.new()
+	word.compile("[가-힣\u2060]+")
+	for match in word.search_all(text):
+		check(label.get_character_line(match.get_start()) == label.get_character_line(match.get_end() - 1), "Korean rich text keeps word intact: " + match.get_string())
+	check(label.get_content_width() <= label.size.x + 1.0, "Korean rich text fits its slip width")
+
+
+func _check_korean_label(label: Label) -> void:
+	var paragraph := TextParagraph.new()
+	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+	paragraph.width = label.size.x - label.get_theme_stylebox("normal").get_minimum_size().x
+	paragraph.add_string(label.text, label.get_theme_font("font"), label.get_theme_font_size("font_size"))
+	check(paragraph.get_line_count() == label.get_line_count(), "toast probe matches rendered line count")
+	var word := RegEx.new()
+	word.compile("[가-힣\u2060]+")
+	for match in word.search_all(label.text):
+		var contained := false
+		for line in paragraph.get_line_count():
+			var span := paragraph.get_line_range(line)
+			if span.x <= match.get_start() and span.y >= match.get_end():
+				contained = true
+		check(contained, "Korean toast keeps word intact: " + match.get_string())
+	check(paragraph.get_size().x <= paragraph.width + 1.0, "Korean toast fits its slip width")

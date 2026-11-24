@@ -13,6 +13,7 @@ const FadeStars := preload("res://scripts/fade_stars.gd")
 const PlateRender := preload("res://scripts/plate_render.gd")
 var paper_hud := false
 var paper_layout := Callable()
+var paper_toast_layout := Callable()
 var music_ready_usec := 0
 ## All 2D presentation: HUD, dialogue, plate viewer, chart, title/ending, pause.
 
@@ -47,6 +48,11 @@ var theme_res: Theme
 var hud: Control
 var clock_label: Label
 var objectives: RichTextLabel
+var pause_objectives: RichTextLabel
+var _pause_tasks: MarginContainer
+var _objectives_bb := ""
+var _portrait_source: Texture2D
+var _portrait_oval: Texture2D
 var crosshair: Label
 var prompt_label: Label
 var hold_bar: ProgressBar
@@ -239,6 +245,9 @@ func _ready() -> void:
 	caption.modulate.a = 0.0
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(caption)
+	for modal in [dialog_panel, title_panel, pause_panel, help_panel, log_panel, credits_panel, ending_panel]:
+		modal.visibility_changed.connect(_slips_visibility)
+	_slips_visibility()
 
 
 func _panel_style(bg: Color, border := Color(0, 0, 0, 0)) -> StyleBoxFlat:
@@ -331,6 +340,7 @@ func _build_hud(root: Control) -> void:
 	hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(hud)
 	clock_label = _label("", 24)
+	clock_label.hide()
 	clock_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	clock_label.position = Vector2(-300, 14)
@@ -341,7 +351,7 @@ func _build_hud(root: Control) -> void:
 	var obj_panel := PanelContainer.new()
 	obj_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.06, 0.05, 0.04, 0.62)))
 	obj_panel.position = Vector2(18, 18)
-	obj_panel.custom_minimum_size = Vector2(470, 0)
+	obj_panel.custom_minimum_size = Vector2.ZERO
 	hud.add_child(obj_panel)
 	objectives = _rich(18)
 	obj_panel.add_child(objectives)
@@ -408,14 +418,42 @@ func _paper_text(bb: String) -> String:
 		return bb
 	var colours := RegEx.new()
 	colours.compile("\\[/?color(?:=[^\\]]+)?\\]")
-	return colours.sub(bb, "", true)
+	bb = colours.sub(bb, "", true)
+	if L.current() == "ko":
+		# UAX line breaking permits syllable breaks in Hangul. Keep words whole.
+		var syllables := RegEx.new()
+		syllables.compile(r"([\x{AC00}-\x{D7A3}])(?=[\x{AC00}-\x{D7A3}])")
+		bb = syllables.sub(bb, "$1\u2060", true)
+	return bb
 
 
 func set_objectives(bb: String) -> void:
-	objectives.text = _paper_text(bb)
-	objectives.get_parent().visible = bb != ""
+	_objectives_bb = bb
+	pause_objectives.text = bb
+	_pause_tasks.visible = not bb.is_empty() and not _settings_only
+	var lines := _paper_text(bb).split("\n")
+	var current := ""
+	for line in lines:
+		if line.strip_edges().begins_with("□"):
+			current = line
+			break
+	if current.is_empty() and not bb.is_empty():
+		# Chapter tasks have a heading followed by the current instruction.
+		current = lines[1] if lines.size() > 1 else lines[0]
+		if bb.contains("✓") and lines.size() > 2:
+			current = lines[-1]
+	objectives.text = current if paper_hud else bb
+	objectives.get_parent().visible = not current.is_empty() and not blocks_world_input() and not title_panel.visible and not ending_panel.visible
 	if paper_hud:
 		paper_layout.call()
+
+
+func _slips_visibility() -> void:
+	var blocked := blocks_world_input() or title_panel.visible or ending_panel.visible
+	objectives.get_parent().visible = not blocked and not objectives.text.is_empty()
+	toast.visible = not blocked and not toast.text.is_empty()
+	clock_label.visible = not blocked and not clock_label.text.is_empty()
+	prompt_label.visible = not blocked and not tot_panel.visible and not prompt_label.text.is_empty()
 
 
 func set_prompt(text: String) -> void:
@@ -431,9 +469,10 @@ func set_hold(progress: float) -> void:
 
 
 func show_toast(text: String, seconds := 4.0) -> void:
-	toast.text = text
+	toast.text = _paper_text(text)
+	_slips_visibility()
 	if paper_hud:
-		paper_layout.call()
+		paper_toast_layout.call()
 	toast.modulate.a = 1.0
 	_toast_t = seconds
 	_append_history(L.t("・") + text)
@@ -534,7 +573,7 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.offset_right = 560
 	dialog_panel.offset_top = -214
 	dialog_panel.offset_bottom = -18
-	dialog_panel.custom_minimum_size = Vector2(1120, 200)
+	dialog_panel.custom_minimum_size = Vector2.ZERO
 	dialog_panel.visible = false
 	root.add_child(dialog_panel)
 	var v := VBoxContainer.new()
@@ -543,7 +582,7 @@ func _build_dialog(root: Control) -> void:
 	speaker_label = _label("", 22, ACCENT)
 	v.add_child(speaker_label)
 	text_label = _rich(21)
-	text_label.custom_minimum_size = Vector2(1080, 0)
+	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	v.add_child(text_label)
 	choice_box = VBoxContainer.new()
 	choice_box.add_theme_constant_override("separation", 6)
@@ -557,32 +596,61 @@ func _build_dialog(root: Control) -> void:
 	dialog_panel.visibility_changed.connect(func():
 		if not dialog_panel.visible:
 			dialogue_portrait.hide())
+	dialog_panel.minimum_size_changed.connect(_layout_dialogue_portrait.call_deferred)
 	dialog_panel.resized.connect(_layout_viewer.call_deferred)
 	dialog_panel.visibility_changed.connect(_layout_viewer.call_deferred)
 	root.resized.connect(_layout_dialogue_portrait)
-	dialog_panel.resized.connect(_layout_dialogue_portrait)
 	dialogue_portrait.resized.connect(_position_dialogue_portrait)
 
 
 func _layout_dialogue_portrait() -> void:
-	if not cambridge_portraits:
+	if not dialog_panel.visible:
 		return
-	# Reserve a separate bottom-left print column. Text/choices keep their own
-	# panel; the print cannot cover the central evidence or an interaction prompt.
-	var width: float = dialog_panel.get_parent().size.x
-	var span := minf(width - 48.0, 1360.0)
-	dialog_panel.offset_left = -span * 0.5 + 240.0
-	dialog_panel.offset_right = span * 0.5
-	dialog_panel.custom_minimum_size.x = 0.0
-	text_label.custom_minimum_size.x = 0.0
-	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var frame: Vector2 = dialog_panel.get_parent().size
+	var column := 240.0 if cambridge_portraits else 0.0
+	if paper_hud and not viewer.visible:
+		var image := dialogue_portrait.image
+		image.custom_minimum_size = Vector2(frame.y * 0.12, frame.y * 0.16)
+		image.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD
+		Settings.track_font(dialogue_portrait.disclosure, 16)
+		var mount := dialogue_portrait.get_theme_stylebox("panel").get_minimum_size()
+		dialogue_portrait.size = Vector2(maxf(image.custom_minimum_size.x, 320.0 * Settings.text_scale) + mount.x, 0.0)
+		column = dialogue_portrait.size.x + 16.0
+		if image.texture != _portrait_oval and image.texture != null:
+			_portrait_source = image.texture
+			var pixels := _portrait_source.get_image()
+			pixels.convert(Image.FORMAT_RGBA8)
+			pixels.resize(96, 128)
+			for y in 128:
+				for x in 96:
+					if Vector2((x - 47.5) / 47.5, (y - 63.5) / 63.5).length_squared() > 1.0:
+						pixels.set_pixel(x, y, Color.TRANSPARENT)
+			_portrait_oval = ImageTexture.create_from_image(pixels)
+			image.texture = _portrait_oval
+	elif _portrait_source != null:
+		dialogue_portrait.image.texture = _portrait_source
+	var maximum := minf(frame.x - column - 64.0, 1080.0)
+	var natural := maxf(speaker_label.get_minimum_size().x, hint_label.get_minimum_size().x)
+	var body_font := text_label.get_theme_font("normal_font")
+	var body_size := text_label.get_theme_font_size("normal_font_size")
+	for line in text_label.get_parsed_text().split("\n"):
+		natural = maxf(natural, body_font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, body_size).x)
+	for button in _choice_buttons:
+		var face := button.get_theme_font("font")
+		natural = maxf(natural, face.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x + 20.0)
+	var width := minf(maximum, natural + dialog_panel.get_theme_stylebox("panel").get_minimum_size().x)
+	dialog_panel.custom_minimum_size = Vector2.ZERO
+	# Apply the width once so fit_content never wraps at a temporary width.
+	dialog_panel.size = Vector2(width, 0.0)
+	var left := 32.0 + column if paper_hud and not viewer.visible else (frame.x + column - dialog_panel.size.x) * 0.5
+	dialog_panel.position = Vector2(left, frame.y - 18.0 - dialog_panel.size.y)
 	_position_dialogue_portrait()
 
 
 func _position_dialogue_portrait() -> void:
-	var width: float = dialog_panel.get_parent().size.x
-	var span := minf(width - 48.0, 1360.0)
-	dialogue_portrait.position = Vector2((width - span) * 0.5, dialog_panel.get_global_rect().end.y - dialogue_portrait.size.y)
+	dialogue_portrait.position = Vector2(dialog_panel.position.x - dialogue_portrait.size.x - 16.0,
+		dialog_panel.get_global_rect().end.y - dialogue_portrait.size.y)
 
 
 func dialog_active() -> bool:
@@ -623,7 +691,7 @@ func _show_entry() -> void:
 	var choices: Array = e.get("choices", [])
 	hint_label.text = L.t("［1–%d 或點擊］選擇") % choices.size() if choices.size() > 0 else L.t("［E／空白鍵／點擊］繼續")
 	for i in choices.size():
-		var b := _button("%d.  %s" % [i + 1, choices[i]])
+		var b := _button("%d.  %s" % [i + 1, _paper_text(choices[i])])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.pressed.connect(_choose.bind(i))
@@ -633,6 +701,7 @@ func _show_entry() -> void:
 		_choice_buttons[0].grab_focus()
 	_refresh_hints()
 	dialogue_entry.emit(str(e.get("s", "")))
+	_layout_dialogue_portrait.call_deferred()
 
 
 func _choose(i: int) -> void:
@@ -725,6 +794,7 @@ func set_callout(text: String, seconds := 3.5) -> void:
 
 func set_clock(text: String) -> void:
 	clock_label.text = text
+	_slips_visibility()
 	if paper_hud:
 		clock_label.visible = not text.is_empty()
 		paper_layout.call()
@@ -1897,6 +1967,7 @@ func _build_credits(root: Control) -> void:
 	v.add_child(scroll)
 	var content := _rich(18)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.fit_content = false
 	content.text = Credits.text()
 	scroll.add_child(content)
 	var back := _button(L.t("返回"))
@@ -1910,6 +1981,7 @@ func _build_credits(root: Control) -> void:
 
 
 func _open_credits() -> void:
+	(credits_scroll.get_child(0) as RichTextLabel).fit_content = true
 	_credits_focus = get_viewport().gui_get_focus_owner()
 	credits_panel.show()
 	credits_scroll.scroll_vertical = 0
@@ -2153,6 +2225,24 @@ func _build_pause(root: Control) -> void:
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, totality_pace_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size.y = Settings.fs(46)
+	_pause_tasks = MarginContainer.new()
+	for edge in ["left", "right", "top", "bottom"]:
+		_pause_tasks.add_theme_constant_override("margin_" + edge, 18)
+	v.add_child(_pause_tasks)
+	var tasks := VBoxContainer.new()
+	tasks.add_theme_constant_override("separation", 10)
+	_pause_tasks.add_child(tasks)
+	var rule := HSeparator.new()
+	var ink := StyleBoxLine.new()
+	ink.color = preload("res://scripts/styles/engraving.gd").INK
+	ink.thickness = 1
+	rule.add_theme_stylebox_override("separator", ink)
+	tasks.add_child(rule)
+	tasks.add_child(_label(L.t("你的工作筆記"), 22))
+	pause_objectives = _rich(18)
+	pause_objectives.autowrap_mode = TextServer.AUTOWRAP_WORD
+	tasks.add_child(pause_objectives)
+	_pause_tasks.hide()
 	# Scroll only when necessary; otherwise the paper ends at its last row.
 	var fit_slip := _fit_pause_slip.bind(v, root, scroll, slip)
 	v.minimum_size_changed.connect(fit_slip)
@@ -2191,6 +2281,7 @@ func _sync_music_row() -> void:
 func open_settings() -> void:
 	_pause_focus = get_viewport().gui_get_focus_owner()
 	_settings_only = true
+	_pause_tasks.hide()
 	(pause_panel as ColorRect).color = preload("res://scripts/styles/engraving.gd").PAPER
 	_title_focus_modes.clear()
 	for button in prologue_btn.get_parent().get_children():
@@ -2218,6 +2309,7 @@ func close_settings() -> void:
 	restart_button.show()
 	quit_button.show()
 	_settings_only = false
+	_pause_tasks.visible = not _objectives_bb.is_empty()
 	(pause_panel as ColorRect).color = Color.TRANSPARENT
 	var buttons := prologue_btn.get_parent().get_children()
 	for i in buttons.size():
@@ -2243,7 +2335,7 @@ func toggle_pause() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		pause_panel.find_children("*", "Button", true, false)[0].grab_focus()
 	else:
-		objectives.get_parent().visible = _pause_objectives_visible
+		objectives.get_parent().visible = _pause_objectives_visible and not dialog_active()
 		_restart_armed = false
 		_quit_armed = false
 		_title_armed = false
@@ -2640,6 +2732,10 @@ func _print_menu(node: Node) -> void:
 			rule.expand_margin_right = -4
 			mark.expand_margin_left = -2
 			mark.expand_margin_right = -2
+			if pause_panel.is_ancestor_of(node):
+				mark.bg_color = Print.PAPER
+				mark.set_content_margin_all(0)
+				rule.set_content_margin_all(0)
 			for state in ["grabber", "grabber_highlight", "grabber_pressed"]:
 				node.add_theme_stylebox_override(state, mark)
 			var blank := Image.create(1, 1, false, Image.FORMAT_RGBA8)
