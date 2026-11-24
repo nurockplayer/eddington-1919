@@ -1,8 +1,10 @@
 extends SceneTree
 
 const Settings := preload("res://scripts/settings.gd")
+var settings_path := ProjectSettings.globalize_path("res://.godot/pause-480-settings-%d.cfg" % OS.get_process_id())
 
 func _initialize() -> void:
+	OS.set_environment("EDD_SETTINGS_PATH", settings_path)
 	_run.call_deferred()
 
 func settle(frames := 12) -> void:
@@ -66,4 +68,6 @@ func _run() -> void:
 		load("res://scripts/ui.gd").history.clear()
 		await settle()
 	print("pause 480 capture: 10 frames, 1280x720, scale 1.2, reduced motion false")
+	var remove_error := DirAccess.remove_absolute(settings_path)
+	assert(remove_error == OK)
 	quit()
