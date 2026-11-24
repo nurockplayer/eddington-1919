@@ -1089,3 +1089,12 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Inherited, both builds, for edd-lead's backlog: the thumbnail outline is on the Oxford plate while the viewer shows Plate 1; the ko frame writes both "Eddington" and "에딩턴".
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene (plate table after resume) accepted as on #475. Count stays **7/9**.
 
+### 2026-11-24 22:05 JST: #493 slips run 2a (package 8) at 5f2effb: not accepted yet, two pause frames missing
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/vo-pkg8-run2/5f2effb…/` (windowed, seed 7, isolated settings; main b0c9d45); copies in `accept/493/5f2effb/`. Opened whole at native size, candidate first: en 1080p dialogue, totality, darkroom; en 720p large pause. Half-size montage: 720p dialogue in en, ko, ja, zh_TW; the ko, ja and zh_TW pause files; main's darkroom. Not opened: the rest of main's set, the paired sheets.
+- Portrait: the oval is back to main's size, the disclosure sits on two balanced lines in all four locales, the card is as wide as the longer line. Met.
+- Page paper: at totality the slips are the blue of the page with cream text and a thin cream double rule; in the darkroom deep red with salmon text. Sampled by me: darkroom text 245/158/115 on 107/26/18, totality text 239/230/210 on 43/54/102; both well above 4.5:1 by my arithmetic (about 7 and 9), not a tool measurement. Met.
+- Pause, en and zh_TW: the title stays while the list scrolls; the pace row spans both columns. Met there.
+- Back: **`ko_720p_pause_end.png` and `ja_720p_pause_end.png` do not show the pause panel** (they show the arrival toast, scroll offset 0/0, on main and candidate alike). ko at 720p large text is the tightest case of this panel (#474). Retake those two with the panel open at list end, and at list top for ko.
+- For run 2b, not blockers: in the darkroom the portrait oval stays cream (250/237/214), brighter than the plate on the table (244/172/136), so it is now the brightest thing in the room: the print takes the safelight like the slip does; the same check at totality once a frame with a portrait there exists. With the list scrolled, the first visible settings row is cut through its text under the title: a rule under the title would make that read as a window.
+- **Verdicts:** technical regression none seen; this PR's change not accepted yet (two frames missing); whole scene not accepted. Count stays **7/9**.
+
