@@ -203,8 +203,9 @@ func _test_confrontation_flow(story: Node) -> void:
 	game.sim.bet_pick = 1
 	var eddington: Node3D = game.world.eddington
 	eddington.position = game.world.eddington_night
-	game.player.global_position = eddington.global_position + Vector3(0.25, 0.05, 1.0)
-	game.player.look_at_point(eddington.global_position + Vector3.UP * 1.3)
+	var figure: Node3D = eddington.get_node("figure")
+	game.player.global_position = figure.global_position + Vector3(0.25, 0.05, 1.0)
+	game.player.look_at_point(figure.global_position + Vector3.UP * 1.3)
 	await physics_frame
 	await process_frame
 
