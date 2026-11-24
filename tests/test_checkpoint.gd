@@ -353,6 +353,7 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 	Checkpoint.clear()
 	story.reset()
 	var prologue := stage.ends_with("reselection")
+	var read_workbook := stage == "quality reselection"
 	if stage == "first result":
 		story.trial_note = 2
 		Checkpoint.save("departure")
@@ -372,11 +373,31 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		game.ui.start_btn.pressed.emit()
 		await _wait_for(func(): return game.phase == game.Phase.PREP, 5.0)
 	await _enter_darkroom(game)
+	if prologue and resume:
+		game._interact("departure_workbook")
+		check(game.ui.dialog_active(), stage + ": the night workbook opens")
+		game.ui._advance()
+		check(game.ui.dialog_active(), stage + ": leave while the workbook dialogue is still active")
+		game.ui.title_pressed.emit()
+		var title := await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.TITLE, 20.0)
+		check(title and current_scene.ui.continue_btn != null, stage + ": interrupted workbook offers Continue")
+		if not title or current_scene.ui.continue_btn == null:
+			return {}
+		current_scene.ui.continue_btn.pressed.emit()
+		var night := await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.NIGHT, 20.0)
+		check(night, stage + ": Continue returns after the interrupted workbook")
+		if not night:
+			return {}
+		game = current_scene
+		check(not game._departure_workbook_seen, stage + ": Continue restores the unfinished workbook as unread")
 	if prologue:
 		game._interact("oxford_case")
 		_dialogue(game)
+	if read_workbook:
 		game._interact("departure_workbook")
+		check(game.ui.dialog_active(), stage + ": the workbook dialogue opens before reading it to completion")
 		_dialogue(game)
+		check(game._departure_workbook_seen, stage + ": finishing the workbook dialogue marks it seen")
 	game._interact("measure")
 	_dialogue(game, {"rule": 0, "bet": 2, "bet_sure": 1, "bet_keep": 3})
 	_include(game, 0, true)
@@ -431,7 +452,7 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		check(game.ui.viewer.visible and game.ui._viewer_locked == expected.measured,
 			stage + ": the restored viewer shows the correct measurement state")
 		check(game._came_from_departure == prologue and game.plate_changed
-			and game._departure_workbook_seen == prologue and game._comparison_fetched == prologue,
+			and game._departure_workbook_seen == read_workbook and game._comparison_fetched == prologue,
 			stage + ": the darkroom keeps route and workbook context")
 		check(story.darkroom_resume.is_empty() and story.runs.is_empty(), stage + ": Continue consumes the handoff once")
 
@@ -443,6 +464,15 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		return {}
 	if prologue:
 		check(game.phase == main_script.Phase.CODA, stage + ": the prologue route reaches its coda")
+		if read_workbook:
+			check(game.coda_step == game.CodaStep.LOUPE and game.ui.text_label.text.contains("又讀了一遍工作簿最後一頁"),
+				stage + ": the coda automatically rereads the completed workbook dialogue")
+		else:
+			check(game.coda_step == game.CodaStep.WORKBOOK, stage + ": the coda waits to open the unread workbook")
+			game._interact("departure_workbook")
+			check(game.ui.dialog_active() and game.ui.text_label.text.contains("日期是 Kit 的字"),
+				stage + ": the coda presents the unread workbook dialogue")
+			_dialogue(game)
 		game._interact("mentor_loupe")
 		_dialogue(game, {"kit_first": 1})
 		if stage == "quality reselection":
