@@ -282,7 +282,7 @@ func talk(choices: Array = [], random_choices := true) -> void:
 
 const START := Vector3(2.6, 0, 4.2)
 const EDD_FRONT := Vector3(-1.1, 0, 0.4)
-const EDD_HEAD := Vector3(-1.1, 1.6, -0.9)
+const EDD_HEAD := Vector3(-0.66, 1.6, -1.33)
 const DOOR_OUT := Vector3(6.6, 0, 3.0)
 const DOOR_IN := Vector3(8.7, 0, 3.0)
 const BOX_SPOT := Vector3(10.7, 0, 2.3)

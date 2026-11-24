@@ -82,8 +82,9 @@ func survey(scene_name: String) -> void:
 		for direction in range(4):
 			var angle: float = npc.rotation.y + direction * PI / 2.0
 			var offset := Vector3(sin(angle), 0, cos(angle))
-			var target: Vector3 = npc.global_position + offset * 2.0
-			var route: Dictionary = await walk_to(target, npc.global_position, offset)
+			var figure_position: Vector3 = npc.get_node("figure").global_position
+			var target: Vector3 = figure_position + offset * 2.0
+			var route: Dictionary = await walk_to(target, figure_position, offset)
 			if not route.reachable:
 				records.append({"scene": scene_name, "character": character, "direction": direction,
 					"status": "unreachable", "nearest_blocked_point": route.nearest_blocked_point})

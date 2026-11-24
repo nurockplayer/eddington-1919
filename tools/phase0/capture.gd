@@ -38,7 +38,7 @@ func _run() -> void:
 	root.content_scale_size = root.size
 	await fresh()
 	game._start_game()
-	await pose(Vector3(-1.1, 0.05, 0.9), game.world.eddington.global_position + Vector3.UP * 1.55)
+	await pose(Vector3(-1.1, 0.05, 0.9), game.world.eddington.get_node("figure").global_position + Vector3.UP * 1.55)
 	await still("nearest_npc", "prep", "hud")
 	await pose(Vector3(-15, 0.05, -10), Vector3(-15, 4.4, -15.9))
 	await still("sign_approach", "prep", "hud")
@@ -59,7 +59,7 @@ func _run() -> void:
 		game._start_game()
 		game._process(DT)
 		await still("hud_" + locale, "prep", "hud")
-		await pose(Vector3(-1.1, 0.05, 0.9), game.world.eddington.global_position + Vector3.UP * 1.55)
+		await pose(Vector3(-1.1, 0.05, 0.9), game.world.eddington.get_node("figure").global_position + Vector3.UP * 1.55)
 		game._say([Content.eddington_prep(2, false, false, 0)[0]], "")
 		await still("dialogue_" + locale, "prep", "dialogue")
 		game.ui._advance()
@@ -150,7 +150,7 @@ func clip(kind: String) -> void:
 	if kind == "second_contact":
 		await pose(Vector3(0, 0.05, -0.9), game.player.camera.global_position + game.sim.sun_dir * 10)
 	elif kind == "dialogue_open_close":
-		await pose(Vector3(-1.1, 0.05, 0.9), game.world.eddington.global_position + Vector3.UP * 1.55)
+		await pose(Vector3(-1.1, 0.05, 0.9), game.world.eddington.get_node("figure").global_position + Vector3.UP * 1.55)
 	var folder := out_dir.path_join("scratch/" + kind)
 	DirAccess.make_dir_recursive_absolute(folder)
 	var trace: Array = []

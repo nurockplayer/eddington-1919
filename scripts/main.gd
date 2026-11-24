@@ -106,6 +106,7 @@ var _callout_nudged := false
 var _was_changing := false
 var _busy := false               # in a scripted transition
 var _pending := ""               # what the current dialogue is for
+var _speaking_pose: World.WorkingPose
 
 var sky_mat: ShaderMaterial
 var meteors: Node  # NightMeteors, built with the sky
@@ -206,6 +207,7 @@ func _ready() -> void:
 	ui.quit_pressed.connect(func(): get_tree().quit())
 	ui.restart_pressed.connect(_restart)
 	ui.title_pressed.connect(_return_to_title)
+	ui.dialogue_entry.connect(_on_dialogue_entry)
 	ui.dialogue_done.connect(_on_dialogue_done)
 	ui.plate_toggled.connect(_on_plate_toggled)
 	ui.blink_hint_shown.connect(_save_darkroom)
@@ -435,7 +437,7 @@ func _update_npc_look() -> void:
 		if pair == null:
 			continue
 		var d: float = (pair[0] as Node3D).global_position.distance_to(eye)
-		(pair[1] as LookAtModifier3D).influence = clampf((4.5 - d) / 2.0, 0.0, 0.85)
+		(pair[1] as LookAtModifier3D).influence = clampf((4.5 - d) / 2.0, 0.0, 0.25)
 
 
 ## Fraction of the solar disc not covered by the Moon for a contact value.
@@ -1176,7 +1178,24 @@ func _say(seq: Array, purpose: String) -> void:
 	_sync_player_input()
 
 
+func _on_dialogue_entry(speaker: String) -> void:
+	if phase not in [Phase.PREP, Phase.NIGHT] or speaker not in [Content.E, Content.C]:
+		return
+	var body: Node3D = world.eddington if speaker == Content.E else world.cottingham
+	var pose := body.find_child("WorkingPose", true, false) as World.WorkingPose
+	if pose == _speaking_pose:
+		return
+	if _speaking_pose:
+		_speaking_pose.restore_work()
+	_speaking_pose = pose
+	if pose:
+		pose.face_player(player.camera.global_position)
+
+
 func _on_dialogue_done(results: Dictionary) -> void:
+	if _speaking_pose:
+		_speaking_pose.restore_work()
+		_speaking_pose = null
 	if phase == Phase.CODA and _camera_turn:
 		_camera_turn.kill()
 	var purpose := _pending
@@ -1677,11 +1696,11 @@ func _setup_darkroom() -> void:
 	world.safelight.light_energy = Look.NIGHT_SAFELIGHT if _look_ambient < 1.0 else 0.25
 	if Story.departure_done or _came_from_departure:
 		_add_night_workbook()
-	World.night_dress(world.eddington)
-	World.night_dress(world.cottingham)
 	world.eddington.position = world.eddington_night
 	world.eddington.rotation.y = deg_to_rad(-120)
 	world.cottingham.position = world.darkroom_spot + Vector3(-1.5, 0, 1.2)
+	World.night_dress(world.eddington, 0.0, Vector3(-0.52, 0.0, 0.09))
+	World.night_dress(world.cottingham, -45.0, Vector3.ZERO)
 	player.global_position = world.darkroom_spot + Vector3(0, 0.05, 0)
 	player.velocity = Vector3.ZERO
 	player.look_at_point(world.measure_pos)

@@ -8,6 +8,7 @@ const Palette := preload("res://scripts/palette.gd")
 const PalmSway := preload("res://scripts/palm_sway.gd")
 const SafelightGlass := preload("res://scripts/safelight_glass.gd")
 const Look := preload("res://scripts/look.gd")
+const Settings := preload("res://scripts/settings.gd")
 const MODELS := "res://assets/models/"
 const FOLIAGE := "res://assets/textures/principe/foliage/"
 const FoliageCard := preload("res://shaders/foliage_card.gdshader")
@@ -188,18 +189,40 @@ func weather_model(n: Node) -> void:
 			mi.set_surface_override_material(i, _weathered[src])
 
 
-## Night dress: under the safelight only red shows, so linen must sit well below skin (#216).
-## No-op on the primitive fallback figures, which have no E1919_linen surface.
-static func night_dress(n: Node) -> void:
+## Night dress keeps a dim coat with a lit edge under the existing lamps.
+static func night_dress(n: Node3D, heading: float, offset: Vector3) -> void:
+	var figure := n.get_node_or_null("figure") as Node3D
+	if figure == null:
+		return  # primitive fallback
+	figure.rotation_degrees.y = heading - n.rotation_degrees.y
+	figure.position = n.basis.inverse() * offset
+	var collision := n.get_child(0) as CollisionShape3D
+	collision.position = figure.position + Vector3.UP * 0.9
+	var pose := figure.find_child("WorkingPose", true, false) as WorkingPose
+	pose.work_yaw = figure.rotation.y
+	if n.get_meta("interact_id") == "eddington":
+		pose.set_work_pose(EDDINGTON_NIGHT_POSE)
+	_tone_linen(figure, Look.NIGHT_LINEN_DIM, true)
+
+
+static func _tone_linen(n: Node3D, value: float, night: bool) -> void:
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		if not night:
+			mi.mesh = mi.mesh.duplicate()
 		var mesh: Mesh = mi.mesh
 		for i in mesh.get_surface_count():
 			var src := mesh.surface_get_material(i) as BaseMaterial3D
 			if src == null or src.resource_name != "E1919_linen":
 				continue
-			var dark := src.duplicate() as BaseMaterial3D
-			dark.albedo_color = Color(src.albedo_color.r * Look.NIGHT_LINEN_DIM, src.albedo_color.g * Look.NIGHT_LINEN_DIM, src.albedo_color.b * Look.NIGHT_LINEN_DIM, src.albedo_color.a)
-			mi.set_surface_override_material(i, dark)
+			var cloth := src.duplicate() as BaseMaterial3D
+			cloth.albedo_color = Color(src.albedo_color.r * value, src.albedo_color.g * value, src.albedo_color.b * value, src.albedo_color.a)
+			cloth.rim_enabled = night
+			cloth.rim = 0.4
+			cloth.rim_tint = 0.0
+			if night:
+				mi.set_surface_override_material(i, cloth)
+			else:
+				mesh.surface_set_material(i, cloth)
 
 
 func box(size: Vector3, pos: Vector3, color: Color, parent: Node3D = null, collide := true, rot := Vector3.ZERO) -> Node3D:
@@ -1076,6 +1099,7 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	body.position = pos
 	root.add_child(body)
 	if _person(id, body):
+		cs.position = (body.get_node("figure") as Node3D).position + Vector3.UP * 0.9
 		_tag(body, name)
 		interactable(body, id, name)
 		return body
@@ -1132,6 +1156,87 @@ func _tag(body: Node3D, name: String) -> void:
 	body.add_child(tag)
 
 
+# Bone-local axis times degrees, relative to the baked idle. The day hand
+# reaches the side of the plate holder. Both night palms meet the table edge.
+const EDDINGTON_DAY_POSE := {
+	"spine_01": Vector3(12, 0, 0), "neck_01": Vector3(9, 0, 0),
+	"upperarm_l": Vector3(76.5, 0, 1.7), "lowerarm_l": Vector3(64.7, 0, -4.1),
+	"hand_l": Vector3(-81.5, 41.9, -40.5),
+}
+const EDDINGTON_NIGHT_POSE := {
+	"spine_01": Vector3(22, 0, 0), "neck_01": Vector3(20, 0, 0),
+	"upperarm_l": Vector3(9, 0, 5.7), "lowerarm_l": Vector3(40, 0, -9.6),
+	"hand_l": Vector3(-29.5, 121.8, 23.7),
+	"upperarm_r": Vector3(9, 0, -5.7), "lowerarm_r": Vector3(40, 0, 9.6),
+	"hand_r": Vector3(-29.5, -121.8, -23.7),
+}
+
+
+class WorkingPose extends SkeletonModifier3D:
+	const RELAXED_FINGERS := {
+		"index_01": Vector3(1.1, 0, 10.6), "middle_01": Vector3(-2.5, 0, 25.5),
+		"ring_01": Vector3(0.2, 0, 35.5), "pinky_01": Vector3(3.3, 0, 41.3),
+		"thumb_01": Vector3(35.4, 0, -30.3),
+	}
+
+	var figure: Node3D
+	var work_yaw: float
+	var work_weight := 1.0
+	var _work_rotations: Dictionary[int, Quaternion] = {}
+	var _finger_rotations: Dictionary[int, Quaternion] = {}
+	var _turn: Tween
+
+	func _ready() -> void:
+		figure = get_skeleton().find_parent("figure") as Node3D
+		work_yaw = figure.rotation.y
+		for finger in RELAXED_FINGERS:
+			var left: Vector3 = RELAXED_FINGERS[finger]
+			_set_rotation(_finger_rotations, finger + "_l", left)
+			_set_rotation(_finger_rotations, finger + "_r", Vector3(left.x, -left.y, -left.z))
+
+	func _set_rotation(rotations: Dictionary[int, Quaternion], bone: String, turn: Vector3) -> void:
+		var index := get_skeleton().find_bone(bone)
+		assert(index >= 0, "Working pose cannot find bone: " + bone)
+		rotations[index] = Quaternion(turn.normalized(), deg_to_rad(turn.length()))
+
+	func set_work_pose(turns: Dictionary) -> void:
+		_work_rotations.clear()
+		for bone in turns:
+			_set_rotation(_work_rotations, bone, turns[bone])
+
+	func face_player(eye: Vector3) -> void:
+		var body := figure.get_parent() as Node3D
+		var direction := body.to_local(eye) - figure.position
+		_turn_to(atan2(direction.x, direction.z), 0.0)
+
+	func restore_work() -> void:
+		_turn_to(work_yaw, 1.0)
+
+	func _turn_to(yaw: float, weight: float) -> void:
+		if _turn:
+			_turn.kill()
+		if Settings.reduced_motion:
+			figure.rotation.y = yaw
+			work_weight = weight
+			return
+		var target := lerp_angle(figure.rotation.y, yaw, 1.0)
+		_turn = create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+		_turn.tween_property(figure, "rotation:y", target, 0.32)
+		_turn.tween_property(self, "work_weight", weight, 0.32)
+
+	func _process_modification_with_delta(_delta: float) -> void:
+		var rig := get_skeleton()
+		for index in _finger_rotations:
+			rig.set_bone_pose_rotation(index, rig.get_bone_pose_rotation(index) * _finger_rotations[index])
+		if work_weight == 0.0:
+			return
+		for index in _work_rotations:
+			var turn: Quaternion = _work_rotations[index]
+			if work_weight < 1.0:
+				turn = Quaternion.IDENTITY.slerp(turn, work_weight)
+			rig.set_bone_pose_rotation(index, rig.get_bone_pose_rotation(index) * turn)
+
+
 ## r06: production character (art/people/, MPFB route) in place of the primitive
 ## figure. Collider, interaction and tag stay on the body exactly as before. The
 ## model plays its baked "idle" loop and gets a head look-at (target set by main).
@@ -1145,9 +1250,15 @@ func _person(id: String, body: Node3D) -> bool:
 		return false  # exists but failed to load: keep the primitive figure
 	var fig: Node3D = scene.instantiate()
 	fig.name = "figure"
-	fig.rotation.y = PI  # models face +Z; NPC bodies face -Z (v0.1 convention)
+	var observer := id == "eddington"
+	# Headings relative to the unchanged interaction bodies: tube and drive.
+	fig.rotation_degrees.y = -53.0 if observer else -35.0
+	if observer:
+		# Eddington's prep body heads south (PI) once the world is built.
+		fig.position = Vector3(-0.44, 0, 0.43)
 	body.add_child(fig)
-	# Row 8: the faired skin carries the engraving; no separate eye/brow marks.
+	_tone_linen(fig, 0.48 if observer else 0.61, false)
+	# The brim and faired skin carry the face contour.
 	for mi in fig.find_children("*", "MeshInstance3D", true, false):
 		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows"):
 			mi.hide()
@@ -1158,6 +1269,12 @@ func _person(id: String, body: Node3D) -> bool:
 			player.play("idle")
 			player.seek(randf() * 3.0, true)  # the two men do not breathe in sync
 	for sk in fig.find_children("*", "Skeleton3D", true, false):
+		var pose := WorkingPose.new()
+		pose.name = "WorkingPose"
+		sk.add_child(pose)
+		pose.set_work_pose(EDDINGTON_DAY_POSE if observer else {
+			"spine_01": Vector3(5, 0, 0), "lowerarm_l": Vector3(37.9, -2.2, 2.2),
+		})
 		var look := LookAtModifier3D.new()
 		look.name = "look_at"
 		look.bone_name = "head"
@@ -1165,8 +1282,8 @@ func _person(id: String, body: Node3D) -> bool:
 		look.primary_rotation_axis = Vector3.AXIS_Y
 		look.use_angle_limitation = true
 		look.symmetry_limitation = true
-		look.primary_limit_angle = deg_to_rad(110.0)
-		look.secondary_limit_angle = deg_to_rad(50.0)
+		look.primary_limit_angle = deg_to_rad(35.0)
+		look.secondary_limit_angle = deg_to_rad(20.0)
 		look.duration = 0.6
 		look.influence = 0.0
 		sk.add_child(look)

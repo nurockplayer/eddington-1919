@@ -45,7 +45,7 @@ const BOOKMARKS := [
 	["totality_horizon", Vector3(3.0, 0.05, 6.0), Vector3(14.0, 2.2, 20.0), "totality"],
 	["darkroom", Vector3(9.2, 0.05, 4.2), Vector3(10.6, 0.82, 4.1), "night"],
 	# r06: conversation distance to Eddington (faces, clothes, look-at).
-	["eddington_talk", Vector3(-1.1, 0.05, 0.9), Vector3(-1.1, 1.55, -0.9), "prep_early"],
+	["eddington_talk", Vector3(-1.1, 0.05, 0.9), Vector3(-0.66, 1.55, -1.33), "prep_early"],
 	["cottingham_talk", Vector3(2.3, 0.05, -4.6), Vector3(1.35, 1.5, -6.1), "prep_early"],
 	["totality_live", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
 ]
@@ -54,7 +54,7 @@ const AUDITION_BOOKMARKS := [
 	["under_roof_gameplay", Vector3(-1.5, 0.05, -3.7), Vector3(0, 2.95, -4.5), "prep_early"],
 	["doorway_night", Vector3(6.7, 0.05, 3.0), Vector3(10.0, 1.2, 3.0), "night"],
 	["coelostat_still", Vector3(1.5, 0.05, -4.9), Vector3(0.1, 1.15, -6.6), "prep_early"],
-	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-1.1, 1.35, -0.9), "prep_early"],
+	["dialogue", Vector3(-1.1, 0.05, 3.6), Vector3(-0.66, 1.35, -1.33), "prep_early"],
 	# Position and target are set in _run() from the Sun's azimuth.
 	["totality_wide", Vector3.ZERO, Vector3.ZERO, "totality"],
 	["play_p12", Vector3(0.0, 0.05, -0.9), Vector3.INF, "totality"],
