@@ -51,6 +51,15 @@ static func t(s: String) -> String:
 	return String(TranslationServer.translate(s))
 
 
+## Character keys remain stable for portraits and dialogue; only their display changes.
+static func character_name(s: String) -> String:
+	var names := {
+		"ja": {"Eddington": "エディントン", "Cottingham": "コッティンガム"},
+		"ko": {"Eddington": "에딩턴", "Cottingham": "코팅엄"},
+	}
+	return names.get(language, {}).get(s, t(s))
+
+
 ## A sentence with one count whose noun inflects in English. The msgid is both forms.
 static func tn(s: String, n: int) -> String:
 	return String(TranslationServer.translate_plural(s, s, n))

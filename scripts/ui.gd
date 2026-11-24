@@ -676,10 +676,10 @@ func play(seq: Array) -> void:
 
 func _show_entry() -> void:
 	var e: Dictionary = _seq[_seq_i]
-	history.append(L.t("%s：%s") % [L.t(str(e.get("s", ""))), e.get("t", "")])
+	history.append(L.t("%s：%s") % [L.character_name(str(e.get("s", ""))), e.get("t", "")])
 	if history.size() > 60:
 		history.pop_front()
-	speaker_label.text = L.t(str(e.get("s", "")))
+	speaker_label.text = L.character_name(str(e.get("s", "")))
 	text_label.text = _paper_text(e.get("t", ""))
 	if cambridge_portraits:
 		_layout_dialogue_portrait()

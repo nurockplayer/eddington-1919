@@ -9,6 +9,7 @@ const PalmSway := preload("res://scripts/palm_sway.gd")
 const SafelightGlass := preload("res://scripts/safelight_glass.gd")
 const Look := preload("res://scripts/look.gd")
 const Settings := preload("res://scripts/settings.gd")
+const Fonts := preload("res://scripts/fonts.gd")
 const MODELS := "res://assets/models/"
 const FOLIAGE := "res://assets/textures/principe/foliage/"
 const FoliageCard := preload("res://shaders/foliage_card.gdshader")
@@ -304,8 +305,8 @@ func build() -> Dictionary:
 	out.merge(_props())
 	_bounds()
 	randomize()  # vegetation reseeded the global RNG; don't leak that into "new sky" restarts
-	out.eddington = npc("Eddington", Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
-	out.cottingham = npc("Cottingham", Vector3(1.35, 0, -6.1), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
+	out.eddington = npc(L.character_name("Eddington"), Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
+	out.cottingham = npc(L.character_name("Cottingham"), Vector3(1.35, 0, -6.1), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
 	out.cottingham.rotation.y = deg_to_rad(-60)
 	return out
 
@@ -1142,6 +1143,7 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 func _tag(body: Node3D, name: String) -> void:
 	var tag := Label3D.new()
 	tag.text = name
+	tag.font = Fonts.cjk()
 	tag.font_size = 30
 	tag.pixel_size = 0.0007
 	tag.fixed_size = true
