@@ -37,6 +37,8 @@ const BED_DIR := "res://assets/sfx/"
 const BED_RMS_DB := {"birds": -29.70, "insects": -34.79, "surf": -23.85}
 
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
+const PASSAGE_S := 60.0          # real seconds on either side of totality
+const THIRD_CONTACT_S := 3.0
 const EXPOSURE_STEP_S := 0.25    # game seconds between cloud samples during exposure
 const TOTALITY_SCORE_DELAY_S := 2.0  # real seconds after second contact
 const TOTALITY_SCORE_FADE_S := 1.2
@@ -84,6 +86,7 @@ var change_left := 0.0           # plate change in progress
 var plate_changed := false       # a plate change was made this run (the workbook remembers it)
 var plates_left := 0
 var tot_done := false
+var _day_return: Tween
 var hold_t := 0.0
 var hold_id := ""
 var _hold_latched := false
@@ -454,8 +457,10 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 		# At totality the far land is a low profile; even the towers stay below eye level.
 		ridge.scale.y = lerpf(1.0, 0.006, smoothstep(0.85, 0.98, darkness) * (1.0 - night))
 	# Distant cards print only as the inked totality/night tree line, never a day wash.
+	var forest_ink := maxf(smoothstep(0.85, 1.0, darkness) if _style != null else float(darkness > 0.95), night)
 	for layer in $ForestEdge.get_children():
-		layer.set_instance_shader_parameter("print_card", darkness > 0.95 or night > 0.5)
+		layer.set_instance_shader_parameter("print_card", forest_ink > 0.0)
+		layer.set_instance_shader_parameter("print_coverage", forest_ink)
 	sky_mat.set_shader_parameter("contact", contact)
 	sky_mat.set_shader_parameter("darkness", darkness)
 	sky_mat.set_shader_parameter("cloud_time", cloud_t)
@@ -467,11 +472,10 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float)
 	var dens: float = sim.cloud_over_sun(cloud_t)
 	var vis := _crescent(contact) * (1.0 - darkness)
 	var sun_floor := 0.15 if _look.is_empty() else float(_look.sun_floor) * (1.0 - darkness)
-	sun.light_energy = (sun_floor + 1.4 * vis * (1.0 - dens * 0.85)) * (1.0 - night) * _look_sun
-	if darkness > 0.95 or night > 0.5:
-		sun.light_energy = 0.0
+	var daylight := (1.0 - smoothstep(0.9, 0.95, darkness) if _style != null else float(darkness <= 0.95)) * (1.0 - night)
+	sun.light_energy = (sun_floor + 1.4 * vis * (1.0 - dens * 0.85)) * daylight * _look_sun
 	if world.has("sun_crescents"):
-		var lit := 0.0 if darkness > 0.95 or night > 0.5 else SunCrescents.sunlight(vis, dens)
+		var lit := daylight * SunCrescents.sunlight(vis, dens)
 		world.sun_crescents.set_eclipse(contact, lit)
 	world.doorway_daylight.light_energy = 16.0 * (1.0 - darkness) * (1.0 - night)
 	world.oxford_lantern.visible = night > 0.5
@@ -493,6 +497,8 @@ func _update_sky_prep() -> void:
 	var f := 1.0 - prep_left / PREP_S
 	var contact := lerpf(0.62, 0.985, f)
 	var darkness := pow(f, 3.0) * 0.45
+	if _style != null:
+		darkness = 1.0 - smoothstep(0.0, PASSAGE_S, prep_left)
 	_apply_light(contact, darkness, -prep_left, 0.0)
 
 
@@ -1452,9 +1458,6 @@ func _begin_totality() -> void:
 	_apply_light(1.0, 1.0, 0.0, 0.0)
 	_update_totality_hud()
 	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
-	if _style != null:
-		_style.impl.prepare_day_return(self, _style)
-		_style.impl.day_return.warm()
 	_update_totality_hud()
 	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
 	await ui.fade_to(0.0, 1.2).finished
@@ -1616,19 +1619,20 @@ func _end_totality() -> void:
 	ui.set_totality(false)
 	_sfx("third")
 	ui.show_toast(L.t("第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。") + (L.t("\n快門還開著——最後那張底片曝到了陽光。") if ruined else ""), 5.0)
-	if _style != null:
-		_style.impl.start_day_return(self, _style)
-	var tw := create_tween()
-	tw.tween_method(func(v):
-		# Daylight returns slowly at first, so the beads and the diamond (v < 0.4)
-		# burn against a still-dark sky and a black Moon.
-		sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
-		_apply_light(1.0 - v * 0.2, 1.0 - v * v, t_game + v * 10.0, 0.0), 0.0, 1.0, 3.0)
-	await tw.finished
-	sky_mat.set_shader_parameter("third_contact", Vector2.ZERO)
-	_sync_style_sky()
-	await get_tree().create_timer(1.5).timeout
+	var duration := THIRD_CONTACT_S if _style == null else PASSAGE_S
+	_day_return = create_tween()
+	_day_return.tween_method(_update_day_return, 0.0, duration, duration)
+	await get_tree().create_timer(THIRD_CONTACT_S + 1.5, false).timeout
 	_say(Content.after_totality(sim.plates.size()), "after_totality")
+
+
+func _update_day_return(elapsed: float) -> void:
+	# The contact and its beads keep their authored timing. Only the light
+	# continues to recover after that cue and into the post-totality dialogue.
+	var v := minf(elapsed / THIRD_CONTACT_S, 1.0)
+	var darkness := 1.0 - v * v if _style == null else 1.0 - smoothstep(0.0, PASSAGE_S, elapsed)
+	sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
+	_apply_light(1.0 - v * 0.2, darkness, t_game + v * 10.0, 0.0)
 
 
 # ----------------------------------------------------------------------- Night
@@ -1677,6 +1681,8 @@ func _restore_darkroom(data: Dictionary) -> void:
 
 
 func _setup_darkroom() -> void:
+	if _day_return != null:
+		_day_return.kill()
 	audio_surf.stop()
 	audio_birds.stop()
 	_start_night_bed()

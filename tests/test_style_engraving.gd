@@ -35,7 +35,9 @@ func _run() -> void:
 	check(shader_text.contains("step(r, 1.0) * moon_lines") and not shader_text.contains("step(r, sqrt(transmission))"), "cloud does not resize Moon ink")
 	check(shader_text.contains("hatch(sky_ruling.x, k, moon_cover, l_px, 99.0)") and shader_text.contains("step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover)"), "Moon line widths and clear-sky solid ink arrive continuously")
 
-	check(shader_text.contains("float density = eclipse_cloud_density(direction);") and shader_text.contains("return vec2(0.35 - density, density);"), "drawn cloud contour comes from the live exposure field")
+	check(shader_text.contains("float density = eclipse_cloud_density(direction);")
+		and shader_text.contains("cloud_field = print_cloud(ray_w, print_darkness);"),
+		"daylight and totality contours come from the live exposure field")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or opaque Moon overlay")
 	check(shader_text.contains("max(ink, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "live cloud ruling veils the corona over the Sun")
 
@@ -123,10 +125,6 @@ func _run() -> void:
 	var thin: float = material.get_shader_parameter("practice_cloud")
 	check(is_equal_approx(thick, 0.93) and is_equal_approx(thin, 0.12)
 		and material.get_shader_parameter("darkness") < 0.01, "early rehearsal sends thick and thin cloud to the compositor")
-	check(shader_text.contains("if (daylight && practice_cloud >= 0.0)")
-		and shader_text.contains("rehearsal_wash = front * sqrt(practice_cloud)")
-		and shader_text.contains("page = mix(page, vec3(0.23), rehearsal_wash);"),
-		"rehearsal density reaches the paper even at zero eclipse darkness")
 	game.free()
 	_test_eclipse_pilot_bindings()
 

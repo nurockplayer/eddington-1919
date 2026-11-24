@@ -11,13 +11,6 @@ uniform vec3 sun_dir = vec3(0.0, 1.0, 0.0);   // world, toward the Sun
 uniform float sun_r = 0.02;                    // the Sun's angular radius in radians
 uniform float darkness = 0.0;                  // 0 day … 1 totality
 uniform float night = 0.0;
-// Two independently lit print plates. No intermediate tone is rendered.
-uniform bool day_return_active = false;
-uniform sampler2D return_night : source_color, repeat_disable, filter_nearest;
-uniform sampler2D return_day : source_color, repeat_disable, filter_nearest;
-uniform float return_radius = -1.0;
-uniform float return_band = 0.0349066;
-uniform float return_blend = -1.0; // blend complete sky prints, preserving the ruling
 uniform float diamond_radius = 0.45; // core radius in solar radii
 uniform float diamond_spikes = 4.0; // longest spike in solar radii
 uniform float diamond_rays = 1.0; // corona lines reach the limb at peak
@@ -177,9 +170,10 @@ vec2 page_ruling(vec3 ray, mat4 camera) {
 
 // Engrave the live field's 0.35 contour; the second component retains density
 // for line weights and solar veiling. No separate cloud geometry is invented.
-vec2 print_cloud(vec3 direction) {
+vec2 print_cloud(vec3 direction, float print_darkness) {
 	float density = eclipse_cloud_density(direction);
-	return vec2(0.35 - density, density);
+	float contour_density = mix(0.10, 0.35, print_darkness);
+	return vec2(contour_density - density, density);
 }
 
 // |d(dot(P, a))| per pixel on the surface through the view-space point z * q
@@ -211,18 +205,8 @@ void fragment() {
 	float z = max(-pv.z, 0.01);
 	vec3 ray_v = normalize(pv);
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
-	float distance = acos(clamp(dot(ray_w, sun_dir), -1.0, 1.0));
-	bool crossing = day_return_active && return_blend < 0.0;
-	bool behind = return_radius >= 2.0 * sun_r && distance < return_radius - return_band;
-	if (crossing && !behind) {
-		if (return_radius < 0.0 || distance > return_radius) {
-			ALBEDO = texture(return_night, uv).rgb;
-		} else {
-			ALBEDO = paper;
-		}
-	} else {
-	float print_darkness = day_return_active ? 0.0 : darkness;
-	bool daylight = print_darkness < 0.95 && night <= 0.5;
+	float print_darkness = darkness;
+	float day_weight = night > 0.5 ? 0.0 : 1.0 - smoothstep(0.35, 1.0, print_darkness);
 	float k = 2.0 / (abs(PROJECTION_MATRIX[1][1]) * VIEWPORT_SIZE.y);
 	// Line weights are given for a 720-line frame and follow the viewport height.
 	float res_k = VIEWPORT_SIZE.y / 720.0;
@@ -246,7 +230,7 @@ void fragment() {
 	float dark = 1.0 - tone;
 
 	// Outlines: second difference of depth (zero on any flat surface) and normal breaks.
-	vec2 o = (daylight ? 0.5 : outline_px) * res_k / VIEWPORT_SIZE;
+	vec2 o = mix(outline_px, 0.5, day_weight) * res_k / VIEWPORT_SIZE;
 	vec3 p_l = view_pos(depth_tex, uv - vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
 	vec3 p_r = view_pos(depth_tex, uv + vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
 	vec3 p_d = view_pos(depth_tex, uv - vec2(0.0, o.y), INV_PROJECTION_MATRIX);
@@ -268,16 +252,16 @@ void fragment() {
 	float ridge_totality = 0.0;
 	float sky_white = 0.0;
 	float corona_white = 0.0;
-	float rehearsal_wash = 0.0;
+	float sun_rim = 0.0;
 	bool surface_print = false;
 	if (sky) {
 		dark *= sky_ink;
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
-		if (daylight && d_near > 75.0 && d_near < 1000.0) edge = 1.0;
+		if (d_near > 75.0 && d_near < 1000.0) edge = mix(edge, 1.0, day_weight);
 		vec2 cloud_field = vec2(10.0, 0.0);
-		if (print_darkness > 0.0) cloud_field = print_cloud(ray_w);
+		if (night <= 0.5) cloud_field = print_cloud(ray_w, print_darkness);
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
 		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
@@ -286,24 +270,26 @@ void fragment() {
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
 		float band_lines = smoothstep(0.015, 0.19, abs(elev));
-		float primary = (0.04 + 0.06 * high_sky + 0.65 * cloud_weight) * band_lines;
-		float crossed = (0.02 * high_sky + 0.40 * cloud_weight) * band_lines;
-		// Clouds have no fill or gradient outline: only these weights and a hairline.
-		primary = mix(clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz, primary, print_darkness);
-		crossed = mix(clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz, crossed, print_darkness);
-		if (daylight) {
-			primary *= smoothstep(0.33, 0.85, print_darkness);
-			crossed *= smoothstep(0.45, 0.95, print_darkness);
-		}
+		// One cloud stroke family by day, with the second family and open
+		// sky ruling coming in as the paper cools.
+		float cloud_tone = cloud_body * (0.10 + 0.34 * smoothstep(0.10, 0.80, cloud_field.y));
+		float primary = mix(cloud_tone, 0.04 + 0.06 * high_sky + 0.65 * cloud_weight, print_darkness) * band_lines;
+		float crossed = (0.02 * high_sky + 0.40 * cloud_weight) * band_lines * print_darkness;
+		float contour_ink = mix(0.24 * smoothstep(0.0, 0.35, cloud_field.y), 0.8, print_darkness);
 		float tilt = asin(clamp(dot(ray_w, normalize(vec3(0.62, 0.48, 0.62))), -1.0, 1.0));
-		vec2 sky_ruling = print_darkness > 0.0 ? ruling : vec2(elev, tilt);
+		vec2 sky_ruling = ruling;
+		if (night > 0.5) {
+			sky_ruling = vec2(elev, tilt);
+			primary = clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz;
+			crossed = clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz;
+		}
 		float i1 = hatch(sky_ruling.x, k, primary, l_px, 99.0);
 		float i2 = hatch(sky_ruling.y, k, crossed, l_px, 99.0);
 		// At the band's edge, retain every fourth ruled line and thin the rest away.
 		float sparse = hatch(ruling.x, k, primary, l_px * 4.0, 99.0);
 		i1 = mix(i1, mix(sparse, i1, band_lines), print_darkness);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
-		ink = max(ink, cloud_contour * band_lines * print_darkness * 0.8);
+		ink = max(ink, cloud_contour * band_lines * contour_ink);
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
@@ -312,21 +298,10 @@ void fragment() {
 		float r = length(lp);
 		float front = step(0.0, dot(ray_w, sun_dir));
 		vec2 moon_c = vec2((1.0 - contact) * 2.1, 0.12 * (1.0 - contact));
-		if (daylight && practice_cloud >= 0.0) {
-			// The override is uniform across the disc. Shape its moving edge with
-			// the live cloud texture, and print its density independently of eclipse ruling.
-			vec2 bank = (lp + vec2(4.9, 0.35)) * vec2(0.90, 1.65);
-			float field = length(bank) - mix(2.8, 7.0, practice_cloud)
-				+ 1.6 * (0.5 - eclipse_cloud_texture(ray_w));
-			float pixel = max(length(vec2(dFdx(field), dFdy(field))), 0.00001);
-			float body = 1.0 - smoothstep(-pixel, pixel, field);
-			float rim = 1.0 - smoothstep(0.3, 1.0, abs(field) / (pixel * res_k));
+		if (practice_cloud >= 0.0) {
 			float crescent = max(r - 1.0, 1.0 - length(lp - moon_c));
 			float sun_pixel = max(fwidth(crescent), 0.00001);
-			float sun_body = 1.0 - smoothstep(-sun_pixel, sun_pixel, crescent);
-			float sun_rim = 1.0 - smoothstep(0.2, 0.9, abs(crescent) / (sun_pixel * res_k));
-			rehearsal_wash = front * sqrt(practice_cloud) * max(0.76 * body, rim) * (1.0 - 0.38 * sun_body);
-			ink = front * sun_rim * 0.42;
+			sun_rim = front * (1.0 - smoothstep(0.2, 0.9, abs(crescent) / (sun_pixel * res_k)));
 		}
 		vec2 bead_c = -normalize(moon_c + vec2(0.0001, 0.0));
 		vec3 bead_dir = normalize(sun_dir + sun_r * (t1 * bead_c.x + t2 * bead_c.y));
@@ -395,7 +370,7 @@ void fragment() {
 		vec3 q = pv / z;
 		vec4 surface = texture(normal_tex, uv);
 		// Forward+ normal/roughness reads decode the prepass's 7-bit roughness.
-		surface_print = daylight && abs(surface.w - 17.0 / 127.0) < 0.003;
+		surface_print = day_weight > 0.0 && abs(surface.w - 17.0 / 127.0) < 0.003;
 		vec3 n_buf = normalize(surface.xyz * 2.0 - 1.0);
 		vec3 n_dep = normalize(cross(dFdx(pv), dFdy(pv)));
 		n_dep = dot(n_dep, pv) > 0.0 ? -n_dep : n_dep;
@@ -433,13 +408,16 @@ void fragment() {
 			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break) * (1.0 - dist_f));
 		}
 
-		if (daylight) {
+		float day_ink = 0.0;
+		float day_edge = edge;
+		if (day_weight > 0.0) {
 			// The rest of the day frame carries flat tone and contours.
 			float shade_side = 1.0 - smoothstep(0.0, 0.35, dot(n_w, sun_dir));
-			ink = max(smoothstep(0.12, 0.72, dark), 0.88 * shade_side);
-			edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * (1.0 - dist_f);
-			if (length(pw.xz) > 75.0 && pw.y > -0.39) ink = 0.16;
-		} else if (print_darkness < 0.001 && night > 0.5) {
+			day_ink = max(smoothstep(0.12, 0.72, dark), 0.88 * shade_side);
+			day_edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * (1.0 - dist_f);
+			if (length(pw.xz) > 75.0 && pw.y > -0.39) day_ink = 0.16;
+		}
+		if (print_darkness < 0.001 && night > 0.5) {
 			bool foliage = c.g > c.r * 1.08 && c.g > c.b * 1.15 && pw.y > 0.08;
 			bool room = all(lessThan(abs(pw - vec3(10.0, 1.3, 3.0)), vec3(2.1, 1.5, 1.8)));
 			bool wall_board = room && (abs(pw.x - 8.0) < 0.07 || abs(pw.x - 12.0) < 0.07 || abs(pw.z - 1.3) < 0.07 || abs(pw.z - 4.7) < 0.07);
@@ -496,7 +474,7 @@ void fragment() {
 				paper_edge = 1.0 - smoothstep(0.0, 1.0, min(margin.x / pixel.x, margin.y / pixel.y));
 				room_value = 1.0;
 			}
-		} else {
+		} else if (day_weight < 1.0) {
 			// Three line families per surface. Flat surfaces are hatched in plan; all
 			// others carry level lines (constant height) crossed by two diagonals.
 			vec3 a1;
@@ -551,6 +529,8 @@ void fragment() {
 			tone_p = mix(tone, 1.0 - dark_far, dist_f);
 			edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * mix(1.0, far_line, dist_f);
 		}
+		ink = mix(ink, day_ink, day_weight);
+		edge = mix(edge, day_edge, day_weight);
 		// Far land at totality is sparse ruling on the horizon's cream reserve.
 		float ridge_distance = smoothstep(75.0, 550.0, length(pw.xz));
 		float ridge_lines = hatch(elev, k, mix(0.24, 0.14, ridge_distance), l_px * mix(1.5, 2.5, ridge_distance), 99.0);
@@ -566,10 +546,7 @@ void fragment() {
 	float fibre = (vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4) * (sky ? 1.0 - print_darkness : 1.0);
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
-	if (daylight) {
-		page = paper * (1.0 - paper_grain * fibre);
-		page = mix(page, vec3(0.23), rehearsal_wash);
-	}
+	page = mix(page, paper * (1.0 - paper_grain * fibre), day_weight);
 	if (print_darkness < 0.001 && night > 0.5) {
 		page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f) * (sky ? 1.0 : max(print_darkness, night))) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	}
@@ -590,8 +567,10 @@ void fragment() {
 	vec3 print_colour = mix(page, mix(ink_col, page, ridge_totality * 0.4), clamp(ink, 0.0, 1.0) * ink_strength);
 	if (surface_print) {
 		vec3 stock = mix(c, c * tot_paper / paper, blue);
-		print_colour = mix(stock * (1.0 - paper_grain * fibre), ink_col, edge * outline * ink_strength);
+		vec3 surface_colour = mix(stock * (1.0 - paper_grain * fibre), ink_col, edge * outline * ink_strength);
+		print_colour = mix(print_colour, surface_colour, day_weight);
 	}
+	print_colour = mix(print_colour, ink_col, sun_rim * 0.42);
 	print_colour = mix(print_colour, ink_col, moon_ink);
 	print_colour = mix(print_colour, vec3(1.0), corona_white * print_darkness);
 	// Only the sky around an optically visible field star gets a reserve.
@@ -628,11 +607,4 @@ void fragment() {
 		}
 	}
 	ALBEDO = mix(print_colour, paper, bead);
-	if (day_return_active && return_blend > 0.0 && sky) {
-		// The sky-only endpoint has no silhouette ink. Retain the native
-		// sky-side contours when carrying its fixed glow into the ease.
-		vec3 day_sky = min(texture(return_day, uv).rgb, mix(page, ink_col, clamp(edge * outline, 0.0, 1.0) * ink_strength));
-		ALBEDO = mix(ALBEDO, day_sky, 1.0 - return_blend);
-	}
-	}
 }

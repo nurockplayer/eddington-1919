@@ -1,9 +1,12 @@
 extends SceneTree
+
 var checks := 0
 var failures := 0
 
+
 func _initialize() -> void:
 	_run.call_deferred()
+
 
 func check(ok: bool, message: String) -> void:
 	checks += 1
@@ -11,54 +14,46 @@ func check(ok: bool, message: String) -> void:
 		failures += 1
 		print("FAIL: ", message)
 
+
 func _run() -> void:
-	var shader := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
-	check(shader.contains("ALBEDO = texture(return_night, uv).rgb;") and shader.contains("float print_darkness = day_return_active ? 0.0 : darkness;") and shader.contains("ALBEDO = paper;"), "the front reveals native day geometry behind paper white")
-	for seed_ in [7, 1919]:
-		var game = load("res://scenes/main.tscn").instantiate()
-		game.next_seed = seed_
-		root.add_child(game)
-		game.set_process(false)
-		game.player.set_physics_process(false)
-		game.t_game = game.sim.TOTALITY_S
-		game._apply_light(1.0, 1.0, game.t_game, 0.0)
-		var previous_cloud: float = game.sky_mat.get_shader_parameter("cloud_time")
-		game._style.impl.start_day_return(game, game._style)
-		var front: Node = game._style.impl.day_return
-		front.set_process(false)
-		check(front.skies[0].get_shader_parameter("cloud_time") == previous_cloud, "night endpoint starts at the displayed cloud position")
-		check(not front.started() and front.plates[1].render_target_update_mode == SubViewport.UPDATE_DISABLED, "unseen day endpoint does not draw before the front")
-		check(front.plates[0].size == root.size and front.plates[1].size == root.size, "endpoint plates use the physical render size")
-		var changes := 0
-		var previous: Color = game.ui.hint_label.get_theme_color("font_color")
-		for frame in 181:
-			front.elapsed = frame / 60.0
-			front._sync()
-			check((front.compositor.layers & game.player.camera.cull_mask) != 0, "return compositor is visible to the camera at frame %d" % frame)
-			var v: float = frame / 180.0
-			game._apply_light(1.0 - v * 0.2, 1.0 - v * v, game.t_game + v * 10.0, 0.0)
-			var foreground: Color = game.ui.hint_label.get_theme_color("font_color")
-			if foreground != previous:
-				changes += 1
-				check(front.started(), "HUD changes on the front, never on darkness 0.5")
-			previous = foreground
-			check(front.materials[0].get_shader_parameter("darkness") == 1.0 and front.materials[1].get_shader_parameter("darkness") == 0.0, "both endpoint plate weights stay fixed")
-			check(is_equal_approx(game.sky_mat.get_shader_parameter("darkness"), 1.0 - v * v), "native lighting tween stays unchanged")
-			if frame == 120:
-				check(game.player.camera.cull_mask == front.camera_mask and front.cameras[1].cull_mask == 1 << 19 and front.plates[1].render_target_update_mode == SubViewport.UPDATE_DISABLED, "native geometry draws before the ease, with no day geometry duplicate")
-			if frame == 51:
-				check(front.radius() >= game.sim.SUN_R and front.radius() < 2.0 * game.sim.SUN_R and shader.contains("return_radius >= 2.0 * sun_r"), "first white front covers the whole Moon")
-		front.elapsed = 5.5
-		front._sync()
-		front.elapsed += 1.5
-		front._sync()
-		check(game._style.quad_material.get_shader_parameter("return_blend") == 1.0, "day glow reaches the live print before release")
-		check(game.player.camera.cull_mask == front.camera_mask and front.cameras[1].cull_mask == 1 << 19, "late ease renders geometry only in the native world")
-		front._process(0.0)
-		check(not game._style.quad_material.get_shader_parameter("day_return_active") and game._style.quad_material.get_shader_parameter("return_blend") == -1.0, "release clears the blend before freeing its texture")
-		check(changes == 1, "HUD switches palette exactly once")
-		game.stop_all_audio()
-		game.free()
-		await process_frame
+	var game = load("res://scenes/main.tscn").instantiate()
+	game.next_seed = 7
+	root.add_child(game)
+	game.set_process(false)
+	game.player.set_physics_process(false)
+	game._start_game()
+	var print_material: ShaderMaterial = game._style.quad_material
+	var last_darkness := -1.0
+	for seconds_left in [65.0, 60.0, 45.0, 30.0, 15.0, 0.0]:
+		game.prep_left = seconds_left
+		game._update_sky_prep()
+		var darkness: float = print_material.get_shader_parameter("darkness")
+		check(darkness >= last_darkness, "paper darkens through approach")
+		if seconds_left >= 60.0:
+			check(darkness == 0.0, "paper is daylight before the final minute")
+		elif seconds_left > 0.0:
+			check(darkness > 0.0 and darkness < 1.0, "approach prints intermediate tones")
+		else:
+			check(darkness == 1.0, "second contact reaches the totality tone")
+		last_darkness = darkness
+		check(is_equal_approx(game.sky_mat.get_shader_parameter("contact"), lerpf(0.62, 0.985, 1.0 - seconds_left / game.PREP_S)), "approach keeps the contact geometry")
+	game.t_game = game.sim.TOTALITY_S
+	for elapsed in [0.0, 0.5, 3.0, 15.0, 30.0, 45.0, 60.0]:
+		game._update_day_return(elapsed)
+		var darkness: float = print_material.get_shader_parameter("darkness")
+		check(darkness <= last_darkness, "paper recovers after third contact")
+		if elapsed == 0.0:
+			check(darkness == 1.0, "third contact begins in the totality print")
+		elif elapsed < 60.0:
+			check(darkness > 0.0 and darkness < 1.0, "recovery prints intermediate tones")
+		else:
+			check(darkness == 0.0, "paper is daylight after one minute")
+		last_darkness = darkness
+		var v := minf(elapsed / 3.0, 1.0)
+		check(is_equal_approx(game.sky_mat.get_shader_parameter("contact"), 1.0 - 0.2 * v), "third contact keeps its geometry and duration")
+		check(game.sky_mat.get_shader_parameter("third_contact").is_equal_approx(game.Cues.third_contact_glint(v)), "glint keeps its three-second cue")
+		check(is_equal_approx(game.sky_mat.get_shader_parameter("cloud_time"), game.t_game + 10.0 * v), "third contact keeps the live cloud trajectory")
+	game.stop_all_audio()
+	game.free()
 	print("test_day_return: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
