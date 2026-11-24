@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 21:58 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 21:59 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
@@ -11,7 +11,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 **Waiting on edd-art:** #484 pkg 3 run 1 72cdaff, CI green, perf +0.38 ms. Sent 20:16 JST. On accept → `lead-wait pr 484`, then pkg 2. Worktree vo-pkg3 idle.
 
 **In flight (lead-wait):**
-- #485 at 8e0a693 (route-driver aim fix; e2e pseudo 6/6, night_dress 31/0, leak-gate SUCCESS): gate round 3 `lead-wait pr 485` 21:42 JST. ACCEPTED by edd-art at 9929a87 (log 424d3bb), frames 0 px diff. Later figures run list: dot in left lens, broken mouth dash at talk distance, Eddington's open right hand by day, Cottingham's hand on crank. On merge: remove wt vo-pkg6 by hand.
+- `lw-cx-vo-pkg6-fu10` (21:59 JST, resume 01a20d69…): #485 gate round 3 (8e0a693) failed CI suites: test_prediction_ledger 6 Eddington-conversation failures (old aim position again); worker sweeps every aim/ray at Eddington/Cottingham. On event: CI green → `lead-wait pr 485 --reason` (4th head). ACCEPTED by edd-art at 9929a87, frames 0 px diff. Later figures run list: dot in left lens, broken mouth dash, open right hand by day, Cottingham's hand on crank. On merge: remove wt vo-pkg6 by hand.
 - `lw-cx-vo-pkg8-run2` (21:34 JST, wt vo-pkg8, branch art/vo-pkg8-run2, Sol high, brief vo-pkg8-run2.md): portrait card proportion, slip paper at totality/darkroom, pause title + empty cell (Refs #480). Visual: on event post frames to edd-art (visual-overhaul-proposal-20261124).
 - #492 (fix-476, draft, 963cbb2): blink hint stays hidden after Continue, buttons keep place; test_checkpoint rerun 206/0. Frames sent to edd-art 21:58 JST; accept → `gh pr ready 492` + `lead-wait pr 492`; on merge remove wt fix-476 by hand.
 - Worktrees 4/4: vo-pkg6, vo-pkg8, fix-476 running; vo-pkg3 idle. SSD free 13.7 GiB (< 40). KIOXIA 3.7 GiB free 17:5x JST (lead-board disk-structure-20261117).
