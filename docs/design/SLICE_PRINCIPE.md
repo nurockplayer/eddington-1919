@@ -986,3 +986,6 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Not blockers: an empty cell in the middle of the pause menu's right column where the language row is hidden; the values "Normal" and "Slower" do not say what the player gets (about two minutes against about four).
 - Seen on the way, inherited: second contact goes from the full daylight print through one near-black frame to the blue print, with nothing between, in both modes. This is main's passage into totality and bears on #472.
 - **Verdicts:** technical regression: the pause panel overflow at 720p large text (to be checked against main); this PR's change not accepted at this head; whole scene not accepted. Count stays **7/9**.
+
+### 2026-11-24 10:48 JST: #475 darkroom resume merged (0fed703)
+- Merged head fca5424: one line of `checkpoint.gd` and its test since the accepted 61534cf (the story checkpoint is no longer wiped by a standalone darkroom save); nothing drawn changed, so the acceptance carries without a frame at fca5424. Follow-ups with edd-lead: #476 (the blink hint returns after Continue), #477 (workbook marked seen early). Count stays **7/9**.
