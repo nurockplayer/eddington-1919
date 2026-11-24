@@ -1325,6 +1325,15 @@ msgstr "Fullscreen: On"
 msgid "全螢幕：關"
 msgstr "Fullscreen: Off"
 
+msgid "全食期間無法變更"
+msgstr "Locked during totality"
+
+msgid "全食節奏：標準"
+msgstr "Totality pace: Normal"
+
+msgid "全食節奏：較慢"
+msgstr "Totality pace: Slower"
+
 msgid "兩個人各自對過。%s，謝謝。"
 msgstr "Two people checked it independently. Thank you, %s."
 
@@ -3420,15 +3429,6 @@ msgstr "Hold to interact: press once"
 msgid "長按互動：按住"
 msgstr "Hold to interact: hold"
 
-msgid "全食節奏：標準"
-msgstr "Totality pace: Normal"
-
-msgid "全食節奏：較慢"
-msgstr "Totality pace: Slower"
-
-msgid "全食期間無法變更"
-msgstr "Locked during totality"
-
 msgid "閃爍比對"
 msgstr "Blink comparison"
 
@@ -3732,6 +3732,9 @@ msgstr "(watches you sign) Good. Whoever holds this sheet later will see it was 
 
 msgid "（看著看片台，沒有說話）"
 msgstr "(Look at the light box and say nothing)"
+
+msgid "（約 %d 分鐘）"
+msgstr " (about %d min)"
 
 msgid "（翻開工作簿，最後面有一頁是空的。上面已經寫好了日期：1919 年 5 月 29 日。）"
 msgstr "(opens the workbook: the last page is blank. The date is already written there: 29 May 1919.)"
