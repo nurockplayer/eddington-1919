@@ -250,6 +250,9 @@ msgstr "The magnifying glass Ashby gave you."
 msgid "B 鍵"
 msgstr "B button"
 
+msgid "Cottingham"
+msgstr "Cottingham"
+
 msgid "Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。"
 msgstr "Cottingham is at the coelostat. The morning damp has made the clock drive sulky; he needs a pair of hands."
 
@@ -303,6 +306,9 @@ msgstr "Dyson's letter (speculative reconstruction, not a quotation)"
 
 msgid "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構，場景為推測重建。"
 msgstr "Dyson, Eddington, Cottingham and the 1919 eclipse expedition are historical; you, Kit, Mr Ashby, that night in Cambridge and all dialogue are fiction, and the scenes are a speculative reconstruction."
+
+msgid "Eddington"
+msgstr "Eddington"
 
 msgid "Eddington 前幾天問我，這棟樓裡誰的紀錄最乾淨。"
 msgstr "Eddington asked me the other day who in this building keeps the cleanest records."
