@@ -2,7 +2,9 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 09:5x JST.** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`.
+**Written 2026-11-24 10:0x JST.** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`.
+
+**10:0x JST now:** #472 timing table done (candidate faster, darkroom equal); r3c running (lw-cx-vo-pkg1-r3c, vo-pkg1-pilot-fu4.md): scripted-camera walk clip, -30→+5 s totality clip beside main, talk frame with HUD; haze + telescope rim = follow-up PR after merge (lead-decision); on event reply on visual-overhaul-proposal-20261124, on art accept `lead-wait pr 472`. #475 P4 61534cf + #474 P5 3729d67 CI green, both draft → edd-art asked on lead-board mech-p4-p5-art-20261124 (#475 old frames stand; #474 needs capture list + listening check); on its list dispatch capture, on accept `lead-wait pr <n>`. #465 r4 still running (lw-cx-pr465-r4, head e94d315, CI pending). wt mech-p4/mech-p5 idle until art.
 
 **Owner 2026-11-23 09:0x JST: Codex tokens in surplus, use freely** (Codex 63% vs 65% target). Global rule otherwise (act as if Claude `ahead`). cpu-nice-owner still applies.
 
