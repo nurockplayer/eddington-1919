@@ -102,7 +102,7 @@ One sentence: a humid tropical afternoon painted in gouache; a warm key when the
 
 Implementation and capture commands: [engraving on main](ENGRAVING_MAIN.md). The port (#383) is on main; rows **1, 3 and 6** were judged on its frames and count from its merge.
 
-Pass count: **6/9** on main since the re-score of 2026-11-24 20:40 JST (row 1 not met at d07f2ee: dashed ridge line, see that entry; before it 7/9 with rows 1, 3, 6 since #383 merged as 407581e on 2026-11-19 15:19 JST; row 4 since #391 merged as 34636ff on 2026-11-19 18:34 JST; row 5 since #392 merged as 198877e on 2026-11-20 12:06 JST; row 7 since the verdict of 2026-11-19 17:1x JST; row 9 since the measurement of 2026-11-19 17:2x JST, an estimate for the hardware class, to be measured again now that row 4's change is in the pass, and again after row 5's). Row 8 is judged and not met (entry of 2026-11-19 17:1x JST); row 2 waits for someone to watch the clips. Each row is judged on the running build, in the frames `arrival`, `coelostat_still`, `totality_sky`, `totality_wide`, `totality_horizon`, `dialogue`, `darkroom` at 1280×720 unless the row says otherwise.
+Pass count: **7/9** on main (row 1 re-scored 2026-11-24: not met at d07f2ee for the dashed ridge line, met again from #483 merged as 97bfbc8, see the 20:40 and 20:45 JST entries; rows 1, 3, 6 first since #383 merged as 407581e on 2026-11-19 15:19 JST; row 4 since #391 merged as 34636ff on 2026-11-19 18:34 JST; row 5 since #392 merged as 198877e on 2026-11-20 12:06 JST; row 7 since the verdict of 2026-11-19 17:1x JST; row 9 since the measurement of 2026-11-19 17:2x JST, an estimate for the hardware class, to be measured again now that row 4's change is in the pass, and again after row 5's). Row 8 is judged and not met (entry of 2026-11-19 17:1x JST); row 2 waits for someone to watch the clips. Each row is judged on the running build, in the frames `arrival`, `coelostat_still`, `totality_sky`, `totality_wide`, `totality_horizon`, `dialogue`, `darkroom` at 1280×720 unless the row says otherwise.
 
 | # | Row | How it is judged |
 |---|-----|------------------|
@@ -1046,4 +1046,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Row 3 on main d07f2ee: holds.** Canopy ruling and deck planks keep the same apparent pitch between the en 720p and 1080p dialogue frames (by eye, not measured); the house wall and far ground are flat tone. The approach-and-turn half rests on the #472 clips of b2b13a2, taken on the branch, not on main.
 - **Count: 6/9** (rows 3, 4, 5, 6, 7, 9).
 - **#463 direct-conversation verdict (main d07f2ee, en 1080p60, `clip/direct-verdict-1080.mp4`):** 4 fps contact sheet from the first frame plus a frame-difference trace. The choice slip closes, Eddington faces the player and the objective changes in one frame; then nothing moves for about 1.7 s; then his line appears. It reads as him looking at you before he answers, not as a hang, because his face has turned. No follow-up issue. Not checked: audio during the pause.
+
+### 2026-11-24 20:45 JST: row 1 met again on main 97bfbc8 (#483 merged); count 7/9
+- #483 is merged as 97bfbc8. `git diff bb15bad 97bfbc8` outside `docs/` and `.claude/` is empty, and d07f2ee is an ancestor of it, so the bb15bad frames I opened at 20:05 JST (arrival, coelostat still, talk, -30 s) stand for main: the ridge is one tone and one contour, no dashed line, no fog band.
+- Row 1 was not met on main between the #472 merge (2871bc4) and 97bfbc8; I had accepted #472 with the ridge as a follow-up and kept counting the row, which was wrong for those hours.
+- Not seen on a frame captured from 97bfbc8 itself; the next capture set with a main baseline is the check.
+- **Count: 7/9** (rows 1, 3, 4, 5, 6, 7, 9).
 
