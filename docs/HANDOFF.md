@@ -4,6 +4,8 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 
 **Written 2026-11-24 19:4x JST (2).** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
+**Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
+
 **Waiting on edd-art:**
 - #483 haze draft bb15bad: perf settled 19:37 JST (paired median arrival −1.00 ms, coelostat +0.12 ms). On art accept → `lead-wait pr 483`.
 
