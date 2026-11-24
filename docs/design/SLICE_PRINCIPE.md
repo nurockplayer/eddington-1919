@@ -1005,3 +1005,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - For the fix head: rehearsal frames at clear, thin and thick cloud beside main, at 1080p and 720p, plus one frame with the cloud edge crossing the Sun. Look: the clear day sky stays bare paper; cloud is a flat grey shape with a contour, thin cloud a faint tone, thick cloud a clearly darker one, the three told apart at a glance at 720p; where the Sun is behind cloud its place still reads. No ruling comes back over the whole sky.
 - Rule sharpened: a PR that changes the pass that draws the sky gets the cloud states in its first capture list, whatever the PR is about.
 - **Verdicts:** this PR's change not accepted (withdrawn at b2b13a2). Count stays **7/9**.
+
+### 2026-11-24 11:09 JST: #474 slower totality (P5) accepted at e0ef176
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/474/e0ef176116af5616adee8be3b417c96c62e26552/` (windowed, seed 7, isolated settings); copies in `accept/474/e0ef176/`. Opened whole at native size, all six: pause at 720p large text in en, ja, ko and zh_TW with the pace row focused; the locked row in en 1080p default text and ko 720p large text.
+- Both items are met. The panel shows every row with the pace row focused in all four locales, no scrolling, nothing cut. The locked row is greyed and carries a second line with the reason ("Locked during totality"); the ko panel at large text still fits with it (top 20 px, bottom 700 px of 720).
+- Carried from 3729d67 without retake: sky pairs, contact clips, HUD. The diff 3729d67..e0ef176 is locale strings, eight lines of `ui.gd` and one of `main.gd`; no timing code.
+- Not seen: the locked row in ja and zh_TW; the frames listed as not opened at 3729d67. Still open, not blockers: the empty cell in the pause menu's right column; "Normal" and "Slower" do not say what the player gets. edd-lead's main probe says the overflow was this PR's, now gone.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
