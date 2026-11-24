@@ -188,18 +188,29 @@ func weather_model(n: Node) -> void:
 			mi.set_surface_override_material(i, _weathered[src])
 
 
-## Night dress: under the safelight only red shows, so linen must sit well below skin (#216).
-## No-op on the primitive fallback figures, which have no E1919_linen surface.
-static func night_dress(n: Node) -> void:
+## Night dress keeps a dim coat with a lit edge under the existing lamps.
+static func night_dress(n: Node3D, heading: float, offset: Vector3) -> void:
+	var figure := n.get_node_or_null("figure") as Node3D
+	if figure == null:
+		return  # primitive fallback
+	figure.rotation_degrees.y = heading - n.rotation_degrees.y
+	figure.position = n.basis.inverse() * offset
+	_tone_linen(figure, Look.NIGHT_LINEN_DIM, true)
+
+
+static func _tone_linen(n: Node3D, value: float, night: bool) -> void:
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
 		var mesh: Mesh = mi.mesh
 		for i in mesh.get_surface_count():
 			var src := mesh.surface_get_material(i) as BaseMaterial3D
 			if src == null or src.resource_name != "E1919_linen":
 				continue
-			var dark := src.duplicate() as BaseMaterial3D
-			dark.albedo_color = Color(src.albedo_color.r * Look.NIGHT_LINEN_DIM, src.albedo_color.g * Look.NIGHT_LINEN_DIM, src.albedo_color.b * Look.NIGHT_LINEN_DIM, src.albedo_color.a)
-			mi.set_surface_override_material(i, dark)
+			var cloth := src.duplicate() as BaseMaterial3D
+			cloth.albedo_color = Color(src.albedo_color.r * value, src.albedo_color.g * value, src.albedo_color.b * value, src.albedo_color.a)
+			cloth.rim_enabled = night
+			cloth.rim = 0.4
+			cloth.rim_tint = 0.0
+			mi.set_surface_override_material(i, cloth)
 
 
 func box(size: Vector3, pos: Vector3, color: Color, parent: Node3D = null, collide := true, rot := Vector3.ZERO) -> Node3D:
@@ -1105,8 +1116,6 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 		dome.material_override = mat(Color(0.86, 0.82, 0.7))
 		dome.position = Vector3(0, 1.78, 0)
 		body.add_child(dome)
-		cyl(0.012, 0.02, Vector3(-0.05, 1.63, -0.12), Color(0.1, 0.1, 0.1), body, false, Vector3(deg_to_rad(90), 0, 0))
-		cyl(0.012, 0.02, Vector3(0.05, 1.63, -0.12), Color(0.1, 0.1, 0.1), body, false, Vector3(deg_to_rad(90), 0, 0))
 	else:
 		cyl(0.22, 0.02, Vector3(0, 1.72, 0), Color(0.85, 0.75, 0.5), body)
 		cyl(0.13, 0.1, Vector3(0, 1.77, 0), Color(0.85, 0.75, 0.5), body)
@@ -1132,6 +1141,26 @@ func _tag(body: Node3D, name: String) -> void:
 	body.add_child(tag)
 
 
+class WorkingPose extends SkeletonModifier3D:
+	var bone_pitches: Dictionary
+	var pitch_axis: Vector3
+
+	func _ready() -> void:
+		var rig := get_skeleton()
+		# The imported figure faces +Z; express its right axis in rig space.
+		var figure := rig.find_parent("figure") as Node3D
+		pitch_axis = (rig.global_basis.inverse() * figure.global_basis.x).normalized()
+
+	func _process_modification_with_delta(_delta: float) -> void:
+		var rig := get_skeleton()
+		for bone in bone_pitches:
+			var index := rig.find_bone(bone)
+			assert(index >= 0, "Working pose cannot find bone: " + bone)
+			var axis := (rig.get_bone_global_pose(index).basis.inverse() * pitch_axis).normalized()
+			var pitch := Quaternion(axis, deg_to_rad(bone_pitches[bone]))
+			rig.set_bone_pose_rotation(index, rig.get_bone_pose_rotation(index) * pitch)
+
+
 ## r06: production character (art/people/, MPFB route) in place of the primitive
 ## figure. Collider, interaction and tag stay on the body exactly as before. The
 ## model plays its baked "idle" loop and gets a head look-at (target set by main).
@@ -1145,11 +1174,14 @@ func _person(id: String, body: Node3D) -> bool:
 		return false  # exists but failed to load: keep the primitive figure
 	var fig: Node3D = scene.instantiate()
 	fig.name = "figure"
-	fig.rotation.y = PI  # models face +Z; NPC bodies face -Z (v0.1 convention)
+	var observer := id == "eddington"
+	# Headings relative to the unchanged interaction bodies: tube and drive.
+	fig.rotation_degrees.y = -53.0 if observer else -35.0
 	body.add_child(fig)
-	# Row 8: the faired skin carries the engraving; no separate eye/brow marks.
+	_tone_linen(fig, 0.48 if observer else 0.61, false)
+	# The brim and faired skin carry the face contour.
 	for mi in fig.find_children("*", "MeshInstance3D", true, false):
-		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows"):
+		if mi.name.ends_with("_eyes") or mi.name.ends_with("_irises") or mi.name.ends_with("_eyebrows") or mi.name.ends_with("_glasses"):
 			mi.hide()
 	for ap in fig.find_children("*", "AnimationPlayer", true, false):
 		var player := ap as AnimationPlayer
@@ -1158,6 +1190,9 @@ func _person(id: String, body: Node3D) -> bool:
 			player.play("idle")
 			player.seek(randf() * 3.0, true)  # the two men do not breathe in sync
 	for sk in fig.find_children("*", "Skeleton3D", true, false):
+		var pose := WorkingPose.new()
+		pose.bone_pitches = {"spine_01": 12.0, "neck_01": 9.0, "lowerarm_r": -18.0} if observer else {"spine_01": 5.0, "lowerarm_l": -38.0}
+		sk.add_child(pose)
 		var look := LookAtModifier3D.new()
 		look.name = "look_at"
 		look.bone_name = "head"
@@ -1165,8 +1200,8 @@ func _person(id: String, body: Node3D) -> bool:
 		look.primary_rotation_axis = Vector3.AXIS_Y
 		look.use_angle_limitation = true
 		look.symmetry_limitation = true
-		look.primary_limit_angle = deg_to_rad(110.0)
-		look.secondary_limit_angle = deg_to_rad(50.0)
+		look.primary_limit_angle = deg_to_rad(35.0)
+		look.secondary_limit_angle = deg_to_rad(20.0)
 		look.duration = 0.6
 		look.influence = 0.0
 		sk.add_child(look)

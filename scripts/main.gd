@@ -434,7 +434,7 @@ func _update_npc_look() -> void:
 		if pair == null:
 			continue
 		var d: float = (pair[0] as Node3D).global_position.distance_to(eye)
-		(pair[1] as LookAtModifier3D).influence = clampf((4.5 - d) / 2.0, 0.0, 0.85)
+		(pair[1] as LookAtModifier3D).influence = clampf((4.5 - d) / 2.0, 0.0, 0.25)
 
 
 ## Fraction of the solar disc not covered by the Moon for a contact value.
@@ -1673,11 +1673,11 @@ func _setup_darkroom() -> void:
 	world.safelight.light_energy = Look.NIGHT_SAFELIGHT if _look_ambient < 1.0 else 0.25
 	if Story.departure_done or _came_from_departure:
 		_add_night_workbook()
-	World.night_dress(world.eddington)
-	World.night_dress(world.cottingham)
 	world.eddington.position = world.eddington_night
 	world.eddington.rotation.y = deg_to_rad(-120)
 	world.cottingham.position = world.darkroom_spot + Vector3(-1.5, 0, 1.2)
+	World.night_dress(world.eddington, -145.0, Vector3(-0.18, 0.04, 0.10))
+	World.night_dress(world.cottingham, -45.0, Vector3.ZERO)
 	player.global_position = world.darkroom_spot + Vector3(0, 0.05, 0)
 	player.velocity = Vector3.ZERO
 	player.look_at_point(world.measure_pos)
