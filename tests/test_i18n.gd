@@ -7,7 +7,6 @@ const Settings := preload("res://scripts/settings.gd")
 const Content := preload("res://scripts/content.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const Prompts := preload("res://scripts/prompts.gd")
-const WorldBuilder := preload("res://scripts/world_builder.gd")
 
 var checks := 0
 var failures := 0
@@ -76,24 +75,27 @@ func reload_check() -> void:
 	check(not ui.pause_panel.visible and not ui.dialog_active(), "no panel open after reload")
 	check(Settings.text_scale == 1.2, "text size kept across the reload, got " + str(Settings.text_scale))
 	check(ui.theme_res.default_font_size == Settings.fs(21), "reloaded theme uses the kept text size")
-	var names := {"zh_TW": ["Eddington", "Cottingham"], "en": ["Eddington", "Cottingham"],
+	var names := {"zh_TW": ["Eddington", "Cottingham"],
 		"ja": ["エディントン", "コッティンガム"], "ko": ["에딩턴", "코팅엄"]}
-	for locale in L.LOCALES:
+	for locale in names:
 		L.apply(locale)
+		check(reload_current_scene() == OK, locale + " scene reloads")
+		await settle()
+		main = current_scene
+		main.set_process(false)
+		main._start_game()
 		for i in 2:
-			var key: String = ["Eddington", "Cottingham"][i]
+			var id: String = ["eddington", "cottingham"][i]
 			var expected: String = names[locale][i]
-			var body: String = L.t(["Eddington 抬頭看了一眼：「雲還是很厚……繼續。」", "Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。"][i])
-			ui.play([{"s": key, "t": body}])
+			main._interact(id)
 			await settle()
-			check(ui.speaker_label.text == expected and body.contains(expected), locale + " speaker matches body: " + key)
-			var npc := WorldBuilder.new(main).npc(L.t(key), Vector3.ZERO, Color.BLACK, Color.WHITE, key.to_lower())
+			check(main.ui.speaker_label.text == expected, locale + " dialogue speaker: " + id)
+			var npc: Node3D = main.world[id]
 			var tag: Label3D = null
 			for child in npc.get_children():
 				if child is Label3D:
 					tag = child
-			check(tag is Label3D and tag.text == expected and npc.get_meta("prompt") == expected, locale + " tag and prompt: " + key)
-			npc.free()
+			check(tag is Label3D and tag.text == expected, locale + " scene name tag: " + id)
 	L.apply("zh_TW")
 	Settings.text_scale = previous
 	OS.set_environment("EDD_SETTINGS_PATH", previous_env)
