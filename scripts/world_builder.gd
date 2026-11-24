@@ -200,6 +200,8 @@ static func night_dress(n: Node3D, heading: float, offset: Vector3) -> void:
 
 static func _tone_linen(n: Node3D, value: float, night: bool) -> void:
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		if not night:
+			mi.mesh = mi.mesh.duplicate()
 		var mesh: Mesh = mi.mesh
 		for i in mesh.get_surface_count():
 			var src := mesh.surface_get_material(i) as BaseMaterial3D
@@ -210,7 +212,10 @@ static func _tone_linen(n: Node3D, value: float, night: bool) -> void:
 			cloth.rim_enabled = night
 			cloth.rim = 0.4
 			cloth.rim_tint = 0.0
-			mi.set_surface_override_material(i, cloth)
+			if night:
+				mi.set_surface_override_material(i, cloth)
+			else:
+				mesh.surface_set_material(i, cloth)
 
 
 func box(size: Vector3, pos: Vector3, color: Color, parent: Node3D = null, collide := true, rot := Vector3.ZERO) -> Node3D:
