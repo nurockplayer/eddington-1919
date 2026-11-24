@@ -1967,7 +1967,6 @@ func _build_credits(root: Control) -> void:
 	v.add_child(scroll)
 	var content := _rich(18)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.text = Credits.text()
 	scroll.add_child(content)
 	var back := _button(L.t("返回"))
 	back.focus_mode = Control.FOCUS_ALL
@@ -1980,6 +1979,9 @@ func _build_credits(root: Control) -> void:
 
 
 func _open_credits() -> void:
+	var content := credits_scroll.get_child(0) as RichTextLabel
+	if content.text.is_empty():
+		content.text = Credits.text()
 	_credits_focus = get_viewport().gui_get_focus_owner()
 	credits_panel.show()
 	credits_scroll.scroll_vertical = 0
