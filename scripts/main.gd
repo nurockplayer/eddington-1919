@@ -1633,6 +1633,8 @@ func _update_day_return(elapsed: float) -> void:
 	var darkness := 1.0 - v * v if _style == null else 1.0 - smoothstep(0.0, PASSAGE_S, elapsed)
 	sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
 	_apply_light(1.0 - v * 0.2, darkness, t_game + v * 10.0, 0.0)
+	for ridge in get_tree().get_nodes_in_group("far_ridges"):
+		ridge.scale.y = lerpf(0.006, 1.0, smoothstep(0.0, 1.0, v))
 
 
 # ----------------------------------------------------------------------- Night
