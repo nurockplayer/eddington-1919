@@ -2,23 +2,24 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 22:07 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 22:30 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
-**Codex burn (Owner 2026-11-24 20:0x JST):** Codex 96% used 21:3x JST, resets 2026-11-25 02:52 JST; fill every free worktree slot (Sol high). Queue after the runs below: package 8 run 2b (CJK serif subset ≤ 8 MB, lead-decision 06:34 JST; split recorded 21:35 JST), #480 rest (duration labels, ja/zh-TW locked-row frames), #470; pkg 2 after #484 verdict.
+**Codex burn (Owner 2026-11-24 20:0x JST):** Codex 98% used 22:28 JST, resets 2026-11-25 02:52 JST; fill every free worktree slot (Sol high). Queue: #480 rest (duration labels, ja/zh-TW locked-row frames), #470; pkg 2 after #484 verdict.
 
 **Waiting on edd-art:** #484 pkg 3 run 1 72cdaff, CI green, perf +0.38 ms. Sent 20:16 JST. On accept → `lead-wait pr 484`, then pkg 2. Worktree vo-pkg3 idle.
 
 **In flight (lead-wait):**
-- `lw-cx-vo-pkg6-fu10b` (22:00 JST; wt vo-pkg6 had vanished after gate round 3, recreated from origin 8e0a693, resume 01a20d69…): #485 gate round 3 (8e0a693) failed CI suites: test_prediction_ledger 6 Eddington-conversation failures (old aim position again); worker sweeps every aim/ray at Eddington/Cottingham. On event: CI green → `lead-wait pr 485 --reason` (4th head). ACCEPTED by edd-art at 9929a87, frames 0 px diff. Later figures run list: dot in left lens, broken mouth dash, open right hand by day, Cottingham's hand on crank. On merge: remove wt vo-pkg6 by hand.
-- `lw-cx-vo-pkg8-run2-fu1` (22:07 JST, resume 01a20da4…): #493 run 2a at 5f2effb, edd-art (log 8552a9d) accepts once ko pause (top+end) and ja pause (end) at 720p large are retaken (frames showed the game, not the panel). On event: post to edd-art; accept → `gh pr ready 493` + `lead-wait pr 493`. Run 2b list: CJK serif subset ≤ 8 MB, tint portrait oval in darkroom, rule under pause title.
-- #492 ACCEPTED by edd-art at 963cbb2 (21:58 JST, log 60c8f93); ready + `lead-wait pr 492` 21:59 JST. Inherited defects filed https://github.com/nurockplayer/eddington-1919/issues/494 (thumbnail outline after Continue; ko Eddington/에딩턴). On merge remove wt fix-476 by hand.
-- Worktrees 4/4: vo-pkg6, vo-pkg8, fix-476 running; vo-pkg3 idle. SSD free 13.7 GiB (< 40). KIOXIA 3.7 GiB free 17:5x JST (lead-board disk-structure-20261117).
-- Janitor refuses eddington worktrees (uninitialized submodule assets/licensed = "nested repository"); lead-board janitor-submodule-protect-20261124 to harness-lead. Until fixed, after MERGED: `git worktree remove --force` + `git branch -D` by hand.
+- `lw-pr-485` (22:27 JST, 4th head b644181, CI green, art accepted 9929a87). On merge: remove wt vo-pkg6 by hand. Later figures run list: dot in left lens, broken mouth dash, open right hand by day, Cottingham's hand on crank.
+- `lw-pr-493` (22:28 JST): run 2a ACCEPTED by edd-art at 5f2effb (log c310719), readied. On merge: remove wt vo-pkg8 by hand.
+- `lw-cx-vo-pkg8b-run2b` (22:28 JST, Sol high, wt vo-pkg8b on branch art/vo-pkg8-run2b stacked on 5f2effb; brief .claude/briefs/vo-pkg8-run2b.md): CJK serif subset ≤ 8 MB, portrait oval tint darkroom/totality, rule under pause title, ko/ja name spellings (Cottingham, #494 Eddington). On event: post frames to edd-art (lead-board reply visual-overhaul-proposal-20261124).
+- #492 MERGED 22:08 JST; wt fix-476 removed. Inherited defects #494.
+- Worktrees 4/4: vo-pkg6, vo-pkg8, vo-pkg8b, vo-pkg3 (idle). SSD free 12.7 GiB (< 40). KIOXIA 3.7 GiB free 17:5x JST (lead-board disk-structure-20261117).
+- Janitor refuses eddington worktrees (submodule); after MERGED: `git worktree remove --force` + `git branch -D` by hand.
 
-**Merged today:** #487 workbook seen 827e762 (21:3x JST, wt removed). #489 engraving tests 2f9fec9 (21:28 JST, wt removed). #465 pkg 8 run 1 557efe9. #483 haze bb15bad. #472 pkg 1 2871bc4. #474 P5 (fu #480). #475 P4 0fed703 (fu #477 done, #476 out; old wts mech-p4/mech-p5 still to clean by hand).
+**Merged today:** #492 blink hint (22:08 JST). #487 workbook seen 827e762 (21:3x JST, wt removed). #489 engraving tests 2f9fec9 (21:28 JST, wt removed). #465 pkg 8 run 1 557efe9. #483 haze bb15bad. #472 pkg 1 2871bc4. #474 P5 (fu #480). #475 P4 0fed703 (fu #477 done, #476 out; old wts mech-p4/mech-p5 still to clean by hand).
 
-**Next when a slot frees:** pkg 8 run 2b, then #480 rest, #470; pkg 2 after #484 (order P0,1,3,6,2,4,5,7,9,10).
+**Next when a slot frees:** #480 rest, #470; pkg 2 after #484 (order P0,1,3,6,2,4,5,7,9,10).
 
 **Standing:** Owner 11-23: Codex surplus, use freely; otherwise act as if Claude `ahead`. dot paused → Godot tests via CI `suites`. Re-draft visual PRs until art accepts (workers flip them to ready). Owner asks in dot thread pending (info only): lw-dot-row2-clips-main, lw-dot-third-contact-clip, lw-owner-playtest-eclipse. edd-art owns rows 5/8 visuals, #423, #425, #440. Wake-ups: none.
