@@ -2,11 +2,11 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 13:1x JST (b).** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 13:1x JST (c).** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **In flight (lead-wait):**
 - `lw-cx-accept465-ff-fu1` — #465 vo-slips (pkg 8) draft ff28341, CI green, six art items in body (67d9e62). Recapture ISOLATED running (first run hit wait limit on job accept465-ff-clip; resumed session 01a20bb6-f705…) (brief accept-shots-465-ff28341.md, out KIOXIA accept/465/ff28341/). On event: frames to edd-art; on art accept `lead-wait pr 465`.
-- `lw-cx-vo-haze` — #472 follow-up (horizon haze flat tone + telescope highlight/rim), wt vo-haze, Terra, brief vo-pkg1-haze-telescope.md. On event: frames to edd-art, keep draft.
+- `lw-cx-vo-haze-fu1` — #483 haze draft bb15bad, wt vo-haze, session 01a20ba2-f727…. Frames sent to edd-art (visual-overhaul-proposal). Timing sets 1–2 contradictory (host load); fu1 = 5 load-gated interleaved forced-draw reps arrival/coelostat, fix if > +0.5 ms. On event: clean numbers; on art accept → `lead-wait pr 483`.
 - `lw-cx-vo-pkg3-fu1` — pkg 3 run 1, draft #484 c8f28a1, wt vo-pkg3, session 01a20bb1-4c23…. Frames (KIOXIA accept/vo-pkg3/c8f28a1…/index.md) sent to edd-art on visual-overhaul-proposal (contact continuity + cloud). Resumed with vo-pkg3-run1-fu1.md: unexplained arrival/coelostat/dialogue control-view changes (fix or justify) + shelter perf rerun 5 paired reps (candidate 20.37/18.43/11.14 vs main ~10.4, likely contention). On event: check both resolved; on art accept + CI → `lead-wait pr 484`.
 - Worktrees 4/4 for this repo (vo-slips, vo-pkg1 idle merged, vo-haze, vo-pkg3). vo-pkg1 can be removed (merged #472; only untracked .uid). Janitor keeps merged trees over uninitialised submodule assets/licensed → reported to harness-lead on wt-lifetime-20261124; I removed mech-p4/p5 by hand.
 
