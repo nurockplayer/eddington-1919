@@ -931,6 +931,11 @@ func _test_plate_pause() -> void:
 					if child.visible:
 						check(scroll.get_global_rect().grow(1).encloses(child.get_global_rect()), "pause row fits: " + child.name)
 				_check_pause_columns(ui, scroll, language)
+				ui.lock_totality_pace()
+				await settle()
+				_check_pause_columns(ui, scroll, language)
+				ui.totality_pace_button.disabled = false
+				ui.totality_pace_button.text = ui.totality_pace_button.text.get_slice("\n", 0)
 				ui.hold_button.pressed.emit()
 				await settle()
 				_check_pause_text(scroll, language)

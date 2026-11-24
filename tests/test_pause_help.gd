@@ -55,6 +55,10 @@ func _run() -> void:
 	ui.pause_enabled = true
 	ui.toggle_pause()
 	check(paused and ui.pause_panel.visible, "Start opens the pause menu")
+	check(ui.totality_pace_button.text.contains("約 2 分鐘"), "normal pace shows its duration")
+	ui.totality_pace_button.pressed.emit()
+	check(ui.totality_pace_button.text.contains("約 4 分鐘"), "slower pace shows its duration")
+	ui.totality_pace_button.pressed.emit()
 	var help := find_button(ui.pause_panel, "操作說明")
 	check(help != null, "pause menu offers 操作說明")
 	help.grab_focus()

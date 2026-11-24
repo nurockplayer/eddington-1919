@@ -352,7 +352,7 @@ func _check_pause_menu() -> void:
 	check(focus is Button and focus.text == "繼續", "opening pause focuses Continue")
 	check(focus.find_next_valid_focus() == sliders[0], "keyboard/gamepad focus reaches the sliders")
 	var pace: Button = ui.totality_pace_button
-	check(not pace.disabled and pace.text == "全食節奏：標準", "pause settings offer Normal totality pace")
+	check(not pace.disabled and pace.text == "全食節奏：標準（約 2 分鐘）", "pause settings offer Normal totality pace")
 	pace.grab_focus()
 	var accept := InputEventAction.new()
 	accept.action = "ui_accept"
@@ -360,12 +360,12 @@ func _check_pause_menu() -> void:
 	root.push_input(accept)
 	accept.pressed = false
 	root.push_input(accept)
-	check(Settings.slower_totality and pace.text == "全食節奏：較慢", "keyboard selects Slower totality pace")
+	check(Settings.slower_totality and pace.text == "全食節奏：較慢（約 4 分鐘）", "keyboard selects Slower totality pace")
 	Settings.slower_totality = false
 	Settings.load_settings()
 	check(Settings.slower_totality, "Slower totality pace survives a settings reload")
 	pace.pressed.emit()
-	check(not Settings.slower_totality and pace.text == "全食節奏：標準", "the pacing control returns to Normal")
+	check(not Settings.slower_totality and pace.text == "全食節奏：標準（約 2 分鐘）", "the pacing control returns to Normal")
 	for i in sliders.size():
 		var slider: HSlider = sliders[i]
 		check(slider.focus_mode == Control.FOCUS_ALL and slider.min_value == 0.0

@@ -6,6 +6,7 @@ const L := preload("res://scripts/l10n.gd")
 const Credits := preload("res://scripts/credits.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
 const Settings := preload("res://scripts/settings.gd")
+const Sim := preload("res://scripts/eclipse_sim.gd")
 const Content := preload("res://scripts/content.gd")
 const Strip := preload("res://scripts/totality_strip.gd")
 const DialoguePortrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
@@ -2166,7 +2167,9 @@ func _build_pause(root: Control) -> void:
 		hold_button.text = L.t("長按互動：按一下") if Settings.hold_toggle else L.t("長按互動：按住"))
 	rows.add_child(hold_button)
 	var pace_caption := func() -> String:
-		return L.t("全食節奏：較慢") if Settings.slower_totality else L.t("全食節奏：標準")
+		var rate: float = Sim.TIME_SCALE * (0.5 if Settings.slower_totality else 1.0)
+		var minutes := roundi(Sim.TOTALITY_S / rate / 60.0)
+		return (L.t("全食節奏：較慢") if Settings.slower_totality else L.t("全食節奏：標準")) + L.t("（約 %d 分鐘）") % minutes
 	totality_pace_button = _button(pace_caption.call())
 	totality_pace_button.pressed.connect(func():
 		Settings.toggle_totality_pace()
