@@ -6,6 +6,7 @@ extends SceneTree
 
 const Score := preload("res://scripts/audio/score.gd")
 const ScorePlayer := preload("res://scripts/audio/score_player.gd")
+const Settings := preload("res://scripts/settings.gd")
 ## Wall-clock budget for _end_totality to reach NIGHT with the Tab log held open.
 const HANDOFF_BUDGET_MS := 7500  # Base budget; E2E_CAP_SCALE applies at runtime.
 
@@ -385,11 +386,22 @@ func _check_totality_black_handoff() -> void:
 	var main = main_script.new()
 	root.add_child(main)
 	await process_frame
+	main.set_process(false)
+	main._start_game()
+	Settings.slower_totality = true
+	await main._begin_totality()
+	Settings.slower_totality = false
 	var score = main.score
 	score.playback_enabled = true
 	var cues := ["totality_drone", "totality_glass", "totality_edge"]
-	for cue in cues:
-		score.play(cue, 0.0)
+	main._process_totality(1.75)
+	check(not score.layers.get("totality_drone", {}).get("wanted", false),
+		"Slower totality still holds the score at 1.75 real seconds")
+	main._process_totality(0.25)
+	check(score.layers.get("totality_drone", {}).get("wanted", false) and main.t_game == 2.5,
+		"Slower totality releases the score at 2.0 real seconds")
+	score.play("totality_edge", 0.0)
+	main.set_process(true)
 	var start_deadline := Time.get_ticks_msec() + 4000
 	var all_started := false
 	while not all_started and Time.get_ticks_msec() < start_deadline:
@@ -403,9 +415,7 @@ func _check_totality_black_handoff() -> void:
 		var layer: Dictionary = score.layers.get(cue, {})
 		check(is_instance_valid(layer.get("player")), "%s has a live AudioStreamPlayer before handoff" % cue)
 
-	main.phase = main.Phase.TOTALITY
-	main.tot_done = false
-	await create_timer(0.65).timeout # Let the real entrance ramps reach audible levels.
+	await create_timer(main.TOTALITY_SCORE_FADE_S).timeout # Let the entrance ramps reach audible levels.
 	check(float(score.layers["totality_drone"].db) > -31.0,
 		"totality drone entrance ramp reaches audible level before handoff")
 	# Time the handoff itself: loading main.gd above is host load, not the cue.

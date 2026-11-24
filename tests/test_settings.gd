@@ -22,8 +22,10 @@ func _run() -> void:
 	_check_settings_path()
 	# A settings file that predates 減少晃動 must keep the gentler-motion default off.
 	Settings.reduced_motion = true
+	Settings.slower_totality = true
 	Settings.load_settings(test_path + ".old")
 	check(not Settings.reduced_motion, "reduced motion defaults off")
+	check(not Settings.slower_totality, "settings without a totality pace default to Normal")
 	Settings.load_settings(test_path)
 	check(Settings.volumes == {"Master": 1.0, "Music": 1.0, "SFX": 1.0} and not Settings.fullscreen,
 		"missing settings default to full volume and windowed")
@@ -349,6 +351,21 @@ func _check_pause_menu() -> void:
 	var focus: Control = root.gui_get_focus_owner()
 	check(focus is Button and focus.text == "繼續", "opening pause focuses Continue")
 	check(focus.find_next_valid_focus() == sliders[0], "keyboard/gamepad focus reaches the sliders")
+	var pace: Button = ui.totality_pace_button
+	check(not pace.disabled and pace.text == "全食節奏：標準", "pause settings offer Normal totality pace")
+	pace.grab_focus()
+	var accept := InputEventAction.new()
+	accept.action = "ui_accept"
+	accept.pressed = true
+	root.push_input(accept)
+	accept.pressed = false
+	root.push_input(accept)
+	check(Settings.slower_totality and pace.text == "全食節奏：較慢", "keyboard selects Slower totality pace")
+	Settings.slower_totality = false
+	Settings.load_settings()
+	check(Settings.slower_totality, "Slower totality pace survives a settings reload")
+	pace.pressed.emit()
+	check(not Settings.slower_totality and pace.text == "全食節奏：標準", "the pacing control returns to Normal")
 	for i in sliders.size():
 		var slider: HSlider = sliders[i]
 		check(slider.focus_mode == Control.FOCUS_ALL and slider.min_value == 0.0

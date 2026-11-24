@@ -119,6 +119,7 @@ var text_size_button: Button
 var quality_button: Button
 var language_button: Button
 var hold_button: Button
+var totality_pace_button: Button
 var restart_button: Button
 var quit_button: Button
 var music_button: Button
@@ -2058,7 +2059,10 @@ func _build_pause(root: Control) -> void:
 	# Dialogue is built when a scene starts, so a language change reloads the title.
 	language_button = _button(_language_caption())
 	language_button.pressed.connect(_cycle_language)
-	rows.add_child(language_button)
+	# Keep the grid position when the language button is hidden in pause.
+	var language_slot := MarginContainer.new()
+	language_slot.add_child(language_button)
+	rows.add_child(language_slot)
 	var look := _button(L.t("視角靈敏度：%s") % [L.t("低"), L.t("標準"), L.t("高")][Settings.LOOK_SPEEDS.find(Settings.look_speed)])
 	look.pressed.connect(func():
 		Settings.cycle_look_speed()
@@ -2079,6 +2083,13 @@ func _build_pause(root: Control) -> void:
 		Settings.toggle_hold_toggle()
 		hold_button.text = L.t("長按互動：按一下") if Settings.hold_toggle else L.t("長按互動：按住"))
 	rows.add_child(hold_button)
+	var pace_caption := func() -> String:
+		return L.t("全食節奏：較慢") if Settings.slower_totality else L.t("全食節奏：標準")
+	totality_pace_button = _button(pace_caption.call())
+	totality_pace_button.pressed.connect(func():
+		Settings.toggle_totality_pace()
+		totality_pace_button.text = pace_caption.call())
+	rows.add_child(totality_pace_button)
 	var help := _button(L.t("操作說明"))
 	help.pressed.connect(_open_help)
 	rows.add_child(help)
@@ -2122,24 +2133,24 @@ func _build_pause(root: Control) -> void:
 	rows.add_child(quit_button)
 	# Fill the two visual columns in reading order, keeping each group together.
 	var volume_cards := [first_slider.get_parent().get_parent(), music_row.get_parent(), last_slider.get_parent().get_parent()]
-	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, language_button]
-	var right := [invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button]
+	var right := [invert, motion, hold_button, help, mic_step, mic_cross, language_slot, restart_button, pause_title, quit_button]
 	for i in left.size():
 		rows.move_child(left[i], i * 2)
 		if i < right.size():
 			rows.move_child(right[i], i * 2 + 1)
-	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, language_button, invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
+	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button, language_button, invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
 	for i in focus_order.size():
 		var button: Control = focus_order[i]
 		button.focus_next = button.get_path_to(focus_order[(i + 1) % focus_order.size()])
 		button.focus_previous = button.get_path_to(focus_order[(i - 1 + focus_order.size()) % focus_order.size()])
-	for button in [r, music_button, fullscreen_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, totality_pace_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
 	# Keep the engraved rows in two columns so both text sizes fit at 720p.
 	for row: Control in rows.get_children():
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# Long confirmation labels wrap within their column.
-	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, help, pause_title, restart_button, quit_button]:
+	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, totality_pace_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size.y = Settings.fs(46)
 	# Scroll only when necessary; otherwise the paper ends at its last row.
@@ -2150,10 +2161,16 @@ func _build_pause(root: Control) -> void:
 
 
 func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer) -> void:
-	var height := minf(v.get_combined_minimum_size().y, root.size.y - 112)
+	var height := minf(v.get_combined_minimum_size().y, root.size.y - 32)
 	scroll.custom_minimum_size.y = height
 	slip.offset_top = -height / 2.0
 	slip.offset_bottom = height / 2.0
+
+
+func lock_totality_pace() -> void:
+	totality_pace_button.disabled = true
+	totality_pace_button.text += "\n" + L.t("全食期間無法變更")
+	totality_pace_button.add_theme_color_override("font_disabled_color", INK.lerp(PAPER, 0.25))
 
 
 func _toggle_fullscreen() -> void:

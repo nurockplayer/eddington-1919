@@ -4284,6 +4284,18 @@ msgstr ""
 msgid "長按互動：按住"
 msgstr ""
 
+#: scripts/ui.gd:2084
+msgid "全食節奏：標準"
+msgstr ""
+
+#: scripts/ui.gd:2084
+msgid "全食節奏：較慢"
+msgstr ""
+
+#: scripts/ui.gd:2172
+msgid "全食期間無法變更"
+msgstr ""
+
 #: scripts/ui.gd:821
 msgid "閃爍比對"
 msgstr ""
