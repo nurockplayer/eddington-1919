@@ -64,13 +64,6 @@ var reselect_removed: Array = []
 var reselect_history: Array = []
 var reselect_justified_so_far := true
 
-const DARKROOM_FIELDS := [
-	"plates", "plates_delivered", "drive_wound", "drive_rate_checked", "drive_error",
-	"rule_id", "bet_pick", "measured", "measured_selection", "measured_readings",
-	"first_result", "reselected_after_seeing", "reselect_reason", "reselect_added",
-	"reselect_removed", "reselect_history", "reselect_justified_so_far",
-]
-
 
 func _init(p_seed: int = 1919) -> void:
 	run_seed = p_seed
@@ -81,19 +74,6 @@ func _init(p_seed: int = 1919) -> void:
 	_make_stars()
 	_make_gaps()
 	_make_clouds()
-
-
-## Each plate retains the raw exposure inputs alongside its developed values.
-func darkroom_state() -> Dictionary:
-	var data := {}
-	for field in DARKROOM_FIELDS:
-		data[field] = get(field)
-	return data.duplicate(true)
-
-
-func restore_darkroom(data: Dictionary) -> void:
-	for field in DARKROOM_FIELDS:
-		set(field, data[field])
 
 
 # ---------------------------------------------------------------------------

@@ -1618,14 +1618,14 @@ func _begin_night() -> void:
 func _save_darkroom() -> void:
 	if Checkpoint.enabled():
 		Checkpoint.save("darkroom", {
-			"seed": sim.run_seed, "sim": sim.darkroom_state(), "from_departure": _came_from_departure,
+			"seed": sim.run_seed, "sim": Checkpoint.darkroom_state(sim), "from_departure": _came_from_departure,
 			"plate_changed": plate_changed, "comparison_fetched": _comparison_fetched,
 			"workbook_seen": _departure_workbook_seen,
 		})
 
 
 func _restore_darkroom(data: Dictionary) -> void:
-	sim.restore_darkroom(data.sim)
+	Checkpoint.restore_darkroom(sim, data.sim)
 	plate_changed = data.plate_changed
 	_comparison_fetched = data.comparison_fetched
 	_departure_workbook_seen = data.workbook_seen

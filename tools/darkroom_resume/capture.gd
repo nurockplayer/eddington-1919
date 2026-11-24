@@ -104,7 +104,7 @@ func _run() -> void:
 			assert(game.sim.first_result.n == 2 and game.sim.combined().n == 1,
 				"capture must show first result and a changed selection")
 		var file := FileAccess.open(out.path_join(stage + "-expected.save"), FileAccess.WRITE)
-		file.store_var(game.sim.darkroom_state(), false)
+		file.store_var(Checkpoint.darkroom_state(game.sim), false)
 		file.close()
 		await _frame(game, stage + "-before-quit")
 	else:
@@ -114,7 +114,7 @@ func _run() -> void:
 		await _until(func(): return current_scene != null and current_scene.phase == main_script.Phase.NIGHT)
 		game = current_scene
 		var file := FileAccess.open(out.path_join(stage + "-expected.save"), FileAccess.READ)
-		assert(game.sim.darkroom_state() == file.get_var(false), "Continue changed the captured simulation state")
+		assert(Checkpoint.darkroom_state(game.sim) == file.get_var(false), "Continue changed the captured simulation state")
 		assert(game.ui.viewer.visible and game.ui._viewer_locked == (stage == "reselected"),
 			"Continue must restore the unlocked or measured viewer")
 		await _frame(game, stage + "-after-continue")

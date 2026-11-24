@@ -6,6 +6,13 @@ extends RefCounted
 const Settings := preload("res://scripts/settings.gd")
 
 const VERSION := 1
+const DARKROOM_FIELDS := [
+	"plates", "plates_delivered", "drive_wound", "drive_rate_checked", "drive_error",
+	"rule_id", "bet_pick", "measured", "measured_selection", "measured_readings",
+	"first_result", "reselected_after_seeing", "reselect_reason", "reselect_added",
+	"reselect_removed", "reselect_history", "reselect_justified_so_far",
+]
+
 ## Suites that exercise checkpoints set this: it turns them on, on a separate test
 ## file, so a suite never touches a player's real one.
 static var force_enabled := false
@@ -23,6 +30,19 @@ const SCENES := {
 	"epilogue": "res://scenes/epilogue.tscn",
 }
 const BOT_ARGS := ["autoplay", "prologue-autoplay", "benchmark"]
+
+
+## Each plate retains the raw exposure inputs alongside its developed values.
+static func darkroom_state(sim: RefCounted) -> Dictionary:
+	var data := {}
+	for field in DARKROOM_FIELDS:
+		data[field] = sim.get(field)
+	return data.duplicate(true)
+
+
+static func restore_darkroom(sim: RefCounted, data: Dictionary) -> void:
+	for field in DARKROOM_FIELDS:
+		sim.set(field, data[field])
 
 
 static func path() -> String:

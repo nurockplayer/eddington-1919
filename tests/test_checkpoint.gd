@@ -367,7 +367,7 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 			stage + ": the first result differs from the revised result")
 
 	if resume:
-		var expected: Dictionary = game.sim.darkroom_state()
+		var expected: Dictionary = Checkpoint.darkroom_state(game.sim)
 		var bets: Array = [story.bet_1917.duplicate(true), story.bet.duplicate(true)]
 		var scene_id: int = game.get_instance_id()
 		game._return_to_title()
@@ -385,7 +385,7 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		game = current_scene
 		check(game.get_instance_id() != scene_id and game.sim.run_seed == 77, stage + ": new scene uses the saved seed")
 		check(game.sim.plates == expected.plates, stage + ": raw and developed plates, readings and inclusion match")
-		check(game.sim.darkroom_state() == expected, stage + ": rule, committed reading and selection history match")
+		check(Checkpoint.darkroom_state(game.sim) == expected, stage + ": rule, committed reading and selection history match")
 		check([story.bet_1917, story.bet] == bets, stage + ": original and current bets match")
 		check(game.ui.viewer.visible and game.ui._viewer_locked == expected.measured,
 			stage + ": the restored viewer shows the correct measurement state")
