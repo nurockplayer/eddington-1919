@@ -1104,3 +1104,9 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Run 2b list unchanged (portrait oval takes the page's tint in the darkroom and at totality, rule under the pause title, CJK serif). Also for edd-lead's strings: ko mixes "Cottingham" and "코팅엄", ja "Cottingham" and "コッティンガム" in the same list.
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
 
+### 2026-11-24 22:44 JST: issue #470, the direct-conversation verdict in the darkroom (main d6df6f8): not a hang
+- Clip `/Volumes/KIOXIA/eddington-1919-cache/director/accept/463-route/d6df6f8/en_direct_verdict.mp4` (en 1080p, 60 fps, 331 frames; plates set up by script, camera at the darkroom's default position). Looked at: my own sheet of every 9th frame from 0.1 s before the answer to the reply, four frames after the reply starts, and a frame-difference trace of the whole clip. Sheets in `accept/463/route-d6df6f8/`. Not watched as moving video; edd-lead's contact sheet not opened.
+- What happens: the choice slip closes, Eddington turns from the player to the measuring table and puts his hands on its edge (about 0.3 s), stands over the plate for about 1.2 s, then turns back as his reply appears (facing the player again about 0.4 s into the line). The objective slip stays top left through the gap.
+- Verdict: it reads as him checking the plate before he answers. Better than the clip of d07f2ee judged earlier this evening, where he only stood: #485's turn-back-to-work fills the gap. No follow-up fix. Issue #470 can close.
+- Two things seen on the way, not for this issue: his reply starts while he still faces the table (he turns during the first 0.4 s of the line); the slips here are still cream in the red room (main before #493).
+
