@@ -164,28 +164,22 @@ func _test_eclipse_pilot_bindings() -> void:
 	# Complete the real second-contact fades without waiting on wall time.
 	get_processed_tweens().back().custom_step(1.0)
 	get_processed_tweens().back().custom_step(2.0)
-	var front: Node = game._style.impl.day_return
-	var pilot: Array[MeshInstance3D] = []
-	for i in front.sources.size():
-		var source: VisualInstance3D = front.sources[i]
-		if source.has_meta(World.PILOT_MATERIALS):
-			pilot.append(source)
-			_check_pilot_binding(source, source, false, "totality restores original materials")
-			_check_pilot_binding(source, front.mirrors[0][i], false, "dark return endpoint uses original materials")
-			_check_pilot_binding(source, front.mirrors[1][i], true, "day return endpoint uses engraving materials")
+	var pilot: Array[MeshInstance3D] = game._style.impl.pilot_meshes
+	for mesh in pilot:
+		_check_original_pilot_binding(mesh, "totality restores original materials")
 	game.t_game = game.sim.TOTALITY_S
 	game._process_totality(0.0)
-	# Check before the lighting tween can independently restore daylight.
-	for source in pilot:
-		_check_pilot_binding(source, source, true, "third contact reinstates daylight materials")
+	game._day_return.custom_step(game.PASSAGE_S)
+	for mesh in pilot:
+		_check_original_pilot_binding(mesh, "live daylight recovery retains original materials")
 	game.free()
 
 
-func _check_pilot_binding(source: MeshInstance3D, target: MeshInstance3D, day: bool, message: String) -> void:
-	for entry in source.get_meta(World.PILOT_MATERIALS):
+func _check_original_pilot_binding(mesh: MeshInstance3D, message: String) -> void:
+	for entry in mesh.get_meta(World.PILOT_MATERIALS):
 		var surface: int = entry[0]
-		var active: Material = target.material_override if surface < 0 else target.get_surface_override_material(surface)
-		check(active == entry[2 if day else 1], "%s (%s, surface %d)" % [message, source.get_path(), surface])
+		var active: Material = mesh.material_override if surface < 0 else mesh.get_surface_override_material(surface)
+		check(active == entry[1], "%s (%s, surface %d)" % [message, mesh.get_path(), surface])
 
 
 func _test_hud_paper(game: Node) -> void:
