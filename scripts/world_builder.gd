@@ -196,6 +196,8 @@ static func night_dress(n: Node3D, heading: float, offset: Vector3) -> void:
 		return  # primitive fallback
 	figure.rotation_degrees.y = heading - n.rotation_degrees.y
 	figure.position = n.basis.inverse() * offset
+	var collision := n.get_child(0) as CollisionShape3D
+	collision.position = figure.position + Vector3.UP * 0.9
 	var pose := figure.find_child("WorkingPose", true, false) as WorkingPose
 	pose.work_yaw = figure.rotation.y
 	if n.get_meta("interact_id") == "eddington":
@@ -1097,6 +1099,7 @@ func npc(name: String, pos: Vector3, coat: Color, shirt: Color, id: String) -> N
 	body.position = pos
 	root.add_child(body)
 	if _person(id, body):
+		cs.position = (body.get_node("figure") as Node3D).position + Vector3.UP * 0.9
 		_tag(body, name)
 		interactable(body, id, name)
 		return body

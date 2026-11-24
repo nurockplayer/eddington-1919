@@ -26,6 +26,21 @@ func _surfaces(figure: Node, material_name: String) -> Array:
 	return found
 
 
+func _check_rays(main: Node, body: StaticBody3D, phase: String) -> void:
+	var figure := body.get_node("figure") as Node3D
+	var center := figure.global_position + Vector3.UP * 1.15
+	body.collision_layer |= 1 << 19
+	await physics_frame
+	for offset in [0.0, -0.5, 0.5]:
+		var target := center + Vector3.RIGHT * offset
+		var query := PhysicsRayQueryParameters3D.create(target + Vector3.BACK, target - Vector3.BACK)
+		query.collision_mask = 1 << 19
+		var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
+		check((not hit.is_empty() and hit.collider == body) if offset == 0.0 else hit.is_empty(),
+			"%s %s interaction ray at offset %.1f" % [phase, body.name, offset])
+	body.collision_layer &= ~(1 << 19)
+
+
 func _run() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
@@ -33,6 +48,8 @@ func _run() -> void:
 	await process_frame
 	main.set_process(false)
 	var figures := [main.world.eddington, main.world.cottingham]
+	for figure in figures:
+		await _check_rays(main, figure, "day")
 	var linen_by_figure := []
 	var skin_by_figure := []
 	for figure in figures:
@@ -53,6 +70,8 @@ func _run() -> void:
 			break
 		await process_frame
 	check(main.world.eddington.position == main.world.eddington_night, "night transition reaches Eddington's darkroom position")
+	for figure in figures:
+		await _check_rays(main, figure, "night")
 	for figure_index in figures.size():
 		var figure: Node = figures[figure_index]
 		for item in linen_by_figure[figure_index]:
