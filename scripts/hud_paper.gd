@@ -91,7 +91,7 @@ func setup(target: Node, colours: Dictionary) -> void:
 	_layout.call_deferred()
 
 
-func light(_darkness: float, _night: float, _params: Dictionary) -> void:
+func light(darkness: float, night: float, params: Dictionary) -> void:
 	if evidence_dialogue.is_empty():
 		evidence_dialogue = {
 			"panel": ui.dialog_panel.get_theme_stylebox("panel"),
@@ -102,7 +102,8 @@ func light(_darkness: float, _night: float, _params: Dictionary) -> void:
 			"disclosure": ui.dialogue_portrait.disclosure.get_theme_color("font_color"),
 		}
 	var background: Color = palette.paper
-	foreground = palette.ink_col
+	# Keep the cream stock, but switch its ink with the page at the day front.
+	foreground = palette.tot_paper if darkness * float(params.tot_wash) > 0.5 and night * float(params.night_wash) <= 0.5 else palette.ink_col
 	for slip in slips:
 		slip.bg_color = background
 		slip.border_color = foreground

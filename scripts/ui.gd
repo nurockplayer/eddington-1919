@@ -442,7 +442,7 @@ func set_objectives(bb: String) -> void:
 		current = lines[1] if lines.size() > 1 else lines[0]
 		if bb.contains("✓") and lines.size() > 2:
 			current = lines[-1]
-	objectives.text = current
+	objectives.text = current if paper_hud else bb
 	objectives.get_parent().visible = not current.is_empty() and not blocks_world_input() and not title_panel.visible and not ending_panel.visible
 	if paper_hud:
 		paper_layout.call()
