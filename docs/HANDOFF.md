@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-25 02:33 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-25 02:36 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
@@ -12,7 +12,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 
 **In flight (lead-wait):**
 - `lw-cx-names-494-fu2` (02:33 JST, resume 01a20e23-aade…, wt names-494, brief .claude/briefs/names-494-fu2.md; draft #500 1b60691 CI green): candidate frames done; waiting base import job, then baseline, ja darkroom recapture, revert check (earlier import segfault). On event: frames to edd-art.
-- `lw-cx-pause-480-fu2b` (00:48 JST, fresh session from 01a20e17-46ff…, wt ../eddington-1919-wt/pause-480, brief .claude/briefs/pause-480-fu-settings.md): oracle blocker on #499 b01e0d7 — tools/pause_480/capture.gd overwrites user://settings.cfg. Tool-only fix, art acceptance stands. On event: `lead-wait pr 499`. On merge remove wt pause-480 (+ .godot/pause480-baseline). Major (test precondition) filed as issue; #501 pause panel cream later.
+- `lw-pr-499` (02:36 JST, head 2e66776, blocker fixed: capture uses temp settings; art accepted b01e0d7, tool-only change since). On merge remove wt pause-480 (+ .godot/pause480-baseline); #500 rebases on locale/*.po. Major filed #502; #501 later.
 - Totality dialogue: not reachable in play (Sol 23:03 JST, repro 5/5); only toasts beside the clock; told edd-art; wt removed.
 - Naming lead-decision 23:00 JST on #494: ja/ko/zh_TW speaker labels + name tags take locale transliteration; follow-up PR after #496 merges (queue with #480 rest).
 - #492 MERGED 22:08 JST; wt fix-476 removed. Inherited defects #494.
