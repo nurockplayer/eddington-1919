@@ -205,6 +205,8 @@ func _test_confrontation_flow(story: Node) -> void:
 	eddington.position = game.world.eddington_night
 	var figure: Node3D = eddington.get_node("figure")
 	game.player.global_position = figure.global_position + Vector3(0.25, 0.05, 1.0)
+	await physics_frame
+	await process_frame
 	game.player.look_at_point(figure.global_position + Vector3.UP * 1.3)
 	await physics_frame
 	await process_frame
