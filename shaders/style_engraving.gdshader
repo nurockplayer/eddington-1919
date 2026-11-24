@@ -298,7 +298,7 @@ void fragment() {
 			ink = mix(ink, broad * 0.36 * band_lines * (1.0 - cloud_body), totality_plate);
 		}
 		ink = max(ink, cloud_contour * band_lines * mix(contour_ink, 0.34, totality_plate));
-		cloud_wash = cloud_body * band_lines * totality_plate * mix(0.10, 0.22, smoothstep(0.35, 0.90, cloud_field.y));
+		cloud_wash = cloud_body * band_lines * totality_plate * mix(0.58, 0.94, smoothstep(0.35, 0.90, cloud_field.y));
 		if (night <= 0.5 && practice_cloud < 0.0) {
 			ink *= print_darkness;
 			cloud_wash *= print_darkness;
@@ -582,7 +582,7 @@ void fragment() {
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	float heightening = sky ? sky_white : 0.0;
 	page = mix(page, paper, heightening * blue);
-	page = mix(page, paper, cloud_wash);
+	page = mix(page, tot_paper * vec3(2.35, 2.0, 1.45), cloud_wash);
 	page = mix(page, paper * (1.0 - paper_grain * fibre), ridge_totality);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));

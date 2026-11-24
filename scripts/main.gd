@@ -1449,7 +1449,7 @@ func _begin_totality() -> void:
 	plates_left = sim.plates_available()
 	player.velocity = Vector3.ZERO
 	if _style != null:
-		player.global_position = world.station_pos + Vector3(-3.0, 0.05, 0.0)
+		player.global_position = world.station_pos + Vector3(-3.0, 0.05, 3.5)
 		player.yaw = deg_to_rad(31.0)
 		player.pitch = deg_to_rad(33.0)
 		player.rotation.y = player.yaw

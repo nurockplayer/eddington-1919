@@ -66,7 +66,7 @@ func _test_path(path: String) -> void:
 			break
 		_check_prep_frame(game, camera, yaw, pitch, objectives, clock, clock_rect)
 	check(out_frames >= 42 and out_frames <= 43, "the prep plate stays visible for the authored 0.7-second lead-in")
-	check(game.player.global_position.is_equal_approx(game.world.station_pos + Vector3(-3, 0.05, 0)), "the cut places the player at the shelter edge")
+	check(game.player.global_position.is_equal_approx(game.world.station_pos + Vector3(-3, 0.05, 3.5)), "the cut places the player at the shelter edge")
 	var sun: Vector3 = game.player.camera.global_position + game.sim.sun_dir * 10.0
 	check(game.player.camera.is_position_in_frustum(sun), "the shelter-edge frame contains the Sun")
 	check(not game.world.roof.visible and game.ui.objectives.text.is_empty(), "canvas and checklist clear on the cut")
