@@ -275,6 +275,7 @@ void fragment() {
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
+		if (daylight && d_near > 75.0 && d_near < 1000.0) edge = 1.0;
 		vec2 cloud_field = vec2(10.0, 0.0);
 		if (print_darkness > 0.0) cloud_field = print_cloud(ray_w);
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
@@ -437,6 +438,7 @@ void fragment() {
 			float shade_side = 1.0 - smoothstep(0.0, 0.35, dot(n_w, sun_dir));
 			ink = max(smoothstep(0.12, 0.72, dark), 0.88 * shade_side);
 			edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * (1.0 - dist_f);
+			if (length(pw.xz) > 75.0 && pw.y > -0.39) ink = 0.16;
 		} else if (print_darkness < 0.001 && night > 0.5) {
 			bool foliage = c.g > c.r * 1.08 && c.g > c.b * 1.15 && pw.y > 0.08;
 			bool room = all(lessThan(abs(pw - vec3(10.0, 1.3, 3.0)), vec3(2.1, 1.5, 1.8)));
