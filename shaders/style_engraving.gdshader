@@ -251,6 +251,7 @@ void fragment() {
 	bool measuring_paper = false;
 	float paper_edge = 0.0;
 	float sky_white = 0.0;
+	float cloud_wash = 0.0;
 	float corona_white = 0.0;
 	float sun_rim = 0.0;
 	float sun_crescent = 0.0;
@@ -270,8 +271,9 @@ void fragment() {
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
 		float band_lines = smoothstep(0.015, 0.19, abs(elev));
-		// One cloud stroke family by day, with the second family and open
-		// sky ruling coming in as the paper cools.
+		// At peak the blue page takes broad horizontal ruling and the clouds
+		// read as flat washes bounded by the same live contour.
+		float totality_plate = smoothstep(0.94, 1.0, print_darkness) * (1.0 - night);
 		float cloud_tone = cloud_body * (0.10 + 0.34 * smoothstep(0.10, 0.80, cloud_field.y));
 		float primary = mix(cloud_tone, 0.04 + 0.06 * high_sky + 0.65 * cloud_weight, print_darkness) * band_lines;
 		float crossed = (0.02 * high_sky + 0.40 * cloud_weight) * band_lines * print_darkness;
@@ -283,14 +285,24 @@ void fragment() {
 			primary = clamp((dark - 0.06) * 1.7, 0.0, 0.55) * hz;
 			crossed = clamp((dark - cross_at) * 1.6, 0.0, 0.55) * hz;
 		}
-		float i1 = hatch(sky_ruling.x, k, primary, l_px, 99.0);
-		float i2 = hatch(sky_ruling.y, k, crossed, l_px, 99.0);
-		// At the band's edge, retain every fourth ruled line and thin the rest away.
-		float sparse = hatch(ruling.x, k, primary, l_px * 4.0, 99.0);
-		i1 = mix(i1, mix(sparse, i1, band_lines), print_darkness);
-		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
-		ink = max(ink, cloud_contour * band_lines * contour_ink);
-		if (night <= 0.5 && practice_cloud < 0.0) ink *= print_darkness;
+		if (totality_plate < 1.0) {
+			float i1 = hatch(sky_ruling.x, k, primary, l_px, 99.0);
+			float i2 = hatch(sky_ruling.y, k, crossed, l_px, 99.0);
+			// At the band's edge, retain every fourth ruled line and thin the rest away.
+			float sparse = hatch(ruling.x, k, primary, l_px * 4.0, 99.0);
+			i1 = mix(i1, mix(sparse, i1, band_lines), print_darkness);
+			ink = 1.0 - (1.0 - i1) * (1.0 - i2);
+		}
+		if (totality_plate > 0.0) {
+			float broad = hatch(ruling.x, k, 0.14, l_px * 2.0, 99.0);
+			ink = mix(ink, broad * 0.36 * band_lines * (1.0 - cloud_body), totality_plate);
+		}
+		ink = max(ink, cloud_contour * band_lines * mix(contour_ink, 0.34, totality_plate));
+		cloud_wash = cloud_body * band_lines * totality_plate * mix(0.10, 0.22, smoothstep(0.35, 0.90, cloud_field.y));
+		if (night <= 0.5 && practice_cloud < 0.0) {
+			ink *= print_darkness;
+			cloud_wash *= print_darkness;
+		}
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
@@ -363,11 +375,10 @@ void fragment() {
 			float rays = clamp((half_width + 0.5 * pixel - abs(across)) / pixel, 0.0, 1.0)
 				- clamp((0.5 * pixel - half_width - abs(across)) / pixel, 0.0, 1.0);
 			float limb_white = 1.0 - smoothstep(1.035, 1.065, r);
-			// A clear Sun keeps the accepted complete starburst. Thin cloud uses
-			// the very same contour and ruling as the drawn cloud, never shorter rays
-			// or a white trace of the simulation's carved density levels.
+			// A clear Sun keeps the complete starburst; the printed cloud's own
+			// body and optical density veil it under thin and thick cloud.
 			float sun_cloud = eclipse_cloud_density(sun_dir);
-			float cloud_veil = max(ink, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud);
+			float cloud_veil = max(0.38 * cloud_body, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud);
 			corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil);
 		}
 
@@ -571,6 +582,8 @@ void fragment() {
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	float heightening = sky ? sky_white : 0.0;
 	page = mix(page, paper, heightening * blue);
+	page = mix(page, paper, cloud_wash);
+	page = mix(page, paper * (1.0 - paper_grain * fibre), ridge_totality);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);

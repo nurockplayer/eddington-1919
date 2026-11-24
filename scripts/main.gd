@@ -1437,8 +1437,9 @@ func _begin_totality() -> void:
 	_quiet_birds()
 	create_tween().tween_property(audio_surf, "volume_db", _surf_db + TOTALITY_SURF_DIP_DB, TOTALITY_SURF_DIP_S)
 	_sync_player_input()
-	await ui.fade_to(1.0, 0.7).finished
-	# Change the view and paper layout only while the fade is fully black.
+	# Keep the second-contact delay. The engraving plate cuts directly from
+	# the crescent to the corona, with the rolled eave at the edge of the view.
+	await ui.fade_to(0.0 if _style != null else 1.0, 0.7).finished
 	ui.set_prompt("")
 	ui.set_objectives("")
 	if sim.plates_carried > 0:
@@ -1446,9 +1447,16 @@ func _begin_totality() -> void:
 		sim.plates_carried = 0
 		_update_rack()
 	plates_left = sim.plates_available()
-	player.global_position = world.station_pos + Vector3(0, 0.05, 0)
 	player.velocity = Vector3.ZERO
-	player.look_at_point(_totality_aim_point())
+	if _style != null:
+		player.global_position = world.station_pos + Vector3(-3.0, 0.05, 0.0)
+		player.yaw = deg_to_rad(31.0)
+		player.pitch = deg_to_rad(33.0)
+		player.rotation.y = player.yaw
+		player.camera.rotation.x = player.pitch
+	else:
+		player.global_position = world.station_pos + Vector3(0, 0.05, 0)
+		player.look_at_point(_totality_aim_point())
 	world.eddington.position = Vector3(-0.75, 0, -1.55)
 	world.eddington.rotation.y = deg_to_rad(-90)
 	world.cottingham.position = Vector3(0.75, 0, -1.3)

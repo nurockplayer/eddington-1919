@@ -45,7 +45,7 @@ func _run() -> void:
 		and shader_text.contains("cloud_field = print_cloud(ray_w, print_darkness);"),
 		"daylight and totality contours come from the live exposure field")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or opaque Moon overlay")
-	check(shader_text.contains("max(ink, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "live cloud ruling veils the corona over the Sun")
+	check(shader_text.contains("max(0.38 * cloud_body, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "live cloud body and density veil the corona over the Sun")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && print_darkness > 0.0 && front > 0.0)"),
 		"engraving hides Moon ink and corona before second contact")
@@ -167,7 +167,7 @@ func _test_eclipse_pilot_bindings() -> void:
 	root.add_child(game)
 	game._start_game()
 	game._begin_totality()
-	# Complete the real second-contact fades without waiting on wall time.
+	# Complete the real second-contact holds without waiting on wall time.
 	get_processed_tweens().back().custom_step(1.0)
 	get_processed_tweens().back().custom_step(2.0)
 	var pilot: Array[MeshInstance3D] = game._style.impl.pilot_meshes
