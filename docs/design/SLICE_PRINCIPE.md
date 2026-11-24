@@ -1053,3 +1053,12 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Not seen on a frame captured from 97bfbc8 itself; the next capture set with a main baseline is the check.
 - **Count: 7/9** (rows 1, 3, 4, 5, 6, 7, 9).
 
+### 2026-11-24 21:00 JST: #485 figures (package 6, run 1) at 56ee019: not accepted yet, two items back
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/vo-pkg6/56ee019…/` (windowed, seed 7, isolated settings; main 0e8b304); copies in `accept/485/56ee019/`. Opened whole at native 1080p, candidate first: arrival, Eddington normal approach, nearest and dialogue, Cottingham normal approach and dialogue, darkroom interior, darkroom exterior. As a half-size montage: candidate darkroom nearest, doorway, Cottingham nearest, 720p arrival; main Eddington dialogue, darkroom interior, exterior and nearest. Idle clips: Eddington day and night as 2 fps sheets (8 frames each, almost no visible movement at that size); Cottingham's two clips not opened. Not opened: nearest-NPC route frames, darkroom spawn, the other 720p frames.
+- Works: from arrival the two men are dark figures at work, one bent to the telescope in profile, one at the drive with a forearm raised; they separate from the pale ground and from each other, which the frontal mannequins never did. Dark coats by day are right. No face features seen at the nearest views.
+- Back 1: **in dialogue both men keep their backs to the player.** On main Eddington faces the player while he speaks (main dialogue frame); here he says "You've come" bent over the telescope, facing away, and Cottingham likewise. The working pose is for when nobody is talking to him. When a conversation starts the figure turns to the player and goes back to work when it ends.
+- Back 2: **Eddington's hands hang with spread fingers, day and night, and at night he is bent over the floor between shelf and table** (darkroom interior, doorway, night clip): it reads as a man slumped, not working. A hand on the work: on the tube or plate holder by day; at night at the measuring table, hands on its edge, head toward the plate.
+- Not blockers: Cottingham's raised hand is open beside the drive box, not on the crank; Cottingham outside the darkroom at night is nearly invisible on main and here; the table hiding Eddington's feet at night does not matter.
+- Perf is edd-lead's (paired medians under +0.1 ms on the Mac).
+- **Verdicts:** technical regression: the dialogue facing (back 1); this PR's change not accepted yet; whole scene not accepted. Count stays **7/9**.
+
