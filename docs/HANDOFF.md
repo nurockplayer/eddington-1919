@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 23:43 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 23:44 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
@@ -11,7 +11,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 **Waiting on edd-art:** #484 pkg 3 run 1 72cdaff, CI green, perf +0.38 ms. Sent 20:16 JST. On accept → `lead-wait pr 484`, then pkg 2. Worktree vo-pkg3 idle.
 
 **In flight (lead-wait):**
-- #496 rebased at 61a8617 (draft; worker session 01a20dbe…; CI queued 23:4x JST; one flaky test_portrait 55° lens assertion on first local run, rerun green). Asked edd-art 23:43 JST whether acceptance at e0a49d4 carries or fresh frames wanted (main moved: #485). Carries + CI green → `gh pr ready 496` + `lead-wait pr 496 --reason`; frames wanted → capture resume on vo-pkg8b. On merge remove wt vo-pkg8b; then naming PR + #480 rest.
+- `lw-pr-496` (23:44 JST, 61a8617, acceptance carried by edd-art log d3c5bf2; CI was pending). On merge: remove wt vo-pkg8b; dispatch naming PR (#494 lead-decision; frames must include one darkroom dialogue with tinted portrait + new figures) and #480 rest.
 - #496 run 2b ACCEPTED by edd-art at e0a49d4 (log 62159af); package 8 list done.
 - Totality dialogue: not reachable in play (Sol 23:03 JST, repro 5/5); only toasts beside the clock; told edd-art; wt removed.
 - Naming lead-decision 23:00 JST on #494: ja/ko/zh_TW speaker labels + name tags take locale transliteration; follow-up PR after #496 merges (queue with #480 rest).
