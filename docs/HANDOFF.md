@@ -2,7 +2,7 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 21:01 JST.** Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 21:12 JST.** Worker rules now `.claude/cx-header.md` (tracked, auto-appended by cx-exec on fresh runs since 21:08 JST; Part A stays in briefs/_codex-common.md). Slice acceptance **7/9** (edd-art 20:45 JST: row 1 met again from 97bfbc8, row 3 holds) on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **Archive job:** `job-run --status edd-archive-20261124` (19:5x JST, 13 finished director/ dirs → pcloud:tachiko-archive/kioxia/eddington-1919/director/, Owner rule archive-not-delete). Not wired to lead-wait: check on next wake, post freed size on lead-board disk-structure-20261117.
 
@@ -14,7 +14,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 **In flight (lead-wait):**
 - `lw-cx-fix-477` (20:03 JST, wt fix-477, brief issue-477-workbook-seen.md, Sol high): non-visual; on event check revert-check + Test rerun → `lead-wait pr <n>`.
 - #465 MERGED 557efe9 (20:3x JST; board notice posted; wt vo-slips removed). Package 8 run 2 = edd-art's #465 comment list + lead-decision (portrait card proportion first; serif CJK ≤ 8 MB; slip paper at totality/darkroom); next capture's main baseline must include arrival at ≥ 97bfbc8. Dispatch at the next free slot.
-- `lw-cx-fix-479` (20:36 JST, wt fix-479, Sol high, brief issue-479-engraving-tests.md): non-visual test PR; on event check Test rerun → `lead-wait pr <n>`.
+- #489 (fix-479, engraving bindings test, non-visual) at 5fe1e85: wrapper Test rerun exit 0 (day_return 1107/0, engraving 643/0, 4 revert checks); `lead-wait pr 489` 21:1x JST. On merge: clean wt fix-479, then dispatch package 8 run 2 there.
 - `lw-cx-vo-pkg6-fu7` (21:01 JST, resume 01a20d69…, Sol high, brief vo-pkg6-run1-fu7.md): edd-art 20:59 JST (log dcf7684) met turn+pose at a5d256c; back: restore Eddington's _glasses (hidden in _person), front dialogue both men same distance 1080p+720p beside main 1bba3a7 (moustache check); dialogue perf +1.26 ms > +0.5 budget, worker fixes. On event: post to edd-art; accept → `lead-wait pr 485`.
 - Worktrees 4/4, fix-477, fix-479, vo-pkg6 running; vo-pkg3 idle (#484 awaiting edd-art) on open draft PRs (#479 waits for one to merge or Owner removal) ( vo-haze removed after #483); vo-pkg1 removed 13:2x JST. wt-add warned: SSD free 15.2 GiB (< 40 GiB). KIOXIA 3.7 GiB free 17:5x JST after pruning (lead-board disk-structure-20261117); prune finished accept/ dirs (phase0, p3-ridges, hatching-diag referenced in art log: ask edd-art before deleting).
 
