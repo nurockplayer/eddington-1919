@@ -1075,3 +1075,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Perf is edd-lead's: the dialogue view's paired median is +1.26 ms, over the +0.5 ms budget used for #483.
 - **Verdicts:** technical regression: the glasses; this PR's change not accepted yet; whole scene not accepted. Count stays **7/9**.
 
+### 2026-11-24 21:12 JST: #485 figures (package 6, run 1) accepted at 9929a87
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/vo-pkg6/9929a87…/`; copies in `accept/485/9929a87/`. Opened whole at native size, candidate first: Eddington dialogue from in front at 1080p and 720p, Cottingham dialogue from in front at 1080p. Half-size montage: main's two front frames, candidate 720p Cottingham front, 1080p Eddington from behind, 720p arrival, 720p darkroom interior. Not opened: the other candidate and main frames. No clips at this head.
+- Glasses are back: round rims with empty lenses, readable at 720p and from across the shelter. Cottingham's moustache is wide and clear from in front; main's "front" camera shows both men from the side, so there is no same-view comparison and I drop the question.
+- `git diff a5d256c 9929a87` is `scripts/world_builder.gd` only: `_glasses` leaves the hidden list, and two dark cylinders are added to the fallback figure in `npc()` (not what these frames show). So the turn-to-player clips and the night pose judged at a5d256c carry. Against the a5d256c frames (counted by me): darkroom nearest 0 px, doorway 26, interior 262, Eddington nearest 612, normal 860, arrival 9,924; I did not find out what moves in arrival (the idle starts at a random phase), and the 720p arrival montage shows the same staging.
+- Not blockers, for a later run: a one-pixel dot in the left lens and a broken dash at Eddington's mouth at talk distance (4x crop); by day his right hand hangs open; Cottingham's hand beside the crank; the hat's crown shows a palm frond behind it as if it were a plume in the front view (camera coincidence).
+- Still not seen by me: the idle clips of a5d256c and Cottingham's of 56ee019.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted (house, stand-in cloud, passage into totality; figures' tones are still smooth gradients). Count stays **7/9**.
+
