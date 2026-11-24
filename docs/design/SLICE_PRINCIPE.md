@@ -1110,3 +1110,12 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Verdict: it reads as him checking the plate before he answers. Better than the clip of d07f2ee judged earlier this evening, where he only stood: #485's turn-back-to-work fills the gap. No follow-up fix. Issue #470 can close.
 - Two things seen on the way, not for this issue: his reply starts while he still faces the table (he turns during the first 0.4 s of the line); the slips here are still cream in the red room (main before #493).
 
+### 2026-11-24 22:58 JST: #496 slips run 2b (package 8) accepted at e0a49d4
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/vo-pkg8-run2b/e0a49d4…/` (windowed, seed 7, isolated settings; stacked on #493, baseline main b0c9d45); copies in `accept/496/e0a49d4/`. Opened whole at native size, candidate only: ja 1080p dialogue, en 1080p darkroom, en 1080p totality with a portrait, ko 720p large pause at list end, zh_TW and ko 720p large dialogue. Not opened: ja 720p dialogue, en 720p pause, all of main's set, the paired sheets.
+- CJK serif: Japanese, Korean and Traditional Chinese body text and the disclosure are now a Mincho/Myeongjo face beside the Latin serif; strokes hold at 720p large text; no fallback glyphs seen in these lines. The slips read as one printed thing in all four languages.
+- Portrait: salmon in the darkroom, grey-blue at totality; in neither frame is it the brightest thing any more (the plate and the exposure lamp are).
+- Pause: a rule under the title; the first list line sits whole under it (ko, list end). ko names read 에딩턴 / 코팅엄 throughout the list.
+- For edd-lead, not blockers: (1) the totality frame is staged (a dialogue opened at totality lighting) and there the dialogue slip covers the left of the totality clock slip; if any dialogue can open during totality in play, that overlap is real and needs a fix. (2) The speaker label and the name tags over the figures stay Latin "Eddington" / "Cottingham" while ja and ko body text use the transliteration; zh_TW keeps Latin in the body. A naming decision per locale, under #494.
+- With 2a (#493) and this, package 8's list from #465 is done.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene not accepted. Count stays **7/9**.
+
