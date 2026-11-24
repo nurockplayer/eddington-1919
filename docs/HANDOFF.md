@@ -2,11 +2,11 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md` (frozen, not read at session start).
 
-**Written 2026-11-24 11:4x JST.** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
+**Written 2026-11-24 11:3x JST (after art accept).** Slice acceptance **7/9 recorded, rows 1/4/6 disputed** on main (met 3, 5, 7, 9; open 2, 8). Release readiness frozen; listing paused. Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. Previous full state: `git show 4461012:docs/HANDOFF.md`.
 
 **In flight (lead-wait):**
 - `lw-cx-pr465-r4b` — #465 vo-slips (pkg 8) draft e94d315: fix slow UI setup so test_layout_bounds meets 900 s, CI green, then art items (brief pr465-fu4.md + pr465-fu4-resume1.md; session 01a20afe…). On event: check CI on head, recapture with ISOLATED settings, send frames to edd-art; on art accept `lead-wait pr 465`.
-- #472 vo-pkg1 draft e29cff3: rehearsal frames DONE (KIOXIA accept/vo-pkg1/e29cff3…/rehearsal/index.md), sent to edd-art 11:4x JST on visual-overhaul-proposal-20261124 (my note: thick cloud = flat grey oval, unhatched). Waiting on art re-accept → `lead-wait pr 472` (round 2); retakes → `cx-exec --resume 01a20b64-68f0-7da2-8b34-375a9010831a`. Major #479. On merge: `wt-add --holder edd-lead . ../eddington-1919-wt/vo-haze -b art/vo-haze origin/main` then `lead-wait run cx-vo-haze -- cx-exec ../eddington-1919-wt/vo-haze .claude/briefs/vo-pkg1-haze-telescope.md`.
+- #472 vo-pkg1 e29cff3: edd-art RE-ACCEPTED 11:36 JST (log 7d2e417); set ready, gate round 2 running `lw-pr-472-20261124-113659`. Blocker → `cx-exec --resume 01a20b64-68f0-7da2-8b34-375a9010831a`. Major #479. On merge: `wt-add --holder edd-lead . ../eddington-1919-wt/vo-haze -b art/vo-haze origin/main` then `lead-wait run cx-vo-haze -- cx-exec ../eddington-1919-wt/vo-haze .claude/briefs/vo-pkg1-haze-telescope.md`.
 
 **Merged today:** #474 P5 slower totality (11:27 JST; follow-ups #480: pause right column empty cell, Normal/Slower duration labels, ja/zh-TW locked-row frames). #475 P4 0fed703 (fu #477, #476; worktree mech-p4 cleanup: retry `git-worktree-janitor --run --merged-pr 475 --repo .`; also clean mech-p5 for #474).
 
