@@ -261,7 +261,16 @@ void fragment() {
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
-		if (d_near > 75.0 && d_near < 1000.0) edge = mix(edge, 1.0, day_weight);
+		if (day_weight > 0.0 && d_near > 75.0) {
+			// Sample adjacent depth texel centres so the skyline survives the subpixel outline taps.
+			vec2 depth_size = vec2(textureSize(depth_tex, 0));
+			vec2 ridge_uv = (floor(uv * depth_size) + vec2(0.5)) / depth_size;
+			vec2 ridge_step = vec2(0.0, 1.0 / depth_size.y);
+			float ridge_near = min(d_near, min(
+				length(view_pos(depth_tex, ridge_uv - ridge_step, INV_PROJECTION_MATRIX)),
+				length(view_pos(depth_tex, ridge_uv + ridge_step, INV_PROJECTION_MATRIX))));
+			if (ridge_near > 75.0 && ridge_near < 1000.0) edge = mix(edge, 1.0, day_weight);
+		}
 		vec2 cloud_field = vec2(10.0, 0.0);
 		if (night <= 0.5 && (print_darkness > 0.0 || practice_cloud >= 0.0)) cloud_field = print_cloud(ray_w, print_darkness);
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
