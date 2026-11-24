@@ -1,6 +1,8 @@
 extends RefCounted
 ## In-play print furniture only; viewer and menu themes stay on their own root.
 
+const Fonts := preload("res://scripts/fonts.gd")
+
 var ui: Node
 var palette: Dictionary
 var slips: Array[StyleBoxFlat] = []
@@ -24,6 +26,8 @@ func setup(target: Node, colours: Dictionary) -> void:
 	var face := SystemFont.new()
 	face.font_names = PackedStringArray(["Baskerville", "Georgia", "serif"])
 	face.fallbacks = [ui.font]
+	if Fonts.SERIF_FACES.has(L.current()):
+		face.fallbacks = [Fonts.SERIF_FACES[L.current()], ui.font]
 	serif = face
 	for variant in ["bold_font", "italics_font", "bold_italics_font"]:
 		var emphasis: SystemFont = face.duplicate()
@@ -100,12 +104,15 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 		}
 	var background: Color = palette.paper
 	foreground = palette.ink_col
+	portrait_tint = Color.WHITE
 	if night * float(params.night_wash) > 0.5:
 		background = palette.safe_paper
 		foreground = palette.safe_light
+		portrait_tint = foreground
 	elif darkness * float(params.tot_wash) > 0.5:
 		background = palette.tot_paper
 		foreground = palette.paper
+		portrait_tint = background.lerp(Color.WHITE, 0.4)
 	for slip in slips:
 		slip.bg_color = background
 		slip.border_color = foreground
@@ -125,9 +132,6 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	ui.crosshair.add_theme_constant_override("outline_size", 3)
 	for label in [ui.objectives, ui.tot_label, ui.text_label]:
 		label.add_theme_color_override("default_color", foreground)
-	# The original print stays on its card; multiply its paper by the page wash.
-	portrait_tint = Color.WHITE
-	ui.dialogue_portrait.image.self_modulate = portrait_tint
 	_choices()
 	_central_visibility()
 

@@ -198,7 +198,12 @@ func _test_hud_paper(game: Node) -> void:
 			_check_slip(slip, text, state[2])
 		check(ui.hint_label.get_theme_color("font_color") == ui.speaker_label.get_theme_color("font_color"), "dialogue hint has the same ink as its speaker")
 		check(ui.dialogue_portrait.disclosure.get_theme_color("font_color") == ui.hint_label.get_theme_color("font_color"), "portrait caption has the same ink as dialogue")
-		check(ui.dialogue_portrait.image.self_modulate == Color.WHITE, "portrait retains its approved print on cream stock")
+		var tint: Color = Color.WHITE
+		if state[1] > 0.5:
+			tint = Engraving.PAGES.safe_light
+		elif state[0] > 0.5:
+			tint = Engraving.PAGES.tot_paper.lerp(Color.WHITE, 0.4)
+		check(ui.dialogue_portrait.image.self_modulate == tint, "portrait takes the scene's light")
 	game._apply_light(0.62, 0, -150, 0)
 	ui.set_objectives("[color=#a99]Grey line[/color]")
 	check(not ui.objectives.text.contains("[color"), "authored objective colour cannot override page ink")
