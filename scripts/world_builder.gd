@@ -305,8 +305,8 @@ func build() -> Dictionary:
 	out.merge(_props())
 	_bounds()
 	randomize()  # vegetation reseeded the global RNG; don't leak that into "new sky" restarts
-	out.eddington = npc(L.character_name("Eddington"), Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
-	out.cottingham = npc(L.character_name("Cottingham"), Vector3(1.35, 0, -6.1), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
+	out.eddington = npc(L.t("Eddington"), Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
+	out.cottingham = npc(L.t("Cottingham"), Vector3(1.35, 0, -6.1), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
 	out.cottingham.rotation.y = deg_to_rad(-60)
 	return out
 

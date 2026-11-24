@@ -304,6 +304,10 @@ msgstr ""
 msgid "B 鍵"
 msgstr ""
 
+#: scripts/world_builder.gd
+msgid "Cottingham"
+msgstr ""
+
 #: scripts/content.gd:20
 msgid "Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。"
 msgstr ""
@@ -366,6 +370,10 @@ msgstr ""
 
 #: scripts/credits.gd:5
 msgid "Dyson、Eddington、Cottingham 與 1919 年的日食遠征為史實；你、Kit、Ashby 先生、劍橋的那一夜與所有對白為虛構，場景為推測重建。"
+msgstr ""
+
+#: scripts/world_builder.gd
+msgid "Eddington"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:398

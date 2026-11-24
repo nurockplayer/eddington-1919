@@ -86,7 +86,7 @@ func reload_check() -> void:
 			var body: String = L.t(["Eddington 抬頭看了一眼：「雲還是很厚……繼續。」", "Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。"][i])
 			ui.play([{"s": key, "t": body}])
 			check(ui.speaker_label.text == expected and body.contains(expected), locale + " speaker matches body: " + key)
-			var npc := WorldBuilder.new(main).npc(L.character_name(key), Vector3.ZERO, Color.BLACK, Color.WHITE, key.to_lower())
+			var npc := WorldBuilder.new(main).npc(L.t(key), Vector3.ZERO, Color.BLACK, Color.WHITE, key.to_lower())
 			var tag: Label3D = null
 			for child in npc.get_children():
 				if child is Label3D:

@@ -582,7 +582,7 @@ def collect_msgids() -> dict[str, dict]:
             if _inside(token.start, names):
                 continue
             value = decode_escapes(source[token.content_start:token.content_end], token.raw)
-            if not has_cjk(value):
+            if not has_cjk(value) and not (value in ("Eddington", "Cottingham") and wrapper_kind(source, token.start)):
                 continue
             if _inside(token.start, consts):
                 kind = "const"
