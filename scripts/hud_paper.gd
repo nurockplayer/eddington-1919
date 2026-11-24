@@ -12,7 +12,6 @@ var choice_focus := StyleBoxEmpty.new()
 var foreground: Color
 var evidence_dialogue := {}
 var portrait_tint := Color.WHITE
-var disclosure_wrap: int
 var serif: Font
 var serif_emphasis := {}
 var small_caps: FontVariation
@@ -43,8 +42,6 @@ func setup(target: Node, colours: Dictionary) -> void:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	ui.toast.autowrap_mode = TextServer.AUTOWRAP_WORD
 	ui.objectives.get_parent().custom_minimum_size = Vector2.ZERO
-	disclosure_wrap = ui.dialogue_portrait.disclosure.autowrap_mode
-	ui.dialogue_portrait.disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD
 	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption]:
 		var slip := StyleBoxFlat.new()
 		slip.set_border_width_all(1)
@@ -102,8 +99,13 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 			"disclosure": ui.dialogue_portrait.disclosure.get_theme_color("font_color"),
 		}
 	var background: Color = palette.paper
-	# Keep the cream stock, but switch its ink with the page at the day front.
-	foreground = palette.tot_paper if darkness * float(params.tot_wash) > 0.5 and night * float(params.night_wash) <= 0.5 else palette.ink_col
+	foreground = palette.ink_col
+	if night * float(params.night_wash) > 0.5:
+		background = palette.safe_paper
+		foreground = palette.safe_light
+	elif darkness * float(params.tot_wash) > 0.5:
+		background = palette.tot_paper
+		foreground = palette.paper
 	for slip in slips:
 		slip.bg_color = background
 		slip.border_color = foreground
@@ -119,7 +121,7 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 		label.add_theme_color_override("font_color", foreground)
 		label.add_theme_constant_override("outline_size", 0)
 	ui.crosshair.add_theme_color_override("font_color", foreground)
-	ui.crosshair.add_theme_color_override("font_outline_color", palette.paper)
+	ui.crosshair.add_theme_color_override("font_outline_color", background)
 	ui.crosshair.add_theme_constant_override("outline_size", 3)
 	for label in [ui.objectives, ui.tot_label, ui.text_label]:
 		label.add_theme_color_override("default_color", foreground)
@@ -134,7 +136,6 @@ func _choices() -> void:
 	# Row 7's report conversation is part of the evidence viewer, whose pixels
 	# are deliberately outside this pass, including its shared dialogue controls.
 	if ui.viewer.visible:
-		ui.dialogue_portrait.disclosure.autowrap_mode = disclosure_wrap
 		ui.dialog_panel.add_theme_stylebox_override("panel", evidence_dialogue.panel)
 		ui.dialogue_portrait.add_theme_stylebox_override("panel", evidence_dialogue.mount)
 		ui.speaker_label.add_theme_color_override("font_color", evidence_dialogue.speaker)

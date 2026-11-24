@@ -1,6 +1,7 @@
 extends PanelContainer
 
 const Settings := preload("res://scripts/settings.gd")
+const PRINT_SIZE := 204.0
 ## Owner-selected P1 prints. This CanvasLayer control never receives the 3D
 ## environment grade: the source images already carry their toned-print look.
 const Cast := preload("res://scripts/cambridge/cast.gd")
@@ -18,6 +19,8 @@ const PRINTS := {
 var prints_override := {}
 var image: TextureRect
 var disclosure: Label
+var _paper := false
+var _disclosure_text: String
 
 
 func setup(muted: Color) -> void:
@@ -35,14 +38,15 @@ func setup(muted: Color) -> void:
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
 	image = TextureRect.new()
-	image.custom_minimum_size = Vector2(204, 204)
+	image.custom_minimum_size = Vector2(PRINT_SIZE, PRINT_SIZE)
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(image)
 	disclosure = Label.new()
 	disclosure.size.x = 204
-	disclosure.text = L.t("重建肖像，非歷史照片")
+	_disclosure_text = L.t("重建肖像，非歷史照片")
+	disclosure.text = _disclosure_text
 	disclosure.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	disclosure.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Settings.track_font(disclosure, 18)
@@ -50,6 +54,19 @@ func setup(muted: Color) -> void:
 	disclosure.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(disclosure)
 	hide()
+
+
+func set_paper(paper: bool) -> void:
+	if paper == _paper:
+		return
+	_paper = paper
+	image.custom_minimum_size = Vector2(162, 216) if paper else Vector2(PRINT_SIZE, PRINT_SIZE)
+	image.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if paper else Control.SIZE_FILL
+	disclosure.autowrap_mode = TextServer.AUTOWRAP_OFF if paper else TextServer.AUTOWRAP_WORD_SMART
+	var ideographic_comma := String.chr(0x3001)
+	var fullwidth_comma := String.chr(0xff0c)
+	disclosure.text = _disclosure_text.replace(", ", ",").replace(",", ",\n").replace(ideographic_comma, ideographic_comma + "\n").replace(fullwidth_comma, fullwidth_comma + "\n") if paper else _disclosure_text
+	Settings.track_font(disclosure, 16 if paper else 18)
 
 
 func show_entry(entry: Dictionary) -> void:

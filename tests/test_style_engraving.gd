@@ -183,20 +183,19 @@ func _test_hud_paper(game: Node) -> void:
 	check(ui.crosshair.modulate == Color.WHITE, "interaction cannot fade or tint the crosshair slip")
 	ui.title_panel.visible = was_title
 	game._busy = was_busy
-	check(ui.dialogue_portrait.disclosure.autowrap_mode == TextServer.AUTOWRAP_WORD, "translated portrait caption wraps at words inside its card")
-	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
+	for state in [[0.0, 0.0, Engraving.PAPER], [1.0, 0.0, Engraving.PAGES.tot_paper], [0.0, 1.0, Engraving.PAGES.safe_paper]]:
 		game._apply_light(0.62, state[0], -150.0, state[1])
 		for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption]:
 			check(label.has_theme_stylebox_override("normal"), "HUD text has its own slip: " + str(label.get_path()))
 			if label.has_theme_stylebox_override("normal"):
-				_check_slip(label.get_theme_stylebox("normal"), label.get_theme_color("font_color"))
+				_check_slip(label.get_theme_stylebox("normal"), label.get_theme_color("font_color"), state[2])
 		check(not ui.crosshair.has_theme_stylebox_override("normal"), "crosshair mark has no slip")
 		check(ui.crosshair.get_theme_constant("outline_size") > 0, "crosshair has a contrasting edge")
-		check(ui.dialog_panel.get_theme_stylebox("panel").bg_color == Engraving.PAPER, "dialogue keeps cream stock in every lighting state")
+		check(ui.dialog_panel.get_theme_stylebox("panel").bg_color == state[2], "dialogue uses the scene's paper")
 		for panel in [ui.objectives.get_parent(), ui.tot_panel, ui.dialog_panel, ui.dialogue_portrait]:
 			var slip: StyleBoxFlat = panel.get_theme_stylebox("panel")
 			var text: Color = ui.hint_label.get_theme_color("font_color")
-			_check_slip(slip, text)
+			_check_slip(slip, text, state[2])
 		check(ui.hint_label.get_theme_color("font_color") == ui.speaker_label.get_theme_color("font_color"), "dialogue hint has the same ink as its speaker")
 		check(ui.dialogue_portrait.disclosure.get_theme_color("font_color") == ui.hint_label.get_theme_color("font_color"), "portrait caption has the same ink as dialogue")
 		check(ui.dialogue_portrait.image.self_modulate == Color.WHITE, "portrait retains its approved print on cream stock")
@@ -218,6 +217,8 @@ func _test_choices_caption(game: Node) -> void:
 	var title_visible: bool = ui.title_panel.visible
 	ui.title_panel.hide()
 	ui.play([{"s":"Eddington", "t":"Choice", "key":"choice", "choices":["First", "Second"]}])
+	ui._layout_dialogue_portrait()
+	check(ui.dialogue_portrait.disclosure.autowrap_mode == TextServer.AUTOWRAP_OFF, "portrait caption uses explicit line breaks")
 	for state in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]:
 		game._apply_light(0.62, state[0], -150, state[1])
 		for selected in [0, 1]:
@@ -248,9 +249,9 @@ func _test_choices_caption(game: Node) -> void:
 	game._apply_light(0.62, 0, -150, 0)
 
 
-func _check_slip(slip: StyleBoxFlat, text: Color) -> void:
+func _check_slip(slip: StyleBoxFlat, text: Color, paper: Color) -> void:
 	check(slip.bg_color.a == 1.0, "slip is solid")
-	check(slip.bg_color == Engraving.PAPER and slip.bg_color.get_luminance() > text.get_luminance(), "slip uses dark ink on cream stock")
+	check(slip.bg_color == paper, "slip uses the scene's paper")
 	var a := text.srgb_to_linear().get_luminance()
 	var b := slip.bg_color.srgb_to_linear().get_luminance()
 	check((maxf(a, b) + 0.05) / (minf(a, b) + 0.05) >= 4.5, "slip text contrast >= 4.5")

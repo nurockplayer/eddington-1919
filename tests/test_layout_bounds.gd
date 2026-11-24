@@ -968,12 +968,14 @@ func _check_pause_columns(ui, scroll: ScrollContainer, language: String) -> void
 		if i > 0:
 			check(absf(right[i].global_position.y - right[i - 1].get_global_rect().end.y) <= 1.0,
 				"right column ends with adjacent start over, title, quit")
-	var last_button_bottom := 0.0
+	var grid: GridContainer = ui.quit_button.get_parent()
+	check(grid.get_child_count() % grid.columns == 0, "pause grid has complete rows")
+	var pace: Button = ui.totality_pace_button
+	check(absf(pace.size.x - grid.size.x) <= 1.0, "pace spans the list width")
 	for button in scroll.find_children("*", "Button", true, false):
 		if button.is_visible_in_tree():
 			check(scroll.get_global_rect().grow(1).encloses(button.get_global_rect()), "pause button fits: " + button.text)
-			last_button_bottom = maxf(last_button_bottom, button.get_global_rect().end.y)
-	check(absf(ui.quit_button.get_global_rect().end.y - last_button_bottom) <= 1.0, "quit is the last menu button")
+	check(grid.get_child(-1) == ui.quit_button, "quit is the last button in the grid")
 	var gap: float = scroll.get_parent().get_global_rect().end.y - ui.pause_objectives.get_global_rect().end.y
 	check(absf(gap - 18.0) <= 1.0, "pause paper ends at last row plus its bottom margin: gap %.1f" % gap)
 	_check_pause_text(scroll, language)
@@ -1109,7 +1111,7 @@ func _test_printed_slips() -> void:
 				var paper = preload("res://scripts/hud_paper.gd").new()
 				var engraving = preload("res://scripts/styles/engraving.gd")
 				paper.setup(ui, engraving.PAGES)
-				paper.light(1.0, 1.0, engraving.PARAMS)
+				paper.light(0.0, 0.0, engraving.PARAMS)
 				Settings.text_scale = scale
 				Settings.refresh_fonts(self)
 				check(not ui.clock_label.visible, "initial clock has no shell")
@@ -1123,30 +1125,36 @@ func _test_printed_slips() -> void:
 				await settle()
 				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "dialogue suppresses task and toast")
 				check(ui.dialog_panel.size.x < 1120 and ui.dialog_panel.size.y < 200, "short line has a compact slip")
-				check(ui.dialogue_portrait.image.size.y <= root.get_visible_rect().size.y * 0.18, "oval vignette fits 18 percent frame height")
+				check(ui.dialogue_portrait.image.size.is_equal_approx(Vector2(162, 216)), "oval is about 195 px wide at 1080p")
 				var disclosure: Label = ui.dialogue_portrait.disclosure
 				check(disclosure.get_theme_font_size("font_size") >= ui.hint_label.get_theme_font_size("font_size"), "disclosure is at least control hint size")
 				var paragraph := TextParagraph.new()
 				paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
 				paragraph.width = disclosure.size.x - disclosure.get_theme_stylebox("normal").get_minimum_size().x
 				paragraph.add_string(disclosure.text, disclosure.get_theme_font("font"), disclosure.get_theme_font_size("font_size"))
-				check(paragraph.get_line_count() == disclosure.get_line_count(), "disclosure probe matches rendered lines")
+				check(paragraph.get_line_count() == 2 and disclosure.get_line_count() == 2, "disclosure fits in two rendered lines")
 				check(paragraph.get_size().x <= paragraph.width + 1.0, "disclosure fits its card")
+				check(disclosure.get_combined_minimum_size().y <= disclosure.size.y + 1.0, "disclosure glyphs fit vertically")
+				var mount: Vector2 = ui.dialogue_portrait.get_theme_stylebox("panel").get_minimum_size()
+				var content_width := maxf(162.0, disclosure.get_minimum_size().x)
+				check(absf(ui.dialogue_portrait.size.x - mount.x - content_width) <= 1.0, "card hugs the oval and disclosure")
 				if language == "ko":
 					_check_korean_label(disclosure)
-				if language in ["ko", "ja", "zh_TW"]:
-					for line in paragraph.get_line_count():
-						var span := paragraph.get_line_range(line)
-						check(disclosure.text.substr(span.x, span.y - span.x).strip_edges().length() != 1, "no single-character CJK line")
+				for line in disclosure.text.split("\n"):
+					check(line.strip_edges().length() > 1, "no single-character disclosure line")
 				check(not ui.dialogue_portrait.get_global_rect().intersects(ui.dialog_panel.get_global_rect()), "portrait and dialogue have separate space")
 				bounds(ui.dialog_panel)
 				bounds(ui.dialogue_portrait)
 				check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1, "dialogue glyphs fit")
 				if language == "ko":
 					check(ui.text_label.autowrap_mode == TextServer.AUTOWRAP_WORD and ui.objectives.autowrap_mode == TextServer.AUTOWRAP_WORD, "Korean wraps at words")
-				for background in paper.slips:
-					check(background.bg_color == engraving.PAPER, "slips stay opaque cream at night and totality")
-				check(_slip_luminance(engraving.PAPER) + 0.05 >= 4.5 * (_slip_luminance(paper.foreground) + 0.05), "ink contrast is at least 4.5 to 1")
+				for phase in [[0.0, 0.0, engraving.PAPER], [1.0, 0.0, engraving.PAGES.tot_paper], [0.0, 1.0, engraving.PAGES.safe_paper]]:
+					paper.light(phase[0], phase[1], engraving.PARAMS)
+					for background in paper.slips:
+						check(background.bg_color == phase[2], "slips use the scene's opaque paper")
+					var stock := _slip_luminance(phase[2])
+					var ink := _slip_luminance(paper.foreground)
+					check((maxf(stock, ink) + 0.05) >= 4.5 * (minf(stock, ink) + 0.05), "slip contrast is at least 4.5 to 1")
 				var portrait_rect: Rect2 = ui.dialogue_portrait.get_global_rect()
 				var line_rect: Rect2 = ui.dialog_panel.get_global_rect()
 				ui.play([{"s": Content.E, "t": L.t("看雲：變薄就喊開始。"), "choices": [L.t("看雲：變薄就喊開始。"), L.t("□ 在測量桌上檢視並量測底片")] }])
@@ -1176,7 +1184,19 @@ func _test_printed_slips() -> void:
 				ui.set_objectives(full)
 				ui.toggle_pause()
 				await settle()
+				var scroll: ScrollContainer = ui.pause_panel.find_children("*", "ScrollContainer", true, false)[0]
+				var title: Label = ui._pause_heading
+				var title_rect := title.get_global_rect()
+				check(scroll.get_parent().get_global_rect().encloses(title_rect) and not title_rect.intersects(scroll.get_global_rect()), "pause title fits above the list")
+				check(title.size.y >= title.get_combined_minimum_size().y, "pause title glyphs fit")
 				check(ui.pause_objectives.is_visible_in_tree() and ui.pause_objectives.text == full, "pause exposes the full unchanged objective list")
+				ui.set_objectives(full.repeat(12))
+				await settle()
+				title_rect = title.get_global_rect()
+				scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
+				await settle()
+				check(scroll.scroll_vertical > 0, "long pause list scrolls")
+				check(title.get_global_rect().is_equal_approx(title_rect), "pause title stays fixed at the end of the list")
 				check(not ui.objectives.get_parent().visible and not ui.toast.visible, "pause suppresses HUD slips")
 				ui.toggle_pause()
 				ui.open_settings()
