@@ -3,6 +3,7 @@ extends SceneTree
 ## the ending that clears it. Run: godot --headless --path . --script res://tests/test_checkpoint.gd
 
 const StoryScript := preload("res://scripts/story.gd")
+const Judgment := preload("res://scripts/judgment.gd")
 
 var checks := 0
 var failures := 0
@@ -55,6 +56,7 @@ func _run() -> void:
 	_check_automation_leaves_checkpoints_alone()
 	await _check_title(story)
 	await _check_ending_clear(story)
+	await _check_darkroom(story)
 	Checkpoint.clear()
 	check(not FileAccess.file_exists(Checkpoint.path()), "the suite leaves no checkpoint file")
 	Checkpoint.force_enabled = false
@@ -123,8 +125,8 @@ func _check_guard(story) -> void:
 		if int(prop.usage) & PROPERTY_USAGE_SCRIPT_VARIABLE == 0:
 			continue
 		var field := str(prop.name)
-		check(StoryScript.SAVED.has(field) or field == "ending_plate",
-			"Story field %s is saved or is the plate" % field)
+		check(StoryScript.SAVED.has(field) or field in ["ending_plate", "darkroom_resume"],
+			"Story field %s is saved, is the encoded plate, or is a scene handoff" % field)
 
 
 func _check_plate(story) -> void:
@@ -278,3 +280,184 @@ func _check_ending_clear(story) -> void:
 	game._show_ending()
 	check(not FileAccess.file_exists(Checkpoint.path()), "the story's ending clears the checkpoint")
 	check(Checkpoint.peek() == "", "nothing is left to continue after the ending")
+
+
+func _dialogue(game, choices := {}) -> void:
+	while game.ui.dialog_active():
+		var entry: Dictionary = game.ui._seq[game.ui._seq_i]
+		if entry.has("choices"):
+			game.ui._choose(choices.get(entry.get("key"), 0))
+		else:
+			game.ui._advance()
+
+
+func _include(game, index: int, included: bool) -> void:
+	game.ui._select_plate(index, game.plate_textures[index], false)
+	game.ui.include_box.toggled.emit(included)
+
+
+func _read_plate(game, index: int) -> void:
+	game.ui.reading_set.emit(index, game.sim.reading_for_value(game.sim.plates[index].value))
+
+
+func _enter_darkroom(game) -> void:
+	game.sim.drive_wound = true
+	game.sim.drive_rate_checked = true
+	game.sim.drive_error = 0.025
+	game.sim.plates_delivered = 2
+	for exposure in [[100.0, 17.0, 0.12], [220.0, 35.0, 0.4]]:
+		game.sim.open_shutter(exposure[0])
+		game.sim.accumulate(exposure[1], exposure[2])
+		game.sim.close_shutter()
+	game.plate_changed = true
+	await game._begin_night()
+	_dialogue(game)
+
+
+func _submit_darkroom_report(game) -> bool:
+	game.ui.report_btn.pressed.emit()
+	_dialogue(game, {"verdict": Judgment.verdict_truth(game.sim)})
+	if not await _wait_for(func(): return game._pending == "judgment", 5.0):
+		return false
+	_dialogue(game, {"telegram": 1})
+	return true
+
+
+func _finish_standalone_from_title(game) -> bool:
+	game.ui.start_btn.pressed.emit()
+	if not await _wait_for(func(): return game.phase == game.Phase.PREP, 5.0):
+		return false
+	await _enter_darkroom(game)
+	game._interact("measure")
+	_dialogue(game, {"rule": 0, "bet": 2, "bet_sure": 1, "bet_keep": 3})
+	for index in [0, 1]:
+		_include(game, index, true)
+		_read_plate(game, index)
+	game.ui.measure_btn.pressed.emit()
+	if not await _submit_darkroom_report(game):
+		return false
+	return await _wait_for(func(): return game.ui.ending_panel.visible, 20.0)
+
+
+func _check_darkroom(story) -> void:
+	Engine.time_scale = 6.0
+	for stage in ["first reading", "first result", "quality reselection", "result reselection"]:
+		var uninterrupted := await _darkroom_case(story, stage, false)
+		var restored := await _darkroom_case(story, stage, true)
+		check(not uninterrupted.is_empty() and restored == uninterrupted,
+			stage + ": numeric results, verdict class, grade, and telegram match uninterrupted")
+	Engine.time_scale = 1.0
+
+
+func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
+	Checkpoint.clear()
+	story.reset()
+	var prologue := stage.ends_with("reselection")
+	if stage == "first result":
+		story.trial_note = 2
+		Checkpoint.save("departure")
+		story.reset()
+	story.from_prologue = prologue
+	story.prologue_done = prologue
+	story.departure_done = prologue
+	story.epilogue_done = stage == "result reselection"
+	if prologue:
+		story.bet_1917 = {"pick": 1, "sure": 2, "ashby": 1, "year": 1917}
+	var main_script = load("res://scripts/main.gd")
+	main_script.next_seed = 77
+	if not await _open_title():
+		return {}
+	var game = current_scene
+	if not prologue:
+		game.ui.start_btn.pressed.emit()
+		await _wait_for(func(): return game.phase == game.Phase.PREP, 5.0)
+	await _enter_darkroom(game)
+	if prologue:
+		game._interact("oxford_case")
+		_dialogue(game)
+		game._interact("departure_workbook")
+		_dialogue(game)
+	game._interact("measure")
+	_dialogue(game, {"rule": 0, "bet": 2, "bet_sure": 1, "bet_keep": 3})
+	_include(game, 0, true)
+	_read_plate(game, 0)
+	if stage != "first reading":
+		_include(game, 1, true)
+		_read_plate(game, 1)
+		game.ui.measure_btn.pressed.emit()
+	if prologue:
+		game.ui.reselect_btn.pressed.emit()
+		_include(game, 1, false)
+		game.ui.measure_btn.pressed.emit()
+		_dialogue(game, {"reselect_reason": 0 if stage == "quality reselection" else 1})
+		check(game.sim.selection_report().reselect_justified == (stage == "quality reselection"),
+			stage + ": fixture commits the intended reason")
+		check(game.sim.first_result.n == 2 and game.sim.combined().n == 1,
+			stage + ": the first result differs from the revised result")
+
+	if resume:
+		var expected: Dictionary = Checkpoint.darkroom_state(game.sim)
+		var bets: Array = [story.bet_1917.duplicate(true), story.bet.duplicate(true)]
+		var expected_story: Dictionary = story.to_save()
+		var scene_id: int = game.get_instance_id()
+		game._return_to_title()
+		await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.TITLE, 20.0)
+		await settle()
+		if stage == "result reselection":
+			var standalone_ended := await _finish_standalone_from_title(current_scene)
+			check(standalone_ended, "the standalone run reaches its ending over a story darkroom save")
+			if not standalone_ended:
+				return {}
+			current_scene._return_to_title()
+			await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.TITLE, 20.0)
+			await settle()
+			check(Checkpoint.peek() == "darkroom", "standalone ending leaves the story darkroom available to Continue")
+		var button: Button = current_scene.ui.continue_btn
+		check(button != null and button.has_focus(), stage + ": cold title offers Continue")
+		if button == null:
+			return {}
+		await _pad(JOY_BUTTON_A)
+		var arrived := await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.NIGHT, 20.0)
+		check(arrived, stage + ": title Continue returns to the darkroom")
+		if not arrived:
+			return {}
+		game = current_scene
+		check(game.get_instance_id() != scene_id and game.sim.run_seed == 77, stage + ": new scene uses the saved seed")
+		check(game.sim.plates == expected.plates, stage + ": raw and developed plates, readings and inclusion match")
+		check(Checkpoint.darkroom_state(game.sim) == expected, stage + ": rule, committed reading and selection history match")
+		check([story.bet_1917, story.bet] == bets, stage + ": original and current bets match")
+		if stage == "result reselection":
+			check(story.to_save() == expected_story, "Continue restores the story state from before the standalone run")
+		check(game.ui.viewer.visible and game.ui._viewer_locked == expected.measured,
+			stage + ": the restored viewer shows the correct measurement state")
+		check(game._came_from_departure == prologue and game.plate_changed
+			and game._departure_workbook_seen == prologue and game._comparison_fetched == prologue,
+			stage + ": the darkroom keeps route and workbook context")
+		check(story.darkroom_resume.is_empty() and story.runs.is_empty(), stage + ": Continue consumes the handoff once")
+
+	if stage == "first reading":
+		_include(game, 1, true)
+		_read_plate(game, 1)
+		game.ui.measure_btn.pressed.emit()
+	if not await _submit_darkroom_report(game):
+		return {}
+	if prologue:
+		check(game.phase == main_script.Phase.CODA, stage + ": the prologue route reaches its coda")
+		game._interact("mentor_loupe")
+		_dialogue(game, {"kit_first": 1})
+		if stage == "quality reselection":
+			var epilogue := await _wait_for(func(): return _arrived("res://scenes/epilogue.tscn"), 20.0)
+			check(epilogue and Checkpoint.peek() == "epilogue", stage + ": the first coda advances the checkpoint to October")
+			if not epilogue:
+				return {}
+			current_scene._end_epilogue()
+	var ended := await _wait_for(func(): return current_scene != null and current_scene.ui.ending_panel.visible, 20.0)
+	check(ended and story.runs.size() == 1, stage + ": the normal ending records exactly one completed run")
+	if not ended or story.runs.size() != 1:
+		return {}
+	var run: Dictionary = story.runs[0].duplicate(true)
+	run["shown_telegram"] = current_scene.ui.ending_telegram.text
+	check(Checkpoint.peek() == ("departure" if stage == "first result" else ""), stage + ": the completed darkroom cannot Continue again")
+	if stage == "first result":
+		check(Checkpoint.restore() == "departure" and story.trial_note == 2, "standalone run returns the previous chapter intact")
+	return run

@@ -5,6 +5,8 @@ extends Node
 const L := preload("res://scripts/l10n.gd")
 
 var runs: Array[Dictionary] = []
+## Consumed by Príncipe on the scene change from the title's Continue.
+var darkroom_resume: Dictionary = {}
 
 var from_prologue := false
 var prologue_done := false
@@ -78,6 +80,7 @@ func from_save(data: Dictionary) -> void:
 
 
 func reset(keep_runs := false) -> void:
+	darkroom_resume = {}
 	if not keep_runs:
 		runs.clear()
 	from_prologue = false
