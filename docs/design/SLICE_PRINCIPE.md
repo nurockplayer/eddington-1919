@@ -1292,3 +1292,9 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - The frame named `ridge-minus5` is in totality (the totality slip is up, 5 s on its count), not 5 s before second contact. It shows what the rebase could have broken in totality; the approach under this head is unseen and is read from main.
 - First sight of row 4's page: golden wide has corona's sky, glow, silhouettes and ridge together. The peak is outside both golden cameras; the shelter-edge and ridge views carry it.
 - **Verdicts:** technical regression none seen; this PR's change accepted as at 283bbe1; whole scene not accepted until read from main. **Count stays 5/9.**
+
+### 2026-11-25 17:35 JST: #524 right stick scrolls the pause objectives (issue #488) at 44358b0: nothing against it
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/pkg4/44358b0d3a46b9b473421e5a9c3983ff10b839dc/` (zh_TW, text scale 1.2, 1280×720, day, staged with 35 objective lines). Opened whole at native size, both: `top.png`, `end.png`. No frame of main beside them; none kept in the repo.
+- The panel looks as #514 left it: day's cream paper, ink rules, the selected row the one dark cell. Scrolled to the end the list sits inside the frame, the last line clear of the bottom edge, the bar's thumb at the foot of its track. The title bar stays put and the list passes under its rule.
+- Seen, not this PR: scrolled to the end the selected row is off the page, so nothing shows where focus is; the track is a hairline with a thumb two pixels wide.
+- **Verdicts:** technical regression none seen; this PR changes no drawing, nothing to accept beyond that; whole scene unchanged.
