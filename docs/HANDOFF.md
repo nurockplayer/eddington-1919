@@ -7,7 +7,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 **Journey (Owner 2026-11-26, decisions #316 / memory owner-journey-story-1126):** scope B + interludes, slice first. Design `docs/design/JOURNEY.md` merged #528; scene briefs one chapter at a time in its "Later scene briefs" order.
 
 **In flight (lead-wait):**
-- `lw-pr-529-…031200`: gate for PR #529 `docs/design/journey/TRIBUNAL.md` (Tribunal + I1, 75/12 lines, Moves none). On approve it merges; blockers → resume session 01a213a7-0968-7713-950d-38b45bd3f504 (wt journey-tribunal). After MERGED remove wt/branch by hand.
+- PR #529 TRIBUNAL.md MERGED 97225691: remove wt journey-tribunal + branch by hand (`git worktree remove --force`, `git branch -D`).
 - `lw-pr-530-…031200`: gate for PR #530 fix #515 clock countdown (ceil; test 300 checks, revert-checked 59 fails). Text timing, not art. Blockers → resume fix-515 session (see cx-exec log fix-515-20261126-020709).
 - `lw-journey-madeira-20261126-031232-34468`: Sol, wt journey-madeira (branch docs/journey-madeira), brief `.claude/briefs/journey-scene-madeira.md` → `docs/design/journey/MADEIRA.md` docs PR. On event: check acceptance, gate; next brief = Sundy (chapter 3), same shape.
 - `lw-fix-427-fu2-20261126-031201-29739`: #427 resume (session 01a211d0) → before frames + draft PR (branch art/fix-427 head 27644019; after frames on KIOXIA accept/issue-427/27644019…). On event: send draft PR + frames to edd-art (herdr pane run w7:pB "…"); stays draft until art accepts.
