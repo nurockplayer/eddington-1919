@@ -436,7 +436,9 @@ func _paths() -> void:
 		if look:
 			(path as MeshInstance3D).material_override = dirt_mat
 		_pilot_surface(path as MeshInstance3D, -1, Swatch.PAPER, EARTH, true)
-	for p in [Vector3(2.6, 0.03, -0.4), Vector3(-2.8, 0.03, -6.8), Vector3(5.2, 0.03, 2.4), Vector3(0.6, 0.03, 3.0)]:
+	# Preserve the random sequence used by the remaining scene.
+	randf_range(0.4, 0.9)
+	for p in [Vector3(-2.8, 0.03, -6.8), Vector3(5.2, 0.03, 2.4), Vector3(0.6, 0.03, 3.0)]:
 		var puddle := cyl(randf_range(0.4, 0.9), 0.01, p, Color(0.16, 0.17, 0.2))
 		(puddle as MeshInstance3D).material_override = mat(Color(0.12, 0.14, 0.18), 0.05, 0.3)
 
