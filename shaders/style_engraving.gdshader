@@ -584,7 +584,6 @@ void fragment() {
 	float heightening = sky ? sky_white : 0.0;
 	page = mix(page, paper, heightening * blue);
 	page = mix(page, tot_paper * vec3(2.35, 2.0, 1.45), cloud_wash);
-	page = mix(page, paper * (1.0 - paper_grain * fibre), ridge_totality);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
 	page = mix(page, mix(night_paper, safe_paper, red) * (1.0 - paper_grain * fibre), nw);
