@@ -924,7 +924,8 @@ func _process_prep(delta: float) -> void:
 		_update_sky_prep()
 	var minutes_to_14_13 := prep_left / PREP_S * 23.0
 	var local_min := 13 * 60 + 13 + 60 - minutes_to_14_13  # 14:13 at zero
-	ui.set_clock(L.t("下午 %d:%02d　·　全食倒數 %d:%02d（時間壓縮）") % [int(local_min / 60.0) - 12, int(local_min) % 60, int(maxf(prep_left, 0.0)) / 60, int(maxf(prep_left, 0.0)) % 60])
+	var countdown := ceili(maxf(prep_left, 0.0))
+	ui.set_clock(L.t("下午 %d:%02d　·　全食倒數 %d:%02d（時間壓縮）") % [int(local_min / 60.0) - 12, int(local_min) % 60, countdown / 60, countdown % 60])
 	_process_interaction(delta)
 	if prep_left <= 0.0 and _ui_free():
 		_begin_totality()
