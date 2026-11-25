@@ -61,6 +61,7 @@ func _run() -> void:
 		return
 	await _test_trim_sheet()
 	await _test_portrait_report()
+	await _test_portrait_layout_transition()
 	if "--portrait-only" in OS.get_cmdline_user_args():
 		print("test_layout_bounds portrait: %d checks, %d failures" % [checks, failures])
 		quit(1 if failures else 0)
@@ -566,6 +567,32 @@ func _test_portrait_report() -> void:
 	L.apply(old_locale)
 	Settings.text_scale = old_scale
 	root.size = old_window
+
+
+func _test_portrait_layout_transition() -> void:
+	context = "portrait gameplay to evidence transition"
+	var ui = preload("res://scripts/ui.gd").new()
+	root.add_child(ui)
+	ui.hide_title()
+	ui.cambridge_portraits = true
+	var paper = preload("res://scripts/hud_paper.gd").new()
+	var engraving = preload("res://scripts/styles/engraving.gd")
+	paper.setup(ui, engraving.PAGES)
+	paper.light(0.0, 0.0, engraving.PARAMS)
+	var source: Texture2D = load("res://assets/portraits/eddington_neutral.jpg")
+	ui.play([{ "s": Content.E, "t": "Portrait" }, { "s": "Unknown", "t": "No portrait" }])
+	await settle()
+	check(ui.dialogue_portrait.visible and ui.dialogue_portrait.image.texture == ui._portrait_oval and ui._portrait_oval != source, "gameplay shows cropped oval")
+	ui.viewer.visible = true
+	ui._layout_dialogue_portrait()
+	await settle()
+	check(ui.dialogue_portrait.image.texture == source, "evidence restores exact source texture")
+	check(ui.dialogue_portrait.image.custom_minimum_size == Vector2(204, 204), "evidence image minimum is 204x204")
+	check(ui.dialogue_portrait.disclosure.get_theme_font_size("font_size") == Settings.fs(18), "evidence disclosure uses Settings.fs(18)")
+	ui._advance()
+	await settle()
+	check(ui.dialogue_portrait.image.texture == null and not ui.dialogue_portrait.visible, "speaker without portrait clears and hides image")
+	ui.free()
 
 
 func _check_portrait(ui, card: Rect2) -> void:
