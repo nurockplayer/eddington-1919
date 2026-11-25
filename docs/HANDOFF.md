@@ -9,7 +9,7 @@ Overwritten every turn, never appended to; 30 lines at most. Rules live in the g
 **In flight (lead-wait):**
 - `lw-pr-527-20261126-013957`: #527 gate (docs). After merge remove wt research-journey + branch (journey-design is based on it: rebase onto main if #527 squash-merges).
 - `lw-journey-design-20261126-014127-37183`: Sol high, wt journey-design (branch docs/journey-design), brief `.claude/briefs/journey-design.md` → `docs/design/JOURNEY.md` docs PR. On event: check acceptance (chapter table, beats with provenance, interludes, size, lines-not-crossed, per-chapter brief split), gate, then dispatch one scene brief per chapter (Codex).
-- `cap-main45` (Terra, wt cap-main45 detached 57d81edc, brief `.claude/briefs/accept-shots-main-row45.md`) → KIOXIA `accept/main-row45/<sha>/`; on event message edd-art (herdr pane run w7:pB) to re-score rows 4+5. (Dispatch was still starting at 01:47 JST: check `lead-wait list`; rerun if missing.)
+- `cap-main45` (Terra, wt cap-main45 detached 57d81edc, brief `.claude/briefs/accept-shots-main-row45.md`) → KIOXIA `accept/main-row45/<sha>/`; on event message edd-art (herdr pane run w7:pB) to re-score rows 4+5. lw-cap-main45-20261126-014357-57318.
 - `lw-fix-427-fu-20261126-011738-54965`: #427 resume (session 01a211d0): parse error tests/test_style_engraving.gd:64, draft PR, golden_arrival/arrival frames → edd-art.
 
 **Queue after these:** pkg 5 (#491 is actually #489 review follow-ups; find pkg 5 in SLICE_PRINCIPE.md); #515 clock slip; edd-art takes #505 #482 #486; naming follow-up (ja/ko/zh_TW labels, lead-decision 11-24 23:00 JST).
