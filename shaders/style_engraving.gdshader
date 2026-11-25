@@ -261,7 +261,6 @@ void fragment() {
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
-		if (d_near > 75.0 && d_near < 1000.0) edge = mix(edge, 1.0, day_weight);
 		vec2 cloud_field = vec2(10.0, 0.0);
 		if (night <= 0.5 && (print_darkness > 0.0 || practice_cloud >= 0.0)) cloud_field = print_cloud(ray_w, print_darkness);
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
@@ -422,7 +421,18 @@ void fragment() {
 			float shade_side = 1.0 - smoothstep(0.0, 0.35, dot(n_w, sun_dir));
 			day_ink = max(smoothstep(0.12, 0.72, dark), 0.88 * shade_side);
 			day_edge *= mix(1.0, far_outline, smoothstep(10.0, 45.0, z)) * (1.0 - dist_f);
-			if (length(pw.xz) > 75.0 && pw.y > -0.39) day_ink = 0.16;
+			if (length(pw.xz) > 75.0 && pw.y > -0.39) {
+				day_ink = 0.16;
+				// Print the ridge's own boundary pixels wherever they touch sky.
+				vec2 depth_size = vec2(textureSize(depth_tex, 0));
+				vec2 ridge_uv = (floor(uv * depth_size) + vec2(0.5)) / depth_size;
+				vec2 dx = vec2(1.0 / depth_size.x, 0.0);
+				vec2 dy = vec2(0.0, 1.0 / depth_size.y);
+				float border_depth = min(
+					min(textureLod(depth_tex, ridge_uv - dx, 0.0).r, textureLod(depth_tex, ridge_uv + dx, 0.0).r),
+					min(textureLod(depth_tex, ridge_uv - dy, 0.0).r, textureLod(depth_tex, ridge_uv + dy, 0.0).r));
+				if (border_depth < 0.00001) day_edge = 1.0;
+			}
 		}
 		if (print_darkness < 0.001 && night > 0.5) {
 			bool foliage = c.g > c.r * 1.08 && c.g > c.b * 1.15 && pw.y > 0.08;

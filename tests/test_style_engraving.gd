@@ -29,6 +29,10 @@ func _run() -> void:
 		check(Engraving.PARAMS[name] is float, "float parameter " + name)
 	for token in ["hint_screen_texture", "hint_depth_texture", "hint_normal_roughness_texture", "POSITION = vec4(VERTEX.xy, 1.0, 1.0)"]:
 		check(shader_text.contains(token), "shader contains " + token)
+	check(shader_text.contains("floor(uv * depth_size) + vec2(0.5)")
+		and shader_text.contains("if (border_depth < 0.00001) day_edge = 1.0;")
+		and shader_text.contains("edge = mix(edge, day_edge, day_weight);"),
+		"daylight ridge prints where its depth touches sky and fades into totality")
 	for name in {"third_contact_gap": "float", "cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
