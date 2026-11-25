@@ -271,8 +271,8 @@ void fragment() {
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
 		float band_lines = smoothstep(0.015, 0.19, abs(elev));
-		// At peak the blue page takes broad horizontal ruling and the clouds
-		// read as flat washes bounded by the same live contour.
+		// At peak, light cloud only tints the ruling. Denser bodies carry the
+		// lighter wash and an engraved edge from the same live field.
 		float totality_plate = smoothstep(0.94, 1.0, print_darkness) * (1.0 - night);
 		float cloud_tone = cloud_body * (0.10 + 0.34 * smoothstep(0.10, 0.80, cloud_field.y));
 		float primary = mix(cloud_tone, 0.04 + 0.06 * high_sky + 0.65 * cloud_weight, print_darkness) * band_lines;
@@ -294,11 +294,15 @@ void fragment() {
 			ink = 1.0 - (1.0 - i1) * (1.0 - i2);
 		}
 		if (totality_plate > 0.0) {
+			float plate_cloud = cloud_body * (0.28 * smoothstep(0.35, 0.56, cloud_field.y)
+				+ 0.66 * smoothstep(0.56, 0.90, cloud_field.y));
+			float body_edge = 1.0 - smoothstep(0.35, 0.85, abs(0.56 - cloud_field.y) / (cloud_pixel * res_k));
 			float broad = hatch(ruling.x, k, 0.14, l_px * 2.0, 99.0);
-			ink = mix(ink, broad * 0.36 * band_lines * (1.0 - cloud_body), totality_plate);
+			float plate_ink = max(broad * 0.36 * (1.0 - plate_cloud), body_edge * 0.34);
+			ink = mix(ink, plate_ink * band_lines, totality_plate);
+			cloud_wash = plate_cloud * band_lines * totality_plate;
 		}
-		ink = max(ink, cloud_contour * band_lines * mix(contour_ink, 0.34, totality_plate));
-		cloud_wash = cloud_body * band_lines * totality_plate * mix(0.58, 0.94, smoothstep(0.35, 0.90, cloud_field.y));
+		ink = max(ink, cloud_contour * band_lines * contour_ink * (1.0 - totality_plate));
 		if (night <= 0.5 && practice_cloud < 0.0) {
 			ink *= print_darkness;
 			cloud_wash *= print_darkness;
@@ -346,14 +350,10 @@ void fragment() {
 			spikes = max(spikes, step(0.0, along) * step(along, reach) * step(across, diamond_radius * size * 0.36 * (1.0 - along / max(reach, 0.00001))));
 		}
 		bead = front * step(0.000001, visible_diamond) * max(step(bead_dist, diamond_radius * size), spikes);
-		// Cloud changes the weight of ruling across the whole Moon, never its
-		// outline. The accepted thin gap and clearer skies keep solid ink.
-		float moon_weight = 1.0 - smoothstep(0.15, 1.0 / 1.08, dens);
-		// Totality and the diamond both retain the cloud-dependent Moon ruling.
-		float moon_cover = moon_weight * max(diamond, print_darkness);
-		float moon_lines = hatch(sky_ruling.x, k, moon_cover, l_px, 99.0);
-		moon_lines = max(moon_lines, step(1.0, moon_weight) * smoothstep(0.95, 1.0, moon_cover));
-		moon_ink = before_second_contact ? 0.0 : front * step(r, 1.0) * moon_lines;
+		// Reserve a solid disc over the printed sky, with coverage only at its limb.
+		float moon_pixel = max(fwidth(r) * 0.5, 0.00001);
+		float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);
+		moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness);
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
 		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
