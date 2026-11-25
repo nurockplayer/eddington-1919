@@ -35,21 +35,21 @@ func _run() -> void:
 		"daylight ridge prints where its depth touches sky and fades into totality")
 	check(shader_text.contains("float heightening = sky ? sky_white : 0.0;"),
 		"camp surfaces share the darkening paper while the horizon keeps its glow")
-	for name in {"third_contact_gap": "float", "cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
+	for name in {"cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
-	check(shader_text.contains("front * moon_disc * max(diamond, print_darkness) * (1.0 - step(0.85, sun_cloud))")
+	check(shader_text.contains("front * moon_disc * solar_fade * sun_visibility")
 		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the Moon is whole whenever the corona is visible")
 	check(shader_text.contains("float thin_cloud = step(0.35, cloud_field.y);")
 		and shader_text.contains("float dense_cloud = step(0.85, cloud_field.y);")
 		and shader_text.contains("cloud_wash = plate_cloud * band_lines * totality_plate;"), "cloud plate has crisp density steps")
-	check(shader_text.contains("float density = eclipse_cloud_density(direction);")
-		and shader_text.contains("cloud_field = print_cloud(ray_w, print_darkness);"), "contours use the live exposure field")
+	check(shader_text.contains("float density = eclipse_cloud_density_at(direction, time);")
+		and shader_text.contains("cloud_field = print_cloud(ray_w, sky_plate_darkness, returning_sky ? day_return_cloud_time : cloud_time);"), "contours use the live exposure field")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
-	check(shader_text.contains("max(0.5 * step(0.35, cloud_field.y), step(0.85, cloud_field.y))")
-		and shader_text.contains("step(0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "cloud density veils the corona")
+	check(shader_text.contains("max(0.5 * smoothstep(0.30, 0.35, live_cloud), smoothstep(0.80, 0.85, live_cloud))")
+		and shader_text.contains("smoothstep(0.80, 0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "cloud density veils the corona")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
-		and shader_text.contains("if (!before_second_contact && print_darkness > 0.0 && front > 0.0)"),
+		and shader_text.contains("if (!before_second_contact && solar_fade > 0.0 && front > 0.0)"),
 		"engraving hides Moon ink and corona before second contact")
 	var sky_shader := FileAccess.get_file_as_string("res://shaders/eclipse_sky.gdshader")
 	check(sky_shader.contains("totality_darkness = before_second_contact ? 0.0 : darkness")
@@ -123,14 +123,13 @@ func _run() -> void:
 			check(active == entry[1], "night restores the original material")
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(material.get_shader_parameter("night") == 0.0, "night clears in daylight")
-	game.sky_mat.set_shader_parameter("third_contact_gap", 0.75)
 	game.sky_mat.set_shader_parameter("cloud_time", 304.4)
 	game.sky_mat.set_shader_parameter("practice_cloud", 0.97)
 	game.sky_mat.set_shader_parameter("wind", Vector2(0.005, 0.003))
 	game.sky_mat.set_shader_parameter("cloud_scale", 0.4)
 	game.phase = game.Phase.TITLE
 	game._process(0.0)
-	for name in ["cloud_tex", "cloud_time", "third_contact_gap", "practice_cloud", "wind", "cloud_scale"]:
+	for name in ["cloud_tex", "cloud_time", "practice_cloud", "wind", "cloud_scale"]:
 		check(material.get_shader_parameter(name) == game.sky_mat.get_shader_parameter(name), "live cloud sync " + name)
 	game.sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	Settings.quality = "standard"

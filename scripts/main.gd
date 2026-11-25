@@ -453,7 +453,7 @@ func _crescent(contact: float) -> float:
 	return clampf(1.0 - overlap / PI, 0.0, 1.0)
 
 
-func _apply_light(contact: float, darkness: float, cloud_t: float, night: float, before_second_contact := false) -> void:
+func _apply_light(contact: float, darkness: float, cloud_t: float, night: float, before_second_contact := false, day_return := false) -> void:
 	# Distant cards print only as the inked totality/night tree line, never a day wash.
 	var forest_ink := maxf(smoothstep(0.85, 1.0, darkness) if _style != null else float(darkness > 0.95), night)
 	for layer in $ForestEdge.get_children():
@@ -463,7 +463,6 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float,
 	sky_mat.set_shader_parameter("before_second_contact", before_second_contact)
 	sky_mat.set_shader_parameter("darkness", darkness)
 	sky_mat.set_shader_parameter("cloud_time", cloud_t)
-	sky_mat.set_shader_parameter("third_contact_gap", Cues.third_contact_cloud_gap(cloud_t - sim.TOTALITY_S))
 	sky_mat.set_shader_parameter("night", night)
 	if meteors:
 		meteors.set_night(night > 0.5)
@@ -489,6 +488,7 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float,
 	env.fog_light_color = Color(0.62, 0.65, 0.68).lerp(Color(0.07, 0.08, 0.12), maxf(darkness, night))
 	if _style != null and not world.is_empty():
 		_style.light(self, contact, darkness, night)
+		_style.quad_material.set_shader_parameter("day_return_cloud_time", t_game if day_return else -1.0)
 	_sync_style_sky()
 
 
@@ -854,7 +854,7 @@ func _process(delta: float) -> void:
 func _sync_style_sky() -> void:
 	if _style == null:
 		return
-	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "third_contact_gap", "practice_cloud", "wind", "cloud_scale"]:
+	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "practice_cloud", "wind", "cloud_scale"]:
 		_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
 	_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)
 
@@ -1649,7 +1649,7 @@ func _update_day_return(elapsed: float) -> void:
 	var v := minf(elapsed / THIRD_CONTACT_S, 1.0)
 	var darkness := 1.0 - v * v if _style == null else 1.0 - smoothstep(0.0, DAY_RETURN_S, elapsed)
 	sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
-	_apply_light(1.0 - v * 0.2, darkness, t_game + v * 10.0, 0.0)
+	_apply_light(1.0 - v * 0.2, darkness, t_game + v * 10.0, 0.0, false, true)
 
 
 # ----------------------------------------------------------------------- Night

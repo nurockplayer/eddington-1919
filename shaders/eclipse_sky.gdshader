@@ -2,11 +2,10 @@ shader_type sky;
 // Overcast tropical sky with a drifting cloud field, the partially / totally
 // eclipsed Sun, corona and the field stars. The cloud texture and its motion are
 // the same data the simulation samples, so what the player sees over the Sun is
-// what the plate receives, except for the presentation-only third-contact veil.
+// what the plate receives.
 
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
-uniform float third_contact_gap = 0.0; // presentation only; exposure cloud stays unchanged
 uniform float practice_cloud = -1.0; // rehearsal-only density near the Sun
 uniform vec2 wind = vec2(0.0042, 0.0026);
 uniform float cloud_scale = 0.35;

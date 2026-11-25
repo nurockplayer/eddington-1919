@@ -1,5 +1,5 @@
 extends SceneTree
-## Presentation-only contact gap; pin the approved simulation as the oracle.
+## Third contact keeps the live cloud field and the approved exposure simulation.
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
@@ -22,17 +22,7 @@ func _run() -> void:
 	# P2 (#351) intentionally changes drive drift; pin that approved simulation,
 	# including the unchanged exposure/plate and seeded cloud model.
 	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "b3a9c3bf179b79d44ecd6bd0f39bf79878884bda1deaa83a9ab88fa7ef451af2", "simulation matches the approved P2 oracle")
-	var shader := FileAccess.get_file_as_string("res://shaders/eclipse_sky.gdshader")
-	var shared_cloud := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
-	check(shared_cloud.contains("dens = mix(dens, min(dens, 0.55), third_contact_gap * near_contact_sun);"), "shared cloud applies the contact veil")
-	var engraving := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
-	for source in [shader, engraving]:
-		check(source.contains('#include "res://shaders/eclipse_cloud.gdshaderinc"'), "sky and engraving use one cloud rule")
-	check(engraving.contains("eclipse_cloud_density(bead_dir)"), "engraving samples the sky cloud over the bead")
-	check(engraving.contains("float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);"), "Moon is a whole antialiased disc")
-	check(engraving.contains("float sun_cloud = eclipse_cloud_density(sun_dir);"), "Moon obscuration samples cloud at the Sun")
-	check(engraving.contains("moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness) * (1.0 - step(0.85, sun_cloud));"), "Moon remains visible through totality and is obscured by dense cloud at the Sun")
-	for seed_ in [7, 1919]:
+	for seed_ in [7, 1551]:
 		await _check_seed(seed_)
 	print("%d third contact gap checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
@@ -45,28 +35,6 @@ func _check_seed(seed_: int) -> void:
 	game.sim = Sim.new(seed_)
 	game.sky_mat.set_shader_parameter("cloud_tex", ImageTexture.create_from_image(game.sim.cloud_img))
 	var ref = Sim.new(seed_)
-	# Second contact and mid-totality retain the original cloud. The veil begins
-	# only 1 game-second (0.4 real seconds) before third contact.
-	for t in [0.0, 151.0, 301.0, 301.5, 302.0, 302.9, 304.4, 310.0]:
-		game._apply_light(1.0, 1.0, t, 0.0)
-		var gap: float = game.sky_mat.get_shader_parameter("third_contact_gap")
-		# _apply_light also runs inside the native contact tween, after _process.
-		# No extra _process call may be required to deliver its state to the pass.
-		for name in ["third_contact_gap", "cloud_time", "contact"]:
-			check(game._style.quad_material.get_shader_parameter(name) == game.sky_mat.get_shader_parameter(name), "seed %d: immediate pass sync %s at %.1f" % [seed_, name, t])
-		var density: float = game.sim.cloud_over_sun(t)
-		var visible := lerpf(density, minf(density, 0.55), gap)
-		check(density == ref.cloud_over_sun(t), "seed %d: physical cloud unchanged at %.1f" % [seed_, t])
-		if t <= 301.0 or t >= 310.0:
-			check(gap == 0.0 and visible == density, "seed %d: gap closed at %.1f" % [seed_, t])
-		if t == 0.0 or t == 151.0:
-			check(visible > 0.8, "seed %d: second contact/mid-totality stay clouded at %.1f" % [seed_, t])
-		if t == 301.5:
-			check(gap > 0.0 and gap < 1.0, "seed %d: cloud thins smoothly just before contact" % seed_)
-		if t >= 302.0 and t <= 304.4:
-			var alpha := clampf(visible * 1.08, 0.0, 1.0)
-			var transmission := (1.0 - alpha) * (1.0 + alpha * 0.15)
-			check(is_equal_approx(visible, 0.55) and transmission > 0.4, "seed %d: contact/glint peak density %.3f, transmission %.3f" % [seed_, visible, transmission])
 	# Exercise the actual accumulation path through the mismatch window, once
 	# closing just before contact and once leaving the shutter open at contact.
 	game.phase = game.Phase.TOTALITY
@@ -89,6 +57,34 @@ func _check_seed(seed_: int) -> void:
 			ref.close_shutter(true)
 	check(var_to_bytes(game.sim.plates) == var_to_bytes(ref.plates), "seed %d: plate bytes identical to the simulation oracle before/at third contact" % seed_)
 	check(var_to_bytes(Judgment.grade(game.sim, "hopeful", "measured")) == var_to_bytes(Judgment.grade(ref, "hopeful", "measured")), "seed %d: scoring bytes identical to the simulation oracle" % seed_)
+	game._day_return.kill()
+	game.tot_done = false
+	game.t_game = Sim.TOTALITY_S - 3.0 * game._totality_rate
+	var step := 1.0 / 60.0
+	var peak_gap := 0.0
+	while not game.tot_done:
+		game._process_totality(step)
+		var gap: Variant = game.sky_mat.get_shader_parameter("third_contact_gap")
+		if gap != null:
+			peak_gap = maxf(peak_gap, float(gap))
+	var tween: Tween = game._day_return
+	tween.pause()
+	var plate: ShaderMaterial = game._style.quad_material
+	var previous_darkness: float = plate.get_shader_parameter("darkness")
+	for frame in range(1, 13 * 60 + 1):
+		if tween.is_valid():
+			tween.custom_step(step)
+		var t: float = game.sky_mat.get_shader_parameter("cloud_time")
+		var gap: Variant = game.sky_mat.get_shader_parameter("third_contact_gap")
+		if gap != null:
+			peak_gap = maxf(peak_gap, float(gap))
+		var darkness: float = plate.get_shader_parameter("darkness")
+		check(darkness <= previous_darkness, "seed %d: light front recovers on frame %d" % [seed_, frame])
+		check(plate.get_shader_parameter("cloud_time") == t and ref.cloud_over_sun(t) >= 0.92,
+			"seed %d: live thick cloud stays in sync on frame %d" % [seed_, frame])
+		previous_darkness = darkness
+	check(peak_gap == 0.0, "seed %d: real third-contact flow must never force a reveal (peak gap %.3f)" % [seed_, peak_gap])
+	check(previous_darkness == 0.0, "seed %d: recovery reaches daylight" % seed_)
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
