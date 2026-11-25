@@ -84,6 +84,17 @@ func reload_check() -> void:
 		main = current_scene
 		main.set_process(false)
 		main._start_game()
+		var locale_serif: Font = Fonts.SERIF_FACES[locale]
+		var hud_font: Font = main.ui.clock_label.get_theme_font("font")
+		check(hud_font.fallbacks.size() > 0 and hud_font.fallbacks[0] == locale_serif,
+			locale + " live HUD locale serif fallback")
+		var dialogue_font: Font = main.ui.text_label.get_theme_font("normal_font")
+		check(dialogue_font.fallbacks.size() > 0 and dialogue_font.fallbacks[0] == locale_serif,
+			locale + " gameplay dialogue locale serif fallback")
+		check(main.ui._pause_heading.get_theme_font("font") == locale_serif,
+			locale + " pause heading resolves locale serif")
+		check(main.ui._pause_title_btn.get_theme_font("font") == locale_serif,
+			locale + " pause button resolves locale serif")
 		for i in 2:
 			var id: String = ["eddington", "cottingham"][i]
 			var expected: String = names[locale][i]
