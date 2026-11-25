@@ -1185,7 +1185,15 @@ func _say(seq: Array, purpose: String) -> void:
 	_sync_player_input()
 
 
+func _set_darkroom_name_tags_visible(show_tags: bool) -> void:
+	if phase == Phase.NIGHT:
+		for actor: Node3D in [world.eddington, world.cottingham]:
+			for tag: Label3D in actor.find_children("*", "Label3D", false, false):
+				tag.visible = show_tags
+
+
 func _on_dialogue_entry(speaker: String) -> void:
+	_set_darkroom_name_tags_visible(speaker.is_empty())
 	if phase not in [Phase.PREP, Phase.NIGHT] or speaker not in [Content.E, Content.C]:
 		return
 	var body: Node3D = world.eddington if speaker == Content.E else world.cottingham
@@ -1200,6 +1208,7 @@ func _on_dialogue_entry(speaker: String) -> void:
 
 
 func _on_dialogue_done(results: Dictionary) -> void:
+	_set_darkroom_name_tags_visible(true)
 	if _speaking_pose:
 		_speaking_pose.restore_work()
 		_speaking_pose = null
