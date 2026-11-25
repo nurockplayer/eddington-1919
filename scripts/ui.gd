@@ -47,6 +47,9 @@ const ACCENT := Color(0.95, 0.72, 0.38)
 
 var font: Font
 var theme_res: Theme
+const MenuPrint := preload("res://scripts/styles/engraving.gd")
+var _overlay_paper := MenuPrint.PAPER
+var _overlay_ink := MenuPrint.INK
 var hud: Control
 var clock_label: Label
 var objectives: RichTextLabel
@@ -2272,7 +2275,11 @@ func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, s
 func lock_totality_pace() -> void:
 	totality_pace_button.disabled = true
 	totality_pace_button.text += "\n" + L.t("全食期間無法變更")
-	totality_pace_button.add_theme_color_override("font_disabled_color", INK.lerp(PAPER, 0.25))
+	totality_pace_button.add_theme_color_override("font_disabled_color", _locked_pace_ink())
+
+
+func _locked_pace_ink() -> Color:
+	return INK.lerp(PAPER, 0.25) if _overlay_paper == MenuPrint.PAPER else _overlay_ink.lerp(_overlay_paper, 0.1)
 
 
 func _toggle_fullscreen() -> void:
@@ -2287,7 +2294,9 @@ func _sync_music_row() -> void:
 	var on := ScorePlayer.music_enabled()
 	music_slider.editable = on
 	music_slider.focus_mode = Control.FOCUS_ALL if on else Control.FOCUS_NONE
-	music_row.modulate.a = 1.0 if on else 0.4
+	var daylight := _overlay_paper == MenuPrint.PAPER
+	music_row.modulate.a = 1.0 if on or not daylight else 0.4
+	music_slider.modulate.a = 1.0 if on or daylight else 0.4
 
 
 func open_settings() -> void:
@@ -2483,18 +2492,19 @@ func _help_text() -> String:
 func _fill_help_table() -> void:
 	for child in help_table.get_children():
 		child.free()
+	var text_ink := INK if _overlay_paper == MenuPrint.PAPER else _overlay_ink
 	var entries := title_controls.text.replace("\n", " · ").split(" · ")
 	var pad := ["", "", "", L.t("A 鍵"), "Back", L.t("RB／X 鍵"), "Start"]
 	var keyboard := ["", "", "", "E", "Tab", L.t("空白鍵"), "Esc"]
 	for i in entries.size():
 		var line := ColorRect.new()
-		line.color = preload("res://scripts/styles/engraving.gd").INK
+		line.color = _overlay_ink
 		line.custom_minimum_size.y = 1
 		help_table.add_child(line)
 		var part: String = entries[i]
 		var split := part.rfind(" ")
-		var action := _label(part.substr(split + 1), 20, INK)
-		var rule := _panel_style(preload("res://scripts/styles/engraving.gd").PAPER, preload("res://scripts/styles/engraving.gd").INK)
+		var action := _label(part.substr(split + 1), 20, text_ink)
+		var rule := _panel_style(_overlay_paper, _overlay_ink)
 		rule.set_corner_radius_all(0)
 		rule.set_border_width_all(0)
 		rule.set_content_margin_all(8)
@@ -2509,11 +2519,11 @@ func _fill_help_table() -> void:
 		var keys: String = part.substr(0, split)
 		if i >= 3:
 			keys = keyboard[i] + " / " + pad[i]
-		var value := _label(keys, 20, INK)
+		var value := _label(keys, 20, text_ink)
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		columns.add_child(value)
 	var line := ColorRect.new()
-	line.color = preload("res://scripts/styles/engraving.gd").INK
+	line.color = _overlay_ink
 	line.custom_minimum_size.y = 1
 	help_table.add_child(line)
 
@@ -2665,26 +2675,43 @@ func _input(event: InputEvent) -> void:
 		_dialogue_input(event)
 
 
-## The same square cream slips and ink rules as #385, scoped to menu roots.
-func _print_menu(node: Node) -> void:
-	const Print := preload("res://scripts/styles/engraving.gd")
+func set_overlay_paper(paper_color: Color, ink_color: Color) -> void:
+	if _overlay_paper == paper_color and _overlay_ink == ink_color:
+		return
+	_overlay_paper = paper_color
+	_overlay_ink = ink_color
+	for overlay in [pause_panel, help_panel, log_panel]:
+		_print_menu(overlay, paper_color, ink_color)
+	if help_panel.visible:
+		_fill_help_table()
+	_sync_music_row()
+
+
+## The same square slips and ink rules as #385, scoped to menu roots.
+func _print_menu(node: Node, paper_color := MenuPrint.PAPER, ink_color := MenuPrint.INK) -> void:
+	if node == help_table:
+		return # The translated rows are built when help opens.
 	if node is ColorRect:
-		node.color = Color.TRANSPARENT if node == pause_panel else Print.PAPER
+		node.color = Color.TRANSPARENT if node == pause_panel else paper_color
 	if node is FadeStars or (node is TextureRect and node.get_parent() == ending_panel):
 		node.hide()
 	if node is Label:
-		node.add_theme_color_override("font_color", Print.INK)
+		node.add_theme_color_override("font_color", ink_color)
+	if node is HSeparator and pause_panel.is_ancestor_of(node):
+		var rule: StyleBoxLine = node.get_theme_stylebox("separator").duplicate()
+		rule.color = ink_color
+		node.add_theme_stylebox_override("separator", rule)
 	if node is RichTextLabel:
-		node.add_theme_color_override("default_color", Print.INK)
+		node.add_theme_color_override("default_color", ink_color)
 		# Print existing BBCode colours in ink without altering any stored text.
 		var ink := ShaderMaterial.new()
 		ink.shader = preload("res://shaders/menu_ink.gdshader")
-		ink.set_shader_parameter("ink", Print.INK)
+		ink.set_shader_parameter("ink", ink_color)
 		node.material = ink
 	if node is PanelContainer:
 		var paper: StyleBoxFlat = node.get_theme_stylebox("panel").duplicate()
-		paper.bg_color = Print.PAPER
-		paper.border_color = Print.INK
+		paper.bg_color = paper_color
+		paper.border_color = ink_color
 		paper.set_corner_radius_all(0)
 		paper.set_border_width_all(1)
 		paper.shadow_size = 0
@@ -2698,8 +2725,8 @@ func _print_menu(node: Node) -> void:
 		node.add_theme_stylebox_override("panel", paper)
 	if node is Button:
 		var paper: StyleBoxFlat = node.get_theme_stylebox("normal").duplicate()
-		paper.bg_color = Print.PAPER
-		paper.border_color = Print.INK
+		paper.bg_color = paper_color
+		paper.border_color = ink_color
 		paper.set_corner_radius_all(0)
 		paper.set_border_width_all(1)
 		paper.shadow_size = 0
@@ -2710,7 +2737,7 @@ func _print_menu(node: Node) -> void:
 		elif title_panel.is_ancestor_of(node):
 			paper.set_border_width_all(2)
 		var focus: StyleBoxFlat = paper.duplicate()
-		focus.bg_color = Print.INK
+		focus.bg_color = ink_color
 		# A heavier rule as well as reversed ink makes focus readable without colour.
 		focus.set_border_width_all(3)
 		for state in ["normal", "disabled", "hover"]:
@@ -2718,24 +2745,30 @@ func _print_menu(node: Node) -> void:
 		for state in ["focus", "pressed", "hover_pressed"]:
 			node.add_theme_stylebox_override(state, focus)
 		for state in ["font_color", "font_hover_color", "font_disabled_color"]:
-			node.add_theme_color_override(state, Print.INK)
+			node.add_theme_color_override(state, ink_color)
+		if node == totality_pace_button and node.disabled:
+			node.add_theme_color_override("font_disabled_color", _locked_pace_ink())
 		for state in ["font_focus_color", "font_pressed_color", "font_hover_pressed_color"]:
-			node.add_theme_color_override(state, Print.PAPER)
+			node.add_theme_color_override(state, paper_color)
+		if pause_panel.is_ancestor_of(node) or help_panel.is_ancestor_of(node) or log_panel.is_ancestor_of(node):
+			# Godot still draws the focus fill when it uses the hover text color.
+			node.add_theme_stylebox_override("hover", focus)
+			node.add_theme_color_override("font_hover_color", paper_color)
 	if node is HSlider or node is ScrollBar:
 		var rule := StyleBoxFlat.new()
-		rule.bg_color = Print.PAPER
-		rule.border_color = Print.INK
+		rule.bg_color = paper_color
+		rule.border_color = ink_color
 		rule.set_border_width_all(1)
 		var mark: StyleBoxFlat = rule.duplicate()
-		mark.bg_color = Print.INK
+		mark.bg_color = ink_color
 		for state in (["slider", "grabber_area", "grabber_area_highlight"] if node is HSlider else ["scroll", "scroll_focus"]):
 			node.add_theme_stylebox_override(state, rule)
 		if node is HSlider:
 			var image := Image.create(8, 18, false, Image.FORMAT_RGBA8)
-			image.fill(Print.INK)
+			image.fill(ink_color)
 			var focused := Image.create(12, 22, false, Image.FORMAT_RGBA8)
-			focused.fill(Print.INK)
-			focused.fill_rect(Rect2i(3, 3, 6, 16), Print.PAPER)
+			focused.fill(ink_color)
+			focused.fill_rect(Rect2i(3, 3, 6, 16), paper_color)
 			node.add_theme_icon_override("grabber", ImageTexture.create_from_image(image))
 			node.add_theme_icon_override("grabber_highlight", ImageTexture.create_from_image(focused))
 			node.add_theme_icon_override("grabber_disabled", ImageTexture.create_from_image(image))
@@ -2745,7 +2778,7 @@ func _print_menu(node: Node) -> void:
 			mark.expand_margin_left = -2
 			mark.expand_margin_right = -2
 			if pause_panel.is_ancestor_of(node):
-				mark.bg_color = Print.PAPER
+				mark.bg_color = paper_color
 				mark.set_content_margin_all(0)
 				rule.set_content_margin_all(0)
 			for state in ["grabber", "grabber_highlight", "grabber_pressed"]:
@@ -2755,6 +2788,6 @@ func _print_menu(node: Node) -> void:
 			for icon in ["increment", "increment_highlight", "increment_pressed", "decrement", "decrement_highlight", "decrement_pressed"]:
 				node.add_theme_icon_override(icon, ImageTexture.create_from_image(blank))
 	if node is ScrollContainer:
-		_print_menu(node.get_v_scroll_bar())
+		_print_menu(node.get_v_scroll_bar(), paper_color, ink_color)
 	for child in node.get_children():
-		_print_menu(child)
+		_print_menu(child, paper_color, ink_color)

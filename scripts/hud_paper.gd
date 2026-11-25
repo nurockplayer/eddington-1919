@@ -1,5 +1,5 @@
 extends RefCounted
-## In-play print furniture only; viewer and menu themes stay on their own root.
+## In-play print furniture and the overlays that open over it.
 
 const Fonts := preload("res://scripts/fonts.gd")
 
@@ -113,6 +113,7 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 		background = palette.tot_paper
 		foreground = palette.paper
 		portrait_tint = background.lerp(Color.WHITE, 0.4)
+	ui.set_overlay_paper(background, foreground)
 	for slip in slips:
 		slip.bg_color = background
 		slip.border_color = foreground

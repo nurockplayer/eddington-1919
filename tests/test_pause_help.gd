@@ -3,6 +3,7 @@ extends SceneTree
 ## Headless: godot --headless --path . --script res://tests/test_pause_help.gd
 
 const MAIN := "res://scenes/main.tscn"
+const Engraving := preload("res://scripts/styles/engraving.gd")
 
 var checks := 0
 var failures := 0
@@ -44,6 +45,19 @@ func press_escape() -> void:
 	await settle(2)
 
 
+func check_overlay_paper(main, help: Button, page: Color, ink: Color, state: String) -> void:
+	var ui = main.ui
+	var slip: PanelContainer = ui.pause_panel.get_child(0)
+	check(slip.get_theme_stylebox("panel").bg_color == page, state + " pause takes the scene paper")
+	check(ui._pause_heading.get_theme_color("font_color") == ink, state + " pause heading uses page ink")
+	help.pressed.emit()
+	check(ui.help_panel.color == page, state + " help takes the scene paper")
+	var row: PanelContainer = ui.help_table.get_child(1)
+	check(row.get_theme_stylebox("panel").bg_color == page, state + " rebuilt help row takes the scene paper")
+	ui._close_help()
+	check(ui.log_panel.get_theme_stylebox("panel").bg_color == page, state + " log takes the scene paper")
+
+
 func _run() -> void:
 	var had_override := OS.has_environment("EDD_SETTINGS_PATH")
 	var previous_path := OS.get_environment("EDD_SETTINGS_PATH")
@@ -83,6 +97,17 @@ func _run() -> void:
 	check(not ui.help_panel.visible, "Esc closes help")
 	check(ui.pause_panel.visible and paused, "Esc returns to the pause menu")
 	check(root.gui_get_focus_owner() == help, "help restores 操作說明 focus")
+	check_overlay_paper(main, help, Engraving.PAPER, Engraving.INK, "daylight")
+	main.phase = main.Phase.TOTALITY
+	ui.lock_totality_pace()
+	main._apply_light(1.0, 1.0, 0.0, 0.0)
+	check_overlay_paper(main, help, Engraving.PAGES.tot_paper, Engraving.PAPER, "totality")
+	main.phase = main.Phase.NIGHT
+	main._apply_light(0.0, 0.0, 400.0, 1.0)
+	check_overlay_paper(main, help, Engraving.PAGES.safe_paper, Engraving.PAGES.safe_light, "darkroom")
+	main.phase = main.Phase.PREP
+	main._apply_light(0.0, 0.0, 0.0, 0.0)
+	check_overlay_paper(main, help, Engraving.PAPER, Engraving.INK, "return to daylight")
 	var to_title := find_button(ui.pause_panel, "回到標題")
 	check(to_title != null, "pause menu offers 回到標題")
 	to_title.pressed.emit()
