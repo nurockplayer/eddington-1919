@@ -61,7 +61,7 @@ func _run() -> void:
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
-	var post_puddles := game.find_children("*", "MeshInstance3D", true, false).filter(
+	var post_puddles: Array = game.find_children("*", "MeshInstance3D", true, false).filter(
 		func(mesh): return mesh.mesh is CylinderMesh and mesh.position.is_equal_approx(Vector3(2.6, 0.03, -0.4)))
 	check(post_puddles.is_empty(), "no placeholder puddle at the front shelter post")
 	_test_hud_paper(game)
