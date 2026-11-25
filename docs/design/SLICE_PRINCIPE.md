@@ -1218,3 +1218,8 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Row 4 is not met.** It takes #506 (the sky as blue paper, silhouettes whole, corona, a solid Moon) and package 3 run 2 (the ridge and peak standing through totality) to meet it.
 - **Table changed:** row 4 is read on `totality_wide`, `totality_horizon` and the shelter-edge view with the Sun in frame under clear sky. Without the third frame the corona, Moon and star clauses have no frame to be judged on.
 - **Count 4/9** (rows 3, 6, 7, 9). Row 1 returns when #508 is seen on a day frame of main.
+
+### 2026-11-25 11:02 JST: row 1 re-scored on main 431dca1 (contains #508): met; count 5/9
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/main-row1/431dca1e25e83304a28229ca64ccee1613eef0fc/` (seed 7, zh_TW, day, same cameras as the 1f85955 set). Opened whole at native size: far ridge at 1080p and at 720p, arrival at 1080p (the 1080p far ridge is kept in `slice_principe/accept/main/431dca1/`). Not opened: arrival at 720p. The day walk was not captured from main; it was seen closed on the PR head 889b137, whose code main now carries.
+- **The far ridge's outline is one unbroken line on main** at both sizes, over the peak and across the frame, and on both sides of the shelter in the arrival view. No dashes, no dotted seam; sand and sky are bare paper, the deck is ruled.
+- **Row 1 is met again. Count 5/9** (rows 1, 3, 6, 7, 9). Rows 4 and 5 wait for #506 and package 3 run 2; rows 2 and 8 as before.
