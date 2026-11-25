@@ -56,6 +56,7 @@ func _run() -> void:
 	_check_automation_leaves_checkpoints_alone()
 	await _check_title(story)
 	await _check_ending_clear(story)
+	await _check_hint_checkpoint(story)
 	await _check_darkroom(story)
 	Checkpoint.clear()
 	check(not FileAccess.file_exists(Checkpoint.path()), "the suite leaves no checkpoint file")
@@ -346,6 +347,49 @@ func _finish_standalone_from_title(game) -> bool:
 	return await _wait_for(func(): return game.ui.ending_panel.visible, 20.0)
 
 
+func _check_hint_checkpoint(story) -> void:
+	Engine.time_scale = 6.0
+	Checkpoint.clear()
+	story.reset()
+	check(await _open_title(), "hint checkpoint: title loads")
+	var game = current_scene
+	game.ui.start_btn.pressed.emit()
+	await _wait_for(func(): return game.phase == game.Phase.PREP, 5.0)
+	await _enter_darkroom(game)
+	game._interact("measure")
+	_dialogue(game, {"rule": 0, "bet": 2, "bet_sure": 1, "bet_keep": 3})
+	var hinted: String = game.ui.plate_info.text
+	var saved: Dictionary = Checkpoint._read()
+	check(saved.darkroom.get("blink_hint_seen", false) == true,
+		"hint immediate save: first eligible plate writes blink_hint_seen before include/read")
+	game.ui._select_plate(0, game.plate_textures[0], false)
+	var hidden: String = game.ui.plate_info.text
+	check(hinted.begins_with(hidden + "\n"), "hint checkpoint: first selection shows the hint")
+	for shape in ["true", "false", "absent"]:
+		var fixture: Dictionary = saved.duplicate(true)
+		if shape == "absent":
+			fixture.darkroom.erase("blink_hint_seen")
+		else:
+			fixture.darkroom.blink_hint_seen = shape == "true"
+		Checkpoint._write(fixture)
+		game._return_to_title()
+		var title := await _wait_for(func(): return current_scene != null and current_scene.phase == current_scene.Phase.TITLE, 20.0)
+		check(title, "hint checkpoint " + shape + ": returns to title")
+		if not title:
+			break
+		current_scene.ui.continue_btn.pressed.emit()
+		var night := await _wait_for(func(): return current_scene != null and current_scene.phase == current_scene.Phase.NIGHT, 20.0)
+		check(night, "hint checkpoint " + shape + ": Continue returns to darkroom")
+		if not night:
+			break
+		game = current_scene
+		check(game.ui.plate_info.text == (hidden if shape == "true" else hinted),
+			"hint checkpoint " + shape + ": Continue shows hint only when unseen")
+		game.ui._select_plate(0, game.plate_textures[0], false)
+		check(game.ui.plate_info.text == hidden, "hint checkpoint " + shape + ": reselection hides hint")
+	Engine.time_scale = 1.0
+
+
 func _check_darkroom(story) -> void:
 	Engine.time_scale = 6.0
 	for stage in ["first reading", "first result", "quality reselection", "result reselection"]:
@@ -405,6 +449,21 @@ func _darkroom_case(story, stage: String, resume: bool) -> Dictionary:
 		check(game.ui.dialog_active(), stage + ": the workbook dialogue opens before reading it to completion")
 		_dialogue(game)
 		check(game._departure_workbook_seen, stage + ": finishing the workbook dialogue marks it seen")
+		check(Checkpoint._read().darkroom.get("workbook_seen", false) == true,
+			"workbook immediate save: finishing dialogue writes workbook_seen before measuring")
+		if resume:
+			game._return_to_title()
+			var title := await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.TITLE, 20.0)
+			check(title, "workbook immediate save: return to title before measuring")
+			if not title:
+				return {}
+			current_scene.ui.continue_btn.pressed.emit()
+			var night := await _wait_for(func(): return current_scene != null and current_scene.phase == main_script.Phase.NIGHT, 20.0)
+			check(night, "workbook immediate save: Continue returns before measuring")
+			if not night:
+				return {}
+			game = current_scene
+			check(game._departure_workbook_seen, "workbook immediate save: Continue keeps workbook seen")
 	game._interact("measure")
 	_dialogue(game, {"rule": 0, "bet": 2, "bet_sure": 1, "bet_keep": 3})
 	var first_plate_info: String = game.ui.plate_info.text
