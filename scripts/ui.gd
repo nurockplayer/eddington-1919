@@ -54,6 +54,7 @@ var hud: Control
 var clock_label: Label
 var objectives: RichTextLabel
 var pause_objectives: RichTextLabel
+var pause_scroll: ScrollContainer
 var _pause_tasks: MarginContainer
 var _objectives_bb := ""
 var _portrait_source: Texture2D
@@ -520,7 +521,7 @@ func _process(delta: float) -> void:
 		var pan := Input.get_vector("gamepad_look_left", "gamepad_look_right", "gamepad_look_up", "gamepad_look_down")
 		if pan != Vector2.ZERO:
 			_show_loupe(_loupe_center + pan * 120.0 * delta)
-	var scroll := chart_scroll if viewer.visible and _viewer_reporting and not get_tree().paused and not log_panel.visible else _active_menu_scroll()
+	var scroll := pause_scroll if pause_panel.visible and not help_panel.visible else (chart_scroll if viewer.visible and _viewer_reporting and not get_tree().paused and not log_panel.visible else _active_menu_scroll())
 	if scroll:
 		_menu_scroll_remainder += Input.get_axis("gamepad_look_up", "gamepad_look_down") * 900.0 * delta
 		var pixels := int(_menu_scroll_remainder)
@@ -2072,6 +2073,7 @@ func _build_pause(root: Control) -> void:
 	title_rule.add_theme_constant_override("separation", ink.thickness)
 	page.add_child(title_rule)
 	var scroll := ScrollContainer.new()
+	pause_scroll = scroll
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.follow_focus = true

@@ -242,9 +242,26 @@ func _run() -> void:
 	check(root.gui_get_focus_owner() == ui._choice_buttons[1], "D-pad down highlights second choice")
 	await button(JOY_BUTTON_A)
 	check(not ui.dialog_active() and ui._results.get("answer") == 1, "A chooses highlighted second choice exactly once")
+	var pause_original_size := root.size
+	var pause_original_scale_size := root.content_scale_size
+	var pause_original_scale := Settings.text_scale
+	root.size = Vector2i(1280, 720)
+	root.content_scale_size = Vector2i(1280, 720)
+	Settings.text_scale = 1.2
+	Settings.refresh_fonts(self)
+	ui.set_objectives("□ 最後的工作目標\n".repeat(35))
 	ui.pause_enabled = true
 	await button(JOY_BUTTON_START)
 	check(paused and root.gui_get_focus_owner() is Button and ui.pause_panel.is_ancestor_of(root.gui_get_focus_owner()), "Start opens pause with button focus")
+	for frame in 6:
+		await process_frame
+	var pause_focus := root.gui_get_focus_owner()
+	var pause_bar := ui.pause_scroll.get_v_scroll_bar()
+	check(pause_bar.max_value > pause_bar.page, "large-text pause objectives overflow at 1280x720")
+	await scroll_stick(1.0, 240)
+	check(ui.pause_scroll.scroll_vertical >= int(pause_bar.max_value - pause_bar.page) - 1 and root.gui_get_focus_owner() == pause_focus, "right stick reaches final pause objective without moving focus")
+	await scroll_stick(-1.0, 240)
+	check(ui.pause_scroll.scroll_vertical == 0 and root.gui_get_focus_owner() == pause_focus, "right stick returns pause to top without moving focus")
 	ScorePlayer.set_music_enabled(true)
 	ui.music_button.pressed.emit()
 	check(not ScorePlayer.music_enabled() and not ui.music_slider.editable and ui.music_slider.focus_mode == Control.FOCUS_NONE and is_equal_approx(ui.music_row.modulate.a, 0.4),
@@ -286,6 +303,11 @@ func _run() -> void:
 	check(not paused and not ui.pause_panel.visible, "B closes pause")
 	check(ui.restart_button.text == "從頭開始" and ui.quit_button.text == "離開遊戲",
 		"closing pause disarms the destructive rows")
+	ui.set_objectives("")
+	root.size = pause_original_size
+	root.content_scale_size = pause_original_scale_size
+	Settings.text_scale = pause_original_scale
+	Settings.refresh_fonts(self)
 	# Long real ending text must stay at its beginning even with history available.
 	ui.show_ending("結局", "雲層之後\n".repeat(80), "歷史")
 	for frame in 4:
