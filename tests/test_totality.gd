@@ -432,7 +432,8 @@ func _test_rehearsal() -> void:
 	await physics_frame
 	await process_frame
 	var sun_screen: Vector2 = game.player.camera.unproject_position(game.player.camera.global_position + game.sim.sun_dir * 100.0)
-	check(sun_screen.distance_to(Vector2(853, 240)) < 40.0, "totality places Sun on upper-right third: %s" % sun_screen)
+	var sun_target := Vector2(594, 106) if game._style != null else Vector2(853, 240)
+	check(sun_screen.distance_to(sun_target) < 40.0, "totality dialogue frames the Sun at the authored position: %s" % sun_screen)
 	check(game.ui.prompt_label.text == "［%s］開始／停" % Prompts.key("shutter"), "totality retains a compact shutter reminder")
 	game.ui._process(7.1)
 	game._process_totality(0.1)
@@ -474,13 +475,24 @@ func _test_aim_aspects() -> void:
 			var sun: Vector3 = camera.global_position + game.sim.sun_dir * 100.0
 			var screen := camera.unproject_position(sun)
 			check(not camera.is_position_behind(sun) and Rect2(Vector2.ZERO, Vector2(size)).has_point(screen), label + " keeps Sun on screen")
-			var half_height := tan(deg_to_rad(camera.fov) / 2.0)
-			var y := half_height / 3.0
-			var sun_y: float = game.sim.sun_dir.y
-			# At this vertical third, solar altitude bounds the horizontal slope.
-			var max_x := sqrt((1.0 + y * y) * (1.0 - sun_y * sun_y)) / sun_y
-			var target := Vector2(minf(size.x * 2.0 / 3.0, size.x / 2.0 + size.y * max_x / (2.0 * half_height)), size.y / 3.0)
-			check(screen.distance_to(target) < 1.0, label + " reaches the closest upper-right third: %s" % screen)
+			if rehearsal or game._style == null:
+				var half_height := tan(deg_to_rad(camera.fov) / 2.0)
+				var y := half_height / 3.0
+				var sun_y: float = game.sim.sun_dir.y
+				# At this vertical third, solar altitude bounds the horizontal slope.
+				var max_x := sqrt((1.0 + y * y) * (1.0 - sun_y * sun_y)) / sun_y
+				var target := Vector2(minf(size.x * 2.0 / 3.0, size.x / 2.0 + size.y * max_x / (2.0 * half_height)), size.y / 3.0)
+				check(screen.distance_to(target) < 1.0, label + " reaches the closest upper-right third: %s" % screen)
+			else:
+				var sun_dir: Vector3 = game.sim.sun_dir
+				var tangent := sun_dir.cross(Vector3.UP).normalized()
+				# The farthest engraved streamer reaches four solar radii.
+				var radius: float = 4.0 * game.sim.SUN_R
+				var envelope_visible := true
+				for i in 16:
+					var edge := sun_dir * sqrt(1.0 - radius * radius) + tangent.rotated(sun_dir, i * TAU / 16.0) * radius
+					envelope_visible = envelope_visible and camera.is_position_in_frustum(camera.global_position + edge * 100.0)
+				check(envelope_visible, label + " keeps the corona envelope on screen")
 			game.stop_all_audio()
 			game.queue_free()
 			await process_frame

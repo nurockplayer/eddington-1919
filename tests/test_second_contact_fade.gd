@@ -33,6 +33,7 @@ func _test_path(path: String) -> void:
 	game.player.set_physics_process(false)
 	game.sim = Sim.new(7)
 	game._start_game()
+	game.ui.fade.color.a = 0.0
 	game._process_prep(0.0)
 	await process_frame
 	var camera: Transform3D = game.player.camera.global_transform
@@ -61,14 +62,14 @@ func _test_path(path: String) -> void:
 		game._process(STEP)
 		fade_out.custom_step(STEP)
 		out_frames += 1
-		if game.ui.fade.color.a >= 0.999:
+		if not game.world.roof.visible:
 			break
 		_check_prep_frame(game, camera, yaw, pitch, objectives, clock, clock_rect)
-	check(out_frames >= 42 and out_frames <= 43, "fade-out still lasts 0.7 seconds")
-	check(game.ui.fade.color.a == 1.0, "move and HUD handover happen at full black")
-	check(game.player.global_position.is_equal_approx(game.world.station_pos + Vector3(0, 0.05, 0)), "player moves to the telescope under black")
-	check(game.player.yaw != yaw or game.player.pitch != pitch, "view turns toward the Sun under black")
-	check(not game.world.roof.visible and game.ui.objectives.text.is_empty(), "roof and checklist leave under black")
+	check(out_frames >= 42 and out_frames <= 43, "the prep plate stays visible for the authored 0.7-second lead-in")
+	check(game.player.global_position.is_equal_approx(game.world.station_pos + Vector3(-1.5, 0.05, 1.9)), "the cut places the player at the shelter edge")
+	var sun: Vector3 = game.player.camera.global_position + game.sim.sun_dir * 10.0
+	check(game.player.camera.is_position_in_frustum(sun), "the shelter-edge frame contains the Sun")
+	check(not game.world.roof.visible and game.ui.objectives.text.is_empty(), "canvas and checklist clear on the cut")
 	_check_totality_frame(game)
 	var fade_in: Tween = get_processed_tweens().back()
 	fade_in.pause()
@@ -82,7 +83,7 @@ func _test_path(path: String) -> void:
 		check(var_to_bytes(game.sim.plates) == plates, "fade does not change exposures at frame %d" % i)
 		if not game._busy:
 			break
-	check(in_frames >= 72 and in_frames <= 73, "fade-in still lasts 1.2 seconds")
+	check(in_frames >= 72 and in_frames <= 73, "the exposure lock still holds for 1.2 seconds after the cut")
 	check(not game._busy and game.ui.fade.color.a == 0.0, "handover completes on the clear frame")
 	game._process(STEP)
 	_check_totality_frame(game)
@@ -93,6 +94,7 @@ func _test_path(path: String) -> void:
 
 
 func _check_prep_frame(game: Node, camera: Transform3D, yaw: float, pitch: float, objectives: String, clock: String, clock_rect: Rect2) -> void:
+	check(game.ui.fade.color.a == 0.0, "prep remains visible through the second-contact lead-in")
 	check(game.player.camera.global_transform.is_equal_approx(camera) and game.player.yaw == yaw and game.player.pitch == pitch, "visible fade-out frame retains the PREP camera")
 	check(game.ui.objectives.text == objectives and game.ui.objectives.get_parent().visible, "visible fade-out frame retains the checklist")
 	check(game.ui.clock_label.text == clock and game.ui.clock_label.get_global_rect().is_equal_approx(clock_rect), "visible fade-out frame retains the clock and its position")
@@ -100,6 +102,7 @@ func _check_prep_frame(game: Node, camera: Transform3D, yaw: float, pitch: float
 
 
 func _check_totality_frame(game: Node) -> void:
+	check(game.ui.fade.color.a == 0.0, "the totality plate remains visible through handover")
 	check(game.ui.tot_panel.visible and not game.ui.tot_label.text.is_empty() and game.ui.tot_strip.visible, "totality panel is populated on every fade-in and handover frame")
 	check(game.ui.clock_label.text.is_empty() and not game.ui.clock_label.visible, "totality panel replaces the clock without a gap")
 	check(not game.ui.prompt_label.visible, "no prompt slip on any fade-in or handover frame")

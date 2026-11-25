@@ -29,8 +29,9 @@ func _run() -> void:
 	for source in [shader, engraving]:
 		check(source.contains('#include "res://shaders/eclipse_cloud.gdshaderinc"'), "sky and engraving use one cloud rule")
 	check(engraving.contains("eclipse_cloud_density(bead_dir)"), "engraving samples the sky cloud over the bead")
-	check(engraving.contains("float moon_cover = moon_weight * max(diamond, print_darkness);"), "totality and diamond preserve cloud-dependent Moon line weight")
-	check(engraving.contains("moon_ink = before_second_contact ? 0.0 : front * step(r, 1.0) * moon_lines;"), "Moon ink has no binary diamond gate after second contact")
+	check(engraving.contains("float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);"), "Moon is a whole antialiased disc")
+	check(engraving.contains("float sun_cloud = eclipse_cloud_density(sun_dir);"), "Moon obscuration samples cloud at the Sun")
+	check(engraving.contains("moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness) * (1.0 - step(0.85, sun_cloud));"), "Moon remains visible through totality and is obscured by dense cloud at the Sun")
 	for seed_ in [7, 1919]:
 		await _check_seed(seed_)
 	print("%d third contact gap checks, %d failures" % [checks, failures])
