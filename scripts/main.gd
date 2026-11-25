@@ -453,9 +453,6 @@ func _crescent(contact: float) -> float:
 
 
 func _apply_light(contact: float, darkness: float, cloud_t: float, night: float, before_second_contact := false) -> void:
-	for ridge in get_tree().get_nodes_in_group("far_ridges"):
-		# At totality the far land is a low profile; even the towers stay below eye level.
-		ridge.scale.y = lerpf(1.0, 0.006, smoothstep(0.85, 0.98, darkness) * (1.0 - night))
 	# Distant cards print only as the inked totality/night tree line, never a day wash.
 	var forest_ink := maxf(smoothstep(0.85, 1.0, darkness) if _style != null else float(darkness > 0.95), night)
 	for layer in $ForestEdge.get_children():
@@ -1634,8 +1631,6 @@ func _update_day_return(elapsed: float) -> void:
 	var darkness := 1.0 - v * v if _style == null else 1.0 - smoothstep(0.0, PASSAGE_S, elapsed)
 	sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
 	_apply_light(1.0 - v * 0.2, darkness, t_game + v * 10.0, 0.0)
-	for ridge in get_tree().get_nodes_in_group("far_ridges"):
-		ridge.scale.y = lerpf(0.006, 1.0, smoothstep(0.0, 1.0, v))
 
 
 # ----------------------------------------------------------------------- Night
