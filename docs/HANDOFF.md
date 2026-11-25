@@ -2,13 +2,12 @@
 
 Overwritten every turn, never appended to; 30 lines at most. Rules live in the global CLAUDE.md only. History: `git log -p docs/HANDOFF.md`; before 2026-11-12 JST, `docs/HANDOFF_ARCHIVE.md`.
 
-**Written 2026-11-26 01:47 JST.** Slice acceptance **5/9** on main (met 1,3,6,7,9; open 2,4,5,8). Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. #506 + #524 merged (main 57d81edc); their worktrees/branches removed.
+**Written 2026-11-26 01:51 JST.** Slice acceptance **5/9** on main (met 1,3,6,7,9; open 2,4,5,8). Plan = Príncipe vertical slice, style = engraving; art director = Fable 5.2 in edd-art (w7:pB), art log `docs/design/SLICE_PRINCIPE.md`. #506 + #524 merged (main 57d81edc); their worktrees/branches removed.
 
-**Journey (Owner 2026-11-26, decisions #316 / memory owner-journey-story-1126):** scope B + interludes, Kit/Ashby POV, no invented romance, sensitive topics truthful, slice first, spine hatred vs internationalism → cloud wait → Nov 6 epic. Research dossier = PR #527 (`docs/research/expedition_journey_2026-11-26.md`).
+**Journey (Owner 2026-11-26, decisions #316 / memory owner-journey-story-1126):** scope B + interludes, Kit/Ashby POV, no invented romance, sensitive topics truthful, slice first, spine hatred vs internationalism → cloud wait → Nov 6 epic. Research dossier merged #527 (`docs/research/expedition_journey_2026-11-26.md`).
 
 **In flight (lead-wait):**
-- `lw-pr-527-20261126-013957`: #527 gate (docs). After merge remove wt research-journey + branch (journey-design is based on it: rebase onto main if #527 squash-merges).
-- `lw-journey-design-20261126-014127-37183`: Sol high, wt journey-design (branch docs/journey-design), brief `.claude/briefs/journey-design.md` → `docs/design/JOURNEY.md` docs PR. On event: check acceptance (chapter table, beats with provenance, interludes, size, lines-not-crossed, per-chapter brief split), gate, then dispatch one scene brief per chapter (Codex).
+- `lw-pr-528-20261126-014957`: #528 `docs/design/JOURNEY.md` gate (lead accepted: 4 chapters Tribunal / Madeira wait / Weeks at Sundy / Joint meeting + 6 interludes, 62–90 min, 4 scene briefs listed under "Later scene briefs"). After merge: remove wt journey-design + branch; dispatch scene brief 1 (Tribunal) to Codex, one chapter per brief, scripts only, not wired into game until slice accepted.
 - `cap-main45` (Terra, wt cap-main45 detached 57d81edc, brief `.claude/briefs/accept-shots-main-row45.md`) → KIOXIA `accept/main-row45/<sha>/`; on event message edd-art (herdr pane run w7:pB) to re-score rows 4+5. lw-cap-main45-20261126-014357-57318.
 - `lw-fix-427-fu-20261126-011738-54965`: #427 resume (session 01a211d0): parse error tests/test_style_engraving.gd:64, draft PR, golden_arrival/arrival frames → edd-art.
 
