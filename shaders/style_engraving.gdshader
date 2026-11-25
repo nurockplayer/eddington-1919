@@ -290,6 +290,7 @@ void fragment() {
 		i1 = mix(i1, mix(sparse, i1, band_lines), print_darkness);
 		ink = 1.0 - (1.0 - i1) * (1.0 - i2);
 		ink = max(ink, cloud_contour * band_lines * contour_ink);
+		if (night <= 0.5 && practice_cloud < 0.0) ink *= print_darkness;
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
