@@ -37,7 +37,8 @@ const BED_DIR := "res://assets/sfx/"
 const BED_RMS_DB := {"birds": -29.70, "insects": -34.79, "surf": -23.85}
 
 const PREP_S := 150.0            # real seconds of preparation (paused while talking)
-const PASSAGE_S := 60.0          # real seconds on either side of totality
+const PASSAGE_S := 60.0          # real seconds approaching totality
+const DAY_RETURN_S := 12.0
 const THIRD_CONTACT_S := 3.0
 const EXPOSURE_STEP_S := 0.25    # game seconds between cloud samples during exposure
 const TOTALITY_SCORE_DELAY_S := 2.0  # real seconds after second contact
@@ -1617,7 +1618,7 @@ func _end_totality() -> void:
 	ui.set_totality(false)
 	_sfx("third")
 	ui.show_toast(L.t("第三接觸。陽光像鑽石一樣從月亮邊緣迸出來。") + (L.t("\n快門還開著——最後那張底片曝到了陽光。") if ruined else ""), 5.0)
-	var duration := THIRD_CONTACT_S if _style == null else PASSAGE_S
+	var duration := THIRD_CONTACT_S if _style == null else DAY_RETURN_S
 	_day_return = create_tween()
 	_day_return.tween_method(_update_day_return, 0.0, duration, duration)
 	await get_tree().create_timer(THIRD_CONTACT_S + 1.5, false).timeout
@@ -1628,7 +1629,7 @@ func _update_day_return(elapsed: float) -> void:
 	# The contact and its beads keep their authored timing. Only the light
 	# continues to recover after that cue and into the post-totality dialogue.
 	var v := minf(elapsed / THIRD_CONTACT_S, 1.0)
-	var darkness := 1.0 - v * v if _style == null else 1.0 - smoothstep(0.0, PASSAGE_S, elapsed)
+	var darkness := 1.0 - v * v if _style == null else 1.0 - smoothstep(0.0, DAY_RETURN_S, elapsed)
 	sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
 	_apply_light(1.0 - v * 0.2, darkness, t_game + v * 10.0, 0.0)
 

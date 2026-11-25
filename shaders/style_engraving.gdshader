@@ -250,7 +250,6 @@ void fragment() {
 	float room_value = -1.0;
 	bool measuring_paper = false;
 	float paper_edge = 0.0;
-	bool terrain_paper = false;
 	float sky_white = 0.0;
 	float corona_white = 0.0;
 	float sun_rim = 0.0;
@@ -384,7 +383,6 @@ void fragment() {
 		vec3 n_w = normalize((INV_VIEW_MATRIX * vec4(n_v, 0.0)).xyz);
 		vec3 pw = (INV_VIEW_MATRIX * vec4(pv, 1.0)).xyz;
 		bool ridge = length(pw.xz) > 75.0 && pw.y > -0.39;
-		terrain_paper = ridge || (n_w.y > flat_at && pw.y < 0.03);
 		// Local paper reserve on the plate box's top and door-facing edge.
 		// Kept separate from tone/outline defaults and inactive at night/totality.
 		vec3 box_delta = abs(pw - vec3(11.65, 1.18, 2.25));
@@ -570,7 +568,7 @@ void fragment() {
 	}
 	float blue = print_darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
-	float heightening = sky ? sky_white : (terrain_paper ? 0.0 : smoothstep(heighten_lo, heighten_hi, tone_p));
+	float heightening = sky ? sky_white : 0.0;
 	page = mix(page, paper, heightening * blue);
 	float nw = night * night_wash;
 	float red = smoothstep(0.15, 0.5, clamp((c.r - max(c.g, c.b)) / max(c.r, 0.0001), 0.0, 1.0));
