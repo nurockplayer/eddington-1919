@@ -75,15 +75,16 @@ func _run() -> void:
 	check(short_slender, "vertices above 112 m stay within the tower bearings")
 	check(tall_peak, "tall tower exceeds 155 m")
 	check(short_peak, "short tower exceeds 122 m near 168")
+	var day_transform: Transform3D = groups[0].transform
 	scene.phase = scene.Phase.PREP
+	scene._apply_light(0.97, 0.98, -5.0, 0.0, true)
+	check(groups[0].transform == day_transform, "approach holds the daylight ridge geometry")
 	await scene._begin_totality()
-	check(is_equal_approx(groups[0].scale.y, 0.006), "totality entry applies the authored low ridge profile")
-	await scene._end_totality()
-	check(is_equal_approx(groups[0].scale.y, 1.0), "third contact restores daylight ridge geometry")
-	# Night must also restore full height when entered from a flattened profile.
-	scene._apply_light(1.0, 1.0, 0.0, 0.0)
-	await scene._begin_night()
-	check(is_equal_approx(groups[0].scale.y, 1.0), "night restores full ridge geometry")
+	check(groups[0].transform == day_transform, "totality holds the daylight ridge geometry")
+	scene._update_day_return(1.0)
+	check(groups[0].transform == day_transform, "third contact holds the daylight ridge geometry")
+	scene._update_day_return(30.0)
+	check(groups[0].transform == day_transform, "day return holds the daylight ridge geometry")
 	scene.stop_all_audio()
 	print("test_ridges: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

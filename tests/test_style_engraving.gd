@@ -33,6 +33,8 @@ func _run() -> void:
 		and shader_text.contains("if (border_depth < 0.00001) day_edge = 1.0;")
 		and shader_text.contains("edge = mix(edge, day_edge, day_weight);"),
 		"daylight ridge prints where its depth touches sky and fades into totality")
+	check(shader_text.contains("float heightening = sky ? sky_white : 0.0;"),
+		"camp surfaces share the darkening paper while the horizon keeps its glow")
 	for name in {"third_contact_gap": "float", "cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
@@ -173,7 +175,8 @@ func _test_eclipse_pilot_bindings() -> void:
 		_check_original_pilot_binding(mesh, "totality restores original materials")
 	game.t_game = game.sim.TOTALITY_S
 	game._process_totality(0.0)
-	game._day_return.custom_step(game.PASSAGE_S)
+	game._day_return.custom_step(game.DAY_RETURN_S)
+	check(is_zero_approx(game.sky_mat.get_shader_parameter("darkness")), "daylight returns in 12 seconds")
 	for mesh in pilot:
 		_check_original_pilot_binding(mesh, "live daylight recovery retains original materials")
 	game.free()

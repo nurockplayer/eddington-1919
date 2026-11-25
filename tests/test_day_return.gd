@@ -38,16 +38,16 @@ func _run() -> void:
 		last_darkness = darkness
 		check(is_equal_approx(game.sky_mat.get_shader_parameter("contact"), lerpf(0.62, 0.985, 1.0 - seconds_left / game.PREP_S)), "approach keeps the contact geometry")
 	game.t_game = game.sim.TOTALITY_S
-	for elapsed in [0.0, 0.5, 3.0, 15.0, 30.0, 45.0, 60.0]:
+	for elapsed in [0.0, 0.5, 3.0, 6.0, 9.0, 11.0, 12.0, 15.0]:
 		game._update_day_return(elapsed)
 		var darkness: float = print_material.get_shader_parameter("darkness")
 		check(darkness <= last_darkness, "paper recovers after third contact")
 		if elapsed == 0.0:
 			check(darkness == 1.0, "third contact begins in the totality print")
-		elif elapsed < 60.0:
+		elif elapsed < 12.0:
 			check(darkness > 0.0 and darkness < 1.0, "recovery prints intermediate tones")
 		else:
-			check(darkness == 0.0, "paper is daylight after one minute")
+			check(darkness == 0.0, "paper is daylight after twelve seconds")
 		last_darkness = darkness
 		var v := minf(elapsed / 3.0, 1.0)
 		check(is_equal_approx(game.sky_mat.get_shader_parameter("contact"), 1.0 - 0.2 * v), "third contact keeps its geometry and duration")
