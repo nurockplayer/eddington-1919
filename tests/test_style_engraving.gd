@@ -38,17 +38,16 @@ func _run() -> void:
 	for name in {"third_contact_gap": "float", "cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
-	check(shader_text.contains("front * moon_disc * max(diamond, print_darkness)")
-		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the Moon prints solid ink over the sky in all cloud states")
-	check(shader_text.contains("cloud_wash = plate_cloud * band_lines * totality_plate;")
-		and shader_text.contains("plate_cloud = cloud_body * (0.28 * smoothstep(0.35, 0.56, cloud_field.y)"),
-		"the peak cloud wash starts from zero at the cloud boundary and deepens with live density")
-
+	check(shader_text.contains("front * moon_disc * max(diamond, print_darkness) * (1.0 - cloud_veil)")
+		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the Moon is veiled by the cloud")
+	check(shader_text.contains("float thin_cloud = step(0.35, cloud_field.y);")
+		and shader_text.contains("float dense_cloud = step(0.85, cloud_field.y);")
+		and shader_text.contains("cloud_wash = plate_cloud * totality_plate;"), "cloud plate has crisp density steps")
 	check(shader_text.contains("float density = eclipse_cloud_density(direction);")
-		and shader_text.contains("cloud_field = print_cloud(ray_w, print_darkness);"),
-		"daylight and totality contours come from the live exposure field")
+		and shader_text.contains("cloud_field = print_cloud(ray_w, print_darkness);"), "contours use the live exposure field")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
-	check(shader_text.contains("max(0.38 * cloud_body, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "live cloud body and density veil the corona over the Sun")
+	check(shader_text.contains("max(0.5 * step(0.35, cloud_field.y), step(0.85, cloud_field.y))")
+		and shader_text.contains("step(0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * (1.0 - cloud_veil)"), "the same density steps veil the corona and Moon")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && print_darkness > 0.0 && front > 0.0)"),
 		"engraving hides Moon ink and corona before second contact")

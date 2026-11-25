@@ -294,13 +294,13 @@ void fragment() {
 			ink = 1.0 - (1.0 - i1) * (1.0 - i2);
 		}
 		if (totality_plate > 0.0) {
-			float plate_cloud = cloud_body * (0.28 * smoothstep(0.35, 0.56, cloud_field.y)
-				+ 0.66 * smoothstep(0.56, 0.90, cloud_field.y));
-			float body_edge = 1.0 - smoothstep(0.35, 0.85, abs(0.56 - cloud_field.y) / (cloud_pixel * res_k));
+			float thin_cloud = step(0.35, cloud_field.y);
+			float dense_cloud = step(0.85, cloud_field.y);
+			float plate_cloud = 0.28 * thin_cloud + 0.66 * dense_cloud;
 			float broad = hatch(ruling.x, k, 0.14, l_px * 2.0, 99.0);
-			float plate_ink = max(broad * 0.36 * (1.0 - plate_cloud), body_edge * 0.34);
-			ink = mix(ink, plate_ink * band_lines, totality_plate);
-			cloud_wash = plate_cloud * band_lines * totality_plate;
+			float plate_ink = broad * 0.36 * (1.0 - dense_cloud);
+			ink = mix(ink, plate_ink, totality_plate);
+			cloud_wash = plate_cloud * totality_plate;
 		}
 		ink = max(ink, cloud_contour * band_lines * contour_ink * (1.0 - totality_plate));
 		if (night <= 0.5 && practice_cloud < 0.0) {
@@ -353,7 +353,10 @@ void fragment() {
 		// Reserve a solid disc over the printed sky, with coverage only at its limb.
 		float moon_pixel = max(fwidth(r) * 0.5, 0.00001);
 		float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);
-		moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness);
+		float sun_cloud = eclipse_cloud_density(sun_dir);
+		float cloud_veil = max(0.5 * step(0.35, cloud_field.y), step(0.85, cloud_field.y));
+		cloud_veil = max(cloud_veil, step(0.85, sun_cloud));
+		moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness) * (1.0 - cloud_veil);
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
 		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
@@ -377,9 +380,7 @@ void fragment() {
 			float limb_white = 1.0 - smoothstep(1.035, 1.065, r);
 			// A clear Sun keeps the complete starburst; the printed cloud's own
 			// body and optical density veil it under thin and thick cloud.
-			float sun_cloud = eclipse_cloud_density(sun_dir);
-			float cloud_veil = max(0.38 * cloud_body, smoothstep(0.6, 0.85, cloud_field.y)) * smoothstep(0.35, 0.45, sun_cloud);
-			corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil);
+						corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil);
 		}
 
 
