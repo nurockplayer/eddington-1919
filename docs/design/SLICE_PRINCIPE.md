@@ -1298,3 +1298,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - The panel looks as #514 left it: day's cream paper, ink rules, the selected row the one dark cell. Scrolled to the end the list sits inside the frame, the last line clear of the bottom edge, the bar's thumb at the foot of its track. The title bar stays put and the list passes under its rule.
 - Seen, not this PR: scrolled to the end the selected row is off the page, so nothing shows where focus is; the track is a hairline with a thumb two pixels wide.
 - **Verdicts:** technical regression none seen; this PR changes no drawing, nothing to accept beyond that; whole scene unchanged.
+
+### 2026-11-26 04:35 JST: #538 placeholder disc at the shelter post removed (issue #427, VIS-9) at 2764401: accepted
+- Frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/issue-427/` (`a3f20af8/` before, `27644019e5d25a6b7f8efc2c24838fd4bfb7a2d8/` after; seed 7, day, `prep_early`, UI hidden, windowed). Opened whole at native size, all four: `golden_arrival` at 1920×1080 and `arrival` at 1280×720, before and after. The golden pair is kept in `slice_principe/accept/538/2764401/`. Measured: where the pair differs.
+- **The disc is gone.** The front-right post now stands straight on the shaded ground lines like the other posts; nothing is left at its foot, no stain, no gap in the ruling.
+- Nothing else on the page moved. The only pixels that differ outside the disc are a few on the edges of the two figures (their idle pose); palms, crates, shadows, ridge outline and house are the same.
+- Seen, not this PR: a dark flat arc on the bottom edge of both frames, left of centre, in both before and after. It is one of the three ground discs of the same placeholder kind that remain (`world_builder.gd` `_paths`). For the visual backlog: remove them or draw them as real puddles with outline and ruling.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene unchanged (day arrival, row 1 stays met). **Count stays 5/9.**
