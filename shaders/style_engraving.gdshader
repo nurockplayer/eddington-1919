@@ -299,8 +299,8 @@ void fragment() {
 			float plate_cloud = 0.28 * thin_cloud + 0.66 * dense_cloud;
 			float broad = hatch(ruling.x, k, 0.14, l_px * 2.0, 99.0);
 			float plate_ink = broad * 0.36 * (1.0 - dense_cloud);
-			ink = mix(ink, plate_ink, totality_plate);
-			cloud_wash = plate_cloud * totality_plate;
+			ink = mix(ink, plate_ink * band_lines, totality_plate);
+			cloud_wash = plate_cloud * band_lines * totality_plate;
 		}
 		ink = max(ink, cloud_contour * band_lines * contour_ink * (1.0 - totality_plate));
 		if (night <= 0.5 && practice_cloud < 0.0) {
@@ -356,7 +356,7 @@ void fragment() {
 		float sun_cloud = eclipse_cloud_density(sun_dir);
 		float cloud_veil = max(0.5 * step(0.35, cloud_field.y), step(0.85, cloud_field.y));
 		cloud_veil = max(cloud_veil, step(0.85, sun_cloud));
-		moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness) * (1.0 - cloud_veil);
+		moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness) * (1.0 - step(0.85, sun_cloud));
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
 		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
