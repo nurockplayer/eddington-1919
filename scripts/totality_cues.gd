@@ -54,3 +54,33 @@ static func third_contact_glint(v: float) -> Vector2:
 	var diamond := sin((v - 0.08) / 0.32 * PI) if v > 0.08 and v < 0.40 else 0.0
 	return Vector2(beads, diamond)
 
+
+## Read the same L8 field and moving pocket as eclipse_cloud.gdshaderinc
+## for the director's receipts. Plate exposure still samples the simulation.
+static func third_contact_cloud_sample(sim, ray: Vector3, time: float, clock: Vector3) -> Vector2:
+	var uv: Vector2 = Vector2(ray.x, ray.z) / ray.y * sim.CLOUD_SCALE - sim.wind * time
+	var pixel: Vector2 = uv * sim.TEX_SIZE - Vector2(0.5, 0.5)
+	var cell := Vector2i(pixel.floor())
+	var fraction := pixel - Vector2(cell)
+	var x0 := posmod(cell.x, sim.TEX_SIZE)
+	var y0 := posmod(cell.y, sim.TEX_SIZE)
+	var x1 := (x0 + 1) % int(sim.TEX_SIZE)
+	var y1 := (y0 + 1) % int(sim.TEX_SIZE)
+	var image: Image = sim.cloud_img
+	var lower := lerpf(image.get_pixel(x0, y0).r, image.get_pixel(x1, y0).r, fraction.x)
+	var upper := lerpf(image.get_pixel(x0, y1).r, image.get_pixel(x1, y1).r, fraction.x)
+	var tangent: Vector3 = sim.sun_dir.cross(Vector3.UP).normalized()
+	var local_sun := Vector2(ray.dot(tangent), ray.dot(tangent.cross(sim.sun_dir))) / float(sim.SUN_R)
+	var elapsed := (time - clock.x) / (clock.y if time < clock.x else clock.z)
+	return Vector2(lerpf(lower, upper, fraction.y), third_contact_cloud_gap(local_sun, elapsed))
+
+
+static func third_contact_cloud_gap(local_sun: Vector2, elapsed: float) -> float:
+	var offset := local_sun - Vector2(1.25 * elapsed - 0.86, 0.0)
+	var pocket := 1.0 - smoothstep(1.1, 3.65, (offset * Vector2(1.0, 1.25)).length())
+	return pocket * (1.0 - smoothstep(3.5, 5.0, local_sun.length()))
+
+
+static func third_contact_cloud_density(cloud: Vector2) -> float:
+	return lerpf(cloud.x, minf(cloud.x, 0.22), cloud.y)
+

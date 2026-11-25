@@ -40,6 +40,7 @@ const PREP_S := 150.0            # real seconds of preparation (paused while tal
 const PASSAGE_S := 60.0          # real seconds approaching totality
 const DAY_RETURN_S := 12.0
 const THIRD_CONTACT_S := 3.0
+const THIRD_CONTACT_CLOUD_S := 10.0
 const EXPOSURE_STEP_S := 0.25    # game seconds between cloud samples during exposure
 const TOTALITY_SCORE_DELAY_S := 2.0  # real seconds after second contact
 const TOTALITY_SCORE_FADE_S := 1.2
@@ -463,6 +464,7 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float,
 	sky_mat.set_shader_parameter("before_second_contact", before_second_contact)
 	sky_mat.set_shader_parameter("darkness", darkness)
 	sky_mat.set_shader_parameter("cloud_time", cloud_t)
+	sky_mat.set_shader_parameter("third_contact_cloud_clock", Vector3(sim.TOTALITY_S, _totality_rate, THIRD_CONTACT_CLOUD_S / THIRD_CONTACT_S))
 	sky_mat.set_shader_parameter("night", night)
 	if meteors:
 		meteors.set_night(night > 0.5)
@@ -854,7 +856,7 @@ func _process(delta: float) -> void:
 func _sync_style_sky() -> void:
 	if _style == null:
 		return
-	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "practice_cloud", "wind", "cloud_scale"]:
+	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "third_contact_cloud_clock", "practice_cloud", "wind", "cloud_scale"]:
 		_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
 	_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)
 
@@ -1649,7 +1651,7 @@ func _update_day_return(elapsed: float) -> void:
 	var v := minf(elapsed / THIRD_CONTACT_S, 1.0)
 	var darkness := 1.0 - v * v if _style == null else 1.0 - smoothstep(0.0, DAY_RETURN_S, elapsed)
 	sky_mat.set_shader_parameter("third_contact", Cues.third_contact_glint(v))
-	_apply_light(1.0 - v * 0.2, darkness, t_game + v * 10.0, 0.0, false, true)
+	_apply_light(1.0 - v * 0.2, darkness, t_game + v * THIRD_CONTACT_CLOUD_S, 0.0, false, true)
 
 
 # ----------------------------------------------------------------------- Night

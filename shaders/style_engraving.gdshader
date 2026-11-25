@@ -21,6 +21,7 @@ uniform bool before_second_contact = false;
 // The sky's live cloud field, including the rehearsal override.
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
+uniform vec3 third_contact_cloud_clock = vec3(302.0, 2.5, 3.333333);
 uniform float day_return_cloud_time = -1.0; // cloud plate at the start of the light return
 uniform float practice_cloud = -1.0;
 uniform vec2 wind = vec2(0.0042, 0.0026);
@@ -358,11 +359,14 @@ void fragment() {
 		// Reserve a solid disc over the printed sky, with coverage only at its limb.
 		float moon_pixel = max(fwidth(r) * 0.5, 0.00001);
 		float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);
-		float sun_cloud = eclipse_cloud_density(sun_dir);
-		float sun_visibility = 1.0 - smoothstep(0.80, 0.85, sun_cloud);
-		float live_cloud = returning_sky ? eclipse_cloud_density(ray_w) : cloud_field.y;
-		float cloud_veil = max(0.5 * smoothstep(0.30, 0.35, live_cloud), smoothstep(0.80, 0.85, live_cloud));
-		moon_ink = before_second_contact ? 0.0 : front * moon_disc * solar_fade * sun_visibility;
+		float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time).x;
+		float sun_visibility = 1.0 - smoothstep(0.40, 0.85, sun_cloud);
+		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, cloud_time);
+		float cloud_veil = max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(0.60, 0.85, live_cloud.x));
+		// A moving edge uncovers each ray where it passes, including across the Moon.
+		float moon_cloud = mix(sun_visibility, 1.0, live_cloud.y);
+		float corona_cloud = mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
+		moon_ink = before_second_contact ? 0.0 : front * moon_disc * solar_fade * moon_cloud;
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
 		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
@@ -386,7 +390,7 @@ void fragment() {
 			float limb_white = 1.0 - smoothstep(1.035, 1.065, r);
 			// A clear Sun keeps the complete starburst; the printed cloud's own
 			// body and optical density veil it under thin and thick cloud.
-			corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil) * sun_visibility;
+			corona_white = max(limb_white, rays) * step(1.0, r) * corona_cloud;
 		}
 
 
