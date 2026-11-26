@@ -30,6 +30,16 @@ Carry forward the M2 bond tone, checklist correction and gift, plus the unchange
 | M08 | Caption | Fictional journey · You travel with Eddington and Cottingham, the two historical Príncipe observers. | INVENTED-FICTIONAL · M2, R §26 |
 | M09 | Shared advance | Continue | RECONSTRUCTION · J |
 
+**Archival placement · INFERENCE.** The route strip takes these inserts in port order. Follow M04 with M80–M81, M05 with M82, and M06 with M83–M84. Reuse I1’s archival label and M09. Present these dated records on the archival paper.
+
+| ID | Display | English copy | Provenance |
+|---|---|---|---|
+| M80 | Liverpool retrospective caption | Liverpool · Week ending 8 March 1919. A later tabulation records 149 registered influenza deaths that week. | HISTORICAL_RECORD · SOC §1, Public Health Reports, table III, p. 1371 |
+| M81 | Cambridge clipping | Cambridge Independent Press · 14 March 1919. “Schools Closed in Sixty Parishes”. The report covers Cambridgeshire. | HISTORICAL_RECORD · SOC §1, Cambridge spring transcript |
+| M82 | Lisbon order | Lisbon · Order of 23 October 1918. Civil registries must stay open on Sundays and obtain the death registers they need. The order is revoked on 16 November 1918. | HISTORICAL_RECORD · SOC §1, Diário do Governo orders cited in the Lisbon study |
+| M83 | Funchal headline | Diário da Madeira · 16 November 1918. “A epidemia e o porto do Funchal”. | HISTORICAL_RECORD · SOC §1, no. 2304, p. 1 |
+| M84 | Arrival record | Diário da Madeira · 15 March 1919. The newspaper lists the expedition passengers. | HISTORICAL_RECORD · SOC §3, press index PT13 |
+
 ### Beat 2 · The split
 
 **HISTORICAL_RECORD · D §§1, 4, L, C and R §§9, 26.** Read the farewell account on its own page. L is dated 15–16 March and describes the previous day's landing and lunch. At the split reveal the two named branches on the strip. Fade up on the worktable, with both spare places visible where the dock papers and spare folders will sit. Hold the empty place nearest the assistant for one unhurried beat before Ashby's remembered line. The empty seat is a staged echo of the separation.
@@ -164,7 +174,7 @@ On a wrong match, leave the row selected with its correction in view. Previously
 
 ## I2 · The onward passage
 
-**HISTORICAL_RECORD · D §§1–2, R §26, V, P. RECONSTRUCTION · J for the slip design.** M70 opens a single paper view with the route slip headed I01–I02. Read I03–I06 in travel order. I07 opens the letter excerpt below the last stop on the same paper. Put the date of the incoming letter and the fact of its arrival on I09, with Eddington's later letter as the source. The quote is his reply, read as an archival insert. There is no invented text from his mother, mail delivery scene or implication that her letter sailed with him from Funchal.
+**HISTORICAL_RECORD · D §§1–2, R §26, V, P. RECONSTRUCTION · J for the slip design.** M70 opens a single paper view with the route slip headed I01–I02. Read I03–I06 in travel order. **Placement · INFERENCE.** Attach I11 below the two Cabo Verde calls, after I05 and before the landing, with the archival label from I1. I07 opens the letter excerpt below the last stop on the same paper. Put the date of the incoming letter and the fact of its arrival on I09, with Eddington's later letter as the source. The quote is his reply, read as an archival insert. There is no invented text from his mother, mail delivery scene or implication that her letter sailed with him from Funchal.
 
 | ID | Display or speaker | English copy | Provenance |
 |---|---|---|---|
@@ -173,6 +183,7 @@ On a wrong match, leave the row selected with its correction in view. Previously
 | I03 | Route stop | 9 April 1919 · Leave Funchal aboard Portugal. | HISTORICAL_RECORD · R §26 |
 | I04 | Route stop | Cape Verde · Call at São Vicente. | HISTORICAL_RECORD · V, P |
 | I05 | Route stop | Cape Verde · Call at Santiago. | HISTORICAL_RECORD · P |
+| I11 | Archival route note | Cabo Verde · 1918. A historical compilation records 7,820 people affected by influenza and 85 deaths across Santo Antão, São Vicente, Santiago and Brava. | HISTORICAL_RECORD · SOC §1, Cabo Verde historical epidemic table 12 |
 | I06 | Landing card | 23 April 1919 · Land at Santo António, Príncipe. | HISTORICAL_RECORD · R §26, P |
 | I07 | Control | Read the family letter excerpt | RECONSTRUCTION · J |
 | I08 | Excerpt attribution | Letter excerpt · A. S. Eddington to Sarah Ann Eddington · Roça Sundy, 29 April–2 May 1919 · Trinity EDDN/A/4/7 | HISTORICAL_RECORD · P |
@@ -196,10 +207,13 @@ Use the existing [locale catalogues](../../../locale/) and cast labels. Length t
 
 Treat M56, M63 and I09 as attributed quotations with the English source excerpt available in the paper view when translated. Translate faithfully and preserve the speaker, the original's limits and the date distinctions. Keep ship names and Portuguese accents in source attributions and keep São Vicente and Santiago distinct. Preserve “3 April” as a tentative date, and in I09 preserve that 14 March dates the incoming letter and its receipt is described as on arrival. Keep Kit's 29 May leaf and the blank reply space visually distinct. Allow a line break between metadata fields before breaking a person's name, ship name or quoted clause.
 
-**String count.** Madeira M01–M79 is 79 unique visible English strings × 4 = 316, matching the 79 × 4 estimate. I2 I01–I10 is 10 × 4 = 40, matching 10 × 4. Both counts include choices of bond tone, match feedback, controls, labels and document text where applicable. Repeated labels, repeated footer text, reused cast names and the existing 29 May card add no new string. Translations and any retained English quote use these same source rows.
+**Society inserts.** In en use “registered influenza deaths” and gloss M83 as “The epidemic and the port of Funchal”. In ja use 登録されたインフルエンザ死, in zh-TW use 流感登記死亡人數, and in ko use 등록된 인플루엔자 사망자. Give M81 and M83 their original headlines alongside localized readings. In all four locales keep M80’s week, M82’s autumn dates and I11’s four-island total visible with the figures or order they qualify. Use Cabo Verde with a localized place name where needed and preserve the four Portuguese island names in the archive credit.
+
+**String count.** Madeira M01–M84 is 84 unique visible English strings × 4 = 336. I2 I01–I11 is 11 × 4 = 44. Both counts include choices of bond tone, match feedback, controls, labels and document text where applicable. Repeated labels, repeated footer text, reused cast names and the existing 29 May card add no new string. Translations and any retained English quote use these same source rows.
 
 ## Sources
 
+- **SOC** · [Society and Influenza](../../research/society_1918_1920.md) §§1, 3, issue and archive links as cited in the rows.
 - **J** · [Journey design](../JOURNEY.md), §2, I2, Size and reuse, and Lines we do not cross.
 - **D** · [Expedition dossier](../../research/expedition_journey_2026-11-26.md), §§1–5 as indicated.
 - **R** · Dyson, Eddington and Davidson, expedition report (1920), numbered sections as cited. [Report](https://doi.org/10.1098/rsta.1920.0009) · [Full text PDF](https://astronomyforchange.org/wp-content/uploads/2021/06/DysonOriginalPaper_1919TSE_rsta.1920.0009.pdf)

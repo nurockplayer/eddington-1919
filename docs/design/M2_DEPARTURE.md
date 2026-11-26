@@ -38,6 +38,17 @@ crates (`R.A.S. ECLIPSE`, matches v0.1), the finished Hyades list, Kit's own wor
 5. **Montage → Príncipe** (moves M1's montage tail here; 1917 prologue ends on the trial task and
    a short "1918" bridge instead).
 
+## Full journey departure papers
+
+**Placement · INFERENCE.** At the start of the montage fade after Ashby’s farewell and before Madeira M01, show these two captions on the archival paper from [I1](journey/TRIBUNAL.md#i1--armistice), reusing I03’s archival label. Use the shared Continue control. The dates identify the records. The figures give the national employment context as the assistant leaves Cambridge.
+
+| ID | English copy | Provenance |
+|---|---|---|
+| M2-S01 | Cambridge Daily News · 3 December 1918. “Bacon-Eating and Influenza: Dr. Laird’s View”. The borough medical officer rejects the rumour that eating bacon caused the outbreak. | HISTORICAL_RECORD · [Society and Influenza §1, Cambridge winter transcript](../research/society_1918_1920.md#1-influenza-along-the-journey) |
+| M2-S02 | Ministry of Labour · Employment Exchange live registers, 28 February 1919. Women: 549,261. Men: 416,150. | HISTORICAL_RECORD · [Society and Influenza §2, March Labour Gazette](../research/society_1918_1920.md#2-women-and-post-war-britain) |
+
+**Four locales.** In en retain “Employment Exchange” and the original headline. In ja use 職業紹介所 and 登録者数, in zh-TW 職業介紹所 and 登記人數, and in ko 직업소개소 and 등록 인원. In all four locales attribute the rumour and its rejection, and keep both counts attached to the register date. Two source strings × 4 = 8.
+
 ## 1919 hooks
 - The workbook's blank page becomes a night-phase action on Príncipe (write what the sky looked
   like) — content for a later letter/reunion milestone.

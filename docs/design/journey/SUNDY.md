@@ -178,7 +178,7 @@ Each S or I3 row is one visible source string. The last column gives production 
 
 **HISTORICAL_RECORD · D §§1–4, N, O, R §§9–10, B. RECONSTRUCTION · J for the paper presentation.** On the full-story route play the darkroom measurement, the player's telegram choice and the reaction as usual. Finish the workbook, loupe and Kit beats in the existing Sundy coda. Enter I3 on black after [`_end_coda()` and the lamp-out fade](../../../scripts/main.gd#L1807), at the full-story point before the onward epilogue transition. Preserve the completed run, coda reply and ending plate for the onward handoff. This insert is archival, outside the assistant's worktable. The player's darkroom text stays in its own fictional draft and is never copied into these two paper panels. Leave the original dispatch dates, times and addressees open.
 
-Reuse [report-sheet presentation](../../../scripts/cambridge/report_sheet.gd) and [dialogue UI](../../../scripts/ui.gd) in one paper view. Open with I3-01 through I3-06. Read the two cables as a pair, stacked in the same order on narrow layouts. Reuse Madeira’s M09 “Continue” to advance on the same paper to the captioned *Nature* clipping and its retrospective Sobral route and credits. The publication dates belong to the sources. The archival panel's appearance does not date a delivery to the island. I3-14 exits to I4 “Homeward and across Europe”, then the October epilogue. Standalone slice and replay routing retain their existing gates.
+Reuse [report-sheet presentation](../../../scripts/cambridge/report_sheet.gd) and [dialogue UI](../../../scripts/ui.gd) in one paper view. Open with I3-01 through I3-06. Read the two cables as a pair, stacked in the same order on narrow layouts. Reuse Madeira’s M09 “Continue” to advance on the same paper to the captioned *Nature* clipping and its retrospective Sobral route and credits. The publication dates belong to the sources. The archival panel's appearance does not date a delivery to the island. After I3-13, turn to the Brazil-side press clipping page (I3-15–17) with I1’s archival label. **Placement · INFERENCE.** Read these in publication order as retrospective context for the Brazil route. I3-14 exits to I4 “Homeward and across Europe”, then the October epilogue. Standalone slice and replay routing retain their existing gates.
 
 | ID | Display | English copy | Provenance |
 |---|---|---|---|
@@ -195,6 +195,9 @@ Reuse [report-sheet presentation](../../../scripts/cambridge/report_sheet.gd) an
 | I3-11 | Retrospective route caption | From Pará, the team takes the steamer Fortaleza to Camocim, then the railway to Sobral. | HISTORICAL_RECORD · R §9 |
 | I3-12 | Sobral credits | Morize helps with arrangements. Municipal and church representatives welcome the team, Vicente Saboya provides lodging, and Leocádio Araújo interprets and helps with preparations. | HISTORICAL_RECORD · R §§9–10 |
 | I3-13 | Brazilian expedition credit | Henrique Morize leads Brazil's Observatório Nacional team in its own programme of corona photography and spectroscopy. | HISTORICAL_RECORD · D §3, B |
+| I3-15 | Belém influenza headline | Estado do Pará · Belém · 28 October 1918. “A influenza alastra-se”. | HISTORICAL_RECORD · SOC §1, digitised front page |
+| I3-16 | Belém eclipse headline | Estado do Pará · Belém · 20 April 1919. “O próximo eclipse total do Sol”. The front page carries Crommelin and Davidson’s explanation and both portraits. | HISTORICAL_RECORD · SOC §3, Crispino and Lima facsimile |
+| I3-17 | Sobral influenza headline | A Lucta · Sobral · 23 April 1919. “Carnaval versus Grippe”. | HISTORICAL_RECORD · SOC §1, Batista and Paula’s issue reference |
 | I3-14 | Advance | Continue homeward | RECONSTRUCTION · J |
 
 ## Four-locale string notes
@@ -212,7 +215,9 @@ Preserve the historical attributions without adding honorifics to document names
 
 Keep “simulated” and “exaggerated” explicit on S44–S45. Preserve the distinction between usable for tracking, repeat because visible centres shifted, and an undetermined drive check because cloud obscured centres. Preserve the two different fields and the difference between an objective and the full instrument. Keep the existing localized 29 May caption and the 28 May notebook date distinct. Keep I3-04 and I3-06 verbatim in the original English, with a faithful localized gloss where needed. Retain each wording's punctuation, its attribution and its degree of confidence. The June labels are publication dates. “Hopeful” stays tentative and “splendid” describes the observing report. The source frame and the fictional draft label stay visible when the layout wraps.
 
-**String count.** Sundy S01–S91 supplies 91 visible rows, including two exact reuses from Madeira. That is 89 new strings × 4 = 356, against the 97 × 4 = 388 estimate. I3 supplies 14 strings × 4 = 56, matching 14 × 4. Count branch copy, feedback, templates, controls and labels once each. The existing 29 May caption, Madeira’s Continue control, reused cast labels, digits and the original-English text retained beside a translated cable add no new source strings.
+**Brazil press.** Keep the Portuguese mastheads, spellings and local publication dates in en, ja, zh-TW and ko, with a localized reading of each headline. In en use “Influenza is spreading”, “The next total solar eclipse” and “Carnival versus influenza”. For influenza use インフルエンザ in ja, 流感 in zh-TW and 인플루엔자 in ko. Keep the final title’s carnival and influenza both visible. The archival page places these accounts in Belém and Sobral.
+
+**String count.** Sundy S01–S91 supplies 91 visible rows, including two exact reuses from Madeira. That is 89 new strings × 4 = 356, against the 97 × 4 = 388 estimate. I3 supplies 17 strings × 4 = 68. Count branch copy, feedback, templates, controls and labels once each. The existing 29 May caption, Madeira’s Continue control, reused cast labels, digits and the original-English text retained beside a translated cable add no new source strings.
 
 ## Dependencies for later content briefs
 
@@ -223,6 +228,8 @@ Keep “simulated” and “exaggerated” explicit on S44–S45. Preserve the d
 - [Historical references](../../HISTORY_1919.md#L44). Credit José P. S. Lemos as the author of *Shadow of the Moon and general relativity* (2019).
 
 ## Sources
+
+- **SOC** · [Society and Influenza](../../research/society_1918_1920.md) §§1, 3, issue and archive links as cited in the rows.
 
 - **J** · [Journey design](../JOURNEY.md), §3, I3, Size and reuse, Lines we do not cross and Corrections owed.
 - **D** · [Expedition dossier](../../research/expedition_journey_2026-11-26.md), §§1–4 and 6.
