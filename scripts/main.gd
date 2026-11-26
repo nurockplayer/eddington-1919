@@ -51,6 +51,9 @@ const TOTALITY_INSECTS_TRIM_DB := -6.0
 const TOTALITY_SURF_DIP_DB := -18.0
 const TOTALITY_SURF_DIP_S := 1.5
 const TOTALITY_SURF_RETURN_S := 8.0
+const TOTALITY_ACTION_DB := 8.0
+const TOTALITY_MUSIC_DB := -16.0
+const TOTALITY_AMBIENCE_DB := -12.0
 const HOLD := {"drive": 3.0, "plate_box": 1.2}
 ## FICTION: player observation and trim requests use an illustrative diagram.
 const Calibration := preload("res://scripts/coelostat_calibration.gd")
@@ -126,6 +129,8 @@ var _insects_db := -9.2
 var audio_surf: AudioStreamPlayer
 var _surf_db := -22.9
 var audio_birds: AudioStreamPlayer
+var _totality_actions_bus: int
+var _totality_ambience_bus: int
 var _birds_tween: Tween
 var _birds_quiet := false
 var _sfx_log: Array[String] = []
@@ -523,6 +528,10 @@ func _build_audio() -> void:
 	var score_ready := Time.get_ticks_usec()
 	score = ScorePlayer.new()
 	add_child(score)
+	score.totality_bus = &"Totality Music"
+	_audio_submix(score.totality_bus, &"Music", TOTALITY_MUSIC_DB)
+	_totality_actions_bus = _audio_submix(&"Totality Actions", &"SFX", 0.0)
+	_totality_ambience_bus = _audio_submix(&"Totality Ambience", &"SFX", 0.0)
 	score.warm(["totality_drone", "totality_glass", "totality_edge", "coda_resolution"])
 	ui.log_toggled.connect(score.set_log_open)
 	print("[SCORE READY] scene=1919 added_ms=%.3f" % [(Time.get_ticks_usec() - score_ready + ui.music_ready_usec) / 1000.0])
@@ -531,7 +540,7 @@ func _build_audio() -> void:
 		var t := i / 22050.0
 		tick.append(sin(t * TAU * 1900.0) * exp(-t * 180.0) * 0.6 + (randf() - 0.5) * exp(-t * 400.0) * 0.4)
 	audio_tick = AudioStreamPlayer.new()
-	audio_tick.bus = "SFX"
+	audio_tick.bus = &"Totality Actions"
 	audio_tick.stream = _wav(tick)
 	audio_tick.volume_db = -11.0
 	add_child(audio_tick)
@@ -540,7 +549,7 @@ func _build_audio() -> void:
 		var t := i / 22050.0
 		click.append((randf() - 0.5) * exp(-t * 60.0) + sin(t * TAU * 220.0) * exp(-t * 40.0) * 0.5)
 	audio_click = AudioStreamPlayer.new()
-	audio_click.bus = "SFX"
+	audio_click.bus = &"Totality Actions"
 	audio_click.stream = _wav(click)
 	audio_click.volume_db = -12.0
 	add_child(audio_click)
@@ -559,7 +568,7 @@ func _build_audio() -> void:
 			+ (low - slow) * sin(PI * t / 0.18) * 0.50) * tail)
 	_sfx_samples["open"] = opening
 	audio_open = AudioStreamPlayer.new()
-	audio_open.bus = "SFX"
+	audio_open.bus = &"Totality Actions"
 	audio_open.stream = _wav(opening)
 	audio_open.volume_db = -8.0
 	add_child(audio_open)
@@ -584,7 +593,7 @@ func _build_audio() -> void:
 		changing.append(sample)
 	_sfx_samples["change"] = changing
 	audio_change = AudioStreamPlayer.new()
-	audio_change.bus = "SFX"
+	audio_change.bus = &"Totality Actions"
 	audio_change.stream = _wav(changing)
 	audio_change.volume_db = -10.0
 	add_child(audio_change)
@@ -621,7 +630,7 @@ func _build_audio() -> void:
 		insects.append(sample)
 	_sfx_samples["insects"] = insects
 	audio_insects = AudioStreamPlayer.new()
-	audio_insects.bus = "SFX"
+	audio_insects.bus = &"Totality Ambience"
 	audio_insects.stream = _wav(insects, 22050, true)
 	if _bed_sampled("insects"):
 		var stream: AudioStreamOggVorbis = load(BED_DIR + "bed_insects.ogg")
@@ -649,7 +658,7 @@ func _build_audio() -> void:
 		surf[i] *= 0.6 / surf_peak
 	_sfx_samples["surf"] = surf
 	audio_surf = AudioStreamPlayer.new()
-	audio_surf.bus = "SFX"
+	audio_surf.bus = &"Totality Ambience"
 	audio_surf.stream = _wav(surf, 22050, true)
 	if _bed_sampled("surf"):
 		var stream: AudioStreamOggVorbis = load(BED_DIR + "bed_surf.ogg")
@@ -688,6 +697,17 @@ func _build_audio() -> void:
 		audio_birds.volume_db = _bed_target(birds, -23.9) - BED_RMS_DB["birds"]
 	add_child(audio_birds)
 	audio_birds.play()
+
+
+func _audio_submix(bus: StringName, parent: StringName, db: float) -> int:
+	var index := AudioServer.get_bus_index(bus)
+	if index < 0:
+		AudioServer.add_bus()
+		index = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(index, bus)
+		AudioServer.set_bus_send(index, parent)
+	AudioServer.set_bus_volume_db(index, db)
+	return index
 
 
 func _bed_sampled(name: String) -> bool:
@@ -1529,6 +1549,9 @@ func _process_totality(delta: float) -> void:
 	var dt := t_game - previous
 	var score_start := TOTALITY_SCORE_DELAY_S * _totality_rate
 	if previous < score_start and t_game >= score_start:
+		# The metronome counts throughout totality. Keep a steady balance around
+		# the count so the score and beds don't pulse back up between ticks.
+		AudioServer.set_bus_volume_db(_totality_actions_bus, TOTALITY_ACTION_DB)
 		score.play("totality_drone", TOTALITY_SCORE_FADE_S)
 		score.play("totality_glass", TOTALITY_SCORE_FADE_S)
 		_score_exposing = false
@@ -1541,6 +1564,8 @@ func _process_totality(delta: float) -> void:
 		var surf_elapsed := minf((t_game - score_start) / _totality_rate, TOTALITY_SURF_RETURN_S)
 		audio_surf.volume_db = Tween.interpolate_value(_surf_db + TOTALITY_SURF_DIP_DB,
 			-TOTALITY_SURF_DIP_DB, surf_elapsed, TOTALITY_SURF_RETURN_S, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+		AudioServer.set_bus_volume_db(_totality_ambience_bus, Tween.interpolate_value(0.0,
+			TOTALITY_AMBIENCE_DB, surf_elapsed, TOTALITY_SURF_RETURN_S, Tween.TRANS_SINE, Tween.EASE_IN_OUT))
 	var dens: float = sim.cloud_over_sun(t_game)
 	if exposing:
 		# Weight each game-time sample by the exposed part of its interval.
@@ -1623,6 +1648,10 @@ func _since_last_plate() -> float:
 
 func _end_totality() -> void:
 	tot_done = true
+	AudioServer.set_bus_volume_db(_totality_actions_bus, 0.0)
+	create_tween().tween_method(
+		func(db: float) -> void: AudioServer.set_bus_volume_db(_totality_ambience_bus, db),
+		AudioServer.get_bus_volume_db(_totality_ambience_bus), 0.0, THIRD_CONTACT_S)
 	_stop_night_bed()
 	ui.set_prompt("")
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:

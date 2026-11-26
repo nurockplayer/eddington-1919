@@ -33,8 +33,8 @@ func _run() -> void:
 	await game._begin_totality()
 	check(game.phase == game.Phase.TOTALITY and "birds_quiet" in game._sfx_log, "beginning totality quiets the birds")
 	check(game.audio_surf.playing, "the surf goes on through totality")
-	check(game.audio_insects.playing and game.audio_insects.bus == "SFX" and game.audio_insects.volume_db <= -59.0,
-		"second contact starts the dusk insect player near silence on SFX")
+	check(game.audio_insects.playing and game.audio_insects.volume_db <= -59.0,
+		"second contact starts the dusk insect player near silence")
 	check(not game.audio_birds.playing, "second contact has no remaining bird calls")
 	check(not game.score.layers.get("totality_drone", {}).get("playing", false)
 		and not game.score.layers.get("totality_glass", {}).get("playing", false),
@@ -65,6 +65,9 @@ func _run() -> void:
 	check(not game.audio_insects.playing, "third contact fades and stops the dusk insects")
 	check(not game.score.layers["totality_drone"].playing and not game.score.layers["totality_glass"].playing,
 		"third contact finishes the score fades")
+	check(is_zero_approx(AudioServer.get_bus_volume_db(game._totality_actions_bus))
+		and is_zero_approx(AudioServer.get_bus_volume_db(game._totality_ambience_bus)),
+		"third contact releases the action priority and ambience trim")
 	game._begin_night()
 	await create_timer(4.5).timeout
 	check(not game.audio_surf.playing and not game.audio_birds.playing, "night stops the surf and the birds")
@@ -85,7 +88,8 @@ func ambience_db(game: Node) -> float:
 	for name in BEDS:
 		var p: AudioStreamPlayer = game.get("audio_" + name)
 		if p.playing:
-			power += pow(db_to_linear(p.volume_db + game.BED_RMS_DB[name]), 2.0)
+			var bus_db := AudioServer.get_bus_volume_db(AudioServer.get_bus_index(p.bus))
+			power += pow(db_to_linear(bus_db + p.volume_db + game.BED_RMS_DB[name]), 2.0)
 	return linear_to_db(sqrt(power))
 
 
@@ -169,6 +173,12 @@ func _second_contact_gap(hold_log := false) -> void:
 		"the dusk insects rise from silence through the gap without a jump")
 	check(is_equal_approx(game.audio_open.volume_db, open_db) and is_equal_approx(AudioServer.get_bus_volume_db(sfx_bus), sfx_db),
 		"the shutter and the SFX bus keep their levels")
+	var action_bus := AudioServer.get_bus_index("Totality Actions")
+	var ambience_bus := AudioServer.get_bus_index("Totality Ambience")
+	var music_bus := AudioServer.get_bus_index("Totality Music")
+	check(AudioServer.get_bus_send(action_bus) == &"SFX" and AudioServer.get_bus_send(ambience_bus) == &"SFX"
+		and AudioServer.get_bus_send(music_bus) == &"Music", "totality submixes follow the player's audio controls")
+	check(AudioServer.get_bus_volume_db(music_bus) < 0.0, "the totality score plays under its normal level")
 	# After the cue the surf comes back on its own swell, never in a step.
 	var surf_prev: float = game.audio_surf.volume_db
 	var surf_rising := true
@@ -179,6 +189,21 @@ func _second_contact_gap(hold_log := false) -> void:
 			# Start a real exposure fade so score progress is observable at the hold.
 			game._toggle_shutter()
 		_step_totality(game, driven)
+		if step == 200:
+			if hold_log:
+				check(game.sim.is_exposing() and game.audio_open.playing and game.audio_open.bus == &"Totality Actions",
+					"a scored exposure sends the shutter to the action submix")
+			else:
+				game._toggle_shutter()
+				game._toggle_shutter()
+				check(game.change_left > 0.0 and game.audio_click.playing and game.audio_change.playing
+					and game.audio_click.bus == &"Totality Actions" and game.audio_change.bus == &"Totality Actions",
+					"closing a scored exposure puts the shutter close and plate change on the action submix")
+			check(game.audio_tick.playing and game.audio_tick.bus == &"Totality Actions",
+				"the metronome counts on the action submix over the score")
+			check(AudioServer.get_bus_volume_db(action_bus) > 0.0
+				and AudioServer.get_bus_volume_db(ambience_bus) < 0.0,
+				"scored totality raises actions and lowers ambience")
 		if hold_log and step == 200:
 			var held_surf: float = game.audio_surf.volume_db
 			var held_time: float = game.t_game
