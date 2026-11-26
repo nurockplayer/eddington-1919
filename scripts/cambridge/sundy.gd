@@ -50,7 +50,7 @@ var _seen_b := false
 var _accepted := false
 
 
-func _open_paper(ui: CanvasLayer, parent: Control) -> ColorRect:
+func _open_paper(ui: CanvasLayer, parent: Node) -> ColorRect:
 	_text = Content.strings()
 	_story = get_node("/root/Story")
 	var madeira := Madeira.strings()
