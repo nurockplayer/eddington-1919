@@ -177,8 +177,9 @@ func _run() -> void:
 	for locale in locales:
 		L.apply(locale)
 		await _route(route, enabled, locale == "ja")
+		if capture_dir.is_empty():
+			Checkpoint.clear()
 	if capture_dir.is_empty():
-		Checkpoint.clear()
 		DirAccess.remove_absolute(Settings.settings_path())
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
 	print("test_journey %s: %d checks, 0 failures" % ["on" if enabled else "off", checks])
