@@ -289,15 +289,6 @@ msgstr "Cottingham is at the coelostat. The morning damp has made the clock driv
 msgid "Cottingham 看過的那幾張，都在雲後面；其餘的，我說不上來。」"
 msgstr "The ones Cottingham saw were all behind cloud; the rest, I can't say.'"
 
-msgid "Cottingham。你不用一個人回家了。"
-msgstr "Cottingham. You won't have to go home alone."
-
-msgid "Cottingham，也許你不用一個人回家。可是這一疊底片，我們挑得還不夠乾淨。"
-msgstr "Cottingham, perhaps you won't have to go home alone. But we haven't selected these plates cleanly enough."
-
-msgid "Cottingham，你要不要一個人回家，我還說不準。"
-msgstr "Cottingham, I can't yet say whether you'll have to go home alone."
-
 msgid "Cottingham：「一半在雲裡，一半透了光。」"
 msgstr "Cottingham: 'Half in cloud, half let the light through.'"
 
@@ -748,9 +739,6 @@ msgstr "…We took not one. Neither the cloud nor the time waited for us."
 
 msgid "……我回來了。"
 msgstr "…I'm home."
-
-msgid "……我本來連行李都收好了。"
-msgstr "…I had already packed my bags."
 
 msgid "……找另一張同一片天的底片。"
 msgstr "…Find another plate of the same part of the sky."
@@ -1583,9 +1571,6 @@ msgstr "Read the last page of the workbook again"
 msgid "准予免役十二個月，條件是繼續目前的工作。"
 msgstr "Twelve months' exemption, on condition that he continued his present work."
 
-msgid "出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。"
-msgstr "Before we sailed, Dyson told me: if the plates show twice Einstein's figure, Eddington will go mad, and you will have to come home alone."
-
 msgid "別忘了遠處的星。今天，它們和太陽旁邊的星一樣重要。"
 msgstr "Don't forget the distant stars. Today they matter as much as the stars beside the Sun."
 
@@ -2335,9 +2320,6 @@ msgstr "I made a mistake today too. I'll tell you all of it when I'm back."
 msgid "我信了牛頓三十年。"
 msgstr "I have believed Newton for thirty years."
 
-msgid "我們一起回家。看見什麼，就說什麼。"
-msgstr "We'll go home together. We'll say what we saw."
-
 msgid "我們兩個難得完全同意。"
 msgstr "The two of us rarely agree entirely."
 
@@ -2992,6 +2974,9 @@ msgstr "No results? You have plates with clear star images in your hands. The cl
 msgid "沒有結果？你手上還有可量的底片，只是星像拖長或被雲霧蓋住；不是什麼都沒留下。"
 msgstr "No results? You still have plates that can be measured, only with trailed images or covered by cloud; not nothing."
 
+msgid "沒有讀數"
+msgstr "No readings"
+
 msgid "沒有這張，日食底片上的星就沒有「原來的位置」可以比。"
 msgstr "Without it, the stars on the eclipse plate have no 'original position' to be compared with."
 
@@ -3150,6 +3135,9 @@ msgstr "Take it for an ink blot and delete it"
 
 msgid "疊上去……一顆都對不上。"
 msgstr "Laid over it… not a single star matches."
+
+msgid "發報存底（模擬）｜致倫敦的 Dyson 先生\n判斷：%s\n電文：%s\n根據：%s"
+msgstr "Dispatch copy (simulated) · To Dyson, London\nVerdict: %s\nTelegram: %s\nBasis: %s"
 
 msgid "發條上滿了。"
 msgstr "The drive is fully wound."
@@ -3838,9 +3826,6 @@ msgstr "Then what do you check the plate's alignment against? With only those st
 msgid "那你比我誠實。電報照底片寫。"
 msgstr "Then you're more honest than I am. Let the plates guide the telegram."
 
-msgid "那回去重挑。我陪你。"
-msgstr "Then let's choose again. I'll stay with you."
-
 msgid "那多出來的一點，你覺得是什麼？"
 msgstr "And that extra point—what do you think it is?"
 
@@ -3873,9 +3858,6 @@ msgstr "Then what we measure is only our own hopes."
 
 msgid "那我收下。但我會在旁邊寫一行：「說抄錄者草率或編造——本紙沒有證據。」"
 msgstr "Then I'll take it. But I shall write a line beside it: 'That the copyist was careless or invented it—this sheet offers no evidence.'"
-
-msgid "那我等。反正我還有一座鐘要打包。"
-msgstr "Then I'll wait. I have a clock to pack anyway."
 
 msgid "那我要聽。從雲開始講。"
 msgstr "Then I want to hear it. Start with the clouds."
@@ -3999,6 +3981,9 @@ msgstr "Read the archive map"
 msgid "闔上備查卷宗"
 msgstr "Close reference copy"
 
+msgid "關於這份報告，你還有話要說？"
+msgstr "Anything else to say about the report?"
+
 msgid "關緊的箱子，沒有窗，外面被我蓋住了。鉛筆還是掉到地板上。你在哪裡？"
 msgstr "A closed box, no window, the outside covered by my hand. A pencil still falls to the floor. Where are you?"
 
@@ -4052,9 +4037,6 @@ msgstr "Zero. That too is a number worth writing down. When the time comes, the 
 
 msgid "零：光不會被拉彎"
 msgstr "Zero: light does not bend"
-
-msgid "電報之前，你還有話要說？"
-msgstr "Before the telegram, is there something else you want to say?"
 
 msgid "電報的理由%s：『%s』→『%s』。"
 msgstr "The telegram's grounds %s: '%s' → '%s'."
@@ -4263,6 +4245,9 @@ msgstr "(takes a cloth bundle from a pocket) This is for you. %s."
 
 msgid "（從房間另一頭）……兩週？"
 msgstr "(From the other side of the room) …Two weeks?"
+
+msgid "（我在本子上寫的是「%s」。Dyson 先生等的是底片能告訴我們的事。我能把先前的期待留在本子上嗎？）"
+msgstr "(I wrote “%s” in my notebook. Dyson is waiting to hear what the plates can tell us. Can I leave what I hoped for in the notebook?)"
 
 msgid "（我跟 Kit 說過，全食那五分鐘我會在換底片。Kit 會想知道，那五分鐘裡底片上留下了什麼。）"
 msgstr "(I told Kit I would be changing plates during the five minutes of totality. Kit will want to know what those five minutes left on the plates.)"

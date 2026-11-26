@@ -356,18 +356,6 @@ msgstr ""
 msgid "Cottingham 看過的那幾張，都在雲後面；其餘的，我說不上來。」"
 msgstr ""
 
-#: scripts/content.gd:313
-msgid "Cottingham。你不用一個人回家了。"
-msgstr ""
-
-#: scripts/content.gd:317
-msgid "Cottingham，也許你不用一個人回家。可是這一疊底片，我們挑得還不夠乾淨。"
-msgstr ""
-
-#: scripts/content.gd:321
-msgid "Cottingham，你要不要一個人回家，我還說不準。"
-msgstr ""
-
 #: scripts/content.gd:363
 msgid "Cottingham：「一半在雲裡，一半透了光。」"
 msgstr ""
@@ -914,10 +902,6 @@ msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:37
 msgid "……我回來了。"
-msgstr ""
-
-#: scripts/content.gd:315
-msgid "……我本來連行李都收好了。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:424 scripts/cambridge/content_1917.gd:425
@@ -1964,10 +1948,6 @@ msgstr ""
 msgid "准予免役十二個月，條件是繼續目前的工作。"
 msgstr ""
 
-#: scripts/content.gd:300
-msgid "出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。"
-msgstr ""
-
 #: scripts/cambridge/content_1917.gd:641
 msgid "別忘了遠處的星。今天，它們和太陽旁邊的星一樣重要。"
 msgstr ""
@@ -2950,10 +2930,6 @@ msgstr ""
 msgid "我信了牛頓三十年。"
 msgstr ""
 
-#: scripts/content.gd:324
-msgid "我們一起回家。看見什麼，就說什麼。"
-msgstr ""
-
 #: scripts/cambridge/content_1917.gd:521
 msgid "我們兩個難得完全同意。"
 msgstr ""
@@ -3778,6 +3754,10 @@ msgstr ""
 msgid "沒有結果？你手上還有可量的底片，只是星像拖長或被雲霧蓋住；不是什麼都沒留下。"
 msgstr ""
 
+#: scripts/content.gd:302
+msgid "沒有讀數"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:485
 msgid "沒有這張，日食底片上的星就沒有「原來的位置」可以比。"
 msgstr ""
@@ -3988,6 +3968,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:189
 msgid "疊上去……一顆都對不上。"
+msgstr ""
+
+#: scripts/content.gd:303
+msgid "發報存底（模擬）｜致倫敦的 Dyson 先生\n判斷：%s\n電文：%s\n根據：%s"
 msgstr ""
 
 #: scripts/main.gd:1048
@@ -4862,10 +4846,6 @@ msgstr ""
 msgid "那你比我誠實。電報照底片寫。"
 msgstr ""
 
-#: scripts/content.gd:318
-msgid "那回去重挑。我陪你。"
-msgstr ""
-
 #: scripts/cambridge/content_1917.gd:420
 msgid "那多出來的一點，你覺得是什麼？"
 msgstr ""
@@ -4904,10 +4884,6 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:261
 msgid "那我收下。但我會在旁邊寫一行：「說抄錄者草率或編造——本紙沒有證據。」"
-msgstr ""
-
-#: scripts/content.gd:322
-msgid "那我等。反正我還有一座鐘要打包。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:39
@@ -5072,6 +5048,10 @@ msgstr ""
 msgid "闔上備查卷宗"
 msgstr ""
 
+#: scripts/content.gd:314
+msgid "關於這份報告，你還有話要說？"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:448
 msgid "關緊的箱子，沒有窗，外面被我蓋住了。鉛筆還是掉到地板上。你在哪裡？"
 msgstr ""
@@ -5142,10 +5122,6 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:356 scripts/content.gd:216
 msgid "零：光不會被拉彎"
-msgstr ""
-
-#: scripts/content.gd:335
-msgid "電報之前，你還有話要說？"
 msgstr ""
 
 #: scripts/content.gd:453
@@ -5406,6 +5382,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:562
 msgid "（從房間另一頭）……兩週？"
+msgstr ""
+
+#: scripts/content.gd:298
+msgid "（我在本子上寫的是「%s」。Dyson 先生等的是底片能告訴我們的事。我能把先前的期待留在本子上嗎？）"
 msgstr ""
 
 #: scripts/content_coda.gd:106
