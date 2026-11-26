@@ -240,6 +240,7 @@ func _trim_checks(game) -> int:
 	var failures := 0
 	game.set_process(false)
 	game.player.set_physics_process(false)
+	failures += await _trim_release_checks(game)
 	var trails := []
 	var images := []
 	var partial_residual := 0.0
@@ -397,6 +398,67 @@ func _trim_checks(game) -> int:
 	Settings.reduced_motion = false
 	print("input trim → shutter → developed/rendered plate: %d failures" % failures)
 	return failures
+
+
+func _trim_release_checks(game) -> int:
+	var failures := 0
+	if not await _aim_drive(game):
+		print("FAIL: cannot aim at drive for trim release checks")
+		return 1
+	for pad in [false, true]:
+		var interact := JOY_BUTTON_A if pad else KEY_E
+		var leave := JOY_BUTTON_B if pad else KEY_B
+		game.sim = load("res://scripts/eclipse_sim.gd").new(77)
+		game.sim.drive_wound = true
+		game.sim.drive_error = 0.125
+		game.phase = game.Phase.PREP
+		game.prep_left = 100.0
+		game._process_prep(0.0)
+		await _event(interact, true, pad)
+		await _event(interact, false, pad)
+		for sign_ in [-1, 1]:
+			var key := (JOY_BUTTON_DPAD_LEFT if pad else KEY_LEFT) if sign_ < 0 else (JOY_BUTTON_DPAD_RIGHT if pad else KEY_RIGHT)
+			var before: float = game.sim.drive_error
+			await _event(key, true, pad)
+			game._process_prep(1.0)
+			await _event(key, false, pad)
+			var coarse: float = game.sim.drive_error
+			await _fine_event(true, pad)
+			await _event(key, true, pad)
+			game._process_prep(1.0)
+			var mark: float = game.sim.drive_error
+			await _fine_event(false, pad)
+			game._process_prep(1.0)
+			var after_fine_release: float = game.sim.drive_error
+			await _event(key, false, pad)
+			game._process_prep(1.0)
+			var at_rest: float = game.sim.drive_error
+			await _event(leave, true, pad)
+			var closed: bool = not game.calibration.visible
+			await _event(leave, false, pad)
+			game._process_prep(0.0)
+			await _event(interact, true, pad)
+			await _event(interact, false, pad)
+			game._process_prep(1.0)
+			var reopened: float = game.calibration.measured_drift / 24.0
+			var passed: bool = closed and game.calibration.visible and is_equal_approx(coarse - before, sign_ * 0.06) and is_equal_approx(mark - coarse, sign_ * 0.015) and mark == after_fine_release and mark == at_rest and is_equal_approx(mark, reopened)
+			print("trim release %s %+d: %s coarse=%.3f mark=%.3f modifier-up=%.3f direction-up=%.3f reopened=%.3f" % ["pad" if pad else "keyboard", sign_, "PASS" if passed else "FAIL", coarse, mark, after_fine_release, at_rest, reopened])
+			if not passed:
+				failures += 1
+		await _event(leave, true, pad)
+		await _event(leave, false, pad)
+	return failures
+
+
+func _fine_event(pressed: bool, pad: bool) -> void:
+	if pad:
+		var trigger := InputEventJoypadMotion.new()
+		trigger.axis = JOY_AXIS_TRIGGER_LEFT
+		trigger.axis_value = 1.0 if pressed else 0.0
+		Input.parse_input_event(trigger)
+		Input.flush_buffered_events()
+	else:
+		await _event(KEY_SHIFT, pressed)
 
 
 func _trim_sheet_checks() -> int:
