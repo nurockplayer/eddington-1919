@@ -5420,6 +5420,14 @@ msgstr ""
 msgid "（我在本子上寫的是「%s」。Dyson 先生等的是底片能告訴我們的事。我能把先前的期待留在本子上嗎？）"
 msgstr ""
 
+#: scripts/content_coda.gd:80
+msgid "（我心裡一直在想，要是底片上什麼都沒有呢？Kit 要我回去說說我看見了什麼，就算天空空空的也一樣。）"
+msgstr ""
+
+#: scripts/content_coda.gd:78
+msgid "（我想做一件真的有人會看的事。原始紀錄和我簽了名的報告都在，誰想看，都可以攤開來核對。）"
+msgstr ""
+
 #: scripts/content_coda.gd:106
 msgid "（我跟 Kit 說過，全食那五分鐘我會在換底片。Kit 會想知道，那五分鐘裡底片上留下了什麼。）"
 msgstr ""
@@ -5514,6 +5522,10 @@ msgstr ""
 
 #: scripts/content_coda.gd:40
 msgid "（那天晚上你問他，是不是早就認定了。他說是——然後把規則指給你看。）"
+msgstr ""
+
+#: scripts/content_coda.gd:82
+msgid "（那時我沒有回答。現在還可以想想，要從哪裡說起。）"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:583

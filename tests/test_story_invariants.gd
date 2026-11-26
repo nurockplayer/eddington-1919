@@ -2,6 +2,7 @@ extends SceneTree
 ## F15/F16: deterministic measured plates, real dialogue choices, coda and chart UI.
 
 const MAIN_PATH := "res://scripts/main.gd"
+const CAMBRIDGE := "res://scenes/cambridge.tscn"
 const Judgment := preload("res://scripts/judgment.gd")
 const EPILOGUE := "res://scenes/epilogue.tscn"
 const CASES := [
@@ -65,6 +66,81 @@ func _finish(chapter, picks: Dictionary, stop := "") -> void:
 		else:
 			chapter.ui._advance()
 	check(remaining > 0, "dialogue terminates")
+
+
+func _wish_route(want: int, result: String) -> Dictionary:
+	var story = root.get_node("Story")
+	var room = load(CAMBRIDGE).instantiate()
+	root.add_child(room)
+	while not room.ui.dialog_active():
+		await process_frame
+	await room._coda()
+	_finish(room, {"kit_choice": 0, "want": want})
+	check(story.want == want, "M1 dialogue stores the selected wish")
+	var saved: Dictionary = story.to_save()
+	room.free()
+	# Skip the travel chapters and load the continuity they hand to Príncipe.
+	story.from_save(saved)
+	story.from_prologue = true
+	var chapter = load(MAIN_PATH).new()
+	root.add_child(chapter)
+	await process_frame
+	chapter.set_process(false)
+	chapter.ui.hide_title()
+	chapter.phase = chapter.Phase.NIGHT
+	chapter.sim.rule_id = "strict"
+	chapter.sim.open_shutter(199.0)
+	chapter.sim.accumulate(10.0, 1.0 if result == "blank" else 0.0)
+	var plate: Dictionary = chapter.sim.close_shutter()
+	check(plate.usable == (result != "blank"), "exposure matches the route")
+	var overclaim := result == "overclaim"
+	if overclaim:
+		plate.included = true
+		plate.read = true
+		plate.sigma = 0.3
+		plate.reading = chapter.sim.reading_for_value(1.30)
+	var picks := {"verdict": 2, "telegram": 0 if overclaim else 3,
+		"reason": 2 if overclaim else 3, "kit_first": 2}
+	chapter._start_judgment()
+	_finish(chapter, picks)
+	check(chapter.phase == chapter.Phase.CODA, "report reaction reaches the coda")
+	check((chapter._verdict_class == "overclaim") == overclaim, "verdict distinguishes the overclaim")
+	check(chapter._grade.fit == (2 if result == "blank" else 0), "report fit reflects the evidence")
+	chapter._interact("departure_workbook")
+	_finish(chapter, picks)
+	lines = []
+	chapter._interact("mentor_loupe")
+	_finish(chapter, picks, "coda_kit")
+	var receipt := {"outcome": lines[-2].t, "reprise": lines[-1].t}
+	_finish(chapter, picks)
+	check(story.kit_first == 2, "Kit's first-sentence choice stays available")
+	chapter.free()
+	await process_frame
+	return receipt
+
+
+func _test_wish_reprise() -> void:
+	var source: Array[String] = []
+	for locale in ["zh_TW", "en", "ja", "ko"]:
+		L.apply(locale)
+		var reprises: Array[String] = []
+		for want in 3:
+			route = "%s/wish-%d/blank" % [locale, want]
+			var blank := await _wish_route(want, "blank")
+			var reprise: String = blank.reprise.replace("\u2060", "")
+			print("WISH %s %s" % [route, reprise])
+			check(not reprises.has(reprise), "stored wishes get distinct loupe lines")
+			reprises.append(reprise)
+			if locale == "zh_TW":
+				source.append(reprise)
+			else:
+				check(reprise != source[want], "reprise is translated")
+			if locale == "zh_TW" and want == 0:
+				for result in ["overclaim", "unmeasured"]:
+					route = "%s/wish-%d/%s" % [locale, want, result]
+					var other := await _wish_route(want, result)
+					check(other.outcome != blank.outcome, "loupe distinguishes this result from the blank plate")
+					check(other.reprise == blank.reprise, "recognition keeps the same account regardless of report fit")
 
 
 func _f15(case: Dictionary, ask: bool) -> Dictionary:
@@ -206,6 +282,7 @@ func _f16(run: Dictionary, variant: int) -> void:
 
 func _run() -> void:
 	await process_frame
+	await _test_wish_reprise()
 	for locale in L.LOCALES:
 		L.apply(locale)
 		for case in CASES:
