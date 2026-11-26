@@ -91,15 +91,17 @@ func _run() -> void:
 	var pilot: Array = game.find_children("*", "MeshInstance3D", true, false).filter(
 		func(mesh): return mesh.has_meta(World.PILOT_MATERIALS))
 	var swatches := {}
-	var telescope_ink := 0
+	var telescope_parts := 0
 	for mesh in pilot:
 		for entry in mesh.get_meta(World.PILOT_MATERIALS):
 			var active: Material = mesh.material_override if entry[0] < 0 else mesh.get_surface_override_material(entry[0])
 			check(active == entry[2], "daylight installs the opaque surface print")
 			swatches[active.get_shader_parameter("swatch")] = true
-			if "horizontal_tube" in str(mesh.get_path()) and active.get_shader_parameter("swatch") == World.Swatch.TELESCOPE:
-				telescope_ink += 1
-	check(telescope_ink >= 3, "telescope dark parts take the dense-ink swatch")
+			if "horizontal_tube" in str(mesh.get_path()):
+				telescope_parts += 1
+				check(active.shader == World.ENGRAVING_SURFACE and active.get_shader_parameter("swatch") == 4,
+					"telescope part binds the surface shader's wider-rim swatch")
+	check(telescope_parts >= 3, "telescope has printed parts")
 	check(swatches.size() == 5, "ground, timber, canvas, dense ink and telescope are bound in the scene")
 	check(material.get_shader_parameter("star_keyline_px") == 1.0 and material.get_shader_parameter("star_keyline_all") == 1.0, "one pixel keyline around every visible star")
 	check(material.get_shader_parameter("diamond_radius") == 0.45 and material.get_shader_parameter("diamond_spikes") == 4.0 and material.get_shader_parameter("diamond_ray_floor") == 0.70, "diamond defaults")
@@ -170,20 +172,72 @@ func _test_eclipse_pilot_bindings() -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game._start_game()
+	_check_distant_land_bindings(game)
 	game._begin_totality()
 	# Complete the real second-contact holds without waiting on wall time.
 	get_processed_tweens().back().custom_step(1.0)
 	get_processed_tweens().back().custom_step(2.0)
-	var pilot: Array[MeshInstance3D] = game._style.impl.pilot_meshes
+	var material: ShaderMaterial = game._style.quad_material
+	var pilot := game.find_children("*", "MeshInstance3D", true, false).filter(
+		func(mesh): return mesh.has_meta(World.PILOT_MATERIALS))
+	check(not pilot.is_empty(), "scene has pilot materials to restore")
+	check(material.get_shader_parameter("darkness") == 1.0
+		and material.get_shader_parameter("before_second_contact") == false,
+		"second contact reaches the totality print")
+	check(material.get_shader_parameter("day_return_cloud_time") == -1.0,
+		"totality does not bind the fixed return sky")
 	for mesh in pilot:
 		_check_original_pilot_binding(mesh, "totality restores original materials")
 	game.t_game = game.sim.TOTALITY_S
 	game._process_totality(0.0)
-	game._day_return.custom_step(game.DAY_RETURN_S)
-	check(is_zero_approx(game.sky_mat.get_shader_parameter("darkness")), "daylight returns in 12 seconds")
+	game._day_return.custom_step(0.6)
+	var darkness: float = material.get_shader_parameter("darkness")
+	check(darkness > 0.0 and darkness < 1.0, "third contact starts the daylight recovery")
+	check(material.get_shader_parameter("diamond") > 0.0
+		and material.get_shader_parameter("diamond") == game.sky_mat.get_shader_parameter("third_contact").y,
+		"third-contact diamond is bound to the engraving")
+	_check_return_cloud_bindings(game, game.sim.TOTALITY_S + game.THIRD_CONTACT_CLOUD_S * 0.2)
+	for mesh in pilot:
+		_check_original_pilot_binding(mesh, "third contact retains original materials")
+	game._day_return.custom_step(11.4)
+	check(material.get_shader_parameter("darkness") == 0.0
+		and game.sky_mat.get_shader_parameter("darkness") == 0.0,
+		"both solar layers reach daylight in 12 seconds")
+	check(material.get_shader_parameter("diamond") == 0.0, "daylight clears the diamond")
+	_check_return_cloud_bindings(game, game.sim.TOTALITY_S + game.THIRD_CONTACT_CLOUD_S)
 	for mesh in pilot:
 		_check_original_pilot_binding(mesh, "live daylight recovery retains original materials")
 	game.free()
+
+
+func _check_return_cloud_bindings(game: Node, live_time: float) -> void:
+	var material: ShaderMaterial = game._style.quad_material
+	check(material.get_shader_parameter("day_return_cloud_time") == game.sim.TOTALITY_S,
+		"return sky print stays bound to the end-of-totality cloud time")
+	check(is_equal_approx(material.get_shader_parameter("cloud_time"), live_time)
+		and is_equal_approx(game.sky_mat.get_shader_parameter("cloud_time"), live_time),
+		"return solar layers share the advancing cloud time")
+
+
+func _check_distant_land_bindings(game: Node) -> void:
+	var material: ShaderMaterial = game._style.quad_material
+	check(material.get_shader_parameter("darkness") == 0.0 and material.get_shader_parameter("night") == 0.0,
+		"daylight enables the compositor's ridge treatment")
+	check(material.get_shader_parameter("far_start") == 25.0
+		and material.get_shader_parameter("far_end") == 70.0
+		and material.get_shader_parameter("far_line") == 0.0,
+		"sky-side contours bind the distant-edge fade")
+	var camera: Camera3D = game.player.camera
+	var has_distant_ridge := false
+	for ridges in get_nodes_in_group("far_ridges"):
+		for mesh: MeshInstance3D in ridges.find_children("*", "MeshInstance3D", true, false):
+			for vertex in mesh.mesh.get_faces():
+				var point: Vector3 = mesh.global_transform * vertex
+				var distance := camera.global_position.distance_to(point)
+				if distance > 70.0 and distance < camera.far and Vector2(point.x, point.z).length() > 75.0 and point.y > -0.39:
+					has_distant_ridge = true
+					break
+	check(has_distant_ridge, "scene supplies ridge geometry in the distant-edge and daylight land ranges")
 
 
 func _check_original_pilot_binding(mesh: MeshInstance3D, message: String) -> void:
