@@ -482,6 +482,10 @@ msgstr[1] ""
 msgid "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:146
+msgid "Edmund Rook・虛構的劍橋同事"
+msgstr ""
+
 #: scripts/prompts.gd:9
 msgid "E／Enter"
 msgstr ""
@@ -1672,6 +1676,10 @@ msgstr ""
 msgid "你繞回了觀測站。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:149
+msgid "你要我在自己的工作上簽名。難道要看是誰在問嗎？"
+msgstr ""
+
 #: scripts/cambridge/content_epilogue.gd:48
 msgid "你要我寫這裡變了什麼。我寫了。"
 msgstr ""
@@ -1682,6 +1690,10 @@ msgstr ""
 
 #: scripts/judgment.gd:241
 msgid "你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:153
+msgid "你那一頁就照你原來寫的留著。我的也一樣。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:639
@@ -2344,6 +2356,10 @@ msgstr ""
 msgid "地面"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:151
+msgid "坐這兒吧。你讀的時候，我把你的茶放涼了。"
+msgstr ""
+
 #: scripts/cambridge/box_sketch.gd:35
 msgid "外面蓋住了。再鬆手一次。"
 msgstr ""
@@ -2994,6 +3010,10 @@ msgstr ""
 msgid "我把它補在最下面，你不介意吧？——這張紙還會改很多次。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:148
+msgid "我把它闔上。我們這份別寫上你的名字。他能拿一句話當成你的全部意思。"
+msgstr ""
+
 #: scripts/cambridge/content_madeira.gd:42
 msgid "我把文件放下。現在桌上有地方擺兩份資料夾了。"
 msgstr ""
@@ -3024,6 +3044,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:586
 msgid "我會的。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:150
+msgid "我會記得誰在工作檯邊。"
 msgstr ""
 
 #: scripts/content.gd:100
@@ -3524,6 +3548,10 @@ msgstr ""
 
 #: scripts/cambridge/content_departure.gd:180
 msgid "有一陣，雲裂開一半，透出一點光。」"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:152
+msgid "有個人把我的 0.87″ 印了出來，卻剪掉了我寫的疑問。我由著他。現在還有人引用那個數字。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:424 scripts/cambridge/content_1917.gd:425
@@ -4324,6 +4352,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:369
 msgid "聽起來耳熟嗎？"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:147
+msgid "能看看那份卷宗嗎？我的文章引用一句就夠了，只要能寫出是誰說的。"
 msgstr ""
 
 #: scripts/cambridge/content_tribunal.gd:116
