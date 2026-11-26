@@ -5,6 +5,7 @@ extends SceneTree
 const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Departure := preload("res://scripts/cambridge/content_departure.gd")
 const Content := preload("res://scripts/cambridge/content_tribunal.gd")
+const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
@@ -19,6 +20,7 @@ const BEFORE_PACKET := [
 
 var checks := 0
 var capture_dir := ""
+var madeira_captures := false
 var temp_settings := ""
 
 
@@ -28,6 +30,8 @@ func _initialize() -> void:
 
 func expect(ok: bool, message: String) -> void:
 	checks += 1
+	if not ok:
+		quit(1)
 	assert(ok, message)
 
 
@@ -103,6 +107,9 @@ func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--journey-captures="):
 			capture_dir = arg.trim_prefix("--journey-captures=")
+		elif arg.begins_with("--madeira-captures="):
+			capture_dir = arg.trim_prefix("--madeira-captures=")
+			madeira_captures = true
 	Engine.time_scale = 8.0 if capture_dir.is_empty() else 2.0
 	root.size = Vector2i(1280, 720) if capture_dir.is_empty() else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
@@ -116,6 +123,8 @@ func _run() -> void:
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
+	if madeira_captures:
+		locales = ["en", "ja"]
 	for locale in locales:
 		L.apply(locale)
 		await _route(enabled, locale == "ja")
@@ -181,6 +190,8 @@ func _route(enabled: bool, misfile: bool) -> void:
 	expect(current_scene.ui.caption.text == Departure.intro_caption(), "existing M2 opening plays")
 	while not current_scene.ui.dialog_active():
 		await process_frame
+	if capture_dir.is_empty() or madeira_captures:
+		await _departure(current_scene, enabled, misfile)
 
 
 func _tribunal(director: Node, misfile: bool) -> void:
@@ -211,7 +222,7 @@ func _tribunal(director: Node, misfile: bool) -> void:
 	await capture("packet", paper)
 	if L.current() == "en":
 		expect(not strings.values().any(func(line): return "’" in line), "use proportional English apostrophes on the tribunal and Armistice pages")
-		if not capture_dir.is_empty():
+		if not capture_dir.is_empty() and not madeira_captures:
 			root.size = Vector2i(1280, 720)
 			Settings.text_scale = 1.2
 			Settings.refresh_fonts(self)
@@ -290,7 +301,7 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	await frames(3)
 	for action in paper.actions.get_children():
 		expect(root.get_visible_rect().grow(1.0).encloses(action.get_global_rect()), "paper controls stay in bounds: " + state)
-	if capture_dir.is_empty():
+	if capture_dir.is_empty() or (madeira_captures and not state.begins_with("madeira_")):
 		return
 	await RenderingServer.frame_post_draw
 	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
@@ -304,3 +315,186 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	receipt.store_line("| [%s](%s) | %s | %s | %d×%d | %.2f | %s | %s |" % [
 		filename, filename, state, L.current(), dimensions.x, dimensions.y, Settings.text_scale, Settings.reduced_motion, jst])
 	print("saved ", filename)
+
+
+func _departure(chapter: Node, enabled: bool, warm: bool) -> void:
+	var story := root.get_node("Story")
+	await _dialogue(chapter)
+	chapter._interact("lightbox")
+	var sheet: Control = chapter.checklist
+	for i in sheet.entries.size():
+		await _dialogue(chapter)
+		await press(sheet.row_buttons[i][1 if i == 2 else 0])
+	await _dialogue(chapter, {"slip_fix": KEY_2})
+	while sheet.continue_btn.disabled:
+		await process_frame
+	await press(sheet.continue_btn)
+	chapter._interact("kit")
+	await _dialogue(chapter, {"bond": KEY_2 if warm else KEY_1, "promise": KEY_1})
+	chapter._interact("mentor")
+	await _dialogue(chapter, {"gift": KEY_1})
+	var sketch: Control = chapter.box_sketch
+	await press(sketch.guess_btns[2])
+	for i in 2:
+		if i == 1:
+			await press(sketch.frame_btns[1])
+		await press(sketch.release_btn)
+		while sketch.release_btn.disabled:
+			await process_frame
+	await press(sketch.next_btn)
+	await _dialogue(chapter, {"light_box": KEY_1})
+	expect(chapter.keepsake.visible, "Ashby's real farewell shows the gift")
+	var previous: Dictionary = story.to_save()
+	expect(previous.slip_fix == 1 and previous.bond_tone == ("warm" if warm else "close"),
+		"M2 has a correction and a bond tone to carry forward")
+	if enabled:
+		while is_instance_valid(chapter) and chapter.madeira == null and chapter.ui.caption.text == Departure.intro_caption():
+			await process_frame
+		expect(is_instance_valid(chapter) and chapter.madeira != null, "--journey must enter Madeira after M2")
+		await _madeira(chapter.madeira, chapter, warm)
+	else:
+		for entry in Departure.montage():
+			while is_instance_valid(chapter) and not chapter.ui.caption.text.begins_with(entry.t):
+				await process_frame
+			expect(is_instance_valid(chapter) and chapter.madeira == null and
+				chapter.ui.caption.text.begins_with(entry.t), "flag off retains M2 caption " + entry.t)
+	if is_instance_valid(chapter):
+		await scene_changed
+	expect(current_scene.scene_file_path == "res://scenes/main.tscn", "the route reaches the existing observation day")
+	expect(current_scene._came_from_departure and story.departure_done, "arrival has the full-story origin")
+	previous.departure_done = true
+	previous.from_prologue = true
+	if Checkpoint.force_enabled:
+		expect(Checkpoint.peek() == "principe", "the existing checkpoint is written at the slice handoff")
+		expect(Checkpoint.restore() == "principe" and story.to_save() == previous,
+			"the handoff preserves the prediction, certainty and M2 choices verbatim")
+		Checkpoint.clear()
+
+
+func _dialogue(chapter: Node, choices := {}) -> void:
+	while chapter.ui.dialog_active():
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		await tap(choices.get(entry.key, KEY_1) if entry.has("choices") else KEY_ENTER)
+
+
+func _check_lines(paper: Control, strings: Dictionary, ids: Array) -> void:
+	for id in ids:
+		expect(has_text(paper, strings[id]), "%s shows %s" % [L.current(), id])
+
+
+func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
+	var text := Madeira.strings()
+	var paper: Control = journey.paper
+	var story := root.get_node("Story")
+	while chapter.ui.fade.color.a > 0.0 or paper.actions.get_child_count() == 0:
+		await process_frame
+	for id in ["M01", "M04", "M80", "M81", "M05", "M82", "M06", "M83", "M84", "M07", "M10", "M12"]:
+		expect(journey.page_id == id, "arrival order: " + id)
+		_check_lines(paper, text, [id])
+		if id == "M06":
+			_check_lines(paper, text, ["M01", "M02", "M03", "M04", "M05"])
+			await check_paper_layout(paper, "Madeira arrival")
+			if madeira_captures:
+				await create_timer(0.65).timeout
+				check_paper_focus(button(paper, text.M09))
+				await capture("madeira_arrival", paper)
+		if id == "M12":
+			_check_lines(paper, text, ["M13"])
+		await press(button(paper, text.M09))
+	while paper.actions.get_child_count() == 0:
+		await process_frame
+	_check_lines(paper, text, ["M14", "M15"])
+	await press(button(paper, text.M09))
+	expect(chapter.ui.dialog_active() and journey.page_id == "M17", "empty place precedes Ashby's memory")
+	await tap(KEY_ENTER)
+	await press(button(paper, text.M18))
+	expect(Checkpoint.peek() != "principe" and not story.departure_done,
+		"Madeira remains before the departure handoff")
+	expect(button(paper, text.M21).disabled and button(paper, text.M22).disabled, "folders wait for a selection")
+	await press(button(paper, text.M25))
+	await press(button(paper, text.M26))
+	expect(journey.selected == "M26" and journey.filed.is_empty(), "another loose row changes only the selection")
+	await tap(KEY_ESCAPE)
+	expect(journey.selected.is_empty() and button(paper, text.M26).has_focus(), "cancel returns focus to the loose row")
+	var order := [2, 3, 0, 1] if warm else [0, 3, 1, 2]
+	for i in order.size():
+		var index: int = order[i]
+		var id: String = Madeira.LOOSE[index]
+		var folder := "M21" if index in [0, 3] else "M22"
+		await press(button(paper, text[id]))
+		if warm:
+			await press(button(paper, text.M22 if folder == "M21" else text.M21))
+			expect(journey.selected == id and journey.filed.size() == i, "wrong folder keeps the row loose")
+			_check_lines(paper, text, [Madeira.CORRECTIONS[id]])
+		await press(button(paper, text[folder]))
+		expect(journey.selected.is_empty() and journey.filed.get(id) == folder, "correct folder matches " + id)
+		_check_lines(paper, text, ["M31"])
+		if i < 3:
+			var next := (index + 1) % Madeira.LOOSE.size()
+			while journey.filed.has(Madeira.LOOSE[next]):
+				next = (next + 1) % Madeira.LOOSE.size()
+			expect(button(paper, text[Madeira.LOOSE[next]]).has_focus(), "advances focus to next loose row")
+	await check_paper_layout(paper, "Madeira completed copies")
+	var copies: HBoxContainer = paper.body.get_child(2)
+	for index in 2:
+		var folder: String = Madeira.COPIES.keys()[index]
+		_check_lines(copies.get_child(index), text, ["M19", folder] + Madeira.COPIES[folder] + ["M29", "M30"])
+	_check_lines(paper, text, ["M36", "M37"])
+	if madeira_captures:
+		check_paper_focus(button(paper, text.M38))
+		await capture("madeira_worktable", paper)
+		if L.current() == "en":
+			root.size = Vector2i(1280, 720)
+			Settings.text_scale = 1.2
+			Settings.refresh_fonts(self)
+			await check_paper_layout(paper, "720p Madeira worktable")
+			await capture("madeira_worktable", paper, "_720p", Vector2i(1280, 720))
+			root.size = Vector2i(1920, 1080)
+			Settings.text_scale = 1.0
+			Settings.refresh_fonts(self)
+	await press(button(paper, text.M38))
+	_check_lines(paper, text, ["M39"] + Madeira.SOBRAL)
+	await press(button(paper, text.M44))
+	await press(button(paper, text.M45))
+	expect(chapter.ui.dialog_active() and journey.page_id == "M47", "Kit's sky promise is remembered at the window")
+	await tap(KEY_ENTER)
+	_check_lines(paper, text, ["M46", "M50", "M48" if warm else "M49"])
+	expect(has_text(paper, L.t("1919 年 5 月 29 日")), "the dated blank leaf is separate")
+	await press(button(paper, text.M51))
+	_check_lines(paper, text, ["M71", "M72", "M73", "M74", "M75" if warm else "M76"])
+	await press(button(paper, text.M77))
+	_check_lines(paper, text, ["M78", "M79", "M50"])
+	await press(button(paper, text.M09))
+	_check_lines(paper, text, ["M52", "M53", "M54", "M55", "M56"])
+	await press(button(paper, text.M09))
+	_check_lines(paper, text, ["M57"])
+	await press(button(paper, text.M09))
+	_check_lines(paper, text, ["M58"])
+	await press(button(paper, text.M09))
+	_check_lines(paper, text, ["M59", "M60", "M61"])
+	await press(button(paper, text.M09))
+	_check_lines(paper, text, ["M62", "M63"])
+	await press(button(paper, text.M64))
+	_check_lines(paper, text, ["M65", "M66", "M67", "M68", "M69"])
+	while paper.actions.get_child_count() == 0:
+		await process_frame
+	await check_paper_layout(paper, "Madeira dockside")
+	if madeira_captures:
+		await create_timer(0.65).timeout
+		check_paper_focus(button(paper, text.M70))
+		await capture("madeira_dockside", paper)
+	await press(button(paper, text.M70))
+	expect(story.departure_done and story.from_prologue and Checkpoint.peek() != "principe",
+		"I2 follows departure completion before the slice checkpoint")
+	for id in Madeira.PASSAGE:
+		expect(journey.page_id == id, "onward stop in order: " + id)
+		_check_lines(paper, text, [id])
+		await press(button(paper, text.I07 if id == "I06" else text.M09))
+	_check_lines(paper, text, ["I01", "I02", "I06", "I08", "I09", "I11"])
+	if L.current() != "en":
+		expect(has_text(paper, Madeira.QUOTES.I09), "translated passage retains original excerpt")
+	await check_paper_layout(paper, "onward passage letter")
+	if madeira_captures:
+		check_paper_focus(button(paper, text.I10))
+		await capture("madeira_onward_passage", paper)
+	await press(button(paper, text.I10))
