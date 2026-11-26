@@ -66,16 +66,24 @@ static func ashby_answer(fit: int, clean: bool, measured_any: bool, any_usable :
 
 
 ## Issue #37 loop 5 (proposal): the old small doubts come back beside tonight's numbers.
-## residual_found: the plate-14 residual was found in 1917. FICTION; claims no proof.
-static func small_numbers(residual_found: bool, measured_any: bool) -> Array:
+## residual_found: the plate-14 residual was found in 1917. A recorded M1 wish
+## takes the place of the box and numbers recap. FICTION; claims no proof.
+static func small_numbers(residual_found: bool, measured_any: bool, want := -1) -> Array:
 	var seq: Array = []
 	if residual_found:
 		seq.append({"s": YOU, "t": L.t("（14 號底片上那一點極淡的白。兩年了，還是沒有人知道它是什麼。）")})
-	seq.append({"s": YOU, "t": L.t("（Eddington 那個關緊的箱子。從裡面分不出來——所以才要到這裡，看太陽旁邊的星。）")})
-	if measured_any:
-		seq[-1].t += "\n\n" + L.t("（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）")
-	else:
-		seq[-1].t += "\n\n" + L.t("（今晚什麼也沒量到。沒有數字，也是一筆紀錄。）")
+	var thought: String
+	match want:
+		0:
+			thought = L.t("（我想做一件真的有人會看的事。原始紀錄和我署名的報告都在，誰想看，都可以攤開來核對。）")
+		1:
+			thought = L.t("（我怕底片上什麼都沒有。Kit 要我回去說說我看見了什麼，就算天空空空的也一樣。）")
+		2:
+			thought = L.t("（那時我沒有回答。現在還可以想想，要從哪裡說起。）")
+		_:
+			thought = L.t("（Eddington 那個關緊的箱子。從裡面分不出來——所以才要到這裡，看太陽旁邊的星。）")
+			thought += "\n\n" + (L.t("（今晚量出來的，也只是幾個很小的數字。小，不等於沒有；也不等於證明。）") if measured_any else L.t("（今晚什麼也沒量到。沒有數字，也是一筆紀錄。）"))
+	seq.append({"s": YOU, "t": thought})
 	return seq
 
 

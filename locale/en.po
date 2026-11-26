@@ -4249,6 +4249,12 @@ msgstr "(From the other side of the room) …Two weeks?"
 msgid "（我在本子上寫的是「%s」。Dyson 先生等的是底片能告訴我們的事。我能把先前的期待留在本子上嗎？）"
 msgstr "(I wrote “%s” in my notebook. Dyson is waiting to hear what the plates can tell us. Can I leave what I hoped for in the notebook?)"
 
+msgid "（我怕底片上什麼都沒有。Kit 要我回去說說我看見了什麼，就算天空空空的也一樣。）"
+msgstr "(I was afraid there'd be nothing on the plates. Kit asked me to come back and tell what I saw, even if the sky was empty.)"
+
+msgid "（我想做一件真的有人會看的事。原始紀錄和我署名的報告都在，誰想看，都可以攤開來核對。）"
+msgstr "(I wanted to do one thing somebody would actually look at. Here are the original notes and my signed account. Anyone can lay them side by side and check.)"
+
 msgid "（我跟 Kit 說過，全食那五分鐘我會在換底片。Kit 會想知道，那五分鐘裡底片上留下了什麼。）"
 msgstr "(I told Kit I would be changing plates during the five minutes of totality. Kit will want to know what those five minutes left on the plates.)"
 
@@ -4323,6 +4329,9 @@ msgstr "(That night Kit asked about the star chart and you gave no answer. When 
 
 msgid "（那天晚上你問他，是不是早就認定了。他說是——然後把規則指給你看。）"
 msgstr "(That night you asked whether he had decided already. He said yes—and showed you the rule.)"
+
+msgid "（那時我沒有回答。現在還可以想想，要從哪裡說起。）"
+msgstr "(I said nothing then. I can still choose where to begin.)"
 
 msgid "（雨停了。Eddington 的腳步聲消失在走廊盡頭。）"
 msgstr "(The rain has stopped. Eddington's footsteps fade down the corridor.)"
