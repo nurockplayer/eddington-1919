@@ -32,6 +32,7 @@ var score: Node
 var tick: AudioStreamPlayer
 var street: AudioStreamPlayer
 var keepsake: HBoxContainer
+var madeira: Node
 
 
 class LoupeIcon extends Control:
@@ -217,13 +218,16 @@ func _dialogue_done(results: Dictionary) -> void:
 			keepsake.show()
 			_busy = true
 			_sync_player()
-			await get_tree().create_timer(1.8, false).timeout
+			# Keep the reading hold off the physics-clamped clock, at the current playback speed.
+			await get_tree().create_timer(1.8 / Engine.time_scale, false, false, true).timeout
 			_montage()
 			return
 	_sync_player()
 
 
 func _frame_speaker(speaker: String) -> void:
+	if madeira != null:
+		return
 	# The authored workbook gesture gets a prop shot, then conversation returns to Kit.
 	var entry: Dictionary = ui._seq[ui._seq_i]
 	if _pending == "promise" and str(entry.get("key", "")) == "workbook":
@@ -284,10 +288,15 @@ func _montage() -> void:
 	_sync_player()
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	keepsake.hide()
-	for entry in Content.montage():
-		await ui.show_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t), 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
-	Story.departure_done = true
-	Story.from_prologue = true
+	if OS.get_cmdline_user_args().has("--journey"):
+		madeira = load("res://scripts/cambridge/madeira.gd").new()
+		add_child(madeira)
+		await madeira.play(self)
+	else:
+		for entry in Content.montage():
+			await ui.show_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t), 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+		Story.departure_done = true
+		Story.from_prologue = true
 	beat = Beat.DONE
 	Checkpoint.save("principe")
 	get_tree().change_scene_to_file("res://scenes/main.tscn")

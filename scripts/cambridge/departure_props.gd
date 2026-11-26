@@ -60,15 +60,18 @@ func _ready() -> void:
 	set_meta("date_label", date)
 
 
-func open_workbook() -> void:
+func open_workbook(seconds := 0.55) -> void:
 	if _opened:
 		return
 	_opened = true
 	_leaf.visible = true
 	var date: Label3D = get_meta("date_label")
 	date.visible = true
+	if seconds == 0.0:
+		_cover_pivot.rotation.x = deg_to_rad(-112)
+		return
 	var tween := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_cover_pivot, "rotation:x", deg_to_rad(-112), 0.55)
+	tween.tween_property(_cover_pivot, "rotation:x", deg_to_rad(-112), seconds)
 
 
 func write_kit_line(line: String) -> void:

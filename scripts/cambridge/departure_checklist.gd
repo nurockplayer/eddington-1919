@@ -94,6 +94,13 @@ func _button(text_: String) -> Button:
 	return button
 
 
+static func row_panel(height := 72) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.custom_minimum_size.y = height
+	row.add_theme_constant_override("separation", 18)
+	return row
+
+
 func _build() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var backdrop := ColorRect.new()
@@ -133,9 +140,7 @@ func _build() -> void:
 	page.add_child(legend)
 	for i in entries.size():
 		var entry: Dictionary = entries[i]
-		var row := HBoxContainer.new()
-		row.custom_minimum_size.y = 72
-		row.add_theme_constant_override("separation", 18)
+		var row := row_panel()
 		page.add_child(row)
 		_rows.append(row)
 		var label := _label(entry.label, 22)
