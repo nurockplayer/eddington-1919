@@ -105,15 +105,31 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	var background: Color = palette.paper
 	foreground = palette.ink_col
 	portrait_tint = Color.WHITE
+	var outline := Color.TRANSPARENT
 	if night * float(params.night_wash) > 0.5:
 		background = palette.safe_paper
 		foreground = palette.safe_light
 		portrait_tint = foreground
-	elif darkness * float(params.tot_wash) > 0.5:
-		background = palette.tot_paper
-		foreground = palette.paper
-		portrait_tint = background.lerp(Color.WHITE, 0.4)
-	ui.set_overlay_paper(background, foreground)
+		ui.set_overlay_paper(background, foreground)
+	else:
+		var blue: Color = palette.tot_paper
+		var wash := clampf(darkness * float(params.tot_wash), 0.0, 1.0)
+		background = blue if wash == 1.0 else background.lerp(blue, wash)
+		portrait_tint = Color.WHITE.lerp(blue.lerp(Color.WHITE, 0.4), wash)
+		var luminance := background.srgb_to_linear().get_luminance()
+		# Keep light ink readable until a black keyline can carry contrast.
+		# Fade the fill to dark ink under that keyline, then fade the keyline out.
+		if luminance < 0.27:
+			var light_ink: Color = palette.paper
+			var linear := light_ink.srgb_to_linear()
+			var light_luminance := linear.get_luminance()
+			var required := 4.55 * (luminance + 0.05) - 0.05
+			if required > light_luminance:
+				light_ink = linear.lerp(Color.WHITE, minf(inverse_lerp(light_luminance, 1.0, required), 1.0)).linear_to_srgb()
+			foreground = light_ink.lerp(foreground, smoothstep(0.176, 0.27, luminance))
+		outline = Color(0, 0, 0, smoothstep(0.10, 0.176, luminance) * (1.0 - smoothstep(0.27, 0.36, luminance)))
+		# Pause, help and log stop the scene clock and keep their solid print palettes.
+		ui.set_overlay_paper(blue if wash > 0.5 else palette.paper, palette.paper if wash > 0.5 else palette.ink_col)
 	for slip in slips:
 		slip.bg_color = background
 		slip.border_color = foreground
@@ -127,12 +143,15 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	hovered_button.border_color = foreground
 	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption, ui.tot_hint, ui.callout, ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
 		label.add_theme_color_override("font_color", foreground)
-		label.add_theme_constant_override("outline_size", 0)
+		label.add_theme_color_override("font_outline_color", outline)
+		label.add_theme_constant_override("outline_size", 2 if outline.a > 0.0 else 0)
 	ui.crosshair.add_theme_color_override("font_color", foreground)
 	ui.crosshair.add_theme_color_override("font_outline_color", background)
 	ui.crosshair.add_theme_constant_override("outline_size", 3)
 	for label in [ui.objectives, ui.tot_label, ui.text_label]:
 		label.add_theme_color_override("default_color", foreground)
+		label.add_theme_color_override("font_outline_color", outline)
+		label.add_theme_constant_override("outline_size", 2 if outline.a > 0.0 else 0)
 	_choices()
 	_central_visibility()
 

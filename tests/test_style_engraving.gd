@@ -210,6 +210,7 @@ func _test_eclipse_pilot_bindings(shader_text: String) -> void:
 	_check_return_outline(game, shader_text)
 	for mesh in pilot:
 		_check_original_pilot_binding(mesh, "live daylight recovery retains original materials")
+	_test_return_paper(game)
 	game.free()
 
 
@@ -251,6 +252,24 @@ func _check_distant_land_bindings(game: Node) -> void:
 					break
 	check(has_distant_ridge, "scene supplies ridge geometry in the distant-edge and daylight land ranges")
 
+
+func _test_return_paper(game: Node) -> void:
+	var ui: Node = game.ui
+	var saved_motion := Settings.reduced_motion
+	var blue: Color = Engraving.PAGES.tot_paper
+	for reduced_motion in [false, true]:
+		Settings.reduced_motion = reduced_motion
+		for elapsed in [0.0, 1.0, 3.0, 5.0, 6.0 - 1.0 / 60.0, 6.0, 7.0, 9.0, 12.0]:
+			game._update_day_return(elapsed)
+			var darkness: float = game._style.quad_material.get_shader_parameter("darkness")
+			var paper := Engraving.PAPER.lerp(blue, darkness)
+			for pair in [[ui.tot_panel, ui.tot_label, "default_color"], [ui.dialog_panel, ui.text_label, "default_color"], [ui.dialogue_portrait, ui.dialogue_portrait.disclosure, "font_color"]]:
+				_check_slip(pair[0].get_theme_stylebox("panel"), pair[1].get_theme_color(pair[2]), paper, _visible_outline(pair[1]))
+			for label in [ui.clock_label, ui.caption, ui.toast]:
+				_check_slip(label.get_theme_stylebox("normal"), label.get_theme_color("font_color"), paper, _visible_outline(label))
+			check(ui.dialogue_portrait.image.self_modulate.is_equal_approx(Color.WHITE.lerp(blue.lerp(Color.WHITE, 0.4), darkness)),
+				"portrait follows page darkness at %.3f s (reduced motion %s)" % [elapsed, reduced_motion])
+	Settings.reduced_motion = saved_motion
 
 
 func _check_original_pilot_binding(mesh: MeshInstance3D, message: String) -> void:
@@ -341,9 +360,15 @@ func _test_choices_caption(game: Node) -> void:
 	game._apply_light(0.62, 0, -150, 0)
 
 
-func _check_slip(slip: StyleBoxFlat, text: Color, paper: Color) -> void:
+func _visible_outline(label: Control) -> Color:
+	return label.get_theme_color("font_outline_color") if label.get_theme_constant("outline_size") > 0 else Color.TRANSPARENT
+
+
+func _check_slip(slip: StyleBoxFlat, text: Color, paper: Color, outline := Color.TRANSPARENT) -> void:
 	check(slip.bg_color.a == 1.0, "slip is solid")
-	check(slip.bg_color == paper, "slip uses the scene's paper")
-	var a := text.srgb_to_linear().get_luminance()
-	var b := slip.bg_color.srgb_to_linear().get_luminance()
-	check((maxf(a, b) + 0.05) / (minf(a, b) + 0.05) >= 4.5, "slip text contrast >= 4.5")
+	check(slip.bg_color.is_equal_approx(paper), "slip uses the scene's paper")
+	var stock := slip.bg_color.srgb_to_linear().get_luminance()
+	var fill := text.srgb_to_linear().get_luminance()
+	var edge := slip.bg_color.lerp(outline, outline.a).srgb_to_linear().get_luminance()
+	check(maxf((maxf(fill, stock) + 0.05) / (minf(fill, stock) + 0.05),
+		(maxf(edge, stock) + 0.05) / (minf(edge, stock) + 0.05)) >= 4.5, "slip text contrast >= 4.5")
