@@ -6,6 +6,8 @@ Four playable chapters and six short interludes add roughly 60–90 minutes. The
 
 **Provenance.** Section numbers below refer to the [expedition dossier](../research/expedition_journey_2026-11-26.md). `HISTORICAL_RECORD` covers the cited action, finding or document. Use attributed paraphrases unless the brief verifies a quotation against its source. `RECONSTRUCTION` covers staging, compressed time and simulated apparatus. `INVENTED-FICTIONAL` covers the assistant, Kit, Ashby and Rook. `INFERENCE` covers design readings and estimates. Label those distinctions on player-facing documents and simulations where they affect what the player can take as evidence. Historical dates follow the local calendar in the sources.
 
+**Research sources.** [Society and Influenza, 1918–1920](../research/society_1918_1920.md) · [Sobral expedition](../research/sobral_1919.md)
+
 ## Chapter order
 
 | Order | Chapter or interlude | Place and time | Conversion and emotional handoff |
