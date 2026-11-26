@@ -215,6 +215,7 @@ static func _choice_style(is_selected: bool, is_hover: bool = false) -> StyleBox
 
 static func _style_button(button: Button) -> void:
 	button.add_theme_color_override("font_color", INK)
+	button.add_theme_color_override("font_focus_color", INK)
 	button.add_theme_color_override("font_hover_color", INK)
 	button.add_theme_color_override("font_pressed_color", INK)
 	button.add_theme_color_override("font_hover_pressed_color", INK)
@@ -223,7 +224,11 @@ static func _style_button(button: Button) -> void:
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", _choice_style(false, true))
 	button.add_theme_stylebox_override("pressed", _choice_style(true))
-	button.add_theme_stylebox_override("focus", _choice_style(false, true))
+	var focus := _choice_style(false)
+	focus.draw_center = false
+	focus.border_color = INK
+	focus.set_border_width_all(2)
+	button.add_theme_stylebox_override("focus", focus)
 
 
 func _submit() -> void:

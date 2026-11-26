@@ -5,6 +5,7 @@ extends SceneTree
 const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Departure := preload("res://scripts/cambridge/content_departure.gd")
 const Content := preload("res://scripts/cambridge/content_tribunal.gd")
+const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
 const DEPARTURE := "res://scenes/departure.tscn"
@@ -61,6 +62,12 @@ func button(paper: Control, text: String) -> Button:
 
 func has_text(paper: Control, text: String) -> bool:
 	return paper.find_children("*", "Label", true, false).any(func(label): return label.text == text)
+
+
+func check_paper_focus(control: Button) -> void:
+	expect(control.has_focus(), "paper button has focus: " + control.text)
+	expect(control.get_theme_color("font_focus_color") == Report.INK,
+		"focused paper button uses ink: " + control.text)
 
 
 func check_paper_layout(paper: Control, state: String) -> void:
@@ -191,8 +198,10 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			while director.ui.dialog_active() and journey.page_id == id:
 				await tap(KEY_ENTER)
 		else:
-			if id == "T29" and (capture_dir.is_empty() or L.current() in ["en", "ja"]):
-				await capture("hearing", paper)
+			if id == "T29":
+				check_paper_focus(button(paper, strings.T22))
+				if capture_dir.is_empty() or L.current() in ["en", "ja"]:
+					await capture("hearing", paper)
 			if id == "T54":
 				expect(has_text(paper, strings.T54), "July condition has its own page")
 			await press(button(paper, strings[id] if id in ["T24", "T45"] else strings.T22))
@@ -222,8 +231,10 @@ func _tribunal(director: Node, misfile: bool) -> void:
 		await press(button(paper, strings.T57))
 		expect(has_text(paper, source), "extract carries its source: " + card)
 		expect(button(paper, strings.T59).disabled, "file waits for a heading")
-		if i == 1 and L.current() == "en" and not capture_dir.is_empty():
-			await capture("packet_open", paper)
+		if i == 1:
+			check_paper_focus(button(paper, strings.T04))
+			if L.current() == "en" and not capture_dir.is_empty():
+				await capture("packet_open", paper)
 		if i == 0:
 			await press(button(paper, strings.T58))
 			expect(journey.filed.is_empty() and button(paper, title).has_focus(), "back leaves the extract in the tray")
@@ -266,10 +277,12 @@ func _tribunal(director: Node, misfile: bool) -> void:
 	expect(journey.page_id == "I01" and has_text(paper, strings.I05), "Armistice begins with the public report")
 	expect(Checkpoint.peek() == "", "first Armistice page still has no checkpoint")
 	await check_paper_layout(paper, "armistice")
+	check_paper_focus(button(paper, strings.T22))
 	await capture("armistice", paper)
 	await press(button(paper, strings.T22))
 	expect(journey.page_id == "I08" and has_text(paper, strings.I11), "Armistice ends with the Observatory's loss")
 	await check_paper_layout(paper, "second armistice page")
+	check_paper_focus(button(paper, strings.I12))
 	await press(button(paper, strings.I12))
 
 
