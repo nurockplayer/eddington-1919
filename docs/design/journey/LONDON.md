@@ -19,6 +19,23 @@ Each numbered row is one visible source string. Text in braces is supplied by th
 
 Reuse the [October chart format](../../../scripts/cambridge/epilogue_chart.gd) for its horizontal deflection axis, prediction guides and labelled rows. London's chart uses probable-error bars as specified below. Reuse the [report sheet](../../../scripts/cambridge/report_sheet.gd) for paper surfaces, evidence choices and annotation placement, and the [ending review](../../../scripts/ending.gd) for the final run summary. One report-sheet paper view serves all three interludes. Use L14 to turn pages within the inserts. In reduced motion use held framings and cuts. At large text sizes stack the chart's row explanations and notes in focus order, with the same chart numbers and text available to read.
 
+## October · Reunion and reckoning
+
+**INVENTED-FICTIONAL · Journey arcs.** In the full journey, keep the coda’s chosen opening, Kit’s look at the 29 May leaf and the Cambridge news in [the existing reunion](../../../scripts/cambridge/content_epilogue.gd#L32). The Sundy letter and the sealed October letter are different sheets. Kit wrote the second after receiving the Madeira letter, then held it back because the assistant was due home before it would arrive. Keep the existing six-week explanation. Replace the two current bond endings with O01 or O02. Kit breaks the seal on their own letter, reads the first line and waits. At O03 the assistant puts Kit’s Sundy letter beside it, open where Kit wrote about the chair. Kit pulls up a chair. Keep the earlier workbook reply space for London.
+
+| ID | Speaker | English copy | Provenance |
+|---|---|---|---|
+| O01 | Kit, warm | You asked about the star. I wrote back about the bench. I wanted you to know I meant the company, too. | INVENTED-FICTIONAL · Journey arcs |
+| O02 | Kit, close | You said you missed me when the work was done. I wrote back that I missed you even when I was busy. | INVENTED-FICTIONAL · Journey arcs |
+| O03 | Assistant | I’d like to hear the rest from you. I can stay. | INVENTED-FICTIONAL · Journey arcs |
+
+After [Ashby’s existing October reason reply](../../../scripts/cambridge/epilogue_director.gd#L238) and before his London date, play O04–O05. Ashby puts the ledger in the assistant’s hands. This apology plays for any result, including an unreadable personal run. Keep the tableau and Kit’s invitation outside.
+
+| ID | Speaker | English copy | Provenance |
+|---|---|---|---|
+| O04 | Ashby | When Rook came for the packet, I should have let you answer. I’m sorry. | INVENTED-FICTIONAL · Journey arcs |
+| O05 | Ashby | Bring both our entries to London. If anyone asks about mine, send them to me. | INVENTED-FICTIONAL · Journey arcs |
+
 ## Scene 1 · At the threshold
 
 ### Beat 1 · The prediction page
@@ -49,6 +66,14 @@ The workbook shows any numerical personal result on its own page, using L15–L1
 | L15 | Workbook figure label | Your plates · Simulation | RECONSTRUCTION · J |
 | L16 | Workbook figure value | {personal value}″ ± {personal uncertainty}″ · Simulated measurement | RECONSTRUCTION · J |
 | L17 | Workbook figure fallback | No deflection could be measured from your plates. | RECONSTRUCTION · J |
+
+**Outside the public room · INVENTED-FICTIONAL.** Just before L12, Rook recognises the assistant and takes out a notebook. Reuse Tribunal’s T76 cast label. Give L85–L87 their own exchange before L13 opens the documented proceedings. Rook keeps the notebook and leaves on a separate cut. Leave his access to the meeting unspecified.
+
+| ID | Speaker | English copy | Provenance |
+|---|---|---|---|
+| L85 | Rook | I remember that bench. Will you give me a name for the person who can vouch for Berlin’s figures? | INVENTED-FICTIONAL · Journey arcs |
+| L86 | Assistant | You can ask me about the plates. I can tell you which ones I worked on. | INVENTED-FICTIONAL · Journey arcs |
+| L87 | Ashby | And you can ask me about 0.87″. Put my name to it, with what I say today. | INVENTED-FICTIONAL · Journey arcs |
 
 ## Scene 2 · The plates before the societies
 
@@ -161,7 +186,7 @@ L66 commits L67, L69, L71. L68 commits L69, L67, L71. L70 commits L71, L67, L69.
 
 **INVENTED-FICTIONAL · J, October. RECONSTRUCTION · J for the room and pause.** Open the framing while keeping the chart readable. Ashby points from the Sobral 4-inch to Príncipe. The old prediction page is beneath the assistant's hand. This exchange happens aloud at the edge of the public room as the recorded discussion ends. It belongs to the fictional trio. Do not add a reply, invitation, applause or judgment from the societies.
 
-Read L73–L76 and give the player a blank field for a sentence in their own words. Show their existing October reason above it as L06. L78 previews the player's line as their part of the exchange, with L80 available to go back before committing. L79 commits any nonblank reason or reservation, prints it as L78 beside L04 and L05, and lets Kit answer L82–L83. The submitted text is the player's exact line. Keep it on paper through the last look and bring it back in the existing ending review. Hold the room in silence on L84. The next sound, if used, is the paper turning into I5. Keep the two places and the old prediction in the same composition. The player leaves when they've had time to read them.
+Read L73–L74, then L88 and L75–L76, and give the player a blank field for a sentence in their own words. Show their existing October reason above it as L06. L78 previews the player's line as their part of the exchange, with L80 available to go back before committing. L79 commits any nonblank reason or reservation, prints it as L78 beside L04 and L05, and lets Kit answer L82–L83. The submitted text is the player's exact line. Kit opens the earlier workbook leaf at M50 and fills the blank with L89. Play L90 (warm) or L91 (close) quietly between them. Keep the player’s committed line on paper through the last look and bring it back in the existing ending review. Hold the room in silence on L84. The next sound, if used, is the paper turning into I5. Keep the two places and the old prediction in the same composition. The player leaves when they've had time to read them.
 
 | ID | Display or speaker | English copy | Provenance |
 |---|---|---|---|
@@ -177,6 +202,13 @@ Read L73–L76 and give the player a blank field for a sentence in their own wor
 | L82 | Kit | Here. Beside the figure you came with. | INVENTED-FICTIONAL · J |
 | L83 | Kit | At Sundy there was a page for what you could see. This one is for what you can say. | INVENTED-FICTIONAL · J |
 | L84 | Advance after the hold | Read the papers | RECONSTRUCTION · J |
+
+| ID | Display or speaker | English copy | Provenance |
+|---|---|---|---|
+| L88 | Ashby | If my old figure gets printed again, I want this page here for anyone who asks about it. | INVENTED-FICTIONAL · Journey arcs |
+| L89 | Kit’s written reply | Cambridge sky from the bench: clear just above the chimney. Best seen with a second chair. | INVENTED-FICTIONAL · Journey arcs |
+| L90 | Assistant, warm | Keep the chair at your end. I’ll bring the tea. | INVENTED-FICTIONAL · Journey arcs |
+| L91 | Assistant, close | Tomorrow, after the work is done, stay with me a little longer. | INVENTED-FICTIONAL · Journey arcs |
 
 Owner's release question at L84: “Does it feel epic?” Judge it in both walks below. The hold belongs to the agreement of the two observing sites now open to public challenge, with enough space to read the player's own words before the headline arrives.
 
@@ -211,7 +243,9 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 
 ## I5 · In print
 
-**HISTORICAL_RECORD · D §§1, 3, T, NY, A, R §V. RECONSTRUCTION · J for the clippings and captions.** On the cut from beat 8, show the London masthead and the stacked headline. Turn to the New York masthead and title. Bring back the finding below the headlines in a readable body size, then turn to the remembrance card. The date card and silence stand on their own, with no invented reactions or new speakers. Use I5-02 on the clipping pages. Use L14 between pages, and I5-12 off the remembrance card.
+**HISTORICAL_RECORD · D §§1, 3, T, NY, A, R §V. RECONSTRUCTION · J for the clippings and captions.** On the cut from beat 8, show the London masthead and the stacked headline. Turn to the New York masthead and title. Bring back the finding below the headlines in a readable body size, then turn through the separate opinion sheet to the remembrance card. The date card and silence stand on their own. Use I5-02 on the historical clipping pages, L14 between pages and I5-12 off the remembrance card.
+
+**Separate opinion sheet · INVENTED-FICTIONAL.** Between the finding I5-10 and the remembrance I5-11, insert a distinct paper view headed I5-13. Use L14 to leave it. Rook’s byline and text are made up, with no real masthead. His column invokes the open question about the spectrum to accuse the observers of disloyalty. The sourced finding and the remembrance keep their own framing and copy.
 
 | ID | Display | English copy | Provenance |
 |---|---|---|---|
@@ -227,6 +261,12 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 | I5-10 | Finding beneath the clipping | Two eclipse series favoured Einstein's larger light deflection. A third was sensitive to plate scale. The Sun's spectral lines remained a separate test. | HISTORICAL_RECORD · O, R §V, summary |
 | I5-11 | Remembrance card | Britain · 11 November 1919. A two-minute silence marks the first anniversary of the Armistice. | HISTORICAL_RECORD · A |
 | I5-12 | Advance | Read the replies | RECONSTRUCTION · J |
+
+| ID | Display | English copy | Provenance |
+|---|---|---|---|
+| I5-13 | Frame | Fictional opinion column | INVENTED-FICTIONAL · Journey arcs |
+| I5-14 | Byline | Edmund Rook | INVENTED-FICTIONAL · Journey arcs |
+| I5-15 | Column excerpt | A question about the Sun went unanswered. Yet we are asked to take Berlin’s side on the word of men who would not take ours. | INVENTED-FICTIONAL · Journey arcs |
 
 ## I6 · Replies
 
@@ -253,6 +293,8 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 
 ## Two walks through the script
 
+**Fictional beats on both walks.** O01 or O02 opens the letter and O03 makes time to hear it. O04–O05 follow the October reason reply even if the personal plates are unreadable. L85–L87 occur before the proceedings. L88 follows the comparison and precedes the player’s reply. L89 and the chosen tone’s answer fill the reply space before L84. I5-13–15 follow the sourced finding and precede remembrance.
+
 **Strong personal result · INFERENCE, sample run.** Take I3-14 to the letter aboard Zaire, then read the return dates, scale problem, Brussels record and tentative reply from September. I4-20 reaches October. The simulated plates give 1.78″ with bounds clear of 0.87″ and a clean run. Read the two Sobral series, retain the weaker one with a reservation, and examine the Mercury residual. In October move from the 0.87″ forecast to the larger value and select the personal plates as the reason. Ashby names the London date and Kit closes the tableau. The fade reaches L01. L06 recalls the October choice, L07 gives Ashby's concession and L16 stays in the workbook. In the room hear both sites and see both scale treatments. Choose L43 and commit L44–46 and L54. Hear Newall, then Silberstein. Choose L70 and commit L71, L67, L69 and L72. After the hold, Ashby uses the two independent observations in L73 and leaves the spectrum question visible in L74. At L77 write “My plates made me doubt 0.87″, and the sharper Sobral plates are why I'd say so here.” Speak it at L79. Kit puts that exact line beside the old prediction in L82–83 and the room holds. L84 opens the headlines and the silence. I5-12 opens the letter, medal vote and Berlin reply. I6-16 ends on the same sentence in the existing review.
 
 **Unreadable personal result · INFERENCE, sample run.** Take I3-14 through the same I4 papers and I4-20 into October. The personal chart has no point. Read both Sobral series and keep the astrograph under question. Use the Mercury scene, retain the October holdout and select the unchanged-mind reason. Ashby allows that entry to stand. Kit finishes the tableau and the fade reaches L01. L11 gives Ashby's uncertainty and L17 records the unreadable result. The two independently obtained historical results and the scale treatments appear as on the strong route. Choose L50 and commit L51, L52 and L54. Read the two objections separately, choose L68 and commit L69, L67, L71 and L72. After the same hold, Ashby makes the public comparison. At L77 write “I couldn't measure mine. Sobral's 4-inch persuades me about the bending, but I want to see the test of the solar lines.” Speak it at L79. Kit leaves the reservation beside the prediction. L84 and I5-12 carry the same public record through print, remembrance and the replies. I6-16 ends on the reservation verbatim. With a numerical but inconclusive run the sole changes here are L10 and L16. The annotation choices, reply field and ending handoff are the same.
@@ -274,13 +316,14 @@ Keep the literal excerpts L56, I4-07, I4-12 and I6-05, the headline lines I5-04�
 
 | Section | New English strings | Four locales | Journey estimate |
 |---|---:|---:|---:|
-| Joint meeting | 83 | 332 | 95 × 4 = 380 |
+| Joint meeting | 90 | 360 | 102 × 4 = 408 |
+| October arc changes | 5 | 20 | 5 × 4 = 20 |
 | I4 · Homeward and across Europe | 20 | 80 | 20 × 4 = 80 |
-| I5 · In print | 12 | 48 | 12 × 4 = 48 |
+| I5 · In print | 15 | 60 | 15 × 4 = 60 |
 | I6 · Replies | 16 | 64 | 16 × 4 = 64 |
-| Total | 131 | 524 | 143 × 4 = 572 |
+| Total | 146 | 584 | 158 × 4 = 632 |
 
-L01–L84 include one substitution-only row (L78). Count the shared L14 control, reused annotation notes, labels, templates and branches once. Existing October text, cast names, the supplied player text, and original-language excerpts repeated alongside their localized readings add no separate strings. The London count stays below the estimate with one set of chart labels and one pair of annotation margins.
+L01–L91 include one substitution-only row (L78). Count the shared L14 control, reused annotation notes, labels, templates and branches once. O01–O05 include two replacements to localize and three additions. Other existing October text, cast names, the supplied player text and original-language excerpts repeated alongside their localized readings add no separate strings. The London count stays below the estimate with one set of chart labels and one pair of annotation margins.
 
 ## Sources and wiring dependencies
 
