@@ -540,16 +540,25 @@ func _test_empty_rack_wait() -> void:
 		game.set_process(false)
 		game._start_game()
 		await game._begin_totality()
+		var strip: Control = game.ui.tot_strip
+		check(strip.get("holder_mark") == &"ready", "the loaded rack starts ready")
 		while game.plates_left > 0:
 			game._toggle_shutter()
 			game._process_totality(1.0 / Sim.TIME_SCALE)
+			check(strip.get("holder_mark") == &"open" and not strip.get("model").open_segment.is_empty(), "open mark and live exposure appear together")
 			check(game.ui.prompt_label.text == "［%s］開始／停" % Prompts.key("shutter"), "an exposing plate keeps the normal stop prompt")
+			check(game.ui.tot_hint.is_visible_in_tree(), "the panel shutter hint is visible during an exposure")
 			var before_stop: float = game.t_game
 			game._toggle_shutter()
 			check(game.t_game == before_stop and not game.sim.is_exposing(), "stop closes the exposure without skipping time, including the last plate")
-			game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
+			game._process_totality(1.0 / Sim.TIME_SCALE)
+			var after_close := &"changing" if game.plates_left > 0 else &"empty"
+			check(strip.get("holder_mark") == after_close and strip.get("model").segments.back() == [before_stop - 1.0, before_stop], "closing puts the exposure on the track and updates the rack")
+			game._process_totality((Sim.PLATE_CHANGE_S - 1.0) / Sim.TIME_SCALE)
+			check(strip.get("holder_mark") == (&"ready" if game.plates_left > 0 else &"empty"), "the next holder becomes ready when the swap ends")
 		check(game.t_game < 30.0, "rack was exhausted early through actual exposures and plate changes")
 		check(game.ui.prompt_label.text == "底片用完了。［%s］等待第三接觸" % Prompts.key("shutter"), "empty rack offers waiting for third contact")
+		check(game.ui.tot_hint.is_visible_in_tree(), "the empty rack keeps the panel shutter hint visible")
 		var evidence: Array = game.sim.plates.duplicate(true)
 		var press := InputEventAction.new()
 		press.action = action
