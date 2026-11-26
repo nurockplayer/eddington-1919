@@ -294,26 +294,13 @@ static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
 	]
 
 
-## Story audit D4: Dyson's "go home alone" anecdote. Undated on purpose.
-static func go_home_alone(evidence: String, clean: bool) -> Array:
-	# HISTORICAL_RECORD: Eddington's 1938 recollection; RECONSTRUCTION: Cottingham recalls it here.
-	var recalled := L.t("出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。") + "\n\n"
-	match evidence:
-		"favors_e":
-			if clean:
-				# RECONSTRUCTION: Eddington's line as later retold (Douglas 1956); wording and day UNVERIFIED.
-				return [{"s": E, "t": L.t("Cottingham。你不用一個人回家了。")},
-					# FICTION.
-					{"s": C, "t": recalled + L.t("……我本來連行李都收好了。")}]
-			# FICTION: the same line, held back by a selection that is not clean.
-			return [{"s": E, "t": L.t("Cottingham，也許你不用一個人回家。可是這一疊底片，我們挑得還不夠乾淨。")},
-				{"s": C, "t": recalled + L.t("那回去重挑。我陪你。")}]
-		"ambiguous", "favors_half":
-			# FICTION.
-			return [{"s": E, "t": L.t("Cottingham，你要不要一個人回家，我還說不準。")},
-				{"s": C, "t": recalled + L.t("那我等。反正我還有一座鐘要打包。")}]
-	# FICTION: nothing measured.
-	return [{"s": E, "t": L.t("我們一起回家。看見什麼，就說什麼。")}]
+static func dispatch_thought(pick: int) -> Dictionary:
+	return {"s": YOU, "t": L.t("（我在本子上寫的是「%s」。Dyson 先生等的是底片能告訴我們的事。我能把先前的期待留在本子上嗎？）") % bet_pick_text(pick)}
+
+
+static func telegram_record(verdict: int, wording: String, reason: String) -> Dictionary:
+	var finding := L.t("沒有讀數") if verdict < 0 else verdict_text(verdict)
+	return {"s": YOU, "t": L.t("發報存底（模擬）｜致倫敦的 Dyson 先生\n判斷：%s\n電文：%s\n根據：%s") % [finding, wording, reason]}
 
 
 ## Story audit D5: the player may ask whether Eddington decided before sailing. pick: the bet
@@ -324,7 +311,7 @@ static func press_eddington(pick: int) -> Array:
 		reply = L.t("那我們是兩個懷著希望的人，中間只有一套底片。電報照底片寫，不照我們寫。")
 	elif pick == 0 or pick == 1:
 		reply = L.t("那今晚我們之中，有一個人會失望。底片不在乎是誰。")
-	return [{"s": E, "t": L.t("電報之前，你還有話要說？"), "key": "press",
+	return [{"s": E, "t": L.t("關於這份報告，你還有話要說？"), "key": "press",
 		"choices": [L.t("你在出發前，就認定是 1.75 了，對不對？"), L.t("（什麼都不說）")],
 		"then": [
 			[{"s": E, "t": L.t("是。我希望是。")},

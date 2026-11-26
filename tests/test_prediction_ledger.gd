@@ -246,11 +246,15 @@ func _test_confrontation_flow(story: Node) -> void:
 	check(game._verdict == verdict, "a second answer cannot replace the confirmed verdict")
 	game._process(0.02)
 	check(game._pending == "judgment" and game.ui.dialog_active() and game.ui._seq_i == 0,
-		"conversation feedback starts at the original deadline")
-	var text := _text(game)
-	check(text.contains("你押的是 0.87") and text.contains("容不下它"),
-		"the verdict confronts the bet before the telegram choices")
-	check(text.contains("容得下 1.75"), "the confrontation names the prediction the range does hold")
+		"conversation resumes at the original deadline")
+	game.ui._advance()
+	game.ui._choice_buttons[1].pressed.emit()
+	game.ui._choice_buttons[0].pressed.emit()
+	check(game._pending == "telegram_record", "conversation shows the committed telegram")
+	game.ui._advance()
+	check(game._pending == "reaction"
+		and _text(game).contains(Content.bet_vs_plates(1, Judgment.interval_bounds(game.sim))),
+		"the review confronts the bet after the committed telegram")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
@@ -322,19 +326,22 @@ func _test_verdict_hold(story: Node) -> void:
 			"the report retains the 2σ band and original/current ledger marks")
 		game._process(0.02)
 		check(game.ui.dialog_active() and game._pending == "judgment" and game.ui._seq_i == 0,
-			"the first existing NPC feedback starts after 1.5 unpaused seconds")
+			"the telegram sequence starts after 1.5 unpaused seconds")
 		var guard := 30
 		while game.ui.dialog_active() and game._pending == "judgment" and guard > 0:
 			guard -= 1
 			var entry: Dictionary = game.ui._seq[game.ui._seq_i]
 			if entry.has("choices"):
-				game.ui._choose(1 if entry.key == "telegram" else (1 if entry.key == "press" else 0))
+				game.ui._choose(1 if entry.key == "telegram" else 0)
 			else:
 				game.ui._advance()
 		check(guard > 0 and game._telegram == 1 and game._grade == expected_grade,
 			"verdict %d reaches the unchanged telegram and grade" % verdict)
 		while game.ui.dialog_active():
-			game.ui._advance()
+			if game.ui._choice_buttons.is_empty():
+				game.ui._advance()
+			else:
+				game.ui._choice_buttons[1].pressed.emit()
 		game._coda_transition.custom_step(3.0)
 		check(game.phase == game.Phase.ENDING and story.runs.size() == run_count + 1
 			and story.runs[-1].verdict == verdict and story.runs[-1].telegram_id == "hopeful",

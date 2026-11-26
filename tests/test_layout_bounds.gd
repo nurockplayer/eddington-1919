@@ -634,6 +634,11 @@ func _test_merged_dialogue() -> void:
 			for reason in Judgment.REASONS:
 				for line in Judgment.grade(sim, telegram.id, reason.id).presentation:
 					entries.append({"s": Content.E, "t": line})
+		for wording in Judgment.telegram_choices():
+			for reason in Judgment.reasons_for(sim):
+				entries.append(Content.telegram_record(0, wording, L.t(reason.text)))
+		entries.append(Content.telegram_record(-1, Judgment.telegram_choices()[3], L.t(Judgment.REASONS[3].text)))
+		entries.append(Content.dispatch_thought(3))
 		# Also cover the clean poor-only rule qualification and multi-plate corroboration.
 		for plate in sim.plates:
 			plate.included = plate.quality == "poor"
@@ -644,12 +649,7 @@ func _test_merged_dialogue() -> void:
 				for clean in [true, false]:
 					entries.append_array(Coda.ashby_answer(fit, clean, measured, true, true, true))
 			entries.append_array(Coda.small_numbers(true, measured))
-		for evidence in ["favors_e", "ambiguous", "none"]:
-			for clean in [true, false]:
-				var home := Content.go_home_alone(evidence, clean)
-				if home[-1].s == Content.C:
-					home[-1].t += "\n\n" + Content.cottingham_coda(sim)
-				entries.append_array(home)
+		entries.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
 		for bond in ["close", "warm"]:
 			for first in [0, 1, 2, -1]:
 				for promise in [0, 1]:

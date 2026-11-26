@@ -833,7 +833,7 @@ func _process(delta: float) -> void:
 		else:
 			_verdict_hold_s -= delta
 			if _verdict_hold_s <= 0.0:
-				_verdict_feedback()
+				_offer_telegram()
 	_update_npc_look()
 	if player.global_position.y < -3.0:
 		player.velocity = Vector3.ZERO
@@ -1252,9 +1252,11 @@ func _on_dialogue_done(results: Dictionary) -> void:
 			_verdict_hold_s = 1.5
 			_verdict_hold_first_frame = true
 		"judgment":
-			_pressed_eddington = int(results.get("press", -1)) == 0
 			_after_judgment(results)
+		"telegram_record":
+			_review_telegram()
 		"reaction":
+			_pressed_eddington = int(results.get("press", -1)) == 0
 			if _came_from_departure:
 				_begin_coda()
 			else:
@@ -1991,26 +1993,24 @@ var _reason := 0
 var _reasons: Array = []
 
 
-func _verdict_feedback() -> void:
+func _offer_telegram() -> void:
 	var tele := Judgment.telegram_choices()
 	var rea := _reasons.map(func(r): return L.t(r.text))
-	var against: Array = []
-	if sim.bet_pick >= 0:
-		against.append({"s": Content.E, "t": Content.bet_vs_plates(sim.bet_pick, Judgment.interval_bounds(sim))})
-	_say([{"s": Content.E, "t": Content.verdict_feedback(_verdict, _verdict_truth, Judgment.interval_bounds(sim))}] + against + (Content.press_eddington(sim.bet_pick) if sim.bet_pick >= 0 else []) + Content.judgment_prompt(tele, rea), "judgment")
+	var seq := Content.judgment_prompt(tele, rea)
+	if _verdict >= 0 and sim.bet_pick >= 0:
+		seq.push_front(Content.dispatch_thought(sim.bet_pick))
+	_say(seq, "judgment")
 
 
 func _start_judgment() -> void:
-	var tele := Judgment.telegram_choices()
 	_reasons = Judgment.reasons_for(sim)
-	var rea := _reasons.map(func(r): return L.t(r.text))
 	var c: Dictionary = sim.combined()
 	if c.n > 0:
 		var bounds := Judgment.interval_bounds(sim)
 		var interval := L.t("%.2f″ ± %.2f″，兩倍誤差是 %.2f″ 到 %.2f″") % [c.value, c.sigma, bounds.lo, bounds.hi]
 		_say(Content.verdict_prompt(interval), "verdict")
 	else:
-		_say(Content.judgment_prompt(tele, rea), "judgment")
+		_offer_telegram()
 
 
 func _after_judgment(results: Dictionary) -> void:
@@ -2018,14 +2018,22 @@ func _after_judgment(results: Dictionary) -> void:
 	_telegram = results.get("telegram", 1)
 	_reason = results.get("reason", 1)
 	_grade = Judgment.grade(sim, Judgment.TELEGRAMS[_telegram].id, _reasons[_reason].id)
+	_say([Content.telegram_record(_verdict, Judgment.telegram_choices()[_telegram],
+		L.t(_reasons[_reason].text))], "telegram_record")
+
+
+func _review_telegram() -> void:
 	var seq := []
+	if _verdict >= 0:
+		var bounds := Judgment.interval_bounds(sim)
+		seq.append({"s": Content.E, "t": Content.verdict_feedback(_verdict, _verdict_truth, bounds)})
+		if sim.bet_pick >= 0:
+			seq.append({"s": Content.E, "t": Content.bet_vs_plates(sim.bet_pick, bounds)})
 	for l in _grade.presentation:
 		seq.append({"s": Content.E, "t": l})
-	seq.append_array(Content.go_home_alone(_grade.evidence, _grade.clean))
-	if seq[-1].s == Content.C:
-		seq[-1].t += "\n\n" + Content.cottingham_coda(sim)
-	else:
-		seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
+	seq.append({"s": Content.C, "t": Content.cottingham_coda(sim)})
+	if _verdict >= 0 and sim.bet_pick >= 0:
+		seq.append_array(Content.press_eddington(sim.bet_pick))
 	_say(seq, "reaction")
 
 
