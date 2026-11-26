@@ -1648,10 +1648,12 @@ func _since_last_plate() -> float:
 
 func _end_totality() -> void:
 	tot_done = true
-	AudioServer.set_bus_volume_db(_totality_actions_bus, 0.0)
-	create_tween().tween_method(
+	# Let any final count or plate change finish at the totality level.
+	var mix_return := create_tween()
+	mix_return.tween_method(
 		func(db: float) -> void: AudioServer.set_bus_volume_db(_totality_ambience_bus, db),
 		AudioServer.get_bus_volume_db(_totality_ambience_bus), 0.0, THIRD_CONTACT_S)
+	mix_return.tween_callback(func() -> void: AudioServer.set_bus_volume_db(_totality_actions_bus, 0.0))
 	_stop_night_bed()
 	ui.set_prompt("")
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:

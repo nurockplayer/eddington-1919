@@ -60,6 +60,8 @@ func _run() -> void:
 		and is_equal_approx(AudioServer.get_bus_volume_db(sfx_bus), sfx_db),
 		"shutter, exposure apparatus and SFX bus retain their pre-totality levels")
 	game._end_totality()
+	check(AudioServer.get_bus_volume_db(game._totality_actions_bus) > 0.0,
+		"third contact keeps action priority through the final cue tails")
 	game._process_totality(1.6)
 	await create_timer(4.6).timeout
 	check(not game.audio_insects.playing, "third contact fades and stops the dusk insects")
