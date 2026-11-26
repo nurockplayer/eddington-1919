@@ -1354,3 +1354,9 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Not blocking, as before: sheets sized for their longest case (hearing one line on a large sheet); flat cream paper, not yet the slice's drawn paper; "Filed with source." floats mid-sheet without belonging to a column.
 - For the next head: `hearing_en`, `armistice_en`, `packet_open_en` and one armistice in a CJK locale are enough.
 - **Verdicts:** technical regression none claimed for the slice (flag off); this PR's change not accepted, one thing; chapter not ready to show. **Count stays 6/9.**
+
+### 2026-11-26 16:50 JST: #542 journey chapter 1 at 779aeb84: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/journey-c1/779aeb84c042d124710f283e1919cce8fce4fc56/` (`hearing_en`, `armistice_en`, `packet_open_en`, `armistice_ja`, 1920×1080). All four opened whole at native size; kept in `slice_principe/accept/542/779aeb84/`. The other nine states were seen at a249f5d2 and not again at this head.
+- **The focused label is in ink.** "Continue" / 続ける and the focused heading "Observatory duties" read as clearly as their neighbours; focus is a 2 px ink border, which reads at a glance and belongs on the paper. The disabled "File extract" stays grey on grey, as a disabled button should.
+- Carried to the pass before the flag comes off (not this PR): sheets sized for their longest case; the flat cream paper drawn as the slice's paper; "Filed with source." placed with its column.
+- **Verdicts:** technical regression none claimed for the slice (flag off); this PR's change accepted; chapter 1 fit to stand behind the flag, not yet to be shown as finished. **Count stays 6/9.**
