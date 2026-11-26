@@ -843,39 +843,41 @@ func _test_judgment_reasons() -> void:
 	game._process(0.0)
 	game._process(1.5)
 	check(game._verdict == 0, "real verdict dialogue stores the answer")
-	var correction_shown: bool = game.ui.text_label.text.contains("還不能支持 零")
-	check(correction_shown and game.ui._choice_buttons.is_empty(), "wrong verdict feedback is shown before telegram choices exist")
-	check(game.ui.viewer.visible and game.ui._viewer_locked, "evidence stays visible during wrong-answer feedback")
+	var at_telegram: bool = game._pending == "judgment" and game.ui._seq[game.ui._seq_i].get("key") == "telegram" \
+		and game.ui._choice_buttons.size() == Judgment.TELEGRAMS.size()
+	check(at_telegram, "wrong verdict reaches telegram choices after the chart hold")
+	check(game._grade.is_empty() and game.sim.combined() == evidence_before, "the verdict leaves evidence and grading untouched")
 	# Stop this flow on a regression so later choices do not target the wrong entry.
-	if not correction_shown or not game.ui._choice_buttons.is_empty():
+	if not at_telegram:
 		game.stop_all_audio()
 		game.queue_free()
 		await process_frame
 		return
-	check(game._pending == "judgment" and game.ui._seq_i == 0 and not game.ui._seq[0].has("choices"), "feedback leads the telegram sequence")
-	check(game.ui.text_label.text == "細線容得下 1.75；單憑這些底片，還不能支持 零，排除其他預測。", "wrong answer corrects containment and points at the chart")
-	check(game._grade.is_empty() and game.sim.combined() == evidence_before, "verdict feedback leaves evidence and grading untouched")
-	game.ui._advance()
-	check(game.ui._seq[game.ui._seq_i].key == "telegram" and game.ui._choice_buttons.size() == Judgment.TELEGRAMS.size(), "telegram choices appear after feedback is advanced")
-	check(game.ui.viewer.visible and root.gui_get_focus_owner() == game.ui._choice_buttons[0], "telegram choices keep evidence visible and hold focus")
+	check(game.ui.viewer.visible and game.ui._viewer_locked and root.gui_get_focus_owner() == game.ui._choice_buttons[0],
+		"telegram choices keep the locked evidence visible and hold focus")
 	game.ui._choose(1)
-	check(game.ui._seq[game.ui._seq_i].key == "reason", "telegram still leads to the reason")
+	check(game.ui._seq[game.ui._seq_i].get("key") == "reason", "telegram still leads to the reason")
 	check(game.ui.viewer.visible and root.gui_get_focus_owner() == game.ui._choice_buttons[0], "reason choices keep evidence visible and hold focus")
 	game.ui._choose(0)
-	check(game._pending == "reaction" and not game.ui.viewer.visible, "viewer closes as the reaction starts")
+	check(game._pending == "telegram_record" and game.ui._choice_buttons.is_empty() and not game.ui.viewer.visible,
+		"committing the reason closes the viewer and opens the record")
 	check(game._grade == Judgment.grade(game.sim, "hopeful", "measured"), "real dialogue grades the stored measured reason")
 	var wrong_grade: Dictionary = game._grade.duplicate(true)
-	var wrong_reaction: Array = game.ui._seq.duplicate(true)
+	game.ui._advance()
+	check(game._pending == "reaction" and game.ui.text_label.text == Content.verdict_feedback(0, 2, bounds),
+		"advancing the record starts review with the wrong verdict correction")
+	var grading_reaction: Array = game.ui._seq.slice(1)
 	game._start_judgment()
 	game.ui._choose(Judgment.verdict_truth(game.sim))
 	game._process(0.0)
 	game._process(1.5)
-	check(game.ui.text_label.text == "細線只容得下 1.75，排除另外兩個預測。說這些底片支持它，是公允的判斷。" and game.ui._choice_buttons.is_empty(), "correct verdict is acknowledged before telegram choices")
-	game.ui._advance()
 	game.ui._choose(1)
 	game.ui._choose(0)
 	check(game._grade == wrong_grade and game._grade.score == wrong_grade.score, "right and wrong verdicts yield identical grading and score")
-	check(game.ui._seq == wrong_reaction, "verdict feedback is absent from the unchanged grading reaction")
+	game.ui._advance()
+	check(game._pending == "reaction" and game.ui.text_label.text == Content.verdict_feedback(2, 2, bounds),
+		"the correct verdict is acknowledged in review")
+	check(game.ui._seq.slice(1) == grading_reaction, "the review after verdict feedback is the same for either verdict")
 	var expected_classes := ["overclaim", "overclaim", "consistent", "underclaim"]
 	for verdict in 4:
 		game._start_judgment()
@@ -885,8 +887,7 @@ func _test_judgment_reasons() -> void:
 		game._process(0.0)
 		game._process(1.5)
 		check(game._verdict == verdict and game._verdict_truth == 2 and game._verdict_class == expected_classes[verdict], "real results handler stores verdict and class %d" % verdict)
-		game.ui._advance()
-		check(game.ui._seq[game.ui._seq_i].key == "telegram", "every verdict advances to the telegram")
+		check(game.ui._seq[game.ui._seq_i].get("key") == "telegram", "every verdict advances to the telegram")
 		game.ui._choose(1)
 		game.ui._choose(0)
 		check(game._grade == wrong_grade, "verdict %d earns no telegram grading advantage" % verdict)
@@ -919,10 +920,10 @@ func _test_judgment_reasons() -> void:
 	game.ui._choose(Judgment.verdict_truth(game.sim))
 	game._process(0.0)
 	game._process(1.5)
-	game.ui._advance()
 	game.ui._choose(2)
 	game.ui._choose(4)
-	check(game._grade.reason_ok and game._grade.lines.any(func(l): return l.contains("Cottingham 會記得")),
+	game.ui._advance()
+	check(game._pending == "reaction" and game._grade.reason_ok and game._grade.lines.any(func(l): return l.contains("Cottingham 會記得")),
 		"choosing the instrument reason in the real dialogue is graded and answered")
 	game.stop_all_audio()
 	game.queue_free()
@@ -1107,7 +1108,7 @@ func _test_report_rule_layout() -> void:
 		var note_before: String = game.ui.viewer_note.text
 		var chart_height_before: float = game.ui.chart_scroll.custom_minimum_size.y
 		await _click_control(game.ui.report_btn)
-		for stage in ["verdict", "feedback", "telegram", "reason"]:
+		for stage in ["verdict", "telegram", "reason"]:
 			for frame in 4:
 				await process_frame
 			var chart_rect: Rect2 = game.ui.chart_scroll.get_global_rect()
@@ -1133,17 +1134,15 @@ func _test_report_rule_layout() -> void:
 				"scale %s %s rule fits viewport and stays above dialogue" % [scale, stage])
 			match stage:
 				"verdict":
-					check(game.ui._seq[game.ui._seq_i].key == "verdict", "real report starts at verdict")
+					check(game.ui._seq[game.ui._seq_i].get("key") == "verdict", "real report starts at verdict")
 					await _click_control(game.ui._choice_buttons[Judgment.verdict_truth(game.sim)])
 					game._process(0.0)
 					game._process(1.5)
-				"feedback":
-					game.ui._advance()
 				"telegram":
-					check(game.ui._seq[game.ui._seq_i].key == "telegram", "real report reaches telegram")
+					check(game.ui._seq[game.ui._seq_i].get("key") == "telegram", "real report reaches telegram")
 					await _click_control(game.ui._choice_buttons[1])
 				"reason":
-					check(game.ui._seq[game.ui._seq_i].key == "reason" and game.ui._choice_buttons.size() == 5,
+					check(game.ui._seq[game.ui._seq_i].get("key") == "reason" and game.ui._choice_buttons.size() == 5,
 						"real report reaches five reason choices")
 		check(game.ui.thumbs.get_child_count() == 13, "report rule layout has twelve plates and a comparison thumbnail")
 		check(game.ui.viewer_rule.is_visible_in_tree() and game.ui.viewer_rule.text == "你寫下的規則：" + Content.rules_prompt(false)[-1].choices[0], "report shows the complete authored rule")
