@@ -503,10 +503,11 @@ func _process(delta: float) -> void:
 			_update_blink()
 	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible:
 		var held: float = 0.0
-		if Input.is_action_pressed("ui_right"):
-			held = 1.0
-		elif Input.is_action_pressed("ui_left"):
-			held = -1.0
+		if mic_record_btn.has_focus() or mic_btn.has_focus():
+			if Input.is_action_pressed("ui_right"):
+				held = 1.0
+			elif Input.is_action_pressed("ui_left"):
+				held = -1.0
 		if held != 0.0:
 			_mic_hold += delta
 			if _mic_hold >= 0.35:
@@ -910,6 +911,7 @@ func _build_viewer(root: Control) -> void:
 	mic_btn.tooltip_text = L.t("顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。")
 	mic_btn.toggled.connect(_set_micrometer)
 	mic_bar.add_child(mic_btn)
+	blink_btn.focus_neighbor_bottom = blink_btn.get_path_to(mic_btn)
 	# A flow row as well: the readout label grows with a longer language, and a box
 	# would widen the middle column instead of dropping it under the record button.
 	mic_row = HFlowContainer.new()
@@ -1196,6 +1198,8 @@ func _set_micrometer(on: bool) -> void:
 	mic_row.visible = micrometer_on
 	mic_note.visible = micrometer_on
 	_sync_micrometer_controls()
+	if micrometer_on and not mic_record_btn.disabled:
+		mic_record_btn.grab_focus()
 	mic_overlay.queue_redraw()
 
 
@@ -1265,6 +1269,12 @@ func _record_micrometer() -> void:
 		var thumb := thumbs.get_child(_viewer_sel + 1) as Button
 		thumb.modulate = Color(1.5, 1.5, 1.5)
 		thumb.create_tween().tween_property(thumb, "modulate", Color.WHITE, 0.3)
+	for i in _viewer_plates.size():
+		var plate: Dictionary = _viewer_plates[i]
+		if plate.included and plate.usable and not plate.get("read", false):
+			thumbs.get_child(i + 1).grab_focus()
+			return
+	(report_btn if _viewer_locked else measure_btn).grab_focus()
 
 
 func _mic_drag_to(local: Vector2) -> void:
@@ -1377,10 +1387,15 @@ func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, lock
 	var comp := _thumb(comparison_tex, L.t("牛津比對片"))
 	comp.pressed.connect(_select_plate.bind(-2, comparison_tex))
 	thumbs.add_child(comp)
+	var previous := comp
 	for i in plates.size():
 		var b := _thumb(textures[i], _thumb_text(i))
 		b.pressed.connect(_select_plate.bind(i, textures[i]))
 		thumbs.add_child(b)
+		if (i + 1) % thumbs.columns != 0:
+			previous.focus_neighbor_right = previous.get_path_to(b)
+			b.focus_neighbor_left = b.get_path_to(previous)
+		previous = b
 	comp.grab_focus()
 	set_viewer_locked(locked)
 	if plates.size() > 0:
@@ -1603,6 +1618,11 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 		plate_info.text += L.t("\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。")
 		blink_hint_seen = true
 		blink_hint_shown.emit()
+	if sound:
+		if micrometer_on and not mic_record_btn.disabled:
+			mic_record_btn.grab_focus()
+		else:
+			(mic_btn if blink_btn.disabled else blink_btn).grab_focus()
 
 
 func set_viewer_locked(locked: bool) -> void:
@@ -2590,19 +2610,14 @@ func _input(event: InputEvent) -> void:
 	if Prompts.joypad != was_joypad:
 		prompts_changed.emit()
 	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
-		if event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
+		if (mic_record_btn.has_focus() or mic_btn.has_focus()) and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
 			_nudge_micrometer(-1.0 if event.is_action_pressed("ui_left") else 1.0, _mic_fine())
 			get_viewport().set_input_as_handled()
 			return
-		if event.is_action_pressed("ui_accept") and _viewer_sel >= 0:
-			_record_micrometer()
-			get_viewport().set_input_as_handled()
-			return
-		# Escape/B first puts the micrometer away; a second press leaves the table.
-		# Escape is also mapped to pause, so without this a keyboard-only player
-		# would be trapped: every confirm press records and every arrow nudges.
+		# Escape/B puts the micrometer away before leaving the table.
 		if event.is_action_pressed("ui_cancel"):
 			_set_micrometer(false)
+			mic_btn.grab_focus()
 			get_viewport().set_input_as_handled()
 			return
 	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):

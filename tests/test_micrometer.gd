@@ -31,7 +31,7 @@ func _plate(number: int, value: float, sigma := 0.1, included := true) -> Dictio
 
 
 ## A real main scene in NIGHT with real plate textures, viewer open.
-func _new_game(values: Array) -> Node:
+func _new_game(values: Array, with_reference := false) -> Node:
 	load("res://scripts/main.gd")._ensure_inputs()
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -42,6 +42,8 @@ func _new_game(values: Array) -> Node:
 	for i in values.size():
 		game.sim.plates.append(_plate(i + 1, values[i]))
 		game.plate_textures.append(Render.render(game.sim, game.sim.plates[-1]))
+	if with_reference:
+		game.comparison_tex = Render.render(game.sim, null)
 	game.ui.hide_title()
 	game._open_viewer()
 	await process_frame
@@ -70,6 +72,67 @@ func _button(index: JoyButton) -> void:
 	event.pressed = false
 	root.push_input(event)
 	await process_frame
+
+
+func _comparator_press(pad: bool, code: Key, joy: JoyButton) -> void:
+	if pad:
+		await _button(joy)
+	else:
+		var event := InputEventKey.new()
+		event.keycode = code
+		event.pressed = true
+		root.push_input(event)
+		await process_frame
+		event.pressed = false
+		root.push_input(event)
+		await process_frame
+
+
+func _check_comparator_focus(pad: bool) -> void:
+	var game := await _new_game([1.75, 1.60], true)
+	await process_frame
+	var ui = game.ui
+	var device := "pad" if pad else "keyboard"
+	var records: Array[int] = []
+	ui.reading_set.connect(func(i: int, _px: float): records.append(i))
+	check(ui.thumbs.get_child(0).has_focus(), device + ": opening the table focuses the reference thumbnail")
+	await _comparator_press(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+	var focused := root.gui_get_focus_owner() as Button
+	check(ui.thumbs.get_child(1).has_focus(), device + ": navigate to the first eclipse plate (focus %s at %s)"
+		% [focused.accessibility_name + focused.text, focused.get_global_rect()])
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	check(ui._viewer_sel == 0 and ui.blink_btn.has_focus() and not ui.blink_btn.disabled,
+		device + ": selecting the first plate focuses legal Blink")
+	if not ui.blink_btn.has_focus():
+		await _finish(game)
+		return
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	check(ui.blink_btn.has_focus() and ui.blink_btn.button_pressed and ui.blink_label.is_visible_in_tree(),
+		device + ": blink starts with focus on Blink")
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	await _comparator_press(pad, KEY_DOWN, JOY_BUTTON_DPAD_DOWN)
+	check(ui.mic_btn.has_focus(), device + ": navigate from Blink to the micrometer")
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	check(ui.mic_record_btn.has_focus() and ui.mic_record_btn.is_visible_in_tree(),
+		device + ": opening the micrometer focuses visible Record")
+	await _comparator_press(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	check(records == [0] and game.sim.plates[0].read and ui.thumbs.get_child(2).has_focus(),
+		device + ": one confirm records once and focuses the next unread plate")
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	check(ui._viewer_sel == 1 and ui.mic_record_btn.has_focus() and records == [0],
+		device + ": selecting plate two focuses Record without recording")
+	await _comparator_press(pad, KEY_ESCAPE, JOY_BUTTON_B)
+	check(ui.viewer.visible and not ui.micrometer_on and ui.mic_btn.has_focus() and records == [0],
+		device + ": backing out restores the visible micrometer toggle")
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	check(ui.mic_record_btn.has_focus() and ui._viewer_sel == 1 and records == [0],
+		device + ": resuming restores Record on the same plate")
+	await _comparator_press(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
+	check(records == [0, 1] and game.sim.plates[1].read and ui.measure_btn.has_focus(),
+		device + ": second confirm records once and focuses Measure")
+	await _finish(game)
 
 
 func _check_feel() -> void:
@@ -168,6 +231,8 @@ func _check_feel() -> void:
 
 
 func _run() -> void:
+	for pad in [false, true]:
+		await _check_comparator_focus(pad)
 	await _check_feel()
 	# No exposures and unusable plates must still reach the no-results judgment.
 	for only_unusable in [false, true]:
