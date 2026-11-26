@@ -15,6 +15,7 @@ const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Board := preload("res://scripts/cambridge/plan_board.gd")
+const Tribunal := preload("res://scripts/cambridge/tribunal.gd")
 const BoxSketch := preload("res://scripts/cambridge/box_sketch.gd")
 
 static var bench_cambridge_out := ""
@@ -28,6 +29,7 @@ var overlay
 var report_sheet
 var plan_board
 var box_sketch
+var tribunal: Node
 var aligned := false
 var residual_found := false
 var kit_checked := false
@@ -179,7 +181,7 @@ func _sync_player() -> void:
 	box_sketch.input_blocked = get_tree().paused or ui.log_open()
 	player.can_move = free and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK, Beat.ORRERY]
 	player.can_look = free
-	ui.hud.visible = not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible and not ui.log_open()
+	ui.hud.visible = tribunal == null and not overlay.visible and not report_sheet.visible and not plan_board.visible and not box_sketch.visible and not ui.log_open()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if free else Input.MOUSE_MODE_VISIBLE
 	if beat == Beat.INVESTIGATE:
 		var task := L.t("核對 14 號星場的抄錄圖，交給 %s") % L.t(Cast.MENTOR)
@@ -612,8 +614,16 @@ func _montage() -> void:
 	_busy = true
 	_sync_player()
 	await ui.fade_to(1.0).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
-	for entry in C17.montage():
+	var captions := C17.montage()
+	var journey := OS.get_cmdline_user_args().has("--journey")
+	if journey:
+		captions.pop_back()
+	for entry in captions:
 		await _montage_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t))
+	if journey:
+		tribunal = Tribunal.new()
+		add_child(tribunal)
+		await tribunal.play(self, Story.bet_1917)
 	Story.prologue_done = true
 	beat = Beat.DONE
 	Checkpoint.save("departure")

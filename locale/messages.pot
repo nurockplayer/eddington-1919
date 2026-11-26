@@ -216,6 +216,10 @@ msgstr ""
 msgid "1915 年觀測日誌"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:76
+msgid "1916 年，大學為讓愛丁頓維持天文台運作，替他爭取到有條件的兵役免除。1918 年 5 月，紐沃爾教授陳述繼續觀測的必要。自治市審裁庭准予免役三個月。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:631
 msgid "1917 年 11 月 10 日，聯合常設日食委員會決定：如果可能，派隊到巴西的 Sobral 和非洲西岸外海的普林西比島。"
 msgstr ""
@@ -236,6 +240,10 @@ msgstr ""
 msgid "1917 年的筆記"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:143
+msgid "1918 年 11 月 11 日・下議院"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:633
 msgid "1918 年 11 月，停戰。"
 msgstr ""
@@ -246,6 +254,10 @@ msgstr ""
 
 #: scripts/ending.gd:80
 msgid "1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:147
+msgid "1919 年 2 月 20 日・下議院"
 msgstr ""
 
 #: scripts/cambridge/content_departure.gd:161
@@ -286,6 +298,10 @@ msgstr ""
 
 #: scripts/cambridge/cast.gd:11
 msgid "Ashby 先生"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:137
+msgid "Ashby 先生在 1917 年記下・0.87″（牛頓式）"
 msgstr ""
 
 #: scripts/cambridge/departure_director.gd:122
@@ -904,6 +920,34 @@ msgstr ""
 msgid "〈Keep the Home-Fires Burning〉。開戰頭幾個月寫的歌，到現在英國還有很多人在唱：把家裡的爐火燒著，等孩子們回家。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:92
+msgid "《劍橋每日新聞》・1918 年 6 月 14 日，第 3 頁"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:154
+msgid "《劍橋每日新聞》，1918 年 6 月 14 日及 28 日，均為第 3 頁"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:155
+msgid "《劍橋每日新聞》，1918 年 6 月 28 日，第 3 頁"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:156
+msgid "《劍橋每日新聞》，1918 年 7 月 12 日，第 3 頁"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:157
+msgid "《天文台》（1916 年）・Stanley，《Isis》94，第 59 至 70 頁・皇家學會 MS/603/3/4"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:153
+msgid "《考文垂晚報》，1916 年 5 月 11 日・《劍橋每日新聞》，1918 年 5 月 16 日，第 4 頁"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:163
+msgid "《自然》102，第 325 至 327 頁・倫敦及巴黎決議"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:88
 msgid "「3 月 9 日。14 號底片，御夫座一帶，曝光 20 分鐘，天清。」"
 msgstr ""
@@ -950,6 +994,10 @@ msgstr ""
 
 #: scripts/cambridge/content_departure.gd:199
 msgid "「我抬頭看了很久。」"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:94
+msgid "「我是基於良心拒服兵役的人。」"
 msgstr ""
 
 #: scripts/cambridge/content_departure.gd:128
@@ -1028,6 +1076,10 @@ msgstr ""
 msgid "「那你的糖呢？」"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:96
+msgid "「那個問題不在本庭審理範圍內。」"
+msgstr ""
+
 #: scripts/cambridge/content_departure.gd:82
 msgid "「那再坐一下。」"
 msgstr ""
@@ -1046,6 +1098,10 @@ msgstr ""
 
 #: scripts/credits.gd:41
 msgid "・ "
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:148
+msgid "一些良心拒服兵役者仍被關在監獄。一名議員主張，應扣押他們，直到最後一批軍人復員。內政大臣並未作出這項承諾。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:456
@@ -1136,6 +1192,22 @@ msgstr ""
 msgid "上回：%s → 這回：%s %s"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:95
+msgid "上訴審裁庭主席"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:98
+msgid "上訴成立，因職務而准予的免役遭撤銷。愛丁頓最早可於 1918 年 8 月 1 日被徵召。審裁庭並未審理他的良心拒服兵役聲請。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:97
+msgid "上訴裁定・1918 年 6 月 14 日"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:139
+msgid "下一份清單留給我。我明早就開始核對。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:510
 msgid "下一次這麼好的機會，要等很多年。"
 msgstr ""
@@ -1146,6 +1218,18 @@ msgstr ""
 
 #: scripts/cambridge/content_departure.gd:123
 msgid "下次劃一條線，簽上名字。不是因為規定——是因為改過的地方，也是紀錄。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:159
+msgid "下議院《漢薩德議事錄》，1918 年 11 月 11 日"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:162
+msgid "下議院《漢薩德議事錄》，1919 年 2 月 20 日"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:161
+msgid "下議院《漢薩德議事錄》，1946 年 7 月 29 日，配給品統計"
 msgstr ""
 
 #: scripts/judgment.gd:361
@@ -1200,6 +1284,10 @@ msgstr ""
 msgid "也許。可是箱子要是在太空裡被越拉越快地往上拉，地板會迎上來接住鉛筆——裡面看起來一模一樣。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:87
+msgid "五月准予免役的裁定遭到上訴。報導在這裡。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:50
 msgid "交上去了？……比我想的快。先生看紙的時候，眉毛會先動。你等著看。"
 msgstr ""
@@ -1218,6 +1306,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:31
 msgid "今晚十張，明晚十張。等戰爭結束，大概就量完了。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:99
+msgid "他們撤銷了因職務准予的免役。他的良心拒役聲請還在等審理。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:584
@@ -1330,6 +1422,10 @@ msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:158
 msgid "你在 1917 年最懷疑的是：%s。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:136
+msgid "你在 1917 年的預測・%s・%s"
 msgstr ""
 
 #: scripts/content.gd:336
@@ -1536,12 +1632,28 @@ msgstr ""
 msgid "信"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:102
+msgid "個人陳述・1918 年 6 月 28 日見報"
+msgstr ""
+
 #: scripts/ui.gd:891
 msgid "借用 Ashby 的放大鏡：點底片移動中心；聚焦此鍵時用右搖桿或方向鍵移動，再按一次收起。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:100
+msgid "倫敦・日食委員會會議紀錄・1918 年 6 月 14 日"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:413
 msgid "假如你當時沒找到那個反過來的「14」——你會交什麼？"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:140
+msgid "停戰"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:149
+msgid "停戰後，協約國的科學院在巴黎集會，推動成立協約國之間的新學術組織，也讓中立國有資格加入。德國及其他同盟國則被排除在計畫之外。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:623
@@ -1728,6 +1840,10 @@ msgstr ""
 msgid "再讀工作簿最後一頁"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:118
+msgid "准予免役十二個月，條件是繼續目前的工作。"
+msgstr ""
+
 #: scripts/content.gd:88
 msgid "出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。"
 msgstr ""
@@ -1768,8 +1884,32 @@ msgstr ""
 msgid "劍橋天文台・1917 年 10 月\n（重建場景）"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:65
+msgid "劍橋天文台・1918 年 6 月"
+msgstr ""
+
 #: scripts/cambridge/content_departure.gd:17
 msgid "劍橋天文台・1919 年 3 月，出發前一晚\n（重建場景）"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:152
+msgid "劍橋天文台委員會會議紀錄・ObsA1/iii/123–125"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:150
+msgid "劍橋天文台已有兩名助理在 1917 年 12 月前身亡。一人死於先鋒號戰艦上，另一人死於法國。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:104
+msgid "劍橋市政廳・自治市審裁庭・1918 年 6 月 27 日"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:110
+msgid "劍橋市政廳・自治市審裁庭・1918 年 7 月 11 日"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:89
+msgid "劍橋郡政廳・上訴審裁庭・1918 年 6 月 14 日"
 msgstr ""
 
 #: scripts/ui.gd:1692
@@ -1780,12 +1920,20 @@ msgstr ""
 msgid "劍橋，1919 年 10 月\n\n（推測重建）"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:160
+msgid "勞工部《勞工公報》，1919 年 1 月，第 6 頁"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:496
 msgid "包括我。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:197
 msgid "十七個點重合了。還有一個沒對上。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:108
+msgid "卷宗裡那個位置先空著吧。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:227
@@ -1814,6 +1962,10 @@ msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:57
 msgid "反正裡面寫的，剛剛都說了。省一張郵票。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:77
+msgid "另一項聲請・愛丁頓對 1916 年的敘述"
 msgstr ""
 
 #: scripts/content.gd:262
@@ -1904,6 +2056,14 @@ msgstr ""
 msgid "可辨識的星點：%d 顆"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:91
+msgid "史料・報導引語"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:72
+msgid "史料・摘要"
+msgstr ""
+
 #: scripts/chart.gd:285
 msgid "合併"
 msgstr ""
@@ -1972,6 +2132,10 @@ msgstr ""
 msgid "嗯。這種事，不常有。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:122
+msgid "回到卷宗"
+msgstr ""
+
 #: scripts/cambridge/box_sketch.gd:289 scripts/cambridge/box_sketch.gd:426
 msgid "回到桌邊"
 msgstr ""
@@ -1986,6 +2150,18 @@ msgstr ""
 
 #: scripts/cambridge/overlay_viewer.gd:169
 msgid "固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿平移　 %s／右搖桿旋轉"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:90
+msgid "國民服役代表對五月的免役裁定提出上訴。主席表示，政府推動戰事時，或許能讓愛丁頓的才幹派上更大的用場。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:105
+msgid "國民服役代表質疑，在上訴裁定後還能不能受理新的聲請。愛丁頓表示，他的個人聲請早已延後，等有需要時才審理。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:111
+msgid "國民服役部已准許審裁庭審理愛丁頓的良心拒服兵役聲請。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:253
@@ -2040,8 +2216,28 @@ msgstr ""
 msgid "大"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:75
+msgid "大學的聲請・1916 年及 1918 年 5 月"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:83
+msgid "大學要讓自家的天文學家繼續工作。這是因職務聲請免服兵役。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:299
 msgid "大概是。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:73
+msgid "天文台人事・委員會會議紀錄，1917 至 1918 年"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:71
+msgid "天文台備查卷宗・重構"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:68
+msgid "天文台職務"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:102 scripts/world_builder.gd:595
@@ -2172,6 +2368,14 @@ msgstr ""
 msgid "容得下它"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:107
+msgid "審裁庭延後至 7 月 11 日再開庭，讓愛丁頓有時間向國民服役部請求許可，好讓審裁庭審理他的聲請。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:117
+msgid "審裁庭認定愛丁頓是基於良心拒服兵役者，也認定繼續他的天文工作符合國家利益，尤其考慮到翌年的日食。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:304
 msgid "寫「未解決」吧。等第二張底片。它要是真的在那裡，它會等你。"
 msgstr ""
@@ -2182,6 +2386,10 @@ msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:191
 msgid "寫下來，比記在心裡好。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:123
+msgid "將摘錄歸檔"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:424 scripts/cambridge/content_1917.gd:425
@@ -2252,6 +2460,10 @@ msgstr ""
 msgid "對得上"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:144
+msgid "對德停戰協議使西線戰事停止。"
+msgstr ""
+
 #: scripts/ui.gd:2375 scripts/ui.gd:2547
 msgid "對話紀錄　［%s 關閉］"
 msgstr ""
@@ -2262,6 +2474,10 @@ msgstr ""
 
 #: scripts/ui.gd:267
 msgid "小"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:101
+msgid "小組委員會暫定由愛丁頓與科廷漢姆搭檔，組成其中一隊觀測隊。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:547
@@ -2308,6 +2524,10 @@ msgstr ""
 msgid "已記下讀數：%.2f 格。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:124
+msgid "已連同出處歸檔。"
+msgstr ""
+
 #: scripts/main.gd:1475
 msgid "帆布遮陽頂已經捲起。第二接觸——全食開始，節拍器開始數秒。\n抬頭看雲：雲薄時按［%s］喊「開始」，雲厚或快結束時再按一次喊「停」。"
 msgstr ""
@@ -2318,6 +2538,10 @@ msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:212
 msgid "帳上你改了，這裡寫沒有。兩句都留著，讓後人來問你。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:66
+msgid "帳本先別闔上。工作檯另一半借我用。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:183
@@ -2394,6 +2618,10 @@ msgstr ""
 msgid "底片用完了。［%s］等待第三接觸"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:106
+msgid "延後審理・1918 年 6 月 27 日"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:162
 msgid "引力隨距離減弱的規則，差了一丁點（Hall）"
 msgstr ""
@@ -2440,6 +2668,30 @@ msgstr ""
 
 #: scripts/cambridge/content_departure.gd:65
 msgid "怎麼改？"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:82
+msgid "愛丁頓主張，應分開看待國家的行動和同行個人的行為。他寫信給拉莫爾，說明自己對學術往來的立場。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:78
+msgid "愛丁頓以良心為由自行提出聲請。審裁庭先處理大學的聲請。大學爭取到因職務免服兵役的裁定後，愛丁頓的個人聲請就被擱置。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:103
+msgid "愛丁頓出於基督信仰而反對戰爭。他表示，自己的國家與交戰對手都可能出於同樣的愛國心和宗教責任感，而參與殺戮會違背他對信仰的理解。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:93
+msgid "愛丁頓教授"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:84
+msgid "愛丁頓聲請免服兵役，是因為從軍違背他的良心。這叫良心拒服兵役。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:115
+msgid "愛丁頓自幼信奉貴格會。他表示，陸軍無法保證只派他執行救命的任務。他願意加入貴格會救護隊或紅十字會服務，或協助收割。"
 msgstr ""
 
 #: scripts/chart.gd:210
@@ -2536,6 +2788,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:30
 msgid "我喝不慣甜的。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:67
+msgid "我在整理我們的備查卷宗。你能幫我把幾個理由分清楚嗎？"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:367
@@ -2646,12 +2902,24 @@ msgstr ""
 msgid "我還是覺得先查日誌，就在架子上。要是連編號都不一樣，我們就不用傷腦筋了。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:138
+msgid "我還是認為是 0.87″。我會讓你們有需要的東西來驗證它。"
+msgstr ""
+
 #: scripts/cambridge/content_epilogue.gd:17
 msgid "我還沒有改變想法"
 msgstr ""
 
 #: scripts/content_coda.gd:126
 msgid "我還記得小時候那張星圖。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:127
+msgid "戴森是在為他的觀測能力背書。試試「天文台職務」。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:112
+msgid "戴森的信・提交於七月審理"
 msgstr ""
 
 #: scripts/cambridge/content_departure.gd:81
@@ -2748,6 +3016,10 @@ msgstr ""
 
 #: scripts/content.gd:381
 msgid "拍攝時：曝光太短。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:114
+msgid "拒服兵役與替代工作・七月審理"
 msgstr ""
 
 #: scripts/ui.gd:1048
@@ -2860,6 +3132,10 @@ msgstr ""
 
 #: scripts/cambridge/box_sketch.gd:217
 msgid "放出光"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:135
+msgid "放在預測旁吧。下次翻到這頁，我要看到我們在 1917 年親手寫下的數字。"
 msgstr ""
 
 #: scripts/cambridge/overlay_viewer.gd:162
@@ -3156,6 +3432,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:232
 msgid "標記「未解決：需要另一張同天區的底片」"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:142
+msgid "檔案剪報・據史料編成"
 msgstr ""
 
 #: scripts/ui.gd:1872 scripts/ui.gd:2018 scripts/ui.gd:2033
@@ -3478,6 +3758,10 @@ msgstr ""
 msgid "發條滿了。在驅動箱再按一次，看追蹤示意圖，你觀察、我調走速。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:113
+msgid "皇家天文學家法蘭克・戴森爵士提請審裁庭注意愛丁頓的研究，敦促准許他觀測翌年五月的日食。戴森認為他特別適合負責這項觀測。"
+msgstr ""
+
 #: scripts/main.gd:1208
 msgid "目標已更新。"
 msgstr ""
@@ -3524,6 +3808,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:92
 msgid "空桌子"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:85
+msgid "空桌子說明了天文台為何需要他。什麼是他憑良心能做的，只有他自己能說。"
 msgstr ""
 
 #: scripts/prompts.gd:9 scripts/ui.gd:2488
@@ -3606,6 +3894,10 @@ msgstr ""
 msgid "第%d號"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:74
+msgid "第一助理在先鋒號戰艦的爆炸中身亡。第二助理在法國陣亡。委員會記載，天文台的科研人員只剩愛丁頓一人。"
+msgstr ""
+
 #: scripts/ui.gd:1707
 msgid "第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。"
 msgstr ""
@@ -3686,6 +3978,10 @@ msgstr ""
 msgid "範圍很寬，也是一個答案。你以前不會這樣說。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:81
+msgid "約瑟夫・拉莫爾主張暫停與敵國同行的學術往來。"
+msgstr ""
+
 #: scripts/ui.gd:875
 msgid "納入量測"
 msgstr ""
@@ -3712,6 +4008,14 @@ msgstr ""
 
 #: scripts/ui.gd:2087 scripts/ui.gd:2319
 msgid "繼續"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:151
+msgid "繼續前往出發前夜"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:86
+msgid "繼續閱讀"
 msgstr ""
 
 #: scripts/checkpoint.gd:24
@@ -3750,12 +4054,32 @@ msgstr ""
 msgid "翻面，還轉了三度。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:158
+msgid "聯合常設日食委員會小組會議紀錄，1918 年 6 月 14 日"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:369
 msgid "聽起來耳熟嗎？"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:116
+msgid "自治市審裁庭裁定・1918 年 7 月 11 日"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:79
+msgid "與敵國同行聯繫・1916 年"
+msgstr ""
+
 #: scripts/judgment.gd:362
 msgid "與證據相左"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:69
+msgid "良心拒役聲請"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:141
+msgid "英國・1918 年 11 月至 1919 年初"
 msgstr ""
 
 #: scripts/cambridge/departure_checklist.gd:131
@@ -3768,6 +4092,10 @@ msgstr ""
 
 #: scripts/judgment.gd:351
 msgid "被丟下的星光"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:70
+msgid "裁定條款"
 msgstr ""
 
 #: scripts/ui.gd:1733 scripts/ui.gd:1918
@@ -3878,6 +4206,10 @@ msgstr ""
 msgid "讀 Dyson 的信"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:120
+msgid "讀完摘錄，再選要歸入哪一欄。"
+msgstr ""
+
 #: scripts/ui.gd:1590
 msgid "讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]"
 msgstr ""
@@ -3900,6 +4232,10 @@ msgstr ""
 
 #: scripts/cambridge/content_departure.gd:131
 msgid "貴重的是用它看見的東西。這個只是黃銅。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:80
+msgid "赫伯特・霍爾・特納在《天文台》匿名撰文，援引戰時暴行，指責德國科學家支持本國軍隊的行動。他反對恢復學術往來。"
 msgstr ""
 
 #: scripts/cambridge/departure_director.gd:120
@@ -3948,6 +4284,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:581
 msgid "跳過也是一種選擇——但要寫下你跳過了。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:145
+msgid "軍人開始分批重返平民生活。到了隔年一月，勞工部仍在報告陸軍人員退伍的情況。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:66
@@ -4018,8 +4358,36 @@ msgstr ""
 msgid "這是一個好的開始。"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:133
+msgid "這是七月的決定，附帶條件也在裡面。試試「裁定條款」。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:131
+msgid "這是上訴改變的事，包括何時可以徵召他。試試「裁定條款」。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:128
+msgid "這是他在 1916 年自行提出的聲請。試試「良心拒役聲請」。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:130
+msgid "這是他憑良心能答應做的事。試試「良心拒役聲請」。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:129
+msgid "這是他說明拒役理由的地方。試試「良心拒役聲請」。"
+msgstr ""
+
 #: scripts/cambridge/content_epilogue.gd:42
 msgid "這是你自己抬頭看到的。好。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:126
+msgid "這是大學主張應繼續觀測的理由。試試「天文台職務」。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:132
+msgid "這是延後審理的決定，也說了下次開庭前得先做什麼。試試「裁定條款」。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:252
@@ -4028,6 +4396,14 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:296
 msgid "這是整張紙上我最喜歡的一行。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:125
+msgid "這是誰還能留下來工作的紀錄。試試「天文台職務」。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:119
+msgid "這次他們聽了他自己的聲請。繼續工作，是他們給免役附的條件。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:246
@@ -4332,6 +4708,22 @@ msgstr ""
 msgid "開始遊戲：序章・劍橋，1917"
 msgstr ""
 
+#: scripts/cambridge/content_tribunal.gd:109
+msgid "閱讀七月的審理紀錄"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:88
+msgid "閱讀六月的上訴紀錄"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:121
+msgid "閱讀摘錄"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:134
+msgid "闔上備查卷宗"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:448
 msgid "關緊的箱子，沒有窗，外面被我蓋住了。鉛筆還是掉到地板上。你在哪裡？"
 msgstr ""
@@ -4430,6 +4822,10 @@ msgstr ""
 
 #: scripts/ui.gd:906
 msgid "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
+msgstr ""
+
+#: scripts/cambridge/content_tribunal.gd:146
+msgid "食物配給延續到 1919 年。肉類和糖仍受配給。"
 msgstr ""
 
 #: scripts/main.gd:1135
