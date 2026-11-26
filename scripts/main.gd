@@ -94,7 +94,6 @@ var hold_id := ""
 var _hold_latched := false
 var _interact_needs_release := false
 var met_cottingham := false
-var heard_cottingham_stakes := false
 var plate_textures: Array = []
 var comparison_tex: Texture2D
 var _comparison_fetched := false
@@ -1120,7 +1119,7 @@ func _interact(id: String) -> void:
 				_sync_player_input()
 		"eddington":
 			if not sim.briefed:
-				var seq: Array = Content.briefing()
+				var seq: Array = Content.briefing(Story.prologue_done)
 				if Story.prologue_done:
 					seq.append({"s": Content.E, "t": preload("res://scripts/cambridge/content_1917.gd").principe_callback(Story)})
 				_say(seq, "briefing")
@@ -1129,11 +1128,7 @@ func _interact(id: String) -> void:
 				_say(Content.eddington_prep(plates, sim.drive_wound, sim.drive_rate_checked, sim.plates_carried), "eddington_prep")
 		"cottingham":
 			if sim.drive_rate_checked:
-				if not heard_cottingham_stakes:
-					heard_cottingham_stakes = true
-					_say(Content.cottingham_stakes(), "")
-				else:
-					_say(Content.cottingham_done(), "")
+				_say(Content.cottingham_done(), "")
 			elif not met_cottingham:
 				met_cottingham = true
 				_say(Content.cottingham_first(), "")
