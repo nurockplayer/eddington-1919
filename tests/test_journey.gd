@@ -1,6 +1,6 @@
 extends SceneTree
 ## Drive the Cambridge coda handoff using the actual montage, dialogue and paper buttons.
-## With --journey-captures=<dir>, drive the same route in a window for en and ja receipts.
+## With --journey-captures=<dir>, save the paper states for art review.
 
 const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Departure := preload("res://scripts/cambridge/content_departure.gd")
@@ -63,6 +63,34 @@ func has_text(paper: Control, text: String) -> bool:
 	return paper.find_children("*", "Label", true, false).any(func(label): return label.text == text)
 
 
+func check_paper_layout(paper: Control, state: String) -> void:
+	await frames(3)
+	var failures: Array[String] = []
+	var footer_height := 0.0
+	for action: Button in paper.actions.get_children():
+		var font := action.get_theme_font("font")
+		var font_size := action.get_theme_font_size("font_size")
+		var text_size := font.get_string_size(action.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+		var minimum := text_size + action.get_theme_stylebox("normal").get_minimum_size()
+		footer_height = maxf(footer_height, minimum.y)
+		if action.size.x + 1.0 < minimum.x:
+			failures.append("collapsed footer button: " + action.text)
+	var scroll: ScrollContainer = paper.body.get_parent()
+	var layout: VBoxContainer = scroll.get_parent()
+	var available := layout.size.y - footer_height - layout.get_theme_constant("separation")
+	if scroll.size.y + 1.0 < minf(paper.body.size.y, available) or paper.body.size.x > scroll.size.x + 1.0:
+		failures.append("paper body clipped before available space is used")
+	var previous := scroll.scroll_vertical
+	if paper.body.size.y > scroll.size.y + 1.0:
+		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
+		await frames(2)
+	var tail: Control = paper.body.get_child(-1)
+	if not scroll.get_global_rect().grow(1.0).encloses(tail.get_global_rect()):
+		failures.append("last paper row cannot fit or scroll fully into view")
+	scroll.scroll_vertical = previous
+	expect(failures.is_empty(), "%s %s scale %.1f: %s" % [L.current(), state, Settings.text_scale, "; ".join(failures)])
+
+
 func _run() -> void:
 	var enabled := OS.get_cmdline_user_args().has("--journey")
 	for arg in OS.get_cmdline_user_args():
@@ -80,7 +108,7 @@ func _run() -> void:
 		settings.set_value("ui", "reduced_motion", true)
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
-	var locales := ["en", "ja"] if not capture_dir.is_empty() else (L.LOCALES if enabled else ["zh_TW"])
+	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
 	for locale in locales:
 		L.apply(locale)
 		await _route(enabled, locale == "ja")
@@ -163,14 +191,27 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			while director.ui.dialog_active() and journey.page_id == id:
 				await tap(KEY_ENTER)
 		else:
-			if id == "T29":
+			if id == "T29" and (capture_dir.is_empty() or L.current() in ["en", "ja"]):
 				await capture("hearing", paper)
 			if id == "T54":
 				expect(has_text(paper, strings.T54), "July condition has its own page")
 			await press(button(paper, strings[id] if id in ["T24", "T45"] else strings.T22))
 	expect(journey.page_id == "packet", "packet follows the July pages")
 	expect(Checkpoint.peek() == "", "checkpoint is deferred until I12")
+	await check_paper_layout(paper, "packet")
 	await capture("packet", paper)
+	if L.current() == "en":
+		expect(not strings.values().any(func(line): return "’" in line), "use proportional English apostrophes on the tribunal and Armistice pages")
+		if not capture_dir.is_empty():
+			root.size = Vector2i(1280, 720)
+			Settings.text_scale = 1.2
+			Settings.refresh_fonts(self)
+			await check_paper_layout(paper, "720p packet")
+			await capture("packet", paper, "_720p", Vector2i(1280, 720))
+			root.size = Vector2i(1920, 1080)
+			Settings.text_scale = 1.0
+			Settings.refresh_fonts(self)
+			await frames(3)
 	for i in TRAY.size():
 		var card: String = TRAY[i]
 		var extract: Dictionary = Content.EXTRACTS[card]
@@ -181,6 +222,8 @@ func _tribunal(director: Node, misfile: bool) -> void:
 		await press(button(paper, strings.T57))
 		expect(has_text(paper, source), "extract carries its source: " + card)
 		expect(button(paper, strings.T59).disabled, "file waits for a heading")
+		if i == 1 and L.current() == "en" and not capture_dir.is_empty():
+			await capture("packet_open", paper)
 		if i == 0:
 			await press(button(paper, strings.T58))
 			expect(journey.filed.is_empty() and button(paper, title).has_focus(), "back leaves the extract in the tray")
@@ -201,6 +244,8 @@ func _tribunal(director: Node, misfile: bool) -> void:
 		await press(button(paper, strings.T59))
 		expect(journey.filed.get(card) == SLOTS[i] and has_text(paper, strings.T60),
 			"correct heading files the extract: " + card)
+		if i == 0 and L.current() == "en" and not capture_dir.is_empty():
+			await capture("packet_filed", paper)
 		expect(paper.find_children("*", "Button", true, false).any(func(b): return b.text == strings.T70) == (i == 8),
 			"close becomes available after all nine extracts")
 	await press(button(paper, strings.T52))
@@ -220,13 +265,15 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			await tap(KEY_ENTER)
 	expect(journey.page_id == "I01" and has_text(paper, strings.I05), "Armistice begins with the public report")
 	expect(Checkpoint.peek() == "", "first Armistice page still has no checkpoint")
+	await check_paper_layout(paper, "armistice")
 	await capture("armistice", paper)
 	await press(button(paper, strings.T22))
 	expect(journey.page_id == "I08" and has_text(paper, strings.I11), "Armistice ends with the Observatory's loss")
+	await check_paper_layout(paper, "second armistice page")
 	await press(button(paper, strings.I12))
 
 
-func capture(state: String, paper: Control) -> void:
+func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i(1920, 1080)) -> void:
 	await frames(3)
 	for action in paper.actions.get_children():
 		expect(root.get_visible_rect().grow(1.0).encloses(action.get_global_rect()), "paper controls stay in bounds: " + state)
@@ -235,12 +282,12 @@ func capture(state: String, paper: Control) -> void:
 	await RenderingServer.frame_post_draw
 	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
 	var image := root.get_texture().get_image()
-	expect(image.get_size() == Vector2i(1920, 1080), "capture is 1920×1080, got %s" % image.get_size())
-	var filename := state + "_" + L.current() + ".png"
+	expect(image.get_size() == dimensions, "capture is %s, got %s" % [dimensions, image.get_size()])
+	var filename := state + "_" + L.current() + suffix + ".png"
 	expect(image.save_png(capture_dir.path_join(filename)) == OK, "write " + filename)
 	var receipt := FileAccess.open(capture_dir.path_join("index.md"), FileAccess.READ_WRITE)
 	receipt.seek_end()
 	var jst := Time.get_datetime_string_from_unix_time(int(Time.get_unix_time_from_system()) + 9 * 3600).replace("T", " ") + " JST"
-	receipt.store_line("| [%s](%s) | %s | %s | 1920×1080 | %.2f | %s | %s |" % [
-		filename, filename, state, L.current(), Settings.text_scale, Settings.reduced_motion, jst])
+	receipt.store_line("| [%s](%s) | %s | %s | %d×%d | %.2f | %s | %s |" % [
+		filename, filename, state, L.current(), dimensions.x, dimensions.y, Settings.text_scale, Settings.reduced_motion, jst])
 	print("saved ", filename)

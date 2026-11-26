@@ -185,7 +185,7 @@ msgid "1915 年觀測日誌"
 msgstr "Observing Log, 1915"
 
 msgid "1916 年，大學為讓愛丁頓維持天文台運作，替他爭取到有條件的兵役免除。1918 年 5 月，紐沃爾教授陳述繼續觀測的必要。自治市審裁庭准予免役三個月。"
-msgstr "In 1916 the University secured a conditional exemption so Eddington could maintain the Observatory’s work. In May 1918 Professor Newall made the case for keeping the observations going. The Borough Tribunal granted three months."
+msgstr "In 1916 the University secured a conditional exemption so Eddington could maintain the Observatory's work. In May 1918 Professor Newall made the case for keeping the observations going. The Borough Tribunal granted three months."
 
 msgid "1917 年 11 月 10 日，聯合常設日食委員會決定：如果可能，派隊到巴西的 Sobral 和非洲西岸外海的普林西比島。"
 msgstr "10 November 1917: the Joint Permanent Eclipse Committee resolves that, if possible, parties be sent to Sobral in Brazil and to the island of Príncipe off the west coast of Africa."
@@ -248,7 +248,7 @@ msgid "Ashby 先生"
 msgstr "Mr Ashby"
 
 msgid "Ashby 先生在 1917 年記下・0.87″（牛頓式）"
-msgstr "Ashby’s 1917 entry · 0.87″ (Newtonian-style)"
+msgstr "Ashby's 1917 entry · 0.87″ (Newtonian-style)"
 
 msgid "Ashby 先生在走廊等你。"
 msgstr "Mr Ashby is waiting for you in the corridor."
@@ -972,7 +972,7 @@ msgid "上訴裁定・1918 年 6 月 14 日"
 msgstr "Appeal ruling · 14 June 1918"
 
 msgid "下一份清單留給我。我明早就開始核對。"
-msgstr "Leave me the next list. I’ll start checking it in the morning."
+msgstr "Leave me the next list. I'll start checking it in the morning."
 
 msgid "下一次這麼好的機會，要等很多年。"
 msgstr "The next chance this good is many years away."
@@ -1032,7 +1032,7 @@ msgid "也許。可是箱子要是在太空裡被越拉越快地往上拉，地�
 msgstr "Perhaps. But if the box were in space, pulled upwards faster and faster, the floor would rise to meet the pencil—it would look exactly the same inside."
 
 msgid "五月准予免役的裁定遭到上訴。報導在這裡。"
-msgstr "The May exemption was appealed. Here’s the report."
+msgstr "The May exemption was appealed. Here's the report."
 
 msgid "交上去了？……比我想的快。先生看紙的時候，眉毛會先動。你等著看。"
 msgstr "Handed it in? …Quicker than I expected. When Mr Ashby reads a paper, his eyebrows move first. You'll see."
@@ -1491,7 +1491,7 @@ msgid "再讀工作簿最後一頁"
 msgstr "Read the last page of the workbook again"
 
 msgid "准予免役十二個月，條件是繼續目前的工作。"
-msgstr "Twelve months’ exemption, on condition that he continued his present work."
+msgstr "Twelve months' exemption, on condition that he continued his present work."
 
 msgid "出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。"
 msgstr "Before we sailed, Dyson told me: if the plates show twice Einstein's figure, Eddington will go mad, and you will have to come home alone."
@@ -1563,7 +1563,7 @@ msgid "十七個點重合了。還有一個沒對上。"
 msgstr "Seventeen points coincide. One still does not match."
 
 msgid "卷宗裡那個位置先空著吧。"
-msgstr "I’ll leave that place in the packet open."
+msgstr "I'll leave that place in the packet open."
 
 msgid "原來那張抄錄圖"
 msgstr "The original tracing"
@@ -1587,7 +1587,7 @@ msgid "反正裡面寫的，剛剛都說了。省一張郵票。"
 msgstr "I've said everything in it just now anyway. Saved a stamp."
 
 msgid "另一項聲請・愛丁頓對 1916 年的敘述"
-msgstr "A separate application · Eddington’s account of 1916"
+msgstr "A separate application · Eddington's account of 1916"
 
 msgid "只容得下 0.87″"
 msgstr "Only 0.87″ fits"
@@ -1731,13 +1731,13 @@ msgid "固定底片　　·　　可移動描圖　　·　　拖曳／左搖桿
 msgstr "Plate fixed    ·    tracing movable    ·    drag/left stick to pan    %s/right stick to rotate"
 
 msgid "國民服役代表對五月的免役裁定提出上訴。主席表示，政府推動戰事時，或許能讓愛丁頓的才幹派上更大的用場。"
-msgstr "The National Service Representative appealed the May exemption. The chair suggested that Eddington’s abilities could be of greater use to the Government in prosecuting the war."
+msgstr "The National Service Representative appealed the May exemption. The chair suggested that Eddington's abilities could be of greater use to the Government in prosecuting the war."
 
 msgid "國民服役代表質疑，在上訴裁定後還能不能受理新的聲請。愛丁頓表示，他的個人聲請早已延後，等有需要時才審理。"
 msgstr "The National Service Representative challenged whether a new application could be heard after the appeal. Eddington said his personal claim had been adjourned until it was needed."
 
 msgid "國民服役部已准許審裁庭審理愛丁頓的良心拒服兵役聲請。"
-msgstr "The Ministry of National Service had granted permission for the tribunal to hear Eddington’s claim of conscience."
+msgstr "The Ministry of National Service had granted permission for the tribunal to hear Eddington's claim of conscience."
 
 msgid "圖跟底片完全不同。不是編的，是什麼？"
 msgstr "The tracing and the plate are nothing alike. If it wasn't invented, what is it?"
@@ -1779,10 +1779,10 @@ msgid "大"
 msgstr "Large"
 
 msgid "大學的聲請・1916 年及 1918 年 5 月"
-msgstr "The University’s case · 1916 and May 1918"
+msgstr "The University's case · 1916 and May 1918"
 
 msgid "大學要讓自家的天文學家繼續工作。這是因職務聲請免服兵役。"
-msgstr "The University asked to keep its astronomer at work. That’s an occupational exemption."
+msgstr "The University asked to keep its astronomer at work. That's an occupational exemption."
 
 msgid "大概是。"
 msgstr "Probably."
@@ -1899,7 +1899,7 @@ msgid "審裁庭延後至 7 月 11 日再開庭，讓愛丁頓有時間向國民
 msgstr "The tribunal adjourned until 11 July to give Eddington time to seek permission from the Ministry of National Service for the tribunal to hear his claim."
 
 msgid "審裁庭認定愛丁頓是基於良心拒服兵役者，也認定繼續他的天文工作符合國家利益，尤其考慮到翌年的日食。"
-msgstr "The tribunal was satisfied that Eddington was a conscientious objector. It also found that his astronomical work should continue in the national interest, with particular regard to the following year’s eclipse."
+msgstr "The tribunal was satisfied that Eddington was a conscientious objector. It also found that his astronomical work should continue in the national interest, with particular regard to the following year's eclipse."
 
 msgid "寫「未解決」吧。等第二張底片。它要是真的在那裡，它會等你。"
 msgstr "Write 'unresolved'. Wait for a second plate. If it is really there, it will wait for you."
@@ -2129,7 +2129,7 @@ msgid "愛丁頓主張，應分開看待國家的行動和同行個人的行為�
 msgstr "Eddington argued that the actions of a state and the conduct of individual colleagues should be judged separately. He wrote to Larmor to clarify his position on scientific relations."
 
 msgid "愛丁頓以良心為由自行提出聲請。審裁庭先處理大學的聲請。大學爭取到因職務免服兵役的裁定後，愛丁頓的個人聲請就被擱置。"
-msgstr "Eddington applied personally on conscientious grounds. The University’s case was taken first, and his personal claim was put aside when the work exemption was granted."
+msgstr "Eddington applied personally on conscientious grounds. The University's case was taken first, and his personal claim was put aside when the work exemption was granted."
 
 msgid "愛丁頓出於基督信仰而反對戰爭。他表示，自己的國家與交戰對手都可能出於同樣的愛國心和宗教責任感，而參與殺戮會違背他對信仰的理解。"
 msgstr "Eddington grounded his objection to war in his Christian faith. He said his country and its opponents could be moved by the same patriotism and religious duty, and that joining in the killing would violate his understanding of that faith."
@@ -2138,10 +2138,10 @@ msgid "愛丁頓教授"
 msgstr "Professor Eddington"
 
 msgid "愛丁頓聲請免服兵役，是因為從軍違背他的良心。這叫良心拒服兵役。"
-msgstr "Eddington asked to be excused from military service because it went against his conscience. That’s conscientious objection."
+msgstr "Eddington asked to be excused from military service because it went against his conscience. That's conscientious objection."
 
 msgid "愛丁頓自幼信奉貴格會。他表示，陸軍無法保證只派他執行救命的任務。他願意加入貴格會救護隊或紅十字會服務，或協助收割。"
-msgstr "A Quaker from birth, Eddington said the Army could give him no assurance that his duties would be confined to saving life. He was willing to serve with the Friends’ Ambulance Unit or the Red Cross, or to help bring in the harvest."
+msgstr "A Quaker from birth, Eddington said the Army could give him no assurance that his duties would be confined to saving life. He was willing to serve with the Friends' Ambulance Unit or the Red Cross, or to help bring in the harvest."
 
 msgid "愛因斯坦 1.75″"
 msgstr "Einstein 1.75″"
@@ -2216,7 +2216,7 @@ msgid "我喝不慣甜的。"
 msgstr "I don't care for sweet tea."
 
 msgid "我在整理我們的備查卷宗。你能幫我把幾個理由分清楚嗎？"
-msgstr "I’m putting together our reference copy. Will you help me keep the grounds straight?"
+msgstr "I'm putting together our reference copy. Will you help me keep the grounds straight?"
 
 msgid "我寫 0.87。光如果真的有重量，牛頓式就該是這樣。日食那天，我們兩個都翻回這一頁。"
 msgstr "I shall write 0.87. If light truly has weight, that is what the Newtonian calculation gives. On the day of the eclipse, we shall both turn back to this page."
@@ -2303,7 +2303,7 @@ msgid "我還是覺得先查日誌，就在架子上。要是連編號都不一�
 msgstr "I still think we should check the log first. It's on the shelf. If even the numbers are different, we can spare ourselves the trouble."
 
 msgid "我還是認為是 0.87″。我會讓你們有需要的東西來驗證它。"
-msgstr "I’m still at 0.87″. I’ll see that you have what you need to test it."
+msgstr "I'm still at 0.87″. I'll see that you have what you need to test it."
 
 msgid "我還沒有改變想法"
 msgstr "I have not changed my mind"
@@ -2315,7 +2315,7 @@ msgid "戴森是在為他的觀測能力背書。試試「天文台職務」。"
 msgstr "Dyson is vouching for his skill as an observer. Try Observatory duties."
 
 msgid "戴森的信・提交於七月審理"
-msgstr "Dyson’s letter · Submitted at the July hearing"
+msgstr "Dyson's letter · Submitted at the July hearing"
 
 msgid "所以……今晚沒有別的事了。"
 msgstr "So… there's nothing else tonight."
@@ -2984,7 +2984,7 @@ msgid "發條滿了。現在到天文鐘那裡替我報秒，我來調走速。"
 msgstr "The drive is fully wound. Now go to the astronomical clock and call the seconds for me; I'll set the rate."
 
 msgid "皇家天文學家法蘭克・戴森爵士提請審裁庭注意愛丁頓的研究，敦促准許他觀測翌年五月的日食。戴森認為他特別適合負責這項觀測。"
-msgstr "The Astronomer Royal, Sir Frank Dyson, drew attention to Eddington’s research and urged the tribunal to let him observe the eclipse the following May. Dyson considered him particularly well qualified for the observations."
+msgstr "The Astronomer Royal, Sir Frank Dyson, drew attention to Eddington's research and urged the tribunal to let him observe the eclipse the following May. Dyson considered him particularly well qualified for the observations."
 
 msgid "目標已更新。"
 msgstr "Objective updated."
@@ -3356,7 +3356,7 @@ msgid "貴重的是用它看見的東西。這個只是黃銅。"
 msgstr "What's valuable is what you see through it. This is only brass."
 
 msgid "赫伯特・霍爾・特納在《天文台》匿名撰文，援引戰時暴行，指責德國科學家支持本國軍隊的行動。他反對恢復學術往來。"
-msgstr "Writing anonymously in The Observatory, Herbert Hall Turner invoked wartime atrocities and held German scientists responsible for endorsing their army’s actions. He opposed resuming scientific relations."
+msgstr "Writing anonymously in The Observatory, Herbert Hall Turner invoked wartime atrocities and held German scientists responsible for endorsing their army's actions. He opposed resuming scientific relations."
 
 msgid "走到看片台，核對最後一頁。"
 msgstr "Go to the light box and check the last page."
@@ -3461,28 +3461,28 @@ msgid "這是一個好的開始。"
 msgstr "That is a good beginning."
 
 msgid "這是七月的決定，附帶條件也在裡面。試試「裁定條款」。"
-msgstr "That’s the decision reached in July, with its condition. Try Terms of the ruling."
+msgstr "That's the decision reached in July, with its condition. Try Terms of the ruling."
 
 msgid "這是上訴改變的事，包括何時可以徵召他。試試「裁定條款」。"
-msgstr "That’s what the appeal changed, including when he could be called up. Try Terms of the ruling."
+msgstr "That's what the appeal changed, including when he could be called up. Try Terms of the ruling."
 
 msgid "這是他在 1916 年自行提出的聲請。試試「良心拒役聲請」。"
-msgstr "That’s his own application from 1916. Try Statement of conscience."
+msgstr "That's his own application from 1916. Try Statement of conscience."
 
 msgid "這是他憑良心能答應做的事。試試「良心拒役聲請」。"
-msgstr "That’s what he could agree to do in good conscience. Try Statement of conscience."
+msgstr "That's what he could agree to do in good conscience. Try Statement of conscience."
 
 msgid "這是他說明拒役理由的地方。試試「良心拒役聲請」。"
-msgstr "That’s where he gives his reasons for refusing. Try Statement of conscience."
+msgstr "That's where he gives his reasons for refusing. Try Statement of conscience."
 
 msgid "這是你自己抬頭看到的。好。"
 msgstr "You looked up and saw that for yourself. Good."
 
 msgid "這是大學主張應繼續觀測的理由。試試「天文台職務」。"
-msgstr "That’s the University’s case for keeping the observations going. Try Observatory duties."
+msgstr "That's the University's case for keeping the observations going. Try Observatory duties."
 
 msgid "這是延後審理的決定，也說了下次開庭前得先做什麼。試試「裁定條款」。"
-msgstr "That’s the adjournment and what had to happen before the next hearing. Try Terms of the ruling."
+msgstr "That's the adjournment and what had to happen before the next hearing. Try Terms of the ruling."
 
 msgid "這是很重的兩個詞。你有什麼證據，說他編造？"
 msgstr "Those are two heavy words. What evidence do you have that they invented it?"
@@ -3491,7 +3491,7 @@ msgid "這是整張紙上我最喜歡的一行。"
 msgstr "That is my favourite line on the whole sheet."
 
 msgid "這是誰還能留下來工作的紀錄。試試「天文台職務」。"
-msgstr "That’s the record of who was left to do the work. Try Observatory duties."
+msgstr "That's the record of who was left to do the work. Try Observatory duties."
 
 msgid "這次他們聽了他自己的聲請。繼續工作，是他們給免役附的條件。"
 msgstr "This time they heard his own claim. The work is the condition they put on the exemption."

@@ -102,7 +102,10 @@ func section(parent: Container, title: String, paragraphs: Array, source: String
 func button(parent: Container, text: String, id: String, font_size := 21) -> Button:
 	var control := Button.new()
 	control.text = text
-	control.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# The centred footer uses the button's natural width. Tray and heading
+	# buttons expand into their columns and can wrap within them.
+	if parent != actions:
+		control.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	Settings.track_font(control, font_size)
 	Report._style_button(control)
 	control.pressed.connect(func(): action.emit(id))
