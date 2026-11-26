@@ -239,7 +239,7 @@ func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
 	expect(current_scene.ui.caption.text == Departure.intro_caption(), "existing M2 opening plays")
 	while not current_scene.ui.dialog_active():
 		await process_frame
-	if capture_dir.is_empty() or madeira_captures:
+	if capture_dir.is_empty() or madeira_captures or sundy_captures:
 		await _departure(current_scene, route[2], enabled, misfile)
 
 
@@ -433,7 +433,11 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 			expect(is_instance_valid(chapter) and chapter.madeira == null and
 				chapter.ui.caption.text.begins_with(entry.t), "flag off retains M2 caption " + entry.t)
 	if is_instance_valid(chapter):
-		await scene_changed
+		for frame in 150:
+			if not is_instance_valid(chapter):
+				break
+			await process_frame
+	expect(not is_instance_valid(chapter), "Sundy must reach observation day without showing the June cables")
 	expect(current_scene.scene_file_path == observation_day.resource_path, "the route reaches the existing observation day")
 	expect(current_scene._came_from_departure and story.departure_done, "arrival has the full-story origin")
 	expect(current_scene.phase == current_scene.Phase.PREP and not current_scene.sim.drive_wound,
@@ -445,6 +449,42 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		expect(Checkpoint.restore() == "principe" and story.to_save() == previous,
 			"the handoff preserves the prediction, certainty and M2 choices verbatim")
 		Checkpoint.clear()
+	await _sundy_coda(current_scene, enabled)
+
+
+func _sundy_coda(day: Node, enabled: bool) -> void:
+	await _dialogue(day)
+	expect(day._paired_cables == null, "no I3 at the observation-day opening")
+	await day._begin_totality()
+	expect(day.phase == day.Phase.TOTALITY and day._paired_cables == null, "totality precedes I3")
+	await day._end_totality()
+	await _dialogue(day)
+	while day.phase != day.Phase.NIGHT or day._busy:
+		await process_frame
+	await _dialogue(day)
+	expect(day._paired_cables == null, "darkroom precedes I3")
+	day._start_judgment()
+	await _dialogue(day)
+	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
+	day._interact("departure_workbook")
+	await _dialogue(day)
+	day._interact("mentor_loupe")
+	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
+	await _dialogue(day)
+	var story := root.get_node("Story")
+	expect(story.kit_first >= 0 and day.coda_step == day.CodaStep.FADING and day._paired_cables == null,
+		"coda Kit choice is committed before I3")
+	if enabled:
+		for frame in 150:
+			if not is_instance_valid(day) or day._paired_cables != null:
+				break
+			await process_frame
+		expect(is_instance_valid(day) and day._paired_cables != null, "I3 follows the coda fade before the epilogue")
+		await _i3(day._paired_cables.paper)
+	if is_instance_valid(day):
+		await scene_changed
+	expect(current_scene.scene_file_path == "res://scenes/epilogue.tscn" and story.epilogue_done,
+		"the route reaches the existing epilogue")
 
 
 func _dialogue(chapter: Node, choices := {}) -> void:
@@ -620,6 +660,11 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	await _sundy_sheet(paper, "sundy_18_workbook", [
 		text.S81, text.S82 if warm else text.S83, text.S89, text.S90 if warm else text.S91,
 		L.t("1919 年 5 月 29 日")], text.S84)
+
+
+func _i3(paper: Control) -> void:
+	var text := Sundy.strings()
+	var onward: String = Madeira.strings().M09
 	while not paper.actions.visible:
 		await process_frame
 	await _sundy_sheet(paper, "i3_01_paired_cables", [

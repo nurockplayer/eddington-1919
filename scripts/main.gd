@@ -139,6 +139,7 @@ var _look := {}
 var _style: RefCounted
 var _departure_workbook_seen := false
 var _came_from_departure := false
+var _paired_cables: Node
 var _night_departure_workbook: DepartureWorkbook
 var coda_step := CodaStep.OPENING
 var _camera_turn: Tween
@@ -1827,6 +1828,12 @@ func _lamp_out_then_ending() -> void:
 	_coda_transition.chain().tween_interval(0.6)
 	_coda_transition.chain().tween_property(ui.fade, "color:a", 1.0, 1.3)
 	await _coda_transition.finished
+	if phase == Phase.CODA and OS.get_cmdline_user_args().has("--journey"):
+		_paired_cables = load("res://scripts/cambridge/sundy.gd").new()
+		add_child(_paired_cables)
+		await _paired_cables.play_cables(ui)
+		_paired_cables.queue_free()
+		_paired_cables = null
 	_busy = false
 	if _epilogue_due():
 		_stop_night_bed()

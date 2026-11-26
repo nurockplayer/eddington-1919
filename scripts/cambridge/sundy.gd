@@ -1,5 +1,5 @@
 extends Node
-## Read the Sundy setup, rehearse a drive check, then read the I3 archival insert.
+## Sundy setup and drive rehearsals, with the paired cables played after the coda.
 
 const Content := preload("res://scripts/cambridge/content_sundy.gd")
 const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
@@ -50,21 +50,25 @@ var _seen_b := false
 var _accepted := false
 
 
-func play(director: Node) -> void:
+func _open_paper(ui: CanvasLayer, parent: Control) -> ColorRect:
 	_text = Content.strings()
 	_story = get_node("/root/Story")
 	var madeira := Madeira.strings()
 	_text["M09"] = madeira.M09
 	_text["M50"] = madeira.M50
-	_ui = director.ui
+	_ui = ui
 	var backdrop := ColorRect.new()
 	backdrop.color = Color("30271d")
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	director.checklist.get_parent().add_child(backdrop)
+	parent.add_child(backdrop)
 	paper = Paper.new()
 	paper.theme = _ui.theme_res
 	backdrop.add_child(paper)
+	return backdrop
 
+
+func play(director: Node) -> void:
+	var backdrop := _open_paper(director.ui, director.checklist.get_parent())
 	_show("S01")
 	await _ui.fade_to(0.0, _motion(0.7)).finished
 	await _next("M09")
@@ -102,8 +106,6 @@ func play(director: Node) -> void:
 			await _next("M09")
 		await _rehearse(pair)
 	await _sky_page()
-	await _ui.fade_to(1.0, _motion(0.7)).finished
-	await _cables()
 	await _ui.fade_to(1.0, _motion(0.7)).finished
 	backdrop.queue_free()
 
@@ -347,7 +349,10 @@ func _sky_page() -> void:
 	await _next("S84")
 
 
-func _cables() -> void:
+func play_cables(ui: CanvasLayer) -> void:
+	var parent: Control = ui.pause_panel.get_parent()
+	var backdrop := _open_paper(ui, parent)
+	parent.move_child(backdrop, ui.pause_panel.get_index())
 	_show("I3-01")
 	_line(paper.body, "I3-02")
 	var narrow := get_window().size.x < 1440
@@ -379,3 +384,5 @@ func _cables() -> void:
 	paper.label(paper.body, L.t("檔案剪報・據史料編成"), 18)
 	_lines(paper.body, ["I3-15", "I3-16", "I3-17"])
 	await _next("I3-14")
+	await _ui.fade_to(1.0, _motion(0.7)).finished
+	backdrop.queue_free()
