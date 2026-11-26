@@ -88,6 +88,14 @@ Play T40 before T38–T39 and T41–T45. The London note is a separate record, w
 
 ## Scene 3 · The July ruling and the reference packet
 
+**Archival placement · INFERENCE.** After T45 and before T46, show T84–T86 on one page using T22 to advance. The clipping precedes the July hearing and stays outside the sortable packet.
+
+| ID | Display | English copy | Provenance |
+|---|---|---|---|
+| T84 | Masthead | Cambridge Daily News · 4 July 1918 | HISTORICAL_RECORD · SOC §1, summer transcript |
+| T85 | Headline | Cambridge and County Practically Immune | HISTORICAL_RECORD · SOC §1, summer transcript |
+| T86 | Subhead | Cadets the Worst Sufferers | HISTORICAL_RECORD · SOC §1, summer transcript |
+
 **Sequence · RECONSTRUCTION.** T46–T55 are a single fixed reading path. Reveal the two reasons on separate slips before opening the ruling. The final line of the ruling stays on screen through its own continue action. Then Kit opens the sorting board, T56–T69. Ashby waits until the packet is filed before moving it beside the M1 prediction. The ledger is a read-only view.
 
 | ID | Display or speaker | English copy | Provenance |
@@ -152,7 +160,7 @@ Before all nine are filed, the tray remains open. After the ninth correct placem
 
 ## I1 · Armistice
 
-**Staging · RECONSTRUCTION, J.** Cut from the ledger to one archival clipping layout on the existing paper view. The following is final copy for a composed archival insert, with datelines for the records it summarises. Read top to bottom. T22 advances through the clipping and I12 closes it. Keep the local-loss paragraph in the same type treatment as the public reports. Use paper and room tone with no family reaction or crowd scene.
+**Staging · RECONSTRUCTION, J.** Cut from the ledger to one archival clipping layout on the existing paper view. The following is final copy for a composed archival insert, with datelines for the records it summarises. T22 advances through the clipping and I12 closes it. **Placement · INFERENCE.** Follow I11 with I13–I16 (Cambridge schools, Gregory and demobilisation), then I17–I21 (franchise and the election), before I12. Keep the local-loss paragraph in the same type treatment as the public reports. Use paper and room tone with no family reaction or crowd scene.
 
 | ID | Display | English copy | Provenance |
 |---|---|---|---|
@@ -167,6 +175,15 @@ Before all nine are filed, the tray remains open. After the ninth correct placem
 | I09 | Body | Some conscientious objectors were still in prison. One MP urged that they be held until the last servicemen were demobilised. The Home Secretary gave no such undertaking. | HISTORICAL_RECORD · H4, attributed paraphrase |
 | I10 | Body | Allied scientific academies met in Paris after the armistice and advanced plans for new associations among the Allies, with neutral nations eligible to join. Germany and the other Central Powers were left outside those plans. | HISTORICAL_RECORD · H5, paraphrase |
 | I11 | Body | At Cambridge Observatory, two assistants were already dead by December 1917. One had died aboard HMS Vanguard and the other in France. | HISTORICAL_RECORD · S, paraphrase |
+| I13 | School closure | Cambridge Daily News · 24 October 1918. The borough’s public elementary schools close, with reopening planned for 4 November. | HISTORICAL_RECORD · SOC §1, autumn transcript, paraphrase |
+| I14 | Obituary | Cambridge · 24 November 1918. Reginald Philip Gregory, botanist and fellow of St John’s, dies of pneumonia following influenza. | HISTORICAL_RECORD · SOC §1, A. C. Seward, Nature, pp. 247–248, paraphrase |
+| I15 | Demobilisation | Folkestone · 3 January 1919. Soldiers protest delays in demobilisation. | HISTORICAL_RECORD · SOC §2, National Army Museum |
+| I16 | Strike poster caption | Glasgow · 31 January 1919. The campaign for a 40-hour working week brings a mass rally to George Square. | HISTORICAL_RECORD · SOC §2, Glasgow poster and National Records of Scotland |
+| I17 | Franchise | Representation of the People Act · 6 February 1918. About 8.4 million women gain the vote. The minimum age is 30 and the Act sets further qualifications. | HISTORICAL_RECORD · SOC §2, Act §4 and Commons Library figures |
+| I18 | University franchise | Women aged 30 or over can qualify to vote in a university constituency by passing the final examination and meeting the residence requirement where their university withholds degrees from women. | HISTORICAL_RECORD · SOC §2, Act §4, paraphrase |
+| I19 | Cambridge record | Cambridge · 21 May 1897. The University rejects titles of degrees for women by 1,713 votes to 662. | HISTORICAL_RECORD · SOC §2, Cambridge’s The Rising Tide exhibit |
+| I20 | Commons eligibility | Parliament (Qualification of Women) Act · 21 November 1918. Women become eligible to sit in the House of Commons. | HISTORICAL_RECORD · SOC §2, Act as enacted |
+| I21 | Election | General election · Polling on 14 December 1918. Counting begins on 28 December to allow overseas service votes to arrive. | HISTORICAL_RECORD · SOC §2, government election history |
 | I12 | Action | Continue to departure | RECONSTRUCTION · J |
 
 **Exit · RECONSTRUCTION, M1 and M2.** On I12, finish the existing M1 transition by setting `Story.prologue_done = true`, marking the prologue director done, calling `Checkpoint.save("departure")` and loading [`res://scenes/departure.tscn`](../../../scenes/departure.tscn). The next card is the existing [M2 intro caption](../../../scripts/cambridge/content_departure.gd#L16). Kit’s curtains, rationed sugar and checklist lines follow in the existing opening. The sugar line carries through I1 without restating the clipping. The [departure director](../../../scripts/cambridge/departure_director.gd) owns the checklist, sky promise, farewell and onward montage.
@@ -186,10 +203,13 @@ Use the existing [locale catalogues](../../../locale/) and the project’s `zh_T
 
 **Locked meaning and wording.** T30 and T32 are exact reported English, including the absence of an article in T30. For ja, zh-TW and ko, translate them as reported speech directly and retain the original in the source reference. Keep the first-person declaration and the chair’s procedural exclusion. In summaries and hints, preserve the applicant, forum, grounds and effect of each decision. June overturns the occupational exemption, sets 1 August as the earliest call-up and leaves conscience unheard. July recognises the objection and grants twelve months conditional on continuing his present work, with the eclipse part of the tribunal’s reasoning. Keep the Friends’ Ambulance Unit and Red Cross distinct, and keep harvest labour as an offer. Use the established locale name for the Society of Friends, with “Quaker” as the short form where appropriate. Translate the attributed paraphrases of prejudice as paraphrases. Preserve who opposed contact, which countries were excluded from the Allied plans, and the difference between a backbencher’s request and the Home Secretary’s answer. Keep 0.87″, the arcsecond unit, the Newtonian-style qualifier and the owner of each ledger entry. Use the existing prediction value and certainty strings as recorded.
 
+**Society inserts.** In en retain the two Cambridge headlines together, with the claim attributed to the newspaper. In ja use インフルエンザ and 選挙権, in zh-TW 流感 and 投票權, and in ko 인플루엔자 and 선거권. Give each translated headline its source wording and keep I13’s borough schools, I14’s college affiliation and I19’s University decision distinct. Across all four locales keep voting eligibility, Commons membership and titles of degrees separate. Keep 40 hours tied to the working week.
+
 ## Source register
 
 Use the source names, dates and page references here for the paper views. Hearing dates in headings are the events. Citation dates identify the publications, including the reports printed the next day.
 
+- **SOC** · [Society and Influenza](../../research/society_1918_1920.md) §§1–2, issue and archive links as cited in the rows.
 - **J, M1** · [Journey design, Tribunal and I1](../JOURNEY.md), [expedition dossier](../../research/expedition_journey_2026-11-26.md) §§1–4, 6, 8, and [existing 1917 content](../../../scripts/cambridge/content_1917.gd). Basis for cast, fictional staging and the distinct historical record.
 - **S** · Cambridge Observatory Syndicate minutes, ObsA1/iii/123–124 (4 December 1917) and /125 (12 March 1918), transcribed or indexed in [Dolan’s Eddington chronology](https://www.royalobservatorygreenwich.org/articles.php?article=1289). Dossier §§1, 3.
 - **U** · Coventry Evening Telegraph, 11 May 1916, and Cambridge Daily News, 16 May 1918, p. 4, [transcriptions in Dolan](https://www.royalobservatorygreenwich.org/articles.php?article=1289). Dossier §1.
@@ -204,4 +224,4 @@ Use the source names, dates and page references here for the paper views. Hearin
 
 ## String count
 
-**INFERENCE.** Tribunal has 83 numbered English lines across three playable scenes, matching the design’s 83 × 4 = 332 estimate. I1 has 12, matching its 12 × 4 = 48 estimate. These are 95 authored units, including branches, headings, action labels and provenance labels. Citation metadata, repeated controls and reused cast and prediction strings do not add authored lines. Target 12–17 minutes for Tribunal, with the time in reading and sorting.
+**INFERENCE.** Tribunal has 86 numbered English lines across three playable scenes (86 × 4 = 344). I1 has 21 (21 × 4 = 84). These are 107 authored units, including branches, headings, action labels and provenance labels. Citation metadata, repeated controls and reused cast and prediction strings do not add authored lines. Target 12–17 minutes for Tribunal, with the time in reading and sorting.

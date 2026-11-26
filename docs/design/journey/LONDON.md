@@ -36,6 +36,13 @@ After [Ashby’s existing October reason reply](../../../scripts/cambridge/epilo
 | O04 | Ashby | When Rook came for the packet, I should have let you answer. I’m sorry. | INVENTED-FICTIONAL · Journey arcs |
 | O05 | Ashby | Bring both our entries to London. If anyone asks about mine, send them to me. | INVENTED-FICTIONAL · Journey arcs |
 
+**Archival placement · INFERENCE.** After O05 and before Ashby names the London date, put O06–O07 on one archival paper with I4-02 and L14. The two entries are context for the work at the observatories.
+
+| ID | Display | English copy | Provenance |
+|---|---|---|---|
+| O06 | Cambridge staffing caption | Cambridge Observatory · Annie Walker, Computer. Paid to compute and observe, Walker works full-time from 1882 to 1903. | HISTORICAL_RECORD · SOC §2, Institute of Astronomy staff history and Cambridge account |
+| O07 | Greenwich staffing caption | Greenwich Observatory · Late September 1919. Annie Maunder is reinstated as a computer after returning as a wartime volunteer. | HISTORICAL_RECORD · SOC §2, Greenwich appointment history |
+
 ## Scene 1 · At the threshold
 
 ### Beat 1 · The prediction page
@@ -214,19 +221,22 @@ Owner's release question at L84: “Does it feel epic?” Judge it in both walks
 
 ## I4 · Homeward and across Europe
 
-**HISTORICAL_RECORD · D §§1, 3–4, Z, R §§12–25, 29, 35, SN, B, E9. RECONSTRUCTION · J for the paper.** Open with the letter and the two separate return dates. Turn next to the Sobral observation and reduction, then to the July Brussels record and the September papers. This is a retrospective file. The May notebook and July Brussels report have their own dates even though the route has already reached the return. Leave the last leg's ship name and the delivery of the letters open. Brazilian research retains its own credit on the previous I3 page. I4-20 opens October with the assistant's fictional run already recorded.
+**HISTORICAL_RECORD · D §§1, 3–4, Z, R §§12–25, 29, 35, SN, B, E9. RECONSTRUCTION · J for the paper.** Open with the letter and the two separate return dates. Turn next to the Sobral observation and reduction, then to the July Brussels record and the September papers. This is a retrospective file. The May notebook and July Brussels report have their own dates even though the route has already reached the return. Leave the last leg's ship name and the delivery of the letters open. Brazilian research retains its own credit on the previous I3 page. I4-20 opens October with the assistant's fictional run already recorded. **Placement · INFERENCE.** Follow the Liverpool return with the July Commons answer and the August Liverpool report (I4-21–22). Put the Belém interview (I4-23) between the July comparison exposures and the August Greenwich return.
 
 | ID | Display | English copy | Provenance |
 |---|---|---|---|
 | I4-01 | Title | Homeward and across Europe | RECONSTRUCTION · J |
-| I4-02 | Frame | Historical records · Letters, telegram and report summaries | RECONSTRUCTION · J |
+| I4-02 | Frame | Historical records · Letters, telegram, reports and press | RECONSTRUCTION · J |
 | I4-03 | Departure record | Príncipe · 12 June 1919. A dispute over passage rates sends Eddington and Cottingham home early aboard the crowded Zaire. | HISTORICAL_RECORD · Z, R §29, D §1 |
 | I4-04 | Letter attribution | A. S. Eddington to Sarah Ann Eddington · Aboard Zaire · 21 June 1919 | HISTORICAL_RECORD · Z |
 | I4-05 | Letter summary | Eddington writes that one plate he measured agreed with Einstein and that a second seemed to offer a little support. He has made no preliminary announcement of the measurement. | HISTORICAL_RECORD · Z, paraphrase |
 | I4-06 | Letter summary | He recalls how delighted they were to hear that the Brazil party had succeeded. | HISTORICAL_RECORD · Z, paraphrase |
 | I4-07 | Letter excerpt | “I shall look forward to the strawberries” | HISTORICAL_RECORD · Z, excerpt |
 | I4-08 | Return record | Liverpool · 14 July 1919. The Príncipe observers reach England. | HISTORICAL_RECORD · D §1, R §29 |
+| I4-21 | Employment record | House of Commons · 14 July 1919. The government says covered workplaces must end wartime “diluted labour” where it departed from pre-war practice, unless an agreement modifies that obligation. The requirement applies to men and women. | HISTORICAL_RECORD · SOC §2, Hansard, “Women (Employment)”, paraphrase |
+| I4-22 | Liverpool report | Liverpool · August 1919. A Women’s Royal Naval Service report records the Liverpool division’s involvement in the police strike. | HISTORICAL_RECORD · SOC §2, J. E. Bell report, Royal Museums Greenwich |
 | I4-09 | Sobral comparison record | Sobral · 11–18 July 1919. The team photographs the same star field with the Sun elsewhere. | HISTORICAL_RECORD · R §§14–15 |
+| I4-23 | Belém press caption | Estado do Pará · Belém · 3 August 1919. The newspaper returns to the eclipse in a second interview with Crommelin and Davidson. | HISTORICAL_RECORD · SOC §3, Crispino and Lima transcript |
 | I4-10 | Sobral return record | Greenwich · 25 August 1919. The British Sobral team has brought home two series of plates. | HISTORICAL_RECORD · R §15 |
 | I4-11 | Notebook attribution | British Sobral expedition notebook · Entry for 30 May 1919 | HISTORICAL_RECORD · SN |
 | I4-12 | Notebook excerpt | “there had been a serious change of focus” | HISTORICAL_RECORD · SN, excerpt |
@@ -243,14 +253,14 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 
 ## I5 · In print
 
-**HISTORICAL_RECORD · D §§1, 3, T, NY, A, R §V. RECONSTRUCTION · J for the clippings and captions.** On the cut from beat 8, show the London masthead and the stacked headline. Turn to the New York masthead and title. Bring back the finding below the headlines in a readable body size, then turn through the separate opinion sheet to the remembrance card. The date card and silence stand on their own. Use I5-02 on the historical clipping pages, L14 between pages and I5-12 off the remembrance card.
+**Press sequence · INFERENCE.** On the cut from beat 8, open with London (I5-03–06), then read the 9 November New York report and Brazilian dispatch (I5-16–17), the 10 November New York headline (I5-07–09) and the 11 November editorial (I5-18). Use local publication dates. Turn through Rio, Lisbon and Berlin (I5-19–21), then put the circumscribed finding I5-10 beside Robinson’s 22 November diagram (I5-22–24). Trace the arriving ray back to its apparent origin and show the comparison figures beside the image. Read Einstein’s 28 November explanation (I5-25) before the separate opinion sheet. End on the remembrance card as a return to 11 November. The date card and silence stand on their own. Use I5-02 on the historical pages, L14 between pages and I5-12 off the remembrance card.
 
-**Separate opinion sheet · INVENTED-FICTIONAL.** Between the finding I5-10 and the remembrance I5-11, insert a distinct paper view headed I5-13. Use L14 to leave it. Rook’s byline and text are made up, with no real masthead. His column invokes the open question about the spectrum to accuse the observers of disloyalty. The sourced finding and the remembrance keep their own framing and copy.
+**Separate opinion sheet · INVENTED-FICTIONAL.** After I5-25 and before the remembrance I5-11, insert a distinct paper view headed I5-13. Use L14 to leave it. Rook’s byline and text are made up, with no real masthead. His column invokes the open question about the spectrum to accuse the observers of disloyalty. The sourced finding and the remembrance keep their own framing and copy.
 
 | ID | Display | English copy | Provenance |
 |---|---|---|---|
 | I5-01 | Title | In print | RECONSTRUCTION · J |
-| I5-02 | Frame | Historical record · Newspaper headlines | RECONSTRUCTION · J |
+| I5-02 | Frame | Historical record · Press clippings and illustration | RECONSTRUCTION · J |
 | I5-03 | London masthead | The Times · London · 7 November 1919 · p. 12 | HISTORICAL_RECORD · T |
 | I5-04 | London headline | REVOLUTION IN SCIENCE. | HISTORICAL_RECORD · T, headline |
 | I5-05 | London deck | NEW THEORY OF THE UNIVERSE. | HISTORICAL_RECORD · T, headline |
@@ -259,6 +269,16 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 | I5-08 | New York headline | LIGHTS ALL ASKEW IN THE HEAVENS | HISTORICAL_RECORD · NY, headline |
 | I5-09 | New York deck | EINSTEIN THEORY TRIUMPHS | HISTORICAL_RECORD · NY, headline |
 | I5-10 | Finding beneath the clipping | Two eclipse series favoured Einstein's larger light deflection. A third was sensitive to plate scale. The Sun's spectral lines remained a separate test. | HISTORICAL_RECORD · O, R §V, summary |
+| I5-16 | New York headline | The New York Times · New York · 9 November 1919. “Eclipse Showed Gravity Variation”. | HISTORICAL_RECORD · SOC §3, press index US11 |
+| I5-17 | Brazilian dispatch | O Paiz · Rio de Janeiro / Correio Paulistano · São Paulo · 9 November 1919. The Havas dispatch describes the result as a law of “reflection”. | HISTORICAL_RECORD · SOC §3, Observatório Nacional transcription, attributed wording |
+| I5-18 | New York editorial | The New York Times · New York · 11 November 1919. An editorial jokes that even the multiplication table might be in doubt. | HISTORICAL_RECORD · SOC §3, editorial discussed in Einstein as Myth and Muse, paraphrase |
+| I5-19 | Rio headline | O Jornal · Rio de Janeiro · 12 November 1919. “Theoria de Einstein”, by mathematician Manoel Amoroso Costa. | HISTORICAL_RECORD · SOC §3, Moreira facsimile |
+| I5-20 | Lisbon headline | O Século · Lisbon · 15 November 1919. “A Luz Pesa”. The report comes via Paris. | HISTORICAL_RECORD · SOC §3, press index PT13–PT17 and Portuguese historical analysis, p. 60 |
+| I5-21 | Berlin headline | Vorwärts · Berlin · 18 November 1919. “Revolution in der Wissenschaft”. | HISTORICAL_RECORD · SOC §3, press index DE47 |
+| I5-22 | Illustration credit | Illustrated London News · London · 22 November 1919. W. B. Robinson’s illustration draws on material supplied by Eddington. | HISTORICAL_RECORD · SOC §3, illustrated spread |
+| I5-23 | Ray diagram caption | Starlight changes direction as it passes close to the Sun. Trace the arriving ray back in a straight line to see the star’s shifted apparent position. | HISTORICAL_RECORD · SOC §3, Robinson illustration and R §1 |
+| I5-24 | Plate comparison caption | During totality the Moon hides the bright solar disc, allowing the stars to be photographed. Reference photographs let observers test three predictions for the deflection at the Sun’s limb: zero, about 0.87″ or about 1.75″. | HISTORICAL_RECORD · SOC §3, Robinson illustration and R §§1, 37 |
+| I5-25 | Einstein’s explanation | The Times · London · 28 November 1919. Einstein credits Newton’s achievement and explains that the theories agree closely in ordinary applications. | HISTORICAL_RECORD · SOC §3, Einstein’s Times article, paraphrase |
 | I5-11 | Remembrance card | Britain · 11 November 1919. A two-minute silence marks the first anniversary of the Armistice. | HISTORICAL_RECORD · A |
 | I5-12 | Advance | Read the replies | RECONSTRUCTION · J |
 
@@ -270,12 +290,12 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 
 ## I6 · Replies
 
-**HISTORICAL_RECORD · D §§1–3, EE, M, BT. RECONSTRUCTION · J for the paper.** Begin with the December letter, then turn back briefly to the November nomination and follow the Council record through January. Turn to the Berlin rally and Einstein's published response. Use I6-02 throughout and L14 between the three pages. The player reads an attributed paraphrase of Einstein's account of the rally's motives. Keep the slurs out of the text in every locale. Put the view of his response on a dated sheet of its own with no imagery or names borrowed from the London objections. I6-16 leaves that sheet for the run review.
+**HISTORICAL_RECORD · D §§1–3, EE, M, BT. RECONSTRUCTION · J for the paper.** Begin with the December letter, then turn back briefly to the November nomination and follow the Council record through January. **Placement · INFERENCE.** Follow the Council page with I6-17–20, four dated responses from December through March. Then turn to the Berlin rally and Einstein's published response. Use I6-02 throughout and L14 between pages. The player reads an attributed paraphrase of Einstein's account of the rally's motives. Keep the slurs out of the text in every locale. Put the view of his response on a dated sheet of its own with no imagery or names borrowed from the London objections. I6-16 leaves that sheet for the run review.
 
 | ID | Display | English copy | Provenance |
 |---|---|---|---|
 | I6-01 | Title | Replies | RECONSTRUCTION · J |
-| I6-02 | Frame | Historical records · Letter, Council record and newspaper response | RECONSTRUCTION · J |
+| I6-02 | Frame | Historical records · Letter, Council record, Act and press | RECONSTRUCTION · J |
 | I6-03 | Letter attribution | Arthur Eddington to Albert Einstein · 1 December 1919 | HISTORICAL_RECORD · EE |
 | I6-04 | Letter summary | Eddington writes about the reception of the eclipse results in Britain. He hopes the work will help British and German scientists renew their contacts. | HISTORICAL_RECORD · EE, paraphrase |
 | I6-05 | Letter excerpt | “It is the best possible thing that could have happened for scientific relations between England and Germany.” | HISTORICAL_RECORD · EE, excerpt |
@@ -284,6 +304,10 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 | I6-08 | December vote | 12 December 1919 · The Council selects Einstein, subject to confirmation. | HISTORICAL_RECORD · M |
 | I6-09 | January vote | 9 January 1920 · The Council declines to confirm the award. | HISTORICAL_RECORD · M |
 | I6-10 | Outcome | The Society awards no Gold Medal in 1920. | HISTORICAL_RECORD · M |
+| I6-17 | French translation | La Nouvelle Revue française · Paris · 1 December 1919. “La Théorie de la gravitation selon Einstein”. Paul Valéry translates an Athenæum article attributed to Bertrand Russell. | HISTORICAL_RECORD · SOC §3, issue 75, pp. 1118–1122 |
+| I6-18 | Professions and universities | Sex Disqualification (Removal) Act · 23 December 1919. Sex or marriage can no longer disqualify someone from the professions and public posts covered by the Act. Section 3 leaves universities free to admit women to membership or degrees. | HISTORICAL_RECORD · SOC §2, Act §§1–3, paraphrase |
+| I6-19 | Japanese astronomy journal | 天文月報 · January 1920 JST. The Astronomical Society of Japan’s journal reports that the eclipse result broadly agrees with Einstein’s prediction. | HISTORICAL_RECORD · SOC §3, January issue, paraphrase |
+| I6-20 | American cartoon | Electrical Experimenter · New York · March 1920 · p. 1165. The cartoon gives Earth a line: “Gosh, I think I need a haircut!” | HISTORICAL_RECORD · SOC §3, facsimile, excerpt |
 | I6-11 | Rally record | Berlin Philharmonie · 24 August 1920 | HISTORICAL_RECORD · BT, D §1 |
 | I6-12 | Rally caption | A public rally attacks relativity and its author. | HISTORICAL_RECORD · BT, D §§1, 3 |
 | I6-13 | Reply attribution | Albert Einstein · Berliner Tageblatt · 27 August 1920 · pp. 1–2 | HISTORICAL_RECORD · BT |
@@ -293,7 +317,7 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 
 ## Two walks through the script
 
-**Fictional beats on both walks.** O01 or O02 opens the letter and O03 makes time to hear it. O04–O05 follow the October reason reply even if the personal plates are unreadable. L85–L87 occur before the proceedings. L88 follows the comparison and precedes the player’s reply. L89 and the chosen tone’s answer fill the reply space before L84. I5-13–15 follow the sourced finding and precede remembrance.
+**Fictional beats on both walks.** O01 or O02 opens the letter and O03 makes time to hear it. O04–O05 follow the October reason reply even if the personal plates are unreadable. L85–L87 occur before the proceedings. L88 follows the comparison and precedes the player’s reply. L89 and the chosen tone’s answer fill the reply space before L84. I5-13–15 follow I5-25 and precede remembrance.
 
 **Strong personal result · INFERENCE, sample run.** Take I3-14 to the letter aboard Zaire, then read the return dates, scale problem, Brussels record and tentative reply from September. I4-20 reaches October. The simulated plates give 1.78″ with bounds clear of 0.87″ and a clean run. Read the two Sobral series, retain the weaker one with a reservation, and examine the Mercury residual. In October move from the 0.87″ forecast to the larger value and select the personal plates as the reason. Ashby names the London date and Kit closes the tableau. The fade reaches L01. L06 recalls the October choice, L07 gives Ashby's concession and L16 stays in the workbook. In the room hear both sites and see both scale treatments. Choose L43 and commit L44–46 and L54. Hear Newall, then Silberstein. Choose L70 and commit L71, L67, L69 and L72. After the hold, Ashby uses the two independent observations in L73 and leaves the spectrum question visible in L74. At L77 write “My plates made me doubt 0.87″, and the sharper Sobral plates are why I'd say so here.” Speak it at L79. Kit puts that exact line beside the old prediction in L82–83 and the room holds. L84 opens the headlines and the silence. I5-12 opens the letter, medal vote and Berlin reply. I6-16 ends on the same sentence in the existing review.
 
@@ -312,22 +336,25 @@ Use the [existing catalogues](../../../locale/) and the Traditional Chinese sour
 
 Keep the literal excerpts L56, I4-07, I4-12 and I6-05, the headline lines I5-04–06 and I5-08–09, and the German title I6-14 in their original language with faithful localized reading text where needed. Preserve their attributions and keep the headline's claims on its own sheet. Do not paraphrase the committed player line, dates, numerical values or archive identifiers. Preserve the place-name diacritics in source credits. Place the title and sender with each document. Use no extra courtesy titles in archive attributions. Keep 0.87″ qualified as Newtonian-style and the historical ± values explicitly labelled probable errors. Preserve both astrographic estimates as results from the same plates under different scale assumptions, with no invented error bars. Keep blurring, scale change, simulated cloud and no measured value distinct. Preserve uncertainty in the June and September material, the distinction between Newall's interpretation and Silberstein's independent test, and Einstein's attribution of nationalist and antisemitic motives. Translate the account of exclusion in I4-15 with both the institution and the excluded bloc named.
 
+**Society and press.** In en retain the original mastheads and use “Computer” as a historical job title. Give the Portuguese, German, French and Japanese headlines or journal titles an adjacent localized reading. In ja use 計算手 and 星の見かけの位置, in zh-TW 計算員 and 恆星的視位置, and in ko 계산원 and 별의 겉보기 위치. In every locale retain original headline wording, local publication dates and the source attribution for “reflection”. Keep the finding and the apparent position explicit in the diagram, with the arcsecond values paired to the solar limb. Carry the ordinary-applications qualifier in Einstein’s explanation, the university’s discretion in I6-18, and the first-person joke in I6-20.
+
 ## Source string count
 
 | Section | New English strings | Four locales | Journey estimate |
 |---|---:|---:|---:|
 | Joint meeting | 90 | 360 | 102 × 4 = 408 |
-| October arc changes | 5 | 20 | 5 × 4 = 20 |
-| I4 · Homeward and across Europe | 20 | 80 | 20 × 4 = 80 |
-| I5 · In print | 15 | 60 | 15 × 4 = 60 |
-| I6 · Replies | 16 | 64 | 16 × 4 = 64 |
-| Total | 146 | 584 | 158 × 4 = 632 |
+| October epilogue changes | 7 | 28 | 7 × 4 = 28 |
+| I4 · Homeward and across Europe | 23 | 92 | 23 × 4 = 92 |
+| I5 · In print | 25 | 100 | 25 × 4 = 100 |
+| I6 · Replies | 20 | 80 | 20 × 4 = 80 |
+| Total | 165 | 660 | 177 × 4 = 708 |
 
-L01–L91 include one substitution-only row (L78). Count the shared L14 control, reused annotation notes, labels, templates and branches once. O01–O05 include two replacements to localize and three additions. Other existing October text, cast names, the supplied player text and original-language excerpts repeated alongside their localized readings add no separate strings. The London count stays below the estimate with one set of chart labels and one pair of annotation margins.
+L01–L91 include one substitution-only row (L78). Count the shared L14 control, reused annotation notes, labels, templates and branches once. O01–O07 include two replacements to localize and five additions. Other existing October text, cast names, the supplied player text and original-language excerpts repeated alongside their localized readings add no separate strings. The London count stays below the estimate with one set of chart labels and one pair of annotation margins.
 
 ## Sources and wiring dependencies
 
 - **J** · [Journey design](../JOURNEY.md), §4, I4–I6, Size and reuse, Lines we do not cross, Corrections owed and Later scene briefs.
+- **SOC** · [Society and Influenza](../../research/society_1918_1920.md) §§2–3, issue and archive links as cited in the rows.
 - **D** · [Expedition dossier](../../research/expedition_journey_2026-11-26.md), sections as cited.
 - **O** · “Joint Eclipse Meeting of the Royal Society and the Royal Astronomical Society”, *The Observatory* 42 (1919), pp. 389–398. [Volume](https://books.google.com/books?id=-2wYAQAAIAAJ)
 - **N** · A. C. D. Crommelin, “Results of the Total Solar Eclipse of May 29 and the Relativity Theory”, *Nature* 104 (13 November 1919), pp. 280–281. [Contemporary account](https://www.nature.com/articles/104280a0)
