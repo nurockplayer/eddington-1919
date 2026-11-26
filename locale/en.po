@@ -390,6 +390,9 @@ msgstr[1] "Eddington: \"%d plates left.\""
 msgid "Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。"
 msgstr "Eddington: No plates—we practise the eye and the calls only. Watch the cloud over the sun: when it thins, press [%s] and call 'start'; before it thickens, call 'stop'."
 
+msgid "Edmund Rook・虛構的劍橋同事"
+msgstr "Edmund Rook · Fictional Cambridge colleague"
+
 msgid "E／Enter"
 msgstr "E/Enter"
 
@@ -1355,6 +1358,9 @@ msgstr "You changed the selection after seeing the values. There may be a reason
 msgid "你繞回了觀測站。"
 msgstr "You found your way back to the observatory."
 
+msgid "你要我在自己的工作上簽名。難道要看是誰在問嗎？"
+msgstr "You asked me to put my name to my work. Does that depend on who's asking?"
+
 msgid "你要我寫這裡變了什麼。我寫了。"
 msgstr "You asked me to write what changed here. I did."
 
@@ -1363,6 +1369,9 @@ msgstr "You remember that we are only one station. Dyson will compare the result
 
 msgid "你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。"
 msgstr "You say close to 1.75″—but look at the error on the chart; it is not as certain as you make it."
+
+msgid "你那一頁就照你原來寫的留著。我的也一樣。"
+msgstr "Keep your page as you wrote it. I'll keep mine the same way."
 
 msgid "你那張畢宿星團的清單在箱子裡。每一顆星都核對過——今天就靠它們了。"
 msgstr "Your Hyades list is in the box. Every star on it was checked—today we depend on them."
@@ -1874,6 +1883,9 @@ msgstr "Almost four weeks in Funchal."
 msgid "地面"
 msgstr "The floor"
 
+msgid "坐這兒吧。你讀的時候，我把你的茶放涼了。"
+msgstr "Sit here. I left your tea to cool while you were reading."
+
 msgid "外面蓋住了。再鬆手一次。"
 msgstr "The outside has been covered. Let go again."
 
@@ -2368,6 +2380,9 @@ msgstr "There is something I want to ask you to do."
 msgid "我把它補在最下面，你不介意吧？——這張紙還會改很多次。"
 msgstr "I'll add it at the bottom, if you don't mind?—this sheet will be rewritten many times."
 
+msgid "我把它闔上。我們這份別寫上你的名字。他能拿一句話當成你的全部意思。"
+msgstr "I'll shut it. Keep your name off our copy. He can make one line sound like your whole answer."
+
 msgid "我把文件放下。現在桌上有地方擺兩份資料夾了。"
 msgstr "I put the papers down. There's room for both folders now."
 
@@ -2391,6 +2406,9 @@ msgstr "I shall pass your sheet on to him. As it stands—the mistakes, the cros
 
 msgid "我會的。"
 msgstr "I will."
+
+msgid "我會記得誰在工作檯邊。"
+msgstr "I'll remember who was at the bench."
 
 msgid "我沒看到日食。只看了一眼確定開始了，中途又看一眼雲有多厚。其餘的時間都在換底片。"
 msgstr "I didn't see the eclipse. One glance to make sure it had begun, another halfway through to see how much cloud there was. The rest of the time I was changing plates."
@@ -2802,6 +2820,9 @@ msgstr "For a while the cloud broke halfway, and a little light came through.'"
 
 msgid "有人會說，對不上的東西就是假的。\n"
 msgstr ""
+
+msgid "有個人把我的 0.87″ 印了出來，卻剪掉了我寫的疑問。我由著他。現在還有人引用那個數字。"
+msgstr "A man once printed my 0.87″ with the doubt cut off. I let him. I still hear it quoted."
 
 msgid "有可能。你打算怎麼確定？"
 msgstr "Possibly. How would you settle it?"
@@ -3417,6 +3438,9 @@ msgstr "Joint Permanent Eclipse Committee subcommittee minutes, 14 June 1918"
 
 msgid "聽起來耳熟嗎？"
 msgstr "Does that sound familiar?"
+
+msgid "能看看那份卷宗嗎？我的文章引用一句就夠了，只要能寫出是誰說的。"
+msgstr "May I see the packet? One line will do for my column, if I can say who wrote it."
 
 msgid "自治市審裁庭裁定・1918 年 7 月 11 日"
 msgstr "Borough Tribunal ruling · 11 July 1918"

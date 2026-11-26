@@ -45,13 +45,13 @@ T and I numbers identify player-visible English strings. Speaker names reuse the
 
 T19–T21 are on every route. Hold both titles in view while Kit gives the distinction. Turner's, Larmor’s and Eddington’s three slips stay together as context. They do not enter the sorting tray. They show a professional disagreement with consequences for colleagues, without treating Turner’s accusation as an established fact or turning the dispute into evidence at the tribunal.
 
-**Private exchange after T21 · INVENTED-FICTIONAL.** Close the sourced slips before T76–T81. Edmund Rook is a fictional Cambridge colleague who writes opinion pieces. He stops at the workbench and asks to see the packet. Ashby shuts its cover. Kit sets the assistant’s cup right beside their own and moves a chair into the space Rook has left. Then continue to T22. The historical hearing and the filed extracts have no trace of this exchange.
+**Private exchange after T21 · INVENTED-FICTIONAL.** Close the sourced slips before T76–T81. Edmund Rook is a fictional Cambridge colleague who writes opinion pieces. He stops at the workbench and asks to see the packet. Ashby shuts its cover. Kit sets the assistant’s cup right beside their own and moves a chair into the space Rook has left. Then continue to T23. The historical hearing and the filed extracts have no trace of this exchange.
 
 | ID | Display or speaker | English copy | Provenance |
 |---|---|---|---|
 | T76 | Cast label | Edmund Rook · Fictional Cambridge colleague | INVENTED-FICTIONAL · Journey arcs |
-| T77 | Rook | A man who refuses to serve still gets a desk. And for what? To prove Berlin right. | INVENTED-FICTIONAL · Journey arcs |
-| T78 | Ashby | Keep your name off our copy. He’ll make a list of it if you give him one. | INVENTED-FICTIONAL · Journey arcs |
+| T77 | Rook | May I see the packet? One line will do for my column, if I can say who wrote it. | INVENTED-FICTIONAL · Journey arcs |
+| T78 | Ashby | I'll shut it. Keep your name off our copy. He can make one line sound like your whole answer. | INVENTED-FICTIONAL · Journey arcs |
 | T79 | Assistant | You asked me to put my name to my work. Does that depend on who’s asking? | INVENTED-FICTIONAL · Journey arcs |
 | T80 | Rook | I’ll remember who was at the bench. | INVENTED-FICTIONAL · Journey arcs |
 | T81 | Kit | Sit here. I left your tea to cool while you were reading. | INVENTED-FICTIONAL · Journey arcs |
@@ -135,7 +135,7 @@ After T75, Rook is gone. Ashby slides the ledger back toward the assistant with 
 
 | ID | Speaker | English copy | Provenance |
 |---|---|---|---|
-| T82 | Ashby | A man once printed a figure of mine with the doubt cut off. I let him. I still hear it quoted. | INVENTED-FICTIONAL · Journey arcs |
+| T82 | Ashby | A man once printed my 0.87″ with the doubt cut off. I let him. I still hear it quoted. | INVENTED-FICTIONAL · Journey arcs |
 | T83 | Ashby | Keep your page as you wrote it. I’ll keep mine the same way. | INVENTED-FICTIONAL · Journey arcs |
 
 ### Sorting and citation outcomes

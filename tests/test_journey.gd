@@ -15,7 +15,8 @@ const OBSERVATION_DAY := "res://scenes/main.tscn"
 const TRAY := ["D1", "C1", "R1", "C2", "D2", "R2", "D3", "C3", "R3"]
 const SLOTS := ["T04", "T05", "T06", "T05", "T04", "T06", "T04", "T05", "T06"]
 const BEFORE_PACKET := [
-	"T01", "T02", "T09", "T11", "T15", "T19", "T23", "T24", "T25", "T29",
+	"T01", "T02", "T09", "T11", "T15", "T19", "T77", "T78", "T79", "T80", "T81",
+	"T23", "T24", "T25", "T29",
 	"T31", "T33", "T35", "T36", "T40", "T38", "T40", "T42", "T44", "T45",
 	"T46", "T48", "T50", "T52", "T54", "T55",
 ]
@@ -241,12 +242,23 @@ func _tribunal(director: Node, misfile: bool) -> void:
 	var journey: Node = director.tribunal
 	var paper: Control = journey.paper
 	var strings := Content.strings()
+	var bench_speakers := {
+		"T77": "T76", "T78": Content.Cast.MENTOR, "T79": Content.Cast.YOU,
+		"T80": "T76", "T81": Content.Cast.KIT,
+	}
 	while director.ui.fade.color.a > 0.0:
 		await process_frame
 	await frames(2)
 	for id in BEFORE_PACKET:
 		expect(journey.page_id == id, "expected %s, got %s" % [id, journey.page_id])
-		if director.ui.dialog_active():
+		if bench_speakers.has(id):
+			expect(not paper.visible and director.ui.dialog_active(), "private exchange follows closed sourced slips")
+			var speaker: String = bench_speakers[id]
+			expect(director.ui.speaker_label.text == (strings.T76 if speaker == "T76" else L.t(speaker))
+				and director.ui.text_label.text == strings[id],
+				"private bench exchange shows its speaker and line: " + id)
+			await tap(KEY_ENTER)
+		elif director.ui.dialog_active():
 			if id == "T19":
 				expect(has_text(paper, strings.T11) and has_text(paper, strings.T13), "both claims stay in view")
 			while director.ui.dialog_active() and journey.page_id == id:
@@ -328,6 +340,13 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			await press(button(paper, strings.T22))
 		else:
 			await tap(KEY_ENTER)
+	expect(journey.page_id == "T82" and director.ui.dialog_active(), "Ashby returns to the ledger after the packet")
+	expect(paper.visible and has_text(paper, strings.T73)
+		and has_text(paper, Content.ledger(strings, root.get_node("Story").bet_1917)), "both entries stay open")
+	for id in ["T82", "T83"]:
+		expect(director.ui.speaker_label.text == L.t(Content.Cast.MENTOR)
+			and director.ui.text_label.text == strings[id], "Ashby speaks beside the ledger: " + id)
+		await tap(KEY_ENTER)
 	expect(journey.page_id == "I01" and has_text(paper, strings.I05), "Armistice begins with the public report")
 	expect(Checkpoint.peek() == "", "first Armistice page still has no checkpoint")
 	await check_paper_layout(paper, "armistice")

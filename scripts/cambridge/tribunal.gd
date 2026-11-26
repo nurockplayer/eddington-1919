@@ -58,7 +58,7 @@ func _prompt(action_id: String) -> void:
 
 func _dialogue(beat: Dictionary) -> void:
 	page_id = beat.lines[0]
-	if page_id == "T71":
+	if page_id == "T78":
 		_director.world.mentor.position = Vector3(-1.5, 0.0, -0.95)
 		_director.world.mentor.show()
 	if beat.has("titles"):
@@ -66,7 +66,8 @@ func _dialogue(beat: Dictionary) -> void:
 		var row: HBoxContainer = paper.columns(paper.body)
 		for title in _lines(beat.titles):
 			paper.label(paper.column(row), title, 28)
-	var lines: Array = _lines(beat.lines).map(func(line): return {"s": beat.speaker, "t": line})
+	var speaker: String = _text.T76 if beat.speaker == "T76" else beat.speaker
+	var lines: Array = _lines(beat.lines).map(func(line): return {"s": speaker, "t": line})
 	_director._say(lines, "tribunal")
 	await _director.ui.dialogue_done
 	paper.hide()
