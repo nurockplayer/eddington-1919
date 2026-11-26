@@ -94,6 +94,15 @@ Each S or I3 row is one visible source string. The last column gives production 
 
 **RECONSTRUCTION · J, R §31 for the historical check method and its limits. INVENTED-FICTIONAL · M2 for Ashby's remembered instruction.** Reuse the star-image treatment of the [plate renderer](../../../scripts/plate_render.gd) and the layers and blink presentation of the [comparison overlay](../../../scripts/cambridge/overlay_viewer.gd). Play S46–S47 at the rehearsal table before revealing the synthetic star field, fixed plate frame and numbered reference rings. The rehearsal isolates one question about tracking between two night exposures. The historical Arcturus reduction compared Oxford and Sundy and addressed systematic errors and scale. Keep S44–S45 visible on both plate views and on the log, including when enlarged. The drawings carry no eclipse disc, angular scale, historical plate ID or deflection estimate.
 
+**A letter at the rehearsal table · INVENTED-FICTIONAL.** Before S46, open a letter Kit wrote before reading the Madeira one. It has reached the assistant by the rehearsal. Its route and arrival date stay offstage. Kit has been checking the variable star alone. Let Kit’s postscript put Ashby’s old overprotection alongside the real value of his instruction in S47. Read the letter on its own sheet, away from the archival family letter in I2.
+
+| ID | Display or speaker | English copy | Provenance |
+|---|---|---|---|
+| S85 | Letter label | Fictional correspondence · Kit to you · Written in Cambridge | INVENTED-FICTIONAL · Journey arcs |
+| S86 | Kit, letter | I kept taking two cups to the bench. Then I stopped. Your chair’s at my end now. I need it for the star charts. | INVENTED-FICTIONAL · Journey arcs |
+| S87 | Kit, letter | I wish you were here to check my times. I wish you were here when the work is done, too. | INVENTED-FICTIONAL · Journey arcs |
+| S88 | Kit, postscript | Ashby asked me to remind you to keep the poor checks. I told him you already know how to keep a record. | INVENTED-FICTIONAL · Journey arcs |
+
 **Action.** Start each pair on A. Compare toggles A and B at identical scale and orientation. The fixed rings 1–4 are centred on A's four sharp star images. On B, mark the star corresponding to each ring or use “No clear image” for that ring. Use the same ordered ring list for keyboard, controller and pointer. After selecting a ring, focus can move through the visible centres in top-to-bottom order and then to S55. Selecting a centre puts the mark at that centre. Faint smudges remain visible as texture and have no centre target. Compare preserves the marks. Selecting a ring again replaces its mark or blank. Enable the three judgment choices once B has been seen and all four rings have been marked or logged as blank. Each judgment button submits its row. Feedback goes beside the marks and keeps the pair open. Incorrect evidence shows S66, and an incorrect judgment with correctly marked evidence shows the reason for this pair (S67–S69). After a correct entry, keep the pair, reason and accepted log on screen until the player advances. Preserve the accepted rows in the rehearsal log in order.
 
 **Fixed pairs.** Use the same A every time, with star centres at (24, 29), (69, 22), (38, 63) and (77, 71) in percentage coordinates measured from the upper left of the plate. Define the printed acceptance rings with a radius of 3% of the square frame's width. These are display dimensions for the reconstruction. Keep the same four ring positions in every B. Stage the first two attempts on the same clear-night setup. Before the third pair, show cloud washing across the same field, then hold on the plate with the missing images. In reduced motion use manual A/B swapping and held sky frames.
@@ -141,7 +150,7 @@ Each S or I3 row is one visible source string. The last column gives production 
 
 ### Beat 7 · The sky page
 
-**INVENTED-FICTIONAL · J, M2, Madeira M45–M51. RECONSTRUCTION · D §1, Z for the staged time cut.** After S75 return briefly to the last clear field from the repeat, as a view out from the station. Hold the stars before the player advances with S76. Cut across the intervening days to clouded daylight at the same horizon, above the same stationary apparatus. S77 dates the later image. Let the cloud occupy the frame before the workbook opens. Use a static cloud frame at reduced motion. Keep Kit's 29 May leaf and the space left in Madeira for Kit's reply as they were. Use a preceding leaf for S81 and S82/S83. Play S79 from the established Kit portrait under S46. Play S80 as Kit’s next remembered line for either promise answer. The entry stops at what the assistant sees that day.
+**INVENTED-FICTIONAL · J, M2, Madeira M45–M51. RECONSTRUCTION · D §1, Z for the staged time cut.** After S75 return briefly to the last clear field from the repeat, as a view out from the station. Hold the stars before the player advances with S76. Cut across the intervening days to clouded daylight at the same horizon, above the same stationary apparatus. S77 dates the later image. Let the cloud occupy the frame before the workbook opens. Use a static cloud frame at reduced motion. Keep Kit's 29 May leaf empty. Use a preceding leaf for S81 and S82/S83. Play S79 from the established Kit portrait under S46. Play S80 as Kit’s next remembered line for either promise answer. After the sky observation, read S89 and S90 (warm) or S91 (close), then S84. Fold Kit’s letter between the earlier leaves, with the space under M50 still reserved for Kit’s hand in person.
 
 | ID | Display or speaker | English copy | Provenance |
 |---|---|---|---|
@@ -154,6 +163,12 @@ Each S or I3 row is one visible source string. The last column gives production 
 | S82 | Workbook, warm | Kit, cloud covers the sky over the sea. | INVENTED-FICTIONAL · J |
 | S83 | Workbook, close | Kit, I looked up from the table. Cloud covers the sky over the sea. | INVENTED-FICTIONAL · J |
 | S84 | Advance | Continue to observation day | RECONSTRUCTION · J |
+
+| ID | Display or speaker | English copy | Provenance |
+|---|---|---|---|
+| S89 | Workbook reply, unsent | Keep the chair there. Show me your timings when I come home. | INVENTED-FICTIONAL · Journey arcs |
+| S90 | Workbook reply, warm | I’d like to stay for tea when we’re finished. | INVENTED-FICTIONAL · Journey arcs |
+| S91 | Workbook reply, close | I want to sit with you after the work is done. I should have said so before I left. | INVENTED-FICTIONAL · Journey arcs |
 
 **Exit · RECONSTRUCTION.** S84 fades from the notebook and cloud to black. Complete the delayed full-story departure handoff from [the departure director's `_montage()`](../../../scripts/cambridge/departure_director.gd#L279), carrying `Story.departure_done` and setting `Story.from_prologue` for the existing `principe` checkpoint and entry into [`scenes/main.tscn`](../../../scenes/main.tscn). Use the existing localized 29 May title once, as the caption in [`main.gd` `_ready()`](../../../scripts/main.gd#L235); the departure montage's last line is the same date. Land in [`_start_game()`](../../../scripts/main.gd#L782), Phase.PREP, with the existing thunderstorm and partial-eclipse notice and instruction to find Eddington at the telescope. Every run reaches this same opening. The rehearsal's marks, drive adjustment and log are chapter-local. The slice creates its own sim and retains its normal seed, weather, equipment, inventory, observation choices and results.
 
@@ -197,7 +212,7 @@ Preserve the historical attributions without adding honorifics to document names
 
 Keep “simulated” and “exaggerated” explicit on S44–S45. Preserve the distinction between usable for tracking, repeat because visible centres shifted, and an undetermined drive check because cloud obscured centres. Preserve the two different fields and the difference between an objective and the full instrument. Keep the existing localized 29 May caption and the 28 May notebook date distinct. Keep I3-04 and I3-06 verbatim in the original English, with a faithful localized gloss where needed. Retain each wording's punctuation, its attribution and its degree of confidence. The June labels are publication dates. “Hopeful” stays tentative and “splendid” describes the observing report. The source frame and the fictional draft label stay visible when the layout wraps.
 
-**String count.** Sundy S01–S84 supplies 84 visible rows, including two exact reuses from Madeira. That is 82 new strings × 4 = 328, against the 90 × 4 = 360 estimate. I3 supplies 14 strings × 4 = 56, matching 14 × 4. Count branch copy, feedback, templates, controls and labels once each. The existing 29 May caption, Madeira’s Continue control, reused cast labels, digits and the original-English text retained beside a translated cable add no new source strings.
+**String count.** Sundy S01–S91 supplies 91 visible rows, including two exact reuses from Madeira. That is 89 new strings × 4 = 356, against the 97 × 4 = 388 estimate. I3 supplies 14 strings × 4 = 56, matching 14 × 4. Count branch copy, feedback, templates, controls and labels once each. The existing 29 May caption, Madeira’s Continue control, reused cast labels, digits and the original-English text retained beside a translated cable add no new source strings.
 
 ## Dependencies for later content briefs
 

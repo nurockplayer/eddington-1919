@@ -96,7 +96,7 @@ On a wrong match, leave the row selected with its correction in view. Previously
 
 ### Beat 4 · A place for a reply
 
-**INVENTED-FICTIONAL · J, Tribunal T71–T75, M2.** Open the workbook on an earlier leaf, keeping Kit's last leaf headed 29 May intact and empty. Frame the window before the player writes. Seat the remembered voice in Cambridge through M16 and the existing Kit portrait. Show M46–M47, then M48 for M2's warm tone or M49 for close. Both carry the same observation and leave the space below M50 blank. This is an unsent entry. Either M2 promise answer works: the space can hold what Kit writes from Cambridge or asks on the assistant's return.
+**INVENTED-FICTIONAL · J, Tribunal T76–T83, M2.** Open the workbook on an earlier leaf, keeping Kit's last leaf headed 29 May intact and empty. Frame the window before the player writes. Seat the remembered voice in Cambridge through M16 and the existing Kit portrait. Show M46–M47, then M48 for M2's warm tone or M49 for close. Both carry the same observation. M51 leaves the space beneath M50 blank and reveals two loose sheets on the worktable. Read M71–M73 as the assistant starts to turn the workbook entry into a letter. The first sheet holds the unsent complaint. The assistant takes the sky observation onto the second sheet, adds M74 and either M75 (warm) or M76 (close), then M77 seals it. M78–M79 stage a fictional outgoing letter. It travels separately from the workbook. Its transit and receipt remain open here. Keep the blank reply space visible when the book is closed.
 
 | ID | Display or speaker | English copy | Provenance |
 |---|---|---|---|
@@ -107,6 +107,18 @@ On a wrong match, leave the row selected with its correction in view. Previously
 | M49 | Workbook, close | Kit, I looked up. A pale strip held over the harbour after sunset. Below it all the lamps were on. | INVENTED-FICTIONAL · J |
 | M50 | Workbook reply heading | Room for your sky, Kit | INVENTED-FICTIONAL · J |
 | M51 | Control | Leave the space blank | RECONSTRUCTION · J |
+
+| ID | Display or speaker | English copy | Provenance |
+|---|---|---|---|
+| M71 | Assistant, first draft | Kit, I could use an answer tonight. By the time you read this, I’ll be somewhere else. | INVENTED-FICTIONAL · Journey arcs |
+| M72 | Assistant, first draft | I keep hearing Rook at the bench. I wanted Ashby to tell him whose work it was. | INVENTED-FICTIONAL · Journey arcs |
+| M73 | Assistant thought | I don’t want Kit to spend the whole wait answering for Ashby. | INVENTED-FICTIONAL · Journey arcs |
+| M74 | Assistant, outgoing letter | How is your star? I’d like to know how the work is going at your end. | INVENTED-FICTIONAL · Journey arcs |
+| M75 | Assistant, warm | I still put my cup down on your side of the table. | INVENTED-FICTIONAL · Journey arcs |
+| M76 | Assistant, close | I miss you most when there’s nothing left to do. | INVENTED-FICTIONAL · Journey arcs |
+| M77 | Control | Seal the letter to Kit | INVENTED-FICTIONAL · Journey arcs |
+| M78 | Letter label | Fictional correspondence · To Kit, Cambridge | INVENTED-FICTIONAL · Journey arcs |
+| M79 | Caption | Your letter goes in the outgoing post. The book stays with you. | INVENTED-FICTIONAL · Journey arcs |
 
 ### Beat 5 · Sugar and the sailing date
 
@@ -184,7 +196,7 @@ Use the existing [locale catalogues](../../../locale/) and cast labels. Length t
 
 Treat M56, M63 and I09 as attributed quotations with the English source excerpt available in the paper view when translated. Translate faithfully and preserve the speaker, the original's limits and the date distinctions. Keep ship names and Portuguese accents in source attributions and keep São Vicente and Santiago distinct. Preserve “3 April” as a tentative date, and in I09 preserve that 14 March dates the incoming letter and its receipt is described as on arrival. Keep Kit's 29 May leaf and the blank reply space visually distinct. Allow a line break between metadata fields before breaking a person's name, ship name or quoted clause.
 
-**String count.** Madeira M01–M70 is 70 unique visible English strings × 4 = 280, matching the 70 × 4 estimate. I2 I01–I10 is 10 × 4 = 40, matching 10 × 4. Both counts include choices of bond tone, match feedback, controls, labels and document text where applicable. Repeated labels, repeated footer text, reused cast names and the existing 29 May card add no new string. Translations and any retained English quote use these same source rows.
+**String count.** Madeira M01–M79 is 79 unique visible English strings × 4 = 316, matching the 79 × 4 estimate. I2 I01–I10 is 10 × 4 = 40, matching 10 × 4. Both counts include choices of bond tone, match feedback, controls, labels and document text where applicable. Repeated labels, repeated footer text, reused cast names and the existing 29 May card add no new string. Translations and any retained English quote use these same source rows.
 
 ## Sources
 

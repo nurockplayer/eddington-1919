@@ -45,6 +45,17 @@ T and I numbers identify player-visible English strings. Speaker names reuse the
 
 T19–T21 are on every route. Hold both titles in view while Kit gives the distinction. Turner's, Larmor’s and Eddington’s three slips stay together as context. They do not enter the sorting tray. They show a professional disagreement with consequences for colleagues, without treating Turner’s accusation as an established fact or turning the dispute into evidence at the tribunal.
 
+**Private exchange after T21 · INVENTED-FICTIONAL.** Close the sourced slips before T76–T81. Edmund Rook is a fictional Cambridge colleague who writes opinion pieces. He stops at the workbench and asks to see the packet. Ashby shuts its cover. Kit sets the assistant’s cup right beside their own and moves a chair into the space Rook has left. Then continue to T22. The historical hearing and the filed extracts have no trace of this exchange.
+
+| ID | Display or speaker | English copy | Provenance |
+|---|---|---|---|
+| T76 | Cast label | Edmund Rook · Fictional Cambridge colleague | INVENTED-FICTIONAL · Journey arcs |
+| T77 | Rook | A man who refuses to serve still gets a desk. And for what? To prove Berlin right. | INVENTED-FICTIONAL · Journey arcs |
+| T78 | Ashby | Keep your name off our copy. He’ll make a list of it if you give him one. | INVENTED-FICTIONAL · Journey arcs |
+| T79 | Assistant | You asked me to put my name to my work. Does that depend on who’s asking? | INVENTED-FICTIONAL · Journey arcs |
+| T80 | Rook | I’ll remember who was at the bench. | INVENTED-FICTIONAL · Journey arcs |
+| T81 | Kit | Sit here. I left your tea to cool while you were reading. | INVENTED-FICTIONAL · Journey arcs |
+
 ## Scene 2 · The appeal and the adjournment
 
 **Sequence · RECONSTRUCTION.** T25 opens the June appeal, then T26–T35 run in order. Give the two speech lines the same plain paper treatment. Leave a page advance between the chair’s response and the ruling. Place the London committee note alongside the June record only after the decision, with its separate dateline. T40 opens the 27 June paper. No private meeting is shown. End on the procedural question and advance straight to the July paper.
@@ -112,6 +123,13 @@ Play T40 before T38–T39 and T41–T45. The London note is a separate record, w
 | T74 | Ashby | I’m still at 0.87″. I’ll see that you have what you need to test it. | INVENTED-FICTIONAL · J, M1 |
 | T75 | Kit | Leave me the next list. I’ll start checking it in the morning. | INVENTED-FICTIONAL · J, M1 |
 
+After T75, Rook is gone. Ashby slides the ledger back toward the assistant with T82–T83. Leave it open on both predictions and cut to I1.
+
+| ID | Speaker | English copy | Provenance |
+|---|---|---|---|
+| T82 | Ashby | A man once printed a figure of mine with the doubt cut off. I let him. I still hear it quoted. | INVENTED-FICTIONAL · Journey arcs |
+| T83 | Ashby | Keep your page as you wrote it. I’ll keep mine the same way. | INVENTED-FICTIONAL · Journey arcs |
+
 ### Sorting and citation outcomes
 
 The board uses the nine extracts D1–D3, C1–C3 and R1–R3 already read across the chapter. List D1, C1, R1, C2, D2, R2, D3, C3, R3 in that order in the tray. Reuse the numbered title and body text, including both R3 body lines. The paper view carries its source reference from the source register. With a tray card open, the player can select or change the heading until pressing T59. A correct match moves the extract under that heading with the reference attached and shows T60. The attached reference is the citation in the player’s copy. It remains visible on reread, with the same wording as in the extract. For a wrong match, speak the indicated hint once per attempt, leave the card in the tray and return focus to it. Back to packet closes the extract without filing. Already-filed cards can be read again. T59 is available only with an open tray card and a selected heading.
@@ -128,7 +146,7 @@ The board uses the nine extracts D1–D3, C1–C3 and R1–R3 already read acros
 | R2 · T42–T43 | T68 | T68 | File, T60 | B · Cambridge Daily News, 28 June 1918, p. 3 |
 | R3 · T52–T54 | T69 | T69 | File, T60 | L · Cambridge Daily News, 12 July 1918, p. 3 |
 
-Before all nine are filed, the tray remains open. After the ninth correct placement, T70 appears. Closing always plays T71–T75, then I1. A clean sort and any sequence containing misfiles both use the same filed copy and exit. The June appeal, June adjournment and July decision have already been read in that order. The player sorts the Observatory’s own reference copy, which goes beside the ledger. It has no tribunal submission, score or vote.
+Before all nine are filed, the tray remains open. After the ninth correct placement, T70 appears. Closing always plays T71–T75 and T82–T83, then I1. A clean sort and any sequence containing misfiles both use the same filed copy and exit. The June appeal, June adjournment and July decision have already been read in that order. The player sorts the Observatory’s own reference copy, which goes beside the ledger. It has no tribunal submission, score or vote.
 
 **Acceptance in the script.** T19–T21 name who made the two claims and why. D2 and C1 ask the player to preserve the distinction in the packet. T30–T35 show the cost of hearing only the work case in June. T50–T55 show a refusal that allows other work, a conscience claim the July tribunal hears, and the continued-work condition it attaches to the exemption. A player can explain that the University argued that the Observatory needed Eddington, while Eddington argued that military service violated his conscience.
 
@@ -186,4 +204,4 @@ Use the source names, dates and page references here for the paper views. Hearin
 
 ## String count
 
-**INFERENCE.** Tribunal has 75 numbered English lines across three playable scenes, matching the design’s 75 × 4 = 300 estimate. I1 has 12, matching its 12 × 4 = 48 estimate. These are 87 authored units, including branches, headings, action labels and provenance labels. Citation metadata, repeated controls and reused cast and prediction strings do not add authored lines. Target 12–17 minutes for Tribunal, with the time in reading and sorting.
+**INFERENCE.** Tribunal has 83 numbered English lines across three playable scenes, matching the design’s 83 × 4 = 332 estimate. I1 has 12, matching its 12 × 4 = 48 estimate. These are 95 authored units, including branches, headings, action labels and provenance labels. Citation metadata, repeated controls and reused cast and prediction strings do not add authored lines. Target 12–17 minutes for Tribunal, with the time in reading and sorting.
