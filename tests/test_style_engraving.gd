@@ -22,6 +22,9 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	var shader_text := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
+	var cloud_shader := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
+	check(cloud_shader.contains("dens = mix(dens, rehearsal_density, near_practice_sun);"),
+		"the rehearsal solar override blends into the live field away from the Sun")
 	for name in Engraving.UNIFORMS:
 		check(shader_text.contains("uniform float " + name + " "), "shader uniform " + name)
 		check(Engraving.PARAMS.has(name), "parameter for " + name)
@@ -156,6 +159,8 @@ func _run() -> void:
 	var thin: float = material.get_shader_parameter("practice_cloud")
 	check(is_equal_approx(thick, 0.93) and is_equal_approx(thin, 0.12)
 		and material.get_shader_parameter("darkness") < 0.01, "early rehearsal sends thick and thin cloud to the compositor")
+	check(is_equal_approx(material.get_shader_parameter("cloud_time"), 3.0 - game.PREP_S)
+		and is_equal_approx(game.prep_left, game.PREP_S), "rehearsal drifts the live cloud without advancing the observation countdown")
 	game.free()
 	_test_eclipse_pilot_bindings()
 
