@@ -43,19 +43,22 @@ func step(ui, direction: int, truth_px: float, context: String) -> void:
 	# Space actual input events by 60 ms without changing the game clock.
 	OS.delay_msec(60)
 	var before: float = ui.micrometer_px
+	var tick: AudioStreamPlayer = ui._viewer_sfx["tick"]
+	var previous_playback: AudioStreamPlayback = tick.get_stream_playback() if tick.has_stream_playback() else null
 	ui.viewer_sfx_log.clear()
 	var event := InputEventKey.new()
 	event.keycode = KEY_RIGHT if direction > 0 else KEY_LEFT
 	event.pressed = true
 	root.push_input(event)
-	var tick: AudioStreamPlayer = ui._viewer_sfx["tick"]
+	# The audio thread can finish a short tick before this assertion runs.
+	var new_playback := tick.has_stream_playback() and tick.get_stream_playback() != previous_playback
 	check(is_equal_approx(ui.micrometer_px, before + direction * 0.25),
 		context + ": arrow input moves exactly one step")
-	check(ui.viewer_sfx_log == ["tick"] and tick.playing
+	check(ui.viewer_sfx_log == ["tick"] and new_playback
 		and tick.stream == ui._viewer_sfx["mark"].stream
 		and tick.pitch_scale == 1.0 and tick.volume_db == -11.0,
-		context + ": each step plays the same stream, pitch and volume (events=%s playing=%s pitch=%s volume=%s)"
-		% [ui.viewer_sfx_log, tick.playing, tick.pitch_scale, tick.volume_db])
+		context + ": each step plays the same stream, pitch and volume (events=%s new_playback=%s pitch=%s volume=%s)"
+		% [ui.viewer_sfx_log, new_playback, tick.pitch_scale, tick.volume_db])
 	var distance: float = absf(ui.micrometer_px - truth_px)
 	if distance <= 0.25:
 		near_steps += 1
