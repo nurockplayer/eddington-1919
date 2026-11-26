@@ -6,9 +6,43 @@ The best moments are finding the residual yourself in Cambridge, making a shutte
 
 ## Title to run review
 
-The initial instrumented default-route attempt reached totality at fixed process frame 12,090, with eight extra holders delivered and drive winding and rate check complete. Its wall-clock deadline expired before the run summary (exit 124). The detached normal-speed two-route receipt will supply the completed time budget and review evidence.
+Both headless drives started from the Cambridge title choice with seed 77 in English at normal totality speed. The default reached the summary after **6.20 fixed-process minutes** (frame 22,338, 205.748 s measured wall time). With `--journey`, the summary arrived after **6.00 fixed-process minutes** (frame 21,604, 208.829 s measured wall time). The flag adds Tribunal/I1 and Madeira/I2, while the default spends longer in the bridge and Departure. Both drives opened the evidence review, found an attached plate texture, and exited 0 with no bot failures. These are bot timings. Sundy and the scripted Sobral and London chapters have no play observations in this audit. [Bot guide, lines 3–25](../PLAYTEST_BOT_DRIVE.md#L3-L25) · [Bot review receipt, lines 1142–1169](../../tests/prologue_bot.gd#L1142-L1169) · [Cambridge branch, lines 613–630](../../scripts/cambridge/director.gd#L613-L630) · [Departure branch, lines 286–301](../../scripts/cambridge/departure_director.gd#L286-L301)
 
-The normal title choice is the Cambridge story. Run the same honest Cambridge choice and seed 77 with and without `--journey`. The flag adds Tribunal/I1 and Madeira/I2 on this checkout. The draft Sundy lane and scripted Sobral/London have no play observations in this audit. [Bot guide, lines 3–25](../PLAYTEST_BOT_DRIVE.md#L3-L25) · [Cambridge branch, lines 613–630](../../scripts/cambridge/director.gd#L613-L630) · [Departure branch, lines 286–301](../../scripts/cambridge/departure_director.gd#L286-L301)
+The first probe gives default / journey values in fixed-process minutes at 60 fps. The reading column includes time when the caption control was still visible to the sampler after its text had faded out. Acting includes sampled choices and tool use. A dash means the route skipped that stretch. Panel and choice counts describe the sampled UI, including repeated displays.
+
+| Stretch | Reading/UI min | Acting min | Wait min | Walk min | Panels | Dialogue choices |
+|---|---:|---:|---:|---:|---:|---:|
+| Title | 0 / 0 | 0.01 / 0.01 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+| Cambridge evidence | 0.45 / 0.45 | 0.07 / 0.07 | 0.02 / 0.02 | 0 / 0 | 52 / 52 | 11 / 11 |
+| Cambridge prediction and bridge | 0.59 / 0.56 | 0.09 / 0.09 | 0 / 0 | 0 / 0 | 65 / 64 | 10 / 10 |
+| Tribunal | — / 0.02 | — / <0.01 | — / 0.01 | — / 0 | — / 43 | — / 0 |
+| I1 Armistice | — / <0.01 | — / 0 | — / 0 | — / 0 | — / 2 | — / 0 |
+| Departure | 0.69 / 0.40 | 0.07 / 0.07 | 0.02 / 0.02 | 0 / 0 | 49 / 45 | 6 / 6 |
+| Madeira | — / 0.01 | — / <0.01 | — / 0.06 | — / 0 | — / 22 | — / 0 |
+| I2 Passage | — / <0.01 | — / 0 | — / 0.01 | — / 0 | — / 6 | — / 0 |
+| Prep | 1.35 / 1.35 (mixed) | <0.01 / <0.01 | 0 / 0 | 0 / 0 | 23 / 23 | 2 / 2 |
+| Totality | 2.15 / 2.15 (mixed) | 0 / 0 | 0 / 0 | 0 / 0 | 5 / 5 | 0 / 0 |
+| Night | 0.19 / 0.19 | 0.01 / 0.01 | 0 / 0 | 0 / 0 | 16 / 16 | 6 / 6 |
+| Coda | 0.14 / 0.14 | 0.01 / 0.01 | 0 / 0 | 0 / 0 | 16 / 16 | 1 / 1 |
+| October | 0.28 / 0.28 | 0.05 / 0.05 | 0.02 / 0.02 | 0 / 0 | 27 / 27 | 5 / 5 |
+| Run summary and opening review | 0.02 / 0.02 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+
+The sampler gave visible captions priority over movement and tools. It registered zero walk time even though the prep bot traversed the camp. Prep includes **0.23 min** of programmed pickup and drive-winding holds (10.2 s and 3.5 s), as well as walking, trim, rate checks and dialogue. The receipt leaves the rest of that split unresolved. For totality, the shutter timestamps give a better breakdown. Both routes made three exposures (97.5–111.5, 226.9–243.0 and 247.0–248.5 simulation seconds), for **0.21 min** supervising an open shutter and **1.80 min** closed, including **0.08 min** of automatic holder changes. About **0.14 min** of the stage is outside that eclipse clock, including transition and aftermath. [Prep bot, lines 374–412](../../tests/autoplay_bot.gd#L374-L412) · [Eclipse clock and holder timing, lines 13–25](../../scripts/eclipse_sim.gd#L13-L25) · [Shutter and live clock, lines 1497–1569](../../scripts/main.gd#L1497-L1569)
+
+Both drives displayed **41 dialogue choices**. The following count covers distinct answers or tasks with an explicit correction, endorsement or evidence-based assessment. The count groups feedback on each task and records filing validations separately.
+
+| Stretch | Evaluations per route | What was evaluated |
+|---|---:|---|
+| Cambridge evidence | 6 / 6 | Report submission, its trace-evidence follow-up, three prediction-match prompts and the bridge question. [Cambridge dialogue](../../scripts/cambridge/content_1917.gd#L132-L162) · [Mentor review and bridge](../../scripts/cambridge/content_1917.gd#L260-L401) |
+| Cambridge prediction and bridge | 6 / 6 | Two report follow-ups, two box answers, fair-plan submission and the trial-plate note. The bot submitted the plan twice after the biased card was rejected. [Prediction and fair plan](../../scripts/cambridge/content_1917.gd#L409-L479) · [Plan gate](../../scripts/cambridge/plan_board.gd#L215-L237) · [Trial plate](../../scripts/cambridge/content_1917.gd#L567-L585) |
+| Departure | 3 / 3 | One returned checklist for five marks, the correction method and the second light-box prediction. [Checklist response](../../scripts/cambridge/content_departure.gd#L53-L73) · [Light-box result](../../scripts/cambridge/box_sketch.gd#L317-L333) |
+| Night | 2 / 2 | Verdict against the measured interval, then one grade for the telegram and its reason. Both runs returned `favors_e`, score 4, with two plate readings. The earlier Cambridge overlay matched 17 points. [Verdict and grade](../../scripts/main.gd#L1994-L2029) |
+| October | 2 / 2 | Sobral interval reading and the instrument-weighting answer. The later notebook entries record the player's position. [Chart feedback](../../scripts/cambridge/epilogue_chart.gd#L170-L181) · [Weighting and notebook responses](../../scripts/cambridge/content_epilogue.gd#L79-L99) |
+| Journey filing | — / 13 | Nine Tribunal extracts and four Madeira copies passed their destination checks. [Tribunal filing](../../scripts/cambridge/tribunal.gd#L141-L155) · [Madeira filing](../../scripts/cambridge/madeira.gd#L212-L245) |
+
+The journey drive displayed 321 sampled panels to the default's 253, yet reached the summary earlier on the fixed clock. The bot advances those papers quickly. The additional pages and 13 filing decisions make journey pacing worth timing with a new reader. The two Cambridge stretches alone account for 12 of the 19 shared evaluations. Let players see the result in their paper or instrument before the next response tells them how to interpret it.
+
+The receipt for PR #556 is at `/Volumes/KIOXIA/scratch/edd-aa-3b72424.MdQZWw/index.md`. It lists the exact commands, settings, timestamps in JST, per-route logs and choice traces.
 
 ## Where play falls short
 
