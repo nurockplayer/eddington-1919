@@ -9,7 +9,9 @@ const C := "Cottingham"
 const YOU := "你"
 
 
-static func briefing() -> Array:
+static func briefing(prologue_done: bool) -> Array:
+	# FICTION: protagonist's thought.
+	var report := L.t("（Dyson 先生在倫敦等我們報告劍橋那場試驗的結果。要是雲讓我們什麼也量不到，我得照實說。空白的底片不能告訴他星光有沒有彎曲。）") if prologue_done else L.t("（Dyson 先生在倫敦等我們的日食報告。要是雲讓我們什麼也量不到，我得照實說。空白的底片不能告訴他星光有沒有彎曲。）")
 	return [
 		{"s": E, "t": L.t("你來了。雨總算停了——十點多那場雷雨，是我們上島以來最大的一場。")},
 		{"s": E, "t": L.t("太陽躲在雲後面，月亮已經吃掉大半。全食只有 [b]302 秒[/b]。")},
@@ -18,6 +20,7 @@ static func briefing() -> Array:
 		{"s": E, "t": L.t("我負責換底片，Cottingham 拿遮光板控制曝光。[b]你替我們看雲[/b]：雲變薄就喊「開始」，雲變厚、或全食快結束時喊「停」。")},
 		{"s": E, "t": L.t("我已經裝好四個底片匣。暗房裡還有八個——能搬多少就搬多少，放到望遠鏡旁的架子上。")},
 		{"s": E, "t": L.t("Cottingham 在定天鏡那裡。早上的濕氣讓時鐘驅動不太聽話，他需要一雙手。")},
+		{"s": YOU, "t": report},
 		{"s": E, "t": L.t("還有問題嗎？"), "key": "why", "choices": [L.t("明白了。"), L.t("為什麼要拍太陽旁邊的星？")],
 			"then": [[], [
 				{"s": E, "t": L.t("如果星光經過太陽時會彎曲，太陽旁的星看起來就會被往外推一點點。把今天的底片和一月在牛津拍的同一片星場比較，就能量出推了多少。")},
@@ -80,19 +83,6 @@ static func cottingham_after_wind() -> Array:
 
 static func cottingham_done() -> Array:
 	return [{"s": C, "t": L.t("走速對上了。全食時你看雲、我拿遮光板，Eddington 先生換片。三個人剛好。")}]
-
-
-static func cottingham_stakes() -> Array:
-	return [
-		# HISTORICAL_RECORD: Eddington's 1938 recollection; RECONSTRUCTION: Cottingham recalls it here.
-		{"s": C, "t": L.t("出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。")},
-		# FICTION: laughter, the question and the replies.
-		{"s": C, "t": L.t("他是笑著說的。可是他沒說，要是上面什麼都沒有，會怎樣。"), "key": "stakes", "choices": [L.t("那就一起回家，照實說。"), L.t("如果真的什麼都沒有呢？"), L.t("（沒有說話）")],
-			"then": [
-				[{"s": C, "t": L.t("嗯。照實說。Dyson 先生讀得懂一張空白的底片。")}],
-				[{"s": C, "t": L.t("那就帶一箱說『什麼都沒有』的底片回去。那也是答案——只是很貴。")}],
-				[{"s": C, "t": L.t("……我也是。先把鐘調好。")}] ]},
-	] + cottingham_done()
 
 
 static func after_totality(exposed: int) -> Array:
@@ -304,22 +294,24 @@ static func judgment_prompt(telegrams: Array, reasons: Array) -> Array:
 	]
 
 
-## Story audit D4: Cottingham's payoff of Dyson's "go home alone" (cottingham_stakes). Undated on purpose.
+## Story audit D4: Dyson's "go home alone" anecdote. Undated on purpose.
 static func go_home_alone(evidence: String, clean: bool) -> Array:
+	# HISTORICAL_RECORD: Eddington's 1938 recollection; RECONSTRUCTION: Cottingham recalls it here.
+	var recalled := L.t("出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。") + "\n\n"
 	match evidence:
 		"favors_e":
 			if clean:
 				# RECONSTRUCTION: Eddington's line as later retold (Douglas 1956); wording and day UNVERIFIED.
 				return [{"s": E, "t": L.t("Cottingham。你不用一個人回家了。")},
 					# FICTION.
-					{"s": C, "t": L.t("……我本來連行李都收好了。")}]
+					{"s": C, "t": recalled + L.t("……我本來連行李都收好了。")}]
 			# FICTION: the same line, held back by a selection that is not clean.
 			return [{"s": E, "t": L.t("Cottingham，也許你不用一個人回家。可是這一疊底片，我們挑得還不夠乾淨。")},
-				{"s": C, "t": L.t("那回去重挑。我陪你。")}]
+				{"s": C, "t": recalled + L.t("那回去重挑。我陪你。")}]
 		"ambiguous", "favors_half":
 			# FICTION.
 			return [{"s": E, "t": L.t("Cottingham，你要不要一個人回家，我還說不準。")},
-				{"s": C, "t": L.t("那我等。反正我還有一座鐘要打包。")}]
+				{"s": C, "t": recalled + L.t("那我等。反正我還有一座鐘要打包。")}]
 	# FICTION: nothing measured.
 	return [{"s": E, "t": L.t("我們一起回家。看見什麼，就說什麼。")}]
 

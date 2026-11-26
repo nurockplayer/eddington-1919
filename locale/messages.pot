@@ -908,10 +908,6 @@ msgstr ""
 msgid "……好吧，喝得慣。快去。"
 msgstr ""
 
-#: scripts/content.gd:94
-msgid "……我也是。先把鐘調好。"
-msgstr ""
-
 #: scripts/content.gd:139
 msgid "……我們一張也沒有拍。雲和時間都沒有等我們。"
 msgstr ""
@@ -1426,10 +1422,6 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:584
 msgid "他喜歡你。他不會說出來——那個人連喜歡什麼都要先量一量。"
-msgstr ""
-
-#: scripts/content.gd:90
-msgid "他是笑著說的。可是他沒說，要是上面什麼都沒有，會怎樣。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:341
@@ -1972,7 +1964,7 @@ msgstr ""
 msgid "准予免役十二個月，條件是繼續目前的工作。"
 msgstr ""
 
-#: scripts/content.gd:88
+#: scripts/content.gd:300
 msgid "出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。"
 msgstr ""
 
@@ -2288,10 +2280,6 @@ msgstr ""
 msgid "單憑這張底片，尚無定論。"
 msgstr ""
 
-#: scripts/content.gd:92
-msgid "嗯。照實說。Dyson 先生讀得懂一張空白的底片。"
-msgstr ""
-
 #: scripts/cambridge/content_epilogue.gd:175
 msgid "嗯。這種事，不常有。"
 msgstr ""
@@ -2498,10 +2486,6 @@ msgstr ""
 
 #: scripts/content.gd:23
 msgid "如果星光經過太陽時會彎曲，太陽旁的星看起來就會被往外推一點點。把今天的底片和一月在牛津拍的同一片星場比較，就能量出推了多少。"
-msgstr ""
-
-#: scripts/content.gd:90
-msgid "如果真的什麼都沒有呢？"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:616
@@ -4890,20 +4874,12 @@ msgstr ""
 msgid "那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。"
 msgstr ""
 
-#: scripts/content.gd:90
-msgid "那就一起回家，照實說。"
-msgstr ""
-
 #: scripts/cambridge/content_departure.gd:99
 msgid "那就在五分鐘之前，或是之後。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:213
 msgid "那就寫下來。沒有改變，也是一筆紀錄。"
-msgstr ""
-
-#: scripts/content.gd:93
-msgid "那就帶一箱說『什麼都沒有』的底片回去。那也是答案——只是很貴。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:41
@@ -5256,6 +5232,14 @@ msgstr ""
 msgid "（1917 年的計畫板上，這張比對片是你放上去的。）"
 msgstr ""
 
+#: scripts/content.gd:14
+msgid "（Dyson 先生在倫敦等我們報告劍橋那場試驗的結果。要是雲讓我們什麼也量不到，我得照實說。空白的底片不能告訴他星光有沒有彎曲。）"
+msgstr ""
+
+#: scripts/content.gd:14
+msgid "（Dyson 先生在倫敦等我們的日食報告。要是雲讓我們什麼也量不到，我得照實說。空白的底片不能告訴他星光有沒有彎曲。）"
+msgstr ""
+
 #: scripts/content_coda.gd:16
 msgid "（Eddington 把電報稿折好，收進外套口袋，出去找送電報的人。）"
 msgstr ""
@@ -5466,10 +5450,6 @@ msgstr ""
 
 #: scripts/cambridge/report_sheet.gd:133
 msgid "（沒有發現）"
-msgstr ""
-
-#: scripts/content.gd:90
-msgid "（沒有說話）"
 msgstr ""
 
 #: scripts/cambridge/content_departure.gd:68

@@ -743,9 +743,6 @@ msgstr "…There. Twice as fast as doing it alone."
 msgid "……好吧，喝得慣。快去。"
 msgstr "…All right, I do. Off you go."
 
-msgid "……我也是。先把鐘調好。"
-msgstr "…Same here. Let's get the clock right first."
-
 msgid "……我們一張也沒有拍。雲和時間都沒有等我們。"
 msgstr "…We took not one. Neither the cloud nor the time waited for us."
 
@@ -1138,9 +1135,6 @@ msgstr "They struck out the work exemption. His claim of conscience is still wai
 
 msgid "他喜歡你。他不會說出來——那個人連喜歡什麼都要先量一量。"
 msgstr "He likes you. He won't say so—that one has to measure even what he likes."
-
-msgid "他是笑著說的。可是他沒說，要是上面什麼都沒有，會怎樣。"
-msgstr "He was laughing when he said it. But he never said what happens if there's nothing on them."
 
 msgid "他的理論說：星光從太陽旁邊經過時，會被拉彎一點點。我們從地上看，那顆星就像被往外推開了。"
 msgstr "His theory says that starlight passing close to the Sun is bent a little. From the Earth, the star appears to be pushed outwards."
@@ -1832,9 +1826,6 @@ msgstr "Asking is right. But people aren't always there. Paper will be."
 msgid "單憑這張底片，尚無定論。"
 msgstr "This plate alone is still inconclusive."
 
-msgid "嗯。照實說。Dyson 先生讀得懂一張空白的底片。"
-msgstr "Mm. Say so. Dyson can read a blank plate."
-
 msgid "嗯。這種事，不常有。"
 msgstr "Mm. Such things do not come often."
 
@@ -1990,9 +1981,6 @@ msgstr "If you were an astronomer in 1917, what would you suspect first?"
 
 msgid "如果星光經過太陽時會彎曲，太陽旁的星看起來就會被往外推一點點。把今天的底片和一月在牛津拍的同一片星場比較，就能量出推了多少。"
 msgstr "If starlight bends as it passes the Sun, the stars beside the Sun will appear to be pushed out a little. Compare today's plate with the same field photographed at Oxford in January, and you can measure how far."
-
-msgid "如果真的什麼都沒有呢？"
-msgstr "And if there really is nothing?"
 
 msgid "如果真的有遠征……"
 msgstr "If there really is an expedition—"
@@ -3862,17 +3850,11 @@ msgstr "That day I was hurrying to wind it alone, with no time to check it. Next
 msgid "那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。"
 msgstr "I was winding it alone in a hurry that day, and the rate was not verified. Next time, let us finish this first."
 
-msgid "那就一起回家，照實說。"
-msgstr "Then we go home together and say so."
-
 msgid "那就在五分鐘之前，或是之後。"
 msgstr "Then before the five minutes, or after."
 
 msgid "那就寫下來。沒有改變，也是一筆紀錄。"
 msgstr "Then write it down. No change is a record too."
-
-msgid "那就帶一箱說『什麼都沒有』的底片回去。那也是答案——只是很貴。"
-msgstr "Then we bring home a crate of plates that say 'nothing'. That's an answer too — just an expensive one."
 
 msgid "那就慢慢告訴我。今天晚上很長。"
 msgstr "Then tell me slowly. We have a long evening."
@@ -4146,6 +4128,12 @@ msgstr "(It was missing from the 1917 plan board; Eddington added it at the bott
 msgid "（1917 年的計畫板上，這張比對片是你放上去的。）"
 msgstr "(On the 1917 plan board, this comparison plate was put there by you.)"
 
+msgid "（Dyson 先生在倫敦等我們報告劍橋那場試驗的結果。要是雲讓我們什麼也量不到，我得照實說。空白的底片不能告訴他星光有沒有彎曲。）"
+msgstr "(Dyson is waiting in London for our report on the test we planned at Cambridge. If cloud leaves us nothing to measure, I must say so. A blank plate can't tell him whether starlight bent.)"
+
+msgid "（Dyson 先生在倫敦等我們的日食報告。要是雲讓我們什麼也量不到，我得照實說。空白的底片不能告訴他星光有沒有彎曲。）"
+msgstr "(Dyson is waiting in London for our eclipse report. If cloud leaves us nothing to measure, I must say so. A blank plate can't tell him whether starlight bent.)"
+
 msgid "（Eddington 把電報稿折好，收進外套口袋，出去找送電報的人。）"
 msgstr "(Eddington folds the telegram, puts it in his coat pocket, and goes out to find the messenger.)"
 
@@ -4311,9 +4299,6 @@ msgstr "(Nothing recorded)"
 
 msgid "（沒有發現）"
 msgstr "(Not found)"
-
-msgid "（沒有說話）"
-msgstr "(Say nothing.)"
 
 msgid "（看你簽名）好。以後拿到這張紙的人，看得出這裡改過，也看得出是誰改的。"
 msgstr "(watches you sign) Good. Whoever holds this sheet later will see it was changed, and see who changed it."
