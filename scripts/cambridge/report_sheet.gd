@@ -69,13 +69,7 @@ func _build() -> void:
 	sheet.anchor_top = 0.035
 	sheet.anchor_right = 0.945
 	sheet.anchor_bottom = 0.91
-	var sheet_style := StyleBoxFlat.new()
-	sheet_style.bg_color = PAPER
-	sheet_style.set_border_width_all(2)
-	sheet_style.border_color = PAPER_EDGE
-	sheet_style.shadow_color = Color(0, 0, 0, 0.24)
-	sheet_style.shadow_size = 12
-	sheet.add_theme_stylebox_override("panel", sheet_style)
+	sheet.add_theme_stylebox_override("panel", paper_style())
 	add_child(sheet)
 	var scroll := ScrollContainer.new()
 	scroll.follow_focus = true
@@ -196,7 +190,17 @@ func _refresh_option(_row_id: String, button: Button, is_selected: bool) -> void
 	button.add_theme_color_override("font_hover_color", INK)
 
 
-func _choice_style(is_selected: bool, is_hover: bool = false) -> StyleBoxFlat:
+static func paper_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = PAPER
+	style.set_border_width_all(2)
+	style.border_color = PAPER_EDGE
+	style.shadow_color = Color(0, 0, 0, 0.24)
+	style.shadow_size = 12
+	return style
+
+
+static func _choice_style(is_selected: bool, is_hover: bool = false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.76, 0.67, 0.51) if is_selected else (Color(0.91, 0.85, 0.73) if is_hover else Color(0.89, 0.83, 0.72))
 	style.set_border_width_all(2 if is_selected else 1)
@@ -209,7 +213,7 @@ func _choice_style(is_selected: bool, is_hover: bool = false) -> StyleBoxFlat:
 	return style
 
 
-func _style_button(button: Button) -> void:
+static func _style_button(button: Button) -> void:
 	button.add_theme_color_override("font_color", INK)
 	button.add_theme_color_override("font_hover_color", INK)
 	button.add_theme_color_override("font_pressed_color", INK)
