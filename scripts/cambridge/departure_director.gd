@@ -218,7 +218,8 @@ func _dialogue_done(results: Dictionary) -> void:
 			keepsake.show()
 			_busy = true
 			_sync_player()
-			await get_tree().create_timer(1.8, false).timeout
+			# Keep the reading hold off the physics-clamped clock, at the current playback speed.
+			await get_tree().create_timer(1.8 / Engine.time_scale, false, false, true).timeout
 			_montage()
 			return
 	_sync_player()
