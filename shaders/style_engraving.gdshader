@@ -292,7 +292,7 @@ void fragment() {
 			live_cloud.x = mix(live_cloud.x, pocket_print_density(ray_w, print_time, live_cloud.x), pocket_print);
 		}
 		vec2 cloud_field = vec2(10.0, 0.0);
-		if (night <= 0.5 && (sky_plate_darkness > 0.0 || practice_cloud >= 0.0)) {
+		if (night <= 0.5 && sky_plate_darkness > 0.0) {
 			cloud_field = print_cloud(live_cloud, sky_plate_darkness);
 		}
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
@@ -335,7 +335,7 @@ void fragment() {
 			cloud_wash = plate_cloud * band_lines * totality_plate;
 		}
 		ink = max(ink, cloud_contour * band_lines * contour_ink * (1.0 - totality_plate));
-		if (night <= 0.5 && practice_cloud < 0.0) {
+		if (night <= 0.5) {
 			ink *= sky_plate_darkness;
 			cloud_wash *= sky_plate_darkness;
 		}
@@ -351,7 +351,8 @@ void fragment() {
 			float crescent = max(r - 1.0, 1.0 - length(lp - moon_c));
 			float sun_pixel = max(fwidth(crescent), 0.00001);
 			sun_rim = front * (1.0 - smoothstep(0.2, 0.9, abs(crescent) / (sun_pixel * res_k)));
-		} else if (before_second_contact && front > 0.0 && r < 1.0) {
+		}
+		if (before_second_contact && front > 0.0 && r < 1.0) {
 			float in_sun = 1.0 - smoothstep(0.96, 1.0, r);
 			float outside_moon = smoothstep(1.0, 1.04, length(lp - moon_c));
 			float transmission = 1.0 - clamp(eclipse_cloud_density(ray_w) * 1.08, 0.0, 1.0);

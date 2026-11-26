@@ -50,6 +50,9 @@ func _run() -> void:
 		and shader_text.contains("cloud_field = print_cloud(live_cloud, sky_plate_darkness);")
 		and shader_text.contains("live_cloud.x = mix(live_cloud.x, pocket_print_density(ray_w, print_time, live_cloud.x), pocket_print);"),
 		"the printed contour and ray veil share the drifting pocket density")
+	check(shader_text.contains("if (night <= 0.5 && sky_plate_darkness > 0.0) {\n\t\t\tcloud_field = print_cloud")
+		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
+		"rehearsal and observation grade cloud ruling and wash with the same daylight weight")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
 	check(shader_text.contains("max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
 		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * corona_cloud"), "cloud density veils the corona")
