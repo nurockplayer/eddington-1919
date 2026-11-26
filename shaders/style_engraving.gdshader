@@ -21,7 +21,8 @@ uniform bool before_second_contact = false;
 // The sky's live cloud field, including the rehearsal override.
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
-uniform float third_contact_gap = 0.0;
+uniform vec3 third_contact_cloud_clock = vec3(302.0, 2.5, 3.333333);
+uniform float day_return_cloud_time = -1.0; // cloud plate at the start of the light return
 uniform float practice_cloud = -1.0;
 uniform vec2 wind = vec2(0.0042, 0.0026);
 uniform float cloud_scale = 0.35;
@@ -171,8 +172,8 @@ vec2 page_ruling(vec3 ray, mat4 camera) {
 
 // Engrave the live field's 0.35 contour; the second component retains density
 // for line weights and solar veiling. No separate cloud geometry is invented.
-vec2 print_cloud(vec3 direction, float print_darkness) {
-	float density = eclipse_cloud_density(direction);
+vec2 print_cloud(vec3 direction, float print_darkness, float time) {
+	float density = eclipse_cloud_density_at(direction, time);
 	float contour_density = mix(0.10, 0.35, print_darkness);
 	return vec2(contour_density - density, density);
 }
@@ -207,6 +208,9 @@ void fragment() {
 	vec3 ray_v = normalize(pv);
 	vec3 ray_w = normalize((INV_VIEW_MATRIX * vec4(ray_v, 0.0)).xyz);
 	float print_darkness = darkness;
+	bool returning_sky = sky && day_return_cloud_time >= 0.0;
+	float sky_plate_darkness = returning_sky ? 1.0 : print_darkness;
+	float solar_fade = smoothstep(0.85, 1.0, print_darkness);
 	float day_weight = night > 0.5 ? 0.0 : 1.0 - smoothstep(0.35, 1.0, print_darkness);
 	float k = 2.0 / (abs(PROJECTION_MATRIX[1][1]) * VIEWPORT_SIZE.y);
 	// Line weights are given for a 720-line frame and follow the viewport height.
@@ -262,7 +266,9 @@ void fragment() {
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
 		vec2 cloud_field = vec2(10.0, 0.0);
-		if (night <= 0.5 && (print_darkness > 0.0 || practice_cloud >= 0.0)) cloud_field = print_cloud(ray_w, print_darkness);
+		if (night <= 0.5 && (sky_plate_darkness > 0.0 || practice_cloud >= 0.0)) {
+			cloud_field = print_cloud(ray_w, sky_plate_darkness, returning_sky ? day_return_cloud_time : cloud_time);
+		}
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
 		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
@@ -273,7 +279,7 @@ void fragment() {
 		float band_lines = smoothstep(0.015, 0.19, abs(elev));
 		// At peak, light cloud only tints the ruling. Denser bodies carry the
 		// lighter wash and an engraved edge from the same live field.
-		float totality_plate = smoothstep(0.94, 1.0, print_darkness) * (1.0 - night);
+		float totality_plate = smoothstep(0.94, 1.0, sky_plate_darkness) * (1.0 - night);
 		float cloud_tone = cloud_body * (0.10 + 0.34 * smoothstep(0.10, 0.80, cloud_field.y));
 		float primary = mix(cloud_tone, 0.04 + 0.06 * high_sky + 0.65 * cloud_weight, print_darkness) * band_lines;
 		float crossed = (0.02 * high_sky + 0.40 * cloud_weight) * band_lines * print_darkness;
@@ -304,8 +310,8 @@ void fragment() {
 		}
 		ink = max(ink, cloud_contour * band_lines * contour_ink * (1.0 - totality_plate));
 		if (night <= 0.5 && practice_cloud < 0.0) {
-			ink *= print_darkness;
-			cloud_wash *= print_darkness;
+			ink *= sky_plate_darkness;
+			cloud_wash *= sky_plate_darkness;
 		}
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
@@ -353,14 +359,22 @@ void fragment() {
 		// Reserve a solid disc over the printed sky, with coverage only at its limb.
 		float moon_pixel = max(fwidth(r) * 0.5, 0.00001);
 		float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);
-		float sun_cloud = eclipse_cloud_density(sun_dir);
-		float cloud_veil = max(0.5 * step(0.35, cloud_field.y), step(0.85, cloud_field.y));
-		cloud_veil = max(cloud_veil, step(0.85, sun_cloud));
-		moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness) * (1.0 - step(0.85, sun_cloud));
+		float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time).x;
+		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, cloud_time);
+		float from_contact = cloud_time - third_contact_cloud_clock.x;
+		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
+		// Ease the thresholds across the passage as the pocket overlaps the solar drawing.
+		float pocket_softness = float(practice_cloud < 0.0) * smoothstep(-6.2, -3.1, pocket_time) * (1.0 - smoothstep(3.0, 7.6, pocket_time));
+		float sun_visibility = 1.0 - smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud);
+		float cloud_veil = max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x));
+		// A moving edge uncovers each ray where it passes, including across the Moon.
+		float moon_cloud = mix(sun_visibility, 1.0, live_cloud.y);
+		float corona_cloud = mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
+		moon_ink = before_second_contact ? 0.0 : front * moon_disc * solar_fade * moon_cloud;
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
 		// Pixel coverage keeps subpixel strokes continuous in the wide 720p view.
-		if (!before_second_contact && print_darkness > 0.0 && front > 0.0) {
+		if (!before_second_contact && solar_fade > 0.0 && front > 0.0) {
 			float sector = (atan(lp.y, lp.x) / 6.2831853 + 0.5) * 240.0;
 			float id = floor(sector);
 			float seed = hash21(vec2(id, 19.0));
@@ -380,7 +394,7 @@ void fragment() {
 			float limb_white = 1.0 - smoothstep(1.035, 1.065, r);
 			// A clear Sun keeps the complete starburst; the printed cloud's own
 			// body and optical density veil it under thin and thick cloud.
-						corona_white = max(limb_white, rays) * step(1.0, r) * (1.0 - cloud_veil);
+			corona_white = max(limb_white, rays) * step(1.0, r) * corona_cloud;
 		}
 
 
@@ -572,14 +586,15 @@ void fragment() {
 
 	// Paper: fibre grain fixed to the page; an optional thin wash of the scene's hue.
 	vec2 fp = FRAGCOORD.xy / res_k;
-	float fibre = (vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4) * (sky ? 1.0 - print_darkness : 1.0);
+	float paper_fibre = vnoise(fp * 0.35) * 0.6 + vnoise(fp * vec2(0.05, 0.9)) * 0.4;
+	float fibre = paper_fibre * (sky ? 1.0 - sky_plate_darkness : 1.0);
 	vec3 hue = c / max(max(c.r, max(c.g, c.b)), 0.0001);
 	vec3 page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f)) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	page = mix(page, paper * (1.0 - paper_grain * fibre), day_weight);
 	if (print_darkness < 0.001 && night > 0.5) {
 		page = paper * (1.0 - paper_grain * fibre) * mix(vec3(1.0), hue, wash * mix(1.0, wash_far, dist_f) * (sky ? 1.0 : max(print_darkness, night))) * mix(1.0, mix(wash_floor, 1.0, tone_raw), wash_depth);
 	}
-	float blue = print_darkness * tot_wash;
+	float blue = sky_plate_darkness * tot_wash;
 	page = mix(page, tot_paper * (1.0 - paper_grain * fibre), blue);
 	float heightening = sky ? sky_white : 0.0;
 	page = mix(page, paper, heightening * blue);
@@ -595,6 +610,13 @@ void fragment() {
 		page = mix(page, mix(paper, safe_light, red), smoothstep(heighten_lo, heighten_hi, tone_p) * nw);
 	}
 	vec3 print_colour = mix(page, ink_col, clamp(ink, 0.0, 1.0) * ink_strength);
+	if (returning_sky) {
+		// Fade the contact plate directly into day paper. Solar detail above it
+		// still samples the live field and recedes over the light front.
+		vec3 day_page = paper * (1.0 - paper_grain * paper_fibre);
+		vec3 day_sky = mix(day_page, ink_col, clamp(edge * outline, 0.0, 1.0) * ink_strength);
+		print_colour = mix(day_sky, print_colour, print_darkness);
+	}
 	if (surface_print) {
 		vec3 stock = mix(c, c * tot_paper / paper, blue);
 		vec3 surface_colour = mix(stock * (1.0 - paper_grain * fibre), ink_col, edge * outline * ink_strength);
@@ -603,7 +625,7 @@ void fragment() {
 	print_colour = mix(print_colour, ink_col, sun_rim * 0.42);
 	print_colour = mix(print_colour, vec3(1.0), sun_crescent);
 	print_colour = mix(print_colour, ink_col, moon_ink);
-	print_colour = mix(print_colour, vec3(1.0), corona_white * print_darkness);
+	print_colour = mix(print_colour, vec3(1.0), corona_white * solar_fade);
 	// Only the sky around an optically visible field star gets a reserve.
 	// Keep the original white core; the corona's ruling ends at its ink edge.
 	float star_vis = clamp((print_darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night);

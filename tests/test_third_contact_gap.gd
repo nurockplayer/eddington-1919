@@ -1,10 +1,11 @@
 extends SceneTree
-## Presentation-only contact gap; pin the approved simulation as the oracle.
+## Third contact keeps the live cloud field and the approved exposure simulation.
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Cues := preload("res://scripts/totality_cues.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 var checks := 0
 var failures := 0
+var solar := {}
 
 
 func _initialize() -> void:
@@ -22,17 +23,26 @@ func _run() -> void:
 	# P2 (#351) intentionally changes drive drift; pin that approved simulation,
 	# including the unchanged exposure/plate and seeded cloud model.
 	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "b3a9c3bf179b79d44ecd6bd0f39bf79878884bda1deaa83a9ab88fa7ef451af2", "simulation matches the approved P2 oracle")
-	var shader := FileAccess.get_file_as_string("res://shaders/eclipse_sky.gdshader")
-	var shared_cloud := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
-	check(shared_cloud.contains("dens = mix(dens, min(dens, 0.55), third_contact_gap * near_contact_sun);"), "shared cloud applies the contact veil")
 	var engraving := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
-	for source in [shader, engraving]:
-		check(source.contains('#include "res://shaders/eclipse_cloud.gdshaderinc"'), "sky and engraving use one cloud rule")
-	check(engraving.contains("eclipse_cloud_density(bead_dir)"), "engraving samples the sky cloud over the bead")
-	check(engraving.contains("float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);"), "Moon is a whole antialiased disc")
-	check(engraving.contains("float sun_cloud = eclipse_cloud_density(sun_dir);"), "Moon obscuration samples cloud at the Sun")
-	check(engraving.contains("moon_ink = before_second_contact ? 0.0 : front * moon_disc * max(diamond, print_darkness) * (1.0 - step(0.85, sun_cloud));"), "Moon remains visible through totality and is obscured by dense cloud at the Sun")
-	for seed_ in [7, 1919]:
+	for name in ["solar_fade", "pocket_softness", "sun_visibility", "cloud_veil", "moon_cloud", "corona_cloud"]:
+		var expression := RegEx.create_from_string("float " + name + " = ([^;]+);").search(engraving)
+		check(expression != null, "engraving defines " + name)
+		if expression != null:
+			var parsed := Expression.new()
+			var code := expression.get_string(1).replace("mix(", "lerpf(")
+			check(parsed.parse(code, ["print_darkness", "sun_cloud", "live_cloud", "sun_visibility", "cloud_veil", "pocket_time", "practice_cloud", "pocket_softness"]) == OK,
+				"evaluate shipping " + name)
+			solar[name] = parsed
+	var cloud := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
+	check(cloud.contains("gap = third_contact_cloud_gap(d, time);")
+		and cloud.contains("1.25 * elapsed - 0.86")
+		and cloud.contains("smoothstep(1.1, 3.65, length(offset * vec2(1.0, 1.25)))")
+		and cloud.contains("smoothstep(3.5, 5.0, length(local_sun))")
+		and cloud.contains("return mix(cloud.x, min(cloud.x, 0.22), cloud.y);"), "sky draws the sampled pocket and its density")
+	check(engraving.contains("front * moon_disc * solar_fade * moon_cloud")
+		and engraving.contains("step(1.0, r) * corona_cloud")
+		and engraving.contains("corona_white * solar_fade"), "engraving applies the measured visibility to the Moon and corona")
+	for seed_ in [7, 1551]:
 		await _check_seed(seed_)
 	print("%d third contact gap checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)
@@ -45,29 +55,7 @@ func _check_seed(seed_: int) -> void:
 	game.sim = Sim.new(seed_)
 	game.sky_mat.set_shader_parameter("cloud_tex", ImageTexture.create_from_image(game.sim.cloud_img))
 	var ref = Sim.new(seed_)
-	# Second contact and mid-totality retain the original cloud. The veil begins
-	# only 1 game-second (0.4 real seconds) before third contact.
-	for t in [0.0, 151.0, 301.0, 301.5, 302.0, 302.9, 304.4, 310.0]:
-		game._apply_light(1.0, 1.0, t, 0.0)
-		var gap: float = game.sky_mat.get_shader_parameter("third_contact_gap")
-		# _apply_light also runs inside the native contact tween, after _process.
-		# No extra _process call may be required to deliver its state to the pass.
-		for name in ["third_contact_gap", "cloud_time", "contact"]:
-			check(game._style.quad_material.get_shader_parameter(name) == game.sky_mat.get_shader_parameter(name), "seed %d: immediate pass sync %s at %.1f" % [seed_, name, t])
-		var density: float = game.sim.cloud_over_sun(t)
-		var visible := lerpf(density, minf(density, 0.55), gap)
-		check(density == ref.cloud_over_sun(t), "seed %d: physical cloud unchanged at %.1f" % [seed_, t])
-		if t <= 301.0 or t >= 310.0:
-			check(gap == 0.0 and visible == density, "seed %d: gap closed at %.1f" % [seed_, t])
-		if t == 0.0 or t == 151.0:
-			check(visible > 0.8, "seed %d: second contact/mid-totality stay clouded at %.1f" % [seed_, t])
-		if t == 301.5:
-			check(gap > 0.0 and gap < 1.0, "seed %d: cloud thins smoothly just before contact" % seed_)
-		if t >= 302.0 and t <= 304.4:
-			var alpha := clampf(visible * 1.08, 0.0, 1.0)
-			var transmission := (1.0 - alpha) * (1.0 + alpha * 0.15)
-			check(is_equal_approx(visible, 0.55) and transmission > 0.4, "seed %d: contact/glint peak density %.3f, transmission %.3f" % [seed_, visible, transmission])
-	# Exercise the actual accumulation path through the mismatch window, once
+	# Exercise the actual exposure path across the contact window, once
 	# closing just before contact and once leaving the shutter open at contact.
 	game.phase = game.Phase.TOTALITY
 	game.tot_done = false
@@ -89,6 +77,100 @@ func _check_seed(seed_: int) -> void:
 			ref.close_shutter(true)
 	check(var_to_bytes(game.sim.plates) == var_to_bytes(ref.plates), "seed %d: plate bytes identical to the simulation oracle before/at third contact" % seed_)
 	check(var_to_bytes(Judgment.grade(game.sim, "hopeful", "measured")) == var_to_bytes(Judgment.grade(ref, "hopeful", "measured")), "seed %d: scoring bytes identical to the simulation oracle" % seed_)
+	_check_front(game, seed_)
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
+
+
+func _check_front(game: Node, seed_: int) -> void:
+	game._day_return.kill()
+	game.tot_done = false
+	game.t_game = Sim.TOTALITY_S - (3.0 + 2.0 / 60.0) * game._totality_rate
+	var step := 1.0 / 60.0
+	game._process_totality(step)
+	var clock: Variant = game.sky_mat.get_shader_parameter("third_contact_cloud_clock")
+	check(clock is Vector3, "seed %d: real contact flow supplies the cloud clock" % seed_)
+	if not clock is Vector3 or solar.size() != 6:
+		return
+	var plate: ShaderMaterial = game._style.quad_material
+	var sun: Vector3 = game.sim.sun_dir
+	var mid_cloud := Cues.third_contact_cloud_sample(game.sim, sun, Sim.TOTALITY_S / 2.0, clock)
+	check(mid_cloud.y == 0.0, "seed %d: mid-totality is outside the pocket" % seed_)
+	# Sweep density independently of the seed so both edges of the narrow gate are probed.
+	for density in [0.32, 0.49, 0.78, 0.80, 0.81, 0.84, 0.85, 0.93]:
+		var args := [1.0, density, Vector2(density, mid_cloud.y), 0.0, 0.0, (Sim.TOTALITY_S / 2.0 - clock.x) / clock.y, -1.0, 0.0]
+		args[7] = solar.pocket_softness.execute(args)
+		check(is_equal_approx(solar.sun_visibility.execute(args), 1.0 - smoothstep(0.80, 0.85, density)),
+			"seed %d: mid-totality Sun visibility at density %.2f" % [seed_, density])
+		check(is_equal_approx(solar.cloud_veil.execute(args), maxf(0.5 * smoothstep(0.30, 0.35, density), smoothstep(0.80, 0.85, density))),
+			"seed %d: mid-totality veil at density %.2f" % [seed_, density])
+	var tangent := sun.cross(Vector3.UP).normalized()
+	var up := tangent.cross(sun)
+	# Probe the facing and far limbs, and the transverse cuts through each mark.
+	var rays: Array[Vector3] = []
+	for p in [Vector2(-1.2, 0), Vector2(1.2, 0), Vector2(0, -1.2), Vector2(0, 1.2),
+			Vector2(-0.65, 0), Vector2(0.65, 0), Vector2(0, -0.65), Vector2(0, 0.65)]:
+		var offset: Vector2 = p * Sim.SUN_R
+		rays.append(sun * sqrt(1.0 - offset.length_squared()) + tangent * offset.x + up * offset.y)
+	var previous_darkness := 1.0
+	var previous_density := 0.0
+	var previous_amount: Array[float] = []
+	var density_step := 0.0
+	var drawn_step := 0.0
+	var edge_crossed := false
+	var start_density := 0.0
+	var contact_density := 0.0
+	var contact_frame := -1
+	for frame in range(17 * 60):
+		if game.tot_done:
+			var tween: Tween = game._day_return
+			if tween.is_valid():
+				tween.custom_step(step)
+		else:
+			game._process_totality(step)
+			if game.tot_done:
+				contact_frame = frame
+				game._day_return.pause()
+		var t: float = game.sky_mat.get_shader_parameter("cloud_time")
+		var darkness: float = plate.get_shader_parameter("darkness")
+		check(darkness <= previous_darkness, "seed %d: sky recovers on frame %d" % [seed_, frame])
+		check(plate.get_shader_parameter("cloud_time") == t and plate.get_shader_parameter("third_contact_cloud_clock") == clock,
+			"seed %d: both materials sample the same field on frame %d" % [seed_, frame])
+		var centre_cloud: Vector2 = game.Cues.third_contact_cloud_sample(game.sim, sun, t, clock)
+		var density: float = game.Cues.third_contact_cloud_density(centre_cloud)
+		if frame == 0:
+			start_density = density
+		else:
+			density_step = maxf(density_step, absf(density - previous_density))
+		if frame == contact_frame:
+			contact_density = density
+		var amount: Array[float] = []
+		var from_contact: float = t - clock.x
+		var pocket_time: float = from_contact / (clock.y if from_contact < 0.0 else clock.z)
+		var args := [darkness, centre_cloud.x, Vector2.ZERO, 0.0, 0.0, pocket_time, -1.0, 0.0]
+		var light: float = solar.solar_fade.execute(args)
+		args[7] = solar.pocket_softness.execute(args)
+		args[3] = solar.sun_visibility.execute(args)
+		for i in rays.size():
+			args[2] = game.Cues.third_contact_cloud_sample(game.sim, rays[i], t, clock)
+			args[4] = solar.cloud_veil.execute(args)
+			var gate: Expression = solar.corona_cloud if i < 4 else solar.moon_cloud
+			amount.append(light * float(gate.execute(args)))
+			if frame > 0:
+				drawn_step = maxf(drawn_step, absf(amount[i] - previous_amount[i]))
+		edge_crossed = edge_crossed or (contact_frame < 0 and amount[0] > 0.35 and amount[1] < 0.05)
+		previous_darkness = darkness
+		previous_density = density
+		previous_amount = amount
+		if contact_frame >= 0 and frame == contact_frame + 13 * 60:
+			break
+	check(start_density - contact_density > 0.4 and contact_density < 0.35,
+		"seed %d: Sun-centre density opens from %.3f to %.3f at contact" % [seed_, start_density, contact_density])
+	check(edge_crossed, "seed %d: the leading corona shows while the far limb is still clouded" % seed_)
+	check(density_step <= (start_density - contact_density) * step + 0.00001 and drawn_step <= step + 0.00001,
+		"seed %d: per-frame density and eclipse coverage steps %.5f and %.5f" % [seed_, density_step, drawn_step])
+	check(previous_darkness == 0.0 and previous_amount.max() == 0.0,
+		"seed %d: eclipse detail fades completely by daylight" % seed_)
+	print("seed %d: density %.3f -> %.3f at contact, max frame steps density=%.5f drawn=%.5f" %
+		[seed_, start_density, contact_density, density_step, drawn_step])
