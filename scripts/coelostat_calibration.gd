@@ -22,6 +22,7 @@ var no_improvement := 0.0
 var best_drift := INF
 var hinted := false
 var released := false
+var fine_direction := 0.0
 var caption: Label
 var status: Label
 var verified: Label
@@ -107,6 +108,7 @@ func open(state) -> void:
 	no_improvement = 0.0
 	hinted = false
 	released = false
+	fine_direction = 0.0
 	hint.text = L.t("觀察星像的移動，再請 Cottingham 微調。位置是否居中並不重要。")
 	show()
 	_refresh_text()
@@ -120,8 +122,14 @@ func advance(delta: float) -> void:
 		released = true
 	var dt := minf(delta, 45.0 - elapsed)
 	var direction := Input.get_axis("ui_left", "ui_right")
-	var rate := FINE_RATE if Input.is_action_pressed("trim_fine") else COARSE_RATE
-	if direction != 0.0:
+	var fine := Input.is_action_pressed("trim_fine")
+	if fine:
+		fine_direction = direction
+	elif direction != fine_direction:
+		fine_direction = 0.0
+	# Releasing fine trim ends the nudge without turning it into a coarse one.
+	if direction != 0.0 and (fine or fine_direction == 0.0):
+		var rate := FINE_RATE if fine else COARSE_RATE
 		sim.drive_error = clampf(sim.drive_error + direction * rate * dt, -1.0, 1.0)
 	if absf(sim.drive_error) <= DEADBAND:
 		stable += dt
