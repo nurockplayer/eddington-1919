@@ -75,9 +75,9 @@ static func small_numbers(residual_found: bool, measured_any: bool, want := -1) 
 	var thought: String
 	match want:
 		0:
-			thought = L.t("（我想做一件真的有人會看的事。原始紀錄和我署名的報告都在，誰想看，都可以攤開來核對。）")
+			thought = L.t("（我想做一件真的有人會看的事。原始紀錄和我簽了名的報告都在，誰想看，都可以攤開來核對。）")
 		1:
-			thought = L.t("（我怕底片上什麼都沒有。Kit 要我回去說說我看見了什麼，就算天空空空的也一樣。）")
+			thought = L.t("（我心裡一直在想，要是底片上什麼都沒有呢？Kit 要我回去說說我看見了什麼，就算天空空空的也一樣。）")
 		2:
 			thought = L.t("（那時我沒有回答。現在還可以想想，要從哪裡說起。）")
 		_:

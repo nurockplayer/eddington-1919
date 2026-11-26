@@ -5389,11 +5389,11 @@ msgid "（我在本子上寫的是「%s」。Dyson 先生等的是底片能告�
 msgstr ""
 
 #: scripts/content_coda.gd:80
-msgid "（我怕底片上什麼都沒有。Kit 要我回去說說我看見了什麼，就算天空空空的也一樣。）"
+msgid "（我心裡一直在想，要是底片上什麼都沒有呢？Kit 要我回去說說我看見了什麼，就算天空空空的也一樣。）"
 msgstr ""
 
 #: scripts/content_coda.gd:78
-msgid "（我想做一件真的有人會看的事。原始紀錄和我署名的報告都在，誰想看，都可以攤開來核對。）"
+msgid "（我想做一件真的有人會看的事。原始紀錄和我簽了名的報告都在，誰想看，都可以攤開來核對。）"
 msgstr ""
 
 #: scripts/content_coda.gd:106
