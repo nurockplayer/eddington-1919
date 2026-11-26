@@ -6,28 +6,28 @@ The best moments are finding the residual yourself in Cambridge, making a shutte
 
 ## Title to run review
 
-Both headless drives started from the Cambridge title choice with seed 77 in English at normal totality speed. The default reached the summary after **6.20 fixed-process minutes** (frame 22,338, 205.748 s measured wall time). With `--journey`, the summary arrived after **6.00 fixed-process minutes** (frame 21,604, 208.829 s measured wall time). The flag adds Tribunal/I1 and Madeira/I2, while the default spends longer in the bridge and Departure. Both drives opened the evidence review, found an attached plate texture, and exited 0 with no bot failures. These are bot timings. Sundy and the scripted Sobral and London chapters have no play observations in this audit. [Bot guide, lines 3–25](../PLAYTEST_BOT_DRIVE.md#L3-L25) · [Bot review receipt, lines 1142–1169](../../tests/prologue_bot.gd#L1142-L1169) · [Cambridge branch, lines 613–630](../../scripts/cambridge/director.gd#L613-L630) · [Departure branch, lines 286–301](../../scripts/cambridge/departure_director.gd#L286-L301)
+Both headless drives started from the Cambridge title choice with seed 77 in English at normal totality speed. The default reached the summary after **6.20 fixed-process minutes** (frame 22,338, 220.637 s driver wall time). With `--journey`, the summary arrived after **6.00 fixed-process minutes** (frame 21,604, 194.462 s driver wall time). The flag adds Tribunal/I1 and Madeira/I2, while the default spends longer in the bridge and Departure. Both drives opened the evidence review, found an attached plate texture, and exited 0 with no bot failures. These are bot timings. Sundy and the scripted Sobral and London chapters have no play observations in this audit. [Bot guide, lines 3–25](../PLAYTEST_BOT_DRIVE.md#L3-L25) · [Bot review receipt, lines 1142–1169](../../tests/prologue_bot.gd#L1142-L1169) · [Cambridge branch, lines 613–630](../../scripts/cambridge/director.gd#L613-L630) · [Departure branch, lines 286–301](../../scripts/cambridge/departure_director.gd#L286-L301)
 
-The first probe gives default / journey values in fixed-process minutes at 60 fps. The reading column includes time when the caption control was still visible to the sampler after its text had faded out. Acting includes sampled choices and tool use. A dash means the route skipped that stretch. Panel and choice counts describe the sampled UI, including repeated displays.
+The table gives default / journey values in fixed-process minutes at 60 fps. Reading is sampled time with dialogue, paper, review or a visible caption. Acting includes choices, tools and open-shutter supervision. Walk samples player movement. Wait includes scene transitions and closed-shutter time. A dash means the route skipped that stretch. Panel and choice counts include repeated displays.
 
 | Stretch | Reading/UI min | Acting min | Wait min | Walk min | Panels | Dialogue choices |
 |---|---:|---:|---:|---:|---:|---:|
 | Title | 0 / 0 | 0.01 / 0.01 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
-| Cambridge evidence | 0.45 / 0.45 | 0.07 / 0.07 | 0.02 / 0.02 | 0 / 0 | 52 / 52 | 11 / 11 |
-| Cambridge prediction and bridge | 0.59 / 0.56 | 0.09 / 0.09 | 0 / 0 | 0 / 0 | 65 / 64 | 10 / 10 |
+| Cambridge evidence | 0.23 / 0.23 | 0.13 / 0.13 | 0.08 / 0.08 | 0.11 / 0.11 | 47 / 47 | 11 / 11 |
+| Cambridge prediction and bridge | 0.35 / 0.32 | 0.12 / 0.12 | 0.15 / 0.15 | 0.05 / 0.05 | 54 / 53 | 10 / 10 |
 | Tribunal | — / 0.02 | — / <0.01 | — / 0.01 | — / 0 | — / 43 | — / 0 |
 | I1 Armistice | — / <0.01 | — / 0 | — / 0 | — / 0 | — / 2 | — / 0 |
-| Departure | 0.69 / 0.40 | 0.07 / 0.07 | 0.02 / 0.02 | 0 / 0 | 49 / 45 | 6 / 6 |
+| Departure | 0.52 / 0.22 | 0.15 / 0.15 | 0.08 / 0.08 | 0.03 / 0.03 | 39 / 35 | 6 / 6 |
 | Madeira | — / 0.01 | — / <0.01 | — / 0.06 | — / 0 | — / 22 | — / 0 |
 | I2 Passage | — / <0.01 | — / 0 | — / 0.01 | — / 0 | — / 6 | — / 0 |
-| Prep | 1.35 / 1.35 (mixed) | <0.01 / <0.01 | 0 / 0 | 0 / 0 | 23 / 23 | 2 / 2 |
-| Totality | 2.15 / 2.15 (mixed) | 0 / 0 | 0 / 0 | 0 / 0 | 5 / 5 | 0 / 0 |
-| Night | 0.19 / 0.19 | 0.01 / 0.01 | 0 / 0 | 0 / 0 | 16 / 16 | 6 / 6 |
-| Coda | 0.14 / 0.14 | 0.01 / 0.01 | 0 / 0 | 0 / 0 | 16 / 16 | 1 / 1 |
-| October | 0.28 / 0.28 | 0.05 / 0.05 | 0.02 / 0.02 | 0 / 0 | 27 / 27 | 5 / 5 |
-| Run summary and opening review | 0.02 / 0.02 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+| Prep | 0.12 / 0.12 | 0.64 / 0.64 | 0.37 / 0.37 | 0.23 / 0.23 | 55 / 54 | 2 / 2 |
+| Totality | 0.01 / 0.01 | 0.21 / 0.21 | 1.93 / 1.93 | <0.01 / <0.01 | 3 / 3 | 0 / 0 |
+| Night | 0.11 / 0.11 | 0.07 / 0.07 | 0.02 / 0.02 | <0.01 / <0.01 | 13 / 13 | 6 / 6 |
+| Coda | 0.08 / 0.08 | 0.01 / 0.01 | 0.06 / 0.06 | 0 / 0 | 13 / 13 | 1 / 1 |
+| October | 0.16 / 0.16 | 0.08 / 0.08 | 0.06 / 0.06 | 0.06 / 0.06 | 23 / 23 | 5 / 5 |
+| Run summary and opening review | <0.01 / <0.01 | 0.02 / 0.02 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
 
-The sampler gave visible captions priority over movement and tools. It registered zero walk time even though the prep bot traversed the camp. Prep includes **0.23 min** of programmed pickup and drive-winding holds (10.2 s and 3.5 s), as well as walking, trim, rate checks and dialogue. The receipt leaves the rest of that split unresolved. For totality, the shutter timestamps give a better breakdown. Both routes made three exposures (97.5–111.5, 226.9–243.0 and 247.0–248.5 simulation seconds), for **0.21 min** supervising an open shutter and **1.80 min** closed, including **0.08 min** of automatic holder changes. About **0.14 min** of the stage is outside that eclipse clock, including transition and aftermath. [Prep bot, lines 374–412](../../tests/autoplay_bot.gd#L374-L412) · [Eclipse clock and holder timing, lines 13–25](../../scripts/eclipse_sim.gd#L13-L25) · [Shutter and live clock, lines 1497–1569](../../scripts/main.gd#L1497-L1569)
+In both routes, prep spent **0.65 min** on actions, **0.23 min** walking and **0.37 min** waiting. The actions include 0.23 min of programmed pickup and drive-winding holds. The three exposures (97.5–111.5, 226.9–243.0 and 247.0–248.5 simulation seconds) took **0.21 min** of open-shutter supervision. Totality registered **1.93 min** of waiting, including **0.08 min** of automatic holder changes. That wait column covers the entire stage, including transitions. [Prep bot, lines 374–412](../../tests/autoplay_bot.gd#L374-L412) · [Eclipse clock and holder timing, lines 13–25](../../scripts/eclipse_sim.gd#L13-L25) · [Shutter and live clock, lines 1497–1569](../../scripts/main.gd#L1497-L1569)
 
 Both drives displayed **41 dialogue choices**. The following count covers distinct answers or tasks with an explicit correction, endorsement or evidence-based assessment. The count groups feedback on each task and records filing validations separately.
 
@@ -40,9 +40,9 @@ Both drives displayed **41 dialogue choices**. The following count covers distin
 | October | 2 / 2 | Sobral interval reading and the instrument-weighting answer. The later notebook entries record the player's position. [Chart feedback](../../scripts/cambridge/epilogue_chart.gd#L170-L181) · [Weighting and notebook responses](../../scripts/cambridge/content_epilogue.gd#L79-L99) |
 | Journey filing | — / 13 | Nine Tribunal extracts and four Madeira copies passed their destination checks. [Tribunal filing](../../scripts/cambridge/tribunal.gd#L141-L155) · [Madeira filing](../../scripts/cambridge/madeira.gd#L212-L245) |
 
-The journey drive displayed 321 sampled panels to the default's 253, yet reached the summary earlier on the fixed clock. The bot advances those papers quickly. The additional pages and 13 filing decisions make journey pacing worth timing with a new reader. The two Cambridge stretches alone account for 12 of the 19 shared evaluations. Let players see the result in their paper or instrument before the next response tells them how to interpret it.
+The journey drive displayed 314 sampled panels to the default's 247, yet reached the summary earlier on the fixed clock. The bot advances those papers quickly. The additional pages and 13 filing decisions make journey pacing worth timing with a new reader. The two Cambridge stretches alone account for 12 of the 19 shared evaluations. Let players see the result in their paper or instrument before the next response tells them how to interpret it.
 
-The receipt for PR #556 is at `/Volumes/KIOXIA/scratch/edd-aa-3b72424.MdQZWw/index.md`. It lists the exact commands, settings, timestamps in JST, per-route logs and choice traces.
+The receipt for PR #556 is at `/Volumes/KIOXIA/scratch/edd-aa-timing-556.0w198W/index.md`. It lists the exact commands, settings, timestamps in JST, per-route logs and choice traces.
 
 ## Where play falls short
 
