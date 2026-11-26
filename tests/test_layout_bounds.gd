@@ -47,7 +47,8 @@ func bounds(node: Node) -> void:
 		bounds(child)
 
 
-func settle(frames := 5) -> void:
+# One idle pass applies deferred layout work before the next frame is checked.
+func settle(frames := 2) -> void:
 	for frame in frames:
 		await process_frame
 
