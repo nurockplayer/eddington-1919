@@ -406,8 +406,8 @@ func _trim_release_checks(game) -> int:
 		print("FAIL: cannot aim at drive for trim release checks")
 		return 1
 	for pad in [false, true]:
-		var interact := JOY_BUTTON_A if pad else KEY_E
-		var leave := JOY_BUTTON_B if pad else KEY_B
+		var interact: int = JOY_BUTTON_A if pad else KEY_E
+		var leave: int = JOY_BUTTON_B if pad else KEY_B
 		game.sim = load("res://scripts/eclipse_sim.gd").new(77)
 		game.sim.drive_wound = true
 		game.sim.drive_error = 0.125
@@ -417,7 +417,7 @@ func _trim_release_checks(game) -> int:
 		await _event(interact, true, pad)
 		await _event(interact, false, pad)
 		for sign_ in [-1, 1]:
-			var key := (JOY_BUTTON_DPAD_LEFT if pad else KEY_LEFT) if sign_ < 0 else (JOY_BUTTON_DPAD_RIGHT if pad else KEY_RIGHT)
+			var key: int = (JOY_BUTTON_DPAD_LEFT if pad else KEY_LEFT) if sign_ < 0 else (JOY_BUTTON_DPAD_RIGHT if pad else KEY_RIGHT)
 			var before: float = game.sim.drive_error
 			await _event(key, true, pad)
 			game._process_prep(1.0)
