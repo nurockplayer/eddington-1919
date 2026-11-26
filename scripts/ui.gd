@@ -201,6 +201,7 @@ var comparison_recall := ""
 var drive_note := ""
 var _viewer_locked := false
 var _viewer_reporting := false
+var _viewer_selected_with_mouse := false
 var pause_enabled := false
 var _pause_focus: Control
 var _pause_objectives_visible := false
@@ -1618,7 +1619,7 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 		plate_info.text += L.t("\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。")
 		blink_hint_seen = true
 		blink_hint_shown.emit()
-	if sound:
+	if sound and not _viewer_selected_with_mouse:
 		if micrometer_on and not mic_record_btn.disabled:
 			mic_record_btn.grab_focus()
 		else:
@@ -2601,6 +2602,11 @@ func _active_menu_scroll() -> ScrollContainer:
 
 
 func _input(event: InputEvent) -> void:
+	if viewer.visible:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			_viewer_selected_with_mouse = true
+		elif event.is_action("ui_accept"):
+			_viewer_selected_with_mouse = false
 	var was_joypad := Prompts.joypad
 	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.25):
 		Prompts.joypad = true
