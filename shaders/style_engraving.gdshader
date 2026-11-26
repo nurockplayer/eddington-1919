@@ -360,9 +360,13 @@ void fragment() {
 		float moon_pixel = max(fwidth(r) * 0.5, 0.00001);
 		float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);
 		float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time).x;
-		float sun_visibility = 1.0 - smoothstep(0.40, 0.85, sun_cloud);
 		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, cloud_time);
-		float cloud_veil = max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(0.60, 0.85, live_cloud.x));
+		float from_contact = cloud_time - third_contact_cloud_clock.x;
+		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
+		// Ease the thresholds across the passage as the pocket overlaps the solar drawing.
+		float pocket_softness = float(practice_cloud < 0.0) * smoothstep(-6.2, -3.1, pocket_time) * (1.0 - smoothstep(3.0, 7.6, pocket_time));
+		float sun_visibility = 1.0 - smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud);
+		float cloud_veil = max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x));
 		// A moving edge uncovers each ray where it passes, including across the Moon.
 		float moon_cloud = mix(sun_visibility, 1.0, live_cloud.y);
 		float corona_cloud = mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);

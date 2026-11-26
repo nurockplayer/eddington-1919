@@ -24,13 +24,13 @@ func _run() -> void:
 	# including the unchanged exposure/plate and seeded cloud model.
 	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "b3a9c3bf179b79d44ecd6bd0f39bf79878884bda1deaa83a9ab88fa7ef451af2", "simulation matches the approved P2 oracle")
 	var engraving := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
-	for name in ["solar_fade", "sun_visibility", "cloud_veil", "moon_cloud", "corona_cloud"]:
+	for name in ["solar_fade", "pocket_softness", "sun_visibility", "cloud_veil", "moon_cloud", "corona_cloud"]:
 		var expression := RegEx.create_from_string("float " + name + " = ([^;]+);").search(engraving)
 		check(expression != null, "engraving defines " + name)
 		if expression != null:
 			var parsed := Expression.new()
 			var code := expression.get_string(1).replace("mix(", "lerpf(")
-			check(parsed.parse(code, ["print_darkness", "sun_cloud", "live_cloud", "sun_visibility", "cloud_veil"]) == OK,
+			check(parsed.parse(code, ["print_darkness", "sun_cloud", "live_cloud", "sun_visibility", "cloud_veil", "pocket_time", "practice_cloud", "pocket_softness"]) == OK,
 				"evaluate shipping " + name)
 			solar[name] = parsed
 	var cloud := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
@@ -91,10 +91,20 @@ func _check_front(game: Node, seed_: int) -> void:
 	game._process_totality(step)
 	var clock: Variant = game.sky_mat.get_shader_parameter("third_contact_cloud_clock")
 	check(clock is Vector3, "seed %d: real contact flow supplies the cloud clock" % seed_)
-	if not clock is Vector3 or solar.size() != 5:
+	if not clock is Vector3 or solar.size() != 6:
 		return
 	var plate: ShaderMaterial = game._style.quad_material
 	var sun: Vector3 = game.sim.sun_dir
+	var mid_cloud := Cues.third_contact_cloud_sample(game.sim, sun, Sim.TOTALITY_S / 2.0, clock)
+	check(mid_cloud.y == 0.0, "seed %d: mid-totality is outside the pocket" % seed_)
+	# Sweep density independently of the seed so both edges of the narrow gate are probed.
+	for density in [0.32, 0.49, 0.78, 0.80, 0.81, 0.84, 0.85, 0.93]:
+		var args := [1.0, density, Vector2(density, mid_cloud.y), 0.0, 0.0, (Sim.TOTALITY_S / 2.0 - clock.x) / clock.y, -1.0, 0.0]
+		args[7] = solar.pocket_softness.execute(args)
+		check(is_equal_approx(solar.sun_visibility.execute(args), 1.0 - smoothstep(0.80, 0.85, density)),
+			"seed %d: mid-totality Sun visibility at density %.2f" % [seed_, density])
+		check(is_equal_approx(solar.cloud_veil.execute(args), maxf(0.5 * smoothstep(0.30, 0.35, density), smoothstep(0.80, 0.85, density))),
+			"seed %d: mid-totality veil at density %.2f" % [seed_, density])
 	var tangent := sun.cross(Vector3.UP).normalized()
 	var up := tangent.cross(sun)
 	# Probe the facing and far limbs, and the transverse cuts through each mark.
@@ -136,8 +146,11 @@ func _check_front(game: Node, seed_: int) -> void:
 		if frame == contact_frame:
 			contact_density = density
 		var amount: Array[float] = []
-		var args := [darkness, centre_cloud.x, Vector2.ZERO, 0.0, 0.0]
+		var from_contact: float = t - clock.x
+		var pocket_time: float = from_contact / (clock.y if from_contact < 0.0 else clock.z)
+		var args := [darkness, centre_cloud.x, Vector2.ZERO, 0.0, 0.0, pocket_time, -1.0, 0.0]
 		var light: float = solar.solar_fade.execute(args)
+		args[7] = solar.pocket_softness.execute(args)
 		args[3] = solar.sun_visibility.execute(args)
 		for i in rays.size():
 			args[2] = game.Cues.third_contact_cloud_sample(game.sim, rays[i], t, clock)

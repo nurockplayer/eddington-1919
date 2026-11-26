@@ -46,8 +46,8 @@ func _run() -> void:
 	check(shader_text.contains("float density = eclipse_cloud_density_at(direction, time);")
 		and shader_text.contains("cloud_field = print_cloud(ray_w, sky_plate_darkness, returning_sky ? day_return_cloud_time : cloud_time);"), "contours use the live exposure field")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
-	check(shader_text.contains("max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(0.60, 0.85, live_cloud.x))")
-		and shader_text.contains("smoothstep(0.40, 0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * corona_cloud"), "cloud density veils the corona")
+	check(shader_text.contains("max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
+		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * corona_cloud"), "cloud density veils the corona")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && solar_fade > 0.0 && front > 0.0)"),
 		"engraving hides Moon ink and corona before second contact")
