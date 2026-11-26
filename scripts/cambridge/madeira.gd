@@ -245,9 +245,17 @@ func _sort_copies() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if _routing and not selected.is_empty() and not get_tree().paused and not _director.ui.log_open() and event.is_action_pressed("ui_cancel"):
+	if get_tree().paused or _director.ui.blocks_world_input():
+		return
+	if _routing and not selected.is_empty() and event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		paper.action.emit("cancel")
+	elif paper.actions.visible:
+		var down := event.is_action_pressed("ui_down", true)
+		if down or event.is_action_pressed("ui_up", true):
+			var scroll: ScrollContainer = paper.body.get_parent()
+			scroll.scroll_vertical += 80 if down else -80
+			get_viewport().set_input_as_handled()
 
 
 func _board(focus: String, correction: String) -> void:

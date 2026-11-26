@@ -53,6 +53,16 @@ func tap(key: Key) -> void:
 	await process_frame
 
 
+func tap_pad(button_index: JoyButton) -> void:
+	for pressed in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = button_index
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		Input.flush_buffered_events()
+	await process_frame
+
+
 func press(button: Button) -> void:
 	expect(not button.disabled and button.is_visible_in_tree(), "enabled button: " + button.text)
 	button.grab_focus()
@@ -103,6 +113,34 @@ func check_paper_layout(paper: Control, state: String) -> void:
 		failures.append("last paper row cannot fit or scroll fully into view")
 	scroll.scroll_vertical = previous
 	expect(failures.is_empty(), "%s %s scale %.1f: %s" % [L.current(), state, Settings.text_scale, "; ".join(failures)])
+
+
+func check_madeira_scroll(paper: Control, finish_with_pad: bool) -> void:
+	var scroll: ScrollContainer = paper.body.get_parent()
+	var bar := scroll.get_v_scroll_bar()
+	var end := floori(bar.max_value - bar.page)
+	var advance: Button = paper.actions.get_child(0)
+	expect(end > 0 and advance.has_focus(), "overflowing Madeira paper starts with its continue button focused")
+	scroll.scroll_vertical = 0
+	await tap(KEY_DOWN)
+	expect(scroll.scroll_vertical > 0, "Down arrow scrolls the Madeira paper")
+	await tap(KEY_UP)
+	expect(scroll.scroll_vertical == 0, "Up arrow scrolls the Madeira paper back to the top")
+	await tap_pad(JOY_BUTTON_DPAD_DOWN)
+	expect(scroll.scroll_vertical > 0, "D-pad Down scrolls the Madeira paper")
+	await tap_pad(JOY_BUTTON_DPAD_UP)
+	expect(scroll.scroll_vertical == 0, "D-pad Up scrolls the Madeira paper back to the top")
+	while scroll.scroll_vertical < end:
+		var previous := scroll.scroll_vertical
+		if finish_with_pad:
+			await tap_pad(JOY_BUTTON_DPAD_DOWN)
+		else:
+			await tap(KEY_DOWN)
+		expect(scroll.scroll_vertical > previous, "scroll input keeps moving toward the end of the Madeira paper")
+	await frames(2)
+	var tail: Control = paper.body.get_child(-1)
+	expect(advance.has_focus() and scroll.get_global_rect().grow(1.0).encloses(tail.get_global_rect()),
+		"scroll input reveals the last Madeira line and leaves continue focused")
 
 
 func _run() -> void:
@@ -399,10 +437,6 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 		if id == "M06":
 			_check_lines(paper, text, ["M01", "M02", "M03", "M04", "M05"])
 			await check_paper_layout(paper, "Madeira arrival")
-			if madeira_captures:
-				await create_timer(0.65).timeout
-				check_paper_focus(button(paper, text.M09))
-				await capture("madeira_arrival", paper)
 		if id == "M12":
 			_check_lines(paper, text, ["M13"])
 		await press(button(paper, text.M09))
@@ -421,7 +455,7 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	expect(journey.selected == "M26" and journey.filed.is_empty(), "another loose row changes only the selection")
 	await tap(KEY_ESCAPE)
 	expect(journey.selected.is_empty() and button(paper, text.M26).has_focus(), "cancel returns focus to the loose row")
-	var order := [2, 3, 0, 1] if warm else [0, 3, 1, 2]
+	var order := [2, 3, 0, 1] if warm or madeira_captures else [0, 3, 1, 2]
 	for i in order.size():
 		var index: int = order[i]
 		var id: String = Madeira.LOOSE[index]
@@ -448,7 +482,12 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	if madeira_captures:
 		check_paper_focus(button(paper, text.M38))
 		await capture("madeira_worktable", paper)
-		if L.current() == "en":
+	if L.current() == "en":
+		await check_madeira_scroll(paper, false)
+		if madeira_captures:
+			await capture("madeira_worktable", paper, "_end")
+			var scroll: ScrollContainer = paper.body.get_parent()
+			scroll.scroll_vertical = 0
 			root.size = Vector2i(1280, 720)
 			Settings.text_scale = 1.2
 			Settings.refresh_fonts(self)
@@ -484,7 +523,7 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	while paper.actions.get_child_count() == 0:
 		await process_frame
 	await check_paper_layout(paper, "Madeira dockside")
-	if madeira_captures:
+	if madeira_captures and L.current() == "en":
 		await create_timer(0.65).timeout
 		check_paper_focus(button(paper, text.M70))
 		await capture("madeira_dockside", paper)
@@ -499,7 +538,9 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	if L.current() != "en":
 		expect(has_text(paper, Madeira.QUOTES.I09), "translated passage retains original excerpt")
 	await check_paper_layout(paper, "onward passage letter")
+	if L.current() in ["en", "ja"]:
+		await check_madeira_scroll(paper, true)
 	if madeira_captures:
 		check_paper_focus(button(paper, text.I10))
-		await capture("madeira_onward_passage", paper)
+		await capture("madeira_onward_passage", paper, "_end")
 	await press(button(paper, text.I10))

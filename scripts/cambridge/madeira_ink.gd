@@ -97,24 +97,33 @@ func _hotel() -> void:
 
 
 func _dock() -> void:
-	for y in range(20, 85, 9):
+	for y in range(29, 100, 9):
 		for x in range(14 + (y % 20), 560, 76):
 			_stroke([Vector2(x, y), Vector2(x + 38, y - 2)], WASH, 1)
-	_shape([Vector2(600, 31), Vector2(304, 31), Vector2(265, 52), Vector2(320, 76), Vector2(600, 76)], WASH)
-	_stroke([Vector2(278, 52), Vector2(600, 52)])
-	_shape([Vector2(0, 109), Vector2(518, 93), Vector2(600, 123), Vector2(600, 159), Vector2(0, 159)], WASH)
-	draw_line(Vector2(0, 119), Vector2(569, 105), LIGHT, 2)
-	for x in [330, 399, 449]:
-		var y := 65 if last_leg < 0.5 else 47
-		draw_rect(Rect2(x, y - 21, 45, 21), LIGHT)
-		draw_rect(Rect2(x, y - 21, 45, 21), INK, false, 1.5)
-		draw_line(Vector2(x + 9, y - 21), Vector2(x + 9, y), INK)
+	_shape([Vector2(596, 31), Vector2(304, 31), Vector2(265, 52), Vector2(320, 76), Vector2(596, 76)], WASH)
+	for x in range(323, 577, 12):
+		_stroke([Vector2(x, 71), Vector2(x + 7, 61)], INK, 0.8)
+	for x in [458, 503, 548]:
+		var crate := Rect2(x, 31, 36, 21)
+		draw_rect(crate, LIGHT)
+		draw_rect(crate, INK, false, 1.5)
+		_stroke([crate.position + Vector2(8, 0), crate.position + Vector2(8, 21)], INK, 1)
+	_stroke([Vector2(265, 52), Vector2(596, 52)])
+	var quay_left := Vector2(4, 109)
+	var quay_corner := Vector2(518, 93)
+	_shape([quay_left, quay_corner, Vector2(596, 123), Vector2(596, 155), Vector2(4, 155)], WASH)
+	_stroke([quay_left + Vector2(0, 17), quay_corner + Vector2(0, 17), Vector2(596, 140)], INK, 1)
+	for x in range(12, 515, 12):
+		var edge := quay_left.lerp(quay_corner, (x - quay_left.x) / (quay_corner.x - quay_left.x))
+		_stroke([edge + Vector2(0, 15), edge + Vector2(8, 4)], INK, 0.8)
 	if subject == "principe_folder":
-		var rise := 65 * last_leg
-		var case_ink := INK.lerp(WASH, last_leg)
-		draw_rect(Rect2(57, 109 - rise, 170, 46), case_ink)
-		draw_arc(Vector2(142, 109 - rise), 16, PI, TAU, 16, case_ink, 3, true)
-		draw_line(Vector2(57, 126 - rise), Vector2(227, 126 - rise), WASH, 2)
+		var base := Vector2(72, 140).lerp(Vector2(336, 52), last_leg)
+		var lid := base - Vector2(0, 33)
+		_shape([lid, lid + Vector2(109, 0), base + Vector2(109, 0), base], LIGHT)
+		draw_arc(lid + Vector2(54, 0), 9, PI, TAU, 16, INK, 2, true)
+		_stroke([lid + Vector2(0, 10), lid + Vector2(109, 10)], INK, 1)
+		for x in [16, 93]:
+			_stroke([lid + Vector2(x, 0), base + Vector2(x, 0)], INK, 2)
 	elif last_leg < 0.5:
 		_shape([Vector2(48, 123), Vector2(66, 108), Vector2(190, 104), Vector2(177, 122)], LIGHT)
 
