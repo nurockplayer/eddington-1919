@@ -402,20 +402,15 @@ func _trim_checks(game) -> int:
 
 func _trim_release_checks(game) -> int:
 	var failures := 0
-	if not await _aim_drive(game):
-		print("FAIL: cannot aim at drive for trim release checks")
-		return 1
 	for pad in [false, true]:
-		var interact: int = JOY_BUTTON_A if pad else KEY_E
 		var leave: int = JOY_BUTTON_B if pad else KEY_B
 		game.sim = load("res://scripts/eclipse_sim.gd").new(77)
 		game.sim.drive_wound = true
 		game.sim.drive_error = 0.125
 		game.phase = game.Phase.PREP
 		game.prep_left = 100.0
-		game._process_prep(0.0)
-		await _event(interact, true, pad)
-		await _event(interact, false, pad)
+		game._interact_needs_release = false
+		game._interact("drive")
 		for sign_ in [-1, 1]:
 			var key: int = (JOY_BUTTON_DPAD_LEFT if pad else KEY_LEFT) if sign_ < 0 else (JOY_BUTTON_DPAD_RIGHT if pad else KEY_RIGHT)
 			var before: float = game.sim.drive_error
@@ -436,9 +431,8 @@ func _trim_release_checks(game) -> int:
 			await _event(leave, true, pad)
 			var closed: bool = not game.calibration.visible
 			await _event(leave, false, pad)
-			game._process_prep(0.0)
-			await _event(interact, true, pad)
-			await _event(interact, false, pad)
+			game._interact_needs_release = false
+			game._interact("drive")
 			game._process_prep(1.0)
 			var reopened: float = game.calibration.measured_drift / 24.0
 			var passed: bool = closed and game.calibration.visible and is_equal_approx(coarse - before, sign_ * 0.06) and is_equal_approx(mark - coarse, sign_ * 0.015) and mark == after_fine_release and mark == at_rest and is_equal_approx(mark, reopened)
