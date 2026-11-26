@@ -9,7 +9,9 @@ const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
+const CAMBRIDGE := "res://scenes/cambridge.tscn"
 const DEPARTURE := "res://scenes/departure.tscn"
+const OBSERVATION_DAY := "res://scenes/main.tscn"
 const TRAY := ["D1", "C1", "R1", "C2", "D2", "R2", "D3", "C3", "R3"]
 const SLOTS := ["T04", "T05", "T06", "T05", "T04", "T06", "T04", "T05", "T06"]
 const BEFORE_PACKET := [
@@ -47,7 +49,8 @@ func tap(key: Key) -> void:
 		event.physical_keycode = key
 		event.pressed = pressed
 		Input.parse_input_event(event)
-		await process_frame
+		Input.flush_buffered_events()
+	await process_frame
 
 
 func press(button: Button) -> void:
@@ -125,9 +128,11 @@ func _run() -> void:
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
 	if madeira_captures:
 		locales = ["en", "ja"]
+	# Retain the packed resources across locales. The directors still create fresh scenes.
+	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
 	for locale in locales:
 		L.apply(locale)
-		await _route(enabled, locale == "ja")
+		await _route(route, enabled, locale == "ja")
 	if capture_dir.is_empty():
 		Checkpoint.clear()
 		DirAccess.remove_absolute(Settings.settings_path())
@@ -136,8 +141,8 @@ func _run() -> void:
 	quit()
 
 
-func _route(enabled: bool, misfile: bool) -> void:
-	expect(change_scene_to_file("res://scenes/cambridge.tscn") == OK, "load real Cambridge scene")
+func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
+	expect(change_scene_to_packed(route[0]) == OK, "load real Cambridge scene")
 	await scene_changed
 	var director := current_scene
 	while not director.ui.dialog_active():
@@ -175,9 +180,9 @@ func _route(enabled: bool, misfile: bool) -> void:
 		await _tribunal(director, misfile)
 	else:
 		expect(director.get("tribunal") == null, "flag off creates no chapter")
-	if current_scene == null or current_scene.scene_file_path != DEPARTURE:
+	if current_scene == null or current_scene.scene_file_path != route[1].resource_path:
 		await scene_changed
-	expect(current_scene.scene_file_path == DEPARTURE, "route loads existing M2 scene")
+	expect(current_scene.scene_file_path == route[1].resource_path, "route loads existing M2 scene")
 	expect(story.to_save() == expected, "only prologue completion changes saved M1 state")
 	if Checkpoint.force_enabled:
 		expect(Checkpoint.peek() == "departure", "handoff writes the departure checkpoint")
@@ -191,7 +196,7 @@ func _route(enabled: bool, misfile: bool) -> void:
 	while not current_scene.ui.dialog_active():
 		await process_frame
 	if capture_dir.is_empty() or madeira_captures:
-		await _departure(current_scene, enabled, misfile)
+		await _departure(current_scene, route[2], enabled, misfile)
 
 
 func _tribunal(director: Node, misfile: bool) -> void:
@@ -317,7 +322,7 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	print("saved ", filename)
 
 
-func _departure(chapter: Node, enabled: bool, warm: bool) -> void:
+func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm: bool) -> void:
 	var story := root.get_node("Story")
 	await _dialogue(chapter)
 	chapter._interact("lightbox")
@@ -360,7 +365,7 @@ func _departure(chapter: Node, enabled: bool, warm: bool) -> void:
 				chapter.ui.caption.text.begins_with(entry.t), "flag off retains M2 caption " + entry.t)
 	if is_instance_valid(chapter):
 		await scene_changed
-	expect(current_scene.scene_file_path == "res://scenes/main.tscn", "the route reaches the existing observation day")
+	expect(current_scene.scene_file_path == observation_day.resource_path, "the route reaches the existing observation day")
 	expect(current_scene._came_from_departure and story.departure_done, "arrival has the full-story origin")
 	previous.departure_done = true
 	previous.from_prologue = true
