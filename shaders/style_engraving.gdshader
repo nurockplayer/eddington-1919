@@ -216,6 +216,30 @@ vec3 view_pos(sampler2D depth, vec2 uv, mat4 inv_proj) {
 	return p.xyz / p.w;
 }
 
+vec2 outline_sample(vec2 uv, vec2 o, mat4 inv_proj, vec3 pv, float z, float dist_f, bool sky, vec3 n_v) {
+	vec3 p_l = view_pos(depth_tex, uv - vec2(o.x, 0.0), inv_proj);
+	vec3 p_r = view_pos(depth_tex, uv + vec2(o.x, 0.0), inv_proj);
+	vec3 p_d = view_pos(depth_tex, uv - vec2(0.0, o.y), inv_proj);
+	vec3 p_u = view_pos(depth_tex, uv + vec2(0.0, o.y), inv_proj);
+	float lap = abs(p_l.z + p_r.z - 2.0 * pv.z) + abs(p_d.z + p_u.z - 2.0 * pv.z);
+	float e_thr = mix(edge_depth, far_edge, dist_f);
+	float depth_edge = smoothstep(e_thr, e_thr * 2.5, lap / z);
+	float edge = depth_edge;
+	if (sky) {
+		// Print silhouettes from the sky's side too, except for distant land.
+		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
+		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
+	} else if (normal_from_depth < 0.5) {
+		vec3 n_l = normalize(texture(normal_tex, uv - vec2(o.x, 0.0)).xyz * 2.0 - 1.0);
+		vec3 n_r = normalize(texture(normal_tex, uv + vec2(o.x, 0.0)).xyz * 2.0 - 1.0);
+		vec3 n_d = normalize(texture(normal_tex, uv - vec2(0.0, o.y)).xyz * 2.0 - 1.0);
+		vec3 n_u = normalize(texture(normal_tex, uv + vec2(0.0, o.y)).xyz * 2.0 - 1.0);
+		float n_break = 1.0 - min(min(dot(n_v, n_l), dot(n_v, n_r)), min(dot(n_v, n_d), dot(n_v, n_u)));
+		edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break) * (1.0 - dist_f));
+	}
+	return vec2(edge, depth_edge);
+}
+
 void fragment() {
 	vec2 uv = SCREEN_UV;
 	float raw = texture(depth_tex, uv).r;
@@ -251,17 +275,14 @@ void fragment() {
 	tone = clamp((tone - tone_lo) / max(tone_hi - tone_lo, 0.001), 0.0, 1.0);
 	float dark = 1.0 - tone;
 
-	// Outlines: second difference of depth (zero on any flat surface) and normal breaks.
-	vec2 o = mix(outline_px, 0.5, day_weight) * res_k / VIEWPORT_SIZE;
-	vec3 p_l = view_pos(depth_tex, uv - vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
-	vec3 p_r = view_pos(depth_tex, uv + vec2(o.x, 0.0), INV_PROJECTION_MATRIX);
-	vec3 p_d = view_pos(depth_tex, uv - vec2(0.0, o.y), INV_PROJECTION_MATRIX);
-	vec3 p_u = view_pos(depth_tex, uv + vec2(0.0, o.y), INV_PROJECTION_MATRIX);
-	float lap = abs(p_l.z + p_r.z - 2.0 * pv.z) + abs(p_d.z + p_u.z - 2.0 * pv.z);
-	float e_thr = mix(edge_depth, far_edge, dist_f);
-	float edge = smoothstep(e_thr, e_thr * 2.5, lap / z);
-
-	vec3 n_v = vec3(0.0, 0.0, 1.0);
+	// Moving nearest-neighbor taps makes all silhouette edges jump at a texel
+	// boundary. Keep both sets of taps fixed and dissolve their ink.
+	vec2 pixel = res_k / VIEWPORT_SIZE;
+	vec4 surface = sky ? vec4(0.0) : texture(normal_tex, uv);
+	vec3 n_v = sky ? vec3(0.0, 0.0, 1.0) : normalize(surface.xyz * 2.0 - 1.0);
+	vec2 totality_outline = day_weight < 1.0 ? outline_sample(uv, outline_px * pixel, INV_PROJECTION_MATRIX, pv, z, dist_f, sky, n_v) : vec2(0.0);
+	vec2 daylight_outline = day_weight > 0.0 ? outline_sample(uv, 0.5 * pixel, INV_PROJECTION_MATRIX, pv, z, dist_f, sky, n_v) : vec2(0.0);
+	float edge = totality_outline.x;
 	float ink = 0.0;
 	float tone_p = tone;   // the tone the page's heightening follows
 	float bead = 0.0;
@@ -279,9 +300,7 @@ void fragment() {
 	bool surface_print = false;
 	if (sky) {
 		dark *= sky_ink;
-		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
-		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
-		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
+		edge = mix(totality_outline.x, daylight_outline.x, day_weight);
 		float from_contact = cloud_time - third_contact_cloud_clock.x;
 		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
 		float print_time = returning_sky ? day_return_cloud_time : cloud_time;
@@ -426,13 +445,11 @@ void fragment() {
 
 	} else {
 		vec3 q = pv / z;
-		vec4 surface = texture(normal_tex, uv);
 		// Forward+ normal/roughness reads decode the prepass's 7-bit roughness.
 		surface_print = day_weight > 0.0 && abs(surface.w - 17.0 / 127.0) < 0.003;
-		vec3 n_buf = normalize(surface.xyz * 2.0 - 1.0);
 		vec3 n_dep = normalize(cross(dFdx(pv), dFdy(pv)));
 		n_dep = dot(n_dep, pv) > 0.0 ? -n_dep : n_dep;
-		n_v = normal_from_depth > 0.5 ? n_dep : n_buf;
+		n_v = normal_from_depth > 0.5 ? n_dep : n_v;
 		vec3 n_w = normalize((INV_VIEW_MATRIX * vec4(n_v, 0.0)).xyz);
 		vec3 pw = (INV_VIEW_MATRIX * vec4(pv, 1.0)).xyz;
 		bool ridge = length(pw.xz) > 75.0 && pw.y > -0.39;
@@ -457,17 +474,8 @@ void fragment() {
 			case_solid = night;
 		}
 
-		if (normal_from_depth < 0.5) {
-			vec3 n_l = normalize(texture(normal_tex, uv - vec2(o.x, 0.0)).xyz * 2.0 - 1.0);
-			vec3 n_r = normalize(texture(normal_tex, uv + vec2(o.x, 0.0)).xyz * 2.0 - 1.0);
-			vec3 n_d = normalize(texture(normal_tex, uv - vec2(0.0, o.y)).xyz * 2.0 - 1.0);
-			vec3 n_u = normalize(texture(normal_tex, uv + vec2(0.0, o.y)).xyz * 2.0 - 1.0);
-			float n_break = 1.0 - min(min(dot(n_v, n_l), dot(n_v, n_r)), min(dot(n_v, n_d), dot(n_v, n_u)));
-			edge = max(edge, smoothstep(edge_normal, edge_normal * 2.0, n_break) * (1.0 - dist_f));
-		}
-
 		float day_ink = 0.0;
-		float day_edge = edge;
+		float day_edge = daylight_outline.x;
 		if (day_weight > 0.0) {
 			// The rest of the day frame carries flat tone and contours.
 			float shade_side = 1.0 - smoothstep(0.0, 0.35, dot(n_w, sun_dir));
@@ -514,7 +522,7 @@ void fragment() {
 				a1 = vec3(0.8, 0.6, 0.0);
 				a2 = vec3(-0.6, 0.8, 0.0);
 				dark = 0.48;
-				edge = smoothstep(e_thr, e_thr * 2.5, lap / z);
+				edge = totality_outline.y;
 			}
 			float shadow = smoothstep(0.48, 0.72, dark);
 			float first = clamp((dark - 0.20) * 0.85, 0.0, 0.32) + shadow * 0.28;
@@ -539,8 +547,8 @@ void fragment() {
 			tone_p = mix(tone_p, tone_raw, night);
 			if (measuring_paper) {
 				vec2 margin = vec2(0.25, 0.20) - abs(pw.xz - vec2(10.6, 4.1));
-				vec2 pixel = max(fwidth(pw.xz), vec2(0.0001));
-				paper_edge = 1.0 - smoothstep(0.0, 1.0, min(margin.x / pixel.x, margin.y / pixel.y));
+				vec2 paper_pixel = max(fwidth(pw.xz), vec2(0.0001));
+				paper_edge = 1.0 - smoothstep(0.0, 1.0, min(margin.x / paper_pixel.x, margin.y / paper_pixel.y));
 				room_value = 1.0;
 			}
 		} else if (day_weight < 1.0) {
