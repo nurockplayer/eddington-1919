@@ -89,6 +89,23 @@ static func render(sim, plate) -> ImageTexture:
 	return ImageTexture.create_from_image(img)
 
 
+## The rehearsal shares the developed plate's star profile, over transparent glass.
+static func render_check(sharp: PackedVector2Array, smudges: PackedVector2Array) -> ImageTexture:
+	var img := Image.create_empty(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	var buf := PackedFloat32Array()
+	buf.resize(SIZE * SIZE)
+	for centre in sharp:
+		_splat(buf, centre * SIZE, 2.0, 1.1)
+	for centre in smudges:
+		_splat(buf, centre * SIZE, 6.5, 0.19)
+	for y in SIZE:
+		for x in SIZE:
+			var density := buf[y * SIZE + x]
+			if density > 0.0:
+				img.set_pixel(x, y, Color(0.08, 0.09, 0.09, minf(density, 1.0)))
+	return ImageTexture.create_from_image(img)
+
+
 static func _splat(buf: PackedFloat32Array, p: Vector2, radius: float, amount: float) -> void:
 	var rr := int(ceil(radius * 3.0))
 	for dy in range(-rr, rr + 1):

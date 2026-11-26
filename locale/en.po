@@ -247,6 +247,15 @@ msgstr "In 1979 the Sobral plates were measured again (Harvey): 4-inch 1.90″ �
 msgid "4 月 24 日・搭「Fortaleza」號離開帕拉。4 月 29 日・抵達卡莫辛。"
 msgstr "24 April · Leave Pará on Fortaleza. 29 April · Reach Camocim."
 
+msgid "4 月 25 日・埃斯佩蘭薩莊園。四周群山環繞。"
+msgstr "25 April · Roça Esperança. Mountains close in around the site."
+
+msgid "4 月 25 日・聖若阿金莊園。西岸的一處合適地點。"
+msgstr "25 April · Roça São Joaquim. A suitable site on the west coast."
+
+msgid "4 月 26 日・選定桑迪莊園。高地向北和向西都能越過海面，看得很遠。"
+msgstr "26 April · Roça Sundy chosen. From the plateau, the outlook is open over the sea to the north and west."
+
 msgid "4 月 30 日・從卡莫辛搭火車前往索布拉爾。"
 msgstr "30 April · Take the train from Camocim to Sobral."
 
@@ -280,6 +289,12 @@ msgstr "The magnifying glass Ashby gave you."
 msgid "B 鍵"
 msgstr "B button"
 
+msgid "Carneiro 在聖安東尼奧和他的桑迪莊園接待觀測隊。"
+msgstr "Carneiro hosts the observers in Santo António and at his plantation, Roça Sundy."
+
+msgid "Carneiro 為遠征隊提供莊園的勞力和物資。"
+msgstr "Carneiro made the plantation's labour and materials available to the expedition."
+
 msgid "Cottingham"
 msgstr "Cottingham"
 
@@ -288,6 +303,18 @@ msgstr "Cottingham is at the coelostat. The morning damp has made the clock driv
 
 msgid "Cottingham 看過的那幾張，都在雲後面；其餘的，我說不上來。」"
 msgstr "The ones Cottingham saw were all behind cloud; the rest, I can't say.'"
+
+msgid "Cottingham 負責定天鏡的驅動裝置。"
+msgstr "Cottingham is responsible for the coelostat drive."
+
+msgid "Cottingham。你不用一個人回家了。"
+msgstr "Cottingham. You won't have to go home alone."
+
+msgid "Cottingham，也許你不用一個人回家。可是這一疊底片，我們挑得還不夠乾淨。"
+msgstr "Cottingham, perhaps you won't have to go home alone. But we haven't selected these plates cleanly enough."
+
+msgid "Cottingham，你要不要一個人回家，我還說不準。"
+msgstr "Cottingham, I can't yet say whether you'll have to go home alone."
 
 msgid "Cottingham：「一半在雲裡，一半透了光。」"
 msgstr "Cottingham: 'Half in cloud, half let the light through.'"
@@ -352,6 +379,12 @@ msgstr "Eddington and Cottingham · Waiting in Funchal"
 msgid "Eddington 和 Cottingham・等候前往普林西比的船。"
 msgstr "Eddington and Cottingham · Wait for the onward ship to Príncipe."
 
+msgid "Eddington 回憶，gravana 季節開始後，夜裡大多晴朗，雨也少。白天往往有雲，日食前兩天尤其如此。"
+msgstr "Eddington recalls generally clear nights and little rain once the gravana began. Daylight often brought cloud, especially in the two days before the eclipse."
+
+msgid "Eddington 在信中寫道，電報站職員 Wright 和 Lewis 為觀測隊擔任口譯。"
+msgstr "Eddington's letter credits Wright and Lewis, employees of the cable station, with interpreting for the observers."
+
 msgid "Eddington 寫道，戰時物資短缺，當地出產的糖卻便宜又充足。"
 msgstr "Eddington writes that provisions had been scarce during the war. Locally grown sugar was cheap and plentiful."
 
@@ -366,6 +399,9 @@ msgstr "Eddington covers this panel with his hand."
 
 msgid "Eddington 的清單。（把茶杯推過來，已經涼了）恭喜。真的。"
 msgstr "Eddington's list. (Pushes a cup of tea across; it has gone cold.) Congratulations. Truly."
+
+msgid "Eddington 致 Sarah Ann Eddington・1919 年 6 月 21 日・Trinity EDDN/A/4/9"
+msgstr "Eddington to Sarah Ann Eddington · 21 June 1919 · Trinity EDDN/A/4/9"
 
 msgid "Eddington 還在換片……"
 msgstr "Eddington is still changing the plate…"
@@ -396,11 +432,20 @@ msgstr "Edmund Rook · Fictional Cambridge colleague"
 msgid "E／Enter"
 msgstr "E/Enter"
 
+msgid "F. A. Bellamy 在一月拍下太陽將於 5 月 29 日通過的同一片星場。這些底片供日食照片比對。"
+msgstr "F. A. Bellamy's January plates show the same field the Sun will cross on 29 May. They supply the comparison for the eclipse photographs."
+
+msgid "Grageira 代表殖民農業協會（Sociedade de Agricultura Colonial）提供這兩個地點供考察。"
+msgstr "Grageira, representing the Sociedade de Agricultura Colonial, offers both sites for inspection."
+
 msgid "Greenwich 來信了。Dyson 寫的，在桌上。你先看。"
 msgstr "A letter has come from Greenwich. It's from Dyson—on the table. You read it first."
 
 msgid "Hall 試過：指數不是 2，是 2.00000016。水星對了——可是別的行星也得跟著對，這才是難處。"
 msgstr "Hall tried it: the exponent is not 2 but 2.00000016. Mercury came out right—but the other planets have to come out right as well, and that is the difficulty."
+
+msgid "Henrique Morize 帶領巴西國家天文台（Observatório Nacional）團隊，執行自己的日冕攝影與光譜觀測計畫。"
+msgstr "Henrique Morize leads Brazil's Observatório Nacional team in its own programme of corona photography and spectroscopy."
 
 msgid "Hotel Bella Vista・豐沙爾"
 msgstr "Hotel Bella Vista · Funchal"
@@ -420,11 +465,17 @@ msgstr "Kit reads: …"
 msgid "Kit，今晚真想得到你的回信。你讀到這封信時，我已經在別處了。"
 msgstr "Kit, I could use an answer tonight. By the time you read this, I'll be somewhere else."
 
+msgid "Kit，我從桌邊抬頭。海上的天空都是雲。"
+msgstr "Kit, I looked up from the table. Cloud covers the sky over the sea."
+
 msgid "Kit，我抬頭看了。日落後，港口上方還留著一道微光。底下的燈全亮了。"
 msgstr "Kit, I looked up. A pale strip held over the harbour after sunset. Below it all the lamps were on."
 
 msgid "Kit，日落後，港口上方還有一道淡淡的亮光。燈已經亮了。"
 msgstr "Kit, after sunset I could still see a pale strip over the harbour. The lamps were already on."
+
+msgid "Kit，海上的天空都是雲。"
+msgstr "Kit, cloud covers the sky over the sea."
 
 msgid "Kit，這裡留給你的天空"
 msgstr "Room for your sky, Kit"
@@ -434,6 +485,9 @@ msgstr "LB/RB"
 
 msgid "Le Verrier 也這麼想。日食的時候大家都在找它——1878 年有人說看見了，沒人能再看見一次。"
 msgstr "Le Verrier thought so too. At eclipses everyone was looking for it—in 1878 someone claimed to have seen it, and no one ever saw it again."
+
+msgid "Morize 協助安排。市政和教會代表迎接遠征隊，Vicente Saboya 提供住宿，Leocádio Araújo 擔任口譯並協助準備。"
+msgstr "Morize helps with arrangements. Municipal and church representatives welcome the team, Vicente Saboya provides lodging, and Leocádio Araújo interprets and helps with preparations."
 
 msgid "Q　−0.5°"
 msgstr "Q  −0.5°"
@@ -800,6 +854,9 @@ msgstr ", "
 msgid "〈Keep the Home-Fires Burning〉。開戰頭幾個月寫的歌，到現在英國還有很多人在唱：把家裡的爐火燒著，等孩子們回家。"
 msgstr "'Keep the Home-Fires Burning'. Written in the first few months of the war, and still sung by many in Britain: keep the home fires burning, till the boys come home."
 
+msgid "《A Lucta》・索布拉爾・1919 年 4 月 23 日。〈Carnaval versus Grippe〉（嘉年華與流感對決）。"
+msgstr "A Lucta · Sobral · 23 April 1919. “Carnaval versus Grippe” (“Carnival versus influenza”)."
+
 msgid "《Cambridge Independent Press》・1919 年 3 月 14 日。〈Schools Closed in Sixty Parishes〉（六十個教區停課）。報導範圍是劍橋郡。"
 msgstr "Cambridge Independent Press · 14 March 1919. “Schools Closed in Sixty Parishes”. The report covers Cambridgeshire."
 
@@ -808,6 +865,15 @@ msgstr "Diário da Madeira · 16 November 1918. “A epidemia e o porto do Funch
 
 msgid "《Diário da Madeira》・1919 年 3 月 15 日。報紙列出遠征隊的乘客。"
 msgstr "Diário da Madeira · 15 March 1919. The newspaper lists the expedition passengers."
+
+msgid "《Estado do Pará》・貝倫・1918 年 10 月 28 日。〈A influenza alastra-se〉（流感正在蔓延）。"
+msgstr "Estado do Pará · Belém · 28 October 1918. “A influenza alastra-se” (“Influenza is spreading”)."
+
+msgid "《Estado do Pará》・貝倫・1919 年 4 月 20 日。〈O próximo eclipse total do Sol〉（即將到來的日全食）。頭版刊有 Crommelin 和 Davidson 的解說及兩人肖像。"
+msgstr "Estado do Pará · Belém · 20 April 1919. “O próximo eclipse total do Sol” (“The next total solar eclipse”). The front page carries Crommelin and Davidson’s explanation and both portraits."
+
+msgid "《Nature》報導，索布拉爾在全食期間至少有一段時間天氣晴朗。當地的比對照片仍待拍攝。"
+msgstr "Nature reports clear sky for at least part of totality at Sobral. Comparison photographs there are still to come."
 
 msgid "《劍橋每日新聞》・1918 年 6 月 14 日，第 3 頁"
 msgstr "Cambridge Daily News · 14 June 1918, p. 3"
@@ -1136,6 +1202,9 @@ msgstr "He says it is a good opportunity to test a theory. A physicist working i
 msgid "他還提到一件事：上一次拿日食底片來比，底片因為用了平面鏡反射，整張是反的，得翻過來、膜面對膜面才比得了。"
 msgstr "He mentions one other thing: the last time eclipse plates were compared, the mirror in the instrument had turned the whole image round, and they had to be turned over, emulsion to emulsion, before any comparison could be made."
 
+msgid "代理行政長官 Vasconcelos、Jerónimo Carneiro 和 Grageira 登船迎接遠征隊，協助安排這趟訪問。"
+msgstr "Acting Administrator Vasconcelos, Jerónimo Carneiro and Grageira come aboard to meet the expedition and help arrange the visit."
+
 msgid "位移為示意放大；真實的位移比一個星點還小得多。"
 msgstr "The displacement is exaggerated for illustration; the real shift is far smaller than a star image."
 
@@ -1234,6 +1303,9 @@ msgstr "In the darkroom you said it was inconclusive. But your plates leave room
 
 msgid "你在暗房說底片支持 %s。帳上這一行，要寫得比那天小心。"
 msgstr "In the darkroom you said the plates supported %s. This line in the ledger needs more care than you gave it that day."
+
+msgid "你在桑迪看見了什麼？"
+msgstr "What did you see at Sundy?"
 
 msgid "你在薄的那段裡開、在變厚前停：那張會是清楚的。"
 msgstr "You opened while the cloud was thin and stopped before it thickened: that plate would be clear."
@@ -1523,6 +1595,9 @@ msgstr "Both fit (0.87″ and 1.75″)"
 msgid "兩地一起"
 msgstr "Both sites together"
 
+msgid "兩封電報"
+msgstr "Two cables"
+
 msgid "兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n"
 msgstr ""
 
@@ -1549,6 +1624,9 @@ msgstr "%d plates: %d with clear star images, %d measurable but flawed, %d with 
 
 msgid "再去看一次吧。看看角落那個「14」。我在這裡等。"
 msgstr "Go and look again. Look at the '14' in the corner. I'll wait here."
+
+msgid "再拍一組"
+msgstr "Take a fresh pair"
 
 msgid "再按一次：回到標題"
 msgstr "Press again: return to title"
@@ -1580,6 +1658,12 @@ msgstr "Read the last page of the workbook again"
 msgid "准予免役十二個月，條件是繼續目前的工作。"
 msgstr "Twelve months' exemption, on condition that he continued his present work."
 
+msgid "出發前，Dyson 先生跟我說：要是底片上量出愛因斯坦的兩倍，Eddington 會發瘋，你就得自己一個人回家。"
+msgstr "Before we sailed, Dyson told me: if the plates show twice Einstein's figure, Eddington will go mad, and you will have to come home alone."
+
+msgid "切換曝光"
+msgstr "Switch exposure"
+
 msgid "別忘了遠處的星。今天，它們和太陽旁邊的星一樣重要。"
 msgstr "Don't forget the distant stars. Today they matter as much as the stars beside the Sun."
 
@@ -1600,6 +1684,12 @@ msgstr "So far, yes. Which is why you are going to measure it."
 
 msgid "到櫃子取出畢宿星團的舊底片，核對清單上的第一顆星。"
 msgstr "Take the old Hyades plate from the cabinet and check the first star on the list."
+
+msgid "前往觀測地點"
+msgstr "Continue to the observing site"
+
+msgid "前往觀測日"
+msgstr "Continue to observation day"
 
 msgid "剛才"
 msgstr "Previous"
@@ -1682,6 +1772,12 @@ msgstr "Go and look. Whatever you see, write it down."
 msgid "去親眼看看。看到什麼，就寫下什麼。"
 msgstr "Go and see. Whatever you see, write it down."
 
+msgid "參考 %d"
+msgstr "Reference %d"
+
+msgid "參考圈・以曝光 A 的星像為圓心"
+msgstr "Reference rings · Centres from exposure A"
+
 msgid "參考底片"
 msgstr "Reference plates"
 
@@ -1741,6 +1837,12 @@ msgstr "But the box says only that light bends, not by how much. Half can be got
 
 msgid "可是翻過來以後，它還是歪的吧？差一點，全都朝同一個方向。你沒覺得奇怪嗎？"
 msgstr "But after you turned it over, it was still askew, wasn't it? A little out, all in the same direction. Didn't that seem strange?"
+
+msgid "可用"
+msgstr "Usable"
+
+msgid "可用・這一組的四個星像都留在參考圈內。"
+msgstr "Usable · All four stars stayed within the reference rings on this pair."
 
 msgid "可用底片 %d 張%s。時鐘驅動：%s。"
 msgstr "Usable plates: %d%s. Clock drive: %s."
@@ -1829,6 +1931,18 @@ msgstr "Equipment · Check the Greenwich astrographic objective and the separate
 msgid "器材・檢查牛津天文攝影儀的物鏡、水平鏡筒及定天鏡的驅動裝置。"
 msgstr "Equipment · Check the Oxford astrographic objective, horizontal tube and coelostat drive."
 
+msgid "器材抵達桑迪莊園。"
+msgstr "The equipment reaches Roça Sundy."
+
+msgid "四個中心都清楚可見，且朝同一方向移出了參考圈。"
+msgstr "All four centres are visible and have shifted together beyond their rings."
+
+msgid "四個中心都清楚可見，且都落在參考圈內。"
+msgstr "All four centres are visible and lie inside their rings."
+
+msgid "四個星像的中心都看得見時，才能判斷驅動情況。逐一比對中心與參考圈。"
+msgstr "Judge the drive when all four centres are visible. Compare each centre with its ring."
+
 msgid "回到卷宗"
 msgstr "Back to packet"
 
@@ -1859,6 +1973,9 @@ msgstr "The Ministry of National Service had granted permission for the tribunal
 msgid "圖跟底片完全不同。不是編的，是什麼？"
 msgstr "The tracing and the plate are nothing alike. If it wasn't invented, what is it?"
 
+msgid "在 B 上標記每個參考圈對應的星像。雲遮住中心時，記為空白。"
+msgstr "On B, mark the matching star for each ring. Record a blank where cloud hides its centre."
+
 msgid "在你的筆記本上寫一個數字。不是答案——是你現在猜的。"
 msgstr "Write a number in your notebook. Not the answer—your guess, now."
 
@@ -1877,8 +1994,17 @@ msgstr "I have it. I… couldn't bring myself to throw it away."
 msgid "在筆記本最後寫一句：哪一個證據最讓你改變想法？"
 msgstr "At the end of the notebook, write one line: which piece of evidence changed your mind most?"
 
+msgid "在紙上留一點位置給我。"
+msgstr "Leave me a little room on the page."
+
+msgid "在群島的可可莊園，葡萄牙殖民當局的契約勞動制度仰賴強制手段，並為勞工返鄉設下障礙。"
+msgstr "On the islands' cocoa plantations, the Portuguese colonial contract labour system relied on coercion and put barriers in the way of workers returning home."
+
 msgid "在豐沙爾等了將近四週。"
 msgstr "Almost four weeks in Funchal."
+
+msgid "在鐵道盡頭，搬運工接手，把器材扛過森林。"
+msgstr "Where the track ends, porters take the loads through the forest."
 
 msgid "地面"
 msgstr "The floor"
@@ -1912,6 +2038,9 @@ msgstr "The University asked to keep its astronomer at work. That's an occupatio
 
 msgid "大概是。"
 msgstr "Probably."
+
+msgid "大角星校核星場・牛津與普林西比"
+msgstr "Arcturus check field · Oxford and Príncipe"
 
 msgid "天文台人事・委員會會議紀錄，1917 至 1918 年"
 msgstr "Observatory staffing · Syndicate minutes, 1917–18"
@@ -2006,6 +2135,9 @@ msgstr "Finish the plan"
 msgid "完整的量測要回國後才做得完，比例尺和校驗片都還得一張張比；Sobral 的結果我們也還不知道。電報發出去就收不回來了。"
 msgstr "The full measurement cannot be finished until we are home; the plate scale and the check plates still have to be compared one by one, and we do not yet know the Sobral results. A telegram cannot be taken back."
 
+msgid "定天鏡・反射鏡隨天空轉動，把光反射進固定的鏡筒。"
+msgstr "Coelostat · The driven mirror follows the sky and reflects light into the fixed tube."
+
 msgid "定天鏡靠這具重錘時鐘轉動，跟著太陽走。發條得上滿，走速還要對著天文鐘校一次——不然曝光一長，星像就拖成短線。"
 msgstr "The coelostat is turned by this weight-driven clock, following the Sun. Its driving weight must be wound up, and the drive rate checked once against the astronomical clock—otherwise a long exposure trails the star images into little lines."
 
@@ -2093,6 +2225,9 @@ msgstr "It does"
 msgid "對德停戰協議使西線戰事停止。"
 msgstr "The armistice with Germany brought the fighting on the Western Front to a halt."
 
+msgid "對照兩次曝光檢查標記。中心被遮住的地方請留白。"
+msgstr "Check the marks against both exposures. Leave a blank wherever the centre is hidden."
+
 msgid "對話紀錄　［%s 關閉］"
 msgstr "Dialogue log  [%s to close]"
 
@@ -2119,6 +2254,12 @@ msgstr "Hand it in as it is."
 
 msgid "島上要再過好幾個月才能在夜裡看到這片星，所以比對片必須事先拍好。之後要把日食底片和它疊在一起比較星的位置。"
 msgstr "This field will not be visible at night from the island for several months, so the comparison plate had to be taken in advance. Later the eclipse plate will be laid over it to compare the star positions."
+
+msgid "工作做完，我想留下來喝茶。"
+msgstr "I’d like to stay for tea when we’re finished."
+
+msgid "工作做完，我想留下來陪你坐坐。離開前就該說的。"
+msgstr "I want to sit with you after the work is done. I should have said so before I left."
 
 msgid "工作簿"
 msgstr "The workbook"
@@ -2305,6 +2446,9 @@ msgstr "As it should be. At the next eclipse, someone will go and measure again.
 msgid "我一張底片也沒有拍成。」"
 msgstr "I didn't manage a single plate.'"
 
+msgid "我一直拿兩個杯子去工作桌。後來就不拿了。我把你的椅子挪到我這一頭，好放星圖。"
+msgstr "I kept taking two cups to the bench. Then I stopped. Your chair’s at my end now. I need it for the star charts."
+
 msgid "我不信一張在雲底下、在熱帶、在戰時拍的底片，能乾淨到讓我改掉牛頓。"
 msgstr "I don't believe a plate taken under cloud, in the tropics, in wartime, can be clean enough to make me give up Newton."
 
@@ -2485,8 +2629,17 @@ msgstr "So I want first to set down what 'clean' means, as a list. (Places a she
 msgid "所以規則要在你量之前寫好。所以 Sobral 那一地的底片，不經過我的手。"
 msgstr "That's why the rule had to be written before you measured. That's why the Sobral plates don't pass through my hands."
 
+msgid "打開 Kit 的工作簿"
+msgstr "Open Kit's workbook"
+
 msgid "打開工作副本"
 msgstr "Open the working copies"
+
+msgid "打開演練底片"
+msgstr "Open the rehearsal plates"
+
+msgid "打開考察地圖"
+msgstr "Open the site map"
 
 msgid "找出描圖與底片之間的差異。"
 msgstr "Find the difference between the tracing and the plate."
@@ -2599,6 +2752,9 @@ msgstr "Next panel"
 msgid "換你了。你在本子上押的是什麼？"
 msgstr "Your turn. What did you put in your notebook?"
 
+msgid "搬運器材・1919 年 4 月 28 日"
+msgstr "The equipment move · 28 April 1919"
+
 msgid "搭船繼續旅程"
 msgstr "Take the onward passage"
 
@@ -2610,6 +2766,9 @@ msgstr "Rub it out and write the correct figure over it."
 
 msgid "擦改的墨跡還留在紙上"
 msgstr "The rubbed-out ink still shows on the paper."
+
+msgid "支墩・為觀測器材砌造。"
+msgstr "Piers · Built for the observing apparatus."
 
 msgid "支持 0.87″"
 msgstr "Supports 0.87″"
@@ -2713,14 +2872,35 @@ msgstr "The corona was so clear—we must have succeeded."
 msgid "日誌說是同一張？那就怪了。"
 msgstr "The log says it's the same plate? That's odd."
 
+msgid "日食"
+msgstr "The Solar Eclipse"
+
+msgid "日食星場比對・牛津"
+msgstr "Eclipse-field comparison · Oxford"
+
 msgid "日食極佳，愛因斯坦得證"
 msgstr "Eclipse splendid, Einstein confirmed"
+
+msgid "日食觀測極佳。Crommelin"
+msgstr "Eclipse splendid. Crommelin"
 
 msgid "日食那天，我們就去量：零、一半，還是全部。"
 msgstr "On the day of the eclipse, we go and measure: nothing, half, or all."
 
 msgid "明白了。"
 msgstr "Understood."
+
+msgid "星像不清"
+msgstr "No clear image"
+
+msgid "星像不足"
+msgstr "Too few stars"
+
+msgid "星像不足・雲遮住兩個中心。這一組無法判斷追蹤情況。"
+msgstr "Too few stars · Cloud hid two centres. Tracking undetermined for this pair."
+
+msgid "星像位置為模擬。為了便於辨認，位移已誇大。"
+msgstr "Simulated star positions. Drift exaggerated for visibility."
 
 msgid "星像品質：它拖長、起霧或星不夠"
 msgstr "Star image quality: trailed, fogged, or too few stars"
@@ -2776,6 +2956,9 @@ msgstr "Clock drive"
 msgid "時鐘驅動：發條已上滿"
 msgstr "Clock drive: fully wound"
 
+msgid "普林西比・A. S. Eddington・《Nature》103 卷，265–266 頁・1919 年 6 月 5 日"
+msgstr "Príncipe · A. S. Eddington · Nature 103, pp. 265–266 · 5 June 1919"
+
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
 msgstr "At Príncipe, 16 plates were exposed during the 302-second totality, with exposures of 2 to 20 seconds; the cloud thinned noticeably only in the last third of totality. The first ten plates showed almost no stars, and in the end only two plates, with five stars in all, could be measured. Eddington measured one plate on the island and found it agreed with Einstein's prediction; his telegram to Dyson said the cloud was thick but 'hopeful' (quoted as \"Through cloud, hopeful\" in Nature, 5 June 1919; the date of sending is not confirmed)."
 
@@ -2785,8 +2968,20 @@ msgstr "Príncipe checklist"
 msgid "普林西比的資料夾帶上船。"
 msgstr "The Príncipe folder goes aboard."
 
+msgid "晴夜・模擬調整驅動裝置後"
+msgstr "Clear night · After a simulated drive adjustment"
+
+msgid "晴夜・第一組"
+msgstr "Clear night · First pair"
+
 msgid "暫停"
 msgstr "Paused"
+
+msgid "曝光 A"
+msgstr "Exposure A"
+
+msgid "曝光 B"
+msgstr "Exposure B"
 
 msgid "曝光的要領再說一次？"
 msgstr "Go over the exposure points again?"
@@ -2832,6 +3027,9 @@ msgstr "How sure are you?"
 
 msgid "有幾秒，雲薄到看得見日冕——像有人在霧後面點了一盞燈。」"
 msgstr "For a few seconds the cloud thinned enough to see the corona—as if someone had lit a lamp behind the fog.'"
+
+msgid "有雲的一次"
+msgstr "Clouded attempt"
 
 msgid "有點把握"
 msgstr "Fairly sure"
@@ -2908,6 +3106,24 @@ msgstr "On what grounds?"
 msgid "桌角那個信封，上面寫著你的名字。"
 msgstr "That envelope on the corner of the desk has your name on it."
 
+msgid "桑迪・1919 年 5 月 28 日"
+msgstr "Sundy · 28 May 1919"
+
+msgid "桑迪的工作"
+msgstr "Work at Sundy"
+
+msgid "桑迪的那些星期"
+msgstr "The weeks at Sundy"
+
+msgid "桑迪莊園・1919 年 5 月 13 日"
+msgstr "Roça Sundy · 13 May 1919"
+
+msgid "桑迪莊園・1919 年 5 月 28 日"
+msgstr "Roça Sundy · 28 May 1919"
+
+msgid "椅子就放那裡吧。我回家後，給我看看你記的時間。"
+msgstr "Keep the chair there. Show me your timings when I come home."
+
 msgid "標準"
 msgstr "Standard"
 
@@ -2925,6 +3141,9 @@ msgstr "What Happened Historically"
 
 msgid "歷史上，普林西比的觀測者是 Eddington 與 Cottingham 兩人。你和他們同行——這是虛構的。"
 msgstr "Historically, the two observers at Príncipe were Eddington and Cottingham. You travel with them—this is fiction."
+
+msgid "殖民地可可種植勞動・Ana Simões、Hugo Soares 和 Luís Miguel Carolino 的研究"
+msgstr "Colonial cocoa labour · Research by Ana Simões, Hugo Soares and Luís Miguel Carolino"
 
 msgid "每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。"
 msgstr "Compares the same area every half second; move with the right stick or arrows. Q/E or L1/R1 switch between the loupe and blink buttons."
@@ -2947,6 +3166,9 @@ msgstr "Lower than the starting point"
 msgid "比出發點高"
 msgstr "Higher than the starting point"
 
+msgid "比對有雲的一組"
+msgstr "Compare the clouded pair"
+
 msgid "比對片、遠處的星、先寫好的規則。（把紙推到%s面前）"
 msgstr "The comparison plate, the distant stars, the rules written first. (Pushes the sheet across to %s)"
 
@@ -2955,6 +3177,9 @@ msgstr "A comparison plate: the same telescope, photographing the same field at 
 
 msgid "比較 0″（不偏折）、0.87″（牛頓式）和 1.75″（廣義相對論）。"
 msgstr "Compare 0″ (no deflection), 0.87″ (Newtonian-style) and 1.75″ (general relativity)."
+
+msgid "水平鏡筒・裝上牛津的天文攝影物鏡。"
+msgstr "Horizontal tube · Fitted with the Oxford astrographic objective."
 
 msgid "水星也不再是例外了"
 msgstr "Mercury is no longer the exception"
@@ -3127,6 +3352,9 @@ msgstr "Current bet"
 msgid "現在押的：說不準"
 msgstr "Now: can't say"
 
+msgid "用同一組四個參考圈比對 A 和 B。"
+msgstr "Compare A and B against the same four reference rings."
+
 msgid "用離太陽很遠的星來檢查？"
 msgstr "Check against stars far from the Sun?"
 
@@ -3198,6 +3426,9 @@ msgstr "Look at the number in the corner of the tracing, then at the one pencill
 
 msgid "看箭頭"
 msgstr "Look at the arrow"
+
+msgid "真希望你在這裡，能幫我核對時間。也希望工作做完以後，你還在。"
+msgstr "I wish you were here to check my times. I wish you were here when the work is done, too."
 
 msgid "示意圖，不按比例。"
 msgstr "Diagram, not to scale."
@@ -3355,6 +3586,9 @@ msgstr "Joseph Larmor favoured suspending scientific relations with colleagues i
 msgid "納入量測"
 msgstr "Include"
 
+msgid "索布拉爾・《The Observatory》42 卷，256 頁・1919 年 6 月・據 Abraham Pais 轉錄"
+msgstr "Sobral · The Observatory 42, p. 256 · June 1919 · As transcribed by Abraham Pais"
+
 msgid "索布拉爾清單"
 msgstr "Sobral checklist"
 
@@ -3397,6 +3631,9 @@ msgstr "Resume"
 msgid "繼續前往出發前夜"
 msgstr "Continue to departure"
 
+msgid "繼續返鄉"
+msgstr "Continue homeward"
+
 msgid "繼續閱讀"
 msgstr "Continue"
 
@@ -3408,6 +3645,9 @@ msgstr "Continue: the night before departure"
 
 msgid "繼續：普林西比"
 msgstr "Continue: Príncipe"
+
+msgid "翻到天空那一頁"
+msgstr "Turn to the sky page"
 
 msgid "翻到離港紀錄"
 msgstr "Turn to the departure record"
@@ -3432,6 +3672,15 @@ msgstr "Turn it over, then rotate it a little over three degrees. The same as I 
 
 msgid "翻面，還轉了三度。"
 msgstr "Turned over, and turned three degrees."
+
+msgid "考察地點・1919 年 4 月 25 至 26 日"
+msgstr "Sites inspected · 25–26 April 1919"
+
+msgid "聖安東尼奧・1919 年 4 月 23 日"
+msgstr "Santo António · 23 April 1919"
+
+msgid "聖安東尼奧・1919 年 5 月 6 至 13 日"
+msgstr "Santo António · 6–13 May 1919"
 
 msgid "聯合常設日食委員會小組會議紀錄，1918 年 6 月 14 日"
 msgstr "Joint Permanent Eclipse Committee subcommittee minutes, 14 June 1918"
@@ -3460,8 +3709,14 @@ msgstr "Statement of conscience"
 msgid "英國・1918 年 11 月至 1919 年初"
 msgstr "Britain · November 1918 to early 1919"
 
+msgid "英國出版物刊載的歷史電報。你在暗房寫的電報是虛構草稿。"
+msgstr "Historical cables as published in Britain. Your darkroom telegram was a fictional draft."
+
 msgid "英國在停戰後仍對糖實施配給。"
 msgstr "In Britain, sugar rationing continued after the Armistice."
+
+msgid "英國的索布拉爾隊抵達帕拉（貝倫）後，趁等候 Henrique Morize 回音時去了馬瑙斯，隨後折返帕拉。"
+msgstr "After reaching Pará (Belém), the British Sobral team visits Manaus while waiting for word from Henrique Morize, then returns to Pará."
 
 msgid "藍墨水：Kit 抄的清單　　褐墨水：你的字　　聽 Kit 念出底片上的數值，和清單比對：相符按 ✓，不符按 ×。"
 msgstr "Blue ink: the list Kit copied    brown ink: your hand    listen as Kit reads the plate values and check them against the list: ✓ if they match, × if not."
@@ -3474,6 +3729,9 @@ msgstr ""
 
 msgid "虛構旅程・你與史實中前往普林西比觀測的兩人 Eddington 和 Cottingham 同行。"
 msgstr "Fictional journey · You travel with Eddington and Cottingham, the two historical Príncipe observers."
+
+msgid "虛構書信・Kit 寫給你・寫於劍橋"
+msgstr "Fictional correspondence · Kit to you · Written in Cambridge"
 
 msgid "虛構書信・寄往劍橋，給 Kit"
 msgstr "Fictional correspondence · To Kit, Cambridge"
@@ -3511,11 +3769,20 @@ msgstr "Observing · Photograph the eclipse field at totality. Use Bellamy's Oxf
 msgid "觀測・全食時用兩台儀器拍下日食星場。如有需要，在巴西夜間補拍同一星場的底片。"
 msgstr "Observing · Photograph the eclipse field at totality with both instruments. Allow for night plates of the same field in Brazil if needed."
 
+msgid "觀測隊另拍一個包含大角星的星場，檢查兩地的器材或觀測條件是否造成差異。"
+msgstr "The observers photograph a separate field containing Arcturus to check for differences introduced by the apparatus or observing conditions at the two sites."
+
+msgid "觀測隊返回港口。為了少讓反射鏡接觸潮濕的空氣，他們把鏡子留在箱裡。"
+msgstr "The observers return to port, leaving the mirror packed to limit its exposure to the humid air."
+
 msgid "記下每張底片的狀況：雲、曝光秒數、溫度、時鐘驅動"
 msgstr "Record the condition of each plate: cloud, exposure in seconds, temperature, clock drive"
 
 msgid "記下讀數"
 msgstr "Record reading"
+
+msgid "記下這組底片能讓你判斷什麼。"
+msgstr "Record what this pair lets you judge."
 
 msgid "記得。他們說我們是編的。"
 msgstr "I remember. They said we made it up."
@@ -3661,11 +3928,17 @@ msgstr "Fogged: veiled by cloud light, faint stars, few to count"
 msgid "越拉越快"
 msgstr "faster and faster"
 
+msgid "跟著器材走"
+msgstr "Follow the equipment"
+
 msgid "跳過也是一種選擇——但要寫下你跳過了。"
 msgstr "Skipping is a choice too—but write down that you skipped it."
 
 msgid "軍人開始分批重返平民生活。到了隔年一月，勞工部仍在報告陸軍人員退伍的情況。"
 msgstr "Men began returning to civilian life in stages. The Ministry of Labour was still reporting releases from the Army in January."
+
+msgid "輕便鐵路"
+msgstr "Light railway"
 
 msgid "轉一點就對上了。可是為什麼要轉？底片的藥膜面上應該有鉛筆記號，告訴我們北邊在哪裡。"
 msgstr "A small turn brings it into line. But why should it need turning? There should be a pencil mark on the emulsion side of the plate to tell us where north is."
@@ -3679,8 +3952,14 @@ msgstr "Back"
 msgid "返回　%s"
 msgstr "Back  %s"
 
+msgid "追蹤・演練紀錄"
+msgstr "Tracking · Rehearsal record"
+
 msgid "追蹤示意圖——示意重建，非史料"
 msgstr "Tracking diagram—illustrative reconstruction, not historical evidence"
+
+msgid "透過雲層，仍有希望"
+msgstr "Through cloud, hopeful"
 
 msgid "這 %d 張"
 msgstr ""
@@ -3717,6 +3996,9 @@ msgstr ""
 
 msgid "這就是你的 14 號。底片可能放斜、可能縮放——遠處的星不該移動，就拿它們來量這些。"
 msgstr "That is your plate 14. A plate can be set askew, or change scale—stars far away should not move; measure those effects against them."
+
+msgid "這幾組只用來校核追蹤。測量偏折需要日食底片。"
+msgstr "These pairs check tracking only. The eclipse plates are needed to measure deflection."
 
 msgid "這張桌子空著，椅子推得整整齊齊。戰爭開始以後，天文台少了好幾個人。"
 msgstr "The desk stands empty, its chair neatly pushed in. The observatory has lost several people since the war began."
@@ -3769,8 +4051,14 @@ msgstr "To talk of a theory from Berlin at such a time sounds to some like deali
 msgid "這裡？（笑）這裡什麼都不會變。"
 msgstr "Here? (laughs) Nothing here will change."
 
+msgid "通往桑迪的林間小徑"
+msgstr "Forest path to Sundy"
+
 msgid "過早的宣告"
 msgstr "A Declaration Too Early"
+
+msgid "遠征報告記下了搬運工的工作，沒有留下他們的名字。"
+msgstr "The expedition report records the porters' work without giving their names."
 
 msgid "遠處的星"
 msgstr "the distant stars"
@@ -3916,8 +4204,17 @@ msgstr "Lisbon · 12 March. Frederico Oom meets the four at the quay and takes t
 msgid "重建肖像，非歷史照片"
 msgstr "Reconstructed portrait, not a historical photograph"
 
+msgid "重拍"
+msgstr "Repeat"
+
+msgid "重拍・可見的星像一起偏移。調整驅動裝置，再拍一組。"
+msgstr "Repeat · Visible stars shifted together. Adjust the drive and take the pair again."
+
 msgid "重新選片"
 msgstr "Reselect plates"
+
+msgid "重構地圖・示意圖"
+msgstr "Reconstructed map · Schematic"
 
 msgid "重構的工作副本・助理存檔"
 msgstr "Reconstructed working copy · Assistant's file"
@@ -3933,6 +4230,9 @@ msgstr "Redrawn? A clean copy looks well. But the next person sees only your ans
 
 msgid "重設"
 msgstr "Reset"
+
+msgid "重錘坑・驅動重錘降入鐘機下方的坑裡。"
+msgstr "Weight pit · The drive weight descends into a pit below the clock."
 
 msgid "量之前先寫下：什麼樣的底片不能用"
 msgstr "Write down before measuring: what makes a plate unusable"
@@ -3984,6 +4284,9 @@ msgstr "Blink comparison"
 msgid "開始——就位等待全食。"
 msgstr "Begin—take your places and wait for totality."
 
+msgid "開始夜間校核・1919 年 5 月 16 日"
+msgstr "Night checks begin · 16 May 1919"
+
 msgid "開始遊戲：序章・劍橋，1917"
 msgstr "Start: Prologue · Cambridge, 1917"
 
@@ -3993,8 +4296,14 @@ msgstr "Read the July hearing"
 msgid "閱讀六月的上訴紀錄"
 msgstr "Read the June appeal"
 
+msgid "閱讀夜間校核紀錄"
+msgstr "Read the night-check record"
+
 msgid "閱讀家書摘錄"
 msgstr "Read the family letter excerpt"
+
+msgid "閱讀工作紀錄"
+msgstr "Read the work record"
 
 msgid "閱讀摘錄"
 msgstr "Read extract"
@@ -4005,6 +4314,9 @@ msgstr "Read the archive map"
 msgid "闔上備查卷宗"
 msgstr "Close reference copy"
 
+msgid "闔上演練紀錄"
+msgstr "Close the rehearsal log"
+
 msgid "關於這份報告，你還有話要說？"
 msgstr "Anything else to say about the report?"
 
@@ -4013,6 +4325,12 @@ msgstr "A closed box, no window, the outside covered by my hand. A pencil still 
 
 msgid "關閉"
 msgstr "Close"
+
+msgid "附筆・Ashby 先生叫我提醒你，結果不好的校核也要留著。我說你早就知道怎麼做紀錄了。"
+msgstr "Ashby asked me to remind you to keep the poor checks. I told him you already know how to keep a record."
+
+msgid "隊員從帕拉搭「Fortaleza」號輪船前往卡莫辛，再搭火車到索布拉爾。"
+msgstr "From Pará, the team takes the steamer Fortaleza to Camocim, then the railway to Sobral."
 
 msgid "隔著雲，星少，未定"
 msgstr "Through cloud, stars few, inconclusive"
@@ -4053,6 +4371,9 @@ msgstr "The Cloud Did Not Yield"
 msgid "雲薄的時候，幾秒就能留下星像；厚雲下開再久也只是一片霧。換片要四秒左右。"
 msgstr "When the cloud is thin, a few seconds will leave a star image; under thick cloud, any length of exposure gives only fog. Changing a plate takes about four seconds."
 
+msgid "雲遮住兩個中心。只剩兩個，無法判斷追蹤情況。"
+msgstr "Cloud hides two centres. The remaining two give too little evidence to judge tracking."
+
 msgid "零"
 msgstr "Zero"
 
@@ -4061,6 +4382,12 @@ msgstr "Zero. That too is a number worth writing down. When the time comes, the 
 
 msgid "零：光不會被拉彎"
 msgstr "Zero: light does not bend"
+
+msgid "電報之前，你還有話要說？"
+msgstr "Before the telegram, is there something else you want to say?"
+
+msgid "電報是兩處觀測地點的初步報告。測量星光偏折需要底片及比對資料。"
+msgstr "The cables give early reports from the two sites. Measuring the starlight deflection requires the plates and their comparisons."
 
 msgid "電報的理由%s：『%s』→『%s』。"
 msgstr "The telegram's grounds %s: '%s' → '%s'."
@@ -4094,6 +4421,9 @@ msgstr "The Madeira wait"
 
 msgid "馬德拉豐沙爾・3 月 14 日。兩隊都上了岸。"
 msgstr "Funchal, Madeira · 14 March. Both teams come ashore."
+
+msgid "驅動校核模擬"
+msgstr "Simulated drive check"
 
 msgid "驅動箱就在我旁邊——%s上發條。"
 msgstr ""
