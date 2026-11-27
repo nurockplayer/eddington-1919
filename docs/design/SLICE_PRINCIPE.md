@@ -1663,3 +1663,17 @@ Opened whole at 1280×720: five of the seven candidate frames (fogged + notebook
 ![notebook + micrometer at 1.2](slice_principe/accept/602/a2fdc9b/after-1.2-trailed-excluded-compare-notebook.png)
 ![trailed + notebook at 1.2](slice_principe/accept/602/a2fdc9b/after-1.2-trailed-excluded-notebook.png)
 ![fogged + notebook at 1.0](slice_principe/accept/602/a2fdc9b/after-1.0-fogged-included-notebook.png)
+
+### 2026-11-27 21:02 JST · #603 (AA 18 drive lesson status) at d646693: accepted
+
+Opened whole at 1280×720: all five candidate frames and main's 01 and 02. Main's 03 to 05 not opened.
+
+- Technical regression: none in the frames shown; the scene is drawn as on main.
+- This change: accepted. With the drive under the crosshair the objective card says "Help Cottingham wind the drive" instead of the plate-holder errand, then "Observe tracking and ask Cottingham to trim the rate", then ticks. The hold bar sits under the prompt and no longer lies across the drive housing.
+- Whole scene: unchanged.
+- Backlog, not holds: the hold bar is a soft translucent grey strip, pale fill on a grey track, outside the ink-and-paper frames beside it; at 50% the fill is close to the ground's tone. After the rate is verified the prompt still offers "[E] Observe tracking and ask Cottingham to adjust" (not checked against main). The card says "trim the rate", the prompt "adjust".
+
+![hold at 50%, candidate](slice_principe/accept/603/d646693/after-02-partial-hold.png)
+![hold at 50%, main](slice_principe/accept/603/d646693/before-02-partial-hold.png)
+![aimed, candidate](slice_principe/accept/603/d646693/after-01-aimed-unwound.png)
+![verified, candidate](slice_principe/accept/603/d646693/after-05-verified.png)
