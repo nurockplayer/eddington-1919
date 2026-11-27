@@ -189,6 +189,7 @@ func _build() -> void:
 		for mark in [true, false]:
 			var button := _button("✓" if mark else "×")
 			button.disabled = true
+			button.focus_mode = Control.FOCUS_NONE
 			button.pressed.connect(_mark.bind(i, mark))
 			row.add_child(button)
 			buttons.append(button)
@@ -225,6 +226,7 @@ func allow_mark() -> void:
 	ready_to_mark = true
 	for button in row_buttons[active_index]:
 		button.disabled = false
+		button.focus_mode = Control.FOCUS_ALL
 		button.add_theme_color_override("font_color", Report.INK)
 	_scroll.ensure_control_visible(_rows[active_index])
 	row_buttons[active_index][0].grab_focus()
@@ -237,6 +239,7 @@ func _mark(index: int, correct: bool) -> void:
 	ready_to_mark = false
 	for button in row_buttons[index]:
 		button.disabled = true
+		button.focus_mode = Control.FOCUS_NONE
 	row_buttons[index][0 if correct else 1].text += L.t(" 已記")
 	active_index += 1
 	if active_index == entries.size():

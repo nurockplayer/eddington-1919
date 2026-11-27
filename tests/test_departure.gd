@@ -209,6 +209,82 @@ func _drain_dialogue(chapter, choices: Dictionary = {}) -> void:
 	check(guard > 0, "M2 dialogue sequence terminates")
 
 
+func _press(event: InputEvent) -> void:
+	event.pressed = true
+	root.push_input(event)
+	await process_frame
+	event.pressed = false
+	root.push_input(event)
+	await process_frame
+
+
+func _play_checklist(chapter, use_pad: bool, fix: int) -> void:
+	var accept: InputEvent
+	var right: InputEvent
+	var down: InputEvent
+	if use_pad:
+		accept = InputEventJoypadButton.new()
+		accept.button_index = JOY_BUTTON_A
+		right = InputEventJoypadButton.new()
+		right.button_index = JOY_BUTTON_DPAD_RIGHT
+		down = InputEventJoypadButton.new()
+		down.button_index = JOY_BUTTON_DPAD_DOWN
+	else:
+		accept = InputEventKey.new()
+		accept.keycode = KEY_ENTER
+		right = InputEventKey.new()
+		right.keycode = KEY_RIGHT
+		down = InputEventKey.new()
+		down.keycode = KEY_DOWN
+	var device := "pad" if use_pad else "keys"
+	var sheet = chapter.checklist
+	var expected_marks := {}
+	for i in sheet.entries.size():
+		var row := "%s row %d" % [device, i + 1]
+		check(chapter.ui.dialog_active() and not sheet.ready_to_mark, row + " starts with Kit's readback")
+		var focus := root.gui_get_focus_owner()
+		check(focus == null or not sheet.is_ancestor_of(focus), row + " leaves no locked mark focused during readback")
+		await _press(accept)
+		check(sheet.ready_to_mark and sheet.row_buttons[i][0].has_focus(), row + " focuses the next mark")
+		if i == 0 and use_pad:
+			chapter.ui.toggle_log()
+			sheet._mark(i, true)
+			check(sheet.marks.is_empty(), "open dialogue history blocks exposed checklist buttons")
+			chapter.ui.toggle_log()
+		elif i > 0:
+			var previous: Button = sheet.row_buttons[i - 1][0 if expected_marks[sheet.entries[i - 1].id] else 1]
+			check(sheet._scroll.get_global_rect().encloses(previous.get_global_rect()), row + " keeps the previous mark in view")
+		var agrees: bool = not sheet.entries[i].get("slip", false)
+		if not agrees:
+			await _press(down)
+			check(sheet.row_buttons[i][0].has_focus(), row + " cannot navigate into an unread row")
+			await _press(right)
+			check(sheet.row_buttons[i][1].has_focus(), row + " can focus the disagreement")
+		expected_marks[sheet.entries[i].id] = agrees
+		await _press(accept)
+		check(sheet.marks == expected_marks, row + " records the mark")
+	var remaining: int = chapter.ui._seq.size()
+	while remaining > 0 and chapter.ui.dialog_active() and not chapter.ui._seq[chapter.ui._seq_i].has("choices"):
+		await _press(accept)
+		remaining -= 1
+	if fix == 1:
+		await _press(down)
+	await _press(accept)
+	remaining = chapter.ui._seq.size()
+	while remaining > 0 and chapter.ui.dialog_active():
+		await _press(accept)
+		remaining -= 1
+	var story = root.get_node("Story")
+	check(story.slip_fix == fix and sheet.correction_fix == fix and sheet.marks == expected_marks,
+		device + " keeps all original marks and applies the chosen correction")
+	var deadline := Time.get_ticks_msec() + 5000
+	while sheet.continue_btn.disabled and Time.get_ticks_msec() < deadline:
+		await process_frame
+	check(sheet.continue_btn.has_focus(), device + " focuses checklist continuation")
+	await _press(accept)
+	check(not sheet.visible and chapter.beat == chapter.Beat.KIT, device + " finishes Departure checklist")
+
+
 ## Both light views run through their real buttons, and only then does 收起來 enable.
 func _play_box_light(chapter) -> void:
 	var sketch = chapter.box_sketch
@@ -266,25 +342,9 @@ func _test_director_input_and_story() -> void:
 	check(chapter.ui.log_open() and sheet.visible and not chapter.player.can_move, "history overlays checklist and preserves input lock")
 	chapter.ui.toggle_log()
 	check(not chapter.ui.log_open() and sheet.visible and not chapter.player.can_move, "closing history keeps checklist input lock")
-	for i in sheet.entries.size():
-		if chapter.ui.dialog_active():
-			await _drain_dialogue(chapter)
-		check(sheet.ready_to_mark, "row %d unlocks after Kit readback" % i)
-		if i == 0:
-			chapter.ui.toggle_log()
-			sheet._mark(i, true)
-			check(not sheet.marks.has(sheet.entries[i].id), "open dialogue history blocks exposed checklist buttons")
-			chapter.ui.toggle_log()
-		sheet._mark(i, i != 2)
-	if chapter.ui.dialog_active():
-		await _drain_dialogue(chapter, {"slip_fix": 0})
-	await process_frame
-	check(story.slip_fix == 0 and sheet.correction_fix == 0, "strike correction choice updates Story and sheet")
-	var correction_deadline := Time.get_ticks_msec() + 5000
-	while sheet.continue_btn.disabled and Time.get_ticks_msec() < correction_deadline:
-		await process_frame
-	check(not sheet.continue_btn.disabled, "correction pause eventually enables checklist continuation")
-	sheet.continue_btn.pressed.emit()
+	await _play_checklist(chapter, true, 1)
+	chapter._interact("lightbox")
+	await _play_checklist(chapter, false, 0)
 	chapter.player.global_position = Vector3(-1.75, 0, 1.4)
 	chapter.player.look_at_point(chapter.world.targets.kit)
 	chapter.player.rotation.y = chapter.player.yaw
