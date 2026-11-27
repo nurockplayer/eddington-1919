@@ -23,6 +23,19 @@ class WorldInputProbe extends Node:
 			pause_events += 1
 
 
+class LightboxDrawProbe extends Overlay:
+	var magnified_marks: Dictionary = {}
+
+	func _draw_loupe() -> void:
+		magnified_marks.clear()
+		super._draw_loupe()
+
+	func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
+		if zoom == 2.0:
+			magnified_marks[index] = point
+		super._draw_copy_mark(point, index, zoom)
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -121,7 +134,11 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 	check(overlay.aligned and hints.is_empty() and Report.available_options(row, overlay._clues).is_empty(),
 		device + " inspection of a matched point leaves the residual report row gated before any hint")
 
+	var matched_mark_drawn := false
 	if pad:
+		var marks: Dictionary = overlay.magnified_marks
+		var lens: Vector2 = overlay._loupe_position
+		matched_mark_drawn = marks.has(16) and marks[16].is_equal_approx(lens + (matched - lens) * 2.0)
 		overlay._process(90.0)
 		check(hints.size() == 1, "a stalled inspection can request the existing timed hint")
 	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
@@ -130,7 +147,13 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
 	check(overlay._clues.has("residual") and Report.available_options(row, overlay._clues).size() == 3,
 		device + " inspection of the real residual unlocks its report options")
-	if not pad:
+	if pad:
+		var marks: Dictionary = overlay.magnified_marks
+		var lens: Vector2 = overlay._loupe_position
+		var speck: Vector2 = overlay.detail_position("residual")
+		check(matched_mark_drawn and marks.has(17) and marks[17].is_equal_approx(lens + (speck - lens) * 2.0),
+			"the live loupe draws magnified tracing marks at the matched point and over the pale speck")
+	else:
 		check(hints.is_empty(), "keyboard inspection can finish before the timed hint")
 
 
@@ -449,7 +472,7 @@ func _run() -> void:
 	check(ui.log_open(), "Back opens dialogue log")
 	await button(JOY_BUTTON_B)
 	check(not ui.log_open(), "B closes dialogue log")
-	var overlay := Overlay.new()
+	var overlay := LightboxDrawProbe.new()
 	overlay.ui = ui
 	root.add_child(overlay)
 	overlay.open()

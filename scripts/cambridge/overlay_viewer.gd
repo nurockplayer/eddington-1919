@@ -584,16 +584,19 @@ func _draw_copy_layer() -> void:
 		draw_line(c, d, Color(0.35, 0.27, 0.18, 0.18), 0.8)
 	var copy_stars := MathModel.transformed_copy(flipped, angle_deg, offset)
 	for i in copy_stars.size():
-		var p := _point_to_pixel(copy_stars[i])
-		if aligned:
-			draw_arc(p, 5.0, 0.0, TAU, 20, Color(0.025, 0.08, 0.065, 0.65), 1.0, true)
-		else:
-			var radius := 2.2 if i < 17 else 3.5
-			draw_circle(p, radius, Color(0.025, 0.08, 0.065, 0.88) if i < 17 else Color(0.05, 0.20, 0.15, 0.96))
+		_draw_copy_mark(_point_to_pixel(copy_stars[i]), i, 1.0)
 	_draw_copy_label()
 	var arrow := _copy_arrow_points()
 	_draw_arrow(_point_to_pixel(arrow[0]), _point_to_pixel(arrow[1]), Color(0.08, 0.20, 0.16, 0.78), 1.7)
 	draw_string(_font, _point_to_pixel(_copy_point(Vector2(0.26, 0.345))), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.08, 0.20, 0.16, 0.82))
+
+
+func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
+	if aligned:
+		draw_arc(point, 5.0 * zoom, 0.0, TAU, 20, Color(0.025, 0.08, 0.065, 0.65), zoom, true)
+	else:
+		var radius := 2.2 if index < 17 else 3.5
+		draw_circle(point, radius * zoom, Color(0.025, 0.08, 0.065, 0.88) if index < 17 else Color(0.05, 0.20, 0.15, 0.96))
 
 
 func _draw_copy_label() -> void:
@@ -637,6 +640,11 @@ func _draw_loupe() -> void:
 	var speck := (_point_to_pixel(MathModel.speck_point()) - _loupe_position) * 2.0
 	if speck.length() <= 34.0:
 		_draw_speck(_loupe_position + speck, 2.0)
+	var copy_stars := MathModel.transformed_copy(flipped, angle_deg, offset)
+	for i in copy_stars.size():
+		var displacement := (_point_to_pixel(copy_stars[i]) - _loupe_position) * 2.0
+		if displacement.length() <= 30.0:
+			_draw_copy_mark(_loupe_position + displacement, i, 2.0)
 	draw_arc(_loupe_position, 12.0, 0.0, TAU, 32, INK, 1.0, true)
 
 
