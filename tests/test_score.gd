@@ -298,13 +298,18 @@ func _check_sampled_cues() -> void:
 	for cue in sampled_lengths:
 		check(Score.is_sampled(cue), "%s has a rendered OGG" % cue)
 		var stream: AudioStream = Score.stream(cue)
-		check(stream is AudioStreamOggVorbis, "%s plays its sampled OGG" % cue)
-		if stream is AudioStreamOggVorbis:
+		if cue == "coda_resolution":
+			var pcm := stream as AudioStreamWAV
+			check(pcm != null and pcm.stereo and pcm.loop_mode == AudioStreamWAV.LOOP_DISABLED,
+				"resolution playback uses the enveloped stereo one-shot")
+		else:
 			var ogg := stream as AudioStreamOggVorbis
-			check(ogg.loop == Score.is_loop(cue), "%s OGG loop matches the cue contract" % cue)
-			var length := ogg.get_length()
-			check(absf(length - sampled_lengths[cue]) <= 0.05,
-				"%s OGG length %.3f s, expected %.1f s" % [cue, length, sampled_lengths[cue]])
+			check(ogg != null, "%s plays its sampled OGG" % cue)
+			if ogg != null:
+				check(ogg.loop == Score.is_loop(cue), "%s OGG loop matches the cue contract" % cue)
+		var length := stream.get_length()
+		check(absf(length - sampled_lengths[cue]) <= 0.05,
+			"%s length %.3f s, expected %.1f s" % [cue, length, sampled_lengths[cue]])
 		var effective: float = Score.SAMPLED_RMS_DB[cue] + Score.level_db(cue)
 		check(effective >= -26.0 and effective <= -22.0, "%s effective RMS %.1f dBFS" % [cue, effective])
 	for cue in ["totality_drone", "totality_glass", "totality_edge"]:

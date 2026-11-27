@@ -40,6 +40,9 @@ const _TABLE_SIZE := 4096
 const _TABLE_MASK := _TABLE_SIZE - 1
 const _REED_CUTOFF_HZ := 700.0
 const _SEAM_S := 0.05
+const _RESOLUTION_ATTACK_S := 1.5
+const _RESOLUTION_RELEASE_START_S := 10.0
+const _RESOLUTION_RELEASE_END_S := 14.5
 
 static var _cache: Dictionary = {}
 static var _cache_mutex := Mutex.new()
@@ -86,7 +89,8 @@ static func stream(cue: String) -> AudioStream:
 	# is never held behind it.
 	var candidate: AudioStream
 	if is_sampled(cue):
-		candidate = _sampled(cue)
+		var ogg := _sampled(cue)
+		candidate = _envelope_resolution(ogg) if cue == "coda_resolution" else ogg
 	else:
 		candidate = _wav(render(cue), RATE, is_loop(cue))
 	_cache_mutex.lock()
@@ -106,6 +110,29 @@ static func _sampled(cue: String) -> AudioStreamOggVorbis:
 	ogg.loop = is_loop(cue)
 	ogg.loop_offset = 0.0
 	return ogg
+
+
+static func _envelope_resolution(ogg: AudioStreamOggVorbis) -> AudioStreamWAV:
+	# Shape the sampled cue once in the score worker, keeping its stereo mix.
+	var rate := int(AudioServer.get_mix_rate())
+	var playback := ogg.instantiate_playback()
+	playback.start()
+	var frames := playback.mix_audio(1.0, roundi(ogg.get_length() * rate))
+	var pcm := PackedByteArray()
+	pcm.resize(frames.size() * 4)
+	for i in frames.size():
+		var time := float(i) / rate
+		var attack := _s_curve(time / _RESOLUTION_ATTACK_S)
+		var release := 1.0 - _s_curve(inverse_lerp(_RESOLUTION_RELEASE_START_S, _RESOLUTION_RELEASE_END_S, time))
+		var frame := frames[i] * (attack * release * 32767.0)
+		pcm.encode_s16(i * 4, roundi(frame.x))
+		pcm.encode_s16(i * 4 + 2, roundi(frame.y))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.stereo = true
+	wav.mix_rate = rate
+	wav.data = pcm
+	return wav
 
 
 static func render(cue: String) -> PackedFloat32Array:
