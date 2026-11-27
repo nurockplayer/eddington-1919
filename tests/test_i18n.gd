@@ -107,10 +107,38 @@ func reload_check() -> void:
 				if child is Label3D:
 					tag = child
 			check(tag is Label3D and tag.text == expected, locale + " scene name tag: " + id)
+	await totality_hint_checks()
 	L.apply("zh_TW")
 	Settings.text_scale = previous
 	OS.set_environment("EDD_SETTINGS_PATH", previous_env)
 	DirAccess.remove_absolute(temp_path)
+
+
+func totality_hint_checks() -> void:
+	var main_script = current_scene.get_script()
+	L.apply("zh_TW")
+	main_script.next_seed = 77
+	check(reload_current_scene() == OK, "seed 77 scene loads for the totality hint")
+	await settle()
+	main_script.next_seed = -1
+	var game = current_scene
+	game.set_process(false)
+	game._start_game()
+	L.apply("en")
+	await settle()
+	var expected := L.t("［%s／%s］開始・停") % [Prompts.key("shutter"), Prompts.key("interact")]
+	check(game.ui.tot_hint.text == expected,
+		"English hint after locale switch: expected '%s', got '%s'" % [expected, game.ui.tot_hint.text])
+	await game._begin_totality()
+	game.t_game = 105.5
+	game._update_totality_hud()
+	check(game.ui.tot_hint.is_visible_in_tree(), "totality hint is visible at 105.5 sim seconds")
+	for locale in ["en", "ja", "ko", "zh_TW"]:
+		L.apply(locale)
+		await settle()
+		expected = L.t("［%s／%s］開始・停") % [Prompts.key("shutter"), Prompts.key("interact")]
+		check(game.ui.tot_hint.text == expected,
+			"%s totality hint at 105.5 sim seconds: expected '%s', got '%s'" % [locale, expected, game.ui.tot_hint.text])
 
 
 func check(ok: bool, message: String) -> void:
