@@ -284,6 +284,8 @@ func _f16(run: Dictionary, variant: int) -> void:
 
 
 func _run() -> void:
+	# This test checks dialogue and evidence, so shorten presentation waits.
+	Engine.time_scale = 20.0
 	await process_frame
 	await _test_wish_reprise()
 	for locale in L.LOCALES:
