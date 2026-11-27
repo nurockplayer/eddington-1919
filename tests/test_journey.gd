@@ -570,7 +570,11 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	var plates: Array = day.sim.plates.duplicate(true)
 	var combined: Dictionary = day.sim.combined()
 	day._start_judgment()
-	await _dialogue(day)
+	await _dialogue(day, {"verdict": KEY_3})
+	if combined.n > 0:
+		while day._verdict_hold_s > 0.0:
+			await process_frame
+		await _dialogue(day)
 	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
 	day._interact("departure_workbook")
 	await _dialogue(day)
