@@ -1479,3 +1479,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **The two together.** The third-contact clip equals 31d7076 up to third contact; after it the only difference is on the outlines of palms and beams (largest at the last frame, +3 s: mean 0.15 of 255, 7,278 pixels), which is #557's dissolve starting, here seen at standard graphics. No pop: the largest frame-to-frame step is still the contact frame (3.68). Sky and pocket are untouched in those frames.
 - **Capture fault, not the product:** the three "main" stills are not main's picture. They are drawn without the engraving pass at all (shaded 3D palms, soft cloud), so the main shader swapped in by the capture script did not take. They were not used; the verdict rests on equality with the two accepted captures.
 - **Verdicts:** technical regression none seen; this PR's change accepted at b09eb04; whole scene unchanged. **Count stays 7/9.**
+
+### 2026-11-27 13:42 JST: #562 AA 04, totality strip states, at 952bde3: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/562/952bde3c7bf6152cb222a6d817f0cd7bb2a3e469/` (main `fd70762b`, seed 1919, en, 1280×720, reduced motion on). Opened whole at native size: the candidate's five frames and main's `01-open`; then a 3× crop of the strip from all nine, candidate and main. Stills only; the strip was not seen moving. Kept in `slice_principe/accept/562/952bde3/`.
+- **Open holds now.** A filled orange block sits above the track over the exposure's span, the brightest mark in the panel, in the 10 s exposure and 2 s into the short second one (there it stands clear of plate 1's tan span).
+- **Four holder boxes are drawn alike** in all five frames: closed squares, a tan centre once used, slashes while changing, a green diamond when ready, a cross past the rack when empty. The five states separate by shape without the status line.
+- Let go: in `04-empty` the third box's tan centre is a pixel narrower than its neighbours (seen only at 3×).
+- **Verdicts:** technical regression none seen; this PR's change accepted; AA row 04 met on this head for its visual part. **Count stays 7/9.**
