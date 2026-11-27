@@ -22,13 +22,16 @@ func play(director: Node, prediction: Dictionary) -> void:
 	director.ui.hud.hide()
 	director.player.position = Vector3(0.0, 0.0, 1.95)
 	_bench()
+	var extracts: Array = []
 	for beat in Content.BEATS:
 		if beat.has("speaker"):
 			await _dialogue(beat)
 		elif beat.has("packet"):
-			await _packet()
+			await _packet(extracts)
+			extracts.clear()
 		elif beat.has("extracts"):
 			await _read_extracts(beat)
+			extracts.append_array(beat.extracts)
 		else:
 			await _read_page(beat)
 	await _armistice()
@@ -126,11 +129,11 @@ func _read_extracts(beat: Dictionary) -> void:
 		await _prompt("T22")
 
 
-func _packet() -> void:
-	var selected: String = Content.EXTRACTS.keys()[0]
+func _packet(extracts: Array) -> void:
+	var selected: String = extracts[0]
 	var filed_feedback := false
 	while true:
-		_show_packet(selected, filed_feedback)
+		_show_packet(extracts, selected, filed_feedback)
 		var action: String = await paper.action
 		while action in Content.EXTRACTS:
 			selected = action
@@ -147,7 +150,7 @@ func _packet() -> void:
 			filed[selected] = heading
 			filed_feedback = true
 			selected = ""
-			for remaining in Content.EXTRACTS:
+			for remaining in extracts:
 				if not filed.has(remaining):
 					selected = remaining
 					break
@@ -155,7 +158,7 @@ func _packet() -> void:
 			await _dialogue({"speaker": Content.Cast.KIT, "lines": [card.hint]})
 
 
-func _show_packet(selected: String, filed_feedback: bool) -> void:
+func _show_packet(extracts: Array, selected: String, filed_feedback: bool) -> void:
 	_show_page("packet", true)
 	paper.label(paper.body, _text.T07, 32, true)
 	paper.label(paper.body, _text.T56, 22, true)
@@ -166,7 +169,7 @@ func _show_packet(selected: String, filed_feedback: bool) -> void:
 	paper.body.add_child(tray)
 	var buttons := ButtonGroup.new()
 	var card_buttons := {}
-	for card in Content.EXTRACTS:
+	for card in extracts:
 		if not filed.has(card):
 			card_buttons[card] = _card_button(tray, buttons, card, selected)
 	paper.rule(paper.body)
@@ -183,7 +186,7 @@ func _show_packet(selected: String, filed_feedback: bool) -> void:
 	var read: Button = paper.button(paper.actions, _text.T57, "read")
 	read.disabled = selected.is_empty()
 	buttons.pressed.connect(func(_button): read.disabled = false)
-	if filed.size() == Content.EXTRACTS.size():
+	if extracts.all(func(card): return filed.has(card)):
 		var close: Button = paper.button(paper.actions, _text.T70, "close")
 		if selected.is_empty():
 			close.grab_focus()

@@ -12,9 +12,10 @@ const Settings := preload("res://scripts/settings.gd")
 const CAMBRIDGE := "res://scenes/cambridge.tscn"
 const DEPARTURE := "res://scenes/departure.tscn"
 const OBSERVATION_DAY := "res://scenes/main.tscn"
-const TRAY := ["D1", "C1", "R1", "C2", "D2", "R2", "D3", "C3", "R3"]
-const SLOTS := ["T04", "T05", "T06", "T05", "T04", "T06", "T04", "T05", "T06"]
-const BEFORE_PACKET := [
+const TRAY := ["D1", "D2", "C1", "R1", "C2", "R2", "D3", "C3", "R3"]
+const SLOTS := ["T04", "T04", "T05", "T06", "T05", "T06", "T04", "T05", "T06"]
+const PASS_AFTER := {"T19": 0, "T44": 1, "T55": 2}
+const TRIBUNAL_PAGES := [
 	"T01", "T02", "T09", "T11", "T15", "T19", "T77", "T78", "T79", "T80", "T81",
 	"T23", "T24", "T25", "T29",
 	"T31", "T33", "T35", "T36", "T40", "T38", "T40", "T42", "T44", "T45",
@@ -249,7 +250,7 @@ func _tribunal(director: Node, misfile: bool) -> void:
 	while director.ui.fade.color.a > 0.0:
 		await process_frame
 	await frames(2)
-	for id in BEFORE_PACKET:
+	for id in TRIBUNAL_PAGES:
 		expect(journey.page_id == id, "expected %s, got %s" % [id, journey.page_id])
 		if bench_speakers.has(id):
 			expect(not paper.visible and director.ui.dialog_active(), "private exchange follows closed sourced slips")
@@ -271,11 +272,56 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			if id == "T54":
 				expect(has_text(paper, strings.T54), "July condition has its own page")
 			await press(button(paper, strings[id] if id in ["T24", "T45"] else strings.T22))
-	expect(journey.page_id == "packet", "packet follows the July pages")
+		if PASS_AFTER.has(id):
+			await _tribunal_pass(director, journey, strings, PASS_AFTER[id], misfile)
+	expect(journey.filed.size() == TRAY.size(), "nine distinct extracts before the verdict")
+	for id in ["T71", "T72", "T74", "T75"]:
+		expect(journey.page_id == id, "ledger sequence: " + id)
+		if id == "T72":
+			expect(has_text(paper, Content.ledger(strings, root.get_node("Story").bet_1917)), "ledger uses saved uncertain prediction")
+			expect(has_text(paper, strings.T73), "ledger displays Ashby's own entry")
+			await press(button(paper, strings.T22))
+		else:
+			await tap(KEY_ENTER)
+	expect(journey.page_id == "T82" and director.ui.dialog_active(), "Ashby returns to the ledger after the packet")
+	expect(paper.visible and has_text(paper, strings.T73)
+		and has_text(paper, Content.ledger(strings, root.get_node("Story").bet_1917)), "both entries stay open")
+	for id in ["T82", "T83"]:
+		expect(director.ui.speaker_label.text == L.t(Content.Cast.MENTOR)
+			and director.ui.text_label.text == strings[id], "Ashby speaks beside the ledger: " + id)
+		await tap(KEY_ENTER)
+	expect(journey.page_id == "I01" and has_text(paper, strings.I05), "Armistice begins with the public report")
+	expect(Checkpoint.peek() == "", "first Armistice page still has no checkpoint")
+	await check_paper_layout(paper, "armistice")
+	check_paper_focus(button(paper, strings.T22))
+	await capture("armistice", paper)
+	await press(button(paper, strings.T22))
+	expect(journey.page_id == "I08" and has_text(paper, strings.I11), "Armistice ends with the Observatory's loss")
+	await check_paper_layout(paper, "second armistice page")
+	check_paper_focus(button(paper, strings.I12))
+	await press(button(paper, strings.I12))
+
+
+func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_index: int, misfile: bool) -> void:
+	var paper: Control = journey.paper
+	var first := pass_index * 3
+	var limit := first + 3
+	expect(journey.page_id == "packet", "filing pass %d opens after %s, got %s" % [
+		pass_index + 1, ["T21", "T44", "T55"][pass_index], journey.page_id])
+	var tray: GridContainer = paper.body.find_children("*", "GridContainer", false, false)[0]
+	expect(tray.get_child_count() == 3 and journey.filed.size() == first,
+		"only three new extracts enter each pass")
+	for i in first:
+		var extract: Dictionary = Content.EXTRACTS[TRAY[i]]
+		var filed_card := button(paper, strings[extract.lines[0]])
+		var heading: Label = filed_card.get_parent().get_child(0)
+		expect(heading.text == strings[SLOTS[i]] and journey.filed[TRAY[i]] == SLOTS[i],
+			"earlier filing stays visible under its heading: " + TRAY[i])
 	expect(Checkpoint.peek() == "", "checkpoint is deferred until I12")
 	await check_paper_layout(paper, "packet")
-	await capture("packet", paper)
-	if L.current() == "en":
+	if pass_index == 2:
+		await capture("packet", paper)
+	if pass_index == 2 and L.current() == "en":
 		expect(not strings.values().any(func(line): return "’" in line), "use proportional English apostrophes on the tribunal and Armistice pages")
 		if not capture_dir.is_empty() and not madeira_captures:
 			root.size = Vector2i(1280, 720)
@@ -287,7 +333,7 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			Settings.text_scale = 1.0
 			Settings.refresh_fonts(self)
 			await frames(3)
-	for i in TRAY.size():
+	for i in range(first, limit):
 		var card: String = TRAY[i]
 		var extract: Dictionary = Content.EXTRACTS[card]
 		var title: String = strings[extract.lines[0]]
@@ -323,40 +369,16 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			"correct heading files the extract: " + card)
 		if i == 0 and L.current() == "en" and not capture_dir.is_empty():
 			await capture("packet_filed", paper)
-		expect(paper.find_children("*", "Button", true, false).any(func(b): return b.text == strings.T70) == (i == 8),
-			"close becomes available after all nine extracts")
-	await press(button(paper, strings.T52))
-	await press(button(paper, strings.T57))
-	expect(has_text(paper, strings.L) and has_text(paper, strings.T54), "rereading the ruling retains its citation and condition")
-	expect(not paper.find_children("*", "Button", true, false).any(func(b): return b.text == strings.T59),
-		"filed extract is read-only")
-	await press(button(paper, strings.T58))
+		expect(paper.find_children("*", "Button", true, false).any(func(b): return b.text == strings.T70) == (i == limit - 1),
+			"close becomes available after the three extracts in this pass")
+	if pass_index == 2:
+		await press(button(paper, strings.T52))
+		await press(button(paper, strings.T57))
+		expect(has_text(paper, strings.L) and has_text(paper, strings.T54), "rereading the ruling retains its citation and condition")
+		expect(not paper.find_children("*", "Button", true, false).any(func(b): return b.text == strings.T59),
+			"filed extract is read-only")
+		await press(button(paper, strings.T58))
 	await press(button(paper, strings.T70))
-	for id in ["T71", "T72", "T74", "T75"]:
-		expect(journey.page_id == id, "ledger sequence: " + id)
-		if id == "T72":
-			expect(has_text(paper, Content.ledger(strings, root.get_node("Story").bet_1917)), "ledger uses saved uncertain prediction")
-			expect(has_text(paper, strings.T73), "ledger displays Ashby's own entry")
-			await press(button(paper, strings.T22))
-		else:
-			await tap(KEY_ENTER)
-	expect(journey.page_id == "T82" and director.ui.dialog_active(), "Ashby returns to the ledger after the packet")
-	expect(paper.visible and has_text(paper, strings.T73)
-		and has_text(paper, Content.ledger(strings, root.get_node("Story").bet_1917)), "both entries stay open")
-	for id in ["T82", "T83"]:
-		expect(director.ui.speaker_label.text == L.t(Content.Cast.MENTOR)
-			and director.ui.text_label.text == strings[id], "Ashby speaks beside the ledger: " + id)
-		await tap(KEY_ENTER)
-	expect(journey.page_id == "I01" and has_text(paper, strings.I05), "Armistice begins with the public report")
-	expect(Checkpoint.peek() == "", "first Armistice page still has no checkpoint")
-	await check_paper_layout(paper, "armistice")
-	check_paper_focus(button(paper, strings.T22))
-	await capture("armistice", paper)
-	await press(button(paper, strings.T22))
-	expect(journey.page_id == "I08" and has_text(paper, strings.I11), "Armistice ends with the Observatory's loss")
-	await check_paper_layout(paper, "second armistice page")
-	check_paper_focus(button(paper, strings.I12))
-	await press(button(paper, strings.I12))
 
 
 func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i(1920, 1080)) -> void:
