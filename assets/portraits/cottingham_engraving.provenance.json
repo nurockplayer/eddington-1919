@@ -1,0 +1,37 @@
+{
+  "id": "cottingham_engraving",
+  "variant": 1,
+  "prompt": "Redraw the man in the reference image as a nineteenth-century steel engraving, the kind printed as a frontispiece portrait in a scientific journal. Keep his likeness, the three-quarter pose, his short greying hair, broad grey moustache with drooping ends, bare eyes without spectacles, pale linen work shirt with turned-down collar, and the framing (head and shoulders, same crop). Black ink lines only on cream paper: every tone is built from fine parallel hatching and cross-hatching that follows the form of the face, lines swelling in the shadows, fine stipple on the lit skin, clean contour lines, the shadows in the pale work shirt a dense cross-hatch. The figure fades into bare paper toward the bottom and the edges as an engraved vignette; the background is bare cream paper with a little horizontal ruling behind the head. No grey wash, no colour, no photographic shading, no text, no border, no signature.",
+  "reference": {
+    "path": "/Volumes/KIOXIA/eddington-1919-cache/director/portraits/cottingham/2026-11-28/A-print.png",
+    "sha256": "91858b125fbde65ed5f16c898510578b73b031479fab09eb4de8297afd6eada8"
+  },
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 05:12:51 JST",
+  "retries": 0,
+  "raw_sha256": "46430842651c98437363cfeaa7f793487f489e4dbb44c68292e2189fa3910221",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/portraits/cottingham/2026-11-28/A-engraving.png",
+  "file": "assets/portraits/cottingham_engraving.jpg",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a21e9f-b3f6-7bb2-b557-b4b9c194af8d/exec-1ee155ca-a672-47b7-9ddf-949db478f154.png",
+  "source_commit": "f9610a13d56795355f34ef47880f992ff9970d46",
+  "run_manifest": {
+    "path": "/Volumes/KIOXIA/eddington-1919-cache/director/portraits/cottingham/2026-11-28/manifest.json",
+    "id": "A-engraving"
+  },
+  "tone_adjustment": {
+    "reference": {
+      "path": "assets/portraits/eddington_engraving.jpg",
+      "sha256": "59d5673c544baa3e435aec128f2942b9af4c68b68723721fcb7f86dca46cdc04"
+    },
+    "method": "Apply an ink-only RGB levels curve to the raw RGB image before resizing. Derive luma Y with Pillow's RGB-to-L conversion. Blend each source pixel toward (0.82Y + 5, 0.82Y - 1, 0.82Y - 9), rounded and clamped. The blend weight is smoothstep of clamp((218 - Y) / 113, 0, 1). The full adjustment applies at Y <= 105 and paper highlights at Y >= 218 retain their original RGB values."
+  },
+  "jpeg": {
+    "size_px": [
+      1024,
+      1024
+    ],
+    "quality": 92,
+    "chroma_subsampling": "4:4:4",
+    "sha256": "4485b11d90b7e12e023d854fd97d49fc1e5bfa40eb1d5ac3fe387568b09f5ec4"
+  }
+}

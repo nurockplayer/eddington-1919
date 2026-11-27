@@ -76,3 +76,16 @@ falls back to neutral; this slice adds no mood keys to authored dialogue.
 
 Kit is fictional, with no real-person likeness. The 1.68 m height, medium-brown
 `short04` hair, spectacles, pale coat and grey pullover are invented.
+
+## Príncipe dialogue portraits (2026-11-28 JST)
+
+| Portrait file | Run manifest ID |
+|---|---|
+| `cottingham_neutral.jpg` | `A-print` |
+| `cottingham_engraving.jpg` | `A-engraving` |
+
+Candidate A is a reconstruction of the game’s Cottingham, with short greying
+hair, a broad grey moustache and a work shirt. No photograph of Cottingham
+was used or imitated. The dialogue UI labels reconstructed portraits
+“Reconstructed portrait, not a historical photograph”. The provenance files
+in `assets/portraits/` identify the raw outputs and the final engraving levels.
