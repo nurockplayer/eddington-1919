@@ -50,7 +50,11 @@ func _run() -> void:
 		"the printed contour and ray veil share the drifting pocket density")
 	check(shader_text.contains("if (night <= 0.5 && sky_plate_darkness > 0.0) {\n\t\t\tcloud_field = print_cloud")
 		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
-		"rehearsal and observation grade cloud ruling and wash with the same daylight weight")
+		"the existing cloud plate grades its ruling and wash with darkness")
+	check(shader_text.contains("if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {")
+		and shader_text.contains("float density = eclipse_cloud_density_from_sample(live_cloud);")
+		and shader_text.contains("ink = max(ink, cloud_ink * band_lines"),
+		"daylight cloud uses the live field before second contact outside rehearsal")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && solar_fade > 0.0 && front > 0.0)"),

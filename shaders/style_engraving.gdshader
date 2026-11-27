@@ -359,6 +359,16 @@ void fragment() {
 			ink *= sky_plate_darkness;
 			cloud_wash *= sky_plate_darkness;
 		}
+		if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {
+			// Use the same optical density as the daylight crescent.
+			float density = eclipse_cloud_density_from_sample(live_cloud);
+			float density_pixel = max(fwidth(density), 0.00001);
+			float contour = 1.0 - smoothstep(0.25, 1.0, abs(density - 0.42) / (density_pixel * res_k));
+			float weight = smoothstep(0.42, 0.97, density);
+			float lines = hatch(ruling.x, k, 0.08 + 0.33 * weight, l_px * 2.0, 99.0);
+			float cloud_ink = max(0.20 * contour, lines * (0.13 + 0.35 * weight) * smoothstep(0.40, 0.46, density));
+			ink = max(ink, cloud_ink * band_lines * (1.0 - smoothstep(0.0, 0.35, print_darkness)));
+		}
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
 		vec3 t1 = normalize(cross(sun_dir, vec3(0.0, 1.0, 0.0)));
