@@ -1436,3 +1436,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Thumbnail:** `arrival_160x90` is the same picture on both revisions; the shelter is the centre and the only built thing, as on main.
 - For the next head: from the same `shelter_3m` position the housing and a crank that reads as a crank stand clear of Cottingham's outline against light ground or the crate top; collider and 3.20 m reach unchanged; same four frames.
 - **Verdicts:** technical regression none seen; this PR's change not accepted yet; AA row 06 not met. **Count stays 7/9.** PR comment 7209458365.
+
+### 2026-11-27 13:20 JST: #562 AA 04, totality strip states, at 7abf9cc: not accepted (open mark, one holder box)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/562/7abf9ccd531af0353cff9e07f94cbb8aee9ada27/` (main `fd70762b`, seed 1919, en, 1280×720, reduced motion on). Opened whole at native size: the candidate's four frames and main's `01-open`; then a 3× crop of the strip panel from all eight, main over candidate. Stills only; the strip was not seen moving.
+- **Closed, changing, ready, empty hold.** Tan span in the track; slashes at the next holder; a diamond in the same place; a cross past the rack. On main changing and ready are the same boxes. Marks are 8 to 10 px at 720p but separable by shape without the status line.
+- **Open does not.** Main's filled orange block in the track is the brightest thing in the panel; the candidate's open mark is a one-pixel orange line with an arrowhead above the track, the faintest mark on the strip.
+- **Third holder box** is two horizontal lines without sides in every candidate frame. Inherited (main's boxes lose their tops in `01-open`), but it now reads as a state.
+- For the next head: open mark above the track and as heavy as main's block; four boxes drawn alike; same eight frames plus one open frame about 2 s into a short exposure.
+- **Verdicts:** technical regression none seen beyond the open mark; this PR's change not accepted yet; AA row 04 not met. **Count stays 7/9.**
