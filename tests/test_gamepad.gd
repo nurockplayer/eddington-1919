@@ -116,21 +116,95 @@ func _steer_lightbox(overlay, target: Vector2, pad: bool) -> void:
 			KEY_DOWN if steps.y > 0 else KEY_UP)
 
 
+func _mouse_click(point: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.position = point
+	event.pressed = true
+	root.push_input(event, true)
+	await process_frame
+	event.pressed = false
+	root.push_input(event, true)
+	await process_frame
+
+
+func _lightbox_readback(overlay, pad: bool) -> void:
+	overlay.clue_found.connect(func(id): overlay.ui.show_toast(C17.viewer_feedback(id), 6.0))
+	var device := "pad" if pad else "keyboard"
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_UP, KEY_UP)
+	check(overlay.buttons.label_mirrored.has_focus(), device + " reaches the mirror inspection")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_RIGHT, KEY_RIGHT)
+	check(overlay.buttons.arrow_tilted.has_focus(), device + " reaches the tilt inspection")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_LEFT, KEY_LEFT)
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_DOWN, KEY_DOWN)
+	check(overlay.buttons.flip.has_focus(), device + " readback returns to Flip")
+	check(overlay._clues.has("label_mirrored") and overlay._clues.has("arrow_tilted"),
+		device + " reads both provenance clues before aligning")
+
+
+func _lightbox_check_step(overlay, device: String, previous_angle: float) -> void:
+	check(is_equal_approx(overlay.angle_deg, previous_angle - 0.5),
+		"%s rotates once after alignment (%.1f° -> %.1f°)" % [device, previous_angle, overlay.angle_deg])
+	check(overlay.buttons.left.has_focus(), device + " focuses the active rotation control")
+	var points := Overlay.MathModel.transformed_copy(overlay.flipped, overlay.angle_deg, overlay.offset)
+	check(overlay.aligned and Overlay.MathModel.match_count(points) == 17,
+		device + " keeps all 17 correspondences and one unmatched mark")
+
+
+func _lightbox_check_close_focus(overlay, device: String) -> void:
+	var focused: bool = overlay.buttons.close.has_focus()
+	check(focused and overlay.aligned, device + " reaches Close while still aligned")
+	print("overlay receipt: %s Close focus=%s aligned=%s angle=%.1f residual=%s locale=%s text_scale=%.2f reduced_motion=%s size=%s" % [
+		device, focused, overlay.aligned, overlay.angle_deg, overlay._clues.has("residual"),
+		TranslationServer.get_locale(), Settings.text_scale, Settings.reduced_motion, root.get_visible_rect().size])
+
+
+func _test_mouse_lightbox(ui: UI) -> void:
+	var overlay := Overlay.new()
+	overlay.ui = ui
+	root.add_child(overlay)
+	overlay.open()
+	overlay.clue_found.connect(func(id): ui.show_toast(C17.viewer_feedback(id), 6.0))
+	await process_frame
+	var plate_label: Rect2 = overlay._plate_label_hit_rect()
+	await _mouse_click(plate_label.get_center())
+	var arrow: Array = overlay._source_arrow_pixels()
+	await _mouse_click(arrow[1])
+	check(overlay._clues.has("label_mirrored") and overlay._clues.has("arrow_tilted"),
+		"mouse reads both provenance clues on the plate")
+	await _mouse_click(overlay.buttons.flip.get_global_rect().get_center())
+	for i in 6:
+		await _mouse_click(overlay.buttons.right.get_global_rect().get_center())
+	var previous_angle := overlay.angle_deg
+	check(overlay.aligned, "mouse aligns the tracing")
+	await _mouse_click(overlay.buttons.left.get_global_rect().get_center())
+	_lightbox_check_step(overlay, "mouse", previous_angle)
+	await _mouse_click(overlay.detail_position("residual"))
+	check(overlay._clues.has("residual"), "mouse finds the real residual")
+	check(overlay.buttons.loupe.has_focus(), "mouse plate inspection leaves visible focus on Loupe")
+	await _lightbox_press(false, JOY_BUTTON_DPAD_DOWN, KEY_DOWN)
+	_lightbox_check_close_focus(overlay, "mouse inspection")
+	await _mouse_click(overlay.buttons.close.get_global_rect().get_center())
+	check(not overlay.visible and overlay.aligned, "mouse Close preserves alignment")
+	overlay.free()
+
+
 func _test_lightbox_inspection(overlay, pad: bool) -> void:
 	var device := "pad" if pad else "keyboard"
 	check(overlay.buttons.has("loupe"), device + " can choose a general-purpose loupe after alignment")
 	if not overlay.buttons.has("loupe"):
 		return
-	for id in ["label_mirrored", "arrow_tilted"]:
-		overlay.buttons[id].grab_focus()
-		await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
-	check(overlay._clues.has("label_mirrored") and overlay._clues.has("arrow_tilted"), device + " can still inspect both provenance clues")
 
 	var row: Dictionary = C17.report_rows()[2]
 	var hints: Array = []
 	overlay.hint_requested.connect(func(): hints.append(true))
-	var loupe: Button = overlay.buttons.loupe
-	loupe.grab_focus()
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_RIGHT, KEY_RIGHT)
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_RIGHT, KEY_RIGHT)
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_RIGHT, KEY_RIGHT)
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_UP, KEY_UP)
+	check(overlay.buttons.loupe.has_focus(), device + " reaches Loupe from Close")
 	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
 	var matched: Vector2 = overlay._point_to_pixel(Overlay.MathModel.star_points()[16])
 	var origin: Vector2 = overlay._loupe_position
@@ -154,6 +228,8 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
 	check(overlay._clues.has("residual") and Report.available_options(row, overlay._clues).size() == 3,
 		device + " inspection of the real residual unlocks its report options")
+	await _lightbox_press(pad, JOY_BUTTON_DPAD_DOWN, KEY_DOWN)
+	_lightbox_check_close_focus(overlay, device)
 	if pad:
 		var marks: Dictionary = overlay.magnified_marks
 		var lens: Vector2 = overlay._loupe_position
@@ -595,29 +671,39 @@ func _run() -> void:
 	check(is_equal_approx(overlay.angle_deg, angle_after_resume), "stick release while paused stops overlay rotation on resume")
 	overlay._reset()
 	overlay.buttons.flip.grab_focus()
+	await _lightbox_readback(overlay, true)
 	await button(JOY_BUTTON_A)
 	check(overlay.flipped, "A flips tracing")
 	for i in 6:
 		await button(JOY_BUTTON_RIGHT_SHOULDER)
 	check(overlay.aligned, "RB rotates tracing into alignment")
+	var settled_angle := overlay.angle_deg
+	await button(JOY_BUTTON_LEFT_SHOULDER)
+	_lightbox_check_step(overlay, "pad", settled_angle)
 	await _test_lightbox_inspection(overlay, true)
-	await button(JOY_BUTTON_B)
-	check(not overlay.visible, "B closes overlay")
+	await button(JOY_BUTTON_A)
+	check(not overlay.visible and overlay.aligned, "A on Close preserves alignment")
 	overlay.free()
 
 	var keyboard_overlay := Overlay.new()
 	keyboard_overlay.ui = ui
 	root.add_child(keyboard_overlay)
 	keyboard_overlay.open()
+	await _lightbox_readback(keyboard_overlay, false)
 	await key(KEY_ENTER, true)
 	await key(KEY_ENTER, false)
 	for i in 6:
 		await key(KEY_E, true)
 		await key(KEY_E, false)
 	check(keyboard_overlay.aligned, "keyboard aligns the tracing")
+	settled_angle = keyboard_overlay.angle_deg
+	await _lightbox_press(false, JOY_BUTTON_LEFT_SHOULDER, KEY_Q)
+	_lightbox_check_step(keyboard_overlay, "keyboard", settled_angle)
 	await _test_lightbox_inspection(keyboard_overlay, false)
-	keyboard_overlay.close()
+	await _lightbox_press(false, JOY_BUTTON_A, KEY_ENTER)
+	check(not keyboard_overlay.visible and keyboard_overlay.aligned, "Enter on Close preserves alignment")
 	keyboard_overlay.free()
+	await _test_mouse_lightbox(ui)
 	var board := Plan.new()
 	root.add_child(board)
 	board.open()
