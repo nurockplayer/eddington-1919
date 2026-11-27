@@ -135,6 +135,8 @@ func _run_main(game: Node, events: Dictionary) -> Array:
 		var act: String = events.get(i, "")
 		if act == "open" or act == "close":
 			game._toggle_shutter()
+		if act == "close" and game.plates_left > 0:
+			game._order_plate_change()
 		var before_t: float = game.ui._callout_t
 		var before_text: String = game.ui.callout.text
 		game._process_totality(STEP)
@@ -240,8 +242,11 @@ func _test_totality_pacing() -> void:
 			"identical mouse motion turns the same amount at both rates")
 		game._process_totality((5.0 - rate) / rate)
 		await _rehearsal_press(shutter)
-		check(not game.sim.is_exposing() and game.change_left == Sim.PLATE_CHANGE_S,
-			"the player stops the exposure and starts a plate change")
+		check(not game.sim.is_exposing() and game.change_left == 0.0,
+			"the player stops the exposure with a spent holder")
+		var interact := InputEventAction.new()
+		interact.action = "interact"
+		await _rehearsal_press(interact)
 		game._process_totality(1.0)
 		check(game.change_left == Sim.PLATE_CHANGE_S - rate, "plate change uses the totality clock")
 		var start := ceilf((game.sim.gaps[2].t + 2.0) / GAME_STEP) * GAME_STEP
@@ -297,7 +302,12 @@ func _test_rehearsal_carry() -> void:
 	space.physical_keycode = KEY_SPACE
 	var shoulder := InputEventJoypadButton.new()
 	shoulder.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	var e := InputEventKey.new()
+	e.physical_keycode = KEY_E
+	var a := InputEventJoypadButton.new()
+	a.button_index = JOY_BUTTON_A
 	for shutter in [space, shoulder]:
+		var interact: InputEvent = e if shutter == space else a
 		var game: Node = load("res://scenes/main.tscn").instantiate()
 		root.add_child(game)
 		game.set_process(false)
@@ -323,11 +333,14 @@ func _test_rehearsal_carry() -> void:
 		check(game._rehearsal_step == 1 and game.ui.tot_panel.visible and game.ui.tot_hint.visible,
 			"rehearsal opening shows the shutter HUD immediately")
 		await _rehearsal_press(shutter)
-		var practice_change: String = game.ui.tot_label.text
-		check(game._rehearsal_step == 2 and not game.ui.tot_hint.visible,
-			"rehearsal close withdraws the shutter action during the change")
+		check(game._sfx_log.back() == "close" and not game.ui.tot_hint.visible,
+			"rehearsal close leaves the holder spent until the player orders a change")
+		await _rehearsal_press(shutter)
+		check(game._sfx_log.back() == "close", "rehearsal shutter cannot start a change")
 		check(game.ui.toast.text.contains("我看見雲邊經過太陽"),
 			"rehearsal close reports the band sampled during the completed exposure")
+		await _rehearsal_press(interact)
+		check(game.rehearsing and game._sfx_log.back() == "change", "rehearsal Interact starts the change")
 		await create_timer(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE + 0.1).timeout
 		check(not game.rehearsing and not game.ui.tot_panel.visible,
 			"practice HUD is dismissed when control returns to PREP")
@@ -346,13 +359,32 @@ func _test_rehearsal_carry() -> void:
 		await _rehearsal_press(shutter)
 		check(game.sim.plates.size() == 1 and game.plates_left == inventory - 1,
 			"the first live close develops exactly one plate")
-		check(not game.ui.tot_hint.visible and not practice_change.is_empty()
-			and game.ui.tot_label.text.ends_with(practice_change), "live close immediately shows the rehearsed change state")
 		var plate: Dictionary = game.sim.plates[0]
 		check(plate.sky_read == Cues.sky_band(plate.clear, plate.duration)
 			and game.ui.toast.text.contains(Content.totality_read(plate.sky_read)), "live close reports the actual live exposure band")
-		game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
-		check(game.ui.tot_hint.visible and game.ui.tot_hint.text == hint, "live change completion restores the shutter action")
+		check(game.change_left == 0.0 and not game.plate_changed, "live close leaves the change unordered and workbook flag clear")
+		game._process_totality((Sim.PLATE_CHANGE_S + 1.0) / Sim.TIME_SCALE)
+		await _rehearsal_press(shutter)
+		check(not game.sim.is_exposing() and game.sim.plates.size() == 1 and not game.plate_changed,
+			"waiting longer than a change still leaves a spent holder and one exposure")
+		await _rehearsal_press(interact)
+		check(game.change_left == Sim.PLATE_CHANGE_S and not game.plate_changed
+			and game._sfx_log.back() == "change", "live Interact starts the four-second change")
+		await _rehearsal_press(shutter)
+		await _rehearsal_press(interact)
+		check(not game.sim.is_exposing() and game.sim.plates.size() == 1
+			and game.plates_left == inventory - 1 and not game.plate_changed,
+			"presses during a change make no exposure and consume no plate")
+		game._process_totality((Sim.PLATE_CHANGE_S - 0.25) / Sim.TIME_SCALE)
+		check(game.change_left > 0.0 and not game.plate_changed, "an unfinished change leaves the workbook flag clear")
+		game._process_totality(0.25 / Sim.TIME_SCALE)
+		check(game.change_left == 0.0 and game.plate_changed
+			and game.plates_left == inventory - 1, "a completed change sets the workbook flag without consuming another plate")
+		await _rehearsal_press(shutter)
+		check(game.sim.is_exposing(), "the next shutter press opens the fresh holder")
+		game._process_totality(1.0)
+		await _rehearsal_press(shutter)
+		check(game.sim.plates.size() == 2 and game.plates_left == inventory - 2, "second exposure consumes exactly one more plate")
 		game.stop_all_audio()
 		game.queue_free()
 		await process_frame
@@ -403,6 +435,8 @@ func _test_rehearsal() -> void:
 	var qualities := ["unusable", "unusable", "poor", "", "poor", "poor", "good"]
 	var shutter := InputEventAction.new()
 	shutter.action = "shutter"
+	var interact := InputEventAction.new()
+	interact.action = "interact"
 	game.player.global_position = Vector3(0, 0.05, 0)
 	game.player.yaw = 0.4
 	game.player.pitch = -0.2
@@ -450,7 +484,7 @@ func _test_rehearsal() -> void:
 			check(game._rehearsal_step == 1, "open shutter waits three seconds after the window closes")
 			var sounds_before: int = game._sfx_log.size()
 			game._process_prep(0.1)
-			check(game._sfx_log.slice(sounds_before) == ["close", "change"], "timeout closes the shutter and changes plates")
+			check(game._sfx_log.slice(sounds_before) == ["close"], "timeout closes the shutter without ordering a change")
 		if i != 3 and i != 4:
 			await _rehearsal_press(shutter)
 		check(game.ui.toast.text.contains(expected[i]), "%s timing gives its feedback" % cases[i])
@@ -462,11 +496,9 @@ func _test_rehearsal() -> void:
 		if i == 1:
 			check(game.ui.toast.text.contains("不足以留下可量測的星點") and not game.ui.toast.text.contains("較清楚"), "4.0–4.1 s practice never promises a usable or clear plate")
 
-		check(game.ui.toast.text.contains("這一小會兒"), "rehearsal describes the brief real-time change without a game-clock number")
-		check(game._rehearsal_step == 2 and game.prep_left == prep_before, "change wait freezes preparation")
-		if i == 4:
-			await _rehearsal_press(shutter)
-			check(game.ui.toast.text == "Eddington 還在換片……", "press during automatic change reports the wait")
+		if i != 3 and i != 4:
+			await _rehearsal_press(interact)
+		check(game.prep_left == prep_before, "rehearsal wait freezes preparation")
 		if i == 1:
 			paused = true
 			await create_timer(1.8, true).timeout
@@ -617,6 +649,8 @@ func _test_empty_rack_wait() -> void:
 		game.set_process(false)
 		game._start_game()
 		await game._begin_totality()
+		var interact := InputEventAction.new()
+		interact.action = "interact"
 		var strip: Control = game.ui.tot_strip
 		check(strip.get("holder_mark") == &"ready", "the loaded rack starts ready")
 		while game.plates_left > 0:
@@ -628,10 +662,11 @@ func _test_empty_rack_wait() -> void:
 			var before_stop: float = game.t_game
 			game._toggle_shutter()
 			check(game.t_game == before_stop and not game.sim.is_exposing(), "stop closes the exposure without skipping time, including the last plate")
-			game._process_totality(1.0 / Sim.TIME_SCALE)
-			var after_close := &"changing" if game.plates_left > 0 else &"empty"
+			var after_close := &"spent" if game.plates_left > 0 else &"empty"
 			check(strip.get("holder_mark") == after_close and strip.get("model").segments.back() == [before_stop - 1.0, before_stop], "closing puts the exposure on the track and updates the rack")
-			game._process_totality((Sim.PLATE_CHANGE_S - 1.0) / Sim.TIME_SCALE)
+			if game.plates_left > 0:
+				await _rehearsal_press(interact)
+				game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
 			check(strip.get("holder_mark") == (&"ready" if game.plates_left > 0 else &"empty"), "the next holder becomes ready when the swap ends")
 		check(game.t_game < 30.0, "rack was exhausted early through actual exposures and plate changes")
 		check(game.ui.prompt_label.text == "底片用完了。［%s］等待第三接觸" % Prompts.key("shutter"), "empty rack offers waiting for third contact")
@@ -685,13 +720,12 @@ func _test_shutter_read() -> void:
 	for i in 12:
 		game._process_totality(STEP)
 	game._toggle_shutter()
-	check(game._sfx_log == ["open", "close", "change"], "shutter logs open, close, then plate change")
+	check(game._sfx_log == ["open", "close"], "shutter logs open and close")
 	var p: Dictionary = game.sim.plates[0]
 	check(p.has("sky_read"), "closed plate stores p.sky_read")
 	check(p.sky_read == Cues.sky_band(p.clear, p.duration), "sky_read comes from the clear fraction")
 	var want := Content.totality_read(p.sky_read)
 	check(want != "" and game.ui.toast.text.contains(want), "shutter toast appends Cottingham's read")
-	check(game.plate_changed and game.change_left > 0.0, "closing a plate with holders left starts a remembered plate change")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
@@ -1275,6 +1309,7 @@ func _reset_game(game: Node, seed_: int, t: float) -> void:
 	game.t_game = t
 	game.plates_left = game.sim.plates_available()
 	game.change_left = 0.0
+	game._holder_spent = false
 	game._busy = false
 	game.tot_done = false
 	game._score_exposing = false
@@ -1342,6 +1377,7 @@ func _test_callouts() -> void:
 	for i in int(22.0 / GAME_STEP):
 		_step(game, log)
 	game._toggle_shutter()
+	game._order_plate_change()
 	for i in int(5.0 / GAME_STEP):
 		_step(game, log)
 	game._toggle_shutter()   # second plate, after the 4 s change
@@ -1372,7 +1408,8 @@ func _test_callouts() -> void:
 	game._toggle_shutter()
 	for i in 16:
 		_step(game, log)
-	game._toggle_shutter()   # plates_left -> 1, change starts
+	game._toggle_shutter()   # plates_left -> 1
+	game._order_plate_change()
 	for i in int(8.0 / GAME_STEP):
 		_step(game, log)
 	check(game.plates_left == 1, "test setup leaves exactly one plate")
@@ -1387,6 +1424,7 @@ func _test_callouts() -> void:
 	for i in 16:
 		_step(game, log)
 	game._toggle_shutter()
+	game._order_plate_change()
 	for i in int(8.0 / GAME_STEP):
 		_step(game, log)
 	check(_count(log, Content.totality_last_plate()) == 0, "last-plate callout silent with two plates left")
@@ -1496,7 +1534,9 @@ func _test_viewer_note() -> void:
 	game.tot_done = false
 	game._score_exposing = false
 	for plate in 2:
-		game.change_left = 0.0
+		if plate > 0:
+			game._order_plate_change()
+			game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
 		game._toggle_shutter()
 		for i in 12:
 			game._process_totality(STEP)

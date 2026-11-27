@@ -4892,3 +4892,6 @@ msgstr ""
 
 msgid "］讀曝光計畫"
 msgstr ""
+
+msgid "［%s］換底片匣"
+msgstr "[%s] Change plate holder"

@@ -198,9 +198,10 @@ func _second_contact_gap(hold_log := false) -> void:
 			else:
 				game._toggle_shutter()
 				game._toggle_shutter()
+				game._order_plate_change()
 				check(game.change_left > 0.0 and game.audio_click.playing and game.audio_change.playing
 					and game.audio_click.bus == &"Totality Actions" and game.audio_change.bus == &"Totality Actions",
-					"closing a scored exposure puts the shutter close and plate change on the action submix")
+					"closing a scored exposure and ordering a change puts both cues on the action submix")
 			check(game.audio_tick.playing and game.audio_tick.bus == &"Totality Actions",
 				"the metronome counts on the action submix over the score")
 			check(AudioServer.get_bus_volume_db(action_bus) > 0.0

@@ -423,6 +423,7 @@ func _live_frame(i: int) -> void:
 	# Fixed 60 Hz gameplay time makes the same plate change occur even headless.
 	if i == 5:
 		main._toggle_shutter()
+		main._order_plate_change()
 	if i > 5 and main.change_left <= 0.0 and not main.sim.is_exposing():
 		main._toggle_shutter()
 	main._process(1.0 / 60.0)
