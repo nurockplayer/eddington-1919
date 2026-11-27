@@ -1486,3 +1486,6 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Four holder boxes are drawn alike** in all five frames: closed squares, a tan centre once used, slashes while changing, a green diamond when ready, a cross past the rack when empty. The five states separate by shape without the status line.
 - Let go: in `04-empty` the third box's tan centre is a pixel narrower than its neighbours (seen only at 3×).
 - **Verdicts:** technical regression none seen; this PR's change accepted; AA row 04 met on this head for its visual part. **Count stays 7/9.**
+
+### 2026-11-27 13:50 JST: #570 AA 13, October resolution cue, at 33e091e: measured only, no art verdict (audio)
+- I cannot hear audio; row 13 is `Visual: no`. Measured the three WAVs in `/Volumes/KIOXIA/eddington-1919-cache/director/accept/aa-13/33e091ee94397f51ecf2105e6ecef025592f0d21/`: entry −50 to −25 dB over 1 s without a step, release −21 to −48 dB over 10.5–14 s at most 8 dB per 0.25 s, no clicks, no clipping, one cue per file, Opinion and Inconclusive the same curve. Asked about a 2 Hz burst at −53 dB round the cue in the October files. Numbers are on the PR; a person still has to listen.
