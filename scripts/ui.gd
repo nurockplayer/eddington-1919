@@ -148,6 +148,8 @@ var big_plate: TextureRect
 var plate_stage: Control
 var viewer_mid: VBoxContainer
 var plate_info: RichTextLabel
+var plate_notes_btn: Button
+var plate_notes: RichTextLabel
 var reference_btn: Button
 var reference_close_btn: Button
 var reference_panel: PanelContainer
@@ -911,9 +913,16 @@ func _build_viewer(root: Control) -> void:
 	blink_btn.tooltip_text = L.t("每半秒比對同一區域；右搖桿或方向鍵移動。Q/E 或 L1/R1 切換放大鏡與閃爍比對按鍵。")
 	blink_btn.toggled.connect(_set_blink)
 	plate_controls.add_child(blink_btn)
-	# The micrometer sits on its own row under the loupe/blink buttons: a fourth
-	# control in that row widened the middle column by ~39 px at text scale 1.2
-	# and pushed the chart past the viewport's right edge.
+	plate_notes_btn = _button(L.t("筆記本"))
+	plate_notes_btn.toggle_mode = true
+	plate_notes_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	plate_notes_btn.hide()
+	mid.add_child(plate_notes_btn)
+	plate_notes = _rich(18)
+	plate_notes.hide()
+	mid.add_child(plate_notes)
+	plate_notes_btn.toggled.connect(plate_notes.set_visible)
+	# Keep the micrometer and its dial actions on their own row.
 	var mic_bar := HBoxContainer.new()
 	mid.add_child(mic_bar)
 	mic_btn = _button(L.t("測微器"))
@@ -923,6 +932,7 @@ func _build_viewer(root: Control) -> void:
 	mic_btn.toggled.connect(_set_micrometer)
 	mic_bar.add_child(mic_btn)
 	blink_btn.focus_neighbor_bottom = blink_btn.get_path_to(mic_btn)
+	plate_notes_btn.focus_neighbor_bottom = plate_notes_btn.get_path_to(mic_btn)
 	# Keep the dial actions beside the toggle, with a full-width stack for the
 	# reading choices and Record below it.
 	var dial_row := HFlowContainer.new()
@@ -1025,6 +1035,7 @@ func _build_viewer(root: Control) -> void:
 	right.add_child(model_note)
 	viewer.resized.connect(_layout_viewer)
 	get_viewport().size_changed.connect(_layout_viewer)
+	mid.minimum_size_changed.connect(_layout_viewer.call_deferred)
 	_layout_viewer()
 
 
@@ -1039,6 +1050,12 @@ func _layout_viewer() -> void:
 	viewer_mid.custom_minimum_size.x = 470.0 + extra
 	# Give the two reading choices, Record, and the note room below the plate.
 	var plate_height := (340.0 if not is_nan(_mic_second) else 460.0) + extra
+	if plate_notes_btn.visible:
+		var available := get_viewport().get_visible_rect().size.y - viewer.get_theme_stylebox("panel").get_minimum_size().y
+		for control: Control in viewer_mid.get_children():
+			if control != plate_stage and control.visible:
+				available -= control.get_combined_minimum_size().y + viewer_mid.get_theme_constant("separation")
+		plate_height = minf(plate_height, available)
 	plate_stage.custom_minimum_size = Vector2(470.0 + extra, plate_height)
 	big_plate.custom_minimum_size = Vector2(460.0 + extra, plate_height)
 	chart_scroll.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
@@ -1470,6 +1487,7 @@ func _plate_gui_input(event: InputEvent) -> void:
 func open_viewer(plates: Array, comparison_tex: Texture2D, textures: Array, locked: bool) -> void:
 	_set_micrometer(false)
 	_set_loupe(false)
+	plate_notes_btn.button_pressed = false
 	_comparison_texture = comparison_tex
 	set_viewer_report(false)
 	if _viewer_sfx.is_empty():
@@ -1655,6 +1673,9 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	if sound and (i >= 0 or i == -2):
 		_viewer_sound("plate")
 	_set_loupe(false)
+	if i != _viewer_sel or _viewer_reporting:
+		plate_notes_btn.button_pressed = false
+	plate_notes_btn.visible = i >= 0 and not _viewer_reporting
 	_viewer_sel = i
 	_plate_texture = tex
 	_set_loupe(false)
@@ -1682,23 +1703,24 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	include_box.disabled = _viewer_locked
 	var lines := []
 	lines.append(L.t("[b]第 %d 號底片[/b]　曝光 %.1f 秒（全食第 %d 秒開始）") % [p.number, p.duration, int(p.start)])
+	var notes := []
 	if not p.sunlit and p.duration >= 0.5 and p.has("stars"):
 		var stars_line := L.t("可辨識的星點：%d 顆") % p.stars
-		lines.append("[color=#e88]%s[/color]" % stars_line if p.stars < 5 else stars_line)
+		notes.append("[color=#e88]%s[/color]" % stars_line if p.stars < 5 else stars_line)
 	if not p.sunlit and p.get("sky_read", "") != "":
-		lines.append(Content.totality_read_night(p.sky_read))
+		notes.append(Content.totality_read_night(p.sky_read))
 	if not p.sunlit and p.duration >= 0.5 and drive_note != "":
-		lines.append(drive_note)
+		notes.append(drive_note)
 	if p.sunlit:
-		lines.append(L.t("[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]"))
+		notes.append(L.t("[color=#e88]第三接觸時快門仍開著——陽光回來，整張過曝。[/color]"))
 	if p.duration < 0.5:
-		lines.append(L.t("[color=#e88]幾乎沒有曝光。[/color]"))
+		notes.append(L.t("[color=#e88]幾乎沒有曝光。[/color]"))
 	if _viewer_locked:
 		match p.get("quality", ""):
 			"good":
-				lines.append(L.t("星像清楚。"))
+				notes.append(L.t("星像清楚。"))
 			"poor":
-				lines.append(L.t("[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]"))
+				notes.append(L.t("[color=#fd8]可量，但星像拖長或被雲霧蓋住。[/color]"))
 	if _viewer_locked and p.included and p.usable and p.get("read", false) and measurement_of.is_valid():
 		var m: Dictionary = measurement_of.call(p)
 		lines.append(L.t("讀數 [b]%.2f 格[/b]：量得偏折：[b]%.2f″ ± %.2f″[/b]") % [p.reading, m.value, m.sigma])
@@ -1707,8 +1729,9 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 	elif _viewer_locked and p.included and p.usable:
 		lines.append(L.t("[color=#fd8]這張還沒讀數——用測微器對好參考星再記下，才會算進結果。[/color]"))
 	elif _viewer_locked and p.included and not p.usable:
-		lines.append(L.t("[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]"))
+		notes.append(L.t("[color=#e88]可辨識的星不足五顆，無法同時解出比例尺與偏折。[/color]"))
 	plate_info.text = "\n".join(lines)
+	plate_notes.text = "\n".join(notes)
 	if not blink_btn.disabled and not blink_hint_seen:
 		plate_info.text += L.t("\n按「閃爍比對」：同一顆星，在兩張底片上跳一下——那一跳就是要量的東西。\n位移已放大，方便肉眼看見；真正的量測用顯微測微器。")
 		blink_hint_seen = true

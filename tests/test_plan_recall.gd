@@ -95,7 +95,8 @@ func _check_drive(story: Node, plan: Array, played: bool, rate_checked: bool, ex
 	]
 	game.plate_textures = [null]
 	game._open_viewer()
-	var text: String = game.ui.plate_info.text
+	game.ui.plate_notes_btn.button_pressed = true
+	var text: String = game.ui.plate_notes.text
 	if expect == "":
 		check(not text.contains("走速"), "%s: the plate note has no drive line" % label)
 	else:
