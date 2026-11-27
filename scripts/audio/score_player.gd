@@ -11,6 +11,7 @@ static var _active_cue := ""
 static var _enabled := true
 
 var layers: Dictionary = {}
+var totality_bus := &"Music"
 var playback_enabled := DisplayServer.get_name() != "headless"
 var _log_open := false
 
@@ -113,7 +114,7 @@ func _start(cue: String) -> void:
 	var layer: Dictionary = layers[cue]
 	if playback_enabled:
 		var player := AudioStreamPlayer.new()
-		player.bus = "Music"
+		player.bus = totality_bus if cue.begins_with("totality_") else &"Music"
 		player.stream = Score.stream(cue) # only reached after worker completion / cache hit
 		player.volume_db = layer.db
 		add_child(player)
