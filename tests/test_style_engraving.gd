@@ -51,8 +51,11 @@ func _run() -> void:
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
 	check(shader_text.contains("max(thin_veil, smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
 		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)")
-		and shader_text.contains("float corona_cloud = returning_sky ? mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y) : moon_cloud * (1.0 - thin_veil);")
-		and shader_text.contains("step(1.0, r) * corona_cloud"), "the drawn cloud edge covers the corona with the Moon during totality")
+		and shader_text.contains("bool cloud_covers_sun = !returning_sky && sun_visibility < 1.0;")
+		and shader_text.contains("float corona_cloud = cloud_covers_sun ? moon_cloud * (1.0 - thin_veil)")
+		and shader_text.contains("step(1.0, r) * corona_cloud")
+		and shader_text.contains("corona_white *= 1.0 - step(0.85, eclipse_cloud_density_from_sample(inner_cloud));"),
+		"the drawn cloud edge covers the corona with the Moon and hides detached rays")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && solar_fade > 0.0 && front > 0.0)"),
 		"engraving hides Moon ink and corona before second contact")
