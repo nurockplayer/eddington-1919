@@ -41,9 +41,6 @@ func _run() -> void:
 	for name in {"cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
-	check(shader_text.contains("float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - dense_cloud;")
-		and shader_text.contains("front * moon_disc * solar_fade * moon_cloud")
-		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the opaque Moon is covered by the drawn dense cloud during totality")
 	check(shader_text.contains("float thin_cloud = step(0.35, cloud_field.y);")
 		and shader_text.contains("float dense_cloud = step(0.85, cloud_field.y);")
 		and shader_text.contains("cloud_wash = plate_cloud * band_lines * totality_plate;"), "cloud plate has crisp density steps")
@@ -55,13 +52,6 @@ func _run() -> void:
 		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
 		"rehearsal and observation grade cloud ruling and wash with the same daylight weight")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
-	check(shader_text.contains("max(thin_veil, smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
-		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)")
-		and shader_text.contains("bool cloud_covers_sun = !returning_sky && sun_visibility < 1.0;")
-		and shader_text.contains("float corona_cloud = cloud_covers_sun ? moon_cloud * (1.0 - thin_veil)")
-		and shader_text.contains("step(1.0, r) * corona_cloud")
-		and shader_text.contains("corona_white *= 1.0 - step(0.85, eclipse_cloud_density_from_sample(inner_cloud));"),
-		"the drawn cloud edge covers the corona with the Moon and hides detached rays")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && solar_fade > 0.0 && front > 0.0)"),
 		"engraving hides Moon ink and corona before second contact")
@@ -124,11 +114,13 @@ func _run() -> void:
 	check(material.get_shader_parameter("paper") == Engraving.PAPER, "paper colour")
 	check(game.player.camera.fov == 60.0, "camera FOV")
 	check(game._look_sun == 1.8, "sun gain")
+	game.sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	game._apply_light(1.0, 1.0, 230.0, 0.0)
 	check(material.get_shader_parameter("darkness") == 1.0, "totality darkness")
 	check(game.sky_mat.get_shader_parameter("before_second_contact") == false
 		and material.get_shader_parameter("before_second_contact") == false, "totality reveals both solar layers")
 	check(material.get_shader_parameter("night") == 0.0, "totality is daytime")
+	_check_totality_visibility(shader_text, material)
 	game._apply_light(0.62, 0.0, -150.0, 0.0)
 	check(material.get_shader_parameter("darkness") == 0.0, "daylight darkness")
 	game._apply_light(0.62, 0.0, -150.0, 1.0)
@@ -182,6 +174,96 @@ func _run() -> void:
 	root.msaa_3d = saved_msaa
 	print("test_style_engraving: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _check_totality_visibility(shader: String, material: ShaderMaterial) -> void:
+	# Evaluate the shipping fragment expressions on the CPU, as in test_third_contact_gap.
+	# Probe the disc, limb and an outer ray at the same totality time.
+	var clock: Vector3 = material.get_shader_parameter("third_contact_cloud_clock")
+	var pocket_time := (float(material.get_shader_parameter("cloud_time")) - clock.x) / clock.y
+	var disc: Array[float] = []
+	var corona: Array[float] = []
+	var blends := RegEx.create_from_string(
+		"print_colour = [^;]+sun_crescent[^;]*;\\s*print_colour = ([^;]+);\\s*print_colour = ([^;]+);"
+	).search(shader)
+	if blends == null:
+		check(false, "find the solar compositing expressions")
+		return
+	for cloud: Vector2 in [Vector2(0.20, 0.20), Vector2(0.50, 0.50), Vector2(0.95, 0.95), Vector2(0.20, 0.95)]:
+		var outer_density := cloud.x
+		var inner_density := cloud.y
+		var detached_ray := outer_density < inner_density
+		var values := {
+			"print_darkness": material.get_shader_parameter("darkness"),
+			"before_second_contact": material.get_shader_parameter("before_second_contact"),
+			"practice_cloud": material.get_shader_parameter("practice_cloud"),
+			"pocket_time": pocket_time, "returning_sky": false,
+			"sun_cloud": inner_density, "live_cloud": Vector2(outer_density, 0.0),
+			"cloud_field": Vector2(0.0, outer_density), "inner_density": inner_density, "front": 1.0,
+			"moon_pixel": 0.01, "rays": float(detached_ray), "ink_col": 0.0, "white": 1.0,
+		}
+		for name in ["solar_fade", "dense_cloud", "pocket_softness", "sun_visibility",
+				"thin_veil", "cloud_veil", "moon_cloud", "cloud_covers_sun", "corona_cloud"]:
+			values[name] = _solar_value(shader, name, values)
+		for radius in ([1.5] if detached_ray else [0.0, 1.02]):
+			values.r = radius
+			values.moon_disc = _solar_value(shader, "moon_disc", values)
+			values.moon_ink = _solar_value(shader, "moon_ink", values)
+			values.limb_white = _solar_value(shader, "limb_white", values)
+			values.corona_white = _solar_value(shader, "corona_white", values)
+			if values.cloud_covers_sun and values.corona_white > 0.0:
+				var inner_gate := RegEx.create_from_string("corona_white \\*= ([^;]+);").search(shader)
+				if inner_gate == null:
+					check(false, "find the inner-corona mask expression")
+					return
+				values.corona_white *= _evaluate_solar(
+					inner_gate.get_string(1).replace("eclipse_cloud_density_from_sample(inner_cloud)", "inner_density"), values)
+			values.print_colour = 0.5
+			values.print_colour = _evaluate_solar(blends.get_string(1), values)
+			var colour := _evaluate_solar(blends.get_string(2), values)
+			if detached_ray:
+				check(absf(colour - 0.5) < 0.001,
+					"thick inner cloud hides the clear outer ray (contrast %.3f)" % (colour - 0.5))
+			elif radius < 1.0:
+				disc.append(0.5 - colour)
+			else:
+				corona.append(colour - 0.5)
+	var measured := "disc %s, corona %s (clear, thin, thick)" % [disc, corona]
+	check(disc[0] >= disc[1] and disc[1] > 0.01 and absf(disc[2]) < 0.001,
+		"the Moon disc shows through clear and thin sky and disappears under thick cloud: " + measured)
+	check(corona[0] > corona[1] and corona[1] > 0.01 and absf(corona[2]) < 0.001,
+		"corona visibility falls from clear to thin to hidden: " + measured)
+	print("Totality visibility: " + measured)
+
+
+func _solar_value(shader: String, name: String, values: Dictionary) -> float:
+	var assignment := RegEx.create_from_string("\\b" + name + " = ([^;]+);").search_all(shader)
+	if assignment.is_empty():
+		check(false, "find the fragment expression for " + name)
+		return NAN
+	# The fragment initializes its output weights to zero before drawing the sky.
+	return _evaluate_solar(assignment.back().get_string(1), values)
+
+
+func _evaluate_solar(code: String, values: Dictionary) -> float:
+	code = code.replace("mix(", "lerpf(").replace("vec3(1.0)", "white")
+	code = RegEx.create_from_string("\\bstep\\(").sub(code, "_shader_step(", true)
+	var branches := RegEx.create_from_string("^([a-z_]+) \\? ([^:]+) : (.+)$").search(code)
+	if branches != null:
+		code = "lerpf(%s, %s, float(%s))" % [branches.get_string(3), branches.get_string(2), branches.get_string(1)]
+	var expression := Expression.new()
+	if expression.parse(code, PackedStringArray(values.keys())) != OK:
+		check(false, "parse solar expression '%s': %s" % [code, expression.get_error_text()])
+		return NAN
+	var result: Variant = expression.execute(values.values(), self)
+	if expression.has_execute_failed():
+		check(false, "evaluate solar expression '%s': %s" % [code, expression.get_error_text()])
+		return NAN
+	return float(result)
+
+
+func _shader_step(edge: float, value: float) -> float:
+	return float(value >= edge)
 
 
 func _test_eclipse_pilot_bindings(shader_text: String) -> void:
