@@ -306,7 +306,7 @@ func build() -> Dictionary:
 	_bounds()
 	randomize()  # vegetation reseeded the global RNG; don't leak that into "new sky" restarts
 	out.eddington = npc(L.t("Eddington"), Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
-	out.cottingham = npc(L.t("Cottingham"), Vector3(1.35, 0, -6.1), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
+	out.cottingham = npc(L.t("Cottingham"), Vector3(1.65, 0, -7.25), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
 	out.cottingham.rotation.y = deg_to_rad(-60)
 	return out
 
@@ -556,11 +556,13 @@ func _shelter_and_instrument() -> Dictionary:
 		drive = box(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6), P("teak_dark"))
 		cyl(0.05, 0.6, Vector3(0.6, 0.45, -6.6), P("iron"))  # weight chain housing
 		interactable(drive, "drive", L.t("時鐘驅動"))
-	# An upright crank on the approach face makes the drive distinct from the pier.
-	var crank := box(Vector3(0.06, 0.29, 0.06), Vector3(-0.04, 0.18, 0.19), P("brass"), drive, false) as MeshInstance3D
+	# A hub, diagonal arm, and projecting grip silhouette the winding crank.
+	var axle_rotation := Vector3(PI / 2, 0, 0)
+	cyl(0.064, 0.08, Vector3(-0.08, 0.02, 0.20), P("iron"), drive, false, axle_rotation)
+	var crank := box(Vector3(0.055, 0.33, 0.045), Vector3(0.012, 0.158, 0.24), P("brass"), drive, false, Vector3(0, 0, -PI / 5.2)) as MeshInstance3D
 	crank.name = "WindingCrank"
 	_pilot_surface(crank, -1, Swatch.DENSE, LAND)
-	cyl(0.038, 0.17, Vector3(-0.04, 0.31, 0.25), P("teak_dark"), drive, false, Vector3(PI / 2, 0, 0))
+	cyl(0.04, 0.18, Vector3(0.104, 0.295, 0.33), P("teak_dark"), drive, false, axle_rotation)
 	out.drive_pos = Vector3(0.62, 0.92, -6.6)
 	# Horizontal tube (lens near the coelostat, plate end toward the shelter front).
 	var carrier: Node3D
