@@ -41,8 +41,9 @@ func _run() -> void:
 	for name in {"cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
-	check(shader_text.contains("front * moon_disc * solar_fade * moon_cloud")
-		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the Moon is whole whenever the corona is visible")
+	check(shader_text.contains("float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - dense_cloud;")
+		and shader_text.contains("front * moon_disc * solar_fade * moon_cloud")
+		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the opaque Moon is covered by the drawn dense cloud during totality")
 	check(shader_text.contains("float thin_cloud = step(0.35, cloud_field.y);")
 		and shader_text.contains("float dense_cloud = step(0.85, cloud_field.y);")
 		and shader_text.contains("cloud_wash = plate_cloud * band_lines * totality_plate;"), "cloud plate has crisp density steps")
@@ -54,8 +55,13 @@ func _run() -> void:
 		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
 		"rehearsal and observation grade cloud ruling and wash with the same daylight weight")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
-	check(shader_text.contains("max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
-		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * corona_cloud"), "cloud density veils the corona")
+	check(shader_text.contains("max(thin_veil, smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
+		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)")
+		and shader_text.contains("bool cloud_covers_sun = !returning_sky && sun_visibility < 1.0;")
+		and shader_text.contains("float corona_cloud = cloud_covers_sun ? moon_cloud * (1.0 - thin_veil)")
+		and shader_text.contains("step(1.0, r) * corona_cloud")
+		and shader_text.contains("corona_white *= 1.0 - step(0.85, eclipse_cloud_density_from_sample(inner_cloud));"),
+		"the drawn cloud edge covers the corona with the Moon and hides detached rays")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && solar_fade > 0.0 && front > 0.0)"),
 		"engraving hides Moon ink and corona before second contact")
