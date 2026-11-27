@@ -198,8 +198,12 @@ func _check_director_flow() -> void:
 	mark = ScorePlayer.cue_log.size()
 	chapter._interact("gramophone")
 	check(chapter.ui.dialog_active(), "examining it while playing says a line")
+	check(chapter.gramophone_playing and _layer_since("cambridge_rain", mark).is_empty(),
+		"the record and score hold until the needle-lift line completes")
 	_finish_dialogue(chapter)
 	check(not chapter.gramophone_playing, "examining it again stops the record")
+	var fade := chapter.get("_gramophone_fade") as Tween
+	check(fade != null and fade.is_running(), "lifting the needle fades the record")
 	var back := _layer_since("cambridge_rain", mark)
 	check(is_equal_approx(back.get("db", 0.0), Score.level_db("cambridge_rain")) and is_equal_approx(back.get("fade", 0.0), 3.0),
 		"cambridge_rain returns over 3 s")
@@ -218,6 +222,19 @@ func _check_director_flow() -> void:
 	check(chapter.gramophone_playing and chapter.gramophone_plays == 2, "the record plays a second time")
 
 	check(root.get_node("Story").to_save() == story_before, "replay leaves story flags unchanged")
+
+	# Immediately replay during a stop fade: the old tail cannot stop the new play.
+	var record: AudioStreamPlayer3D = chapter._gramophone
+	chapter._interact("gramophone")
+	_finish_dialogue(chapter)
+	fade = chapter.get("_gramophone_fade") as Tween
+	chapter._interact("gramophone")
+	check(not chapter.gramophone_playing, "replay waits for the needle-drop line")
+	_finish_dialogue(chapter)
+	check(chapter.gramophone_playing and chapter.gramophone_plays == 3 and chapter._gramophone == record
+		and chapter.world.gramophone.find_children("*", "AudioStreamPlayer3D", false, false).size() == 1,
+		"quick replay uses one record player")
+	check(fade != null and not fade.is_valid(), "replay cancels the old stop tail")
 
 	# The finished signal: state and score come back without a re-examine.
 	mark = ScorePlayer.cue_log.size()
@@ -238,10 +255,14 @@ func _check_director_flow() -> void:
 	chapter._montage()
 	check(not chapter.gramophone_playing, "_montage stops the record")
 
-	await create_timer(0.4).timeout
-	check(chapter._gramophone.volume_db < -16.0 and chapter._gramophone.volume_db > -80.0, "leaving fades the record instead of cutting it")
-	await create_timer(0.5).timeout
-	check(chapter._gramophone.volume_db <= -80.0 and not chapter._gramophone.playing, "departure fade reaches silence and stops the player")
+	fade = chapter.get("_gramophone_fade") as Tween
+	if fade != null:
+		fade.custom_step(0.4)
+	check(fade != null and fade.is_running(), "departure fade is still active at 0.4 s")
+	if fade != null:
+		fade.custom_step(0.5)
+	check(fade != null and not fade.is_running() and not chapter._gramophone.playing,
+		"departure fade finishes and stops the player before 0.9 s")
 	check(_layer_since("cambridge_rain", mark).get("db", 0.0) <= ScorePlayer.SILENCE_DB, "leaving never restores the outgoing Cambridge score")
 	check(root.get_node("Story").to_save() == story_before, "gramophone departure fade leaves story flags unchanged")
 	chapter.free()

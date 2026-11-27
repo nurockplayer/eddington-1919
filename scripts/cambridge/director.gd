@@ -40,6 +40,7 @@ var guess_offered := false
 var gramophone_playing := false
 var gramophone_plays := 0
 var _gramophone: AudioStreamPlayer3D
+var _gramophone_fade: Tween
 var _trial_marker: Label3D
 var _caption_prompt: Label
 var _caption_elapsed := -1.0
@@ -282,8 +283,7 @@ func _interact(id: String) -> void:
 			if id == "gramophone":
 				# Music round 2 (proposal): a record, never forced on the player.
 				if gramophone_playing:
-					_gramophone_end(true)
-					_say(C17.examine("gramophone_stop"), "")
+					_say(C17.examine("gramophone_stop"), "gramophone_stop")
 				else:
 					_say(C17.examine("gramophone" if gramophone_plays == 0 else "gramophone_again"), "gramophone_play")
 				return
@@ -330,8 +330,7 @@ func _say(seq: Array, purpose: String) -> void:
 	_sync_player()
 
 
-## Music round 2 (proposal). The record is diegetic: it sits on the Master bus, so
-## the music toggle leaves it alone. Headless has no playback, but keeps the state.
+## Diegetic record on the Music bus. Headless keeps the state without playback.
 func _gramophone_start() -> void:
 	if not is_instance_valid(_gramophone):
 		_gramophone = AudioStreamPlayer3D.new()
@@ -339,15 +338,18 @@ func _gramophone_start() -> void:
 		_gramophone.name = "GramophoneRecord"
 		_gramophone.position = Vector3(0, 1.17, 0)  # 0.25 m above the cabinet lid
 		_gramophone.stream = load("res://assets/audio/gramophone_home_fires_1915.ogg")
-		_gramophone.volume_db = -16.0
 		_gramophone.unit_size = 3.0
 		_gramophone.max_distance = 12.0
 		world.gramophone.add_child(_gramophone)
-		_gramophone.finished.connect(_gramophone_end.bind(false))
+		_gramophone.finished.connect(_gramophone_end.bind(false, true))
 	if _gramophone.stream == null:
 		# Without the record, never duck the rain behind a silent machine.
 		push_warning("gramophone record missing; not playing")
 		return
+	if _gramophone_fade:
+		_gramophone_fade.kill()
+		_gramophone_fade = null
+	_gramophone.volume_db = -16.0
 	if DisplayServer.get_name() != "headless":
 		_gramophone.play()
 	gramophone_playing = true
@@ -355,11 +357,16 @@ func _gramophone_start() -> void:
 	score.set_layer_db("cambridge_rain", ScorePlayer.SILENCE_DB, 1.5)
 
 
-func _gramophone_end(_fade: bool) -> void:
-	if is_instance_valid(_gramophone):
-		_gramophone.stop()
+func _gramophone_end(fade: bool, restore_score: bool) -> void:
+	if not gramophone_playing:
+		return
 	gramophone_playing = false
-	score.set_layer_db("cambridge_rain", Score.level_db("cambridge_rain"), 3.0)
+	if fade:
+		_gramophone_fade = create_tween()
+		_gramophone_fade.tween_property(_gramophone, "volume_db", -80.0, 0.8)
+		_gramophone_fade.tween_callback(_gramophone.stop)
+	if restore_score:
+		score.set_layer_db("cambridge_rain", Score.level_db("cambridge_rain"), 3.0)
 
 
 func _frame_speaker(speaker: String) -> void:
@@ -439,6 +446,8 @@ func _dialogue_done(results: Dictionary) -> void:
 			Story.clues["log"] = true
 		"gramophone_play":
 			_gramophone_start()
+		"gramophone_stop":
+			_gramophone_end(true, true)
 		"double_check":
 			kit_checked = true
 			Story.clues["kit_checked"] = true
@@ -601,14 +610,7 @@ func _coda() -> void:
 
 
 func _montage() -> void:
-	if gramophone_playing:
-		# A lifted needle at the fade out; cambridge_rain is being stopped anyway,
-		# so the score is not restored here.
-		gramophone_playing = false
-		if is_instance_valid(_gramophone):
-			var fade := create_tween()
-			fade.tween_property(_gramophone, "volume_db", -80.0, 0.8)
-			fade.tween_callback(_gramophone.stop)
+	_gramophone_end(true, false)
 	score.stop("cambridge_rain", 0.8)
 	beat = Beat.MONTAGE
 	_busy = true
