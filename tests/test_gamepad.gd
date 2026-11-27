@@ -3,6 +3,7 @@ extends SceneTree
 const UI := preload("res://scripts/ui.gd")
 const Prompts := preload("res://scripts/prompts.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
+const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Plan := preload("res://scripts/cambridge/plan_board.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
@@ -75,6 +76,62 @@ func motion(axis: JoyAxis, value: float) -> void:
 	Input.parse_input_event(event)
 	Input.flush_buffered_events()
 	await process_frame
+
+
+func _lightbox_press(pad: bool, pad_button: JoyButton, keyboard_key: Key) -> void:
+	if pad:
+		await button(pad_button)
+	else:
+		await key(keyboard_key, true)
+		await key(keyboard_key, false)
+
+
+func _steer_lightbox(overlay, target: Vector2, pad: bool) -> void:
+	var steps := Vector2i(((target - overlay._loupe_position) / 16.0).round())
+	for i in absi(steps.x):
+		await _lightbox_press(pad, JOY_BUTTON_DPAD_RIGHT if steps.x > 0 else JOY_BUTTON_DPAD_LEFT,
+			KEY_RIGHT if steps.x > 0 else KEY_LEFT)
+	for i in absi(steps.y):
+		await _lightbox_press(pad, JOY_BUTTON_DPAD_DOWN if steps.y > 0 else JOY_BUTTON_DPAD_UP,
+			KEY_DOWN if steps.y > 0 else KEY_UP)
+
+
+func _test_lightbox_inspection(overlay, pad: bool) -> void:
+	var device := "pad" if pad else "keyboard"
+	check(overlay.buttons.has("loupe"), device + " can choose a general-purpose loupe after alignment")
+	if not overlay.buttons.has("loupe"):
+		return
+	for id in ["label_mirrored", "arrow_tilted"]:
+		overlay.buttons[id].grab_focus()
+		await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	check(overlay._clues.has("label_mirrored") and overlay._clues.has("arrow_tilted"), device + " can still inspect both provenance clues")
+
+	var row: Dictionary = C17.report_rows()[2]
+	var hints: Array = []
+	overlay.hint_requested.connect(func(): hints.append(true))
+	var loupe: Button = overlay.buttons.loupe
+	loupe.grab_focus()
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	var matched: Vector2 = overlay._point_to_pixel(Overlay.MathModel.star_points()[16])
+	var origin: Vector2 = overlay._loupe_position
+	await _steer_lightbox(overlay, matched, pad)
+	check(overlay._loupe_position != origin and overlay._loupe_position.distance_to(matched) <= 12.0,
+		device + " steers the loupe to a matched point")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	check(overlay.aligned and hints.is_empty() and Report.available_options(row, overlay._clues).is_empty(),
+		device + " inspection of a matched point leaves the residual report row gated before any hint")
+
+	if pad:
+		overlay._process(90.0)
+		check(hints.size() == 1, "a stalled inspection can request the existing timed hint")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	await _steer_lightbox(overlay, overlay.detail_position("residual"), pad)
+	check(not overlay._clues.has("residual"), device + " can aim at the speck without automatically marking it")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	check(overlay._clues.has("residual") and Report.available_options(row, overlay._clues).size() == 3,
+		device + " inspection of the real residual unlocks its report options")
+	if not pad:
+		check(hints.is_empty(), "keyboard inspection can finish before the timed hint")
 
 
 func _ending_layout(ui: UI) -> void:
@@ -483,14 +540,24 @@ func _run() -> void:
 	for i in 6:
 		await button(JOY_BUTTON_RIGHT_SHOULDER)
 	check(overlay.aligned, "RB rotates tracing into alignment")
-	for inspect in overlay.find_children("*", "Button", true, false):
-		if inspect.text in ["看標籤", "看箭頭", "放大未重合點"]:
-			inspect.grab_focus()
-			await button(JOY_BUTTON_A)
-	check(overlay._clues.size() == 3 and overlay._loupe_open, "focused detail buttons inspect all three real clue hit targets")
+	await _test_lightbox_inspection(overlay, true)
 	await button(JOY_BUTTON_B)
 	check(not overlay.visible, "B closes overlay")
 	overlay.free()
+
+	var keyboard_overlay := Overlay.new()
+	keyboard_overlay.ui = ui
+	root.add_child(keyboard_overlay)
+	keyboard_overlay.open()
+	await key(KEY_ENTER, true)
+	await key(KEY_ENTER, false)
+	for i in 6:
+		await key(KEY_E, true)
+		await key(KEY_E, false)
+	check(keyboard_overlay.aligned, "keyboard aligns the tracing")
+	await _test_lightbox_inspection(keyboard_overlay, false)
+	keyboard_overlay.close()
+	keyboard_overlay.free()
 	var board := Plan.new()
 	root.add_child(board)
 	board.open()
