@@ -113,6 +113,7 @@ func _make_gaps() -> void:
 	plan[1][1] += PLATE_CHANGE_S  # room for a second thinning after the seam
 	for g in plan:
 		gaps.append({"t": g[0], "d": g[1], "depth": g[2]})
+	gaps[1]["seam"] = true
 
 
 func _make_clouds() -> void:
@@ -136,12 +137,11 @@ func _make_clouds() -> void:
 	# …with the scheduled thin patches cut into it.
 	for g in gaps:
 		_carve(sun_track(g.t), sun_track(g.t + g.d), 0.006, 0.03, g.depth, false)
-	# A narrow bank crosses the middle window, hiding the Sun for less than a
-	# holder change. Cut it across the track so it passes over the whole disc.
-	var middle: Dictionary = gaps[1]
-	var seam := sun_track(middle.t + middle.d * 0.5)
-	var across := wind.orthogonal().normalized() * 0.036
-	_carve(seam - across, seam + across, 0.003, 0.010, 0.93, true)
+		if g.get("seam", false):
+			# A narrow bank crosses the whole disc for less than a holder change.
+			var seam := sun_track(g.t + g.d * 0.5)
+			var across := wind.orthogonal().normalized() * 0.036
+			_carve(seam - across, seam + across, 0.003, 0.010, 0.93, true)
 	cloud_img = Image.create_empty(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8)
 	var bytes := PackedByteArray()
 	bytes.resize(TEX_SIZE * TEX_SIZE)
