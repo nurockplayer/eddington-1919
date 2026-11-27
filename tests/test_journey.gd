@@ -632,10 +632,14 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	await _dialogue(day)
 	day._interact("mentor_loupe")
 	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
-	await _dialogue(day)
 	var story := root.get_node("Story")
-	expect(story.kit_first >= 0 and day.coda_step == day.CodaStep.FADING and day._paired_cables == null,
-		"coda Kit choice is committed before I3")
+	var committed_before_i3 := [false]
+	day.ui.dialogue_done.connect(func(_results):
+		if day.coda_step == day.CodaStep.FADING:
+			committed_before_i3[0] = story.kit_first >= 0 and day._paired_cables == null
+	)
+	await _dialogue(day)
+	expect(committed_before_i3[0], "coda Kit choice is committed before I3")
 	if enabled:
 		for frame in 150:
 			if not is_instance_valid(day) or day._paired_cables != null:
