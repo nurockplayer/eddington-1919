@@ -157,7 +157,9 @@ func _run() -> void:
 		elif arg.begins_with("--sundy-captures="):
 			capture_dir = arg.trim_prefix("--sundy-captures=")
 			sundy_captures = true
-	Engine.time_scale = 8.0 if capture_dir.is_empty() else 2.0
+	# Headless routes assert the transitions and controls, so advance presentation
+	# time faster to keep all four locales inside the suite's wall-clock deadline.
+	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
 	root.size = Vector2i(1280, 720) if capture_dir.is_empty() else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
