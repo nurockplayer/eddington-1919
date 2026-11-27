@@ -207,6 +207,8 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 	check(overlay.buttons.loupe.has_focus(), device + " reaches Loupe from Close")
 	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
 	var matched: Vector2 = overlay._point_to_pixel(Overlay.MathModel.star_points()[16])
+	var copies := Overlay.MathModel.transformed_copy(overlay.flipped, overlay.angle_deg, overlay.offset)
+	var matched_copy: Vector2 = overlay._point_to_pixel(copies[16])
 	var origin: Vector2 = overlay._loupe_position
 	await _steer_lightbox(overlay, matched, pad)
 	check(overlay._loupe_position != origin and overlay._loupe_position.distance_to(matched) <= 12.0,
@@ -219,7 +221,7 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 	if pad:
 		var marks: Dictionary = overlay.magnified_marks
 		var lens: Vector2 = overlay._loupe_position
-		matched_mark_drawn = marks.has(16) and marks[16].is_equal_approx(lens + (matched - lens) * 2.0)
+		matched_mark_drawn = marks.has(16) and marks[16].is_equal_approx(lens + (matched_copy - lens) * 2.0)
 		overlay._process(90.0)
 		check(hints.size() == 1, "a stalled inspection can request the existing timed hint")
 	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
@@ -233,8 +235,8 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 	if pad:
 		var marks: Dictionary = overlay.magnified_marks
 		var lens: Vector2 = overlay._loupe_position
-		var speck: Vector2 = overlay.detail_position("residual")
-		check(matched_mark_drawn and marks.has(17) and marks[17].is_equal_approx(lens + (speck - lens) * 2.0),
+		var extra_mark: Vector2 = overlay._point_to_pixel(copies[17])
+		check(matched_mark_drawn and marks.has(17) and marks[17].is_equal_approx(lens + (extra_mark - lens) * 2.0),
 			"the live loupe draws magnified tracing marks at the matched point and over the pale speck")
 		# Place the matched pair 33 px from the centre after magnification.
 		var offset_from_match := Vector2(16.5, 0.0)
@@ -244,7 +246,8 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 		await process_frame
 		var stars: Dictionary = overlay.magnified_stars
 		var expected := matched + offset_from_match
-		check(stars.has(16) and marks.has(16) and stars[16].is_equal_approx(expected) and marks[16].is_equal_approx(expected),
+		var expected_copy := expected + (matched_copy - matched) * 2.0
+		check(stars.has(16) and marks.has(16) and stars[16].is_equal_approx(expected) and marks[16].is_equal_approx(expected_copy),
 			"the live loupe draws both layers of a matched pair 33 px from its centre")
 		var previous_scale := Settings.text_scale
 		var previous_viewport_size := root.content_scale_size
