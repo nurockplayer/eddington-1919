@@ -1427,3 +1427,12 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Seen, not charged to this PR:** in the mid-totality clip the Sun leaves the pocket's edge and the Moon's disc and corona fade out together over about ten frames (0.17 s), the black disc turning see-through on the way. The worker reports visibility untouched, and there is no main clip of the same seconds, so I cannot say from these frames whether main does the same. For the visual backlog: the disc should be covered by cloud, not fade as a ghost.
 - Review major (the test checks a blend weight, not that the contour bends) is a follow-up for edd-lead's test lane, not a hold.
 - **Verdicts:** technical regression none seen; this PR's change accepted; whole scene: row 4 was already met, **count stays 7/9**.
+
+### 2026-11-27 13:12 JST: #571 AA 06, camp instrument silhouettes, at 5507e2a: not accepted (drive)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/aa-06/` (main `6f4a03a6…`, candidate `5507e2ac…`; seed 7, zh_TW, 1280×720 and 160×90). Opened whole at native size: all eight full frames; then a 4× crop of the drive corner in `shelter_3m`, a 3× crop of the shelter in `arrival`, and the eight thumbnails side by side.
+- **Plate box holds.** A white block on main; a case with a lipped lid and a carrying handle on the candidate, from the doorway and at 2.97 m. The handle survives at 160×90.
+- **Mirror holds.** Wider and taller on its fork; reads as a tilted mirror on a mount at 3 m.
+- **Drive does not.** From the 3 m approach the housing is wholly behind Cottingham. The new crank shows as a grey stub and a black bar hanging down the crate corner, touching his elbow: a pipe, not a winding handle.
+- **Thumbnail:** `arrival_160x90` is the same picture on both revisions; the shelter is the centre and the only built thing, as on main.
+- For the next head: from the same `shelter_3m` position the housing and a crank that reads as a crank stand clear of Cottingham's outline against light ground or the crate top; collider and 3.20 m reach unchanged; same four frames.
+- **Verdicts:** technical regression none seen; this PR's change not accepted yet; AA row 06 not met. **Count stays 7/9.** PR comment 7209458365.
