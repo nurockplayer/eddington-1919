@@ -1808,3 +1808,24 @@ Verdicts: technical regression none claimed for the slice (flag off); this PR's 
 ![01_archive_en](slice_principe/accept/600/b5abc00/sobral_01_archive_en.png)
 
 **Count stays 7/9.**
+
+### 2026-11-28 04:46 JST · #589 (AA fun 01 middle cloud seam) at 3694d73: not accepted, one thing left
+
+Opened whole at 1280×720: seam frames 0, 84, 120, 180, 240, 300; clear frames 0, 570, 660; thick frames 0, 660. A strip of twelve native crops of the Sun through the seam (frames 60 to 300). By numbers only: the largest frame-to-frame change in the Sun's crop over all 361 seam frames (0.33 of 255, at frame 155). Not opened: the thin clip, the mp4 files, the rest of the frames. Head 9870632 (metering only, no shader) not seen in a frame.
+
+**What was wrong at 3a0a02e is gone.** Through the whole seam every cloud island keeps its hard contour and ruling; the sky no longer goes soft. The Sun is eaten from one side and returns from the other, corona with it, no see-through disc, no step. Second contact reads in clear and thick.
+
+**Left: the seam is an empty pill.** What crosses the Sun is a thin outline in the shape of a capsule (two straight parallel sides, round ends) with nothing inside it: the sky inside is the same tone as outside, no ruling. Where it meets the Sun the disc and corona end in a soft feathered edge that does not sit on any drawn line. So the Sun is rubbed out by an outline, not covered by a cloud (strip: `seam-sun-strip-12.png`). The same capsule shape is the pale stripe pointing at the crescent in clear frame 0 and the straight-sided opening the corona sits in at clear frame 660.
+
+**Accept if:** the seam is drawn as one more cloud island like those around it (their darker tone, their ruling, an irregular contour), and the disc and corona end at that contour with a hard edge; the thinning's opening has irregular edges, no straight parallel sides. Everything that holds now stays: hard contours in every frame, the side-to-side passage, no step larger than now.
+
+For the next head: the seam clip again (I open 0, 120, 180, 240 and the same strip), clear frames 0 and 660.
+
+Verdicts: technical regression none seen (rows 4 and 5 hold on these frames); this PR's change not accepted, one thing; totality as a whole unchanged in readiness.
+
+![seam strip](slice_principe/accept/589/3694d73/seam-sun-strip-12.png)
+![seam 120](slice_principe/accept/589/3694d73/seam-frame-0120.png)
+![clear 0](slice_principe/accept/589/3694d73/clear-frame-0000.png)
+![clear 660](slice_principe/accept/589/3694d73/clear-frame-0660.png)
+
+**Count stays 7/9.**
