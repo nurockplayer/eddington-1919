@@ -103,8 +103,8 @@ func _test_reunion(story: Node) -> void:
 
 func _finish_tableau(chapter, conceded: bool) -> void:
 	check(chapter.beat != chapter.Beat.ENDING and chapter._busy, "close locks input before the tableau")
-	var deadline := Time.get_ticks_msec() + 8000
-	while chapter._pending != "tableau" and Time.get_ticks_msec() < deadline:
+	var deadline := create_timer(8.0, false)
+	while chapter._pending != "tableau" and deadline.time_left > 0.0:
 		await process_frame
 	check(chapter._pending == "tableau" and chapter.beat != chapter.Beat.ENDING, "tableau plays before ENDING")
 	var text := _text(chapter)
@@ -159,8 +159,9 @@ func _plate() -> ImageTexture:
 func _new_epilogue() -> Node:
 	var chapter = load(SCENE).instantiate()
 	root.add_child(chapter)
-	var deadline := Time.get_ticks_msec() + 15000
-	while chapter._pending != "opening" and Time.get_ticks_msec() < deadline:
+	# The opening's fades and caption advance on the scene clock.
+	var deadline := create_timer(15.0, false)
+	while chapter._pending != "opening" and deadline.time_left > 0.0:
 		await process_frame
 	check(chapter._pending == "opening", "the epilogue reaches its opening dialogue within 15 s")
 	return chapter
@@ -230,8 +231,8 @@ func _test_final_replies(story: Node) -> void:
 		_finish(chapter)
 		await _finish_tableau(chapter, case.case == "conceded")
 		check(str(story.runs.back().get("final_reason_text", "")) == str(CONTENT.final_reason()[0].choices[case.choice]), "%s stores final_reason_text" % case.case)
-		var deadline := Time.get_ticks_msec() + 8000
-		while chapter.beat != chapter.Beat.ENDING and Time.get_ticks_msec() < deadline:
+		var deadline := create_timer(8.0, false)
+		while chapter.beat != chapter.Beat.ENDING and deadline.time_left > 0.0:
 			await process_frame
 		check(chapter.beat == chapter.Beat.ENDING, "%s ends the epilogue" % case.case)
 		while chapter._busy:
@@ -410,8 +411,8 @@ func _test_full_flow(story: Node) -> void:
 	check(int(back.get("final_reason", -1)) == 2, "the notebook answer is stored on the run")
 	check(str(back.get("final_reason_text", "")) == "兩地一起", "the notebook answer keeps its text")
 	check(int(back.get("bet_oct", -1)) == 0, "the October ledger pick is stored on the run")
-	var deadline := Time.get_ticks_msec() + 8000
-	while not chapter.ui.ending_panel.visible and Time.get_ticks_msec() < deadline:
+	var deadline := create_timer(8.0, false)
+	while not chapter.ui.ending_panel.visible and deadline.time_left > 0.0:
 		await process_frame
 	check(chapter.beat == chapter.Beat.ENDING and chapter.ui.ending_panel.visible,
 		"the close fades to the ending inside the epilogue")
