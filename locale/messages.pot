@@ -288,6 +288,10 @@ msgstr ""
 msgid "1919 年 5 月 29 日有一次日全食。那天，太陽會停在金牛座一片星場的前面——那裡的亮星，多得不尋常。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:48
+msgid "1919 年 7 月 11 日至 18 日（索布拉爾當地日期）・天體照相儀曝光 41 次，4 吋望遠鏡曝光 18 次，有些底片曝光不只一次。"
+msgstr ""
+
 #: scripts/main.gd:1862
 msgid "1919 年押的"
 msgstr ""
@@ -298,6 +302,18 @@ msgstr ""
 
 #: scripts/ending.gd:81
 msgid "1979 年，有人重新量了 Sobral 的底片（Harvey）：4 吋 1.90″ ± 0.11″，天體照相儀 1.55″ ± 0.34″——支持了當年團隊對那組 0.93″ 的疑慮。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:59
+msgid "4 吋底片提供了更有力的檢驗。星像較清晰，觀測者就能更可靠地找出星像中心。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:27
+msgid "4 吋望遠鏡・這張樣片有 7 顆星・星像緊實而輪廓分明"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:28
+msgid "4 吋望遠鏡，第 6 號底片・透過雲層拍到日珥・沒有星點"
 msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:69
@@ -322,6 +338,34 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:148
 msgid "43 角秒很小：一度是 3600 角秒，它還不到一度的八十分之一。可是一百多年的紀錄量下來，這個差比量測誤差大得多，而且每個世紀都往同一邊多走，不會抵消。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:63
+msgid "5 月日食・4 吋望遠鏡"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:50
+msgid "5 月日食・天體照相儀・星像模糊"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:54
+msgid "5 月的底片尺度仍須查證。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:47
+msgid "7 月 18 日（索布拉爾當地日期），觀測隊還從玻璃背面為一張 4 吋望遠鏡用底片曝光，以便測量時讓乳劑面彼此相對。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:51
+msgid "7 月比對・天體照相儀・相同對焦刻度下的星像清晰"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:53
+msgid "7 月的底片已能確定 5 月的底片尺度。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:52
+msgid "7 月的清晰星像，能告訴你哪些關於 5 月的事？"
 msgstr ""
 
 #: scripts/prompts.gd:8 scripts/ui.gd:2487
@@ -438,6 +482,14 @@ msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:50
 msgid "Crommelin 和 Davidson・搭「Anselm」號前往巴西"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:22
+msgid "Crommelin・4 吋望遠鏡・8 張底片，每張曝光 28 秒"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:21
+msgid "Davidson・縮光圈至 8 吋的天體照相儀・19 張底片，交替曝光 5 秒、10 秒"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:505
@@ -562,12 +614,20 @@ msgstr ""
 msgid "Hall 試過：指數不是 2，是 2.00000016。水星對了——可是別的行星也得跟著對，這才是難處。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:15
+msgid "Henrique Morize 參考 Benjamin de Oliveira 的勘查成果選定索布拉爾。他領導的巴西國家天文台（Observatório Nacional）委員會在帕特羅西尼奧廣場拍攝日冕，並研究其形狀與光譜。"
+msgstr ""
+
 #: scripts/cambridge/content_sundy.gd:19
 msgid "Henrique Morize 帶領巴西國家天文台（Observatório Nacional）團隊，執行自己的日冕攝影與光譜觀測計畫。"
 msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:41
 msgid "Hotel Bella Vista・豐沙爾"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:12
+msgid "John Nicolau 協助行李經卡莫辛轉運。José Jácome de Oliveira 與 Ferreira 蒙席在索布拉爾車站率眾迎接。"
 msgstr ""
 
 #: scripts/cambridge/room_builder.gd:408
@@ -614,8 +674,16 @@ msgstr ""
 msgid "Le Verrier 也這麼想。日食的時候大家都在找它——1878 年有人說看見了，沒人能再看見一次。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:20
+msgid "Leocádio Araújo 擔任口譯，協助準備觀測站，並將英國隊的文章譯給《Correio da Semana》。全食期間，他操作節拍器，每十拍報一次。"
+msgstr ""
+
 #: scripts/cambridge/content_sundy.gd:18
 msgid "Morize 協助安排。市政和教會代表迎接遠征隊，Vicente Saboya 提供住宿，Leocádio Araújo 擔任口譯並協助準備。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:14
+msgid "Paulino de Brito 在《Estado do Pará》寫道：與其弄清星光如何彎折，不如找出如何讓飽受乾旱的人們得到雨水，對他們更有幫助。"
 msgstr ""
 
 #: scripts/cambridge/overlay_viewer.gd:143
@@ -672,6 +740,10 @@ msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:51
 msgid "Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:13
+msgid "Vicente Saboya de Albuquerque 上校借給英國隊一棟面向跑馬場的房子。鎮上缺水，這棟房子有自來水供攝影使用。"
 msgstr ""
 
 #: scripts/ui.gd:2542
@@ -1536,6 +1608,10 @@ msgstr ""
 msgid "代理行政長官 Vasconcelos、Jerónimo Carneiro 和 Grageira 登船迎接遠征隊，協助安排這趟訪問。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:17
+msgid "以 Mailhat 儀器拍攝的日冕・Allyrio de Mattos・Observatório Nacional"
+msgstr ""
+
 #: scripts/ui.gd:1218 scripts/ui.gd:920
 msgid "位移為示意放大；真實的位移比一個星點還小得多。"
 msgstr ""
@@ -2096,6 +2172,10 @@ msgstr ""
 msgid "切換曝光"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:18
+msgid "初虧時，雲遮住了大半天空。全食前不久，太陽附近出現雲隙，曝光期間有薄雲掠過。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:641
 msgid "別忘了遠處的星。今天，它們和太陽旁邊的星一樣重要。"
 msgstr ""
@@ -2250,6 +2330,10 @@ msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:57
 msgid "反正裡面寫的，剛剛都說了。省一張郵票。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:41
+msgid "另一片星場・4 吋望遠鏡"
 msgstr ""
 
 #: scripts/cambridge/content_tribunal.gd:77
@@ -2464,6 +2548,10 @@ msgstr ""
 msgid "四個星像的中心都看得見時，才能判斷驅動情況。逐一比對中心與參考圈。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:37
+msgid "回來拍攝比對底片"
+msgstr ""
+
 #: scripts/cambridge/content_tribunal.gd:122
 msgid "回到卷宗"
 msgstr ""
@@ -2528,6 +2616,10 @@ msgstr ""
 msgid "在我這裡。我……沒捨得丟。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:58
+msgid "在格林威治，Davidson 和 Furner 在 Dyson 指導下測量索布拉爾底片。報告給予 4 吋系列最高權重，也公布天體照相儀系列的兩種歸算結果，權重都很低。"
+msgstr ""
+
 #: scripts/cambridge/content_epilogue.gd:199
 msgid "在筆記本最後寫一句：哪一個證據最讓你改變想法？"
 msgstr ""
@@ -2554,6 +2646,10 @@ msgstr ""
 
 #: scripts/cambridge/content_tribunal.gd:151
 msgid "坐這兒吧。你讀的時候，我把你的茶放涼了。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:62
+msgid "報告推測，陽光使定天鏡鏡面受熱不均。"
 msgstr ""
 
 #: scripts/cambridge/box_sketch.gd:35
@@ -2608,6 +2704,10 @@ msgstr ""
 msgid "天文台職務"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:16
+msgid "天文學家 Domingos Fernandes da Costa、Allyrio de Mattos。數學家兼計算員 Lélio Gama。化學家 Theophilo Lee。氣象學家 Luiz Rodrigues。機械技師 Arthur de Castro Almeida。木工 Primo Flores。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:102 scripts/world_builder.gd:595
 msgid "天文鐘"
 msgstr ""
@@ -2618,6 +2718,10 @@ msgstr ""
 
 #: scripts/content.gd:409
 msgid "天空換了；差異也可能來自雲況。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:26
+msgid "天體照相儀・這張樣片有 12 顆星・星像邊緣寬而模糊"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:81
@@ -2840,6 +2944,10 @@ msgstr ""
 msgid "對德停戰協議使西線戰事停止。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:55
+msgid "對焦刻度沒變，說明焦點恢復了。7 月的星像無法告訴我們，暫時的故障是否也改變了 5 月的底片尺度。"
+msgstr ""
+
 #: scripts/cambridge/content_sundy.gd:89
 msgid "對照兩次曝光檢查標記。中心被遮住的地方請留白。"
 msgstr ""
@@ -2874,6 +2982,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:316
 msgid "就這樣交。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:56
+msgid "尺度改變會改變底片上星點的間距，很難與遠征隊要測量的微小向外位移區分。"
 msgstr ""
 
 #: scripts/content.gd:133
@@ -3470,6 +3582,10 @@ msgstr ""
 msgid "押的（1917 年至今沒改）：說不準"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:35
+msgid "拍到了日珥。這張底片沒有可測量的星點位置。"
+msgstr ""
+
 #: scripts/content.gd:377
 msgid "拍攝時：Cottingham 說一半在雲裡。"
 msgstr ""
@@ -3508,6 +3624,10 @@ msgstr ""
 
 #: scripts/content.gd:61
 msgid "按遊戲的曝光模型，這次會留下夠量測、較清楚的星點。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:64
+msgid "採用這張比對底片"
 msgstr ""
 
 #: scripts/main.gd:1641
@@ -3678,6 +3798,10 @@ msgstr ""
 msgid "日冕很美，我也看了一眼。但美不是量測——量測在底片上。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:61
+msgid "日冕示意圖"
+msgstr ""
+
 #: scripts/judgment.gd:27
 msgid "日冕那麼清楚——我們一定成功了。"
 msgstr ""
@@ -3730,6 +3854,10 @@ msgstr ""
 msgid "星像品質：它拖長、起霧或星不夠"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:30
+msgid "星像夠清晰，可以測量"
+msgstr ""
+
 #: scripts/judgment.gd:119
 msgid "星像平均拖長 %.2f——走速尚未驗證。數值偏低，可能是儀器，不是星。"
 msgstr ""
@@ -3758,8 +3886,24 @@ msgstr ""
 msgid "星點不足五顆的不量；星像拖長或被雲霧蓋住的，不和清楚的平均。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:32
+msgid "星點太少，無法測量"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:44
+msgid "星點排列變了。找找日食底片上的那些星。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:33
+msgid "星點數得出來，但星像擴散，中心位置難以確定。記下清晰度不佳，並保留底片。"
+msgstr ""
+
 #: scripts/ui.gd:1048
 msgid "星點清楚：小而圓"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:45
+msgid "星點相同，但這是另一具儀器的底片。星場和儀器都要一致。"
 msgstr ""
 
 #: scripts/content.gd:338
@@ -3866,8 +4010,16 @@ msgstr ""
 msgid "有多確定？"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:36
+msgid "有幾張天體照相儀底片拍到 12 顆星。4 吋望遠鏡有七張底片，每張都有七個可測量的星像。"
+msgstr ""
+
 #: scripts/cambridge/content_departure.gd:178
 msgid "有幾秒，雲薄到看得見日冕——像有人在霧後面點了一盞燈。」"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:31
+msgid "有星點，但對焦有疑問"
 msgstr ""
 
 #: scripts/cambridge/content_sundy.gd:82
@@ -4014,6 +4166,18 @@ msgstr ""
 msgid "檔案剪報・據史料編成"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:9
+msgid "檔案重構・底片和操作皆為模擬。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:23
+msgid "檢查底片"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:29
+msgid "檢視每張底片，記下星像能用來做什麼。"
+msgstr ""
+
 #: scripts/ui.gd:1872 scripts/ui.gd:2018 scripts/ui.gd:2033
 msgid "歷史上發生了什麼"
 msgstr ""
@@ -4052,6 +4216,10 @@ msgstr ""
 
 #: scripts/cambridge/box_sketch.gd:204 scripts/cambridge/box_sketch.gd:331
 msgid "比出發點高"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:49
+msgid "比對天體照相儀的兩張底片"
 msgstr ""
 
 #: scripts/cambridge/content_sundy.gd:97
@@ -4206,6 +4374,10 @@ msgstr ""
 msgid "測量桌。今晚，底片會在這裡被逐張比對。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:40
+msgid "為 4 吋望遠鏡的日食底片找出 7 月的比對底片。模擬中已放大位移。"
+msgstr ""
+
 #: scripts/content.gd:21
 msgid "為什麼要拍太陽旁邊的星？"
 msgstr ""
@@ -4342,6 +4514,10 @@ msgstr ""
 msgid "畫質：標準"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:11
+msgid "當地工人搭建支架和棚屋。英國隊在看台拆箱並準備儀器。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:233
 msgid "當成墨漬，刪掉"
 msgstr ""
@@ -4372,6 +4548,18 @@ msgstr ""
 
 #: scripts/main.gd:1208
 msgid "目標已更新。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:43
+msgid "相同星場、高度相近・4 吋望遠鏡"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:42
+msgid "相同星場・天體照相儀"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:46
+msgid "相同的星點、相近的觀測角度、相同的儀器。太陽已離開這片星場。這張就是比對位置的參考底片。"
 msgstr ""
 
 #: scripts/cambridge/epilogue_director.gd:87
@@ -4598,12 +4786,32 @@ msgstr ""
 msgid "納入量測"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:57
+msgid "索布拉爾・1919 年 7 月 22 日（當地日期）。英國觀測者離開，將箱件託給 Nicolau 與 Carneiro 轉運。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:38
+msgid "索布拉爾・1919 年 7 月 9 日返回（當地日期）"
+msgstr ""
+
 #: scripts/cambridge/content_sundy.gd:11
 msgid "索布拉爾・《The Observatory》42 卷，256 頁・1919 年 6 月・據 Abraham Pais 轉錄"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:8
+msgid "索布拉爾・兩具儀器，同一場日食"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:24
+msgid "索布拉爾暗房・1919 年 5 月 30 日至 6 月 5 日（當地日期）"
+msgstr ""
+
 #: scripts/cambridge/content_madeira.gd:48
 msgid "索布拉爾清單"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:25
+msgid "索布拉爾當地時間 5 月 30 日約 03:00，已沖洗的四張天體照相儀底片都顯得不夠清晰。重新檢查，對焦刻度仍是 11.0 mm。"
 msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:95
@@ -4986,6 +5194,10 @@ msgstr ""
 msgid "貴重的是用它看見的東西。這個只是黃銅。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:10
+msgid "賽馬俱樂部跑馬場・塞阿拉州索布拉爾・1919 年 5 月 29 日（當地日期）"
+msgstr ""
+
 #: scripts/cambridge/content_tribunal.gd:80
 msgid "赫伯特・霍爾・特納在《天文台》匿名撰文，援引戰時暴行，指責德國科學家支持本國軍隊的行動。他反對恢復學術往來。"
 msgstr ""
@@ -5124,6 +5336,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:92
 msgid "這張桌子空著，椅子推得整整齊齊。戰爭開始以後，天文台少了好幾個人。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:34
+msgid "這張的星點較少，卻比較容易確定中心位置。保留這組 4 吋底片以供比對。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:546
@@ -5496,6 +5712,10 @@ msgstr ""
 msgid "量錯了，或算漏了什麼。很有可能。六十年來，每一張水星底片都有人重新量過，每一顆行星的質量也重新算過。可是那個數字還在。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:39
+msgid "鏡面裝回做了記號的支架。用毫米方格紙做成的刻度圓盤，協助觀測者在黎明前找到日食星場。"
+msgstr ""
+
 #: scripts/ui.gd:2164 scripts/ui.gd:2167
 msgid "長按互動：按一下"
 msgstr ""
@@ -5506,6 +5726,10 @@ msgstr ""
 
 #: scripts/ui.gd:894
 msgid "閃爍比對"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:7
+msgid "開啟索布拉爾檔案"
 msgstr ""
 
 #: scripts/content.gd:34
@@ -5674,6 +5898,10 @@ msgstr ""
 
 #: scripts/ui.gd:906
 msgid "顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:19
+msgid "食既・1919 年 5 月 29 日約 08:58・索布拉爾當地時間（GMT−03:00）"
 msgstr ""
 
 #: scripts/cambridge/content_tribunal.gd:146

@@ -8,6 +8,7 @@ const Content := preload("res://scripts/cambridge/content_tribunal.gd")
 const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
 const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
+const Sobral := preload("res://scripts/cambridge/content_sobral.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
@@ -28,6 +29,7 @@ var checks := 0
 var capture_dir := ""
 var madeira_captures := false
 var sundy_captures := false
+var sobral_captures := false
 var temp_settings := ""
 
 
@@ -150,6 +152,7 @@ func check_madeira_scroll(paper: Control, finish_with_pad: bool) -> void:
 
 func _run() -> void:
 	var enabled := OS.get_cmdline_user_args().has("--journey")
+	var sobral_only := OS.get_cmdline_user_args().has("--sobral-only")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--journey-captures="):
 			capture_dir = arg.trim_prefix("--journey-captures=")
@@ -159,10 +162,14 @@ func _run() -> void:
 		elif arg.begins_with("--sundy-captures="):
 			capture_dir = arg.trim_prefix("--sundy-captures=")
 			sundy_captures = true
+		elif arg.begins_with("--sobral-captures="):
+			capture_dir = arg.trim_prefix("--sobral-captures=")
+			sobral_captures = true
+			sobral_only = true
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
 		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
@@ -174,7 +181,7 @@ func _run() -> void:
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
-	if madeira_captures or sundy_captures:
+	if madeira_captures or sundy_captures or sobral_captures:
 		locales = ["en", "ja"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
@@ -184,7 +191,16 @@ func _run() -> void:
 		await _resume_departure(route)
 	for locale in locales:
 		L.apply(locale)
-		await _route(route, enabled, locale == "ja")
+		if sobral_only:
+			var story := root.get_node("Story")
+			story.reset()
+			story.from_prologue = true
+			story.departure_done = true
+			expect(change_scene_to_packed(route[2]) == OK, "load observation day before the Sobral handoff")
+			await scene_changed
+			await _sundy_coda(current_scene, enabled)
+		else:
+			await _route(route, enabled, locale == "ja")
 		if capture_dir.is_empty():
 			Checkpoint.clear()
 	if capture_dir.is_empty():
@@ -447,7 +463,8 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	await frames(3)
 	for action in paper.actions.get_children():
 		expect(root.get_visible_rect().grow(1.0).encloses(action.get_global_rect()), "paper controls stay in bounds: " + state)
-	if capture_dir.is_empty() or (madeira_captures and not state.begins_with("madeira_")) or (
+	if capture_dir.is_empty() or (sobral_captures and not state.begins_with("sobral_")) or (
+		madeira_captures and not state.begins_with("madeira_")) or (
 		sundy_captures and not (state.begins_with("sundy_") or state.begins_with("i3_"))):
 		return
 	await RenderingServer.frame_post_draw
@@ -544,6 +561,14 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		await process_frame
 	await _dialogue(day)
 	expect(day._paired_cables == null, "darkroom precedes I3")
+	if enabled and L.current() in ["en", "ko"]:
+		day.sim.plates = [{"number": 1, "start": 100.0, "duration": 10.0, "usable": true,
+			"included": true, "quality": "good", "stars": 5, "trail": 0.0, "read": true,
+			"sigma": 0.18, "reading": day.sim.reading_for_value(1.75)}]
+		day.sim.measured = true
+		day.plate_textures = [ImageTexture.create_from_image(Image.create_empty(8, 8, false, Image.FORMAT_RGB8))]
+	var plates: Array = day.sim.plates.duplicate(true)
+	var combined: Dictionary = day.sim.combined()
 	day._start_judgment()
 	await _dialogue(day)
 	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
@@ -553,6 +578,8 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
 	await _dialogue(day)
 	var story := root.get_node("Story")
+	var telegram: int = day._telegram
+	var reason: String = day._reasons[day._reason].id
 	expect(story.kit_first >= 0 and day.coda_step == day.CodaStep.FADING and day._paired_cables == null,
 		"coda Kit choice is committed before I3")
 	if enabled:
@@ -562,12 +589,29 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 			await process_frame
 		expect(is_instance_valid(day) and day._paired_cables != null, "I3 follows the coda fade before the epilogue")
 		await _i3(day._paired_cables.paper)
+		for frame in 150:
+			if not is_instance_valid(day) or day.has_node("Sobral"):
+				break
+			await process_frame
+		var chapter: Node = day.get_node_or_null("Sobral") if is_instance_valid(day) else null
+		expect(chapter != null, "I3 opens the Sobral archive before October")
+		var before: Dictionary = story.to_save().duplicate(true)
+		await _sobral(chapter, L.current() in ["en", "ja"])
+		expect(story.to_save() == before and day.sim.plates == plates,
+			"filing both series in Sobral leaves the Príncipe state and plates intact")
+		await press(button(chapter.paper, Sobral.strings().B54))
+	else:
+		expect(not day.has_node("Sobral") and day._paired_cables == null, "flag off starts no archive")
 	if is_instance_valid(day):
 		await scene_changed
 	expect(current_scene.scene_file_path == "res://scenes/epilogue.tscn" and story.epilogue_done,
 		"the route reaches the existing epilogue")
+	var run: Dictionary = story.runs.back()
+	expect(run.combined == combined and run.exposures.size() == plates.size()
+		and run.telegram_id == preload("res://scripts/judgment.gd").TELEGRAMS[telegram].id
+		and run.reason_id == reason, "October keeps the Príncipe measurement, telegram and reason")
 	if capture_dir.is_empty():
-		await _october(current_scene, enabled, story.bond_tone, packet_seen)
+		await _october(current_scene, enabled, story.bond_tone, packet_seen, combined)
 
 
 func _october_opening(chapter: Node, enabled: bool, tone: String, madeira_sent: bool, sundy_read: bool) -> void:
@@ -594,13 +638,20 @@ func _october_opening(chapter: Node, enabled: bool, tone: String, madeira_sent: 
 	expect(chapter.beat == chapter.Beat.LETTER, "the reunion hands off to Dyson's letter")
 
 
-func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool) -> void:
+func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool, combined: Dictionary) -> void:
 	await _october_opening(chapter, enabled, tone, enabled, enabled)
 	var story := root.get_node("Story")
-	expect(Epilogue.ledger_case(story.runs.back()) == "no_value", "October plays with no readable personal plates")
+	if combined.n == 0:
+		expect(Epilogue.ledger_case(story.runs.back()) == "no_value", "October plays with no readable personal plates")
 	chapter._interact("letter")
 	await _dialogue(chapter)
+	if enabled:
+		expect(chapter.chart.visible and chapter.chart.run.combined == combined, "October uses the original run")
 	for step in 3:
+		if enabled and step == 2:
+			var rows: Array = chapter.chart.rows
+			expect(rows.size() == (3 if combined.n > 0 else 2) and rows[-2].value == 1.98
+				and rows[-1].value == 0.93, "both published Sobral series reach the existing October chart")
 		await press(chapter.chart.button)
 	await press(chapter.chart.choices[2])
 	await press(chapter.chart.button)
@@ -847,7 +898,109 @@ func _i3(paper: Control) -> void:
 	await _sundy_sheet(paper, "i3_02_nature_clipping", [
 		text["I3-08"], text["I3-09"], text["I3-10"], text["I3-11"], text["I3-12"], text["I3-13"]], onward)
 	await _sundy_sheet(paper, "i3_03_brazil_press", [
-		L.t("檔案剪報・據史料編成"), text["I3-15"], text["I3-16"], text["I3-17"]], text["I3-14"])
+		L.t("檔案剪報・據史料編成"), text["I3-15"], text["I3-16"], text["I3-17"]], Sobral.strings().B01)
+
+
+func _sobral(chapter: Node, revise: bool) -> void:
+	var paper: Control = chapter.paper
+	var text := Sobral.strings()
+	var onward: String = Madeira.strings().M09
+	while not paper.actions.visible:
+		await process_frame
+	var setup := [
+		["01_archive", ["B02", "B03"], onward],
+		["02_racecourse", ["B04", "B05", "B06", "B07", "B08"], onward],
+		["03_brazil", ["B09", "B10", "B11", "DIAGRAM"], onward],
+		["04_first_contact", ["B12"], onward],
+		["05_programmes", ["B13", "B14", "B15", "B16"], text.B17],
+	]
+	for sheet in setup:
+		while not paper.actions.visible:
+			await process_frame
+		_check_lines(paper, text, sheet[1])
+		await _sobral_frame(paper, sheet[0])
+		await press(button(paper, sheet[2]))
+	_check_lines(paper, text, ["B18", "B23"])
+	expect(button(paper, text.B21).disabled and button(paper, text.B22).disabled,
+		"the focus check precedes the auxiliary samples")
+	await _sobral_frame(paper, "06_darkroom_covered")
+	for sample in [["B20", "B25", "B27"], ["B21", "B24", "B28"], ["B22", "B26", "B29"]]:
+		await press(button(paper, L.t("查看底片") if sample[0] == "B20" else text[sample[0]]))
+		_check_lines(paper, text, ["B19", sample[0]])
+		await _sobral_frame(paper, "07_loupe_" + sample[0])
+		var before: Array = chapter.logged.duplicate()
+		if revise:
+			for entry in ["B24", "B25", "B26"]:
+				if entry == sample[1]:
+					continue
+				await press(button(paper, text[entry]))
+				expect(has_text(paper, text[sample[2]]) and chapter.logged == before,
+					"the wrong entry leaves the slot open for " + sample[0])
+			await _sobral_frame(paper, "08_revise_" + sample[0])
+			await press(button(paper, L.t("關閉")))
+			expect(chapter.logged == before, "closing the loupe does not file a diagnosis")
+			await press(button(paper, text[sample[0]]))
+		await press(button(paper, text[sample[1]]))
+		expect(has_text(paper, text[sample[2]]) and chapter.logged.back() == sample[1],
+			"the matching entry fills the slot for " + sample[0])
+	expect(chapter.logged == ["B25", "B24", "B26"], "all three diagnoses are visible in the log")
+	_check_lines(paper, text, ["B30"])
+	await _sobral_frame(paper, "09_series_log")
+	await press(button(paper, text.B31))
+	_check_lines(paper, text, ["B32", "B33"])
+	await _sobral_frame(paper, "10_predawn")
+	await press(button(paper, onward))
+	_check_lines(paper, text, ["B34", "MAY_AUX"])
+	await _sobral_frame(paper, "11_trial_setup")
+	if revise:
+		for trial in [["B35", "B38"], ["B36", "B39"]]:
+			await press(button(paper, text[trial[0]]))
+			_check_lines(paper, text, trial)
+			expect(chapter.reference.is_empty(), "incompatible reference leaves the slot open")
+			await _sobral_frame(paper, "12_trial_" + trial[0])
+		await press(button(paper, L.t("關閉")))
+		expect(chapter.reference.is_empty() and not has_text(paper, text.B39),
+			"closing the trial clears its preview and keeps the reference slot open")
+	await press(button(paper, text.B37))
+	_check_lines(paper, text, ["MAY_AUX", "B37"])
+	expect(chapter.reference.is_empty(), "both plates can be inspected before filing")
+	await _sobral_frame(paper, "13_reference_through_glass")
+	await press(button(paper, L.t("翻面")))
+	await _sobral_frame(paper, "14_reference_aligned")
+	await press(button(paper, text.FILE))
+	_check_lines(paper, text, ["B40", "B41", "B42"])
+	expect(chapter.reference == "B37", "the same field and instrument fill the reference slot")
+	await _sobral_frame(paper, "15_reference_filed")
+	await press(button(paper, text.B43))
+	_check_lines(paper, text, ["B44", "B45", "B46"])
+	await _sobral_frame(paper, "16_astrograph_pair")
+	if revise:
+		await press(button(paper, text.B47))
+		_check_lines(paper, text, ["B44", "B45", "B49", "B50"])
+		expect(chapter.scale_note.is_empty(), "the July focus alone leaves the May scale note open")
+		await _sobral_frame(paper, "17_scale_revise")
+	await press(button(paper, text.B48))
+	_check_lines(paper, text, ["B44", "B45", "B49", "B50", "B51", "B52", "B53", "MAY_AUX"])
+	expect(chapter.scale_note == "B48", "the uncertainty note files both Sobral series")
+	await _sobral_frame(paper, "18_both_series")
+	if sobral_captures and L.current() == "en":
+		Settings.text_scale = 1.2
+		Settings.refresh_fonts(self)
+		await _sobral_frame(paper, "18_both_series", "_scale_1_2")
+		Settings.text_scale = 1.0
+		Settings.refresh_fonts(self)
+
+
+func _sobral_frame(paper: Control, state: String, suffix := "") -> void:
+	await check_paper_layout(paper, state)
+	if not sobral_captures:
+		return
+	var scroll: ScrollContainer = paper.body.get_parent()
+	scroll.scroll_vertical = 0
+	await capture("sobral_" + state, paper, suffix, Vector2i(1280, 720))
+	if scroll.get_v_scroll_bar().visible:
+		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
+		await capture("sobral_" + state, paper, suffix + "_end", Vector2i(1280, 720))
 
 
 func _check_sundy_memory(paper: Control, ui: CanvasLayer) -> void:
