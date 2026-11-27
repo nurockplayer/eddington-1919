@@ -1873,3 +1873,15 @@ Opened: the worker's side-by-side of `eddington_engraving.jpg` and the committed
 - Row 8: not moved until AA 27 wires the 16 Príncipe lines to `res://assets/portraits/cottingham_engraving.jpg`.
 
 ![side by side](slice_principe/portraits/cottingham-1128/engraving-side-by-side.png)
+
+### 2026-11-28 07:12 JST · #611 (journey sheets, my lane, Refs #551) at 9df8510 / adac387: English at 1.0 holds, the rest not shown; not accepted yet
+
+Capture of 9df8510 (adac387 after it changes the capture's settings handling only): 122 frames, English, 1280×720, text scale 1.0, stopped before I3 by an assertion in the capture's own story walk. Opened whole: 053 (route strip), 077 (the letter), 090 (onward passage), 105 first and end, 110 first. The other 116 by the index only (108 marked no scroll, 14 scroll, all in the drive check). No main pair, no 1.2, no Japanese.
+
+- Holds at 1.0: the letter and the onward passage fit with no scroll and nothing cut; titles whole; ports named on the strips (Liverpool, Lisbon, Funchal, São Vicente, Santiago, Santo António); the scrollbar is brown; where the drive check scrolls, the fold falls between lines.
+- Not shown: text scale 1.2 (where chapter 2 hid its closing lines) and Japanese. These are the cases the issue is about.
+- One thing on the drive check: its record buttons (Usable / Repeat / Too few stars), the screen's action, are under the fold at first view while the column scrolls 70 px. They belong in the first view. Its disabled buttons are grey on grey and cannot be read (the Sobral 06 defect).
+- The capture is a story playthrough with assertions, so a story expectation stops the pictures. It should open the sheets and photograph them.
+
+![letter](slice_principe/accept/611/9df8510/077_en_first.png)
+![drive check, first view](slice_principe/accept/611/9df8510/105_en_first.png)
