@@ -208,9 +208,10 @@ func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
 		while is_instance_valid(director) and director._caption_elapsed < 1.2:
 			await process_frame
 		expect(is_instance_valid(director), "montage card %d is present" % i)
-		expect(director.ui.caption.text.begins_with(captions[i].t), "montage card %d is unchanged" % i)
+		var caption: String = director.ui.caption.text
+		expect(caption.begins_with(captions[i].t), "montage card %d is unchanged" % i)
 		await tap(KEY_ENTER)
-		while is_instance_valid(director) and director._caption_elapsed >= 0.0:
+		while is_instance_valid(director) and director._caption_elapsed >= 0.0 and director.ui.caption.text == caption:
 			await process_frame
 	if enabled:
 		while is_instance_valid(director) and director.get("tribunal") == null:
