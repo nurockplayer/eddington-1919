@@ -130,6 +130,7 @@ One row per function that turns computed samples into a sound.
 | `scripts/player.gd::_synth_step` | footsteps, wood and earth, three variants each | Eddington 1919 project | Original |
 | `scripts/ui.gd::_build_viewer_sfx` | darkroom plate viewer: plate select, mark (also the micrometer tick), measure | Eddington 1919 project | Original |
 | `scripts/audio/score.gd::stream` | score cues `totality_drone`, `totality_glass`, `totality_edge` (synthesised in `render`); synthesised stand-ins for the four rendered cues above, used only when their OGG is absent | Eddington 1919 project | Original |
+| `scripts/audio/score.gd::_envelope_resolution` | stereo PCM for `coda_resolution`, with attack and release applied to the shipped OGG listed above | Eddington 1919 project; samples by Versilian Studios | Original + CC0 1.0 samples |
 | `scripts/cambridge/director.gd::_build_audio` | Cambridge study: clock tick, click, rain bed | Eddington 1919 project | Original |
 | `scripts/cambridge/director.gd::_build_foley` | Cambridge light box: paper flip, plate nudge, star fields settling, pencil mark | Eddington 1919 project | Original |
 | `scripts/cambridge/departure_director.gd::_build_audio` | departure: clock tick, street bed | Eddington 1919 project | Original |
