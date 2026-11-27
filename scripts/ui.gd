@@ -915,11 +915,14 @@ func _build_viewer(root: Control) -> void:
 	plate_controls.add_child(blink_btn)
 	plate_notes_btn = _button(L.t("筆記本"))
 	plate_notes_btn.toggle_mode = true
+	plate_notes_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	plate_notes_btn.hide()
-	plate_controls.add_child(plate_notes_btn)
-	# The micrometer sits on its own row under the loupe/blink buttons: a fourth
-	# control in that row widened the middle column by ~39 px at text scale 1.2
-	# and pushed the chart past the viewport's right edge.
+	mid.add_child(plate_notes_btn)
+	plate_notes = _rich(18)
+	plate_notes.hide()
+	mid.add_child(plate_notes)
+	plate_notes_btn.toggled.connect(plate_notes.set_visible)
+	# Keep the micrometer and its dial actions on their own row.
 	var mic_bar := HBoxContainer.new()
 	mid.add_child(mic_bar)
 	mic_btn = _button(L.t("測微器"))
@@ -928,7 +931,8 @@ func _build_viewer(root: Control) -> void:
 	mic_btn.tooltip_text = L.t("顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。")
 	mic_btn.toggled.connect(_set_micrometer)
 	mic_bar.add_child(mic_btn)
-	blink_btn.focus_neighbor_bottom = blink_btn.get_path_to(mic_btn)
+	blink_btn.focus_neighbor_bottom = blink_btn.get_path_to(plate_notes_btn)
+	plate_notes_btn.focus_neighbor_bottom = plate_notes_btn.get_path_to(mic_btn)
 	# Keep the dial actions beside the toggle, with a full-width stack for the
 	# reading choices and Record below it.
 	var dial_row := HFlowContainer.new()
@@ -968,10 +972,6 @@ func _build_viewer(root: Control) -> void:
 	mic_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mic_note.visible = false
 	mid.add_child(mic_note)
-	plate_notes = _rich(18)
-	plate_notes.hide()
-	mid.add_child(plate_notes)
-	plate_notes_btn.toggled.connect(plate_notes.set_visible)
 	# Right: chart + actions.
 	var right := VBoxContainer.new()
 	_viewer_right = right
@@ -1035,6 +1035,7 @@ func _build_viewer(root: Control) -> void:
 	right.add_child(model_note)
 	viewer.resized.connect(_layout_viewer)
 	get_viewport().size_changed.connect(_layout_viewer)
+	mid.minimum_size_changed.connect(_layout_viewer.call_deferred)
 	_layout_viewer()
 
 
@@ -1049,6 +1050,12 @@ func _layout_viewer() -> void:
 	viewer_mid.custom_minimum_size.x = 470.0 + extra
 	# Give the two reading choices, Record, and the note room below the plate.
 	var plate_height := (340.0 if not is_nan(_mic_second) else 460.0) + extra
+	if plate_notes_btn.visible:
+		var available := get_viewport().get_visible_rect().size.y - viewer.get_theme_stylebox("panel").get_minimum_size().y
+		for control: Control in viewer_mid.get_children():
+			if control != plate_stage and control.visible:
+				available -= control.get_combined_minimum_size().y + viewer_mid.get_theme_constant("separation")
+		plate_height = minf(plate_height, available)
 	plate_stage.custom_minimum_size = Vector2(470.0 + extra, plate_height)
 	big_plate.custom_minimum_size = Vector2(460.0 + extra, plate_height)
 	chart_scroll.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
