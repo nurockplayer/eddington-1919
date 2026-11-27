@@ -79,8 +79,8 @@ func begin(wide := false, comparison := false) -> void:
 
 
 func _draw_partial_rows(fold: Node2D, parent: Container, window: Rect2) -> void:
-	for child: Control in parent.get_children():
-		if not child.visible:
+	for child in parent.get_children():
+		if not child is Control or not child.visible:
 			continue
 		var rect := Rect2(fold.to_local(child.global_position), child.size)
 		if not rect.intersects(window) or window.encloses(rect):
