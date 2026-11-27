@@ -392,10 +392,12 @@ void fragment() {
 		// Ease the thresholds across the passage as the pocket overlaps the solar drawing.
 		float pocket_softness = float(practice_cloud < 0.0) * smoothstep(-6.2, -3.1, pocket_time) * (1.0 - smoothstep(3.0, 7.6, pocket_time));
 		float sun_visibility = 1.0 - smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud);
-		float cloud_veil = max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x));
+		float thin_veil = 0.5 * smoothstep(0.30, 0.35, live_cloud.x);
+		float cloud_veil = max(thin_veil, smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x));
 		// The dense cloud printed at each ray covers the solid Moon in totality.
 		float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - dense_cloud;
-		float corona_cloud = mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
+		// Keep the thin-cloud tone and cut the corona at the same printed edge as the Moon.
+		float corona_cloud = returning_sky ? mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y) : moon_cloud * (1.0 - thin_veil);
 		moon_ink = before_second_contact ? 0.0 : front * moon_disc * solar_fade * moon_cloud;
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
