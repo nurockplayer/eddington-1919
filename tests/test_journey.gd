@@ -30,6 +30,7 @@ var capture_dir := ""
 var sheet_captures := false
 var captured_body := ""
 var sheet_frame := 0
+var scrolling_sheets := {}
 var madeira_captures := false
 var sundy_captures := false
 var temp_settings := ""
@@ -40,7 +41,13 @@ func _initialize() -> void:
 
 
 func expect(ok: bool, message: String) -> void:
+	if sheet_captures:
+		return
 	checks += 1
+	require(ok, message)
+
+
+func require(ok: bool, message: String) -> void:
 	if not ok:
 		quit(1)
 	assert(ok, message)
@@ -73,7 +80,11 @@ func tap_pad(button_index: JoyButton) -> void:
 
 
 func press(button: Button) -> void:
-	expect(not button.disabled and button.is_visible_in_tree(), "enabled button: " + button.text)
+	var enabled := not button.disabled and button.is_visible_in_tree()
+	if sheet_captures:
+		require(enabled, "enabled capture control: " + button.text)
+	else:
+		expect(enabled, "enabled button: " + button.text)
 	if sheet_captures:
 		var node := button.get_parent()
 		while node != null and not node is Paper:
@@ -187,7 +198,7 @@ func _run() -> void:
 		root.size = Vector2i(1280, 720)
 	if capture_dir.is_empty() or sheet_captures:
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
-		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated journey settings directory")
+		require(DirAccess.make_dir_absolute(directory) == OK, "create isolated journey settings directory")
 		temp_settings = directory.path_join("settings.cfg")
 		OS.set_environment("EDD_SETTINGS_PATH", temp_settings)
 	if capture_dir.is_empty():
@@ -209,12 +220,19 @@ func _run() -> void:
 		var settings := ConfigFile.new()
 		var story := root.get_node("Story")
 		settings.set_value("ui", "reduced_motion", true)
-		for sample in [["en", 1.0], ["en", 1.2], ["ja", 1.0]]:
+		for sample in [["en", 1.2], ["ja", 1.0]]:
 			settings.set_value("ui", "text_scale", sample[1])
-			expect(settings.save(temp_settings) == OK, "save isolated capture settings")
+			require(settings.save(temp_settings) == OK, "save isolated capture settings")
 			L.apply(sample[0])
 			story.reset()
 			await _route(route, enabled, sample[0] == "ja")
+		var index := capture_dir.path_join("index.md")
+		var markdown := FileAccess.get_file_as_string(index)
+		var heading_end := markdown.find("\n\n")
+		var summary := "\n\n## Sheets that scroll\n\n"
+		for sheet in scrolling_sheets:
+			summary += "- " + sheet + "\n"
+		FileAccess.open(index, FileAccess.WRITE).store_string(markdown.insert(heading_end, summary))
 	else:
 		for locale in locales:
 			L.apply(locale)
@@ -224,12 +242,19 @@ func _run() -> void:
 	if not temp_settings.is_empty():
 		DirAccess.remove_absolute(temp_settings)
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
-	print("test_journey %s: %d checks, 0 failures" % ["on" if enabled else "off", checks])
+	if sheet_captures:
+		print("Journey sheet capture complete: %d states" % sheet_frame)
+	else:
+		print("test_journey %s: %d checks, 0 failures" % ["on" if enabled else "off", checks])
 	quit()
 
 
 func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
-	expect(change_scene_to_packed(route[0]) == OK, "load real Cambridge scene")
+	var load_error := change_scene_to_packed(route[0])
+	if sheet_captures:
+		require(load_error == OK, "load Cambridge for capture")
+	else:
+		expect(load_error == OK, "load real Cambridge scene")
 	await scene_changed
 	var director := current_scene
 	while not director.ui.dialog_active():
@@ -520,10 +545,13 @@ func _sheet_frame(state: String, body: VBoxContainer, scroll: ScrollContainer, s
 	await frames(2)
 	await RenderingServer.frame_post_draw
 	var image := root.get_texture().get_image()
-	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
-	expect(image.get_size() == Vector2i(1280, 720), "sheet capture is 1280×720")
+	require(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
+	require(image.get_size() == Vector2i(1280, 720), "sheet capture is 1280×720")
 	var filename := "%03d_%s_%s.png" % [sheet_frame, L.current(), "end" if view == "end" else "first"]
-	expect(image.save_png(capture_dir.path_join(filename)) == OK, "write " + filename)
+	require(image.save_png(capture_dir.path_join(filename)) == OK, "write " + filename)
+	if scrolls and view == "first":
+		scrolling_sheets["%s %.1f · [%s](%s)" % [L.current(), Settings.text_scale,
+			state.replace("\n", " "), filename]] = true
 	var window := scroll.get_global_rect()
 	var lowest_y := -INF
 	var lowest_text := "—"
@@ -599,6 +627,14 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 			if not is_instance_valid(chapter):
 				break
 			await process_frame
+	if sheet_captures:
+		var day := current_scene
+		await _dialogue(day)
+		var cables: Node = load("res://scripts/cambridge/sundy.gd").new()
+		day.add_child(cables)
+		cables.play_cables(day.ui)
+		await _i3(cables.paper)
+		return
 	expect(not is_instance_valid(chapter), "Sundy must reach observation day without showing the June cables")
 	expect(current_scene.scene_file_path == observation_day.resource_path, "the route reaches the existing observation day")
 	expect(current_scene._came_from_departure and story.departure_done, "arrival has the full-story origin")
@@ -803,7 +839,7 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	if madeira_captures:
 		check_paper_focus(button(paper, text.M38))
 		await capture("madeira_worktable", paper)
-	if L.current() == "en":
+	if L.current() == "en" and not sheet_captures:
 		await check_madeira_scroll(paper, false)
 		if madeira_captures:
 			await capture("madeira_worktable", paper, "_end")
@@ -876,7 +912,7 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	expect(not passage_scroll.is_ancestor_of(heading)
 		and heading.get_global_rect().end.y <= passage_scroll.get_global_rect().position.y,
 		"the onward passage title stays above the scrolling body")
-	if L.current() in ["en", "ja"]:
+	if not sheet_captures and L.current() in ["en", "ja"]:
 		await check_madeira_scroll(paper, true)
 	if madeira_captures:
 		check_paper_focus(button(paper, text.I10))
@@ -905,6 +941,8 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	await _sundy_sheet(paper, "sundy_12_kit_letter", [text.S85, text.S86, text.S87, text.S88, text.S92], onward)
 	expect(chapter.ui.dialog_active() and chapter.ui.text_label.text == text.S47, "Ashby's remembered instruction precedes the rehearsal")
 	await _check_sundy_memory(paper, chapter.ui)
+	if sheet_captures:
+		await _sheet_frames("sundy_13_ashby_memory", paper)
 	if sundy_captures:
 		await capture("sundy_13_ashby_memory", paper)
 	await _dialogue(chapter)
@@ -923,6 +961,8 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 		"Kit's memory uses the toned print")
 	expect(chapter.ui.speaker_label.text == "Kit" and chapter.ui.dialogue_portrait.disclosure.text == "(Fiction)",
 		"Kit's memory card keeps the name and fiction caption in Latin letters")
+	if sheet_captures:
+		await _sheet_frames("sundy_17_kit_memory", paper)
 	if sundy_captures:
 		await capture("sundy_17_kit_memory", paper)
 	await tap(KEY_ENTER)
@@ -969,7 +1009,7 @@ func _sundy_sheet(paper: Control, state: String, lines: Array, advance: String, 
 		await check_paper_layout(paper, state)
 	var next := button(paper, advance)
 	check_paper_focus(next)
-	if scroll_probe:
+	if scroll_probe and not sheet_captures:
 		var scroll: ScrollContainer = paper.body.get_parent()
 		if scroll.get_v_scroll_bar().visible:
 			await tap(KEY_DOWN)

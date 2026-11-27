@@ -219,12 +219,19 @@ func _rehearse(pair: Dictionary) -> void:
 	_line(paper.body, "S56", 20)
 	_line(paper.body, "S60", 20)
 	_judgments.clear()
-	var choices: HBoxContainer = paper.columns(paper.body)
+	paper.actions.show()
+	var choices: HBoxContainer = paper.columns(paper.actions)
 	choices.add_theme_constant_override("separation", 5)
 	for id in ["S63", "S64", "S65"]:
 		var choice: Button = paper.button(choices, _text[id], id, 18)
+		choice.autowrap_mode = TextServer.AUTOWRAP_OFF
 		choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_judgments.append(choice)
+	for control in _rings + _judgments:
+		var muted := control.get_theme_stylebox("normal").duplicate() as StyleBoxFlat
+		muted.bg_color = Color("d8c9ae")
+		control.add_theme_stylebox_override("disabled", muted)
+		control.add_theme_color_override("font_disabled_color", Color("594b3d"))
 	paper.label(paper.body, "", 20)
 	_feedback = paper.body.get_child(-1)
 	paper.rule(paper.body)
