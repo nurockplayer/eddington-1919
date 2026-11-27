@@ -95,6 +95,7 @@ var _day_return: Tween
 var hold_t := 0.0
 var hold_id := ""
 var _hold_latched := false
+var _aiming_drive := false
 var _interact_needs_release := false
 var met_cottingham := false
 var plate_textures: Array = []
@@ -963,8 +964,11 @@ func _process_interaction(delta: float) -> void:
 		return
 	var n: Node = player.aimed_interactable()
 	var id: String = n.get_meta("interact_id") if n else ""
+	var aiming_drive := phase == Phase.PREP and id == "drive"
+	if _aiming_drive != aiming_drive:
+		_aiming_drive = aiming_drive
+		_refresh_objectives()
 	ui.prompt_label.position.y = 200.0 if id == "departure_workbook" else (300.0 if id == "mentor_loupe" else 550.0)
-	ui.set_prompt(_prompt_for(id, n))
 	ui.crosshair.modulate = Color.WHITE if ui.paper_hud else (Color(1, 0.85, 0.5) if id != "" else Color(1, 1, 1, 0.6))
 	var holding := Input.is_action_pressed("interact")
 	var pressed := Input.is_action_just_pressed("interact")
@@ -990,6 +994,7 @@ func _process_interaction(delta: float) -> void:
 			_hold_complete(id)
 	else:
 		_cancel_hold()
+	ui.set_prompt(_prompt_for(id, n))
 
 
 func _cancel_hold() -> void:
@@ -1047,6 +1052,8 @@ func _prompt_for(id: String, n: Node) -> String:
 		"drive":
 			if not sim.drive_wound:
 				return L.t("［按 %s 開始］上發條") % Prompts.key("interact") if Settings.hold_toggle else L.t("［按住 %s］上發條") % Prompts.key("interact")
+			if _interact_needs_release:
+				return ""
 			return L.t("［%s］觀察追蹤、請 Cottingham 微調") % Prompts.key("interact")
 		"chronometer":
 			return L.t("［%s］看天文鐘") % Prompts.key("interact")
@@ -1075,6 +1082,7 @@ func _hold_complete(id: String) -> void:
 		"drive":
 			sim.drive_wound = true
 			_interact_needs_release = true
+			_cancel_hold()
 			audio_click.play()
 			ui.show_toast(L.t("發條上滿了。") + (L.t("Cottingham：「好，放開按鍵，再看追蹤示意圖。」") if met_cottingham else ""))
 		"plate_box":
@@ -1337,12 +1345,16 @@ func _refresh_objectives() -> void:
 		var lines := [L.t("[b]準備（全食之前）[/b]"), L.t("[color=#a99]今天要量的：太陽旁邊的星，有沒有被往外推。[/color]")]
 		lines.append(L.t("%s 向 Eddington 報到") % ok.call(sim.briefed))
 		lines.append(L.t("%s 從暗房（鐵皮屋頂的木屋）搬底片匣到望遠鏡架（已放 %d／%d，手上 %d）") % [ok.call(sim.plates_delivered >= sim.MAX_EXTRA_PLATES), sim.plates_delivered, sim.MAX_EXTRA_PLATES, sim.plates_carried])
-		lines.append(L.t("%s 協助 Cottingham 上發條") % ok.call(sim.drive_wound))
-		lines.append(L.t("%s 觀察追蹤、請 Cottingham 微調走速") % ok.call(sim.drive_rate_checked))
+		var wind := L.t("%s 協助 Cottingham 上發條") % ok.call(sim.drive_wound)
+		var rate := L.t("%s 觀察追蹤、請 Cottingham 微調走速") % ok.call(sim.drive_rate_checked)
+		lines.append(wind)
+		lines.append(rate)
 		lines.append(L.t("[color=#a99]可選：讀曝光計畫、看牛津比對底片[/color]"))
 		if sim.briefed:
 			lines.append(L.t("[color=#db8]準備好了就告訴 Eddington，或等倒數結束[/color]"))
 		ui.set_objectives("\n".join(lines))
+		if _aiming_drive and ui.paper_hud:
+			ui.objectives.text = ui._paper_text(rate if sim.drive_wound else wind)
 	elif phase == Phase.CODA:
 		var objective := ""
 		if coda_step == CodaStep.WORKBOOK:
