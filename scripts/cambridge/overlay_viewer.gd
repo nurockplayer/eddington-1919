@@ -38,6 +38,8 @@ var _pointer_start := Vector2.ZERO
 var _clues: Dictionary = {}
 var _loupe_open := false
 var _loupe_position := Vector2.ZERO
+var _loupe_clip := Control.new()
+var _loupe_canvas := Node2D.new()
 var _hint_elapsed := 0.0
 var _hint_sent := false
 var _alignment_progress_recorded := false
@@ -54,6 +56,11 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_font = Fonts.cjk()
+	_loupe_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loupe_clip.clip_contents = true
+	add_child(_loupe_clip)
+	_loupe_clip.add_child(_loupe_canvas)
+	_loupe_canvas.draw.connect(_draw_loupe)
 	_build_ui()
 	visible = false
 
@@ -512,8 +519,12 @@ func _draw() -> void:
 	_draw_copy_layer()
 	if aligned:
 		draw_rect(rect.grow(-5), GOLD, false, 2.0)
-	if _loupe_open:
-		_draw_loupe()
+	var glass := rect.grow(-9)
+	_loupe_clip.position = glass.position
+	_loupe_clip.size = glass.size
+	_loupe_canvas.position = -glass.position
+	_loupe_clip.visible = _loupe_open
+	_loupe_canvas.queue_redraw()
 
 
 static func draw_glass(canvas: CanvasItem, rect: Rect2) -> void:
@@ -543,12 +554,14 @@ func _star_radius(index: int) -> float:
 
 
 func _draw_star(point: Vector2, index: int, zoom: float) -> void:
-	draw_circle(point, _star_radius(index) * zoom, Color(0.12, 0.12, 0.115, 0.9))
+	var canvas: CanvasItem = _loupe_canvas if zoom == 2.0 else self
+	canvas.draw_circle(point, _star_radius(index) * zoom, Color(0.12, 0.12, 0.115, 0.9))
 
 
 func _draw_speck(point: Vector2, zoom: float) -> void:
-	draw_circle(point, 3.0 * zoom, Color(0.76, 0.745, 0.69, 0.78))
-	draw_circle(point, 1.5 * zoom, Color(0.92, 0.90, 0.83, 0.85))
+	var canvas: CanvasItem = _loupe_canvas if zoom == 2.0 else self
+	canvas.draw_circle(point, 3.0 * zoom, Color(0.76, 0.745, 0.69, 0.78))
+	canvas.draw_circle(point, 1.5 * zoom, Color(0.92, 0.90, 0.83, 0.85))
 
 
 func _draw_plate_marks() -> void:
@@ -599,6 +612,7 @@ func _draw_copy_layer() -> void:
 
 
 func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
+	var canvas: CanvasItem = _loupe_canvas if zoom == 2.0 else self
 	if aligned:
 		var radius := 5.0 * zoom
 		var start := 0.0
@@ -612,10 +626,10 @@ func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
 				var half_arc := acos((distance * distance + radius * radius - limit * limit) / (2.0 * distance * radius))
 				start = inward.angle() - half_arc
 				end = inward.angle() + half_arc
-		draw_arc(point, radius, start, end, 20, Color(0.025, 0.08, 0.065, 0.65), zoom, true)
+		canvas.draw_arc(point, radius, start, end, 20, Color(0.025, 0.08, 0.065, 0.65), zoom, true)
 	else:
 		var radius := 2.2 if index < 17 else 3.5
-		draw_circle(point, radius * zoom, Color(0.025, 0.08, 0.065, 0.88) if index < 17 else Color(0.05, 0.20, 0.15, 0.96))
+		canvas.draw_circle(point, radius * zoom, Color(0.025, 0.08, 0.065, 0.88) if index < 17 else Color(0.05, 0.20, 0.15, 0.96))
 
 
 func _draw_copy_label() -> void:
@@ -649,8 +663,8 @@ func _draw_difference_arrows() -> void:
 
 
 func _draw_loupe() -> void:
-	draw_circle(_loupe_position, LOUPE_RADIUS, INK)
-	draw_circle(_loupe_position, LOUPE_GLASS_RADIUS, GLASS)
+	_loupe_canvas.draw_circle(_loupe_position, LOUPE_RADIUS, INK)
+	_loupe_canvas.draw_circle(_loupe_position, LOUPE_GLASS_RADIUS, GLASS)
 	var points := MathModel.star_points()
 	for i in points.size():
 		var displacement := (_point_to_pixel(points[i]) - _loupe_position) * 2.0
@@ -664,7 +678,6 @@ func _draw_loupe() -> void:
 		var displacement := (_point_to_pixel(copy_stars[i]) - _loupe_position) * 2.0
 		if displacement.length() <= LOUPE_FEATURE_RADIUS:
 			_draw_copy_mark(_loupe_position + displacement, i, 2.0)
-	draw_arc(_loupe_position, 12.0, 0.0, TAU, 32, INK, 1.0, true)
 
 
 func _draw_arrow(from: Vector2, to: Vector2, color: Color, width: float) -> void:
