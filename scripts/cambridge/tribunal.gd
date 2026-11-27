@@ -73,6 +73,8 @@ func _dialogue(beat: Dictionary) -> void:
 	var lines: Array = _lines(beat.lines).map(func(line): return {"s": speaker, "t": line})
 	_director._say(lines, "tribunal")
 	await _director.ui.dialogue_done
+	if page_id == "T78":
+		Story.tribunal_packet_seen = true
 	paper.hide()
 
 

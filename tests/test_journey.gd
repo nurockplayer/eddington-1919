@@ -178,6 +178,9 @@ func _run() -> void:
 		locales = ["en", "ja"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
+	if enabled and capture_dir.is_empty():
+		L.apply("en")
+		await _resume_departure(route)
 	for locale in locales:
 		L.apply(locale)
 		await _route(route, enabled, locale == "ja")
@@ -228,25 +231,51 @@ func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
 		expect(is_instance_valid(director) and director.get("tribunal") != null,
 			"--journey must enter Tribunal before departure")
 		await _tribunal(director, misfile)
+		expected.tribunal_packet_seen = true
 	else:
 		expect(director.get("tribunal") == null, "flag off creates no chapter")
 	if current_scene == null or current_scene.scene_file_path != route[1].resource_path:
 		await scene_changed
 	expect(current_scene.scene_file_path == route[1].resource_path, "route loads existing M2 scene")
-	expect(story.to_save() == expected, "only prologue completion changes saved M1 state")
+	expect(story.to_save() == expected, "M1 handoff records prologue completion and whether the packet beat played")
 	if Checkpoint.force_enabled:
 		expect(Checkpoint.peek() == "departure", "handoff writes the departure checkpoint")
 		story.reset()
 		expect(Checkpoint.restore() == "departure" and story.to_save() == expected,
-			"departure checkpoint restores M1 state verbatim")
+			"departure checkpoint restores M1 state including the packet record")
 		Checkpoint.clear()
+	await _departure_opening()
+	if capture_dir.is_empty() or madeira_captures or sundy_captures:
+		await _departure(current_scene, route[2], enabled, misfile, enabled)
+
+
+func _resume_departure(route: Array[PackedScene]) -> void:
+	var story := root.get_node("Story")
+	story.from_prologue = true
+	story.prologue_done = true
+	Checkpoint.save("departure")
+	var legacy := Checkpoint._read()
+	legacy.story.erase("tribunal_packet_seen")
+	Checkpoint._write(legacy)
+	story.reset()
+	expect(change_scene_to_packed(route[2]) == OK, "load the title with a legacy departure save")
+	await scene_changed
+	expect(current_scene.ui.continue_btn != null, "the title offers the legacy departure save")
+	current_scene.ui.continue_btn.pressed.emit()
+	await scene_changed
+	expect(current_scene.scene_file_path == route[1].resource_path, "Continue opens departure under --journey")
+	expect(not story.tribunal_packet_seen, "a legacy departure save has no packet record")
+	await _departure_opening()
+	await _departure(current_scene, route[2], true, false, false)
+	Checkpoint.clear()
+
+
+func _departure_opening() -> void:
 	while current_scene.ui.caption.text != Departure.intro_caption():
 		await process_frame
 	expect(current_scene.ui.caption.text == Departure.intro_caption(), "existing M2 opening plays")
 	while not current_scene.ui.dialog_active():
 		await process_frame
-	if capture_dir.is_empty() or madeira_captures or sundy_captures:
-		await _departure(current_scene, route[2], enabled, misfile)
 
 
 func _tribunal(director: Node, misfile: bool) -> void:
@@ -412,7 +441,7 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	print("saved ", filename)
 
 
-func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm: bool) -> void:
+func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm: bool, packet_seen: bool) -> void:
 	var story := root.get_node("Story")
 	await _dialogue(chapter)
 	chapter._interact("lightbox")
@@ -476,10 +505,10 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		expect(Checkpoint.restore() == "principe" and story.to_save() == previous,
 			"the handoff preserves the prediction, certainty and M2 choices verbatim")
 		Checkpoint.clear()
-	await _sundy_coda(current_scene, enabled)
+	await _sundy_coda(current_scene, enabled, packet_seen)
 
 
-func _sundy_coda(day: Node, enabled: bool) -> void:
+func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	await _dialogue(day)
 	expect(day._paired_cables == null, "no I3 at the observation-day opening")
 	await day._begin_totality()
@@ -513,10 +542,10 @@ func _sundy_coda(day: Node, enabled: bool) -> void:
 	expect(current_scene.scene_file_path == "res://scenes/epilogue.tscn" and story.epilogue_done,
 		"the route reaches the existing epilogue")
 	if capture_dir.is_empty():
-		await _october(current_scene, enabled, story.bond_tone)
+		await _october(current_scene, enabled, story.bond_tone, packet_seen)
 
 
-func _october(chapter: Node, enabled: bool, tone: String) -> void:
+func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool) -> void:
 	for frame in 150:
 		if chapter._pending == "opening":
 			break
@@ -541,8 +570,17 @@ func _october(chapter: Node, enabled: bool, tone: String) -> void:
 		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
 		await tap(KEY_5 if entry.get("key") == "final_reason" else (KEY_1 if entry.has("choices") else KEY_ENTER))
 	expect(chapter._pending == "close", "October reaches the closing ledger exchange")
+	var closing_lines: Array = chapter.ui._seq.slice(1).map(func(line): return line.t)
 	var close := await _october_dialogue(chapter, enabled, tone)
-	expect(close == (["O04", "O05"] if enabled else []), "Ashby owns the packet decision on the journey route")
+	if enabled and not packet_seen:
+		expect(close == ["O05"], "resumed departure must skip the unseen packet apology O04")
+		expect(closing_lines == [
+			L.t("Ashby 把帳本交到你手上。"),
+			L.t("把我們兩個簽名的紀錄都帶去倫敦。要是有人問我寫的那筆，請他直接來找我。"),
+			L.t("11 月 6 日，倫敦開會。"),
+		], "resumed departure hands off the ledger without referring to the packet")
+	else:
+		expect(close == (["O04", "O05"] if packet_seen else []), "the packet apology plays after the tribunal beat")
 	for frame in 150:
 		if chapter._pending == "tableau":
 			break

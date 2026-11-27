@@ -241,11 +241,12 @@ static func final_reply(choice: int, run := {}, bet_1917 := {}, bet_now := {}) -
 	return [{"s": A, "t": L.t("那就這麼寫。")}]
 
 
-static func close(journey := false) -> Array:
+static func close(journey: bool, tribunal_packet_seen: bool) -> Array:
 	var seq: Array = []
 	if journey:
 		seq.append({"s": "", "t": L.t("Ashby 把帳本交到你手上。")})
-		seq.append({"id": "O04", "s": A, "t": L.t("Rook 來要卷宗時，我把它闔上了。那時該讓你自己回答。對不起。")})
+		if tribunal_packet_seen:
+			seq.append({"id": "O04", "s": A, "t": L.t("Rook 來要卷宗時，我把它闔上了。那時該讓你自己回答。對不起。")})
 		seq.append({"id": "O05", "s": A, "t": L.t("把我們兩個簽名的紀錄都帶去倫敦。要是有人問我寫的那筆，請他直接來找我。")})
 	seq.append({"s": A, "t": L.t("11 月 6 日，倫敦開會。")})
 	return seq

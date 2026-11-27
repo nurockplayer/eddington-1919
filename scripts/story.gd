@@ -10,6 +10,7 @@ var darkroom_resume: Dictionary = {}
 
 var from_prologue := false
 var prologue_done := false
+var tribunal_packet_seen := false
 var clues: Dictionary = {}
 var report: Dictionary = {}
 var plan: Array = []
@@ -42,6 +43,7 @@ const SAVED := [
 	"kit_choice", "want", "kit_first", "trial_note", "exam", "bet", "bet_1917",
 	"orrery", "mercury_suspect", "sky_promise", "bond_tone", "slip_fix",
 	"departure_done", "epilogue_done", "ending_plate_caption", "light_guess",
+	"tribunal_packet_seen",
 ]
 
 
@@ -85,6 +87,7 @@ func reset(keep_runs := false) -> void:
 		runs.clear()
 	from_prologue = false
 	prologue_done = false
+	tribunal_packet_seen = false
 	clues.clear()
 	report.clear()
 	plan.clear()

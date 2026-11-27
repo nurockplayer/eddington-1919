@@ -237,7 +237,8 @@ func _dialogue_done(results: Dictionary) -> void:
 			_store("final_reason", choice)
 			var sources: Array = Content.final_reason()[0].get("sources", [])
 			_store("final_reason_text", str(sources[choice]) if choice >= 0 and choice < sources.size() else "")
-			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet) + Content.close(_journey), "close")
+			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet)
+				+ Content.close(_journey, Story.tribunal_packet_seen), "close")
 			return
 		"close":
 			_busy = true
