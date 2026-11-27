@@ -369,7 +369,7 @@ void fragment() {
 			ink = mix(ink, (0.23 + 0.55 * bank_hatch) * bank_print, band_body);
 			float bank_line = 1.0 - smoothstep(0.45, 1.45, abs(band_distance) / band_pixel);
 			float bank_fade = band_active * (1.0 - smoothstep(7.0, 9.0, abs(seam_elapsed)));
-			ink = max(ink, 0.62 * bank_print * bank_fade * bank_line);
+			ink = max(ink, 0.52 * bank_print * bank_fade * bank_line);
 		}
 		ink = max(ink, cloud_contour * band_lines * contour_ink * (1.0 - totality_plate));
 		if (night <= 0.5) {

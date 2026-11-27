@@ -213,7 +213,7 @@ func _sample_with_middle_band(uv: Vector2, t: float) -> float:
 	var offset := uv - sun_track(t) - 2.25 * wind * elapsed
 	var side := offset.dot(Vector2(-along.y, along.x))
 	var scallop := 0.005 * (sin(side * 96.0) + 0.5 * sin(side * 211.0)) * smoothstep(0.010, 0.034, absf(side))
-	var island := Vector2((offset.dot(along) + 0.006 + scallop) / 0.020, side / 0.070)
+	var island := Vector2((offset.dot(along) + 0.006 + scallop) / 0.020, side / 0.048)
 	var distance := 0.020 * (island.length() - 1.0)
 	var cover := (1.0 - smoothstep(-0.001, 0.001, distance)) * (1.0 - smoothstep(7.0, 9.0, absf(elapsed)))
 	return lerpf(density, maxf(density, 0.93), cover)

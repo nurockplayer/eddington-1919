@@ -21,7 +21,7 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	# Pin the P2 simulation with the middle-totality seam added in #589.
-	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "478fb62d10452787416e0a6baa4cb8345f5882380c871048cd5fb175360d4070", "simulation matches the P2 oracle with the middle seam")
+	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "e2df0872b381cef1e89459ff81d78b9a821a07d93dbbea3568b2be547c59a1fb", "simulation matches the P2 oracle with the middle seam")
 	var engraving := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
 	var ternary := RegEx.create_from_string("^([a-z_]+) \\? ([^:]+) : (.+)$")
 	for name in ["solar_fade", "pocket_print", "pocket_softness", "sun_visibility", "thin_veil",

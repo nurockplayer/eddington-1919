@@ -7,7 +7,7 @@ float eclipse_middle_band_distance(vec2 plane, float elapsed) {
 	float side = dot(offset, across);
 	float scallop = 0.005 * (sin(side * 96.0) + 0.5 * sin(side * 211.0))
 		* smoothstep(0.010, 0.034, abs(side));
-	vec2 island = vec2((dot(offset, along) + 0.006 + scallop) / 0.020, side / 0.070);
+	vec2 island = vec2((dot(offset, along) + 0.006 + scallop) / 0.020, side / 0.048);
 	return 0.020 * (length(island) - 1.0);
 }
 
