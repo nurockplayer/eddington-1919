@@ -1594,3 +1594,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - The newest capture is `/Volumes/KIOXIA/eddington-1919-cache/director/accept/583/8f957740a7a17fea85cccf1f8aab40722dea9b47/`, two commits behind, and it has no frame of the loupe over a matched pair or at the glass edge, which is what de42dc1 changes. Opened whole from it and from the first capture: candidate aligned, candidate inspection, main inspection.
 - Read from 8f95774, for direction only: the steerable loupe replaces main's "Zoom on the unmatched point" button and its inset, and the line under the plate no longer counts the matches; that is the row. The loupe is a plain black ring 68 px across. The note box covers the bottom of the plate, pencil arrows included, while the loupe is in use.
 - Asked for at the head: aligned; loupe on the unmatched point; loupe on a matched pair; loupe half over the glass edge; loupe low on the plate with the note showing; one of them at text scale 1.2.
+
+### 2026-11-27 16:54 JST: #590 AA fun 07, Tribunal packet in three passes (behind `--journey`), at df2afeb: accepted for what is shown
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/590/df2afeb2e690e330ff6c84794f6a6849ba52ccb5/` (main `a3d1391a`, en, 1280×720, reduced motion on; four frames). Opened whole at native size: all four. Kept in `slice_principe/accept/590/df2afeb/`.
+- **Holds.** The packet opens with three extracts and three headings where main opens with nine; at the second opening the three earlier filings sit under their headings and three new extracts are offered. It is main's sheet, cards and type, with less on it.
+- **Asked, not a hold:** main rules a hairline between the extracts on offer and the headings; the candidate drops it. Offered and filed cards are drawn alike, so that line is the only thing saying which is which. Put it back if the head moves again.
+- **Not shown:** the third opening with six filed; the wrong-heading hint; text scale 1.2; any locale but English. edd-lead reports a Korean stall still open.
+- Inherited: the lower half of the sheet is empty; "Reconstructed" in the title is the only word about what the document is.
+- **Verdicts:** technical regression none seen (flag off untouched); this PR's change accepted at df2afeb for the two states shown. **Count stays 7/9.**
