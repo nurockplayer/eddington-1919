@@ -180,6 +180,7 @@ func _run() -> void:
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
 	if enabled and capture_dir.is_empty():
 		L.apply("en")
+		await _resume_october()
 		await _resume_departure(route)
 	for locale in locales:
 		L.apply(locale)
@@ -268,6 +269,28 @@ func _resume_departure(route: Array[PackedScene]) -> void:
 	await _departure_opening()
 	await _departure(current_scene, route[2], true, false, false)
 	Checkpoint.clear()
+
+
+func _resume_october() -> void:
+	var story := root.get_node("Story")
+	for letters in [[false, false], [false, true], [true, false]]:
+		story.reset()
+		story.bond_tone = "warm" if letters[1] else "close"
+		story.madeira_letter_sent = letters[0]
+		story.sundy_letter_read = letters[1]
+		Checkpoint.save("epilogue")
+		var checkpoint := Checkpoint._read()
+		if not letters[0]:
+			checkpoint.story.erase("madeira_letter_sent")
+		if not letters[1]:
+			checkpoint.story.erase("sundy_letter_read")
+		Checkpoint._write(checkpoint)
+		expect(Checkpoint.restore() == "epilogue", "restore the October checkpoint with a skipped letter scene")
+		expect(change_scene_to_file(Checkpoint.scene("epilogue")) == OK, "load the restored October scene")
+		await scene_changed
+		await _october_opening(current_scene, true, story.bond_tone, letters[0], letters[1])
+	Checkpoint.clear()
+	story.reset()
 
 
 func _departure_opening() -> void:
@@ -500,6 +523,8 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		"observation day begins in PREP with its own unwound drive")
 	previous.departure_done = true
 	previous.from_prologue = true
+	previous.madeira_letter_sent = enabled
+	previous.sundy_letter_read = enabled
 	if Checkpoint.force_enabled:
 		expect(Checkpoint.peek() == "principe", "the existing checkpoint is written at the slice handoff")
 		expect(Checkpoint.restore() == "principe" and story.to_save() == previous,
@@ -545,16 +570,32 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		await _october(current_scene, enabled, story.bond_tone, packet_seen)
 
 
-func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool) -> void:
+func _october_opening(chapter: Node, enabled: bool, tone: String, madeira_sent: bool, sundy_read: bool) -> void:
 	for frame in 150:
 		if chapter._pending == "opening":
 			break
 		await process_frame
 	expect(chapter._pending == "opening", "the October reunion opens")
+	if enabled:
+		var lines: Array = chapter.ui._seq.map(func(entry): return entry.t)
+		var seal := lines.find(L.t("Kit 拆開封口。"))
+		expect(seal > 0, "Kit opens the new envelope")
+		expect(lines[seal - 1].contains(L.t("你從豐沙爾寄來的信到了。這封是我收到後寫的。")) == madeira_sent,
+			"the October opening refers to the Funchal letter only if sent")
+		var chair := L.t("Kit 拉了張椅子過來。")
+		var sundy_chair := L.t("你把在桑迪讀過的那封信放在旁邊，攤在寫到椅子的地方。Kit 拉了張椅子過來。")
+		expect(lines.has(sundy_chair) == sundy_read, "October lays out the Sundy letter only if read")
+		expect(lines.has(sundy_chair if sundy_read else chair), "Kit pulls up a chair in either case")
 	var opening := await _october_dialogue(chapter, enabled, tone)
-	var expected := ["O02" if tone == "close" else "O01", "O03"] if enabled else []
-	expect(opening == expected, "the journey reunion gives Kit the promised turn in this tone")
+	var expected := ["O03"] if enabled else []
+	if madeira_sent:
+		expected.push_front("O02" if tone == "close" else "O01")
+	expect(opening == expected, "October includes O01 or O02 only if the Funchal letter was sent, then O03")
 	expect(chapter.beat == chapter.Beat.LETTER, "the reunion hands off to Dyson's letter")
+
+
+func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool) -> void:
+	await _october_opening(chapter, enabled, tone, enabled, enabled)
 	var story := root.get_node("Story")
 	expect(Epilogue.ledger_case(story.runs.back()) == "no_value", "October plays with no readable personal plates")
 	chapter._interact("letter")

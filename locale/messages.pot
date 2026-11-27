@@ -6168,6 +6168,9 @@ msgstr ""
 msgid "Kit 拆開封口。"
 msgstr ""
 
+msgid "Kit 拉了張椅子過來。"
+msgstr ""
+
 msgid "你說工作做完了就會想我。我回你，其實我忙著的時候也會想你。"
 msgstr ""
 

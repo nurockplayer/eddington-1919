@@ -477,6 +477,9 @@ msgstr "Kit reads: …"
 msgid "Kit 拆開封口。"
 msgstr "Kit breaks the seal."
 
+msgid "Kit 拉了張椅子過來。"
+msgstr "Kit pulls up a chair."
+
 msgid "Kit，今晚真想得到你的回信。你讀到這封信時，我已經在別處了。"
 msgstr "Kit, I could use an answer tonight. By the time you read this, I'll be somewhere else."
 

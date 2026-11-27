@@ -96,6 +96,7 @@ func play(director: Node) -> void:
 	paper.rule(paper.body)
 	_line(paper.body, "S92", 19)
 	await _next("M09")
+	_story.sundy_letter_read = true
 	await _remember(Cast.MENTOR, ["S47"])
 	for pair in PAIRS:
 		if pair.label == "S59":

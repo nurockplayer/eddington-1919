@@ -29,7 +29,8 @@ static func opening() -> Array:
 
 ## Story audit D6: Kit's October reunion. FICTION throughout; the six-week boat is
 ## HISTORICAL_RECORD (story_factcheck §7). kit_line is the stored "給 Kit：…" workbook line.
-static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit_line: String, journey := false) -> Array:
+static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit_line: String,
+		journey := false, madeira_letter_sent := false, sundy_letter_read := false) -> Array:
 	var seq: Array = [
 		{"s": K, "t": L.t("你瘦了。") + "\n\n" + L.t("說吧。你決定好要先跟我說的那一句。")},
 	]
@@ -52,13 +53,18 @@ static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit
 	seq[-1].t += "\n\n" + L.t("那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。")
 	seq.append({"s": K, "t": L.t("桌角那個信封，上面寫著你的名字。") + "\n\n" + L.t("那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。")})
 	if journey:
-		seq[-1].t += "\n\n" + L.t("你從豐沙爾寄來的信到了。這封是我收到後寫的。")
+		if madeira_letter_sent:
+			seq[-1].t += "\n\n" + L.t("你從豐沙爾寄來的信到了。這封是我收到後寫的。")
 		seq.append({"s": "", "t": L.t("Kit 拆開封口。")})
-		if bond_tone == "close":
-			seq.append({"id": "O02", "s": K, "t": L.t("你說工作做完了就會想我。我回你，其實我忙著的時候也會想你。")})
-		else:
-			seq.append({"id": "O01", "s": K, "t": L.t("你問的是那顆星。我回的是工作檯。我也想讓你知道，我惦記著有人一起做事。")})
-		seq.append({"s": "", "t": L.t("你把在桑迪讀過的那封信放在旁邊，攤在寫到椅子的地方。Kit 拉了張椅子過來。")})
+		if madeira_letter_sent:
+			if bond_tone == "close":
+				seq.append({"id": "O02", "s": K, "t": L.t("你說工作做完了就會想我。我回你，其實我忙著的時候也會想你。")})
+			else:
+				seq.append({"id": "O01", "s": K, "t": L.t("你問的是那顆星。我回的是工作檯。我也想讓你知道，我惦記著有人一起做事。")})
+		var chair := L.t("Kit 拉了張椅子過來。")
+		if sundy_letter_read:
+			chair = L.t("你把在桑迪讀過的那封信放在旁邊，攤在寫到椅子的地方。Kit 拉了張椅子過來。")
+		seq.append({"s": "", "t": chair})
 		seq.append({"id": "O03", "s": YOU, "t": L.t("剩下的我想聽你親口說。我可以留下來。")})
 	elif bond_tone == "close":
 		seq[-1].t += "\n\n" + L.t("……裡面寫了什麼，以後再說。不是今晚。")

@@ -94,7 +94,8 @@ func _ready() -> void:
 	await ui.show_caption(Content.intro_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
 	var kit_line := str(Story.runs.back().get("kit_line", "")) if not Story.runs.is_empty() else ""
-	_say(Content.kit_reunion(Story.kit_first, Story.bond_tone, Story.sky_promise, kit_line, _journey) + Content.opening(), "opening")
+	_say(Content.kit_reunion(Story.kit_first, Story.bond_tone, Story.sky_promise, kit_line,
+		_journey, Story.madeira_letter_sent, Story.sundy_letter_read) + Content.opening(), "opening")
 
 
 ## Removes an inactive hotspot's collider so it cannot take the interaction ray.
