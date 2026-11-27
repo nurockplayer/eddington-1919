@@ -22,6 +22,9 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	var shader_text := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
+	var cloud_shader := FileAccess.get_file_as_string("res://shaders/eclipse_cloud.gdshaderinc")
+	check(cloud_shader.contains("dens = mix(dens, rehearsal_density, near_practice_sun);"),
+		"the rehearsal solar override blends into the live field away from the Sun")
 	for name in Engraving.UNIFORMS:
 		check(shader_text.contains("uniform float " + name + " "), "shader uniform " + name)
 		check(Engraving.PARAMS.has(name), "parameter for " + name)
@@ -47,6 +50,9 @@ func _run() -> void:
 		and shader_text.contains("cloud_field = print_cloud(live_cloud, sky_plate_darkness);")
 		and shader_text.contains("live_cloud.x = mix(live_cloud.x, pocket_print_density(ray_w, print_time, live_cloud.x), pocket_print);"),
 		"the printed contour and ray veil share the drifting pocket density")
+	check(shader_text.contains("if (night <= 0.5 && sky_plate_darkness > 0.0) {\n\t\t\tcloud_field = print_cloud")
+		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
+		"rehearsal and observation grade cloud ruling and wash with the same daylight weight")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
 	check(shader_text.contains("max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
 		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * corona_cloud"), "cloud density veils the corona")
@@ -156,6 +162,8 @@ func _run() -> void:
 	var thin: float = material.get_shader_parameter("practice_cloud")
 	check(is_equal_approx(thick, 0.93) and is_equal_approx(thin, 0.12)
 		and material.get_shader_parameter("darkness") < 0.01, "early rehearsal sends thick and thin cloud to the compositor")
+	check(is_equal_approx(material.get_shader_parameter("cloud_time"), 3.0 - game.PREP_S)
+		and is_equal_approx(game.prep_left, game.PREP_S), "rehearsal drifts the live cloud without advancing the observation countdown")
 	game.free()
 	_test_eclipse_pilot_bindings(shader_text)
 

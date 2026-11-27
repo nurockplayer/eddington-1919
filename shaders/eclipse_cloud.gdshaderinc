@@ -27,7 +27,8 @@ vec2 eclipse_cloud_sample_at(vec3 d, float time) {
 		// supplies the shape and density variation around it.
 		float near_practice_sun = smoothstep(0.96, 0.999, dot(d, sun_dir));
 		float variation = (dens - eclipse_cloud_texture(sun_dir, time)) * smoothstep(0.0, 0.12, practice_cloud);
-		dens = clamp((practice_cloud + variation) * near_practice_sun, 0.0, 1.0);
+		float rehearsal_density = clamp(practice_cloud + variation, 0.0, 1.0);
+		dens = mix(dens, rehearsal_density, near_practice_sun);
 	}
 	float gap = 0.0;
 	if (practice_cloud < 0.0 && night < 0.5 && dot(d, sun_dir) > 0.98) {

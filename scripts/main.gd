@@ -909,6 +909,7 @@ func _process_prep(delta: float) -> void:
 					_rehearsal_exposure.cloudy += density * game_dt
 					previous += dt
 			sky_mat.set_shader_parameter("practice_cloud", _rehearsal_cloud(_rehearsal_time))
+			sky_mat.set_shader_parameter("cloud_time", _rehearsal_time - prep_left)
 			if _rehearsal_step == 0 and _rehearsal_time >= 9.5:
 				_finish_rehearsal(Content.rehearsal_feedback("never", ""))
 			elif _rehearsal_step == 1 and _rehearsal_time >= 12.5:
