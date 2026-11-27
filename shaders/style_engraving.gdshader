@@ -360,14 +360,25 @@ void fragment() {
 			cloud_wash *= sky_plate_darkness;
 		}
 		if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {
-			// Use the same optical density as the daylight crescent.
+			// Bow the strokes across the density field and cut finer strokes in
+			// between as the cloud thickens. Each stroke tapers at its own edge.
 			float density = eclipse_cloud_density_from_sample(live_cloud);
-			float density_pixel = max(fwidth(density), 0.00001);
-			float contour = 1.0 - smoothstep(0.25, 1.0, abs(density - 0.42) / (density_pixel * res_k));
-			float weight = smoothstep(0.42, 0.97, density);
-			float lines = hatch(ruling.x, k, 0.08 + 0.33 * weight, l_px * 2.0, 99.0);
-			float cloud_ink = max(0.20 * contour, lines * (0.13 + 0.35 * weight) * smoothstep(0.40, 0.46, density));
-			ink = max(ink, cloud_ink * band_lines * (1.0 - smoothstep(0.0, 0.35, print_darkness)));
+			float stroke = (ruling.x + 0.18 * density) / (34.0 * k * res_k);
+			float stroke_pixel = max(length(vec2(dFdx(stroke), dFdy(stroke))), 0.00001);
+			float stroke_aa = 0.5 * stroke_pixel;
+			float weight = smoothstep(0.50, 0.97, density);
+			float half_width = mix(0.50, 0.82, weight) * res_k * stroke_pixel;
+			float primary_stroke = line_cov(abs(fract(stroke + 0.5) - 0.5),
+				half_width * smoothstep(0.50, 0.57, density), stroke_aa);
+			float middle_stroke = line_cov(abs(fract(stroke) - 0.5),
+				half_width * smoothstep(0.61, 0.77, density), stroke_aa);
+			float fine_stroke = line_cov(0.5 * abs(fract(2.0 * stroke) - 0.5),
+				half_width * smoothstep(0.78, 0.97, density), stroke_aa);
+			float density_pixel = max(length(vec2(dFdx(density), dFdy(density))), 0.00001);
+			float contour = line_cov(abs(density - 0.53), 0.62 * res_k * density_pixel, 0.5 * density_pixel);
+			float cloud_ink = max(0.14 * contour, mix(0.15, 0.33, weight)
+				* max(primary_stroke, max(middle_stroke, fine_stroke)));
+			ink = mix(cloud_ink * band_lines, ink, smoothstep(0.0, 0.35, print_darkness));
 		}
 		sky_white = horizon * 0.85;
 		// Corona: near the eclipsed Sun the ruling gives way to rays about its centre.
