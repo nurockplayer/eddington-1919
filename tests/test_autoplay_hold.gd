@@ -241,6 +241,7 @@ func _trim_checks(game) -> int:
 	game.set_process(false)
 	game.player.set_physics_process(false)
 	failures += await _trim_release_checks(game)
+	failures += await _trim_comparison_checks(game)
 	var trails := []
 	var images := []
 	var partial_residual := 0.0
@@ -314,11 +315,6 @@ func _trim_checks(game) -> int:
 			trigger.axis = JOY_AXIS_TRIGGER_LEFT
 			Input.parse_input_event(trigger)
 			Input.flush_buffered_events()
-		if mode == "reduced":
-			var mark: float = panel.now_mark
-			game._process_prep(0.1)
-			if panel.now_mark != mark or panel.previous_mark != 0.0:
-				failures += 1
 		if mode in ["success", "gamepad", "reduced"] and not game.sim.drive_rate_checked:
 			failures += 1
 		if mode == "partial":
@@ -441,6 +437,58 @@ func _trim_release_checks(game) -> int:
 				failures += 1
 		await _event(leave, true, pad)
 		await _event(leave, false, pad)
+	return failures
+
+
+func _trim_comparison_checks(game) -> int:
+	var failures := 0
+	for reduced: bool in [false, true]:
+		Settings.reduced_motion = reduced
+		var sign_ := -1.0 if reduced else 1.0
+		var wrong: int = JOY_BUTTON_DPAD_LEFT if reduced else KEY_RIGHT
+		var correct: int = JOY_BUTTON_DPAD_RIGHT if reduced else KEY_LEFT
+		game.sim = load("res://scripts/eclipse_sim.gd").new(77)
+		game.sim.drive_wound = true
+		game.sim.drive_error = 0.055 * sign_
+		game.phase = game.Phase.PREP
+		game.prep_left = 100.0
+		game._interact_needs_release = false
+		game._interact("drive")
+		var panel = game.calibration
+		game._process_prep(1.25)
+		await _event(wrong, true, reduced)
+		game._process_prep(0.5)
+		await _event(wrong, false, reduced)
+		game._process_prep(0.5)
+		var pending_wrong: bool = is_nan(panel.now_mark)
+		game._process_prep(0.5)
+		var first: float = panel.previous_mark
+		var worse: float = panel.now_mark
+
+		await _fine_event(true, reduced)
+		await _event(correct, true, reduced)
+		for step in 16:
+			game._process_prep(0.25)
+		var held_pair: bool = is_equal_approx(panel.previous_mark, worse) and is_nan(panel.now_mark)
+		var trimmed: float = game.sim.drive_error
+		await _fine_event(false, reduced)
+		game._process_prep(0.5)
+		var pending_correction: bool = is_nan(panel.now_mark)
+		game._process_prep(0.5)
+		var second: float = panel.previous_mark
+		var better: float = panel.now_mark
+		var stopped: bool = game.sim.drive_error == trimmed and not game.sim.drive_rate_checked
+		await _event(correct, false, reduced)
+		game._process_prep(2.0)
+		var settled: bool = game.sim.drive_rate_checked and panel.previous_mark == second and panel.now_mark == better
+		var passed := pending_wrong and held_pair and pending_correction and stopped and settled
+		passed = passed and is_equal_approx(first, 1.32 * sign_) and is_equal_approx(worse, 2.04 * sign_)
+		passed = passed and is_equal_approx(second, worse) and is_equal_approx(better, 0.60 * sign_)
+		print("trim comparison reduced=%s: %s wrong %+.2f -> %+.2f, correction %+.2f -> %+.2f, stopped=%s settled=%s" % [reduced, "PASS" if passed else "FAIL", first, worse, second, better, stopped, settled])
+		failures += 0 if passed else 1
+		var leave: int = JOY_BUTTON_B if reduced else KEY_B
+		await _event(leave, true, reduced)
+		await _event(leave, false, reduced)
 	return failures
 
 

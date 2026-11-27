@@ -15,8 +15,12 @@ var measured_drift := 24.0 # signed pixels per second, observable by player and 
 var sample_time := 0.0
 var displacement := 0.0
 var sampled_position := 0.0
-var previous_mark := 0.0
-var now_mark := 0.0
+var previous_mark := NAN
+var now_mark := NAN
+var quiet_time := 0.0
+var quiet_position := 0.0
+var last_full_drift := NAN
+var was_trimming := false
 var trail := PackedVector2Array()
 var no_improvement := 0.0
 var best_drift := INF
@@ -101,8 +105,12 @@ func open(state) -> void:
 	displacement = 0.0
 	trail = PackedVector2Array([Vector2.ZERO])
 	sampled_position = 0.0
-	previous_mark = 0.0
-	now_mark = 0.0
+	previous_mark = NAN
+	now_mark = NAN
+	quiet_time = 0.0
+	quiet_position = 0.0
+	last_full_drift = NAN
+	was_trimming = false
 	measured_drift = 0.0
 	best_drift = absf(sim.drive_error) * 24.0
 	no_improvement = 0.0
@@ -128,7 +136,8 @@ func advance(delta: float) -> void:
 	elif direction != fine_direction:
 		fine_direction = 0.0
 	# Releasing fine trim ends the nudge without turning it into a coarse one.
-	if direction != 0.0 and (fine or fine_direction == 0.0):
+	var trimming := direction != 0.0 and (fine or fine_direction == 0.0)
+	if trimming:
 		var rate := FINE_RATE if fine else COARSE_RATE
 		sim.drive_error = clampf(sim.drive_error + direction * rate * dt, -1.0, 1.0)
 	if absf(sim.drive_error) <= DEADBAND:
@@ -140,6 +149,22 @@ func advance(delta: float) -> void:
 		sim.drive_rate_checked = false
 	elapsed += dt
 	displacement += sim.drive_error * 24.0 * dt
+	# The comparison only uses full intervals without trim input.
+	if trimming:
+		if not was_trimming:
+			previous_mark = last_full_drift
+			now_mark = NAN
+		quiet_time = 0.0
+		quiet_position = displacement
+	else:
+		quiet_time += dt
+		if quiet_time >= 1.0:
+			last_full_drift = (displacement - quiet_position) / quiet_time
+			if is_nan(now_mark):
+				now_mark = last_full_drift
+			quiet_position = displacement
+			quiet_time = 0.0
+	was_trimming = trimming
 	trail.append(Vector2(elapsed, displacement))
 	while trail.size() > 2 and trail[1].x < elapsed - 1.0:
 		trail.remove_at(0)
@@ -147,8 +172,6 @@ func advance(delta: float) -> void:
 	no_improvement += dt
 	if sample_time >= 1.0:
 		measured_drift = (displacement - sampled_position) / sample_time
-		previous_mark = 0.0
-		now_mark = measured_drift
 		sampled_position = displacement
 		sample_time = 0.0
 		if absf(measured_drift) < best_drift - 0.05:
@@ -204,18 +227,35 @@ func _draw_diagram() -> void:
 	diagram.draw_arc(center, radius, 0.0, TAU, 128, ink, width, true)
 	diagram.draw_line(center - Vector2(radius, 0), center + Vector2(radius, 0), ink, width, true)
 	diagram.draw_line(center - Vector2(0, radius), center + Vector2(0, radius), ink, width, true)
-	if Settings.reduced_motion:
-		# Fixed rows; the sampled drift changes only once a second.
-		var font := get_theme_default_font()
-		diagram.draw_string(font, center + Vector2(-radius * 0.7, -45), L.t("剛才"), HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(22), ink)
-		diagram.draw_string(font, center + Vector2(-radius * 0.7, 55), L.t("現在"), HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(22), ink)
-		_tracking_mark(center + Vector2(0, -50), previous_mark)
-		diagram.draw_line(center + Vector2(0, 50), center + Vector2(now_mark, 50), ink, width, true)
-		_tracking_mark(center + Vector2(0, 50), now_mark)
-	else:
+	var font := get_theme_default_font()
+	var font_size := mini(Settings.fs(22), floori(radius * 0.26))
+	var diamond_width := minf(12.0, radius * 0.06)
+	var diamond_height := diamond_width * 7.0 / 6.0
+	# Expand the fine-trim range while keeping ±24 within the field.
+	var mark_scale := radius * 0.83 / atan(24.0 / 1.7)
+	for row: Array in [[L.t("剛才"), -0.40, previous_mark], [L.t("現在"), 0.24, now_mark]]:
+		var origin := center + Vector2(0, row[1] * radius)
+		var drift: float = row[2]
+		var mark := 0.0
+		if not is_nan(drift):
+			mark = atan(drift / 1.7) * mark_scale
+			diagram.draw_line(origin, origin + Vector2(mark, 0), ink, width, true)
+			var star := origin + Vector2(mark, 0)
+			diagram.draw_polyline(PackedVector2Array([
+				star + Vector2(0, -diamond_height), star + Vector2(diamond_width, 0),
+				star + Vector2(0, diamond_height), star + Vector2(-diamond_width, 0),
+				star + Vector2(0, -diamond_height),
+			]), ink, width, true)
+		var label_top := origin.y + diamond_height + 4.0
+		var label_edge := maxf(absf(label_top - center.y), absf(label_top + font.get_height(font_size) - center.y))
+		var label_width := font.get_string_size(row[0], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		var label_span := sqrt(radius * radius - label_edge * label_edge) - label_width * 0.5 - width
+		var label_origin := Vector2(center.x + clampf(mark, -label_span, label_span) - label_width * 0.5, label_top + font.get_ascent(font_size))
+		diagram.draw_string(font, label_origin, row[0], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink)
+	if not Settings.reduced_motion:
 		# Wrap only the figure; trail points stay relative to the current star.
 		var x := wrapf(displacement, -radius + 20.0, radius - 20.0)
-		var star_center := center - Vector2(0, radius * 0.25)
+		var star_center := center - Vector2(0, radius * 0.7)
 		var points := PackedVector2Array()
 		for i in trail.size():
 			var sample := trail[i]
@@ -225,9 +265,4 @@ func _draw_diagram() -> void:
 			points.append(star_center + Vector2(x + sample.y - displacement, 0))
 		if points.size() >= 2:
 			diagram.draw_polyline(points, ink, width, true)
-		_tracking_mark(star_center, x)
-
-
-func _tracking_mark(center: Vector2, offset: float) -> void:
-	var star := center + Vector2(offset, 0)
-	diagram.draw_polyline(PackedVector2Array([star + Vector2(0, -14), star + Vector2(12, 0), star + Vector2(0, 14), star + Vector2(-12, 0), star + Vector2(0, -14)]), Print.INK, _stroke_width(), true)
+		diagram.draw_circle(star_center + Vector2(x, 0), 2.5, ink, true, -1, true)
