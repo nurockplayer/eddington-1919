@@ -26,6 +26,16 @@
 | 給 Dyson 的電報：雲很厚，但「有希望」 | HISTORICAL_RECORD（措辭依《Nature》）／**UNVERIFIED（日期、收件人）** | 《Nature》103（1919-06-05，pp. 265–266，"The Solar Eclipse"）引 Eddington 自普林西比的消息為 "Through cloud, hopeful,"，前一句提到電報由皇家天文學家（Dyson）收悉，但沒有直接寫出收件人。"Through cloud. Hopeful."（句點、大寫）只見於二手或通俗來源。發報日期未核實；《愛因斯坦文集》第 9 卷引言的「6 月 4 日」說法尚未直接查證。能定案的來源：*The Observatory* 第 42 卷（1919 年 7 月），或劍橋大學圖書館的皇家格林威治天文台檔案。結局的歷史說明採用《Nature》的版本；玩家可選的電報 "THROUGH CLOUD. HOPEFUL." 是玩家自己擬的電報文字，不是引文。查核：Sonnet 5.5，2026-10-25，來源 archive.org OCR `dbc.wroc.pl.032403`。 |
 | 1919-11-06 皇家學會與皇家天文學會聯席會議公布結果：Sobral 4 吋 1.98″ ± 0.12″，普林西比 1.61″ ± 0.30″（機率誤差）；Sobral 天體照相儀因焦距變化而未採用 | HISTORICAL_RECORD | Kennefick 2007；Greenwich 文章。1.75″ 與 0.87″ 兩個預測值同。 |
 
+## 舊版劇情溯源
+
+以下對白與場景已從現行劇本移除，保留原有溯源紀錄。
+
+| 舊版遊戲內容 | 標記／依據 |
+|---|---|
+| Dyson 的「發瘋、獨自回家」 | HISTORICAL_RECORD（僅指 Eddington 1938 年的回憶；Chandrasekhar 1976 p. 250）；Cottingham 在營地回憶及其餘對話為 RECONSTRUCTION／FICTION。 |
+| Cottingham 不必獨自回家 | RECONSTRUCTION，未標日期；Douglas 1956 p. 40 的轉述，措辭與日期未核實。見 `docs/research/story_factcheck_2026-11-13.md` §2；其餘對話為 FICTION。 |
+| 電報前追問 Eddington | FICTION；希望與回應為虛構。 |
+
 ## 重建與虛構
 
 | 內容 | 標記 |
@@ -176,11 +186,11 @@ CJK Regular 2.003](https://github.com/notofonts/noto-cjk/releases/tag/Serif2.003
 The subsets retain the locale's original glyph forms, using FontTools 4.68.0
 with characters from the locale's PO source and translations, printable ASCII,
 and GDScript string literals. Traditional Chinese uses `locale/messages.pot`
-as its source catalogue. The three faces add 3,492,928 bytes.
+as its source catalogue. The three faces add 3,610,540 bytes.
 
-- `assets/fonts/NotoSerifJP-Game.otf`, 1,245,532 bytes. [Japanese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Japanese/NotoSerifCJKjp-Regular.otf).
-- `assets/fonts/NotoSerifKR-Game.otf`, 1,260,776 bytes. [Korean source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Korean/NotoSerifCJKkr-Regular.otf).
-- `assets/fonts/NotoSerifTC-Game.otf`, 986,620 bytes. [Traditional Chinese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/TraditionalChinese/NotoSerifCJKtc-Regular.otf).
+- `assets/fonts/NotoSerifJP-Game.otf`, 1,284,324 bytes. [Japanese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Japanese/NotoSerifCJKjp-Regular.otf).
+- `assets/fonts/NotoSerifKR-Game.otf`, 1,302,352 bytes. [Korean source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Korean/NotoSerifCJKkr-Regular.otf).
+- `assets/fonts/NotoSerifTC-Game.otf`, 1,023,864 bytes. [Traditional Chinese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/TraditionalChinese/NotoSerifCJKtc-Regular.otf).
 - SIL Open Font License 1.1, bundled at `assets/fonts/OFL.txt`. [Upstream licence](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/LICENSE).
 
 ## Score (M4)

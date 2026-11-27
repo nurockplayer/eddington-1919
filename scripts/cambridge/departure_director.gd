@@ -33,6 +33,7 @@ var tick: AudioStreamPlayer
 var street: AudioStreamPlayer
 var keepsake: HBoxContainer
 var madeira: Node
+var sundy: Node
 
 
 class LoupeIcon extends Control:
@@ -292,6 +293,11 @@ func _montage() -> void:
 		madeira = load("res://scripts/cambridge/madeira.gd").new()
 		add_child(madeira)
 		await madeira.play(self)
+		madeira.queue_free()
+		madeira = null
+		sundy = load("res://scripts/cambridge/sundy.gd").new()
+		add_child(sundy)
+		await sundy.play(self)
 	else:
 		for entry in Content.montage():
 			await ui.show_caption(L.t("%s\n\n（史實）") % str(entry.t) if entry.tag == "HISTORICAL" else L.t("%s\n\n（虛構）") % str(entry.t), 3.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished

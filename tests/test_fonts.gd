@@ -30,7 +30,7 @@ func _initialize() -> void:
 		check(Bundled.has_char(character.unicode_at(0)), "bundled face covers " + character)
 	var english := Fonts.for_locale("en")
 	check(not (english is SystemFont), "English uses the bundled faces only")
-	check(english is FontVariation and english.base_font == Bundled, "English sets TC first")
+	check(english is FontVariation and english.base_font == BundledJP, "English sets JP first")
 	for character in ["한", "の"]:
 		check(english.has_char(character.unicode_at(0)), "English fallbacks cover " + character)
 	_check_scripts("res://scripts")

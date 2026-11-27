@@ -6,6 +6,7 @@ const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Departure := preload("res://scripts/cambridge/content_departure.gd")
 const Content := preload("res://scripts/cambridge/content_tribunal.gd")
 const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
+const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
@@ -24,6 +25,7 @@ const BEFORE_PACKET := [
 var checks := 0
 var capture_dir := ""
 var madeira_captures := false
+var sundy_captures := false
 var temp_settings := ""
 
 
@@ -102,7 +104,7 @@ func check_paper_layout(paper: Control, state: String) -> void:
 			failures.append("collapsed footer button: " + action.text)
 	var scroll: ScrollContainer = paper.body.get_parent()
 	var layout: VBoxContainer = scroll.get_parent()
-	var available := layout.size.y - footer_height - layout.get_theme_constant("separation")
+	var available := layout.get_global_rect().end.y - scroll.global_position.y - footer_height - layout.get_theme_constant("separation")
 	if scroll.size.y + 1.0 < minf(paper.body.size.y, available) or paper.body.size.x > scroll.size.x + 1.0:
 		failures.append("paper body clipped before available space is used")
 	var previous := scroll.scroll_vertical
@@ -152,7 +154,12 @@ func _run() -> void:
 		elif arg.begins_with("--madeira-captures="):
 			capture_dir = arg.trim_prefix("--madeira-captures=")
 			madeira_captures = true
-	Engine.time_scale = 8.0 if capture_dir.is_empty() else 2.0
+		elif arg.begins_with("--sundy-captures="):
+			capture_dir = arg.trim_prefix("--sundy-captures=")
+			sundy_captures = true
+	# Headless routes assert the transitions and controls, so advance presentation
+	# time faster to keep all four locales inside the suite's wall-clock deadline.
+	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
 	root.size = Vector2i(1280, 720) if capture_dir.is_empty() else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
@@ -165,15 +172,16 @@ func _run() -> void:
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
-	if madeira_captures:
+	if madeira_captures or sundy_captures:
 		locales = ["en", "ja"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
 	for locale in locales:
 		L.apply(locale)
 		await _route(route, enabled, locale == "ja")
+		if capture_dir.is_empty():
+			Checkpoint.clear()
 	if capture_dir.is_empty():
-		Checkpoint.clear()
 		DirAccess.remove_absolute(Settings.settings_path())
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
 	print("test_journey %s: %d checks, 0 failures" % ["on" if enabled else "off", checks])
@@ -234,7 +242,7 @@ func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
 	expect(current_scene.ui.caption.text == Departure.intro_caption(), "existing M2 opening plays")
 	while not current_scene.ui.dialog_active():
 		await process_frame
-	if capture_dir.is_empty() or madeira_captures:
+	if capture_dir.is_empty() or madeira_captures or sundy_captures:
 		await _departure(current_scene, route[2], enabled, misfile)
 
 
@@ -277,7 +285,7 @@ func _tribunal(director: Node, misfile: bool) -> void:
 	await capture("packet", paper)
 	if L.current() == "en":
 		expect(not strings.values().any(func(line): return "’" in line), "use proportional English apostrophes on the tribunal and Armistice pages")
-		if not capture_dir.is_empty() and not madeira_captures:
+		if not capture_dir.is_empty() and not madeira_captures and not sundy_captures:
 			root.size = Vector2i(1280, 720)
 			Settings.text_scale = 1.2
 			Settings.refresh_fonts(self)
@@ -363,7 +371,8 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	await frames(3)
 	for action in paper.actions.get_children():
 		expect(root.get_visible_rect().grow(1.0).encloses(action.get_global_rect()), "paper controls stay in bounds: " + state)
-	if capture_dir.is_empty() or (madeira_captures and not state.begins_with("madeira_")):
+	if capture_dir.is_empty() or (madeira_captures and not state.begins_with("madeira_")) or (
+		sundy_captures and not (state.begins_with("sundy_") or state.begins_with("i3_"))):
 		return
 	await RenderingServer.frame_post_draw
 	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
@@ -414,6 +423,12 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 			await process_frame
 		expect(is_instance_valid(chapter) and chapter.madeira != null, "--journey must enter Madeira after M2")
 		await _madeira(chapter.madeira, chapter, warm)
+		for frame in 150:
+			if not is_instance_valid(chapter) or chapter.get("sundy") != null:
+				break
+			await process_frame
+		expect(is_instance_valid(chapter) and chapter.get("sundy") != null, "I2 must enter Sundy before observation day")
+		await _sundy(chapter.sundy, chapter, warm)
 	else:
 		for entry in Departure.montage():
 			while is_instance_valid(chapter) and not chapter.ui.caption.text.begins_with(entry.t):
@@ -421,9 +436,15 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 			expect(is_instance_valid(chapter) and chapter.madeira == null and
 				chapter.ui.caption.text.begins_with(entry.t), "flag off retains M2 caption " + entry.t)
 	if is_instance_valid(chapter):
-		await scene_changed
+		for frame in 150:
+			if not is_instance_valid(chapter):
+				break
+			await process_frame
+	expect(not is_instance_valid(chapter), "Sundy must reach observation day without showing the June cables")
 	expect(current_scene.scene_file_path == observation_day.resource_path, "the route reaches the existing observation day")
 	expect(current_scene._came_from_departure and story.departure_done, "arrival has the full-story origin")
+	expect(current_scene.phase == current_scene.Phase.PREP and not current_scene.sim.drive_wound,
+		"observation day begins in PREP with its own unwound drive")
 	previous.departure_done = true
 	previous.from_prologue = true
 	if Checkpoint.force_enabled:
@@ -431,6 +452,42 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		expect(Checkpoint.restore() == "principe" and story.to_save() == previous,
 			"the handoff preserves the prediction, certainty and M2 choices verbatim")
 		Checkpoint.clear()
+	await _sundy_coda(current_scene, enabled)
+
+
+func _sundy_coda(day: Node, enabled: bool) -> void:
+	await _dialogue(day)
+	expect(day._paired_cables == null, "no I3 at the observation-day opening")
+	await day._begin_totality()
+	expect(day.phase == day.Phase.TOTALITY and day._paired_cables == null, "totality precedes I3")
+	await day._end_totality()
+	await _dialogue(day)
+	while day.phase != day.Phase.NIGHT or day._busy:
+		await process_frame
+	await _dialogue(day)
+	expect(day._paired_cables == null, "darkroom precedes I3")
+	day._start_judgment()
+	await _dialogue(day)
+	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
+	day._interact("departure_workbook")
+	await _dialogue(day)
+	day._interact("mentor_loupe")
+	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
+	await _dialogue(day)
+	var story := root.get_node("Story")
+	expect(story.kit_first >= 0 and day.coda_step == day.CodaStep.FADING and day._paired_cables == null,
+		"coda Kit choice is committed before I3")
+	if enabled:
+		for frame in 150:
+			if not is_instance_valid(day) or day._paired_cables != null:
+				break
+			await process_frame
+		expect(is_instance_valid(day) and day._paired_cables != null, "I3 follows the coda fade before the epilogue")
+		await _i3(day._paired_cables.paper)
+	if is_instance_valid(day):
+		await scene_changed
+	expect(current_scene.scene_file_path == "res://scenes/epilogue.tscn" and story.epilogue_done,
+		"the route reaches the existing epilogue")
 
 
 func _dialogue(chapter: Node, choices := {}) -> void:
@@ -563,3 +620,176 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 		check_paper_focus(button(paper, text.I10))
 		await capture("madeira_onward_passage", paper, "_end")
 	await press(button(paper, text.I10))
+
+
+func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
+	var text := Sundy.strings()
+	var onward: String = Madeira.strings().M09
+	var paper: Control = journey.paper
+	while not paper.actions.visible:
+		await process_frame
+	await _sundy_sheet(paper, "sundy_01_title", [text.S01], onward)
+	await _sundy_sheet(paper, "sundy_02_shore", [text.S04, text.S05], text.S06)
+	await _sundy_sheet(paper, "sundy_03_esperanca", [text.S09], onward)
+	expect(not has_text(paper, text.S12), "the site is only revealed after the other two visits")
+	await _sundy_sheet(paper, "sundy_04_sao_joaquim", [text.S10, text.S11], onward)
+	await _sundy_sheet(paper, "sundy_05_sundy_choice", [text.S12], text.S13, true)
+	await _sundy_sheet(paper, "sundy_06_track_end", [text.S15, text.S16, text.S17], onward)
+	await _sundy_sheet(paper, "sundy_07_cargo_arrival", [text.S18, text.S19], text.S20)
+	await _sundy_sheet(paper, "sundy_08_work_record", [text.S22, text.S23, text.S24, text.S25], text.S26)
+	await _sundy_sheet(paper, "sundy_09_packed_mirror", [text.S28], onward)
+	await _sundy_sheet(paper, "sundy_10_station", [text.S30, text.S31, text.S32, text.S33, text.S34], text.S35)
+	await _sundy_sheet(paper, "sundy_11_field_records", [text.S37, text.S38, text.S39, text.S40], text.S43)
+	await _sundy_sheet(paper, "sundy_12_kit_letter", [text.S86, text.S87, text.S88], onward)
+	expect(chapter.ui.dialog_active() and chapter.ui.text_label.text == text.S47, "Ashby's remembered instruction precedes the rehearsal")
+	await _check_sundy_memory(paper, chapter.ui)
+	if sundy_captures:
+		await capture("sundy_13_ashby_memory", paper)
+	await _dialogue(chapter)
+	await _sundy_pair(journey, text, "first", [0, 1, 2, 3], "S64", "S67", "S70", "S73")
+	await _sundy_pair(journey, text, "repeat", [0, 1, 2, 3], "S63", "S68", "S71", "S74")
+	while not has_text(paper, text.S59) or not paper.actions.visible:
+		await process_frame
+	await _sundy_sheet(paper, "sundy_14_cloud_crossing", [text.S59], onward)
+	await _sundy_pair(journey, text, "clouded", [0, -1, 2, -1], "S65", "S69", "S72", "S75")
+	expect(journey.accepted_log == ["S70", "S71", "S72"], "three accepted logs remain in order")
+	await _sundy_sheet(paper, "sundy_15_clear_horizon", [], text.S76)
+	await _sundy_sheet(paper, "sundy_16_clouded_day", [text.S77], text.S78)
+	expect(chapter.ui.dialog_active() and chapter.ui.text_label.text == text.S79, "Kit remembers the room left on the page")
+	await _check_sundy_memory(paper, chapter.ui)
+	expect(chapter.ui.dialogue_portrait.disclosure.text == (L.t("%s\n\n（虛構）") % "").strip_edges(),
+		"Kit's portrait is captioned as fiction")
+	if sundy_captures:
+		await capture("sundy_17_kit_memory", paper)
+	await tap(KEY_ENTER)
+	expect(chapter.ui.text_label.text == text.S80, "Kit asks what was seen at Sundy")
+	await _dialogue(chapter)
+	await _sundy_sheet(paper, "sundy_18_workbook", [
+		text.S81, text.S82 if warm else text.S83, text.S89, text.S90 if warm else text.S91,
+		L.t("1919 年 5 月 29 日")], text.S84)
+
+
+func _i3(paper: Control) -> void:
+	var text := Sundy.strings()
+	var onward: String = Madeira.strings().M09
+	while not paper.actions.visible:
+		await process_frame
+	await _sundy_sheet(paper, "i3_01_paired_cables", [
+		text["I3-02"], text["I3-03"], "Through cloud, hopeful",
+		text["I3-05"], "Eclipse splendid. Crommelin", text["I3-04"], text["I3-06"]], onward)
+	await _sundy_sheet(paper, "i3_02_nature_clipping", [
+		text["I3-08"], text["I3-09"], text["I3-10"], text["I3-11"], text["I3-12"], text["I3-13"]], onward)
+	await _sundy_sheet(paper, "i3_03_brazil_press", [
+		L.t("檔案剪報・據史料編成"), text["I3-15"], text["I3-16"], text["I3-17"]], text["I3-14"])
+
+
+func _check_sundy_memory(paper: Control, ui: CanvasLayer) -> void:
+	await frames(3)
+	var sheet: Rect2 = paper.actions.get_parent().get_parent().get_global_rect()
+	expect(sheet.encloses(ui.dialog_panel.get_global_rect()), "Sundy memory dialogue stays inside the sheet")
+	expect(ui.dialogue_portrait.visible and sheet.encloses(ui.dialogue_portrait.get_global_rect()),
+		"Sundy memory portrait stays inside the sheet")
+
+
+func _sundy_sheet(paper: Control, state: String, lines: Array, advance: String, scroll_probe := false) -> void:
+	for line in lines:
+		expect(has_text(paper, line), state + " shows " + line)
+	if L.current() == "en" and state in ["sundy_12_kit_letter", "i3_03_brazil_press"]:
+		for label: Label in paper.find_children("*", "Label", true, false):
+			for glyph in "‘’“”()":
+				if glyph in label.text:
+					var font := label.get_theme_font("font")
+					expect(font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 100).x < 65.0,
+						state + " uses proportional English punctuation for " + glyph)
+	if paper.body.get_child_count() > 0:
+		await check_paper_layout(paper, state)
+	var next := button(paper, advance)
+	check_paper_focus(next)
+	if scroll_probe:
+		var scroll: ScrollContainer = paper.body.get_parent()
+		if scroll.get_v_scroll_bar().visible:
+			await tap(KEY_DOWN)
+			expect(scroll.scroll_vertical > 0 and next.has_focus(), "Down scrolls the Sundy sheet")
+			await tap(KEY_UP)
+			expect(scroll.scroll_vertical == 0, "Up scrolls the Sundy sheet to the beginning")
+			await tap_pad(JOY_BUTTON_DPAD_DOWN)
+			expect(scroll.scroll_vertical > 0 and next.has_focus(), "D-pad Down scrolls the Sundy sheet")
+			await tap_pad(JOY_BUTTON_DPAD_UP)
+			expect(scroll.scroll_vertical == 0, "D-pad Up scrolls the Sundy sheet to the beginning")
+	await _sundy_frames(state, paper)
+	await press(next)
+
+
+func _sundy_frames(state: String, paper: Control, suffix := "", dimensions := Vector2i(1920, 1080)) -> void:
+	if not sundy_captures:
+		return
+	var scroll: ScrollContainer = paper.body.get_parent()
+	scroll.scroll_vertical = 0
+	await capture(state, paper, suffix, dimensions)
+	if scroll.get_v_scroll_bar().visible:
+		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
+		await capture(state, paper, suffix + "_end", dimensions)
+
+
+func _sundy_pair(journey: Node, text: Dictionary, state: String, marks: Array, judgment: String,
+		reason: String, log: String, advance: String) -> void:
+	var paper: Control = journey.paper
+	var plate: Control = journey.plate
+	var compare := button(paper, text.S52)
+	var submit := button(paper, text[judgment])
+	expect(has_text(paper, text.S44) and has_text(paper, text.S45), "the active plate and log are labelled as simulation")
+	expect(has_text(paper, text.S50) and submit.disabled, "pair starts on A with judgment locked")
+	check_paper_focus(compare)
+	await _sundy_frames("sundy_check_" + state + "_a", paper)
+	await press(compare)
+	expect(has_text(paper, text.S51) and plate.exposure_b and submit.disabled, "B alone does not enable judgment")
+	expect(plate.targets.size() == 4 - marks.count(-1), "only sharp centres have targets")
+	check_paper_focus(compare)
+	await _sundy_frames("sundy_check_" + state + "_b", paper)
+	if state == "first":
+		await press(button(paper, text.S54 % 1))
+		expect(plate.targets[1].has_focus(), "topmost sharp centre gains focus first")
+		await tap_pad(JOY_BUTTON_DPAD_DOWN)
+		expect(plate.targets[0].has_focus(), "D-pad follows the visible centres top to bottom")
+		await tap(KEY_UP)
+		expect(plate.targets[1].has_focus(), "Up returns focus to the top centre")
+		await press(plate.targets[1])
+		expect(plate.marks[0] == 1, "a player can mark the wrong centre")
+		await press(compare)
+		expect(plate.marks[0] == 1 and not plate.exposure_b, "switching to A retains the mark")
+		await press(compare)
+	for i in marks.size():
+		if state == "first" and i == 0:
+			continue
+		await _sundy_mark(paper, plate, text, i, marks[i])
+	if state == "first":
+		await press(submit)
+		expect(has_text(paper, text.S66) and journey.accepted_log.is_empty(), "wrong evidence keeps the pair open")
+		await _sundy_mark(paper, plate, text, 0, 0)
+	await press(button(paper, text.S64 if judgment == "S63" else text.S63))
+	expect(has_text(paper, text[reason]) and not has_text(paper, text[log]),
+		"wrong judgment shows the pair's reason without logging it")
+	await press(submit)
+	expect(has_text(paper, text[reason]) and has_text(paper, text[log]), "correct judgment shows reason and accepted log")
+	var next := button(paper, text[advance])
+	check_paper_focus(next)
+	await _sundy_frames("sundy_check_" + state + "_log", paper)
+	if sundy_captures and state == "clouded" and L.current() == "en":
+		var old_scale := Settings.text_scale
+		root.size = Vector2i(1280, 720)
+		Settings.text_scale = 1.2
+		Settings.refresh_fonts(self)
+		await _sundy_frames("sundy_check_clouded_log", paper, "_720p", Vector2i(1280, 720))
+		Settings.text_scale = old_scale
+		Settings.refresh_fonts(self)
+		root.size = Vector2i(1920, 1080)
+		await frames(3)
+	await press(next)
+
+
+func _sundy_mark(paper: Control, plate: Control, text: Dictionary, ring: int, target: int) -> void:
+	var control: Button = paper.find_children("*", "Button", true, false).filter(
+		func(item: Button): return item.text.begins_with(text.S54 % (ring + 1)))[0]
+	await press(control)
+	await press(button(paper, text.S55) if target == -1 else plate.targets[target])
+	expect(plate.marks[ring] == target, "reference %d records the chosen centre or blank" % (ring + 1))

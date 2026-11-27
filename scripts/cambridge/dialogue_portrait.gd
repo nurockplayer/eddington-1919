@@ -70,6 +70,14 @@ func set_paper(paper: bool) -> void:
 
 
 func show_entry(entry: Dictionary) -> void:
+	var fictional_portrait: Texture2D = entry.get("fictional_portrait")
+	if fictional_portrait != null:
+		image.texture = fictional_portrait
+		disclosure.text = (L.t("%s\n\n（虛構）") % "").strip_edges()
+		show()
+		return
+	if not _paper:
+		disclosure.text = _disclosure_text
 	var speaker := str(entry.get("s", ""))
 	var variants: Dictionary = PRINTS.get(speaker, {})
 	if prints_override.has(speaker):

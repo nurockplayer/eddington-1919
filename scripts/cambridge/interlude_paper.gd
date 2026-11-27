@@ -43,6 +43,14 @@ func begin(wide := false, comparison := false) -> void:
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	layout.add_child(scroll)
 	scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
+	var track := StyleBoxFlat.new()
+	track.bg_color = Report.PAPER.darkened(0.1)
+	track.content_margin_left = 8
+	scroll.get_v_scroll_bar().add_theme_stylebox_override("scroll", track)
+	var thumb := track.duplicate() as StyleBoxFlat
+	thumb.bg_color = Report.PAPER_EDGE
+	for state in ["grabber", "grabber_highlight", "grabber_pressed"]:
+		scroll.get_v_scroll_bar().add_theme_stylebox_override(state, thumb)
 	body = VBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 14)
@@ -82,7 +90,7 @@ func columns(parent: Container) -> HBoxContainer:
 	return row
 
 
-func column(row: HBoxContainer) -> VBoxContainer:
+func column(row: BoxContainer) -> VBoxContainer:
 	var contents := VBoxContainer.new()
 	contents.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	contents.add_theme_constant_override("separation", 10)

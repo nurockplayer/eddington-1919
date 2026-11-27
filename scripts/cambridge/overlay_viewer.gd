@@ -458,18 +458,7 @@ func _point_to_pixel(point: Vector2) -> Vector2:
 func _draw() -> void:
 	var viewport_size := get_viewport_rect().size
 	draw_rect(Rect2(Vector2.ZERO, viewport_size), Color(0.025, 0.028, 0.031, 0.995), true)
-	var rect := canvas_rect()
-	# The fixed glass plate has a cool body, raised edge, and a restrained emulsion grain.
-	draw_rect(Rect2(rect.position - Vector2(20, 18), rect.size + Vector2(40, 36)), Color(0.12, 0.115, 0.10, 0.92), true)
-	draw_rect(rect, Color(0.29, 0.37, 0.39), true)
-	draw_rect(rect.grow(-4), Color(0.80, 0.85, 0.84), true)
-	draw_rect(rect.grow(-9), GLASS, true)
-	draw_rect(Rect2(rect.position + Vector2(10, 10), Vector2(rect.size.x - 20, 8)), Color(0.93, 0.96, 0.93, 0.28), true)
-	draw_line(rect.position + Vector2(8, 8), rect.position + Vector2(8, rect.size.y - 8), Color(0.92, 0.95, 0.92, 0.38), 2.0)
-	for i in 72:
-		var x := rect.position.x + 16 + fposmod(float(i * 73 + 31), rect.size.x - 32)
-		var y := rect.position.y + 16 + fposmod(float(i * 47 + 19), rect.size.y - 32)
-		draw_circle(Vector2(x, y), 0.65 if i % 3 else 1.0, Color(0.24, 0.32, 0.34, 0.12))
+	draw_glass(self, canvas_rect())
 	_draw_difference_arrows()
 	_draw_plate_stars()
 	_draw_speck()
@@ -479,6 +468,20 @@ func _draw() -> void:
 		_draw_alignment_glow()
 	if _loupe_open:
 		_draw_loupe()
+
+
+static func draw_glass(canvas: CanvasItem, rect: Rect2) -> void:
+	# The fixed glass plate has a cool body, raised edge, and a restrained emulsion grain.
+	canvas.draw_rect(Rect2(rect.position - Vector2(20, 18), rect.size + Vector2(40, 36)), Color(0.12, 0.115, 0.10, 0.92), true)
+	canvas.draw_rect(rect, Color(0.29, 0.37, 0.39), true)
+	canvas.draw_rect(rect.grow(-4), Color(0.80, 0.85, 0.84), true)
+	canvas.draw_rect(rect.grow(-9), GLASS, true)
+	canvas.draw_rect(Rect2(rect.position + Vector2(10, 10), Vector2(rect.size.x - 20, 8)), Color(0.93, 0.96, 0.93, 0.28), true)
+	canvas.draw_line(rect.position + Vector2(8, 8), rect.position + Vector2(8, rect.size.y - 8), Color(0.92, 0.95, 0.92, 0.38), 2.0)
+	for i in 72:
+		var x := rect.position.x + 16 + fposmod(float(i * 73 + 31), rect.size.x - 32)
+		var y := rect.position.y + 16 + fposmod(float(i * 47 + 19), rect.size.y - 32)
+		canvas.draw_circle(Vector2(x, y), 0.65 if i % 3 else 1.0, Color(0.24, 0.32, 0.34, 0.12))
 
 
 func _draw_plate_stars() -> void:
