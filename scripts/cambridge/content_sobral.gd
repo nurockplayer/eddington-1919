@@ -59,6 +59,8 @@ static func strings() -> Dictionary:
 		"B53": L.t("4 吋底片提供了更有力的檢驗。星像較清晰，觀測者就能更可靠地找出星像中心。"),
 		"B54": L.t("繼續返鄉"),
 		"DIAGRAM": L.t("日冕示意圖"),
+		"MAILHAT": L.t("Mailhat 望遠鏡"),
+		"METRONOME": L.t("節拍器・每十拍報時"),
 		"HEATING": L.t("報告推測，陽光使定天鏡鏡面受熱不均。"),
 		"MAY_AUX": L.t("5 月日食・4 吋望遠鏡"),
 		"FILE": L.t("採用這張比對底片"),

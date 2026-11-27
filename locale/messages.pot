@@ -678,6 +678,10 @@ msgstr ""
 msgid "Leocádio Araújo 擔任口譯，協助準備觀測站，並將英國隊的文章譯給《Correio da Semana》。全食期間，他操作節拍器，每十拍報一次。"
 msgstr ""
 
+#: scripts/cambridge/content_sobral.gd:62
+msgid "Mailhat 望遠鏡"
+msgstr ""
+
 #: scripts/cambridge/content_sundy.gd:18
 msgid "Morize 協助安排。市政和教會代表迎接遠征隊，Vicente Saboya 提供住宿，Leocádio Araújo 擔任口譯並協助準備。"
 msgstr ""
@@ -4760,6 +4764,10 @@ msgstr ""
 
 #: scripts/cambridge/content_departure.gd:144
 msgid "箱子越走越快，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"
+msgstr ""
+
+#: scripts/cambridge/content_sobral.gd:63
+msgid "節拍器・每十拍報時"
 msgstr ""
 
 #: scripts/content.gd:268

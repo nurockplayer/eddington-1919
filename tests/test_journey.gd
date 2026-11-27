@@ -203,7 +203,7 @@ func _run() -> void:
 			story.departure_done = true
 			expect(change_scene_to_packed(route[2]) == OK, "load observation day before the Sobral handoff")
 			await scene_changed
-			await _sundy_coda(current_scene, enabled)
+			await _sundy_coda(current_scene, enabled, false)
 		else:
 			await _route(route, enabled, locale == "ja")
 		if capture_dir.is_empty():
@@ -919,9 +919,9 @@ func _sobral(chapter: Node, revise: bool) -> void:
 	var setup := [
 		["01_archive", ["B02", "B03"], onward],
 		["02_racecourse", ["B04", "B05", "B06", "B07", "B08"], onward],
-		["03_brazil", ["B09", "B10", "B11", "DIAGRAM"], onward],
+		["03_brazil", ["B09", "B10", "B11", "DIAGRAM", "MAILHAT"], onward],
 		["04_first_contact", ["B12"], onward],
-		["05_programmes", ["B13", "B14", "B15", "B16"], text.B17],
+		["05_programmes", ["B13", "B14", "B15", "B16", "METRONOME"], text.B17],
 	]
 	for sheet in setup:
 		while not paper.actions.visible:

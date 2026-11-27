@@ -8,6 +8,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+msgid "Mailhat 望遠鏡"
+msgstr "Mailhat 望遠鏡"
+
 msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
 msgstr "\n\n[color=#8f8676]1919年11月6日に発表された結果：ソブラル1.98″、プリンシペ1.61″——どちらもアインシュタインの1.75″に近い。結果がどのように導かれ、どんな疑問が残ったかは「史実では何が起きたか」をご覧ください。[/color]"
 
@@ -328,10 +331,10 @@ msgid "B 鍵"
 msgstr "B ボタン"
 
 msgid "Carneiro 在聖安東尼奧和他的桑迪莊園接待觀測隊。"
-msgstr "Carneiro はサント・アントニオと自身のロサ・サンディ農園で観測隊をもてなした。"
+msgstr "カルネイロ はサント・アントニオと自身のロサ・サンディ農園で観測隊をもてなした。"
 
 msgid "Carneiro 為遠征隊提供莊園的勞力和物資。"
-msgstr "Carneiro は農園の労働力と資材を遠征隊に提供した。"
+msgstr "カルネイロ は農園の労働力と資材を遠征隊に提供した。"
 
 msgid "Compare readings"
 msgstr "計測値を比較"
@@ -346,7 +349,7 @@ msgid "Cottingham 看過的那幾張，都在雲後面；其餘的，我說不�
 msgstr "コッティンガムが見た数枚は雲の後ろでした。残りは、私にはよくわかりません。」"
 
 msgid "Cottingham 負責定天鏡的驅動裝置。"
-msgstr "Cottingham がシーロスタットの駆動装置を担当する。"
+msgstr "コッティンガム がシーロスタットの駆動装置を担当する。"
 
 msgid "Cottingham。你不用一個人回家了。"
 msgstr "コッティンガム。もう一人で帰らなくていい。"
@@ -397,10 +400,10 @@ msgid "Crommelin 和 Davidson・搭「Anselm」號前往巴西"
 msgstr "クロメリンとデイヴィッドソン・アンセルム号でブラジルへ"
 
 msgid "Crommelin・4 吋望遠鏡・8 張底片，每張曝光 28 秒"
-msgstr "Crommelin・4インチ望遠鏡・乾板8枚、各28秒露光"
+msgstr "クロメリン・4インチ望遠鏡・乾板8枚、各28秒露光"
 
 msgid "Davidson・縮光圈至 8 吋的天體照相儀・19 張底片，交替曝光 5 秒、10 秒"
-msgstr "Davidson・口径を8インチに絞った天体写真儀・乾板19枚、5秒と10秒の交互露光"
+msgstr "デイヴィッドソン・口径を8インチに絞った天体写真儀・乾板19枚、5秒と10秒の交互露光"
 
 msgid "Dyson 先生正有這個打算。一處下雨，另一處也許是晴天。"
 msgstr "ダイソン卿もそう考えています。片方が雨でも、もう片方は晴れているかもしれません。"
@@ -430,10 +433,10 @@ msgid "Eddington 和 Cottingham・等候前往普林西比的船。"
 msgstr "エディントンとコッティンガム・プリンシペ行きの船を待つ。"
 
 msgid "Eddington 回憶，gravana 季節開始後，夜裡大多晴朗，雨也少。白天往往有雲，日食前兩天尤其如此。"
-msgstr "Eddington は、グラヴァナの時季に入ると夜はおおむね晴れ、雨も少なかったと振り返る。昼は曇りがちで、日食前の二日間はとりわけ雲が多かった。"
+msgstr "エディントン は、グラヴァナの時季に入ると夜はおおむね晴れ、雨も少なかったと振り返る。昼は曇りがちで、日食前の二日間はとりわけ雲が多かった。"
 
 msgid "Eddington 在信中寫道，電報站職員 Wright 和 Lewis 為觀測隊擔任口譯。"
-msgstr "Eddington の手紙によれば、電信局員の Wright と Lewis が観測隊の通訳を務めた。"
+msgstr "エディントン の手紙によれば、電信局員の Wright と Lewis が観測隊の通訳を務めた。"
 
 msgid "Eddington 寫道，戰時物資短缺，當地出產的糖卻便宜又充足。"
 msgstr "エディントンによると、戦時中は物資が乏しかったが、地元産の砂糖は安く、豊富だった。"
@@ -451,7 +454,7 @@ msgid "Eddington 的清單。（把茶杯推過來，已經涼了）恭喜。真
 msgstr "エディントンの一覧。（茶の冷めたカップを押しやる）おめでとうございます。本当に。"
 
 msgid "Eddington 致 Sarah Ann Eddington・1919 年 6 月 21 日・Trinity EDDN/A/4/9"
-msgstr "Eddington から Sarah Ann Eddington へ・1919年6月21日・Trinity EDDN/A/4/9"
+msgstr "エディントン から サラ・アン・エディントン へ・1919年6月21日・Trinity EDDN/A/4/9"
 
 msgid "Eddington 還在換片……"
 msgstr "エディントンはまだ乾板を替えている……"
@@ -494,16 +497,16 @@ msgid "Hall 試過：指數不是 2，是 2.00000016。水星對了——可是�
 msgstr "ホールは試しました。指数は2ではなく、2.00000016です。水星は合いました——ですが他の惑星も合わなければなりません。そこが難しいところです。"
 
 msgid "Henrique Morize 參考 Benjamin de Oliveira 的勘查成果選定索布拉爾。他領導的巴西國家天文台（Observatório Nacional）委員會在帕特羅西尼奧廣場拍攝日冕，並研究其形狀與光譜。"
-msgstr "Henrique Morize は Benjamin de Oliveira の現地調査をもとにソブラルを選んだ。彼が率いる Observatório Nacional の観測委員会はパトロシニオ広場でコロナを撮影し、その形とスペクトルを調べた。"
+msgstr "エンリケ・モリゼ は ベンジャミン・デ・オリヴェイラ の現地調査をもとにソブラルを選んだ。彼が率いる Observatório Nacional の観測委員会はパトロシニオ広場でコロナを撮影し、その形とスペクトルを調べた。"
 
 msgid "Henrique Morize 帶領巴西國家天文台（Observatório Nacional）團隊，執行自己的日冕攝影與光譜觀測計畫。"
-msgstr "Henrique Morize 率いるブラジルの Observatório Nacional の隊は、独自にコロナの撮影と分光観測を行った。"
+msgstr "エンリケ・モリゼ 率いるブラジルの Observatório Nacional の隊は、独自にコロナの撮影と分光観測を行った。"
 
 msgid "Hotel Bella Vista・豐沙爾"
 msgstr "ホテル・ベラ・ヴィスタ／フンシャル"
 
 msgid "John Nicolau 協助行李經卡莫辛轉運。José Jácome de Oliveira 與 Ferreira 蒙席在索布拉爾車站率眾迎接。"
-msgstr "John Nicolau がカモシン経由の荷物の輸送を手伝った。José Jácome de Oliveira とモンシニョール・フェレイラ（Monsignor Ferreira）がソブラル駅で一行を出迎えた。"
+msgstr "ジョン・ニコラウ がカモシン経由の荷物の輸送を手伝った。ジョゼ・ジャコメ・デ・オリヴェイラ とモンシニョール・フェレイラがソブラル駅で一行を出迎えた。"
 
 msgid "KIT 的變星底片"
 msgstr "Kit の変光星の乾板"
@@ -548,16 +551,16 @@ msgid "Le Verrier 也這麼想。日食的時候大家都在找它——1878 年
 msgstr "ル・ヴェリエもそう考えました。日食のたびに皆がそれを探しました——1878年に見たという人がいましたが、二度と誰も見られませんでした。"
 
 msgid "Leocádio Araújo 擔任口譯，協助準備觀測站，並將英國隊的文章譯給《Correio da Semana》。全食期間，他操作節拍器，每十拍報一次。"
-msgstr "Leocádio Araújo は通訳と観測所の準備を手伝い、英国隊の記事を『Correio da Semana』向けに翻訳した。皆既中はメトロノームを動かし、10拍ごとに合図した。"
+msgstr "レオカジオ・アラウージョ は通訳と観測所の準備を手伝い、英国隊の記事を『Correio da Semana』向けに翻訳した。皆既中はメトロノームを動かし、10拍ごとに合図した。"
 
 msgid "Measure again"
 msgstr "もう一度測る"
 
 msgid "Morize 協助安排。市政和教會代表迎接遠征隊，Vicente Saboya 提供住宿，Leocádio Araújo 擔任口譯並協助準備。"
-msgstr "Morize が手配を助け、市と教会の代表が隊を迎えた。Vicente Saboya が宿を提供し、Leocádio Araújo が通訳を務め、準備を助けた。"
+msgstr "モリゼ が手配を助け、市と教会の代表が隊を迎えた。ヴィセンテ・サボイア が宿を提供し、レオカジオ・アラウージョ が通訳を務め、準備を助けた。"
 
 msgid "Paulino de Brito 在《Estado do Pará》寫道：與其弄清星光如何彎折，不如找出如何讓飽受乾旱的人們得到雨水，對他們更有幫助。"
-msgstr "Paulino de Brito は『Estado do Pará』で、星の光がどう曲がるかを解明するより、干ばつに苦しむ人々に雨をもたらす方法を知るほうが役に立つと論じた。"
+msgstr "パウリーノ・デ・ブリト は『Estado do Pará』で、星の光がどう曲がるかを解明するより、干ばつに苦しむ人々に雨をもたらす方法を知るほうが役に立つと論じた。"
 
 msgid "Q　−0.5°"
 msgstr "Q　−0.5°"
@@ -611,7 +614,7 @@ msgid "Use second reading: %.2f divisions"
 msgstr "2回目を使う：%.2f目盛り"
 
 msgid "Vicente Saboya de Albuquerque 上校借給英國隊一棟面向跑馬場的房子。鎮上缺水，這棟房子有自來水供攝影使用。"
-msgstr "Vicente Saboya de Albuquerque 大佐は競馬場に面した家を英国隊に貸した。町では水が乏しかったが、この家には写真作業に使える水道があった。"
+msgstr "ヴィセンテ・サボイア・デ・アルブケルケ 大佐は競馬場に面した家を英国隊に貸した。町では水が乏しかったが、この家には写真作業に使える水道があった。"
 
 msgid "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停"
 msgstr "WASD／左スティック 移動 · マウス／方向キー／右スティック 視点 · Shift／L3 走る\n%s 操作 · %s ログ · %s 開始と止め · %s 一時停止"
@@ -957,7 +960,7 @@ msgid "《Estado do Pará》・貝倫・1918 年 10 月 28 日。〈A influenza 
 msgstr "『Estado do Pará』・ベレン・1918年10月28日。「A influenza alastra-se」（インフルエンザが広がる）。"
 
 msgid "《Estado do Pará》・貝倫・1919 年 4 月 20 日。〈O próximo eclipse total do Sol〉（即將到來的日全食）。頭版刊有 Crommelin 和 Davidson 的解說及兩人肖像。"
-msgstr "『Estado do Pará』・ベレン・1919年4月20日。「O próximo eclipse total do Sol」（次の皆既日食）。一面に Crommelin と Davidson の解説と二人の肖像が載った。"
+msgstr "『Estado do Pará』・ベレン・1919年4月20日。「O próximo eclipse total do Sol」（次の皆既日食）。一面に クロメリン と デイヴィッドソン の解説と二人の肖像が載った。"
 
 msgid "《Nature》報導，索布拉爾在全食期間至少有一段時間天氣晴朗。當地的比對照片仍待拍攝。"
 msgstr "『Nature』によると、ソブラルでは皆既の少なくとも一部で晴れた。現地での比較写真の撮影はこれからだった。"
@@ -1293,10 +1296,10 @@ msgid "他還提到一件事：上一次拿日食底片來比，底片因為用�
 msgstr "もう一つ、彼はこうも書いています。前回、日食の乾板を比べたとき、撮影時に平面鏡で光を反射させていたため、乾板の像が反転していた。そこで乾板を裏返し、乳剤面どうしを向かい合わせなければ比較できなかった、と。"
 
 msgid "代理行政長官 Vasconcelos、Jerónimo Carneiro 和 Grageira 登船迎接遠征隊，協助安排這趟訪問。"
-msgstr "行政長官代理の Vasconcelos、Jerónimo Carneiro、Grageira が乗船して遠征隊を迎え、滞在の手配を助けた。"
+msgstr "行政長官代理の Vasconcelos、ジェロニモ・カルネイロ、Grageira が乗船して遠征隊を迎え、滞在の手配を助けた。"
 
 msgid "以 Mailhat 儀器拍攝的日冕・Allyrio de Mattos・Observatório Nacional"
-msgstr "Mailhat の機器で撮影したコロナ・Allyrio de Mattos・Observatório Nacional"
+msgstr "Mailhat の機器で撮影したコロナ・アリリオ・デ・マットス・Observatório Nacional"
 
 msgid "位移為示意放大；真實的位移比一個星點還小得多。"
 msgstr "ずれは見やすいよう拡大してある。実際のずれは星点一つよりずっと小さい。"
@@ -2115,7 +2118,7 @@ msgid "在我這裡。我……沒捨得丟。"
 msgstr "私が持っています。捨てる気になれなくて。"
 
 msgid "在格林威治，Davidson 和 Furner 在 Dyson 指導下測量索布拉爾底片。報告給予 4 吋系列最高權重，也公布天體照相儀系列的兩種歸算結果，權重都很低。"
-msgstr "グリニッジでは Dyson の下で Davidson と Furner がソブラルの乾板を測定した。報告は4インチ系列を最も重視し、天体写真儀系列の二通りの解析結果も、重みを小さくして掲載した。"
+msgstr "グリニッジでは ダイソン の下で デイヴィッドソン と ファーナー がソブラルの乾板を測定した。報告は4インチ系列を最も重視し、天体写真儀系列の二通りの解析結果も、重みを小さくして掲載した。"
 
 msgid "在筆記本最後寫一句：哪一個證據最讓你改變想法？"
 msgstr "ノートの最後に一行書く：どの証拠がいちばん、あなたの考えを変えたか？"
@@ -2181,7 +2184,7 @@ msgid "天文台職務"
 msgstr "天文台の職務"
 
 msgid "天文學家 Domingos Fernandes da Costa、Allyrio de Mattos。數學家兼計算員 Lélio Gama。化學家 Theophilo Lee。氣象學家 Luiz Rodrigues。機械技師 Arthur de Castro Almeida。木工 Primo Flores。"
-msgstr "天文学者 Domingos Fernandes da Costa、Allyrio de Mattos。数学者兼計算員 Lélio Gama。化学者 Theophilo Lee。気象学者 Luiz Rodrigues。機械技師 Arthur de Castro Almeida。大工 Primo Flores。"
+msgstr "天文学者 ドミンゴス・フェルナンデス・ダ・コスタ、アリリオ・デ・マットス。数学者兼計算員 レリオ・ガマ。化学者 テオフィロ・リー。気象学者 ルイス・ロドリゲス。機械技師 アルトゥール・デ・カストロ・アルメイダ。大工 プリモ・フローレス。"
 
 msgid "天文鐘"
 msgstr "天文時計"
@@ -3046,7 +3049,7 @@ msgid "日食極佳，愛因斯坦得證"
 msgstr "日食は絶好、アインシュタインの理論を実証"
 
 msgid "日食觀測極佳。Crommelin"
-msgstr "日食観測は見事。Crommelin"
+msgstr "日食観測は見事。クロメリン"
 
 msgid "日食那天，我們就去量：零、一半，還是全部。"
 msgstr "日食の日、私たちは測りに行きます。ゼロか、半分か、それとも全部かを。"
@@ -3136,7 +3139,7 @@ msgid "時鐘驅動：發條已上滿"
 msgstr "時計駆動：巻き上げ済み"
 
 msgid "普林西比・A. S. Eddington・《Nature》103 卷，265–266 頁・1919 年 6 月 5 日"
-msgstr "プリンシペ・A. S. Eddington・『Nature』第103巻、265〜266頁・1919年6月5日"
+msgstr "プリンシペ・A. S. エディントン・『Nature』第103巻、265〜266頁・1919年6月5日"
 
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
 msgstr "プリンシペでは302秒の皆既中に16枚を露出（2～20秒）。雲が薄くなったのは最後の三分の一。最初の十枚には星がほぼなく、測定できたのは二枚の五つの星だけだった。エディントンは島で一枚を測り、結果は予測と一致。1919年6月5日の『Nature』は「Through cloud, hopeful」と掲載。元の電報の宛先と日付は未確認。ゲーム内の電報は架空の草稿。"
@@ -3783,6 +3786,9 @@ msgstr "箱の中では加速と重力の区別がつきません。ならば重
 msgid "箱子越走越快，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"
 msgstr "箱はだんだん速くなります。光が向こう側に届かないうちに、床が上がってきます。光が向こうの壁に当たる点は、穴より少し低いです。箱の中の人には——光が曲がって見えます。"
 
+msgid "節拍器・每十拍報時"
+msgstr "メトロノーム・10拍ごとに合図"
+
 msgid "範圍只容得下 0.87″"
 msgstr "範囲に収まるのは0.87″だけ"
 
@@ -3802,7 +3808,7 @@ msgid "納入量測"
 msgstr "測定に含める"
 
 msgid "索布拉爾・1919 年 7 月 22 日（當地日期）。英國觀測者離開，將箱件託給 Nicolau 與 Carneiro 轉運。"
-msgstr "ソブラル・1919年7月22日（現地日付）。英国の観測者は箱の発送を Nicolau と Carneiro に託し、町を去った。"
+msgstr "ソブラル・1919年7月22日（現地日付）。英国の観測者は箱の発送を ニコラウ と カルネイロ に託し、町を去った。"
 
 msgid "索布拉爾・1919 年 7 月 9 日返回（當地日期）"
 msgstr "ソブラル・1919年7月9日に帰着（現地日付）"
@@ -3946,7 +3952,7 @@ msgid "英國在停戰後仍對糖實施配給。"
 msgstr "イギリスでは休戦後も砂糖の配給が続いた。"
 
 msgid "英國的索布拉爾隊抵達帕拉（貝倫）後，趁等候 Henrique Morize 回音時去了馬瑙斯，隨後折返帕拉。"
-msgstr "英国のソブラル隊はパラー（ベレン）に着いた後、Henrique Morize からの連絡を待つ間にマナウスを訪れ、パラーに戻った。"
+msgstr "英国のソブラル隊はパラー（ベレン）に着いた後、エンリケ・モリゼ からの連絡を待つ間にマナウスを訪れ、パラーに戻った。"
 
 msgid "藍墨水：Kit 抄的清單　　褐墨水：你的字　　聽 Kit 念出底片上的數值，和清單比對：相符按 ✓，不符按 ×。"
 msgstr "青インク：Kit が書き写した一覧　　茶インク：あなたの字　　Kit が乾板上の数値を読み上げるので、それを聞いて一覧と照合する：一致したら ✓、違えば × を押す。"

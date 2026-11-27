@@ -7,12 +7,11 @@ const Paper := preload("res://scripts/cambridge/interlude_paper.gd")
 const Ink := preload("res://scripts/cambridge/sobral_ink.gd")
 const Plate := preload("res://scripts/plate_render.gd")
 const Settings := preload("res://scripts/settings.gd")
-const Cues := preload("res://scripts/totality_cues.gd")
 
 const SETUP := [
-	["B02", "", ["B03"]],
+	["B02", "station", ["B03"]],
 	["B04", "station", ["B05", "B06", "B07", "B08"]],
-	["B09", "mailhat", ["B10", "DIAGRAM", "B11"]],
+	["B09", "", ["B09", "B10"]],
 ]
 const SAMPLES := [
 	["B20", "B25", "B27", "may_astro"],
@@ -62,16 +61,22 @@ func play(day: Node) -> void:
 
 	for setup in SETUP:
 		_show(setup[0])
-		if setup[0] == "B09":
-			paper.label(paper.body, _text.B09, 23)
 		if not setup[1].is_empty():
-			_picture(paper.body, setup[1], 185)
+			_picture(paper.body, setup[1], 340 if setup[0] == "B02" else 185)
 		_lines(paper.body, setup[2])
+		if setup[0] == "B09":
+			var prints: HBoxContainer = paper.columns(paper.body)
+			var corona: VBoxContainer = paper.column(prints)
+			var instrument: VBoxContainer = paper.column(prints)
+			_picture(corona, "corona", 155)
+			_lines(corona, ["DIAGRAM", "B11"], 18)
+			_picture(instrument, "mailhat", 155)
+			_lines(instrument, ["MAILHAT"], 18)
 		if setup[0] == "B02":
 			await _ui.fade_to(0.0, 0.0 if Settings.reduced_motion else 0.7).finished
 		await _next("next")
 
-	await _sky(day.sky_mat, day.audio_tick)
+	await _sky(day.audio_tick)
 	_prepare_plates()
 	await _inspection()
 	_show("B32")
@@ -118,45 +123,33 @@ func _picture(parent: Container, subject: String, height: int) -> Control:
 	return picture
 
 
-func _sky(source: ShaderMaterial, tick: AudioStreamPlayer) -> void:
+func _sky(tick: AudioStreamPlayer) -> void:
 	_show("B12")
-	var horizon := _picture(paper.body, "sky", 220)
-	var sky: ShaderMaterial = horizon.use_sky(source)
-	sky.set_shader_parameter("contact", 0.03)
-	sky.set_shader_parameter("darkness", 0.0)
-	sky.set_shader_parameter("practice_cloud", 0.94)
-	sky.set_shader_parameter("before_second_contact", true)
+	_picture(paper.body, "first_contact", 240)
 	await _next("next")
 
 	_show("B13")
-	horizon = _picture(paper.body, "sky", 180)
-	sky = horizon.use_sky(source)
-	sky.set_shader_parameter("contact", 0.92)
-	sky.set_shader_parameter("darkness", 0.6)
-	sky.set_shader_parameter("practice_cloud", 0.08)
-	sky.set_shader_parameter("before_second_contact", true)
-	_lines(paper.body, ["B14"])
-	var programmes: HBoxContainer = paper.columns(paper.body)
-	for id in ["B15", "B16"]:
-		_lines(paper.column(programmes), [id], 20)
-	var strip := _picture(paper.body, "programme", 116)
-	var viewport: SubViewport = horizon.get_child(0)
+	var horizon := _picture(paper.body, "totality", 158)
+	_lines(paper.body, ["B14"], 20)
+	var strips: Array[Control] = []
+	for entry in [["METRONOME", "metronome"], ["B15", "astrograph"], ["B16", "four_inch"]]:
+		var row: HBoxContainer = paper.columns(paper.body)
+		var caption: VBoxContainer = paper.column(row)
+		caption.alignment = BoxContainer.ALIGNMENT_CENTER
+		_lines(caption, [entry[0]], 18)
+		var strip := _picture(row, entry[1], 24)
+		strip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		strips.append(strip)
 	await get_tree().create_timer(0.65, false).timeout
-	sky.set_shader_parameter("before_second_contact", false)
-	sky.set_shader_parameter("contact", 1.0)
-	sky.set_shader_parameter("darkness", 1.0)
-	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	# Show the opening beats and the end of the two programmes in cuts.
 	for beat in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 80, 160, 240, 320]:
-		strip.beat = beat
-		strip.queue_redraw()
+		for strip in strips:
+			strip.beat = beat
+			strip.queue_redraw()
+		if beat in [0, 160, 240, 320]:
+			horizon.beat = beat
+			horizon.queue_redraw()
 		tick.play()
-		if beat in [80, 160, 240, 320]:
-			sky.set_shader_parameter("cloud_time", float(beat))
-			sky.set_shader_parameter("practice_cloud", 0.46 if beat == 160 else 0.10)
-			if beat == 320:
-				sky.set_shader_parameter("third_contact", Cues.third_contact_glint(0.7))
-			viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 		await get_tree().create_timer(0.21 if beat < 10 else 0.52, false).timeout
 	await _next("B17")
 
@@ -214,6 +207,11 @@ func _inspection() -> void:
 			var id: String = SAMPLES[i][0]
 			var card := _button(ledger, id, "card%d" % i)
 			card.disabled = i > 0 and not logged.has("B25")
+			if card.disabled:
+				var muted := card.get_theme_stylebox("normal").duplicate() as StyleBoxFlat
+				muted.bg_color = Color("d8c9ae")
+				card.add_theme_stylebox_override("disabled", muted)
+				card.add_theme_color_override("font_disabled_color", Color("594b3d"))
 			if logged.has(SAMPLES[i][1]):
 				card.text += "\n✓ " + _text[SAMPLES[i][1]]
 			order.append(card)

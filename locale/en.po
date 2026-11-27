@@ -8,6 +8,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "Mailhat 望遠鏡"
+msgstr "Mailhat telescope"
+
 msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
 msgstr "\n\n[color=#8f8676]Results announced on 6 November 1919: Sobral 1.98″, Príncipe 1.61″, both closer to Einstein's 1.75″. How they were obtained, and what doubts remained, are in 'What Happened Historically'.[/color]"
 
@@ -3786,6 +3789,9 @@ msgstr "Inside the box you cannot tell acceleration from gravity; so in gravity,
 
 msgid "箱子越走越快，光還沒到對面，地板已經迎上來了。光落在對面牆上的點，會比洞低一點。箱子裡的人看來——光彎了。"
 msgstr "The box goes faster and faster. Before the light reaches the far wall, the floor rises to meet it. The spot where the light lands will be a little lower than the hole. To anyone inside the box—the light has bent."
+
+msgid "節拍器・每十拍報時"
+msgstr "Metronome · every tenth beat called"
 
 msgid "範圍只容得下 0.87″"
 msgstr "The range holds only 0.87″"
