@@ -157,7 +157,7 @@ func _run() -> void:
 	check(is_equal_approx(thick, 0.93) and is_equal_approx(thin, 0.12)
 		and material.get_shader_parameter("darkness") < 0.01, "early rehearsal sends thick and thin cloud to the compositor")
 	game.free()
-	_test_eclipse_pilot_bindings()
+	_test_eclipse_pilot_bindings(shader_text)
 
 	var overridden := Style.from_args({"style-set": "wash=0.3,line_px=7,diamond_radius=0.4,diamond_spikes=3,diamond_rays=0.5,diamond_ray_floor=0.85"})
 	check(is_equal_approx(overridden.params.wash, 0.3), "wash override")
@@ -170,7 +170,7 @@ func _run() -> void:
 	quit(1 if failures else 0)
 
 
-func _test_eclipse_pilot_bindings() -> void:
+func _test_eclipse_pilot_bindings(shader_text: String) -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	game._start_game()
@@ -207,6 +207,7 @@ func _test_eclipse_pilot_bindings() -> void:
 		"both solar layers reach daylight in 12 seconds")
 	check(material.get_shader_parameter("diamond") == 0.0, "daylight clears the diamond")
 	_check_return_cloud_bindings(game, game.sim.TOTALITY_S + game.THIRD_CONTACT_CLOUD_S)
+	_check_return_outline(game, shader_text)
 	for mesh in pilot:
 		_check_original_pilot_binding(mesh, "live daylight recovery retains original materials")
 	game.free()
@@ -219,6 +220,15 @@ func _check_return_cloud_bindings(game: Node, live_time: float) -> void:
 	check(is_equal_approx(material.get_shader_parameter("cloud_time"), live_time)
 		and is_equal_approx(game.sky_mat.get_shader_parameter("cloud_time"), live_time),
 		"return solar layers share the advancing cloud time")
+
+
+func _check_return_outline(game: Node, shader_text: String) -> void:
+	check(shader_text.contains("outline_sample(uv, outline_px * pixel")
+		and shader_text.contains("outline_sample(uv, 0.5 * pixel")
+		and shader_text.contains("edge = mix(totality_outline.x, daylight_outline.x, day_weight);")
+		and shader_text.contains("edge = mix(edge, day_edge, day_weight);"),
+		"the return blends fixed outline samples on both sides of the silhouette")
+	check(is_zero_approx(game.sky_mat.get_shader_parameter("darkness")), "daylight returns in 12 seconds")
 
 
 func _check_distant_land_bindings(game: Node) -> void:
@@ -240,6 +250,7 @@ func _check_distant_land_bindings(game: Node) -> void:
 					has_distant_ridge = true
 					break
 	check(has_distant_ridge, "scene supplies ridge geometry in the distant-edge and daylight land ranges")
+
 
 
 func _check_original_pilot_binding(mesh: MeshInstance3D, message: String) -> void:
