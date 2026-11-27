@@ -1807,6 +1807,15 @@ func _restore_darkroom(data: Dictionary) -> void:
 	_refresh_objectives()
 	if sim.bet_pick >= 0:
 		_open_viewer()
+		var recorded: int = sim.plates.find_custom(func(p): return p.get("read", false))
+		if recorded >= 0:
+			ui._select_plate(recorded, plate_textures[recorded], false)
+			ui._set_micrometer(true)
+			var next: int = sim.plates.find_custom(func(p): return p.included and p.usable and not p.get("read", false))
+			if next >= 0:
+				ui.thumbs.get_child(next + 1).grab_focus()
+			else:
+				(ui.report_btn if sim.measured else ui.measure_btn).grab_focus()
 	elif sim.rule_id != "":
 		_say(Content.bet_prompt(Story.bet if Story.prologue_done else {}), "bet")
 	_sync_player_input()
