@@ -418,17 +418,15 @@ func _run() -> void:
 	root.push_input(keyboard)
 	check(Prompts.key("interact") == "E", "keyboard restores prompts")
 	check(Prompts.key("rotate") == "Q／E" and Prompts.key("toggle_log") == "Tab", "keyboard names the rotate and log inputs")
+	await motion(JOY_AXIS_RIGHT_X, 0.15)
+	await motion(JOY_AXIS_RIGHT_X, 0.0)
+	check(not Prompts.joypad, "resting stick preserves keyboard prompts")
 	keyboard.pressed = false
 	root.push_input(keyboard)
-	var motion := InputEventJoypadMotion.new()
-	motion.axis = JOY_AXIS_RIGHT_X
-	motion.axis_value = 0.5
-	Input.parse_input_event(motion.duplicate())
-	await process_frame
+	await motion(JOY_AXIS_RIGHT_X, 0.5)
 	check(Prompts.joypad, "analog input switches prompts")
 	check(Input.get_axis("look_left", "look_right") > 0.0 and Input.get_axis("look_left", "look_right") < 1.0, "half stick preserves analog look strength")
-	motion.axis_value = 0.0
-	Input.parse_input_event(motion.duplicate())
+	await motion(JOY_AXIS_RIGHT_X, 0.0)
 	ui.hide_title()
 	ui.play([{"s": "Kit", "t": "一"}, {"s": "Kit", "t": "二", "key": "answer", "choices": ["甲", "乙"]}])
 	await button(JOY_BUTTON_A)
@@ -832,8 +830,14 @@ func _run() -> void:
 	check(ui.log_open() and ui.viewer.visible, "judgment Tab opens the log without dismissing evidence")
 	await button(JOY_BUTTON_BACK)
 	check(not ui.log_open() and root.gui_get_focus_owner() in ui._choice_buttons, "closing judgment log restores dialogue choice focus")
+	check(Prompts.joypad, "pad log close selects pad hints at the darkroom table")
+	root.push_input(InputEventMouseMotion.new())
+	check(Prompts.joypad, "passive cursor motion preserves darkroom pad hints")
+	await key(KEY_TAB, false)
+	check(Prompts.joypad, "a keyboard release preserves darkroom pad hints")
 	await key(KEY_DOWN, true)
 	await key(KEY_DOWN, false)
+	check(not Prompts.joypad, "keyboard navigation selects keyboard hints at the darkroom table")
 	check(root.gui_get_focus_owner() in ui._choice_buttons, "judgment keyboard arrows stay on dialogue choices")
 	await button(JOY_BUTTON_A)
 	check(not ui.dialog_active() and ui._results.has("answer"), "judgment A chooses without triggering a viewer action")

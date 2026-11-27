@@ -2735,9 +2735,9 @@ func _input(event: InputEvent) -> void:
 		elif event.is_action("ui_accept"):
 			_viewer_selected_with_mouse = false
 	var was_joypad := Prompts.joypad
-	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.25):
+	if (event is InputEventJoypadButton and event.pressed) or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.25):
 		Prompts.joypad = true
-	elif event is InputEventKey or event is InputEventMouse:
+	elif (event is InputEventKey and event.pressed and not event.echo) or (event is InputEventMouseButton and event.pressed):
 		Prompts.joypad = false
 	_refresh_hints()
 	if Prompts.joypad != was_joypad:
