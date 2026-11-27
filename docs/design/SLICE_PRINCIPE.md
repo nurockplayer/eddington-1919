@@ -1582,3 +1582,15 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Backlog: that dot is about 4 px, the smallest mark in the diagram, and the line under it says to watch the star image move. Stills only; I have not seen its trail in motion.
 - Not shown: the largest drift the drive can reach staying inside the circle (reported by edd-lead, no frame).
 - **Verdicts:** technical regression none seen; this PR's change accepted. **Count stays 7/9.**
+
+### 2026-11-27 16:48 JST: #585 AA fun 02, micrometer second setting, at ed2929b: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/585/ed2929ba49ba88a1fd8cf931b285454cd4c36ed4/` (seed 1919, en, 1280×720; three reveal frames). Opened whole at native size: all three. Kept in `slice_principe/accept/585/ed2929b/`.
+- **Holds.** In the reveal the two readings, Record and the note are all inside the screen at text scale 1.0 and 1.2. The mint mark is as long as a major tick and can be found in the whole frame; 8 divisions apart the two marks are plainly two, 0.05 apart they sit on one line either side of the star.
+- The cost: in the reveal the plate picture is drawn smaller (about 273 px wide against 370) and the ruler is numbered every 20. Fair for a state whose business is the two buttons.
+- Not shown at this head: the first-setting and second-setting states (accepted as drawn at b9ddde9).
+- **Verdicts:** technical regression none seen; this PR's change accepted. **Count stays 7/9.**
+
+### 2026-11-27 16:48 JST: #583 AA fun 06, Cambridge lightbox loupe, at de42dc1: no verdict, no frames at this head
+- The newest capture is `/Volumes/KIOXIA/eddington-1919-cache/director/accept/583/8f957740a7a17fea85cccf1f8aab40722dea9b47/`, two commits behind, and it has no frame of the loupe over a matched pair or at the glass edge, which is what de42dc1 changes. Opened whole from it and from the first capture: candidate aligned, candidate inspection, main inspection.
+- Read from 8f95774, for direction only: the steerable loupe replaces main's "Zoom on the unmatched point" button and its inset, and the line under the plate no longer counts the matches; that is the row. The loupe is a plain black ring 68 px across. The note box covers the bottom of the plate, pencil arrows included, while the loupe is in use.
+- Asked for at the head: aligned; loupe on the unmatched point; loupe on a matched pair; loupe half over the glass edge; loupe low on the plate with the note showing; one of them at text scale 1.2.
