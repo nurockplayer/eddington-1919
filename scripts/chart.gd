@@ -9,6 +9,8 @@ var rows: Array = []        # [{label, value, sigma, weak}]
 var combined: Dictionary = {}
 var revealed := false
 var ledger: Array = []
+## London uses one capped probable-error bar per independent result.
+var probable_error_guides: Array = []
 var _label_px := Settings.fs(14)
 var _drawn_label_px := -1
 var _drawn_hollow := 0
@@ -39,14 +41,15 @@ class RowCanvas extends Control:
 			var y: float = first_y + i * step
 			var col := Color(0.85, 0.82, 0.75) if not r.get("weak", false) else Color(0.85, 0.5, 0.45)
 			if not r.get("no_bar", false):
-				var span: Vector2 = chart.two_sigma_span(r.value, r.sigma)
-				var thin := Color(col, 0.45)
-				var x2_lo: float = chart._x(span.x, w)
-				var x2_hi: float = chart._x(span.y, w)
-				# One logical pixel can miss both pixel centers when the canvas shrinks.
-				draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.5)
-				draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
-				draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
+				if chart.probable_error_guides.is_empty():
+					var span: Vector2 = chart.two_sigma_span(r.value, r.sigma)
+					var thin := Color(col, 0.45)
+					var x2_lo: float = chart._x(span.x, w)
+					var x2_hi: float = chart._x(span.y, w)
+					# One logical pixel can miss both pixel centers when the canvas shrinks.
+					draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.5)
+					draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
+					draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
 				var x0: float = chart._x(r.value - r.sigma, w)
 				var x1: float = chart._x(r.value + r.sigma, w)
 				draw_line(Vector2(x0, y), Vector2(x1, y), col, 2.0)
@@ -57,6 +60,12 @@ class RowCanvas extends Control:
 				draw_circle(point, 5.0, col)
 			else:
 				draw_arc(point, 5.0, 0.0, TAU, 20, col, 2.0)
+			if r.has("other_value"):
+				var other := Vector2(chart._x(r.other_value, w), y)
+				draw_rect(Rect2(other - Vector2(5, 5), Vector2(10, 10)), col, false, 2.0)
+				for mark in [[point, r.value], [other, r.other_value]]:
+					draw_string(font, mark[0] + Vector2(11, 5), "%.2f″" % mark[1],
+						HORIZONTAL_ALIGNMENT_LEFT, -1, chart._label_px, col)
 			draw_string(font, Vector2(4, y + 5.0 * Settings.text_scale), r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, chart._label_px, col)
 
 
@@ -103,6 +112,8 @@ func _get_minimum_size() -> Vector2:
 	if revealed and not rows.is_empty() and get_parent() is ScrollContainer:
 		return Vector2(0, get_parent().size.y + (rows.size() - 1) * step)
 	var axis_px := Settings.fs(15)
+	if not probable_error_guides.is_empty():
+		return Vector2(0, first_y + 3 * step + 2 * font.get_height(axis_px) + 18.0)
 	var axis_space := 22.0 * Settings.text_scale + font.get_height(axis_px) + font.get_descent(axis_px) + 8.0
 	return Vector2(0, first_y + rows.size() * step + 10.0 + 14.0 + font.get_height(Settings.fs(16)) + 112.0 + axis_space)
 
@@ -209,10 +220,14 @@ func _draw() -> void:
 	var top := scroll + 28.0
 	var axis_px := Settings.fs(15)
 	var refs := [[0.0, L.t("無偏折 0″"), Color(0.6, 0.6, 0.6)], [0.87, L.t("牛頓式 0.87″"), Color(0.55, 0.75, 0.95)], [1.75, L.t("愛因斯坦 1.75″"), Color(0.98, 0.72, 0.4)]]
+	var probable_errors := not probable_error_guides.is_empty()
+	if probable_errors:
+		for i in refs.size():
+			refs[i][1] = probable_error_guides[i]
 	var axis_height := font.get_height(axis_px)
 	for ref in refs:
 		axis_height = maxf(axis_height, font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px).y)
-	var compact := h < 240.0
+	var compact := h < 240.0 and not probable_errors
 	var bottom := scroll + h - axis_height if compact else scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
 	for ref in refs:
 		var x := _x(ref[0], w)
@@ -236,6 +251,8 @@ func _draw() -> void:
 	var combined_height := maxf(font.get_height(Settings.fs(15)), font.get_height(Settings.fs(16)))
 	var fixed_y := bottom - combined_height * 0.5 if compact else bottom - font.get_height(Settings.fs(16)) - 30.0
 	var fixed_start := fixed_y - combined_height * 0.5 if compact else fixed_y - 24.0
+	if probable_errors:
+		fixed_start = bottom - 4.0
 	_drawn_row_clip = Rect2(0, top + 2.0, w, maxf(0.0, fixed_start - top - 2.0))
 	_row_clip.position = _drawn_row_clip.position
 	_row_clip.size = _drawn_row_clip.size
@@ -261,6 +278,9 @@ func _draw() -> void:
 			_drawn_filled += 1
 		else:
 			_drawn_hollow += 1
+	if probable_errors:
+		_paint_axis(font, refs, w, bottom, axis_px, axis_height, false)
+		return
 	# Cover scrolled rows in the fixed result and axis bands.
 	draw_rect(Rect2(0, fixed_start, w, scroll + h - fixed_start), Color(0.09, 0.08, 0.07, 1.0))
 	for ref in refs:

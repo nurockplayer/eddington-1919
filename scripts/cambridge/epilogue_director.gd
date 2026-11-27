@@ -12,6 +12,8 @@ const UI := preload("res://scripts/ui.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 const Content := preload("res://scripts/cambridge/content_epilogue.gd")
 const ChartOverlay := preload("res://scripts/cambridge/epilogue_chart.gd")
+const LondonText := preload("res://scripts/cambridge/content_london.gd")
+const London := preload("res://scripts/cambridge/london.gd")
 const Ending := preload("res://scripts/ending.gd")
 
 enum Beat { OPENING, LETTER, CHART, WEIGHT, LEDGER, ORRERY, ORRERY_TALK, CLOSE, ENDING }
@@ -20,6 +22,7 @@ var world: Dictionary
 var player
 var ui
 var chart
+var london: Control
 var _pending := ""
 var _busy := true
 var _clock_t := 0.0
@@ -65,7 +68,10 @@ func _ready() -> void:
 	ui.dialogue_entry.connect(_frame_speaker)
 	ui.log_toggled.connect(func(_open): _sync_player())
 	ui.pause_toggled.connect(func(_paused): _sync_player())
-	ui.text_size_button.pressed.connect(func(): chart.refresh_fonts())
+	ui.text_size_button.pressed.connect(func():
+		chart.refresh_fonts()
+		if is_instance_valid(london):
+			london.refresh_fonts())
 	ui.dialog_panel.offset_top = -214
 	ui.dialog_panel.offset_bottom = -18
 	ui.dialog_panel.custom_minimum_size.y = 196
@@ -141,7 +147,7 @@ func _process(delta: float) -> void:
 	Room.swing_pendulum(world.pendulum, _light_t)
 	Room.StarDecor.turn_orrery(world.orrery, _light_t)
 	_clock_t += delta
-	if _clock_t >= 1.0:
+	if _clock_t >= 1.0 and not is_instance_valid(london):
 		_clock_t -= 1.0
 		tick.play()
 	if _free():
@@ -250,9 +256,35 @@ func _dialogue_done(results: Dictionary) -> void:
 			_say(Content.tableau(Story.runs.back()), "tableau")
 			return
 		"tableau":
-			_end_epilogue()
+			if _journey:
+				_open_london()
+			else:
+				_end_epilogue()
 			return
 	_sync_player()
+
+
+func _open_london() -> void:
+	beat = Beat.ENDING
+	_busy = true
+	_sync_player()
+	var fade_time := 0.0 if Settings.reduced_motion else 1.2
+	await ui.fade_to(1.0, fade_time).finished
+	tick.stop()
+	street.stop()
+	london = London.new()
+	london.theme = ui.theme_res
+	var parent: Control = ui.pause_panel.get_parent()
+	parent.add_child(london)
+	parent.move_child(london, ui.pause_panel.get_index())
+	london.open(Story.runs.back(), Story.bet_1917, Story.bond_tone)
+	await ui.fade_to(0.0, fade_time).finished
+	await london.completed
+	await ui.fade_to(1.0, fade_time).finished
+	# I5 will open on this cut, before the deferred ending review.
+	var line: String = london.committed_line
+	london.queue_free()
+	_show_ending(line)
 
 
 func _end_epilogue() -> void:
@@ -260,10 +292,16 @@ func _end_epilogue() -> void:
 	_busy = true
 	_sync_player()
 	await ui.fade_to(1.0, 1.2).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
+	_show_ending()
+
+
+func _show_ending(london_line := "") -> void:
 	_busy = false
 	score.play("coda_resolution", 0.6)
 	Checkpoint.clear()
 	var ending: Dictionary = Ending.build(Story.runs.back(), Ending.story_view(Story))
+	if not london_line.is_empty():
+		ending.review += "\n\n%s\n%s" % [LondonText.strings().L81, london_line]
 	ui.show_ending(ending.title, ending.body, ending.history, ending.review, ending.telegram,
 		Story.ending_plate, Story.ending_plate_caption)
 	ui.pause_enabled = false
