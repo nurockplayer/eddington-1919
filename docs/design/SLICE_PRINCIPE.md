@@ -1489,3 +1489,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 
 ### 2026-11-27 13:50 JST: #570 AA 13, October resolution cue, at 33e091e: measured only, no art verdict (audio)
 - I cannot hear audio; row 13 is `Visual: no`. Measured the three WAVs in `/Volumes/KIOXIA/eddington-1919-cache/director/accept/aa-13/33e091ee94397f51ecf2105e6ecef025592f0d21/`: entry −50 to −25 dB over 1 s without a step, release −21 to −48 dB over 10.5–14 s at most 8 dB per 0.25 s, no clicks, no clipping, one cue per file, Opinion and Inconclusive the same curve. Asked about a 2 Hz burst at −53 dB round the cue in the October files. Numbers are on the PR; a person still has to listen.
+
+### 2026-11-27 13:51 JST: #564 rebased onto #567 (merged cloud sample in the sky shader), at bdb83b6: accepted again
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/564/bdb83b62e349f71110540318cc01693fc937a6db/` (seed 7, 1920×1080, cloud time −147.00). Opened whole at native size: all six (rehearsal and observation day at 0°, 60°, 120° from the Sun). Each was differenced against the same still accepted at 44e8bb1, and I looked at the difference map for `rehearsal-60deg`. Kept in `slice_principe/accept/564/bdb83b6/`.
+- **The pairs still match.** At 60° and 120° rehearsal and observation are the same picture; facing the Sun the rehearsal adds only its crescent. No hatched disc, no full ruling.
+- **Against 44e8bb1:** mean difference 0.14 to 0.37 of 255 per still, all of it on the outlines of palms, beams and the ridge line; the sky itself is unchanged.
+- The backlog item stands: daylight cloud has no drawn weight (bare paper at mean density 0.76 to 0.79, Sun at 0.98 absent with no visible cause).
+- **Verdicts:** technical regression none seen; this PR's change accepted at bdb83b6; whole scene unchanged. **Count stays 7/9.**
