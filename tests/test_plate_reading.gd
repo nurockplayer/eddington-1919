@@ -299,8 +299,103 @@ func _run() -> void:
 	Settings.refresh_fonts(self)
 	ui.free()
 	await create_timer(0.1).timeout
+	await _check_reading_resume()
 	print("test_plate_reading: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+
+func _darkroom_after_one_reading() -> Node:
+	var story := root.get_node("Story")
+	story.reset()
+	load("res://scripts/main.gd").next_seed = 77
+	change_scene_to_file("res://scenes/main.tscn")
+	await scene_changed
+	var game := current_scene
+	game.sim.drive_wound = true
+	game.sim.drive_rate_checked = true
+	game.sim.drive_error = 0.025
+	game.sim.plates_delivered = 2
+	for exposure in [[100.0, 17.0, 0.12], [220.0, 35.0, 0.4]]:
+		game.sim.open_shutter(exposure[0])
+		game.sim.accumulate(exposure[1], exposure[2])
+		game.sim.close_shutter()
+	await game._begin_night()
+	while game.ui.dialog_active():
+		game.ui._advance()
+	game._interact("measure")
+	while game.ui.dialog_active():
+		if game.ui._choice_buttons.is_empty():
+			game.ui._advance()
+		else:
+			game.ui._choice_buttons[0].pressed.emit()
+	for index in [0, 1]:
+		game.ui.thumbs.get_child(index + 1).pressed.emit()
+		game.ui.include_box.button_pressed = true
+	_record_plate(game, 1)
+	return game
+
+
+func _record_plate(game: Node, index: int) -> void:
+	game.ui.thumbs.get_child(index + 1).pressed.emit()
+	game.ui.mic_btn.button_pressed = true
+	game.ui.set_micrometer_reading(game.sim.reading_for_value(game.sim.plates[index].value))
+	game.ui.mic_record_btn.pressed.emit()
+
+
+func _title_from_darkroom(game: Node) -> Node:
+	game.ui.toggle_pause()
+	game.ui._pause_title_btn.pressed.emit()
+	game.ui._pause_title_btn.pressed.emit()
+	await scene_changed
+	return current_scene
+
+
+func _finish_darkroom_readings(game: Node) -> Dictionary:
+	_record_plate(game, 0)
+	game.ui.measure_btn.pressed.emit()
+	game.ui.report_btn.pressed.emit()
+	while game.ui.dialog_active():
+		if not game.ui._choice_buttons.is_empty():
+			game.ui._choice_buttons[0].pressed.emit()
+			break
+		game.ui._advance()
+	return {"state": Checkpoint.darkroom_state(game.sim), "combined": game.sim.combined(),
+		"verdict": game._verdict, "truth": game._verdict_truth, "class": game._verdict_class}
+
+
+func _check_reading_resume() -> void:
+	var old_path := OS.get_environment("EDD_SETTINGS_PATH")
+	var directory := OS.get_temp_dir().path_join("edd-reading-%d" % OS.get_process_id())
+	DirAccess.make_dir_absolute(directory)
+	OS.set_environment("EDD_SETTINGS_PATH", directory.path_join("settings.cfg"))
+	Checkpoint.force_enabled = true
+	var game := await _darkroom_after_one_reading()
+	check(game.sim.plates[1].read and not game.sim.plates[0].read,
+		"first reading is recorded on the second plate")
+	var uninterrupted := _finish_darkroom_readings(game)
+	check(uninterrupted.combined.n == 2 and uninterrupted.verdict >= 0,
+		"uninterrupted table yields two readings and a verdict")
+	game = await _darkroom_after_one_reading()
+	var before := Checkpoint.darkroom_state(game.sim)
+	var reading: float = game.ui.micrometer_px
+	var title := await _title_from_darkroom(game)
+	title.ui.continue_btn.pressed.emit()
+	await scene_changed
+	game = current_scene
+	check(Checkpoint.darkroom_state(game.sim) == before,
+		"Continue preserves plate IDs, inclusions, first reading, rule and simulation values")
+	check(game.ui.viewer.visible and not game.ui._viewer_locked and game.ui._viewer_sel == 1,
+		"Continue reopens the unlocked table on the recorded plate (selected index %d)" % game.ui._viewer_sel)
+	check(game.ui.mic_row.visible and game.ui.micrometer_px == reading,
+		"Continue shows the recorded micrometer readout")
+	check(game.ui.thumbs.get_child(1).has_focus(), "Continue focuses the next included unread plate")
+	check(_finish_darkroom_readings(game) == uninterrupted,
+		"the next reading, combined values and verdict match uninterrupted play")
+	unload_current_scene()
+	Checkpoint.clear()
+	Checkpoint.force_enabled = false
+	OS.set_environment("EDD_SETTINGS_PATH", old_path)
+	DirAccess.remove_absolute(directory)
 
 
 func next_blink(ui) -> void:
