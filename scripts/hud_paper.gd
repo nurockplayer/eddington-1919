@@ -16,6 +16,7 @@ var ink_crossover: float
 var choice_focus := StyleBoxEmpty.new()
 var foreground: Color
 var evidence_dialogue := {}
+var _lighting := []
 var portrait_tint := Color.WHITE
 var serif: Font
 var serif_emphasis := {}
@@ -103,6 +104,11 @@ func setup(target: Node, colours: Dictionary) -> void:
 
 
 func light(darkness: float, night: float, params: Dictionary) -> void:
+	# Reapplying theme overrides dirties the HUD even while the light is steady.
+	var lighting := [darkness, night, ui.viewer.visible]
+	if lighting == _lighting:
+		return
+	_lighting = lighting
 	if evidence_dialogue.is_empty():
 		evidence_dialogue = {
 			"panel": ui.dialog_panel.get_theme_stylebox("panel"),
