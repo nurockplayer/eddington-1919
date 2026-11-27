@@ -567,8 +567,11 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		while sketch.release_btn.disabled:
 			await process_frame
 	await press(sketch.next_btn)
+	var gift := [false]
+	var keepsake: Control = chapter.keepsake
+	keepsake.visibility_changed.connect(func(): gift[0] = gift[0] or keepsake.visible)
 	await _dialogue(chapter, {"light_box": KEY_1})
-	expect(chapter.keepsake.visible, "Ashby's real farewell shows the gift")
+	expect(gift[0], "Ashby's real farewell shows the gift")
 	var previous: Dictionary = story.to_save()
 	expect(previous.slip_fix == 1 and previous.bond_tone == ("warm" if warm else "close"),
 		"M2 has a correction and a bond tone to carry forward")
@@ -605,9 +608,9 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 	previous.sundy_letter_read = enabled
 	if Checkpoint.force_enabled:
 		expect(Checkpoint.peek() == "principe", "the existing checkpoint is written at the slice handoff")
-		expect(Checkpoint.restore() == "principe" and story.to_save() == previous,
-			"the handoff preserves the prediction, certainty and M2 choices verbatim")
+		expect(Checkpoint.restore() == "principe", "the slice checkpoint can be restored")
 		Checkpoint.clear()
+	expect(story.to_save() == previous, "the handoff preserves the prediction, certainty and M2 choices verbatim")
 	await _sundy_coda(current_scene, enabled, packet_seen)
 
 
