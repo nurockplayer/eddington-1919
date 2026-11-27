@@ -1,7 +1,22 @@
 // Shared presentation cloud: sky light, engraved burst and Moon ink.
+float eclipse_middle_band(vec2 plane, float time, float density) {
+	float elapsed = time - middle_seam_time;
+	if (practice_cloud >= 0.0 || before_second_contact || night > 0.5 || abs(elapsed) >= 9.0) {
+		return density;
+	}
+	// A feathered bank slips across the slower field, crossing the whole solar disc.
+	vec2 sun_plane = sun_dir.xz / sun_dir.y * cloud_scale;
+	vec2 along = normalize(wind);
+	vec2 across = vec2(-along.y, along.x);
+	vec2 offset = plane - sun_plane - 2.25 * wind * elapsed;
+	float distance_to_band = length(vec2(dot(offset, along), max(abs(dot(offset, across)) - 0.036, 0.0)));
+	float cover = (1.0 - smoothstep(0.016, 0.034, distance_to_band)) * (1.0 - smoothstep(7.0, 9.0, abs(elapsed)));
+	return mix(density, max(density, 0.93), cover);
+}
+
 float eclipse_cloud_texture(vec3 d, float time) {
-	vec2 plane = d.xz / max(d.y, 0.06);
-	return texture(cloud_tex, plane * cloud_scale - wind * time).r;
+	vec2 plane = d.xz / max(d.y, 0.06) * cloud_scale;
+	return eclipse_middle_band(plane, time, texture(cloud_tex, plane - wind * time).r);
 }
 
 float third_contact_cloud_gap(vec3 d, float time) {

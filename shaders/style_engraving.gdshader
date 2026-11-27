@@ -186,7 +186,7 @@ float pocket_print_density(vec3 d, float time, float density) {
 	float bank = texture(cloud_tex, uv + across * 0.13).r - texture(cloud_tex, uv - across * 0.13).r;
 	float bent = texture(cloud_tex, uv + 0.026 * edge * bank * across).r;
 	float haze = smoothstep(0.35, 0.05, d.y);
-	return mix(bent, 0.97, haze);
+	return mix(eclipse_middle_band(plane, time, bent), 0.97, haze);
 }
 
 // Engrave the cloud's 0.35 contour and retain density for tone and solar veiling.

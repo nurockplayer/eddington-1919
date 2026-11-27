@@ -5,6 +5,7 @@ shader_type sky;
 // what the plate receives, with a moving pocket for the third-contact view.
 
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
+uniform float middle_seam_time = -100.0;
 uniform float cloud_time = 0.0;
 uniform vec3 third_contact_cloud_clock = vec3(302.0, 2.5, 3.333333);
 uniform float practice_cloud = -1.0; // rehearsal-only density near the Sun

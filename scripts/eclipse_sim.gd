@@ -141,12 +141,6 @@ func _make_clouds() -> void:
 		_carve(sun_track(g.t), sun_track(g.t + g.d), 0.006, 0.03, g.depth, false)
 		if g.get("seam", false):
 			middle_seam_time = g.t + g.d * 0.5
-	var exposure_dens := _dens.duplicate()
-	var seam := sun_track(middle_seam_time)
-	var across := wind.orthogonal().normalized() * 0.036
-	if middle_seam_time >= 0.0:
-		# The visible bank has feathered shoulders ahead of its opaque core.
-		_carve(seam - across, seam + across, 0.003, 0.017, 0.93, true)
 	cloud_img = Image.create_empty(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8)
 	var bytes := PackedByteArray()
 	bytes.resize(TEX_SIZE * TEX_SIZE)
@@ -155,7 +149,8 @@ func _make_clouds() -> void:
 	cloud_img.set_data(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8, bytes)
 	if middle_seam_time >= 0.0:
 		# Keep the original timed density profile for metering and plate fog.
-		_dens = exposure_dens
+		var seam := sun_track(middle_seam_time)
+		var across := wind.orthogonal().normalized() * 0.036
 		_carve(seam - across, seam + across, 0.003, 0.010, 0.93, true)
 
 
