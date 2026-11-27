@@ -369,6 +369,10 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.chart.visible and chapter.chart.step == 3 and chapter.chart.question.visible,
 		"press 3 asks the Sobral reading with the chart still open")
 	check(pages != null and pages.current_tab == 0, "the interval question opens the 4-inch record")
+	if DisplayServer.get_name() != "headless":
+		await process_frame
+		await RenderingServer.frame_post_draw
+		_check_interval_pixels(chapter.chart.chart, root.get_texture().get_image(), "interval question")
 	if pages != null:
 		pages.get_tab_bar().current_tab = 1
 		check(chapter.chart.step == 3 and chapter.chart.read_answer == -1,
@@ -432,6 +436,29 @@ func _test_full_flow(story: Node) -> void:
 
 ## A replay keeps epilogue_done, so the lamp-out in 1919 goes straight to _show_ending,
 ## and the ending compares the two runs.
+## Read the outer wings, away from the thicker inner bar and the end ticks.
+func _check_interval_pixels(plot: Control, image: Image, state: String) -> void:
+	var pixel_scale := Vector2(image.get_size()) / root.get_visible_rect().size
+	var bounds: Array = plot.drawn().row_bounds
+	for i in plot.rows.size():
+		var row: Dictionary = plot.rows[i]
+		if row.get("no_bar", false):
+			continue
+		var y: float = bounds[i].marker.get_center().y
+		var outer: Vector2 = plot.two_sigma_span(row.value, row.sigma)
+		var wings := Vector2(
+			lerpf(outer.x, row.value - row.sigma, 0.5),
+			lerpf(outer.y, row.value + row.sigma, 0.5))
+		for value in [wings.x, wings.y]:
+			var local := Vector2(plot._x(value, plot.size.x), y)
+			var pixel := Vector2i((plot.get_global_rect().position + local) * pixel_scale)
+			var ink := false
+			for dy in range(-1, 2):
+				var red := image.get_pixel(pixel.x, pixel.y + dy).r
+				ink = ink or (red > 0.24 and red < 0.53)
+			check(ink, "%s: %s thin interval at %.3f″" % [state, row.label, value])
+
+
 func _check_second_run(story: Node) -> void:
 	story.departure_done = true
 	story.epilogue_done = false
