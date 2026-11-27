@@ -936,6 +936,8 @@ func _process_prep(delta: float) -> void:
 			elif _rehearsal_step == 1 and _rehearsal_time >= 12.5:
 				_sfx("close")
 				_finish_rehearsal(_rehearsal_feedback(false))
+			else:
+				_update_rehearsal_hud()
 		return
 	if _ui_free() or (calibration.visible and not get_tree().paused):
 		var active_delta := minf(delta, maxf(prep_left, 0.0))
@@ -1390,11 +1392,16 @@ func _begin_rehearsal() -> void:
 	world.roof.visible = false
 	world.eddington.visible = false
 	world.cottingham.visible = false
+	world.crate_label.hide()
 	player.look_at_point(_totality_aim_point())
 	sky_mat.set_shader_parameter("practice_cloud", 0.93)
 	_sync_player_input()
 	ui.set_prompt("")
 	ui.set_hold(0.0)
+	ui.set_clock("")
+	# Reserve space for the shutter hint even while it is hidden during the change.
+	ui.tot_panel.custom_minimum_size.y = Settings.fs(100)
+	_update_rehearsal_hud()
 	ui.show_toast(L.t("Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。") % Prompts.key("shutter"), 12.0)
 
 
@@ -1424,6 +1431,7 @@ func _rehearse_shutter() -> void:
 			_rehearsal_exposure = {"start": _rehearsal_time * sim.TIME_SCALE, "duration": 0.0, "clear": 0.0, "cloudy": 0.0, "sunlit": false}
 			ui.show_toast(L.t("你：『開始！』　Cottingham 移開遮光板（空的）。再按一次喊『停』。"), 7.0)
 			_rehearsal_step = 1
+			_update_rehearsal_hud()
 		1:
 			_sfx("close")
 			_finish_rehearsal(_rehearsal_feedback(true))
@@ -1434,18 +1442,34 @@ func _rehearse_shutter() -> void:
 func _finish_rehearsal(feedback: String) -> void:
 	_sfx("change")
 	_rehearsal_step = 2
-	ui.show_toast(L.t("Eddington：") + feedback + Content.rehearsal_change(), 7.0)
+	_update_rehearsal_hud()
+	var message := L.t("Eddington：") + feedback + Content.rehearsal_change()
+	if _rehearsal_exposure.is_empty():
+		ui.show_toast(message, 7.0)
+	else:
+		var band := Cues.sky_band(_rehearsal_exposure.clear, _rehearsal_exposure.duration)
+		ui.show_toast(message + "\n" + Content.totality_read(band, true), 3.5)
 	await get_tree().create_timer(sim.PLATE_CHANGE_S / sim.TIME_SCALE, false).timeout
 	sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	world.roof.visible = _rehearsal_roof_visible
 	world.eddington.visible = true
 	world.cottingham.visible = true
+	world.crate_label.show()
 	player.global_position = _rehearsal_position
 	player.velocity = _rehearsal_velocity
 	player.yaw = _rehearsal_yaw
 	player.pitch = _rehearsal_pitch
 	rehearsing = false
+	ui.set_totality(false)
+	ui.tot_panel.custom_minimum_size.y = 0.0
 	_sync_player_input()
+
+
+func _update_rehearsal_hud() -> void:
+	var duration: float = _rehearsal_exposure.duration if _rehearsal_step == 1 else -1.0
+	var changing := _rehearsal_step == 2
+	ui.tot_hint.visible = not changing
+	ui.set_totality(true, _shutter_status(duration, changing, true))
 
 
 # -------------------------------------------------------------------- Totality
@@ -1496,9 +1520,6 @@ func _begin_totality() -> void:
 	_was_changing = false
 	_apply_light(1.0, 1.0, 0.0, 0.0)
 	_update_totality_hud()
-	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
-	_update_totality_hud()
-	ui.set_prompt(L.t("［%s］開始／停") % Prompts.key("shutter"))
 	await ui.fade_to(0.0, 1.2).finished
 	_busy = false
 	_birds_tween.kill()
@@ -1540,6 +1561,7 @@ func _toggle_shutter() -> void:
 		_long_called = false
 		_sfx("open")
 		ui.show_toast(L.t("你：「開始！」　Cottingham 移開遮光板。"), 2.0)
+	_update_totality_hud()
 
 
 func _process_totality(delta: float) -> void:
@@ -1561,7 +1583,6 @@ func _process_totality(delta: float) -> void:
 		score.play("totality_glass", TOTALITY_SCORE_FADE_S)
 		_score_exposing = false
 	var exposing: bool = sim.is_exposing()
-	ui.set_prompt((L.t("底片用完了。［%s］等待第三接觸") if plates_left <= 0 and not exposing else L.t("［%s］開始／停")) % Prompts.key("shutter"))
 	if exposing != _score_exposing:
 		_score_exposing = exposing
 		score.set_layer_db("totality_glass", ScorePlayer.SILENCE_DB if exposing else ScorePlayer.Score.level_db("totality_glass"), 0.4 if exposing else 1.2)
@@ -1602,27 +1623,30 @@ func _process_totality(delta: float) -> void:
 		_end_totality()
 
 
+func _shutter_status(duration: float, changing: bool, ready: bool) -> String:
+	if duration >= 0.0:
+		return L.t("[color=#fd8]● 曝光中 %.1f 秒[/color]") % duration
+	if changing:
+		return L.t("[color=#aaa]Eddington 換片中…[/color]")
+	return L.t("[color=#9c9]底片就緒[/color]") if ready else L.t("[color=#e88]底片用完了[/color]")
+
+
 func _update_totality_hud() -> void:
 	var left := maxf(sim.TOTALITY_S - t_game, 0.0)
-	var status := ""
-	if sim.is_exposing():
-		status = L.t("[color=#fd8]● 曝光中 %.1f 秒[/color]") % sim._open.duration
-	elif change_left > 0.0:
-		status = L.t("[color=#aaa]Eddington 換片中…[/color]")
-	elif plates_left > 0:
-		status = L.t("[color=#9c9]底片就緒[/color]")
-	else:
-		status = L.t("[color=#e88]底片用完了[/color]")
+	var exposing: bool = sim.is_exposing()
+	var changing := change_left > 0.0
+	var duration: float = sim._open.duration if exposing else -1.0
 	var header := ""
 	if left > 0.0 and left <= 10.0:
 		header = L.t("[b]全食[/b]　[font_size=%d][color=#e88]%d[/color][/font_size] 秒") % [Settings.fs(42), int(ceil(left))]
 	else:
 		header = L.t("[b]全食[/b]　剩餘 %d 秒（共 302）") % int(left)
-	header += "\n" + status
-	var open_start := -1.0
-	if sim.is_exposing():
-		open_start = sim._open.start
+	header += "\n" + _shutter_status(duration, changing, plates_left > 0)
+	var open_start: float = sim._open.start if exposing else -1.0
+	ui.tot_hint.visible = not changing
 	ui.set_totality(true, header, Cues.strip_model(t_game, sim.TOTALITY_S, sim.plates, open_start, sim.plates_available()))
+	var prompt := L.t("底片用完了。［%s］等待第三接觸") if plates_left <= 0 and not exposing else L.t("［%s］開始／停")
+	ui.set_prompt("" if changing else prompt % Prompts.key("shutter"))
 	ui.set_clock("")
 
 

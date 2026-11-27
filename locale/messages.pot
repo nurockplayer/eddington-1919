@@ -424,6 +424,10 @@ msgstr ""
 msgid "Cottingham：「這幾秒雲很薄，我看得見日冕的邊。」"
 msgstr ""
 
+#: scripts/content.gd:341
+msgid "Cottingham：「這幾秒雲很薄，我看見雲邊經過太陽。」"
+msgstr ""
+
 #: scripts/cambridge/content_madeira.gd:39
 msgid "Crommelin 和 Davidson・「Anselm」號繼續駛向巴西。"
 msgstr ""

@@ -334,9 +334,11 @@ static func cottingham_coda(sim) -> String:
 # facts only: no line may tell the player *when* to expose.
 
 ## Cottingham's read of the exposure that just closed. band: clear|mixed|cloud|brief.
-static func totality_read(band: String) -> String:
+static func totality_read(band: String, rehearsal := false) -> String:
 	match band:
 		"clear":
+			if rehearsal:
+				return L.t("Cottingham：「這幾秒雲很薄，我看見雲邊經過太陽。」")
 			return L.t("Cottingham：「這幾秒雲很薄，我看得見日冕的邊。」")
 		"mixed":
 			return L.t("Cottingham：「一半在雲裡，一半透了光。」")
