@@ -72,26 +72,24 @@ func _draw() -> void:
 	var px := _x_of(float(model.get("t", 0.0)))
 	draw_line(Vector2(px, TRACK_Y - 1.0), Vector2(px, TRACK_Y + TRACK_H + 2.0), PLAYHEAD_COL, 2.0)
 	if holder_mark == &"open":
-		var start := _x_of(model.open_start)
-		draw_line(Vector2(start, 5), Vector2(px, 5), OPEN_COL, 2.0)
-		draw_polyline(PackedVector2Array([Vector2(px - 4, 6), Vector2(px, 2), Vector2(px + 4, 6)]), OPEN_COL, 2.0, true)
+		var open_width := maxf(px - _x_of(model.open_start), TRACK_H)
+		draw_rect(Rect2(maxf(PAD_X, px - open_width), -1.0, open_width, TRACK_H), OPEN_COL)
 	var pips := int(model.plates_total)
 	var closed := _closed_count(model)
 	var py := TRACK_Y + TRACK_H + 3.0
 	for i in pips:
 		var x := PAD_X + i * (PIP + PIP_GAP)
 		var rect := Rect2(x, py, PIP, PIP)
+		draw_rect(rect.grow(1.0), PIP_OUTLINE_COL, false, 2.0)
 		if i < closed:
-			draw_rect(rect, CLOSED_COL)
+			draw_rect(rect.grow(-2.0), CLOSED_COL)
 		elif i == closed and holder_mark == &"changing":
-			draw_line(Vector2(x, py + 5), Vector2(x + 4, py - 1), PLAYHEAD_COL, 2.0, true)
-			draw_line(Vector2(x + 5, py + 5), Vector2(x + 9, py - 1), PLAYHEAD_COL, 2.0, true)
+			draw_line(Vector2(x + 2, py + 8), Vector2(x + 5, py + 2), PLAYHEAD_COL, 2.0, true)
+			draw_line(Vector2(x + 6, py + 8), Vector2(x + 9, py + 2), PLAYHEAD_COL, 2.0, true)
 		elif i == closed and holder_mark == &"ready":
-			var center := Vector2(x + PIP / 2.0, py + 7)
-			draw_polyline(PackedVector2Array([center + Vector2(0, -5), center + Vector2(5, 0),
-				center + Vector2(0, 5), center + Vector2(-5, 0), center + Vector2(0, -5)]), READY_COL, 2.0, true)
-		else:
-			draw_rect(rect, PIP_OUTLINE_COL, false, 1.0)
+			var center := rect.get_center()
+			draw_polyline(PackedVector2Array([center + Vector2(0, -4), center + Vector2(4, 0),
+				center + Vector2(0, 4), center + Vector2(-4, 0), center + Vector2(0, -4)]), READY_COL, 2.0, true)
 	if holder_mark == &"empty":
 		var x := PAD_X + pips * (PIP + PIP_GAP)
 		draw_line(Vector2(x, py), Vector2(x + PIP, py + PIP), PLAYHEAD_COL, 2.0, true)
