@@ -44,11 +44,25 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	if "--rehearsal" in OS.get_cmdline_user_args():
+		await _test_rehearsal()
+		await _test_rehearsal_carry()
+		await _test_empty_rack_wait()
+	else:
+		await _run_all()
+	# AudioServer releases stopped WAV playbacks asynchronously, after node teardown.
+	await create_timer(0.1).timeout
+	print("%d checks, %d failures" % [checks, failures])
+	quit(1 if failures > 0 else 0)
+
+
+func _run_all() -> void:
 	_test_bands()
 	_test_strip_model()
 	await _test_sim_invariance()
 	await _test_totality_pacing()
 	await _test_rehearsal()
+	await _test_rehearsal_carry()
 	await _test_aim_aspects()
 	await _test_ready_status()
 	await _test_empty_rack_wait()
@@ -68,10 +82,6 @@ func _run() -> void:
 	await _test_callouts()
 	await _test_night_viewer()
 	await _test_reselect_reason()
-	# AudioServer releases stopped WAV playbacks asynchronously, after node teardown.
-	await create_timer(0.1).timeout
-	print("%d checks, %d failures" % [checks, failures])
-	quit(1 if failures > 0 else 0)
 
 
 # ---------------------------------------------------------------- 1. sky_band
@@ -280,6 +290,73 @@ func _rehearsal_press(event) -> void:
 	event.pressed = false
 	root.push_input(event)
 	await process_frame
+
+
+func _test_rehearsal_carry() -> void:
+	var space := InputEventKey.new()
+	space.physical_keycode = KEY_SPACE
+	var shoulder := InputEventJoypadButton.new()
+	shoulder.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	for shutter in [space, shoulder]:
+		var game: Node = load("res://scenes/main.tscn").instantiate()
+		root.add_child(game)
+		game.set_process(false)
+		game.sim = Sim.new(77)
+		game._start_game()
+		game._interact("eddington")
+		while game.ui.dialog_active():
+			if game.ui._choice_buttons.is_empty():
+				game.ui._advance()
+			else:
+				game.ui._choose(0)
+		var inventory: int = game.sim.plates_available()
+		var evidence: Dictionary = game.sim.selection_report()
+		game._interact("eddington")
+		game.ui._advance()
+		game.ui._choose(2)
+		game._process_prep(4.0)
+		await _rehearsal_press(shutter)
+		var hint: String = game.ui.tot_hint.text
+		check(Prompts.joypad == (shutter is InputEventJoypadButton), "shutter hint follows the input device")
+		game._process_prep(1.0)
+		var practice_status: String = game.ui.tot_label.text
+		check(game._rehearsal_step == 1 and game.ui.tot_panel.visible and game.ui.tot_hint.visible,
+			"rehearsal opening shows the shutter HUD immediately")
+		await _rehearsal_press(shutter)
+		var practice_change: String = game.ui.tot_label.text
+		check(game._rehearsal_step == 2 and not game.ui.tot_hint.visible,
+			"rehearsal close withdraws the shutter action during the change")
+		check(game.ui.toast.text.contains(Content.totality_read("clear")),
+			"rehearsal close reports the band sampled during the completed exposure")
+		await create_timer(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE + 0.1).timeout
+		check(not game.rehearsing and not game.ui.tot_panel.visible,
+			"practice HUD is dismissed when control returns to PREP")
+		check(game.sim.plates.is_empty() and game.sim.plates_available() == inventory
+			and game.sim.selection_report() == evidence and game.plate_textures.is_empty(),
+			"rehearsal creates no live plate or measured evidence")
+		game._interact("eddington")
+		game.ui._advance()
+		game.ui._choose(0)
+		await create_timer(2.2).timeout
+		check(game.ui.tot_hint.visible and game.ui.tot_hint.text == hint, "live entry offers the rehearsed control")
+		await _rehearsal_press(shutter)
+		game._process_totality(1.0)
+		check(game.sim.is_exposing() and not practice_status.is_empty()
+			and game.ui.tot_label.text.ends_with(practice_status), "live exposure shows the rehearsed status at the same elapsed time")
+		await _rehearsal_press(shutter)
+		check(game.sim.plates.size() == 1 and game.plates_left == inventory - 1,
+			"the first live close develops exactly one plate")
+		check(not game.ui.tot_hint.visible and not practice_change.is_empty()
+			and game.ui.tot_label.text.ends_with(practice_change), "live close immediately shows the rehearsed change state")
+		var plate: Dictionary = game.sim.plates[0]
+		check(plate.sky_read == Cues.sky_band(plate.clear, plate.duration)
+			and game.ui.toast.text.contains(Content.totality_read(plate.sky_read)), "live close reports the actual live exposure band")
+		game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
+		check(game.ui.tot_hint.visible and game.ui.tot_hint.text == hint, "live change completion restores the shutter action")
+		game.stop_all_audio()
+		game.queue_free()
+		await process_frame
+	Prompts.joypad = false
 
 
 func _visible_sun_obstruction(game: Node) -> String:
