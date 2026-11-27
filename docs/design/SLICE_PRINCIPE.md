@@ -1779,3 +1779,32 @@ Opened whole at 1920×1080: all six candidate frames (02, 09, 14, 16, 17 in Engl
 ![Kit's card](slice_principe/accept/606/db62667/sundy_17_kit_memory_en.png)
 ![cloud band](slice_principe/accept/606/db62667/sundy_14_cloud_crossing_en.png)
 ![page 09](slice_principe/accept/606/db62667/sundy_09_packed_mirror_en.png)
+
+### 2026-11-28 04:42 JST · #600 (journey, Sobral chapter) at b5abc00: accepted
+
+Opened whole at 1280×720, the ten frames asked for: 01, 02, 03, 04, 05, 06, 09, 10 in English; 05 and 09 in Japanese. The other 48 frames in the directory were not opened; 11 to 18 stand on the look at 3bdb042.
+
+The seven items are gone:
+1. The eclipsed Sun is round on 03 and 05; the stars on 10 are round points.
+2. 04 and 05 have drawn cloud on paper; the eclipsed Sun stands clear above the shelter roof.
+3. 05's diagram has three labelled rows: metronome, Davidson's astrograph, Crommelin's 4-inch.
+4. 09, plate 6: the disc stays inside the plate.
+5. 03: each picture has its caption under it; the Mailhat instrument is a telescope on a stand.
+6. 06: the waiting rows read, in dimmer ink.
+7. 01 carries the racecourse drawing.
+
+Japanese names are in katakana on 05.
+
+Still carried to #551 (draft #611 works on the shared sheets): on 09 a line is cut at the fold above the button.
+
+Minor, not a hold: 05's sky at totality is the same pale paper as the day pages; the eclipse is about 40 px wide. It could take the dark page that 10 has.
+
+Verdicts: technical regression none claimed for the slice (flag off); this PR's change accepted; chapter shown behind the flag, not ready for flag-off until #551.
+
+![05_programmes_en](slice_principe/accept/600/b5abc00/sobral_05_programmes_en.png)
+![04_first_contact_en](slice_principe/accept/600/b5abc00/sobral_04_first_contact_en.png)
+![03_brazil_en](slice_principe/accept/600/b5abc00/sobral_03_brazil_en.png)
+![09_series_log_en](slice_principe/accept/600/b5abc00/sobral_09_series_log_en.png)
+![01_archive_en](slice_principe/accept/600/b5abc00/sobral_01_archive_en.png)
+
+**Count stays 7/9.**
