@@ -220,10 +220,13 @@ func _chart_frame(chapter) -> void:
 	for line in text.split("\n"):
 		if line.contains("0.12"):
 			check(line.to_lower().contains(str(PE[L.current()]).to_lower()), "F16 0.12 labelled probable error: " + line)
+	if chapter.chart.step == 1:
+		check(text.contains("0.12"), "F16 4-inch probable error displayed on its own page")
 	if chapter.chart.step == 2:
 		check(text.contains(L.t("Sobral 4 吋")), "F16 displayed 4-inch instrument")
 		check(text.contains(L.t("Sobral 天體照相儀")), "F16 displayed astrographic instrument")
-		check(text.contains("0.12"), "F16 probable error displayed")
+		check(text.contains(L.t("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差")), "F16 astrographic record shows no reliable error")
+		check(not text.contains("0.12"), "F16 4-inch probable error hidden on the astrographic page")
 
 
 func _f16(run: Dictionary, variant: int) -> void:
@@ -236,8 +239,8 @@ func _f16(run: Dictionary, variant: int) -> void:
 	keys = []
 	var chapter = load(EPILOGUE).instantiate()
 	root.add_child(chapter)
-	var deadline := Time.get_ticks_msec() + 15000
-	while chapter._pending != "opening" and Time.get_ticks_msec() < deadline:
+	var opening_deadline := create_timer(15.0, false)
+	while chapter._pending != "opening" and opening_deadline.time_left > 0.0:
 		await process_frame
 	check(chapter._pending == "opening", "epilogue opening reached")
 	var picks := {"astro_weight": variant, "click": variant, "final_reason": [0, 2, 4][variant]}
@@ -258,8 +261,8 @@ func _f16(run: Dictionary, variant: int) -> void:
 	_finish(chapter, picks, "close")
 	# Capture the final Ashby reply before advancing into the asynchronous tableau.
 	_finish(chapter, picks)
-	deadline = Time.get_ticks_msec() + 8000
-	while chapter._pending != "tableau" and Time.get_ticks_msec() < deadline:
+	var tableau_deadline := create_timer(8.0, false)
+	while chapter._pending != "tableau" and tableau_deadline.time_left > 0.0:
 		await process_frame
 	check(chapter._pending == "tableau", "close reaches tableau")
 	_finish(chapter, picks)

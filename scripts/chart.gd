@@ -43,7 +43,8 @@ class RowCanvas extends Control:
 				var thin := Color(col, 0.45)
 				var x2_lo: float = chart._x(span.x, w)
 				var x2_hi: float = chart._x(span.y, w)
-				draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.0)
+				# One logical pixel can miss both pixel centers when the canvas shrinks.
+				draw_line(Vector2(x2_lo, y), Vector2(x2_hi, y), thin, 1.5)
 				draw_line(Vector2(x2_lo, y - 3), Vector2(x2_lo, y + 3), thin, 1.0)
 				draw_line(Vector2(x2_hi, y - 3), Vector2(x2_hi, y + 3), thin, 1.0)
 				var x0: float = chart._x(r.value - r.sigma, w)

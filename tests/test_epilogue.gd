@@ -103,8 +103,8 @@ func _test_reunion(story: Node) -> void:
 
 func _finish_tableau(chapter, conceded: bool) -> void:
 	check(chapter.beat != chapter.Beat.ENDING and chapter._busy, "close locks input before the tableau")
-	var deadline := Time.get_ticks_msec() + 8000
-	while chapter._pending != "tableau" and Time.get_ticks_msec() < deadline:
+	var deadline := create_timer(8.0, false)
+	while chapter._pending != "tableau" and deadline.time_left > 0.0:
 		await process_frame
 	check(chapter._pending == "tableau" and chapter.beat != chapter.Beat.ENDING, "tableau plays before ENDING")
 	var text := _text(chapter)
@@ -159,8 +159,9 @@ func _plate() -> ImageTexture:
 func _new_epilogue() -> Node:
 	var chapter = load(SCENE).instantiate()
 	root.add_child(chapter)
-	var deadline := Time.get_ticks_msec() + 15000
-	while chapter._pending != "opening" and Time.get_ticks_msec() < deadline:
+	# The opening's fades and caption advance on the scene clock.
+	var deadline := create_timer(15.0, false)
+	while chapter._pending != "opening" and deadline.time_left > 0.0:
 		await process_frame
 	check(chapter._pending == "opening", "the epilogue reaches its opening dialogue within 15 s")
 	return chapter
@@ -230,8 +231,8 @@ func _test_final_replies(story: Node) -> void:
 		_finish(chapter)
 		await _finish_tableau(chapter, case.case == "conceded")
 		check(str(story.runs.back().get("final_reason_text", "")) == str(CONTENT.final_reason()[0].choices[case.choice]), "%s stores final_reason_text" % case.case)
-		var deadline := Time.get_ticks_msec() + 8000
-		while chapter.beat != chapter.Beat.ENDING and Time.get_ticks_msec() < deadline:
+		var deadline := create_timer(8.0, false)
+		while chapter.beat != chapter.Beat.ENDING and deadline.time_left > 0.0:
 			await process_frame
 		check(chapter.beat == chapter.Beat.ENDING, "%s ends the epilogue" % case.case)
 		while chapter._busy:
@@ -334,21 +335,29 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.chart.visible, "the letter hands to the chart overlay")
 	check(chapter.chart.rows.size() == 1 and str(chapter.chart.rows[0].label) == "你的底片（示意模擬）",
 		"the chart starts with the player's own row")
-	check(not chapter.chart.notes.has("你的底片：沒有數值。"), "a measured run has a value, not the empty note")
+	var pages := chapter.chart.find_child("SobralInstruments", true, false) as TabContainer
+	check(pages != null and not pages.visible, "Sobral tabs are hidden before either record is copied")
 	chapter.chart.button.pressed.emit()
 	check(chapter.chart.step == 1 and chapter.chart.rows.size() == 2, "press 1 copies the 4-inch row")
 	var four: Dictionary = chapter.chart.rows[1]
 	check(str(four.label) == "Sobral 4 吋" and is_equal_approx(float(four.value), 1.98) and is_equal_approx(float(four.sigma), 0.18),
 		"the 4-inch row carries 1.98 with a 0.18 standard deviation")
-	check(chapter.chart.notes.has("Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差"),
-		"the 4-inch note keeps the probable error and the standard deviation apart")
+	check(pages != null and pages.visible and pages.current_tab == 0 and pages.is_tab_hidden(1),
+		"the first copy opens only the 4-inch record")
 	check(chapter.chart.button.text == "抄上 Sobral 天體照相儀", "press 1 advances the button")
 	chapter.chart.button.pressed.emit()
 	check(chapter.chart.step == 2 and chapter.chart.rows.size() == 3, "press 2 copies the astrographic row")
 	var astro: Dictionary = chapter.chart.rows[2]
-	check(str(astro.label) == "Sobral 天體照相儀" and bool(astro.get("weak", false)) and bool(astro.get("no_bar", false)),
-		"the astrographic row is weak and has no bar")
-	check(chapter.chart.notes.has("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差"), "the astrographic note says why")
+	check(str(astro.label) == "Sobral 天體照相儀" and is_equal_approx(float(astro.value), 0.93)
+		and bool(astro.get("weak", false)) and bool(astro.get("no_bar", false)),
+		"the astrographic row keeps 0.93, marked weak with no bar")
+	check(pages != null and pages.current_tab == 1 and not pages.is_tab_hidden(1)
+		and pages.get_tab_title(0) == four.label and pages.get_tab_title(1) == astro.label,
+		"the second copy opens the astrographic record and both tabs match their chart rows")
+	if pages != null:
+		pages.get_tab_bar().current_tab = 0
+		check(pages.get_current_tab_control().visible and not pages.get_tab_control(1).visible,
+			"returning to the 4-inch tab shows only its record")
 	check(chapter.chart.button.text == "抄好了", "press 2 advances the button to 抄好了")
 	await process_frame
 	await process_frame
@@ -359,7 +368,18 @@ func _test_full_flow(story: Node) -> void:
 	chapter.chart.button.pressed.emit()
 	check(chapter.chart.visible and chapter.chart.step == 3 and chapter.chart.question.visible,
 		"press 3 asks the Sobral reading with the chart still open")
+	check(pages != null and pages.current_tab == 0, "the interval question opens the 4-inch record")
+	if DisplayServer.get_name() != "headless":
+		await process_frame
+		await RenderingServer.frame_post_draw
+		_check_interval_pixels(chapter.chart.chart, root.get_texture().get_image(), "interval question")
+	if pages != null:
+		pages.get_tab_bar().current_tab = 1
+		check(chapter.chart.step == 3 and chapter.chart.read_answer == -1,
+			"browsing during the reading does not submit an answer")
+		pages.get_tab_bar().current_tab = 0
 	chapter.chart.choices[1].pressed.emit()
+	check(pages != null and pages.current_tab == 1, "reading feedback opens the record named in the weighting question")
 	check(chapter.chart.button.text == "好" and chapter.chart.button.visible,
 		"the reading answer offers the 好 press")
 	chapter.chart.button.pressed.emit()
@@ -395,8 +415,8 @@ func _test_full_flow(story: Node) -> void:
 	check(int(back.get("final_reason", -1)) == 2, "the notebook answer is stored on the run")
 	check(str(back.get("final_reason_text", "")) == "兩地一起", "the notebook answer keeps its text")
 	check(int(back.get("bet_oct", -1)) == 0, "the October ledger pick is stored on the run")
-	var deadline := Time.get_ticks_msec() + 8000
-	while not chapter.ui.ending_panel.visible and Time.get_ticks_msec() < deadline:
+	var deadline := create_timer(8.0, false)
+	while not chapter.ui.ending_panel.visible and deadline.time_left > 0.0:
 		await process_frame
 	check(chapter.beat == chapter.Beat.ENDING and chapter.ui.ending_panel.visible,
 		"the close fades to the ending inside the epilogue")
@@ -416,6 +436,33 @@ func _test_full_flow(story: Node) -> void:
 
 ## A replay keeps epilogue_done, so the lamp-out in 1919 goes straight to _show_ending,
 ## and the ending compares the two runs.
+## Read the outer wings, away from the thicker inner bar and the end ticks.
+func _check_interval_pixels(plot: Control, image: Image, state: String) -> void:
+	var pixel_scale := Vector2(image.get_size()) / root.get_visible_rect().size
+	var bounds: Array = plot.drawn().row_bounds
+	for i in plot.rows.size():
+		var row: Dictionary = plot.rows[i]
+		if row.get("no_bar", false):
+			continue
+		var y: float = bounds[i].marker.get_center().y
+		var outer: Vector2 = plot.two_sigma_span(row.value, row.sigma)
+		var wings := Vector2(
+			lerpf(outer.x, row.value - row.sigma, 0.5),
+			lerpf(outer.y, row.value + row.sigma, 0.5))
+		for value in [wings.x, wings.y]:
+			var local := Vector2(plot._x(value, plot.size.x), y)
+			var pixel := Vector2i((plot.get_global_rect().position + local) * pixel_scale)
+			# A vertical prediction line can cross the sampled wing.
+			var painted := 0
+			for dx in [-4, 4]:
+				for dy in range(-1, 2):
+					var red := image.get_pixel(pixel.x + dx, pixel.y + dy).r
+					if red > 0.24 and red < 0.53:
+						painted += 1
+						break
+			check(painted > 0, "%s: %s thin interval at %.3f″" % [state, row.label, value])
+
+
 func _check_second_run(story: Node) -> void:
 	story.departure_done = true
 	story.epilogue_done = false
