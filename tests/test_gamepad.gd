@@ -170,6 +170,26 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 		var expected := matched + offset_from_match
 		check(stars.has(16) and marks.has(16) and stars[16].is_equal_approx(expected) and marks[16].is_equal_approx(expected),
 			"the live loupe draws both layers of a matched pair 33 px from its centre")
+		var previous_scale := Settings.text_scale
+		var previous_viewport_size := root.content_scale_size
+		var previous_viewport_aspect := root.content_scale_aspect
+		root.content_scale_size = Vector2i(1600, 900)
+		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+		Settings.text_scale = 1.2
+		Settings.refresh_fonts(self)
+		await process_frame
+		var plate: Rect2 = overlay.canvas_rect().grow(-1.0)
+		overlay._inspect_plate(Vector2(plate.get_center().x, plate.end.y))
+		overlay.ui.show_toast(C17.viewer_feedback("residual"))
+		await process_frame
+		await process_frame
+		var low_centre: Vector2 = overlay.get_global_transform() * overlay._loupe_position
+		check(overlay.ui.toast.is_visible_in_tree() and not overlay.ui.toast.get_global_rect().has_point(low_centre),
+			"the inspection note clears the lowest loupe centre at text scale 1.2")
+		root.content_scale_size = previous_viewport_size
+		root.content_scale_aspect = previous_viewport_aspect
+		Settings.text_scale = previous_scale
+		Settings.refresh_fonts(self)
 	else:
 		check(hints.is_empty(), "keyboard inspection can finish before the timed hint")
 

@@ -19,6 +19,7 @@ const INK := Color(0.10, 0.105, 0.10)
 const GOLD := Color(0.83, 0.67, 0.40)
 const MUTED := Color(0.71, 0.69, 0.63)
 const SOURCE_TILT := 3.2
+const LOUPE_RADIUS := 44.0
 const LOUPE_GLASS_RADIUS := 41.0
 const LOUPE_FEATURE_RADIUS := 34.0
 
@@ -222,6 +223,10 @@ func _process(delta: float) -> void:
 		var toast: Label = ui.toast
 		toast.size.y = maxf(90.0, toast.get_combined_minimum_size().y)
 		toast.global_position.y = _status_label.get_global_rect().position.y - 10.0 - toast.size.y
+		if _loupe_open:
+			var centre := get_global_transform() * _loupe_position
+			if toast.get_global_rect().grow(LOUPE_RADIUS).has_point(centre):
+				toast.global_position.y = centre.y - LOUPE_RADIUS - 10.0 - toast.size.y
 		if _toast_backing:
 			_toast_backing.bg_color.a = 0.88 if toast.text != "" else 0.0
 	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
@@ -644,7 +649,7 @@ func _draw_difference_arrows() -> void:
 
 
 func _draw_loupe() -> void:
-	draw_circle(_loupe_position, 44.0, INK)
+	draw_circle(_loupe_position, LOUPE_RADIUS, INK)
 	draw_circle(_loupe_position, LOUPE_GLASS_RADIUS, GLASS)
 	var points := MathModel.star_points()
 	for i in points.size():
