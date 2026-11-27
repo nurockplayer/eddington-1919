@@ -156,12 +156,17 @@ var mic_btn: Button
 var mic_row: HFlowContainer
 var mic_record_btn: Button
 var mic_readout: Label
+var mic_compare_btn: Button
+var mic_first_btn: Button
+var mic_second_btn: Button
 var mic_note: Label
 var viewer_steps: RichTextLabel
 var mic_overlay: Control
 var micrometer_on := false
 ## Current crosshair setting for the selected plate, in plate pixels, radial.
 var micrometer_px := 0.0
+var _mic_first := NAN
+var _mic_second := NAN
 var _mic_had_loupe := false
 var _mic_dragging := false
 var _mic_hold := 0.0
@@ -504,7 +509,7 @@ func _process(delta: float) -> void:
 			_update_blink()
 	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible:
 		var held: float = 0.0
-		if mic_record_btn.has_focus() or mic_btn.has_focus():
+		if _mic_dial_focused():
 			if Input.is_action_pressed("ui_right"):
 				held = 1.0
 			elif Input.is_action_pressed("ui_left"):
@@ -916,6 +921,7 @@ func _build_viewer(root: Control) -> void:
 	# A flow row as well: the readout label grows with a longer language, and a box
 	# would widen the middle column instead of dropping it under the record button.
 	mic_row = HFlowContainer.new()
+	mic_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mic_row.visible = false
 	mic_bar.add_child(mic_row)
 	mic_record_btn = _button(L.t("記下讀數"))
@@ -924,6 +930,21 @@ func _build_viewer(root: Control) -> void:
 	mic_readout = _label(L.t("讀數：0.00 格"), 16, ACCENT)
 	mic_readout.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	mic_row.add_child(mic_readout)
+	mic_compare_btn = _button(L.t("Measure again"))
+	mic_compare_btn.pressed.connect(_compare_micrometer)
+	mic_row.add_child(mic_compare_btn)
+	mic_first_btn = _button("")
+	mic_second_btn = _button("")
+	var choices := ButtonGroup.new()
+	for button in [mic_first_btn, mic_second_btn]:
+		button.toggle_mode = true
+		button.button_group = choices
+		mic_row.add_child(button)
+	mic_first_btn.focus_neighbor_top = mic_first_btn.get_path_to(mic_record_btn)
+	mic_first_btn.focus_neighbor_bottom = mic_first_btn.get_path_to(mic_second_btn)
+	mic_second_btn.focus_neighbor_top = mic_second_btn.get_path_to(mic_first_btn)
+	mic_first_btn.pressed.connect(func(): _choose_micrometer(_mic_first))
+	mic_second_btn.pressed.connect(func(): _choose_micrometer(_mic_second))
 	mic_note = _label(L.t("位移為示意放大；真實的位移比一個星點還小得多。"), 14, DIM)
 	mic_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mic_note.visible = false
@@ -1190,6 +1211,8 @@ func _set_micrometer(on: bool) -> void:
 			_show_loupe(loupe_start)
 		_sync_micrometer()
 	else:
+		_mic_first = NAN
+		_mic_second = NAN
 		_mic_dragging = false
 		_mic_hold = 0.0
 		_mic_repeat = 0.0
@@ -1206,6 +1229,8 @@ func _set_micrometer(on: bool) -> void:
 
 ## Take the crosshair from the selected plate's saved reading (0 if unread).
 func _sync_micrometer() -> void:
+	_mic_first = NAN
+	_mic_second = NAN
 	micrometer_px = 0.0
 	if _viewer_sel >= 0 and _viewer_sel < _viewer_plates.size():
 		var p: Dictionary = _viewer_plates[_viewer_sel]
@@ -1219,8 +1244,23 @@ func _sync_micrometer_controls() -> void:
 		return
 	var has_plate: bool = _viewer_sel >= 0 and _plate_texture != null
 	mic_btn.disabled = _viewer_reporting or not has_plate
-	mic_record_btn.disabled = _viewer_reporting or not has_plate or (_viewer_locked and _viewer_plates[_viewer_sel].get("read", false))
-	if micrometer_on and has_plate and not _viewer_reporting and not _viewer_plates[_viewer_sel].get("read", false):
+	var editable: bool = not mic_btn.disabled and not (_viewer_locked and _viewer_plates[_viewer_sel].get("read", false))
+	var second_pass := not is_nan(_mic_first) and is_nan(_mic_second)
+	var comparing := not is_nan(_mic_second)
+	mic_record_btn.visible = not second_pass
+	mic_record_btn.disabled = not editable or second_pass
+	mic_readout.visible = not comparing
+	mic_compare_btn.visible = editable and not comparing
+	mic_compare_btn.text = L.t("Compare readings") if second_pass else L.t("Measure again")
+	mic_first_btn.visible = comparing
+	mic_second_btn.visible = comparing
+	if comparing:
+		mic_first_btn.text = L.t("Use first reading: %.2f divisions") % _mic_first
+		mic_second_btn.text = L.t("Use second reading: %.2f divisions") % _mic_second
+	mic_record_btn.focus_neighbor_bottom = mic_record_btn.get_path_to(
+		mic_first_btn if comparing else mic_compare_btn) if editable else NodePath()
+	mic_compare_btn.focus_neighbor_top = NodePath() if second_pass else mic_compare_btn.get_path_to(mic_record_btn)
+	if micrometer_on and has_plate and not _viewer_reporting and is_nan(_mic_first) and not _viewer_plates[_viewer_sel].get("read", false):
 		mic_note.text = L.t("把十字線對準參考星，再按「記下讀數」。")
 		mic_note.add_theme_color_override("font_color", ACCENT)
 	else:
@@ -1233,9 +1273,36 @@ func _update_micrometer() -> void:
 	mic_overlay.queue_redraw()
 
 
+func _compare_micrometer() -> void:
+	if is_nan(_mic_first):
+		_mic_first = micrometer_px
+		micrometer_px = 0.0
+		_mic_dragging = false
+		_mic_hold = 0.0
+		_mic_repeat = 0.0
+		_sync_micrometer_controls()
+	else:
+		_mic_second = micrometer_px
+		_sync_micrometer_controls()
+		mic_second_btn.button_pressed = true
+		mic_second_btn.grab_focus()
+	_update_micrometer()
+
+
+func _choose_micrometer(reading: float) -> void:
+	micrometer_px = reading
+	_update_micrometer()
+	mic_record_btn.grab_focus()
+
+
+func _mic_dial_focused() -> bool:
+	return is_nan(_mic_second) and (
+		mic_record_btn.has_focus() or mic_btn.has_focus() or mic_compare_btn.has_focus())
+
+
 ## The player's setting: drag, arrow, or bot, all land here.
 func set_micrometer_reading(px: float) -> void:
-	if not micrometer_on or _viewer_sel < 0:
+	if not micrometer_on or _viewer_sel < 0 or not is_nan(_mic_second):
 		return
 	var limit: float = PlateRender.SIZE
 	var next := clampf(px, 0.0, limit)
@@ -1260,9 +1327,7 @@ func _nudge_micrometer(direction: float, fine: bool) -> void:
 
 
 func _record_micrometer() -> void:
-	if not micrometer_on or _viewer_sel < 0 or _viewer_reporting:
-		return
-	if _viewer_locked and _viewer_plates[_viewer_sel].get("read", false):
+	if not micrometer_on or mic_record_btn.disabled:
 		return
 	_viewer_sound("mark")
 	reading_set.emit(_viewer_sel, micrometer_px)
@@ -1328,6 +1393,12 @@ func _draw_micrometer() -> void:
 		if major:
 			mic_overlay.draw_string(font, tick + across * 11.0 + Vector2(0, 6), str(unit),
 				HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(ACCENT, 0.95))
+	if not is_nan(_mic_second):
+		# Opposite sides keep even coincident readings distinguishable.
+		var first := ruler_zero + one_px * _mic_first
+		var second := ruler_zero + one_px * _mic_second
+		mic_overlay.draw_line(first, first + across * 10.0, Color(0.74, 0.84, 0.96), 2.5, true)
+		mic_overlay.draw_line(second, second - across * 10.0, ACCENT, 2.5, true)
 	mic_overlay.draw_arc(night, 5.0, 0.0, TAU, 20, Color(0.74, 0.84, 0.96, 0.85), 1.0, true)
 	var cross := _plate_to_local(star + dir * micrometer_px)
 	var arm := 16.0 if Settings.mic_large_cross else 9.0
@@ -1570,12 +1641,12 @@ func _select_plate(i: int, tex: Texture2D, sound := true) -> void:
 		blink_btn.disabled = blink_btn.disabled or plate.sunlit or plate.duration < 0.5 or plate.get("stars", 0) == 0
 	if i < 0 and micrometer_on:
 		_set_micrometer(false)
-	_sync_micrometer_controls()
 	if i >= 0 and micrometer_on:
 		_sync_micrometer()
 		if _plate_texture != null:
 			loupe_btn.set_pressed_no_signal(true)
 			_set_loupe(true)
+	_sync_micrometer_controls()
 	if i == -2:
 		plate_info.text = L.t("[b]牛津比對底片[/b]（1919 年 1 月，同一具望遠鏡、同一片星場，夜間拍攝）\n沒有太陽的星位置。日食底片上的星若被太陽重力偏折，會相對這裡向外移。")
 		if comparison_recall != "":
@@ -2616,7 +2687,7 @@ func _input(event: InputEvent) -> void:
 	if Prompts.joypad != was_joypad:
 		prompts_changed.emit()
 	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
-		if (mic_record_btn.has_focus() or mic_btn.has_focus()) and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
+		if _mic_dial_focused() and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
 			_nudge_micrometer(-1.0 if event.is_action_pressed("ui_left") else 1.0, _mic_fine())
 			get_viewport().set_input_as_handled()
 			return

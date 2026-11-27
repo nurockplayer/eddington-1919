@@ -8,6 +8,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+msgid "Compare readings"
+msgstr "판독값 비교"
+
+msgid "Measure again"
+msgstr "다시 측정"
+
+msgid "Use first reading: %.2f divisions"
+msgstr "첫 번째 판독값 사용: %.2f칸"
+
+msgid "Use second reading: %.2f divisions"
+msgstr "두 번째 판독값 사용: %.2f칸"
+
 msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
 msgstr "\n\n[color=#8f8676]1919년 11월 6일 발표된 결과: 소브랄 1.98″, 프린시페 1.61″—둘 다 아인슈타인의 1.75″에 더 가깝다. 어떻게 얻었고 어떤 의문이 남았는지는 ‘역사에서 무슨 일이 있었나’를 참고하라.[/color]"
 

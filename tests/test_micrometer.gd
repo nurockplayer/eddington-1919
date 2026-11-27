@@ -230,7 +230,60 @@ func _check_feel() -> void:
 	await _finish(game)
 
 
+func _check_two_settings(gap: float) -> void:
+	var game := await _new_game([1.75, 1.60])
+	var ui = game.ui
+	ui.mic_btn.button_pressed = true
+	var compare: Button = ui.get("mic_compare_btn")
+	check(compare != null and compare.is_visible_in_tree(), "editable plate offers a second setting")
+	if compare == null:
+		await _finish(game)
+		return
+	var readings: Array[float] = []
+	ui.reading_set.connect(func(_plate_index: int, reading: float): readings.append(reading))
+	var second: float = game.sim.reading_for_value(1.75)
+	var first := second + gap
+	ui.set_micrometer_reading(first)
+	await _button(JOY_BUTTON_DPAD_DOWN)
+	check(compare.has_focus(), "the second setting is reachable from Record")
+	await _button(JOY_BUTTON_A)
+	check(ui.micrometer_px == 0.0 and ui.mic_readout.is_visible_in_tree() and is_nan(ui._mic_second)
+		and not ui.mic_first_btn.is_visible_in_tree() and not ui.mic_second_btn.is_visible_in_tree(),
+		"the second pass starts at Oxford zero with both comparison marks hidden")
+	ui.set_micrometer_reading(second)
+	check(is_nan(ui._mic_second) and not ui.mic_record_btn.is_visible_in_tree()
+		and readings.is_empty() and not game.sim.plates[0].get("read", false),
+		"turning the second setting neither reveals the first nor records a reading")
+	await _button(JOY_BUTTON_A)
+	check(is_equal_approx(ui._mic_first, first) and is_equal_approx(ui._mic_second, second)
+		and ui.mic_first_btn.is_visible_in_tree() and ui.mic_second_btn.is_visible_in_tree(),
+		"Compare reveals both marks for a gap of %.2f divisions" % gap)
+	await _button(JOY_BUTTON_DPAD_UP)
+	await _button(JOY_BUTTON_A)
+	check(is_equal_approx(ui.micrometer_px, first) and readings.is_empty(),
+		"choosing the first mark selects it without recording")
+	await _button(JOY_BUTTON_DPAD_DOWN)
+	await _button(JOY_BUTTON_DPAD_DOWN)
+	await _button(JOY_BUTTON_A)
+	check(ui.mic_record_btn.has_focus() and is_equal_approx(ui.micrometer_px, second) and readings.is_empty(),
+		"choosing the second mark brings the chosen setting to Record")
+	await _button(JOY_BUTTON_A)
+	check(readings == [second] and is_equal_approx(game.sim.plates[0].reading, second)
+		and not ui.mic_second_btn.is_visible_in_tree(), "Record stores the chosen mark once")
+	_read_plate(game, 1, 1.60)
+	ui.measure_btn.pressed.emit()
+	await process_frame
+	check(readings.size() == 2 and ui.chart.rows.size() == 2 and absf(ui.chart.rows[0].value - 1.75) < 0.01,
+		"the compared plate and the single-pass plate each contribute one result")
+	ui.report_btn.grab_focus()
+	await _button(JOY_BUTTON_A)
+	check(ui._viewer_reporting and ui.dialog_active(), "both readings reach the existing report")
+	await _finish(game)
+
+
 func _run() -> void:
+	for gap in [8.0, 0.05]:
+		await _check_two_settings(gap)
 	for pad in [false, true]:
 		await _check_comparator_focus(pad)
 	await _check_feel()
@@ -378,7 +431,7 @@ func _run() -> void:
 			"D-pad and A record after selection is locked")
 		check(ui4.thumbs.get_child(1).accessibility_name.contains("✓讀") and ui4.thumbs.get_child(1).modulate != Color.WHITE,
 			"recording flashes the thumbnail read mark")
-		await create_timer(0.4).timeout
+		get_processed_tweens().back().custom_step(0.4)
 		check(ui4.thumbs.get_child(1).modulate == Color.WHITE, "thumbnail pulse returns to normal")
 		check(ui4.viewer_steps.text.contains("② 測微器讀數 1/2"), "reading updates the strip to 1/2")
 		check(ui4.viewer_note.text.contains("第2號還沒讀數，不會算進去。"), "partial reading keeps the not-counted note")
