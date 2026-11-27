@@ -74,6 +74,86 @@ func key(code: Key, pressed: bool) -> void:
 	await process_frame
 
 
+func _send_accept(event: InputEvent, pressed: bool, echo := false) -> void:
+	var input = event.duplicate()
+	input.pressed = pressed
+	if input is InputEventKey:
+		input.echo = echo
+	Input.parse_input_event(input)
+	Input.flush_buffered_events()
+	await process_frame
+
+
+func _test_answer_handoff(main: Script, use_pad: bool) -> void:
+	var chapter = main.new()
+	root.add_child(chapter)
+	chapter.ui.hide_title()
+	chapter.phase = chapter.Phase.NIGHT
+	chapter.sim.open_shutter(199.0)
+	chapter.sim.accumulate(10.0, 0.0)
+	var plate: Dictionary = chapter.sim.close_shutter()
+	plate.included = true
+	plate.read = true
+	plate.reading = chapter.sim.reading_for_value(1.75)
+	chapter.sim.measured = true
+	chapter.plate_textures = [Render.render(chapter.sim, plate)]
+	chapter.comparison_tex = Render.render(chapter.sim, null)
+	var ui: UI = chapter.ui
+	chapter._open_viewer()
+	var enter := InputEventKey.new()
+	enter.keycode = KEY_ENTER
+	enter.physical_keycode = KEY_ENTER
+	var pad := InputEventJoypadButton.new()
+	pad.button_index = JOY_BUTTON_A
+	var accept: InputEvent = pad if use_pad else enter
+	var device := "pad A" if use_pad else "keyboard Enter"
+	ui.report_btn.grab_focus()
+	await _send_accept(accept, true)
+	await _send_accept(accept, false)
+	await _send_accept(accept, true)
+	check(chapter._verdict == 0 and chapter._verdict_hold_s > 0.0, device + " commits one verdict")
+	await create_timer(1.6).timeout
+	if not use_pad:
+		await _send_accept(accept, true, true)
+	await _send_accept(accept, true)
+	print("handoff ", device, " held after verdict: ", chapter._pending, " page ", ui._seq_i, " answers ", ui._results)
+	check(chapter._pending == "judgment" and ui._seq_i == 0 and ui._results.is_empty(),
+		device + " held through the verdict handoff leaves telegram unanswered")
+	var held_page := ui._seq_i
+	await _send_accept(accept, false)
+	check(ui._seq_i == held_page, device + " releasing accept leaves the current choice unanswered")
+	if ui._seq_i == 0:
+		await _send_accept(accept, true)
+		await _send_accept(accept, false)
+	check(chapter._pending == "judgment" and ui._seq_i == 1 and ui._results.size() == 1,
+		device + " fresh press answers one telegram choice")
+	await _send_accept(accept, true)
+	if not use_pad:
+		await _send_accept(accept, true, true)
+	await _send_accept(accept, true)
+	print("handoff ", device, " held after reason: ", chapter._pending, " page ", ui._seq_i)
+	check(chapter._pending == "telegram_record" and ui._seq_i == 0,
+		device + " held after the reason leaves the record on its first page")
+	await _send_accept(accept, false)
+	await _send_accept(accept, true)
+	print("handoff ", device, " release and fresh press: ", chapter._pending, " page ", ui._seq_i)
+	check(chapter._pending == "reaction" and ui._seq_i == 0,
+		device + " release and fresh press reaches the reaction's first page")
+	if not use_pad:
+		await _send_accept(accept, true, true)
+	await _send_accept(accept, true)
+	await _send_accept(accept, false)
+	print("handoff ", device, " held and released on reaction: ", chapter._pending, " page ", ui._seq_i)
+	check(chapter._pending == "reaction" and ui._seq_i == 0,
+		device + " held press and release leave the reaction on its first page")
+	await _send_accept(accept, true)
+	await _send_accept(accept, false)
+	check(chapter._pending == "reaction" and ui._seq_i == 1,
+		device + " next deliberate press advances exactly one reaction page")
+	chapter.queue_free()
+	await process_frame
+
+
 func scroll_stick(value: float, frames := 6) -> void:
 	var event := InputEventJoypadMotion.new()
 	event.axis = JOY_AXIS_RIGHT_Y
@@ -845,6 +925,8 @@ func _run() -> void:
 	ui.open_viewer([], null, [], false)
 	check(not ui._viewer_reporting and not ui.measure_btn.disabled and ui.measure_btn.is_visible_in_tree(), "reopening restores editable viewer controls")
 	ui.free()
+	await _test_answer_handoff(main, false)
+	await _test_answer_handoff(main, true)
 	if had_env:
 		OS.set_environment("EDD_SETTINGS_PATH", previous_env)
 	else:

@@ -201,6 +201,7 @@ var _viewer_sfx := {}
 var _seq: Array = []
 var _seq_i := 0
 var _results := {}
+var _held_dialogue_accepts: Array[InputEvent] = []
 var _choice_buttons: Array[Button] = []
 var _viewer_sel := -1
 var _viewer_plates: Array = []
@@ -760,6 +761,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _dialogue_input(event: InputEvent) -> void:
 	if get_tree().paused or log_panel.visible or not dialog_panel.visible:
 		return
+	var accept := event.is_action_pressed("ui_accept")
+	if accept:
+		_held_dialogue_accepts.append(event)
 	var e: Dictionary = _seq[_seq_i]
 	var has_choices := e.has("choices")
 	if has_choices and event is InputEventKey and event.pressed and not event.echo:
@@ -774,11 +778,11 @@ func _dialogue_input(event: InputEvent) -> void:
 			var step := 1 if event.is_action_pressed("ui_down") else -1
 			_choice_buttons[posmod(maxi(selected, 0) + step, _choice_buttons.size())].grab_focus()
 			get_viewport().set_input_as_handled()
-		elif event.is_action_pressed("ui_accept"):
+		elif accept:
 			get_viewport().set_input_as_handled()
 			_choose(maxi(selected, 0))
 	else:
-		var adv := event.is_action_pressed("interact") or event.is_action_pressed("shutter") or event.is_action_pressed("ui_accept")
+		var adv := event.is_action_pressed("interact") or event.is_action_pressed("shutter") or accept
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			adv = true
 		if adv:
@@ -2729,6 +2733,14 @@ func _active_menu_scroll() -> ScrollContainer:
 
 
 func _input(event: InputEvent) -> void:
+	# Keep consuming the press across pages and the gap between dialogues.
+	if event.is_action("ui_accept"):
+		for held in _held_dialogue_accepts:
+			if held.device == event.device and held.is_match(event, false):
+				if event.is_released():
+					_held_dialogue_accepts.erase(held)
+				get_viewport().set_input_as_handled()
+				return
 	if viewer.visible:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			_viewer_selected_with_mouse = true
