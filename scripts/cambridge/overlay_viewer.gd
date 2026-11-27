@@ -511,7 +511,8 @@ func _point_to_pixel(point: Vector2) -> Vector2:
 func _draw() -> void:
 	var viewport_size := get_viewport_rect().size
 	draw_rect(Rect2(Vector2.ZERO, viewport_size), Color(0.025, 0.028, 0.031, 0.995), true)
-	draw_glass(self, canvas_rect())
+	var rect := canvas_rect()
+	draw_glass(self, rect)
 	_draw_difference_arrows()
 	_draw_plate_stars()
 	_draw_speck(_point_to_pixel(MathModel.speck_point()), 1.0)
