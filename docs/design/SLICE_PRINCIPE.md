@@ -1722,3 +1722,18 @@ Opened whole at 1280×720: all four candidate frames, and main's practice close 
 ![live close, main](slice_principe/accept/604/85391fd/before-live-close.png)
 ![live plus five, candidate](slice_principe/accept/604/85391fd/after-live-plus-five.png)
 ![practice close, candidate](slice_principe/accept/604/85391fd/after-practice-close.png)
+
+### 2026-11-28 01:24 JST · #609 (AA 19 Continue restores the recorded plate) at 47f2be1: not accepted yet, one frame owed
+
+Opened whole at 1280×720: candidate recorded, candidate continued, main continued. Main recorded not opened; it is byte-identical to candidate recorded.
+
+- Technical regression: none seen in the one viewer frame of the candidate.
+- This change: not accepted yet. After Continue the candidate opens on Plate 2 with "Reading: 0.76 div." and the micrometer scale on the print, where main opens on Plate 1 with no readout. That is the wanted result.
+  1. **Both "recorded" frames are the title screen**, not the viewer after recording. The before-leaving state is not shown, so I cannot see that Continue returns the same screen.
+  2. **In the continued frame the white frame is on Plate 1's thumbnail while the viewer shows Plate 2.** If the screen before leaving looks the same, this is inherited and goes to the backlog (the plate in the viewer should carry its own mark on the thumbnail row); if it differs, it is this PR's.
+- Next head or same head: the viewer right after "Record reading" on plate 2, before leaving, on main and on the candidate.
+- Whole scene: unchanged.
+
+![candidate after Continue](slice_principe/accept/609/47f2be1/candidate-continued.png)
+![main after Continue](slice_principe/accept/609/47f2be1/main-continued.png)
+![candidate "recorded" is the title](slice_principe/accept/609/47f2be1/candidate-recorded.png)
