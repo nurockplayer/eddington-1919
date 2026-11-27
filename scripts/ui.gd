@@ -931,7 +931,7 @@ func _build_viewer(root: Control) -> void:
 	mic_btn.tooltip_text = L.t("顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。")
 	mic_btn.toggled.connect(_set_micrometer)
 	mic_bar.add_child(mic_btn)
-	blink_btn.focus_neighbor_bottom = blink_btn.get_path_to(plate_notes_btn)
+	blink_btn.focus_neighbor_bottom = blink_btn.get_path_to(mic_btn)
 	plate_notes_btn.focus_neighbor_bottom = plate_notes_btn.get_path_to(mic_btn)
 	# Keep the dial actions beside the toggle, with a full-width stack for the
 	# reading choices and Record below it.

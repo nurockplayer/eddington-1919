@@ -1593,29 +1593,36 @@ func _test_night_viewer() -> void:
 	check(ui.viewer_sfx_log.back() == "mark", "including a plate sounds a pencil mark")
 	ui.measure_btn.pressed.emit()
 	check(ui.viewer_sfx_log.back() == "measure", "measuring sounds the micrometer")
-	check(ui.plate_info.text.contains(Content.totality_read_night("clear")), "night viewer shows the clear read")
-	check(ui.plate_info.text.contains("可辨識的星點：7 顆"), "night viewer shows seven visible stars")
-	check(not ui.plate_info.text.contains("星像清楚"), "night viewer hides good quality before measuring")
+	ui.plate_notes_btn.button_pressed = true
+	check(ui.plate_notes.text.contains(Content.totality_read_night("clear")), "night viewer shows the clear read")
+	check(ui.plate_notes.text.contains("可辨識的星點：7 顆"), "night viewer shows seven visible stars")
+	check(not ui.plate_notes.text.contains("星像清楚"), "night viewer hides good quality before measuring")
 	ui._select_plate(1, null)
+	ui.plate_notes_btn.button_pressed = true
 	check(ui.viewer_sfx_log.back() == "plate", "selecting a real plate sounds glass")
-	check(ui.plate_info.text.contains(Content.totality_read_night("brief")), "night viewer shows the brief read")
+	check(ui.plate_notes.text.contains(Content.totality_read_night("brief")), "night viewer shows the brief read")
 	ui._select_plate(2, null)
-	check(not ui.plate_info.text.contains("拍攝時："), "sunlit plate has no read")
+	ui.plate_notes_btn.button_pressed = true
+	check(not ui.plate_notes.text.contains("拍攝時："), "sunlit plate has no read")
 	ui._select_plate(3, null)
-	check(not ui.plate_info.text.contains("拍攝時："), "plate without a band has no read")
-	check(ui.plate_info.text.contains("[color=#e88]可辨識的星點：3 顆[/color]"), "night viewer warns about three visible stars")
-	check(not ui.plate_info.text.contains("星像清楚"), "night viewer does not label an unusable plate clear")
+	ui.plate_notes_btn.button_pressed = true
+	check(not ui.plate_notes.text.contains("拍攝時："), "plate without a band has no read")
+	check(ui.plate_notes.text.contains("[color=#e88]可辨識的星點：3 顆[/color]"), "night viewer warns about three visible stars")
+	check(not ui.plate_notes.text.contains("星像清楚"), "night viewer does not label an unusable plate clear")
 	ui._select_plate(4, null)
-	check(not ui.plate_info.text.contains("拖長或被雲霧蓋住"), "night viewer hides poor quality before measuring")
+	ui.plate_notes_btn.button_pressed = true
+	check(not ui.plate_notes.text.contains("拖長或被雲霧蓋住"), "night viewer hides poor quality before measuring")
 	ui._select_plate(-2, null)
 	check(ui.viewer_sfx_log.back() == "plate", "selecting the comparison plate sounds glass")
 	ui.set_viewer_locked(true)
 	ui.reselect_btn.pressed.emit()
 	check(ui.viewer_sfx_log.back() == "mark", "reselecting sounds a pencil mark")
 	ui._select_plate(0, null)
-	check(ui.plate_info.text.contains("星像清楚"), "night viewer shows good quality after measuring")
+	ui.plate_notes_btn.button_pressed = true
+	check(ui.plate_notes.text.contains("星像清楚"), "night viewer shows good quality after measuring")
 	ui._select_plate(4, null)
-	check(ui.plate_info.text.contains("可量，但星像拖長或被雲霧蓋住。") and not ui.plate_info.text.contains("星像清楚"), "night viewer explains a poor plate after measuring")
+	ui.plate_notes_btn.button_pressed = true
+	check(ui.plate_notes.text.contains("可量，但星像拖長或被雲霧蓋住。") and not ui.plate_notes.text.contains("星像清楚"), "night viewer explains a poor plate after measuring")
 	# A callout that has faded out releases its space in the panel.
 	ui.set_callout("測試提示", 0.5)
 	check(ui.callout.visible and ui.callout.text == "測試提示", "callout shows while active")
