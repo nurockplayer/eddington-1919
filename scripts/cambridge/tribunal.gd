@@ -82,36 +82,42 @@ func _read_page(beat: Dictionary) -> void:
 	var id: String = beat.paper[0]
 	if beat.has("open"):
 		_show_page(beat.open)
-		paper.label(paper.body, _text[id], 32, true)
+		paper.heading(_text[id], 32, true)
 		await _prompt(beat.open)
 	_show_page(id)
 	var lines := _lines(beat.paper)
 	var title: String = lines.pop_front()
 	var source := ""
 	if beat.has("quote"):
-		paper.label(paper.body, _text.T27, 18)
-		paper.label(paper.body, _text.T28, 18)
+		paper.heading(_text.T27, 18)
+		paper.heading(_text.T28, 18)
 		if L.current() != "en":
 			source = beat.quote
 	elif beat.has("source"):
-		paper.label(paper.body, _text.T08, 18)
+		paper.heading(_text.T08, 18)
 		source = _text[beat.source]
 	if id == "T72":
 		lines.push_front(title)
 		title = ""
-	paper.section(paper.body, title, lines, source)
+	if not title.is_empty():
+		paper.heading(title, 32)
+	paper.section(paper.body, "", lines, source)
 	if id == "T01":
 		await _director.ui.fade_to(0.0, 0.0 if Settings.reduced_motion else 0.8).finished
 	await _prompt("T22")
 
 
-func _extract(parent: Container, card: String, first_part_only := false) -> void:
+func _extract(parent: Container, card: String, heading: Container, first_part_only := false) -> void:
 	var data: Dictionary = Content.EXTRACTS[card]
 	var lines := _lines(data.lines)
 	var title: String = lines.pop_front()
 	if first_part_only:
 		lines.pop_back()
-	paper.section(parent, title, lines, _text[data.source])
+	if heading == null:
+		paper.heading(title, 32)
+	else:
+		paper.label(heading, title, 32)
+	paper.section(parent, "", lines, _text[data.source])
 
 
 func _read_extracts(beat: Dictionary) -> void:
@@ -119,15 +125,19 @@ func _read_extracts(beat: Dictionary) -> void:
 	var first_part: bool = beat.get("last_line_separate", false)
 	var id: String = Content.EXTRACTS[beat.extracts[0]].lines[0]
 	_show_page(id, split)
-	paper.label(paper.body, _text.T08, 18)
+	paper.heading(_text.T08, 18)
+	var layout: VBoxContainer = paper.actions.get_parent()
+	var headings: HBoxContainer = paper.columns(layout)
+	layout.move_child(headings, paper.body.get_parent().get_index())
 	var row: HBoxContainer = paper.columns(paper.body)
 	for card in beat.extracts:
-		_extract(paper.column(row), card, first_part)
+		_extract(paper.column(row), card, paper.column(headings), first_part)
 	await _prompt("T22")
 	if first_part:
 		_show_page("T54")
-		paper.label(paper.body, _text.T08, 18)
-		paper.section(paper.body, _text[id], [_text.T54], _text.L)
+		paper.heading(_text.T08, 18)
+		paper.heading(_text[id], 32)
+		paper.section(paper.body, "", [_text.T54], _text.L)
 		await _prompt("T22")
 
 
@@ -162,7 +172,7 @@ func _packet(extracts: Array) -> void:
 
 func _show_packet(extracts: Array, selected: String, filed_feedback: bool) -> void:
 	_show_page("packet", true)
-	paper.label(paper.body, _text.T07, 32, true)
+	paper.heading(_text.T07, 32, true)
 	paper.label(paper.body, _text.T56, 22, true)
 	var tray := GridContainer.new()
 	tray.columns = 3
@@ -207,8 +217,8 @@ func _card_button(parent: Container, group: ButtonGroup, card: String, selected:
 
 func _choose_heading(card: String) -> String:
 	_show_page(card)
-	paper.label(paper.body, _text.T08, 18)
-	_extract(paper.body, card)
+	paper.heading(_text.T08, 18)
+	_extract(paper.body, card, null)
 	paper.actions.show()
 	var back: Button = paper.button(paper.actions, _text.T58, "back")
 	if filed.has(card):
@@ -248,8 +258,8 @@ func _choose_heading(card: String) -> String:
 func _armistice() -> void:
 	for i in Content.ARMISTICE.size():
 		_show_page("I01" if i == 0 else "I08")
-		paper.label(paper.body, _text.I03, 18)
-		paper.label(paper.body, _text.I01, 40)
+		paper.heading(_text.I03, 18)
+		paper.heading(_text.I01, 40)
 		paper.label(paper.body, _text.I02, 23)
 		paper.rule(paper.body)
 		for j in Content.ARMISTICE[i].size():

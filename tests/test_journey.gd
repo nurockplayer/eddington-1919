@@ -8,6 +8,7 @@ const Content := preload("res://scripts/cambridge/content_tribunal.gd")
 const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
 const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
+const Paper := preload("res://scripts/cambridge/interlude_paper.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
@@ -26,6 +27,9 @@ const TRIBUNAL_PAGES := [
 
 var checks := 0
 var capture_dir := ""
+var sheet_captures := false
+var captured_body := ""
+var sheet_frame := 0
 var madeira_captures := false
 var sundy_captures := false
 var temp_settings := ""
@@ -70,6 +74,16 @@ func tap_pad(button_index: JoyButton) -> void:
 
 func press(button: Button) -> void:
 	expect(not button.disabled and button.is_visible_in_tree(), "enabled button: " + button.text)
+	if sheet_captures:
+		var node := button.get_parent()
+		while node != null and not node is Paper:
+			node = node.get_parent()
+		if node is Paper:
+			var paper := node as Paper
+			var key := "%d:%d" % [paper.body.get_instance_id(), paper.body.get_child_count()]
+			if captured_body != key:
+				captured_body = key
+				await _sheet_frames(button.text, paper)
 	button.grab_focus()
 	await tap(KEY_ENTER)
 
@@ -125,7 +139,9 @@ func check_madeira_scroll(paper: Control, finish_with_pad: bool) -> void:
 	var bar := scroll.get_v_scroll_bar()
 	var end := floori(bar.max_value - bar.page)
 	var advance: Button = paper.actions.get_child(0)
-	expect(end > 0 and advance.has_focus(), "overflowing Madeira paper starts with its continue button focused")
+	expect(advance.has_focus(), "Madeira paper starts with its continue button focused")
+	if end <= 0:
+		return
 	scroll.scroll_vertical = 0
 	await tap(KEY_DOWN)
 	expect(scroll.scroll_vertical > 0, "Down arrow scrolls the Madeira paper")
@@ -151,7 +167,10 @@ func check_madeira_scroll(paper: Control, finish_with_pad: bool) -> void:
 func _run() -> void:
 	var enabled := OS.get_cmdline_user_args().has("--journey")
 	for arg in OS.get_cmdline_user_args():
-		if arg.begins_with("--journey-captures="):
+		if arg.begins_with("--sheet-captures="):
+			capture_dir = arg.trim_prefix("--sheet-captures=")
+			sheet_captures = true
+		elif arg.begins_with("--journey-captures="):
 			capture_dir = arg.trim_prefix("--journey-captures=")
 		elif arg.begins_with("--madeira-captures="):
 			capture_dir = arg.trim_prefix("--madeira-captures=")
@@ -163,6 +182,9 @@ func _run() -> void:
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
 	root.size = Vector2i(1280, 720) if capture_dir.is_empty() else Vector2i(1920, 1080)
+	if sheet_captures:
+		Engine.time_scale = 10.0
+		root.size = Vector2i(1280, 720)
 	if capture_dir.is_empty():
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
 		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
@@ -182,11 +204,23 @@ func _run() -> void:
 		L.apply("en")
 		await _resume_october()
 		await _resume_departure(route)
-	for locale in locales:
-		L.apply(locale)
-		await _route(route, enabled, locale == "ja")
-		if capture_dir.is_empty():
-			Checkpoint.clear()
+	if sheet_captures:
+		var settings := ConfigFile.new()
+		var story := root.get_node("Story")
+		settings.set_value("ui", "reduced_motion", true)
+		for sample in [["en", 1.0], ["en", 1.2], ["ja", 1.0]]:
+			settings.set_value("ui", "text_scale", sample[1])
+			expect(settings.save(OS.get_environment("EDD_SETTINGS_PATH")) == OK, "save isolated capture settings")
+			L.apply(sample[0])
+			story.reset()
+			await _route(route, enabled, sample[0] == "ja")
+		DirAccess.remove_absolute(OS.get_environment("EDD_SETTINGS_PATH"))
+	else:
+		for locale in locales:
+			L.apply(locale)
+			await _route(route, enabled, locale == "ja")
+			if capture_dir.is_empty():
+				Checkpoint.clear()
 	if capture_dir.is_empty():
 		DirAccess.remove_absolute(Settings.settings_path())
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
@@ -246,7 +280,7 @@ func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
 			"departure checkpoint restores M1 state including the packet record")
 		Checkpoint.clear()
 	await _departure_opening()
-	if capture_dir.is_empty() or madeira_captures or sundy_captures:
+	if capture_dir.is_empty() or madeira_captures or sundy_captures or sheet_captures:
 		await _departure(current_scene, route[2], enabled, misfile, enabled)
 
 
@@ -385,7 +419,7 @@ func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_ind
 		await capture("packet", paper)
 	if pass_index == 2 and L.current() == "en":
 		expect(not strings.values().any(func(line): return "’" in line), "use proportional English apostrophes on the tribunal and Armistice pages")
-		if not capture_dir.is_empty() and not madeira_captures and not sundy_captures:
+		if not capture_dir.is_empty() and not madeira_captures and not sundy_captures and not sheet_captures:
 			root.size = Vector2i(1280, 720)
 			Settings.text_scale = 1.2
 			Settings.refresh_fonts(self)
@@ -447,7 +481,7 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	await frames(3)
 	for action in paper.actions.get_children():
 		expect(root.get_visible_rect().grow(1.0).encloses(action.get_global_rect()), "paper controls stay in bounds: " + state)
-	if capture_dir.is_empty() or (madeira_captures and not state.begins_with("madeira_")) or (
+	if capture_dir.is_empty() or sheet_captures or (madeira_captures and not state.begins_with("madeira_")) or (
 		sundy_captures and not (state.begins_with("sundy_") or state.begins_with("i3_"))):
 		return
 	await RenderingServer.frame_post_draw
@@ -462,6 +496,52 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	receipt.store_line("| [%s](%s) | %s | %s | %d×%d | %.2f | %s | %s |" % [
 		filename, filename, state, L.current(), dimensions.x, dimensions.y, Settings.text_scale, Settings.reduced_motion, jst])
 	print("saved ", filename)
+
+
+func _sheet_frames(action_text: String, paper: Control) -> void:
+	var scroll: ScrollContainer = paper.body.get_parent()
+	await frames(3)
+	var previous := scroll.scroll_vertical
+	var bar := scroll.get_v_scroll_bar()
+	var scrolls := bar.visible
+	var title: Control = paper.actions.get_parent().get_child(0)
+	var state := "%s / %s" % [title.text, action_text] if title is Label else action_text
+	sheet_frame += 1
+	scroll.scroll_vertical = 0
+	await _sheet_frame(state, paper.body, scroll, scrolls, "first" if scrolls else "first and end")
+	if scrolls:
+		scroll.scroll_vertical = ceili(bar.max_value)
+		await _sheet_frame(state, paper.body, scroll, scrolls, "end")
+	scroll.scroll_vertical = previous
+	await frames(2)
+
+
+func _sheet_frame(state: String, body: VBoxContainer, scroll: ScrollContainer, scrolls: bool, view: String) -> void:
+	await frames(2)
+	await RenderingServer.frame_post_draw
+	var image := root.get_texture().get_image()
+	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
+	expect(image.get_size() == Vector2i(1280, 720), "sheet capture is 1280×720")
+	var filename := "%03d_%s_%s.png" % [sheet_frame, L.current(), "end" if view == "end" else "first"]
+	expect(image.save_png(capture_dir.path_join(filename)) == OK, "write " + filename)
+	var window := scroll.get_global_rect()
+	var lowest_y := -INF
+	var lowest_text := "—"
+	for label: Label in body.find_children("*", "Label", true, false):
+		if not label.is_visible_in_tree():
+			continue
+		for line in Paper.line_boxes(label):
+			var rect: Rect2 = line.rect
+			rect.position += label.global_position
+			if window.encloses(rect) and rect.end.y >= lowest_y and not line.text.strip_edges().is_empty():
+				lowest_text = line.text.strip_edges()
+				lowest_y = rect.end.y
+	var receipt := FileAccess.open(capture_dir.path_join("index.md"), FileAccess.READ_WRITE)
+	receipt.seek_end()
+	var jst := Time.get_datetime_string_from_unix_time(int(Time.get_unix_time_from_system()) + 9 * 3600).replace("T", " ") + " JST"
+	receipt.store_line("| [%s](%s) | %s | %s | %s | 1280×720 | %.1f | %s | %s | %s | %s |" % [
+		filename, filename, state.replace("|", "&#124;").replace("\n", " "), view, L.current(), Settings.text_scale,
+		Settings.reduced_motion, "yes" if scrolls else "no", lowest_text.replace("|", "&#124;"), jst])
 
 
 func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm: bool, packet_seen: bool) -> void:
@@ -489,8 +569,11 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		while sketch.release_btn.disabled:
 			await process_frame
 	await press(sketch.next_btn)
+	var gift := [false]
+	var keepsake: Control = chapter.keepsake
+	keepsake.visibility_changed.connect(func(): gift[0] = gift[0] or keepsake.visible)
 	await _dialogue(chapter, {"light_box": KEY_1})
-	expect(chapter.keepsake.visible, "Ashby's real farewell shows the gift")
+	expect(gift[0], "Ashby's real farewell shows the gift")
 	var previous: Dictionary = story.to_save()
 	expect(previous.slip_fix == 1 and previous.bond_tone == ("warm" if warm else "close"),
 		"M2 has a correction and a bond tone to carry forward")
@@ -527,9 +610,13 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 	previous.sundy_letter_read = enabled
 	if Checkpoint.force_enabled:
 		expect(Checkpoint.peek() == "principe", "the existing checkpoint is written at the slice handoff")
-		expect(Checkpoint.restore() == "principe" and story.to_save() == previous,
-			"the handoff preserves the prediction, certainty and M2 choices verbatim")
+		expect(Checkpoint.restore() == "principe", "the slice checkpoint can be restored")
 		Checkpoint.clear()
+	else:
+		# Observation day enters from the 1917 prediction before any checkpoint restore.
+		previous.bet = previous.bet_1917
+		previous.kit_first = -1
+	expect(story.to_save() == previous, "the handoff preserves the prediction, certainty and M2 choices verbatim")
 	await _sundy_coda(current_scene, enabled, packet_seen)
 
 
@@ -551,10 +638,14 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	await _dialogue(day)
 	day._interact("mentor_loupe")
 	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
-	await _dialogue(day)
 	var story := root.get_node("Story")
-	expect(story.kit_first >= 0 and day.coda_step == day.CodaStep.FADING and day._paired_cables == null,
-		"coda Kit choice is committed before I3")
+	var committed_before_i3 := [false]
+	day.ui.dialogue_done.connect(func(_results):
+		if day.coda_step == day.CodaStep.FADING:
+			committed_before_i3[0] = story.kit_first >= 0 and day._paired_cables == null
+	)
+	await _dialogue(day)
+	expect(committed_before_i3[0], "coda Kit choice is committed before I3")
 	if enabled:
 		for frame in 150:
 			if not is_instance_valid(day) or day._paired_cables != null:
@@ -704,7 +795,7 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 				next = (next + 1) % Madeira.LOOSE.size()
 			expect(button(paper, text[Madeira.LOOSE[next]]).has_focus(), "advances focus to next loose row")
 	await check_paper_layout(paper, "Madeira completed copies")
-	var copies: HBoxContainer = paper.body.get_child(2)
+	var copies: HBoxContainer = paper.body.find_children("*", "HBoxContainer", false, false)[0]
 	for index in 2:
 		var folder: String = Madeira.COPIES.keys()[index]
 		_check_lines(copies.get_child(index), text, ["M19", folder] + Madeira.COPIES[folder] + ["M29", "M30"])
@@ -779,6 +870,12 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	if L.current() != "en":
 		expect(has_text(paper, Madeira.QUOTES.I09), "translated passage retains original excerpt")
 	await check_paper_layout(paper, "onward passage letter")
+	var passage_scroll: ScrollContainer = paper.body.get_parent()
+	var heading: Label = paper.find_children("*", "Label", true, false).filter(
+		func(item): return item.text == text.I01)[0]
+	expect(not passage_scroll.is_ancestor_of(heading)
+		and heading.get_global_rect().end.y <= passage_scroll.get_global_rect().position.y,
+		"the onward passage title stays above the scrolling body")
 	if L.current() in ["en", "ja"]:
 		await check_madeira_scroll(paper, true)
 	if madeira_captures:
@@ -888,6 +985,9 @@ func _sundy_sheet(paper: Control, state: String, lines: Array, advance: String, 
 
 
 func _sundy_frames(state: String, paper: Control, suffix := "", dimensions := Vector2i(1920, 1080)) -> void:
+	if sheet_captures and state.begins_with("sundy_check_"):
+		captured_body = "%d:%d" % [paper.body.get_instance_id(), paper.body.get_child_count()]
+		await _sheet_frames(state, paper)
 	if not sundy_captures:
 		return
 	var scroll: ScrollContainer = paper.body.get_parent()

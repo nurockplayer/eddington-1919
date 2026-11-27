@@ -121,8 +121,7 @@ func _show(id: String, heading := "") -> void:
 	paper.begin(true)
 	_scroll = paper.body.get_parent()
 	_layout = _scroll.get_parent()
-	paper.label(_layout, _text[id] if heading.is_empty() else heading, 32)
-	_layout.move_child(_layout.get_child(-1), 0)
+	paper.heading(_text[id] if heading.is_empty() else heading, 32)
 
 
 func _line(parent: Container, id: String, font_size := 23) -> void:

@@ -41,20 +41,44 @@ func _route() -> void:
 	for y in range(20, 150, 18):
 		for x in range(22 + (y % 28), 550, 85):
 			_stroke([Vector2(x, y), Vector2(x + 13, y - 3), Vector2(x + 29, y)], WASH, 0.8)
+	var names := ["Liverpool", "Lisbon", "Funchal"]
 	var stops := PackedVector2Array([Vector2(75, 100), Vector2(270, 45), Vector2(485, 92)])
 	match subject:
 		"sobral":
+			names = ["Funchal", "Belém", "Manaus", "Camocim", "Sobral"]
 			stops = [Vector2(520, 30), Vector2(390, 93), Vector2(120, 119), Vector2(217, 96), Vector2(277, 133)]
 		"passage":
+			names = ["Funchal", "São Vicente", "Santiago", "Santo António"]
 			stops = [Vector2(84, 33), Vector2(234, 91), Vector2(286, 118), Vector2(520, 129)]
 	for i in mini(steps, stops.size()):
 		if i > 0:
 			_leg(stops[i - 1], stops[i], last_leg if i == steps - 1 and subject != "split" else 1.0)
 		else:
 			draw_circle(stops[i], 4, INK, true, -1.0, true)
+	for i in mini(steps, stops.size()):
+		if i == steps - 1 and i > 0 and last_leg < 1.0 and subject != "split":
+			break
+		_port_name(stops[i], names[i], subject == "passage" and i == 2)
 	if subject == "split":
 		_leg(stops[2], Vector2(555, 41), last_leg)
 		_leg(stops[2], Vector2(555, 128), last_leg)
+		if last_leg >= 1.0:
+			_port_name(Vector2(555, 41), "Belém")
+			_port_name(Vector2(555, 128), "Santo António")
+
+
+func _port_name(stop: Vector2, name: String, below := false) -> void:
+	var font := ThemeDB.fallback_font
+	var px := 17
+	var scale_to_strip := size / Vector2(600, 160)
+	var width := font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	var baseline := stop * scale_to_strip
+	baseline.x = clampf(baseline.x - width / 2.0, 8.0, size.x - width - 8.0)
+	baseline.y += 21.0 if below else -8.0
+	draw_set_transform(Vector2.ZERO)
+	draw_string_outline(font, baseline, name, HORIZONTAL_ALIGNMENT_LEFT, -1, px, 5, LIGHT)
+	draw_string(font, baseline, name, HORIZONTAL_ALIGNMENT_LEFT, -1, px, INK)
+	draw_set_transform(Vector2.ZERO, 0, scale_to_strip)
 
 
 func _leg(from: Vector2, to: Vector2, progress: float) -> void:

@@ -50,8 +50,8 @@ func _show(id: String, label_id := "") -> void:
 	page_id = id
 	paper.begin(true)
 	if not label_id.is_empty():
-		_line(paper.body, label_id, 18)
-	_line(paper.body, id, 36)
+		paper.heading(_text[label_id], 18)
+	paper.heading(_text[id], 36)
 
 
 func _line(parent: Container, id: String, size := 23) -> void:

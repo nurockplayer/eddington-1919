@@ -21,10 +21,10 @@ func begin(wide := false, comparison := false) -> void:
 	add_child(shade)
 
 	var sheet := Panel.new()
-	sheet.anchor_left = 0.08 if wide else 0.20
+	sheet.anchor_left = 0.05 if wide else 0.14
 	sheet.anchor_right = 1.0 - sheet.anchor_left
-	sheet.anchor_top = 0.08
-	sheet.anchor_bottom = 0.29 if comparison else 0.92
+	sheet.anchor_top = 0.08 if comparison else 0.04
+	sheet.anchor_bottom = 0.29 if comparison else 0.96
 	sheet.add_theme_stylebox_override("panel", Report.paper_style())
 	add_child(sheet)
 
@@ -32,9 +32,9 @@ func begin(wide := false, comparison := false) -> void:
 	layout.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layout.offset_left = 32
 	layout.offset_right = -32
-	layout.offset_top = 22
-	layout.offset_bottom = -22
-	layout.add_theme_constant_override("separation", 16)
+	layout.offset_top = 16
+	layout.offset_bottom = -16
+	layout.add_theme_constant_override("separation", 10)
 	sheet.add_child(layout)
 
 	var scroll := ScrollContainer.new()
@@ -44,17 +44,31 @@ func begin(wide := false, comparison := false) -> void:
 	layout.add_child(scroll)
 	scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
 	var track := StyleBoxFlat.new()
-	track.bg_color = Report.PAPER.darkened(0.1)
-	track.content_margin_left = 8
-	scroll.get_v_scroll_bar().add_theme_stylebox_override("scroll", track)
+	track.bg_color = Color(0.75, 0.65, 0.50)
+	track.content_margin_left = 10
+	for state in ["scroll", "scroll_focus"]:
+		scroll.get_v_scroll_bar().add_theme_stylebox_override(state, track)
 	var thumb := track.duplicate() as StyleBoxFlat
 	thumb.bg_color = Report.PAPER_EDGE
 	for state in ["grabber", "grabber_highlight", "grabber_pressed"]:
 		scroll.get_v_scroll_bar().add_theme_stylebox_override(state, thumb)
 	body = VBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 14)
+	body.add_theme_constant_override("separation", 10)
 	scroll.add_child(body)
+
+	# Draw over the sliver of any line or block straddling either fold. The
+	# body keeps its layout and the scroll range still reaches every item.
+	var fold := Node2D.new()
+	scroll.add_child(fold)
+	fold.draw.connect(func():
+		if scroll.get_v_scroll_bar().visible:
+			var window := Rect2(Vector2.ZERO, Vector2(body.size.x, scroll.size.y))
+			_draw_partial_rows(fold, body, window)
+	)
+	scroll.get_v_scroll_bar().value_changed.connect(func(_value): fold.queue_redraw())
+	scroll.sort_children.connect(fold.queue_redraw)
+	body.sort_children.connect(fold.queue_redraw)
 
 	actions = HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -62,6 +76,46 @@ func begin(wide := false, comparison := false) -> void:
 	layout.add_child(actions)
 	actions.hide()
 	show()
+
+
+func _draw_partial_rows(fold: Node2D, parent: Container, window: Rect2) -> void:
+	for child in parent.get_children():
+		if not child is Control or not child.visible:
+			continue
+		var rect := Rect2(fold.to_local(child.global_position), child.size)
+		if not rect.intersects(window) or window.encloses(rect):
+			continue
+		if child is Container:
+			_draw_partial_rows(fold, child, window)
+		elif child is Label:
+			if child.get_line_count() == 1:
+				fold.draw_rect(window.intersection(rect), Report.PAPER)
+				continue
+			for line in line_boxes(child):
+				var row := Rect2(rect.position + Vector2(0, line.rect.position.y),
+						Vector2(rect.size.x, line.rect.size.y))
+				if row.intersects(window) and not window.encloses(row):
+					fold.draw_rect(window.intersection(row), Report.PAPER)
+		else:
+			fold.draw_rect(window.intersection(rect), Report.PAPER)
+
+
+static func line_boxes(control: Label) -> Array[Dictionary]:
+	var lines: Array[Dictionary] = []
+	for i in control.text.length():
+		var bounds := control.get_character_bounds(i)
+		if bounds.size.y <= 0.0:
+			continue
+		if lines.is_empty() or bounds.position.y != lines[-1].rect.position.y:
+			lines.append({"rect": bounds, "text": ""})
+		lines[-1].text += control.text[i]
+	return lines
+
+
+func heading(text: String, font_size: int, centered := false) -> void:
+	var layout: VBoxContainer = actions.get_parent()
+	label(layout, text, font_size, centered)
+	layout.move_child(layout.get_child(-1), body.get_parent().get_index())
 
 
 func label(parent: Container, text: String, font_size: int, centered := false) -> void:
