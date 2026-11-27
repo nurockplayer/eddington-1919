@@ -178,7 +178,7 @@ func _run() -> void:
 
 func _check_totality_visibility(shader: String, material: ShaderMaterial) -> void:
 	# Evaluate the shipping fragment expressions on the CPU, as in test_third_contact_gap.
-	# Feed constant cloud samples to two lit rays at the same totality time.
+	# Probe the disc, limb and an outer ray at the same totality time.
 	var clock: Vector3 = material.get_shader_parameter("third_contact_cloud_clock")
 	var pocket_time := (float(material.get_shader_parameter("cloud_time")) - clock.x) / clock.y
 	var disc: Array[float] = []
@@ -189,37 +189,42 @@ func _check_totality_visibility(shader: String, material: ShaderMaterial) -> voi
 	if blends == null:
 		check(false, "find the solar compositing expressions")
 		return
-	for density: float in [0.20, 0.50, 0.95]:
+	for cloud: Vector2 in [Vector2(0.20, 0.20), Vector2(0.50, 0.50), Vector2(0.95, 0.95), Vector2(0.20, 0.95)]:
+		var outer_density := cloud.x
+		var inner_density := cloud.y
+		var detached_ray := outer_density < inner_density
 		var values := {
 			"print_darkness": material.get_shader_parameter("darkness"),
 			"before_second_contact": material.get_shader_parameter("before_second_contact"),
 			"practice_cloud": material.get_shader_parameter("practice_cloud"),
 			"pocket_time": pocket_time, "returning_sky": false,
-			"sun_cloud": density, "live_cloud": Vector2(density, 0.0),
-			"cloud_field": Vector2(0.0, density), "front": 1.0,
-			"moon_pixel": 0.01, "rays": 0.0, "ink_col": 0.0, "white": 1.0,
+			"sun_cloud": inner_density, "live_cloud": Vector2(outer_density, 0.0),
+			"cloud_field": Vector2(0.0, outer_density), "inner_density": inner_density, "front": 1.0,
+			"moon_pixel": 0.01, "rays": float(detached_ray), "ink_col": 0.0, "white": 1.0,
 		}
 		for name in ["solar_fade", "dense_cloud", "pocket_softness", "sun_visibility",
 				"thin_veil", "cloud_veil", "moon_cloud", "cloud_covers_sun", "corona_cloud"]:
 			values[name] = _solar_value(shader, name, values)
-		for radius in [0.0, 1.02]:
+		for radius in ([1.5] if detached_ray else [0.0, 1.02]):
 			values.r = radius
 			values.moon_disc = _solar_value(shader, "moon_disc", values)
 			values.moon_ink = _solar_value(shader, "moon_ink", values)
 			values.limb_white = _solar_value(shader, "limb_white", values)
 			values.corona_white = _solar_value(shader, "corona_white", values)
-			# For this uniform cloud the inner-corona ray samples the same density.
 			if values.cloud_covers_sun and values.corona_white > 0.0:
 				var inner_gate := RegEx.create_from_string("corona_white \\*= ([^;]+);").search(shader)
 				if inner_gate == null:
 					check(false, "find the inner-corona mask expression")
 					return
 				values.corona_white *= _evaluate_solar(
-					inner_gate.get_string(1).replace("eclipse_cloud_density_from_sample(inner_cloud)", "cloud_field.y"), values)
+					inner_gate.get_string(1).replace("eclipse_cloud_density_from_sample(inner_cloud)", "inner_density"), values)
 			values.print_colour = 0.5
 			values.print_colour = _evaluate_solar(blends.get_string(1), values)
 			var colour := _evaluate_solar(blends.get_string(2), values)
-			if radius < 1.0:
+			if detached_ray:
+				check(absf(colour - 0.5) < 0.001,
+					"thick inner cloud hides the clear outer ray (contrast %.3f)" % (colour - 0.5))
+			elif radius < 1.0:
 				disc.append(0.5 - colour)
 			else:
 				corona.append(colour - 0.5)
