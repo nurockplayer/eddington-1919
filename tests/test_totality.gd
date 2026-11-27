@@ -203,6 +203,8 @@ func _test_sim_invariance() -> void:
 func _test_middle_seam() -> void:
 	var shutter := InputEventAction.new()
 	shutter.action = "shutter"
+	var change_holder := InputEventAction.new()
+	change_holder.action = "interact"
 	var main := load("res://scripts/main.gd")
 	for run_seed in [77, 1919]:
 		var continuous: Dictionary
@@ -234,6 +236,8 @@ func _test_middle_seam() -> void:
 				if t == stops.front():
 					stops.pop_front()
 					await _rehearsal_press(shutter)
+					if split and t == seam - 3.0:
+						await _rehearsal_press(change_holder)
 			game._process_totality(STEP)
 			var plates: Array = game.sim.plates
 			var intervals: Array = game.ui.tot_strip.model.segments
