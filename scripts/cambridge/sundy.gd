@@ -350,7 +350,7 @@ func _sky_page() -> void:
 	await _next("S84")
 
 
-func play_cables(ui: CanvasLayer) -> void:
+func play_cables(ui: CanvasLayer, opens_sobral: bool) -> void:
 	var parent: Control = ui.pause_panel.get_parent()
 	var backdrop := _open_paper(ui, parent)
 	parent.move_child(backdrop, ui.pause_panel.get_index())
@@ -382,6 +382,11 @@ func play_cables(ui: CanvasLayer) -> void:
 	await _next("M09")
 	_show("I3-15", L.t("檔案剪報・據史料編成"))
 	_lines(paper.body, ["I3-15", "I3-16", "I3-17"])
-	await _next("I3-14")
+	if opens_sobral:
+		var sobral := preload("res://scripts/cambridge/content_sobral.gd").strings()
+		paper.advance(sobral.B01)
+		await paper.action
+	else:
+		await _next("I3-14")
 	await _ui.fade_to(1.0, _motion(0.7)).finished
 	backdrop.queue_free()

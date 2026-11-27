@@ -1954,9 +1954,16 @@ func _lamp_out_then_ending() -> void:
 	if phase == Phase.CODA and OS.get_cmdline_user_args().has("--journey"):
 		_paired_cables = load("res://scripts/cambridge/sundy.gd").new()
 		add_child(_paired_cables)
-		await _paired_cables.play_cables(ui)
+		var full_journey := _epilogue_due()
+		await _paired_cables.play_cables(ui, full_journey)
 		_paired_cables.queue_free()
 		_paired_cables = null
+		if full_journey:
+			var sobral: Node = load("res://scripts/cambridge/sobral.gd").new()
+			sobral.name = "Sobral"
+			add_child(sobral)
+			await sobral.play(self)
+			sobral.queue_free()
 	_busy = false
 	if _epilogue_due():
 		_stop_night_bed()
