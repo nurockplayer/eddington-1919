@@ -1565,3 +1565,12 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **2. The first reading's mark is too small to find.** About 5 by 2 pixels at 720p, shorter than the ruler's own ticks; in the whole frame I found it only by knowing where to look.
 - For the next head: the whole block inside the screen in the reveal at text scale 1.0 and 1.2 (the two readings side by side, or the note dropped in that state, or whatever fits); the unchosen mark at least as long as a major tick. Frames: wide and close reveal at 1.0, wide reveal at 1.2.
 - **Verdicts:** technical regression none seen; this PR's change not accepted yet. **Count stays 7/9.**
+
+### 2026-11-27 16:10 JST: #586 AA fun 05, shelter drive trim comparison, at c66666f: not accepted yet (the difference does not read)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/586/c66666f8841826bccb71c68657150e7dfbd52ea3/` (main `9cd8d762`, seed 77, en, 1280×720; eight frames). Opened whole at native size: the candidate's regular wrong and corrected, reduced wrong and corrected; main's regular wrong and reduced wrong. Not opened: main's two corrected frames. Kept in `slice_principe/accept/586/c66666f/`.
+- **What is there:** in both motion modes two diamonds now stand on rows marked "Previous" and "Now"; on main the regular view had only the moving diamond and the reduced view kept "Previous" at zero.
+- **1. The change is a few pixels.** The scale is about 5 px per unit of drift in a circle 355 px across. After the wrong-way trim (1.32 to 2.04) "Now" stands 3 px farther from the centre line than "Previous"; after the correction (2.04 to 0.60) 7 px nearer. The diamonds are 20 px wide. The row is about seeing the mark grow, then shrink; it cannot be seen.
+- **2. The labels.** "Previous" lies across the circle's outline, and both words are about 170 px from the diamonds they name (on main's reduced view they sat inside the circle, nearer).
+- **3. Three alike.** In the regular view the moving trace, "Previous" and "Now" are the same diamond; nothing says which one moves.
+- For the next head: in these same two cases the wrong-way pair and the corrected pair each differ by at least a diamond's width, with the largest drift the drive can show still inside the circle; labels inside the circle beside their marks; the live trace drawn unlike the two held marks. Same eight frames.
+- **Verdicts:** technical regression none seen; this PR's change not accepted yet. **Count stays 7/9.**
