@@ -143,19 +143,22 @@ func _toggle_card(card: Dictionary, button: Button, slots: Array[Label]) -> void
 	else:
 		if selected.size() >= 4:
 			button.button_pressed = false
-			if not Settings.reduced_motion:
+			var limit_reaction := [{"s": C17.YOU, "t": L.t("板上只寫得下四件事——先拿掉一張。")}]
+			if Settings.reduced_motion:
+				reaction.emit(limit_reaction)
+			else:
 				button.disabled = true
 				button.pivot_offset = button.size / 2.0
-				var shake := create_tween()
+				var shake := button.create_tween()
 				for angle in [1.5, -1.5, 1.0, 0.0]:
 					shake.tween_property(button, "rotation_degrees", angle, 0.04)
-				await shake.finished
-				button.disabled = false
-				# The player may finish (or be blocked) during the shake; the board is then closed.
-				# A blocked Finish can also reopen the board with fewer cards before the shake ends.
-				if not visible or selected.size() < 4:
-					return
-			reaction.emit([{"s": C17.YOU, "t": L.t("板上只寫得下四件事——先拿掉一張。")}])
+				shake.tween_callback(func():
+					if card_buttons[id] != button:
+						return
+					button.disabled = false
+					# Finish can close the board or reopen it with fewer cards.
+					if visible and selected.size() >= 4:
+						reaction.emit(limit_reaction))
 			return
 		selected.append(id)
 		button.button_pressed = true

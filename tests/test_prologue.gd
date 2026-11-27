@@ -277,6 +277,16 @@ func _send_tab(ui: CanvasLayer) -> void:
 	await _send_key(KEY_TAB)
 
 
+func _press_focused_plan_button() -> void:
+	# Deliver the complete key stroke before advancing the shake.
+	for pressed in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		root.push_input(event)
+
+
 func _test_plan_limit(chapter) -> void:
 	var saved_motion: bool = PlanBoard.Settings.reduced_motion
 	for reduced in [false, true]:
@@ -291,10 +301,10 @@ func _test_plan_limit(chapter) -> void:
 		var selected: Array = chapter.plan_board.selected.duplicate()
 		var fifth: Button = chapter.plan_board.card_buttons["conditions"]
 		fifth.grab_focus()
-		await _send_key(KEY_ENTER)
+		_press_focused_plan_button()
 		var shook := not is_zero_approx(fifth.rotation)
-		var deadline := Time.get_ticks_msec() + 350
-		while Time.get_ticks_msec() < deadline:
+		var settle := create_timer(0.35)
+		while settle.time_left > 0.0:
 			shook = shook or not is_zero_approx(fifth.rotation)
 			await process_frame
 		check(shook != reduced, "fifth card shakes only when reduced motion is off")
@@ -326,17 +336,15 @@ func _test_plan_limit_blocked_reopen(chapter) -> void:
 			chapter.ui._advance()
 	var fifth: Button = chapter.plan_board.card_buttons["conditions"]
 	fifth.grab_focus()
-	await _send_key(KEY_ENTER)
+	_press_focused_plan_button()
 	check(fifth.disabled and not chapter.ui.dialog_active(), "blocked reopen race begins during the fifth-card shake")
 	chapter.plan_board.finish_btn.grab_focus()
-	await _send_key(KEY_ENTER)
+	_press_focused_plan_button()
 	check(chapter.ui.dialog_active() and chapter._pending == "board_reaction" and not chapter.plan_board.visible, "biased Finish opens the blocked dialogue and hides the board during the shake")
 	while chapter.ui.dialog_active():
 		chapter.ui._advance()
 	check(chapter.plan_board.visible and chapter.plan_board.selected.size() == 3 and fifth.disabled, "blocked dialogue reopens the three-card board before the fifth-card shake ends")
-	var deadline := Time.get_ticks_msec() + 350
-	while Time.get_ticks_msec() < deadline:
-		await process_frame
+	await create_timer(0.35).timeout
 	check(not chapter.ui.dialog_active() and not chapter.ui.text_label.text.contains("板上只寫得下四件事——先拿掉一張。"), "blocked reopen does not receive a stale fifth-card rejection")
 	check(chapter.plan_board.visible and chapter.plan_board.selected.size() == 3 and not chapter.plan_board.selected.has("keep_agreeing"), "blocked reopen keeps the board visible with three unbiased cards")
 	check(not fifth.disabled, "blocked reopen re-enables the fifth card after its shake")
@@ -356,14 +364,12 @@ func _test_plan_limit_finish(chapter) -> void:
 			chapter.ui._advance()
 	var fifth: Button = chapter.plan_board.card_buttons["conditions"]
 	fifth.grab_focus()
-	await _send_key(KEY_ENTER)
+	_press_focused_plan_button()
 	check(fifth.disabled and not chapter.ui.dialog_active(), "finish race begins while the fifth-card shake is still running")
 	chapter.plan_board.finish_btn.grab_focus()
-	await _send_key(KEY_ENTER)
+	_press_focused_plan_button()
 	check(chapter._pending == "plan_finish" and not chapter.plan_board.visible, "Finish closes the board during the fifth-card shake")
-	var deadline := Time.get_ticks_msec() + 350
-	while Time.get_ticks_msec() < deadline:
-		await process_frame
+	await create_timer(0.35).timeout
 	check(chapter.ui.dialog_active() and chapter._pending == "plan_finish" and chapter.ui._seq == C17.plan_finish(ids), "late fifth-card rejection preserves the active plan-finish dialogue")
 	check(not chapter.ui.text_label.text.contains("板上只寫得下四件事——先拿掉一張。"), "late fifth-card rejection does not replace plan-finish text")
 	# Advance the authored plan/trial dialogue; UI emits the real dialogue_done signal.

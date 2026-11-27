@@ -108,7 +108,7 @@ func _run() -> void:
 	check(sounds.is_empty() and not quiet.aligned, "unflipped tracing paper does not settle: %s" % str(sounds))
 	quiet._toggle_flip()
 	check(quiet.aligned and sounds == ["flip", "settle"], "turning the paper over settles the fields once: %s" % str(sounds))
-	check(quiet._status_label.text.contains("箭頭"), "aligned status points at the corner number and the pencil arrow")
+	check(quiet._status_label.text == L.t("找出描圖與底片之間的差異。"), "aligned status asks the player to find differences between the plates")
 	sounds.clear()
 	quiet._update_alignment()
 	check(sounds.is_empty(), "staying aligned makes no second settle")

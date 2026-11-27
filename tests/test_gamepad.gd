@@ -3,6 +3,7 @@ extends SceneTree
 const UI := preload("res://scripts/ui.gd")
 const Prompts := preload("res://scripts/prompts.gd")
 const Overlay := preload("res://scripts/cambridge/overlay_viewer.gd")
+const C17 := preload("res://scripts/cambridge/content_1917.gd")
 const Plan := preload("res://scripts/cambridge/plan_board.gd")
 const Checklist := preload("res://scripts/cambridge/departure_checklist.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
@@ -20,6 +21,26 @@ class WorldInputProbe extends Node:
 	func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed("pause"):
 			pause_events += 1
+
+
+class LightboxDrawProbe extends Overlay:
+	var magnified_marks: Dictionary = {}
+	var magnified_stars: Dictionary = {}
+
+	func _draw_loupe() -> void:
+		magnified_marks.clear()
+		magnified_stars.clear()
+		super._draw_loupe()
+
+	func _draw_star(point: Vector2, index: int, zoom: float) -> void:
+		if zoom == 2.0:
+			magnified_stars[index] = point
+		super._draw_star(point, index, zoom)
+
+	func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
+		if zoom == 2.0:
+			magnified_marks[index] = point
+		super._draw_copy_mark(point, index, zoom)
 
 
 func _initialize() -> void:
@@ -75,6 +96,102 @@ func motion(axis: JoyAxis, value: float) -> void:
 	Input.parse_input_event(event)
 	Input.flush_buffered_events()
 	await process_frame
+
+
+func _lightbox_press(pad: bool, pad_button: JoyButton, keyboard_key: Key) -> void:
+	if pad:
+		await button(pad_button)
+	else:
+		await key(keyboard_key, true)
+		await key(keyboard_key, false)
+
+
+func _steer_lightbox(overlay, target: Vector2, pad: bool) -> void:
+	var steps := Vector2i(((target - overlay._loupe_position) / 16.0).round())
+	for i in absi(steps.x):
+		await _lightbox_press(pad, JOY_BUTTON_DPAD_RIGHT if steps.x > 0 else JOY_BUTTON_DPAD_LEFT,
+			KEY_RIGHT if steps.x > 0 else KEY_LEFT)
+	for i in absi(steps.y):
+		await _lightbox_press(pad, JOY_BUTTON_DPAD_DOWN if steps.y > 0 else JOY_BUTTON_DPAD_UP,
+			KEY_DOWN if steps.y > 0 else KEY_UP)
+
+
+func _test_lightbox_inspection(overlay, pad: bool) -> void:
+	var device := "pad" if pad else "keyboard"
+	check(overlay.buttons.has("loupe"), device + " can choose a general-purpose loupe after alignment")
+	if not overlay.buttons.has("loupe"):
+		return
+	for id in ["label_mirrored", "arrow_tilted"]:
+		overlay.buttons[id].grab_focus()
+		await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	check(overlay._clues.has("label_mirrored") and overlay._clues.has("arrow_tilted"), device + " can still inspect both provenance clues")
+
+	var row: Dictionary = C17.report_rows()[2]
+	var hints: Array = []
+	overlay.hint_requested.connect(func(): hints.append(true))
+	var loupe: Button = overlay.buttons.loupe
+	loupe.grab_focus()
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	var matched: Vector2 = overlay._point_to_pixel(Overlay.MathModel.star_points()[16])
+	var origin: Vector2 = overlay._loupe_position
+	await _steer_lightbox(overlay, matched, pad)
+	check(overlay._loupe_position != origin and overlay._loupe_position.distance_to(matched) <= 12.0,
+		device + " steers the loupe to a matched point")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	check(overlay.aligned and hints.is_empty() and Report.available_options(row, overlay._clues).is_empty(),
+		device + " inspection of a matched point leaves the residual report row gated before any hint")
+
+	var matched_mark_drawn := false
+	if pad:
+		var marks: Dictionary = overlay.magnified_marks
+		var lens: Vector2 = overlay._loupe_position
+		matched_mark_drawn = marks.has(16) and marks[16].is_equal_approx(lens + (matched - lens) * 2.0)
+		overlay._process(90.0)
+		check(hints.size() == 1, "a stalled inspection can request the existing timed hint")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	await _steer_lightbox(overlay, overlay.detail_position("residual"), pad)
+	check(not overlay._clues.has("residual"), device + " can aim at the speck without automatically marking it")
+	await _lightbox_press(pad, JOY_BUTTON_A, KEY_ENTER)
+	check(overlay._clues.has("residual") and Report.available_options(row, overlay._clues).size() == 3,
+		device + " inspection of the real residual unlocks its report options")
+	if pad:
+		var marks: Dictionary = overlay.magnified_marks
+		var lens: Vector2 = overlay._loupe_position
+		var speck: Vector2 = overlay.detail_position("residual")
+		check(matched_mark_drawn and marks.has(17) and marks[17].is_equal_approx(lens + (speck - lens) * 2.0),
+			"the live loupe draws magnified tracing marks at the matched point and over the pale speck")
+		# Place the matched pair 33 px from the centre after magnification.
+		var offset_from_match := Vector2(16.5, 0.0)
+		overlay._loupe_position = matched - offset_from_match
+		overlay.queue_redraw()
+		await process_frame
+		await process_frame
+		var stars: Dictionary = overlay.magnified_stars
+		var expected := matched + offset_from_match
+		check(stars.has(16) and marks.has(16) and stars[16].is_equal_approx(expected) and marks[16].is_equal_approx(expected),
+			"the live loupe draws both layers of a matched pair 33 px from its centre")
+		var previous_scale := Settings.text_scale
+		var previous_viewport_size := root.content_scale_size
+		var previous_viewport_aspect := root.content_scale_aspect
+		root.content_scale_size = Vector2i(1600, 900)
+		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+		Settings.text_scale = 1.2
+		Settings.refresh_fonts(self)
+		await process_frame
+		var plate: Rect2 = overlay.canvas_rect().grow(-1.0)
+		overlay._inspect_plate(Vector2(plate.get_center().x, plate.end.y))
+		overlay.ui.show_toast(C17.viewer_feedback("residual"))
+		await process_frame
+		await process_frame
+		var low_centre: Vector2 = overlay.get_global_transform() * overlay._loupe_position
+		check(overlay.ui.toast.is_visible_in_tree() and not overlay.ui.toast.get_global_rect().has_point(low_centre),
+			"the inspection note clears the lowest loupe centre at text scale 1.2")
+		root.content_scale_size = previous_viewport_size
+		root.content_scale_aspect = previous_viewport_aspect
+		Settings.text_scale = previous_scale
+		Settings.refresh_fonts(self)
+	else:
+		check(hints.is_empty(), "keyboard inspection can finish before the timed hint")
 
 
 func _ending_layout(ui: UI) -> void:
@@ -392,7 +509,7 @@ func _run() -> void:
 	check(ui.log_open(), "Back opens dialogue log")
 	await button(JOY_BUTTON_B)
 	check(not ui.log_open(), "B closes dialogue log")
-	var overlay := Overlay.new()
+	var overlay := LightboxDrawProbe.new()
 	overlay.ui = ui
 	root.add_child(overlay)
 	overlay.open()
@@ -483,14 +600,24 @@ func _run() -> void:
 	for i in 6:
 		await button(JOY_BUTTON_RIGHT_SHOULDER)
 	check(overlay.aligned, "RB rotates tracing into alignment")
-	for inspect in overlay.find_children("*", "Button", true, false):
-		if inspect.text in ["看標籤", "看箭頭", "放大未重合點"]:
-			inspect.grab_focus()
-			await button(JOY_BUTTON_A)
-	check(overlay._clues.size() == 3 and overlay._loupe_open, "focused detail buttons inspect all three real clue hit targets")
+	await _test_lightbox_inspection(overlay, true)
 	await button(JOY_BUTTON_B)
 	check(not overlay.visible, "B closes overlay")
 	overlay.free()
+
+	var keyboard_overlay := Overlay.new()
+	keyboard_overlay.ui = ui
+	root.add_child(keyboard_overlay)
+	keyboard_overlay.open()
+	await key(KEY_ENTER, true)
+	await key(KEY_ENTER, false)
+	for i in 6:
+		await key(KEY_E, true)
+		await key(KEY_E, false)
+	check(keyboard_overlay.aligned, "keyboard aligns the tracing")
+	await _test_lightbox_inspection(keyboard_overlay, false)
+	keyboard_overlay.close()
+	keyboard_overlay.free()
 	var board := Plan.new()
 	root.add_child(board)
 	board.open()

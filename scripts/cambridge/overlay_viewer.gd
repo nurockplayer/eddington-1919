@@ -19,6 +19,9 @@ const INK := Color(0.10, 0.105, 0.10)
 const GOLD := Color(0.83, 0.67, 0.40)
 const MUTED := Color(0.71, 0.69, 0.63)
 const SOURCE_TILT := 3.2
+const LOUPE_RADIUS := 44.0
+const LOUPE_GLASS_RADIUS := 41.0
+const LOUPE_FEATURE_RADIUS := 34.0
 
 var aligned := false
 var flipped := false
@@ -34,6 +37,9 @@ var _pointer_moved := false
 var _pointer_start := Vector2.ZERO
 var _clues: Dictionary = {}
 var _loupe_open := false
+var _loupe_position := Vector2.ZERO
+var _loupe_clip := Control.new()
+var _loupe_canvas := Node2D.new()
 var _hint_elapsed := 0.0
 var _hint_sent := false
 var _alignment_progress_recorded := false
@@ -50,6 +56,11 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_font = Fonts.cjk()
+	_loupe_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loupe_clip.clip_contents = true
+	add_child(_loupe_clip)
+	_loupe_clip.add_child(_loupe_canvas)
+	_loupe_canvas.draw.connect(_draw_loupe)
 	_build_ui()
 	visible = false
 
@@ -90,6 +101,7 @@ func close() -> void:
 		ui.toast.remove_theme_stylebox_override("normal")
 		_toast_backing = null
 	_dragging = false
+	_loupe_open = false
 	closed.emit()
 
 
@@ -158,10 +170,18 @@ func _build_ui() -> void:
 	details.position = Vector2(-230, 100)
 	details.add_theme_constant_override("separation", 12)
 	add_child(details)
-	for id in ["label_mirrored", "arrow_tilted", "residual"]:
-		var inspect := _button({"label_mirrored": L.t("看標籤"), "arrow_tilted": L.t("看箭頭"), "residual": L.t("放大未重合點")}[id])
+	for id in ["label_mirrored", "arrow_tilted"]:
+		var inspect := _button({"label_mirrored": L.t("看標籤"), "arrow_tilted": L.t("看箭頭")}[id])
 		inspect.pressed.connect(func(): _try_detail_click(_detail_local_position(id)))
+		buttons[id] = inspect
 		details.add_child(inspect)
+	var loupe := _button(L.t("放大鏡 ×2"))
+	loupe.toggle_mode = true
+	loupe.toggled.connect(_toggle_loupe)
+	loupe.gui_input.connect(_loupe_input)
+	loupe.focus_exited.connect(func(): loupe.set_pressed_no_signal(false))
+	buttons["loupe"] = loupe
+	details.add_child(loupe)
 
 
 func refresh_prompts() -> void:
@@ -210,6 +230,10 @@ func _process(delta: float) -> void:
 		var toast: Label = ui.toast
 		toast.size.y = maxf(90.0, toast.get_combined_minimum_size().y)
 		toast.global_position.y = _status_label.get_global_rect().position.y - 10.0 - toast.size.y
+		if _loupe_open:
+			var centre := get_global_transform() * _loupe_position
+			if toast.get_global_rect().grow(LOUPE_RADIUS).has_point(centre):
+				toast.global_position.y = centre.y - LOUPE_RADIUS - 10.0 - toast.size.y
 		if _toast_backing:
 			_toast_backing.bg_color.a = 0.88 if toast.text != "" else 0.0
 	if not visible or (is_instance_valid(ui) and ui.blocks_world_input()):
@@ -255,8 +279,8 @@ func _gui_input(event: InputEvent) -> void:
 				_dragging = true
 				get_viewport().set_input_as_handled()
 		else:
-			if _pointer_pressed and not _pointer_moved:
-				_try_detail_click(event.position)
+			if _pointer_pressed and not _pointer_moved and canvas_rect().has_point(event.position):
+				_inspect_plate(event.position)
 			_pointer_pressed = false
 			_dragging = false
 			get_viewport().set_input_as_handled()
@@ -273,6 +297,37 @@ func _gui_input(event: InputEvent) -> void:
 				_update_alignment()
 				queue_redraw()
 		get_viewport().set_input_as_handled()
+
+
+func _toggle_loupe(steering: bool) -> void:
+	if steering:
+		if not _loupe_open:
+			_loupe_position = canvas_rect().get_center()
+		_loupe_open = true
+		queue_redraw()
+	else:
+		_inspect_plate(_loupe_position)
+
+
+func _loupe_input(event: InputEvent) -> void:
+	if not buttons.loupe.button_pressed or (is_instance_valid(ui) and ui.blocks_world_input()):
+		return
+	var directions := {"ui_left": Vector2.LEFT, "ui_right": Vector2.RIGHT, "ui_up": Vector2.UP, "ui_down": Vector2.DOWN}
+	for action in directions:
+		if event.is_action(action):
+			if event.is_pressed():
+				var plate := canvas_rect().grow(-1.0)
+				_loupe_position = (_loupe_position + directions[action] * 16.0).clamp(plate.position, plate.end)
+				queue_redraw()
+			buttons.loupe.accept_event()
+			return
+
+
+func _inspect_plate(point: Vector2) -> void:
+	_loupe_position = point
+	_loupe_open = true
+	queue_redraw()
+	_try_detail_click(point)
 
 
 func _toggle_flip() -> void:
@@ -326,7 +381,7 @@ func _update_alignment() -> void:
 			sound.emit("settle")
 	if is_instance_valid(_status_label):
 		if aligned:
-			_status_label.text = L.t("17 個點重合了，還有 1 個沒有對上。也看看角落的編號，和鉛筆畫的箭頭。")
+			_status_label.text = L.t("找出描圖與底片之間的差異。")
 		elif flipped:
 			_status_label.text = L.t("翻面後，整片星場仍沿同一方向錯開。")
 		else:
@@ -344,10 +399,8 @@ func _try_detail_click(mouse: Vector2) -> bool:
 		if _distance_to_segment(screen_mouse, arrow[0], arrow[1]) <= 10.0:
 			_found_clue("arrow_tilted")
 			return true
-	if aligned and mouse.distance_to(_detail_local_position("residual")) < 30.0:
+	if aligned and mouse.distance_to(_detail_local_position("residual")) <= 12.0:
 		_found_clue("residual")
-		_loupe_open = true
-		queue_redraw()
 		return true
 	return false
 
@@ -458,16 +511,21 @@ func _point_to_pixel(point: Vector2) -> Vector2:
 func _draw() -> void:
 	var viewport_size := get_viewport_rect().size
 	draw_rect(Rect2(Vector2.ZERO, viewport_size), Color(0.025, 0.028, 0.031, 0.995), true)
-	draw_glass(self, canvas_rect())
+	var rect := canvas_rect()
+	draw_glass(self, rect)
 	_draw_difference_arrows()
 	_draw_plate_stars()
-	_draw_speck()
+	_draw_speck(_point_to_pixel(MathModel.speck_point()), 1.0)
 	_draw_plate_marks()
 	_draw_copy_layer()
 	if aligned:
-		_draw_alignment_glow()
-	if _loupe_open:
-		_draw_loupe()
+		draw_rect(rect.grow(-5), GOLD, false, 2.0)
+	var glass := rect.grow(-9)
+	_loupe_clip.position = glass.position
+	_loupe_clip.size = glass.size
+	_loupe_canvas.position = -glass.position
+	_loupe_clip.visible = _loupe_open
+	_loupe_canvas.queue_redraw()
 
 
 static func draw_glass(canvas: CanvasItem, rect: Rect2) -> void:
@@ -488,15 +546,23 @@ func _draw_plate_stars() -> void:
 	var points := MathModel.star_points()
 	for i in points.size():
 		var p := _point_to_pixel(points[i])
-		var radius: float = [2.0, 2.5, 3.2, 1.8, 2.7][i % 5]
-		draw_circle(p + Vector2(0.8, 1.0), radius + 1.0, Color(0.22, 0.21, 0.19, 0.10))
-		draw_circle(p, radius, Color(0.12, 0.12, 0.115, 0.9))
+		draw_circle(p + Vector2(0.8, 1.0), _star_radius(i) + 1.0, Color(0.22, 0.21, 0.19, 0.10))
+		_draw_star(p, i, 1.0)
 
 
-func _draw_speck() -> void:
-	var p := _point_to_pixel(MathModel.speck_point())
-	draw_circle(p, 3.0, Color(0.76, 0.745, 0.69, 0.78))
-	draw_circle(p, 1.5, Color(0.92, 0.90, 0.83, 0.85))
+func _star_radius(index: int) -> float:
+	return [2.0, 2.5, 3.2, 1.8, 2.7][index % 5]
+
+
+func _draw_star(point: Vector2, index: int, zoom: float) -> void:
+	var canvas: CanvasItem = _loupe_canvas if zoom == 2.0 else self
+	canvas.draw_circle(point, _star_radius(index) * zoom, Color(0.12, 0.12, 0.115, 0.9))
+
+
+func _draw_speck(point: Vector2, zoom: float) -> void:
+	var canvas: CanvasItem = _loupe_canvas if zoom == 2.0 else self
+	canvas.draw_circle(point, 3.0 * zoom, Color(0.76, 0.745, 0.69, 0.78))
+	canvas.draw_circle(point, 1.5 * zoom, Color(0.92, 0.90, 0.83, 0.85))
 
 
 func _draw_plate_marks() -> void:
@@ -539,13 +605,32 @@ func _draw_copy_layer() -> void:
 		draw_line(c, d, Color(0.35, 0.27, 0.18, 0.18), 0.8)
 	var copy_stars := MathModel.transformed_copy(flipped, angle_deg, offset)
 	for i in copy_stars.size():
-		var p := _point_to_pixel(copy_stars[i])
-		var radius := 2.2 if i < 17 else 3.5
-		draw_circle(p, radius, Color(0.025, 0.08, 0.065, 0.88) if i < 17 else Color(0.05, 0.20, 0.15, 0.96))
+		_draw_copy_mark(_point_to_pixel(copy_stars[i]), i, 1.0)
 	_draw_copy_label()
 	var arrow := _copy_arrow_points()
 	_draw_arrow(_point_to_pixel(arrow[0]), _point_to_pixel(arrow[1]), Color(0.08, 0.20, 0.16, 0.78), 1.7)
 	draw_string(_font, _point_to_pixel(_copy_point(Vector2(0.26, 0.345))), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.08, 0.20, 0.16, 0.82))
+
+
+func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
+	var canvas: CanvasItem = _loupe_canvas if zoom == 2.0 else self
+	if aligned:
+		var radius := 5.0 * zoom
+		var start := 0.0
+		var end := TAU
+		if zoom == 2.0:
+			var inward := _loupe_position - point
+			var distance := inward.length()
+			# Leave half the stroke inside the glass at the ends of the arc.
+			var limit := LOUPE_GLASS_RADIUS - zoom / 2.0
+			if distance + radius > limit:
+				var half_arc := acos((distance * distance + radius * radius - limit * limit) / (2.0 * distance * radius))
+				start = inward.angle() - half_arc
+				end = inward.angle() + half_arc
+		canvas.draw_arc(point, radius, start, end, 20, Color(0.025, 0.08, 0.065, 0.65), zoom, true)
+	else:
+		var radius := 2.2 if index < 17 else 3.5
+		canvas.draw_circle(point, radius * zoom, Color(0.025, 0.08, 0.065, 0.88) if index < 17 else Color(0.05, 0.20, 0.15, 0.96))
 
 
 func _draw_copy_label() -> void:
@@ -578,22 +663,22 @@ func _draw_difference_arrows() -> void:
 				_draw_arrow(from, to, Color(0.49, 0.27, 0.12, 0.58), 1.0)
 
 
-func _draw_alignment_glow() -> void:
-	for point in MathModel.star_points():
-		var p := _point_to_pixel(point)
-		draw_circle(p, 8.0, Color(0.90, 0.71, 0.35, 0.10))
-		draw_arc(p, 7.0, 0.0, TAU, 32, Color(0.91, 0.72, 0.39, 0.58), 1.0)
-
-
 func _draw_loupe() -> void:
-	var rect := canvas_rect()
-	var loupe := Rect2(Vector2(rect.end.x - 194, rect.position.y + 28), Vector2(164, 164))
-	draw_rect(loupe.grow(7), Color(0.10, 0.10, 0.095, 0.97), true)
-	draw_rect(loupe, Color(0.83, 0.82, 0.77), true)
-	draw_circle(loupe.get_center(), 4.0, Color(0.76, 0.745, 0.69, 0.82))
-	draw_circle(loupe.get_center(), 2.1, Color(0.92, 0.90, 0.83, 0.91))
-	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 25), L.t("微弱斑點：恆星？乳劑瑕疵？"), HORIZONTAL_ALIGNMENT_LEFT, 224, 14, Color(0.12, 0.12, 0.11, 0.9))
-	draw_string(_font, loupe.position + Vector2(8, loupe.size.y + 46), L.t("單憑這張底片，尚無定論。"), HORIZONTAL_ALIGNMENT_LEFT, 224, 13, Color(0.12, 0.12, 0.11, 0.78))
+	_loupe_canvas.draw_circle(_loupe_position, LOUPE_RADIUS, INK)
+	_loupe_canvas.draw_circle(_loupe_position, LOUPE_GLASS_RADIUS, GLASS)
+	var points := MathModel.star_points()
+	for i in points.size():
+		var displacement := (_point_to_pixel(points[i]) - _loupe_position) * 2.0
+		if displacement.length() <= LOUPE_FEATURE_RADIUS:
+			_draw_star(_loupe_position + displacement, i, 2.0)
+	var speck := (_point_to_pixel(MathModel.speck_point()) - _loupe_position) * 2.0
+	if speck.length() <= LOUPE_FEATURE_RADIUS:
+		_draw_speck(_loupe_position + speck, 2.0)
+	var copy_stars := MathModel.transformed_copy(flipped, angle_deg, offset)
+	for i in copy_stars.size():
+		var displacement := (_point_to_pixel(copy_stars[i]) - _loupe_position) * 2.0
+		if displacement.length() <= LOUPE_FEATURE_RADIUS:
+			_draw_copy_mark(_loupe_position + displacement, i, 2.0)
 
 
 func _draw_arrow(from: Vector2, to: Vector2, color: Color, width: float) -> void:
