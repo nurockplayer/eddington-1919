@@ -4,6 +4,7 @@ extends CharacterBody3D
 const Settings := preload("res://scripts/settings.gd")
 const WALK := 3.4
 const RUN := 5.8
+const STEP_DISTANCE := 1.4
 const MOUSE_SENS := 0.0022
 const REACH := 3.2
 
@@ -13,6 +14,7 @@ var can_look := true
 var yaw := 0.0
 var pitch := 0.0
 var _bob := 0.0
+var _step_distance := 0.0
 var step_surface := "wood"
 var steps_taken := 0
 var _steps := {}
@@ -126,14 +128,17 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = -0.1
 	move_and_slide()
-	if input.length() > 0.1 and is_on_floor():
-		var previous_step := floori(_bob / PI)
-		_bob += delta * speed * 2.2
-		camera.position.y = 1.62 + (0.0 if Settings.reduced_motion else sin(_bob) * 0.035)
-		if floori(_bob / PI) > previous_step:
+	if input != Vector2.ZERO and is_on_floor():
+		var travel := get_position_delta()
+		_step_distance += Vector2(travel.x, travel.z).length()
+		if _step_distance >= STEP_DISTANCE:
+			_step_distance -= STEP_DISTANCE
 			_step_player.stream = _steps[step_surface][_step_rng.randi_range(0, 2)]
 			_step_player.play()
 			steps_taken += 1
+	if input.length() > 0.1 and is_on_floor():
+		_bob += delta * speed * 2.2
+		camera.position.y = 1.62 + (0.0 if Settings.reduced_motion else sin(_bob) * 0.035)
 	else:
 		camera.position.y = lerpf(camera.position.y, 1.62, delta * 8.0)
 
