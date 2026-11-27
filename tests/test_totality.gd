@@ -45,6 +45,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	if "--rehearsal" in OS.get_cmdline_user_args():
+		await _test_totality_pacing()
 		await _test_rehearsal()
 		await _test_rehearsal_carry()
 		await _test_empty_rack_wait()
@@ -255,6 +256,7 @@ func _test_totality_pacing() -> void:
 		for frame in roundi(8.0 / (STEP * rate)):
 			game._process_totality(STEP)
 		await _rehearsal_press(shutter)
+		await _rehearsal_press(interact)
 		game._process_totality((283.0 - game.t_game) / rate)
 		check(not game._warned_end, "warning has not fired with 19 game seconds remaining")
 		game._process_totality(2.0 / rate)
