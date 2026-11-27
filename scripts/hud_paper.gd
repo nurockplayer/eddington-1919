@@ -2,6 +2,7 @@ extends RefCounted
 ## In-play print furniture and the overlays that open over it.
 
 const Fonts := preload("res://scripts/fonts.gd")
+const InkShader := preload("res://shaders/hud_ink.gdshader")
 
 var ui: Node
 var palette: Dictionary
@@ -10,6 +11,8 @@ var panel_slips := {}
 var buttons: StyleBoxFlat
 var selected_button: StyleBoxFlat
 var hovered_button: StyleBoxFlat
+var ink_wipe := ShaderMaterial.new()
+var ink_crossover: float
 var choice_focus := StyleBoxEmpty.new()
 var foreground: Color
 var evidence_dialogue := {}
@@ -22,6 +25,13 @@ var small_caps: FontVariation
 func setup(target: Node, colours: Dictionary) -> void:
 	ui = target
 	palette = colours
+	ink_wipe.shader = InkShader
+	ink_wipe.set_shader_parameter("light_ink", palette.paper)
+	ink_wipe.set_shader_parameter("dark_ink", palette.ink_col)
+	var light_ink: Color = palette.paper
+	var dark_ink: Color = palette.ink_col
+	ink_crossover = sqrt((light_ink.srgb_to_linear().get_luminance() + 0.05)
+		* (dark_ink.srgb_to_linear().get_luminance() + 0.05)) - 0.05
 	ui.paper_hud = true
 	var face := SystemFont.new()
 	face.font_names = PackedStringArray(["Baskerville", "Georgia", "serif"])
@@ -105,18 +115,35 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	var background: Color = palette.paper
 	foreground = palette.ink_col
 	portrait_tint = Color.WHITE
+	var rule := foreground
+	var ink_material: ShaderMaterial
 	if night * float(params.night_wash) > 0.5:
 		background = palette.safe_paper
 		foreground = palette.safe_light
 		portrait_tint = foreground
-	elif darkness * float(params.tot_wash) > 0.5:
-		background = palette.tot_paper
-		foreground = palette.paper
-		portrait_tint = background.lerp(Color.WHITE, 0.4)
-	ui.set_overlay_paper(background, foreground)
+		rule = foreground
+		ui.set_overlay_paper(background, foreground)
+	else:
+		var blue: Color = palette.tot_paper
+		var wash := clampf(darkness * float(params.tot_wash), 0.0, 1.0)
+		background = blue if wash == 1.0 else background.lerp(blue, wash)
+		portrait_tint = Color.WHITE.lerp(blue.lerp(Color.WHITE, 0.4), wash)
+		var luminance := background.srgb_to_linear().get_luminance()
+		# This luminance band takes about 0.3 s to cross and supports both inks.
+		var ink_progress := inverse_lerp(ink_crossover - 0.01, ink_crossover + 0.01, luminance)
+		foreground = palette.paper if ink_progress < 0.5 else palette.ink_col
+		rule = foreground
+		if ink_progress > 0.0 and ink_progress < 1.0:
+			var light_ink: Color = palette.paper
+			rule = light_ink.lerp(palette.ink_col, ink_progress)
+			ink_wipe.set_shader_parameter("source_ink", foreground)
+			ink_wipe.set_shader_parameter("progress", ink_progress)
+			ink_material = ink_wipe
+		# Pause, help and log stop the scene clock and keep their solid print palettes.
+		ui.set_overlay_paper(blue if wash > 0.5 else palette.paper, palette.paper if wash > 0.5 else palette.ink_col)
 	for slip in slips:
 		slip.bg_color = background
-		slip.border_color = foreground
+		slip.border_color = rule
 	for panel in panel_slips:
 		panel.add_theme_stylebox_override("panel", panel_slips[panel])
 	buttons.bg_color = background
@@ -128,11 +155,14 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption, ui.tot_hint, ui.callout, ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
 		label.add_theme_color_override("font_color", foreground)
 		label.add_theme_constant_override("outline_size", 0)
+		label.material = ink_material
 	ui.crosshair.add_theme_color_override("font_color", foreground)
 	ui.crosshair.add_theme_color_override("font_outline_color", background)
 	ui.crosshair.add_theme_constant_override("outline_size", 3)
 	for label in [ui.objectives, ui.tot_label, ui.text_label]:
 		label.add_theme_color_override("default_color", foreground)
+		label.add_theme_constant_override("outline_size", 0)
+		label.material = ink_material
 	_choices()
 	_central_visibility()
 

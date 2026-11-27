@@ -218,6 +218,7 @@ func _test_eclipse_pilot_bindings(shader_text: String) -> void:
 	_check_return_outline(game, shader_text)
 	for mesh in pilot:
 		_check_original_pilot_binding(mesh, "live daylight recovery retains original materials")
+	_test_return_paper(game)
 	game.free()
 
 
@@ -259,6 +260,56 @@ func _check_distant_land_bindings(game: Node) -> void:
 					break
 	check(has_distant_ridge, "scene supplies ridge geometry in the distant-edge and daylight land ranges")
 
+
+func _test_return_paper(game: Node) -> void:
+	var ui: Node = game.ui
+	var saved_motion := Settings.reduced_motion
+	var blue: Color = Engraving.PAGES.tot_paper
+	var labels := [
+		[ui.objectives.get_parent(), ui.objectives, "default_color"],
+		[ui.tot_panel, ui.tot_label, "default_color"],
+		[ui.tot_panel, ui.tot_hint, "font_color"],
+		[ui.tot_panel, ui.callout, "font_color"],
+		[ui.dialog_panel, ui.speaker_label, "font_color"],
+		[ui.dialog_panel, ui.text_label, "default_color"],
+		[ui.dialog_panel, ui.hint_label, "font_color"],
+		[ui.dialogue_portrait, ui.dialogue_portrait.disclosure, "font_color"],
+		[ui.clock_label, ui.clock_label, "font_color"],
+		[ui.prompt_label, ui.prompt_label, "font_color"],
+		[ui.caption, ui.caption, "font_color"],
+		[ui.toast, ui.toast, "font_color"],
+	]
+	var frames := range(0, int(game.DAY_RETURN_S * 60) + 1)
+	frames.append(14 * 60)
+	for reduced_motion in [false, true]:
+		Settings.reduced_motion = reduced_motion
+		var wipe_frames := 0
+		for frame in frames:
+			var elapsed: float = frame / 60.0
+			game._update_day_return(elapsed)
+			var darkness: float = game._style.quad_material.get_shader_parameter("darkness")
+			var paper := Engraving.PAPER.lerp(blue, darkness)
+			wipe_frames += int(ui.text_label.material != null)
+			for entry in labels:
+				var label: Control = entry[1]
+				var slip: StyleBoxFlat = entry[0].get_theme_stylebox("normal" if entry[0] == label else "panel")
+				var ink := label.get_theme_color(entry[2])
+				_check_slip(slip, ink, paper, 3.5)
+				check(label.get_theme_constant("outline_size") == 0, "return text has no outline at %.3f s" % elapsed)
+				check(ink == Engraving.PAPER or ink == Engraving.INK, "return text only uses the original inks")
+				check(label.material == ui.text_label.material, "return text shares the ink transition")
+				if label.material != null:
+					for channel in ["light_ink", "dark_ink"]:
+						var wipe_ink: Color = label.material.get_shader_parameter(channel)
+						check(wipe_ink == (Engraving.PAPER if channel == "light_ink" else Engraving.INK)
+							and _contrast(wipe_ink, slip.bg_color) >= 3.5, "both original inks read during the wipe")
+				if elapsed >= game.DAY_RETURN_S:
+					check(slip.bg_color == Engraving.PAPER and slip.border_color == Engraving.INK and ink == Engraving.INK,
+						"return ends on exact daylight paper and ink")
+			check(ui.dialogue_portrait.image.self_modulate.is_equal_approx(Color.WHITE.lerp(blue.lerp(Color.WHITE, 0.4), darkness)),
+				"portrait follows page darkness at %.3f s (reduced motion %s)" % [elapsed, reduced_motion])
+		check(wipe_frames >= 15 and wipe_frames <= 21, "ink transition takes about 0.3 s")
+	Settings.reduced_motion = saved_motion
 
 
 func _check_original_pilot_binding(mesh: MeshInstance3D, message: String) -> void:
@@ -349,9 +400,13 @@ func _test_choices_caption(game: Node) -> void:
 	game._apply_light(0.62, 0, -150, 0)
 
 
-func _check_slip(slip: StyleBoxFlat, text: Color, paper: Color) -> void:
+func _check_slip(slip: StyleBoxFlat, text: Color, paper: Color, minimum_contrast := 4.5) -> void:
 	check(slip.bg_color.a == 1.0, "slip is solid")
-	check(slip.bg_color == paper, "slip uses the scene's paper")
-	var a := text.srgb_to_linear().get_luminance()
-	var b := slip.bg_color.srgb_to_linear().get_luminance()
-	check((maxf(a, b) + 0.05) / (minf(a, b) + 0.05) >= 4.5, "slip text contrast >= 4.5")
+	check(slip.bg_color.is_equal_approx(paper), "slip uses the scene's paper")
+	check(_contrast(text, slip.bg_color) >= minimum_contrast, "slip text contrast >= %.1f" % minimum_contrast)
+
+
+func _contrast(text: Color, paper: Color) -> float:
+	var fill := text.srgb_to_linear().get_luminance() + 0.05
+	var stock := paper.srgb_to_linear().get_luminance() + 0.05
+	return maxf(fill, stock) / minf(fill, stock)
