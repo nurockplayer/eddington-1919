@@ -1612,3 +1612,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - For the next head: no ring at the lens centre (a fine cross, or nothing); outside the glass the lens shows what is there, or the loupe stops at the glass. Frames: 02, 03, 04, 05 again.
 - The newcomer playtest stays owed to a person.
 - **Verdicts:** technical regression none seen; this PR's change not accepted yet. **Count stays 7/9.**
+
+### 2026-11-27 18:12 JST: #589 AA fun 01, middle cloud seam in totality, at f33eda8: the states hold; not accepted yet, the passage is owed as a clip
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/589/f33eda8b0bd35712f9fc8e114292f6bab3bdaf64/` (main `a3d1391a`, seeds 77 and 1919, en, 1280×720; 18 stills). Opened whole at native size: candidate seed 77 first thinning, seam, second thinning; main seed 77 seam; candidate seed 1919 first thinning and seam. By numbers only: the other twelve, the clear, thin and thick pairs among them. Kept in `slice_principe/accept/589/f33eda8/`.
+- **The three states read.** First thinning: disc and corona whole in a clear island. Seam, 3 s later: the island has parted into pieces, a band of cloud lies over the Sun's place, disc and corona are gone and stars still show in the pieces either side. Second thinning, 3 s on: the island has closed again and the corona's upper right is still cut by the cloud's edge. On main the island never parts. Same in seed 1919.
+- **Clear, thin, thick (seed 77):** candidate against main differs by 0.14 to 0.19 of 255, all below y 389 (palms and shelter); the sky is main's.
+- **Why not yet:** the row is the passage, how the band arrives over the Sun and leaves, and whether the player can see it coming in the sky. Three stills 3 s apart do not show that, and I have accepted transitions from end states before and been wrong. Owed: one clip, seed 77, 1280×720 at 60 fps, simulation 98 to 113 s, frames kept.
+- Capture note: main's seed 77 seam frame has the input hint in Japanese with the rest in English.
+- **Verdicts:** technical regression none seen in the sky pass; this PR's change not accepted yet (clip owed); row 4 stays met. **Count stays 7/9.**
