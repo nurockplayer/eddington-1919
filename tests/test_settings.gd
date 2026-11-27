@@ -276,14 +276,15 @@ func _check_video_calls() -> void:
 	Settings.fullscreen = previous_fullscreen
 
 
-func _check_routes(node: Node, gramophone: Node = null) -> int:
+func _check_routes(node: Node, gramophone: Node = null, submix_players: Dictionary = {}) -> int:
 	var count := 0
 	if node is AudioStreamPlayer or node is AudioStreamPlayer2D or node is AudioStreamPlayer3D:
-		var expected := "Music" if node == gramophone or node.get_parent() is ScorePlayer else "SFX"
+		var default_bus := "Music" if node == gramophone or node.get_parent() is ScorePlayer else "SFX"
+		var expected: String = submix_players.get(node, default_bus)
 		check(node.bus == expected, "%s final bus is %s (got %s)" % [node.get_path(), expected, node.bus])
 		count += 1
 	for child in node.get_children():
-		count += _check_routes(child, gramophone)
+		count += _check_routes(child, gramophone, submix_players)
 	return count
 
 
@@ -329,7 +330,15 @@ func _check_pause_menu() -> void:
 	root.add_child(main)
 	await process_frame
 	check(Settings.video_apply_count == startup_video_calls, "1919 startup does not reapply video")
-	check(main.is_node_ready() and _check_routes(main) > 0, "1919 has live audio players after ready")
+	var submix_players := {
+		main.audio_open: "Totality Actions",
+		main.audio_click: "Totality Actions",
+		main.audio_change: "Totality Actions",
+		main.audio_tick: "Totality Actions",
+		main.audio_insects: "Totality Ambience",
+		main.audio_surf: "Totality Ambience",
+	}
+	check(main.is_node_ready() and _check_routes(main, null, submix_players) > 0, "1919 has live audio players after ready")
 	var ui = main.ui
 	var video_calls := Settings.video_apply_count
 	ui.toggle_pause()
@@ -395,6 +404,7 @@ func _check_pause_menu() -> void:
 	left.pressed = false
 	Input.parse_input_event(left)
 	check(is_equal_approx(sliders[2].value, 0.5), "gamepad left adjusts the focused slider")
+	_check_totality_sfx_volume(sliders[2], [main.audio_tick.bus, main.audio_insects.bus])
 	var before: bool = Settings.fullscreen
 	var f11 := InputEventKey.new()
 	f11.physical_keycode = KEY_F11
@@ -422,6 +432,22 @@ func _check_pause_menu() -> void:
 	Settings.load_settings()
 	Settings.apply_audio()
 	Settings.apply_video()
+
+
+func _check_totality_sfx_volume(slider: HSlider, buses: Array) -> void:
+	for bus in buses:
+		var child := AudioServer.get_bus_index(bus)
+		var parent := AudioServer.get_bus_index(AudioServer.get_bus_send(child))
+		check(AudioServer.get_bus_name(parent) == &"SFX" and parent < child, bus + " sends to SFX before Master")
+		slider.value = 1.0
+		var full_db := AudioServer.get_bus_volume_db(child) + AudioServer.get_bus_volume_db(parent)
+		slider.value = 0.5
+		var half_db := AudioServer.get_bus_volume_db(child) + AudioServer.get_bus_volume_db(parent)
+		check(is_equal_approx(half_db - full_db, linear_to_db(0.5)), bus + " loses 6 dB at half SFX volume")
+		slider.value = 0.0
+		check(AudioServer.is_bus_mute(parent), bus + " is muted at zero SFX volume")
+		slider.value = 0.5
+		check(not AudioServer.is_bus_mute(parent), bus + " is audible again when SFX volume returns")
 
 
 func cfg_reload_check(bus: String, value: float) -> void:
