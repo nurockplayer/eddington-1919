@@ -19,7 +19,7 @@ func _draw() -> void:
 		"handoff", "delivery": _forest()
 		"cutaway": _cutaway()
 		"night", "cloud": _horizon()
-		"arrival", "packed": _shore()
+		"arrival": _shore()
 	draw_rect(Rect2(1, 1, 598, 158), WASH, false, 1)
 
 
@@ -46,15 +46,14 @@ func _map() -> void:
 
 func _shore() -> void:
 	for y in range(35, 135, 8):
-		_stroke([Vector2(12, y), Vector2(278, y)], WASH, 1)
+		# The shore polygon painted over the ruling trims each line to the coast.
+		_stroke([Vector2(12, y), Vector2(462 if y == 35 else 497, y)], WASH, 1)
 	_shape([Vector2(294, 158), Vector2(339, 100), Vector2(290, 82), Vector2(413, 66),
 		Vector2(497, 43), Vector2(598, 63), Vector2(598, 158)], WASH)
 	for i in 4:
 		var at := Vector2(380 + 49 * i, 89 - 9 * i)
 		draw_rect(Rect2(at, Vector2(42, 27)), LIGHT)
 		_shape([at + Vector2(-5, 1), at + Vector2(20, -15), at + Vector2(48, 1)], INK)
-	if subject == "packed":
-		_crate(Vector2(338, 148))
 
 
 func _forest() -> void:
@@ -122,19 +121,27 @@ func _horizon() -> void:
 	var coverage := 1.0 if subject == "cloud" else progress
 	if coverage > 0:
 		var left := lerpf(584, 14, coverage)
+		var end_width := minf(36.0, (586 - left) * 0.5)
 		var ridge := PackedVector2Array()
 		var base := PackedVector2Array()
 		for i in 33:
 			var x := lerpf(left, 586, i / 32.0)
-			ridge.append(Vector2(x, 35 + 11 * sin(x * 0.034) + 6 * cos(x * 0.056)))
-			base.append(Vector2(x, 71 + 7 * sin(x * 0.028 + 2) + 5 * cos(x * 0.057)))
-		base.reverse()
-		var bank := ridge + base
+			var top := 35 + 11 * sin(x * 0.034) + 6 * cos(x * 0.056)
+			var bottom := 71 + 7 * sin(x * 0.028 + 2) + 5 * cos(x * 0.057)
+			var middle := (top + bottom) * 0.5
+			var taper := smoothstep(0.0, end_width, minf(x - left, 586 - x))
+			ridge.append(Vector2(x, lerpf(middle, top, taper)))
+			base.append(Vector2(x, lerpf(middle, bottom, taper)))
+		var bank := ridge.duplicate()
+		for i in range(31, 0, -1):
+			bank.append(base[i])
 		draw_colored_polygon(bank, CLOUD)
 		bank.append(bank[0])
 		_stroke(bank, CLOUD.darkened(0.25), 1)
 		for i in range(1, 31, 2):
-			var at := Vector2(ridge[i].x, base[32 - i].y - 5)
+			if base[i].y - ridge[i].y < 10:
+				continue
+			var at := base[i] - Vector2(0, 5)
 			_stroke([at - Vector2(5 * coverage, 0), at + Vector2(9 * coverage, -2)],
 				CLOUD.darkened(0.18), 1)
 	_shape([Vector2(2, 155), Vector2(2, 112), Vector2(83, 97), Vector2(177, 118),

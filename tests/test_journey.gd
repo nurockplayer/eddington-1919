@@ -822,8 +822,10 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	await _sundy_sheet(paper, "sundy_16_clouded_day", [text.S77], text.S78)
 	expect(chapter.ui.dialog_active() and chapter.ui.text_label.text == text.S79, "Kit remembers the room left on the page")
 	await _check_sundy_memory(paper, chapter.ui)
-	expect(chapter.ui.dialogue_portrait.disclosure.text == (L.t("%s\n\n（虛構）") % "").strip_edges(),
-		"Kit's portrait is captioned as fiction")
+	expect(chapter.ui.dialogue_portrait.image.texture.resource_path == "res://assets/portraits/kit_neutral.jpg",
+		"Kit's memory uses the toned print")
+	expect(chapter.ui.speaker_label.text == "Kit" and chapter.ui.dialogue_portrait.disclosure.text == "(Fiction)",
+		"Kit's memory card keeps the name and fiction caption in Latin letters")
 	if sundy_captures:
 		await capture("sundy_17_kit_memory", paper)
 	await tap(KEY_ENTER)

@@ -9,7 +9,7 @@ const RouteInk := preload("res://scripts/cambridge/madeira_ink.gd")
 const Plate := preload("res://scripts/cambridge/sundy_plate.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 const Settings := preload("res://scripts/settings.gd")
-const Kit := preload("res://assets/models/kit.glb")
+const KIT_PRINT := "res://assets/portraits/kit_neutral.jpg"
 
 const SETUP := [
 	["S02", ["S03", "S04", "S05"], "S06", "arrival"],
@@ -19,7 +19,7 @@ const SETUP := [
 	["S14", ["S15", "S16", "S17"], "M09", "handoff"],
 	["S14", ["S18", "S19"], "S20", "delivery"],
 	["S21", ["S03", "S22", "S23", "S24", "S25"], "S26", "delivery"],
-	["S27", ["S28"], "M09", "packed"],
+	["S27", ["S28"], "M09", "arrival"],
 ]
 const PAIRS := [
 	{"label": "S57", "shift": 0.07, "clear": [0, 1, 2, 3], "marks": [0, 1, 2, 3],
@@ -172,14 +172,9 @@ func _remember(speaker: String, ids: Array) -> void:
 	_show("S46")
 	_picture("night", 245)
 	var lines: Array = []
-	var kit_portrait: Texture2D
-	if speaker == Cast.KIT:
-		var portrait := Ink.print_view(paper.body, Kit.instantiate(), Vector3(0, 1.57, 0),
-			Vector3(0.25, 0.08, 2), 0.42)
-		portrait.size = Vector2i(200, 250)
-		kit_portrait = portrait.get_texture()
+	var portrait := load(KIT_PRINT) as Texture2D if speaker == Cast.KIT else null
 	for id in ids:
-		lines.append({"s": speaker, "t": _text[id], "fictional_portrait": kit_portrait})
+		lines.append({"s": speaker, "t": _text[id], "fictional_portrait": portrait})
 	_ui.dialogue_sheet = _layout.get_parent()
 	_ui.play(lines)
 	await _ui.dialogue_done

@@ -696,7 +696,8 @@ func _show_entry() -> void:
 	history.append(L.t("%s：%s") % [L.t(str(e.get("s", ""))), e.get("t", "")])
 	if history.size() > 60:
 		history.pop_front()
-	speaker_label.text = L.t(str(e.get("s", "")))
+	var speaker := str(e.get("s", ""))
+	speaker_label.text = speaker if e.get("fictional_portrait") != null else L.t(speaker)
 	text_label.text = _paper_text(e.get("t", ""))
 	if cambridge_portraits:
 		_layout_dialogue_portrait()
