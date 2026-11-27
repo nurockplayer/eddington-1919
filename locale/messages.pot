@@ -6161,3 +6161,33 @@ msgstr ""
 #: scripts/ui.gd:405
 msgid "［空白鍵／E／左鍵］開始・停"
 msgstr ""
+
+msgid "你從豐沙爾寄來的信到了。這封是我收到後寫的。"
+msgstr ""
+
+msgid "Kit 拆開封口。"
+msgstr ""
+
+msgid "Kit 拉了張椅子過來。"
+msgstr ""
+
+msgid "你說工作做完了就會想我。我回你，其實我忙著的時候也會想你。"
+msgstr ""
+
+msgid "你問的是那顆星。我回的是工作檯。我也想讓你知道，我惦記著有人一起做事。"
+msgstr ""
+
+msgid "你把在桑迪讀過的那封信放在旁邊，攤在寫到椅子的地方。Kit 拉了張椅子過來。"
+msgstr ""
+
+msgid "剩下的我想聽你親口說。我可以留下來。"
+msgstr ""
+
+msgid "Ashby 把帳本交到你手上。"
+msgstr ""
+
+msgid "Rook 來要卷宗時，我把它闔上了。那時該讓你自己回答。對不起。"
+msgstr ""
+
+msgid "把我們兩個簽名的紀錄都帶去倫敦。要是有人問我寫的那筆，請他直接來找我。"
+msgstr ""

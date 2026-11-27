@@ -179,6 +179,7 @@ func _worktable() -> void:
 	for id in [wrote, personal, "M74"]:
 		_line(outgoing, id)
 	await _advance("M77")
+	_story.madeira_letter_sent = true
 	_show("M78")
 	_line(paper.body, "M79")
 	_workbook(wrote)

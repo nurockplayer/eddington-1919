@@ -28,6 +28,7 @@ var _orrery_camera: Camera3D
 var _camera_turn: Tween
 var _speaker_fill: OmniLight3D
 var _last_speaker := ""
+var _journey := OS.get_cmdline_user_args().has("--journey")
 var score: Node
 var tick: AudioStreamPlayer
 var street: AudioStreamPlayer
@@ -92,7 +93,9 @@ func _ready() -> void:
 	await ui.fade_to(0.0, 1.1).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	await ui.show_caption(Content.intro_caption(), 2.4).set_pause_mode(Tween.TWEEN_PAUSE_STOP).finished
 	_busy = false
-	_say(Content.kit_reunion(Story.kit_first, Story.bond_tone, Story.sky_promise, str(Story.runs.back().get("kit_line", "")) if not Story.runs.is_empty() else "") + Content.opening(), "opening")
+	var kit_line := str(Story.runs.back().get("kit_line", "")) if not Story.runs.is_empty() else ""
+	_say(Content.kit_reunion(Story.kit_first, Story.bond_tone, Story.sky_promise, kit_line,
+		_journey, Story.madeira_letter_sent, Story.sundy_letter_read) + Content.opening(), "opening")
 
 
 ## Removes an inactive hotspot's collider so it cannot take the interaction ray.
@@ -235,7 +238,8 @@ func _dialogue_done(results: Dictionary) -> void:
 			_store("final_reason", choice)
 			var sources: Array = Content.final_reason()[0].get("sources", [])
 			_store("final_reason_text", str(sources[choice]) if choice >= 0 and choice < sources.size() else "")
-			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet) + Content.close(), "close")
+			_say(Content.final_reply(choice, Story.runs.back(), Story.bet_1917, Story.bet)
+				+ Content.close(_journey, Story.tribunal_packet_seen), "close")
 			return
 		"close":
 			_busy = true

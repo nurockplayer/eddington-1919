@@ -186,11 +186,11 @@ CJK Regular 2.003](https://github.com/notofonts/noto-cjk/releases/tag/Serif2.003
 The subsets retain the locale's original glyph forms, using FontTools 4.68.0
 with characters from the locale's PO source and translations, printable ASCII,
 and GDScript string literals. Traditional Chinese uses `locale/messages.pot`
-as its source catalogue. The three faces add 3,610,540 bytes.
+as its source catalogue. The three faces add 3,612,844 bytes.
 
-- `assets/fonts/NotoSerifJP-Game.otf`, 1,284,324 bytes. [Japanese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Japanese/NotoSerifCJKjp-Regular.otf).
-- `assets/fonts/NotoSerifKR-Game.otf`, 1,302,352 bytes. [Korean source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Korean/NotoSerifCJKkr-Regular.otf).
-- `assets/fonts/NotoSerifTC-Game.otf`, 1,023,864 bytes. [Traditional Chinese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/TraditionalChinese/NotoSerifCJKtc-Regular.otf).
+- `assets/fonts/NotoSerifJP-Game.otf`, 1,284,608 bytes. [Japanese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Japanese/NotoSerifCJKjp-Regular.otf).
+- `assets/fonts/NotoSerifKR-Game.otf`, 1,304,076 bytes. [Korean source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/Korean/NotoSerifCJKkr-Regular.otf).
+- `assets/fonts/NotoSerifTC-Game.otf`, 1,024,160 bytes. [Traditional Chinese source OTF](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/OTF/TraditionalChinese/NotoSerifCJKtc-Regular.otf).
 - SIL Open Font License 1.1, bundled at `assets/fonts/OFL.txt`. [Upstream licence](https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/LICENSE).
 
 ## Score (M4)
