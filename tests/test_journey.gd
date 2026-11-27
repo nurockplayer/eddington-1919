@@ -7,6 +7,7 @@ const Departure := preload("res://scripts/cambridge/content_departure.gd")
 const Content := preload("res://scripts/cambridge/content_tribunal.gd")
 const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
+const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
@@ -511,6 +512,57 @@ func _sundy_coda(day: Node, enabled: bool) -> void:
 		await scene_changed
 	expect(current_scene.scene_file_path == "res://scenes/epilogue.tscn" and story.epilogue_done,
 		"the route reaches the existing epilogue")
+	if capture_dir.is_empty():
+		await _october(current_scene, enabled, story.bond_tone)
+
+
+func _october(chapter: Node, enabled: bool, tone: String) -> void:
+	for frame in 150:
+		if chapter._pending == "opening":
+			break
+		await process_frame
+	expect(chapter._pending == "opening", "the October reunion opens")
+	var opening := await _october_dialogue(chapter, enabled, tone)
+	var expected := ["O02" if tone == "close" else "O01", "O03"] if enabled else []
+	expect(opening == expected, "the journey reunion gives Kit the promised turn in this tone")
+	expect(chapter.beat == chapter.Beat.LETTER, "the reunion hands off to Dyson's letter")
+	var story := root.get_node("Story")
+	expect(Epilogue.ledger_case(story.runs.back()) == "no_value", "October plays with no readable personal plates")
+	chapter._interact("letter")
+	await _dialogue(chapter)
+	for step in 3:
+		await press(chapter.chart.button)
+	await press(chapter.chart.choices[2])
+	await press(chapter.chart.button)
+	await _dialogue(chapter, {"astro_weight": KEY_2})
+	expect(chapter.beat == chapter.Beat.ORRERY, "the comparison and ledger reply lead to the orrery")
+	chapter._interact("orrery")
+	while chapter.ui.dialog_active() and chapter._pending != "close":
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		await tap(KEY_5 if entry.get("key") == "final_reason" else (KEY_1 if entry.has("choices") else KEY_ENTER))
+	expect(chapter._pending == "close", "October reaches the closing ledger exchange")
+	var close := await _october_dialogue(chapter, enabled, tone)
+	expect(close == (["O04", "O05"] if enabled else []), "Ashby owns the packet decision on the journey route")
+	for frame in 150:
+		if chapter._pending == "tableau":
+			break
+		await process_frame
+	expect(chapter._pending == "tableau", "October keeps the tableau")
+	await _dialogue(chapter)
+	expect(chapter.beat == chapter.Beat.ENDING, "October reaches the ending")
+
+
+func _october_dialogue(chapter: Node, enabled: bool, tone: String) -> Array:
+	var ids := []
+	var beat: String = chapter._pending
+	while chapter._pending == beat and chapter.ui.dialog_active():
+		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
+		if entry.has("id"):
+			ids.append(entry.id)
+		print("OCTOBER ", L.current(), " ", "on" if enabled else "off", " ", tone, " ", beat,
+			" ", entry.get("id", "-"), " ", chapter.ui.speaker_label.text, " ", JSON.stringify(chapter.ui.text_label.text))
+		await tap(KEY_ENTER)
+	return ids
 
 
 func _dialogue(chapter: Node, choices := {}) -> void:

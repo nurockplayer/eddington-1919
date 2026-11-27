@@ -8,18 +8,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "Compare readings"
-msgstr "Compare readings"
-
-msgid "Measure again"
-msgstr "Measure again"
-
-msgid "Use first reading: %.2f divisions"
-msgstr "Use first reading: %.2f divisions"
-
-msgid "Use second reading: %.2f divisions"
-msgstr "Use second reading: %.2f divisions"
-
 msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
 msgstr "\n\n[color=#8f8676]Results announced on 6 November 1919: Sobral 1.98″, Príncipe 1.61″, both closer to Einstein's 1.75″. How they were obtained, and what doubts remained, are in 'What Happened Historically'.[/color]"
 
@@ -301,6 +289,9 @@ msgstr "Ashby wrote: 0.87.\nYou wrote: %s (%s)."
 msgid "Ashby 先生給的放大鏡。"
 msgstr "The magnifying glass Ashby gave you."
 
+msgid "Ashby 把帳本交到你手上。"
+msgstr "Ashby puts the ledger in your hands."
+
 msgid "B 鍵"
 msgstr "B button"
 
@@ -309,6 +300,9 @@ msgstr "Carneiro hosts the observers in Santo António and at his plantation, Ro
 
 msgid "Carneiro 為遠征隊提供莊園的勞力和物資。"
 msgstr "Carneiro made the plantation's labour and materials available to the expedition."
+
+msgid "Compare readings"
+msgstr "Compare readings"
 
 msgid "Cottingham"
 msgstr "Cottingham"
@@ -480,6 +474,9 @@ msgstr "Kit reads: %s"
 msgid "Kit 念出：……"
 msgstr "Kit reads: …"
 
+msgid "Kit 拆開封口。"
+msgstr "Kit breaks the seal."
+
 msgid "Kit，今晚真想得到你的回信。你讀到這封信時，我已經在別處了。"
 msgstr "Kit, I could use an answer tonight. By the time you read this, I'll be somewhere else."
 
@@ -504,6 +501,9 @@ msgstr "LB/RB"
 msgid "Le Verrier 也這麼想。日食的時候大家都在找它——1878 年有人說看見了，沒人能再看見一次。"
 msgstr "Le Verrier thought so too. At eclipses everyone was looking for it—in 1878 someone claimed to have seen it, and no one ever saw it again."
 
+msgid "Measure again"
+msgstr "Measure again"
+
 msgid "Morize 協助安排。市政和教會代表迎接遠征隊，Vicente Saboya 提供住宿，Leocádio Araújo 擔任口譯並協助準備。"
 msgstr "Morize helps with arrangements. Municipal and church representatives welcome the team, Vicente Saboya provides lodging, and Leocádio Araújo interprets and helps with preparations."
 
@@ -515,6 +515,9 @@ msgstr "Q/E"
 
 msgid "RB／X 鍵"
 msgstr "RB/X button"
+
+msgid "Rook 來要卷宗時，我把它闔上了。那時該讓你自己回答。對不起。"
+msgstr "When Rook came for the packet, I shut it. I should have let you answer. I’m sorry."
 
 msgid "Rook 在工作檯邊說的話一直在我耳邊。我本想讓 Ashby 先生告訴他，工作是誰做的。"
 msgstr "I keep hearing Rook at the bench. I wanted Ashby to tell him whose work it was."
@@ -548,6 +551,12 @@ msgstr "The Sobral plates have been measured at Greenwich.\n4-inch lens: 1.98″
 
 msgid "Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。"
 msgstr "The lamps are lit on Trumpington Street again. A first-year who puts sugar in everything sits at that empty desk now."
+
+msgid "Use first reading: %.2f divisions"
+msgstr "Use first reading: %.2f divisions"
+
+msgid "Use second reading: %.2f divisions"
+msgstr "Use second reading: %.2f divisions"
 
 msgid "WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停"
 msgstr "WASD/left stick move · mouse/arrows/right stick look · Shift/L3 run\n%s interact · %s log · %s start/stop · %s pause"
@@ -1301,6 +1310,9 @@ msgstr "You can tell which deviations we brought in ourselves. Cottingham will r
 msgid "你刪掉的這一點——你確定它是墨漬？"
 msgstr "That point you deleted—are you sure it was an ink blot?"
 
+msgid "你問的是那顆星。我回的是工作檯。我也想讓你知道，我惦記著有人一起做事。"
+msgstr "You asked about the star. I wrote back about the bench. I wanted you to know I meant the company, too."
+
 msgid "你在 1917 年參與擬定的原則："
 msgstr ""
 
@@ -1367,8 +1379,14 @@ msgstr "You wrote 'can't say'. Can your plates say a little more clearly now? %s
 msgid "你對著天文鐘一秒一秒報數。Cottingham：「慢了一點……好，對上了。」"
 msgstr "You call the seconds against the chronometer. Cottingham: 'A touch slow… good, that's matched.'"
 
+msgid "你從豐沙爾寄來的信到了。這封是我收到後寫的。"
+msgstr "Your letter from Funchal came. I wrote this after I read it."
+
 msgid "你怎麼知道是底片翻了面，而不是星自己跑了？"
 msgstr "How do you know the plate was face-down, and not that the stars themselves moved?"
+
+msgid "你把在桑迪讀過的那封信放在旁邊，攤在寫到椅子的地方。Kit 拉了張椅子過來。"
+msgstr "You lay the letter you read at Sundy beside it, open where Kit wrote about the chair. Kit pulls up a chair."
 
 msgid "你押的是 %s。你的底片——兩倍誤差之內——%s。%s"
 msgstr "You bet on %s. Your plates—within twice the error—%s. %s"
@@ -1468,6 +1486,9 @@ msgstr "You asked me to write what changed here. I did."
 
 msgid "你記得我們只是其中一站。Dyson 會比較兩地的結果。"
 msgstr "You remember that we are only one station. Dyson will compare the results from both."
+
+msgid "你說工作做完了就會想我。我回你，其實我忙著的時候也會想你。"
+msgstr "You said you missed me when the work was done. I wrote back that I missed you even when I was busy."
 
 msgid "你說接近 1.75″——可是看看圖上的誤差，它沒有你說的那麼肯定。"
 msgstr "You say close to 1.75″—but look at the error on the chart; it is not as certain as you make it."
@@ -1723,6 +1744,9 @@ msgstr "Continue to observation day"
 
 msgid "剛才"
 msgstr "Previous"
+
+msgid "剩下的我想聽你親口說。我可以留下來。"
+msgstr "I’d like to hear the rest from you. I can stay."
 
 msgid "副本整理好了。還得等船。"
 msgstr "The copying is done. There's still the ship to wait for."
@@ -2730,6 +2754,9 @@ msgstr "Turn it over and all seventeen points match."
 
 msgid "把底片夾上去，轉動螺旋，一次讀一顆星的位置。讀數比肉眼能分辨的細得多。\n今晚用不到它——今晚只需要看片台和眼睛。"
 msgstr "Clamp the plate in place and turn the screw, reading one star's position at a time. The readings are far finer than the naked eye can distinguish.\nThere is no need for it tonight—just the light box and your eyes."
+
+msgid "把我們兩個簽名的紀錄都帶去倫敦。要是有人問我寫的那筆，請他直接來找我。"
+msgstr "Bring both our signed entries to London. If anyone asks about mine, send them to me."
 
 msgid "把這裡留白"
 msgstr "Leave the space blank"
@@ -4806,6 +4833,9 @@ msgstr[1] "[%s] Put %d plate holders on the rack"
 msgid "［%s］拿起 Ashby 先生給的放大鏡。"
 msgstr "[%s] Pick up the magnifying glass Ashby gave you."
 
+msgid "［%s］換底片匣"
+msgstr "[%s] Change plate holder"
+
 msgid "［%s］檢視底片"
 msgstr "[%s] Examine the plates"
 
@@ -4904,6 +4934,3 @@ msgstr ""
 
 msgid "］讀曝光計畫"
 msgstr ""
-
-msgid "［%s］換底片匣"
-msgstr "[%s] Change plate holder"

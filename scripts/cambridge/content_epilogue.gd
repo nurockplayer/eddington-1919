@@ -29,7 +29,7 @@ static func opening() -> Array:
 
 ## Story audit D6: Kit's October reunion. FICTION throughout; the six-week boat is
 ## HISTORICAL_RECORD (story_factcheck §7). kit_line is the stored "給 Kit：…" workbook line.
-static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit_line: String) -> Array:
+static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit_line: String, journey := false) -> Array:
 	var seq: Array = [
 		{"s": K, "t": L.t("你瘦了。") + "\n\n" + L.t("說吧。你決定好要先跟我說的那一句。")},
 	]
@@ -51,7 +51,16 @@ static func kit_reunion(kit_first: int, bond_tone: String, sky_promise: int, kit
 	seq[-1].t += "\n\n" + L.t("Trumpington 街的路燈又亮了。那張空桌子，坐了一個什麼都要加糖的一年級生。")
 	seq[-1].t += "\n\n" + L.t("那顆變星，我量到分鐘了。它一次也沒有遲到。遲到的是我。")
 	seq.append({"s": K, "t": L.t("桌角那個信封，上面寫著你的名字。") + "\n\n" + L.t("那是給你的。船要走六個星期，你會比它先到家。所以我沒寄。")})
-	if bond_tone == "close":
+	if journey:
+		seq[-1].t += "\n\n" + L.t("你從豐沙爾寄來的信到了。這封是我收到後寫的。")
+		seq.append({"s": "", "t": L.t("Kit 拆開封口。")})
+		if bond_tone == "close":
+			seq.append({"id": "O02", "s": K, "t": L.t("你說工作做完了就會想我。我回你，其實我忙著的時候也會想你。")})
+		else:
+			seq.append({"id": "O01", "s": K, "t": L.t("你問的是那顆星。我回的是工作檯。我也想讓你知道，我惦記著有人一起做事。")})
+		seq.append({"s": "", "t": L.t("你把在桑迪讀過的那封信放在旁邊，攤在寫到椅子的地方。Kit 拉了張椅子過來。")})
+		seq.append({"id": "O03", "s": YOU, "t": L.t("剩下的我想聽你親口說。我可以留下來。")})
+	elif bond_tone == "close":
 		seq[-1].t += "\n\n" + L.t("……裡面寫了什麼，以後再說。不是今晚。")
 	else:
 		seq[-1].t += "\n\n" + L.t("反正裡面寫的，剛剛都說了。省一張郵票。")
@@ -232,8 +241,14 @@ static func final_reply(choice: int, run := {}, bet_1917 := {}, bet_now := {}) -
 	return [{"s": A, "t": L.t("那就這麼寫。")}]
 
 
-static func close() -> Array:
-	return [{"s": A, "t": L.t("11 月 6 日，倫敦開會。")}]
+static func close(journey := false) -> Array:
+	var seq: Array = []
+	if journey:
+		seq.append({"s": "", "t": L.t("Ashby 把帳本交到你手上。")})
+		seq.append({"id": "O04", "s": A, "t": L.t("Rook 來要卷宗時，我把它闔上了。那時該讓你自己回答。對不起。")})
+		seq.append({"id": "O05", "s": A, "t": L.t("把我們兩個簽名的紀錄都帶去倫敦。要是有人問我寫的那筆，請他直接來找我。")})
+	seq.append({"s": A, "t": L.t("11 月 6 日，倫敦開會。")})
+	return seq
 
 
 ## The 1917 suspect text for a stored index; "" if the player left none.
