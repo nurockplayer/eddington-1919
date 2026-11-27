@@ -2994,8 +2994,9 @@ msgstr "Príncipe · A. S. Eddington · Nature 103, pp. 265–266 · 5 June 1919
 
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
 msgstr "At Príncipe, 16 plates were exposed during the 302-second totality, with exposures of 2 to 20 seconds; the cloud thinned noticeably only in the last third. The first ten plates showed almost no stars; only two plates, with five stars, could be measured. Eddington measured one on the island, in agreement with Einstein's prediction. Nature published 'Through cloud, hopeful' on 5 June 1919; the original telegram's addressee and date are unconfirmed. The game's telegram is fictional."
+
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符。1919 年 6 月 5 日的《Nature》刊出「Through cloud, hopeful」一語；原始電報的收件人與發報日期均未確認。遊戲中的電報是虛構草稿。"
-msgstr "At Príncipe, 16 plates were exposed during the 302-second totality, with exposures of 2 to 20 seconds; the cloud thinned noticeably only in the last third. The first ten plates showed almost no stars; only two plates, with five stars, could be measured. Eddington measured one on the island, in agreement with Einstein's prediction. Nature published 'Through cloud, hopeful' on 5 June 1919; the original telegram's addressee and date are unconfirmed. The game's telegram is fictional."
+msgstr "At Príncipe, 16 photographic plates were exposed for 2 to 20 seconds during the 302-second totality. The clouds thinned noticeably only in the final third of totality. The first ten plates showed almost no stars, and in the end only five stars on two plates were usable for measurement. Eddington measured one of the plates on the island, and the result agreed with Einstein’s prediction. The 5 June 1919 issue of Nature printed the phrase ‘Through cloud, hopeful’. The recipient of the original telegram and the date it was sent are both unconfirmed. The in-game telegram is a fictional draft."
 
 msgid "普林西比清單"
 msgstr "Príncipe checklist"
