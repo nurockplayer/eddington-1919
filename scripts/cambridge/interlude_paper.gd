@@ -68,9 +68,11 @@ func begin(wide := false, comparison := false) -> void:
 
 func _align_end_fold(scroll: ScrollContainer, contents: VBoxContainer) -> void:
 	var height := scroll.size.y
-	var end := floori(contents.get_minimum_size().y - height)
+	var natural_height := contents.get_minimum_size().y
 	var padded_height := 0.0
-	if end > 0:
+	if natural_height > height:
+		padded_height = natural_height + contents.get_theme_constant("separation")
+		var end := floori(padded_height - height)
 		for row: Control in contents.get_children():
 			var bottom := row.position.y + row.size.y
 			if row is Label and row.position.y < end and end < bottom:
@@ -81,7 +83,7 @@ func _align_end_fold(scroll: ScrollContainer, contents: VBoxContainer) -> void:
 	if padded_height == contents.custom_minimum_size.y:
 		return
 	contents.custom_minimum_size.y = padded_height
-	if padded_height > 0.0 and scroll.scroll_vertical >= end:
+	if padded_height > 0.0 and scroll.scroll_vertical >= floori(natural_height - height):
 		scroll.set_deferred("scroll_vertical", ceili(padded_height))
 
 

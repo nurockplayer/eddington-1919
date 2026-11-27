@@ -188,6 +188,8 @@ func check_letter_fold(paper: Control, state: String, pad: bool) -> void:
 			split = true
 	if not fold_baseline:
 		expect(not split, "%s %s: the resting fold leaves whole letter rows" % [state, L.current()])
+		expect(not bar.visible or tail.get_global_rect().end.y < fold.end.y - 0.5,
+			"%s %s: the final row clears the bottom fold" % [state, L.current()])
 	if fold_captures:
 		await capture(state, paper, "_pad" if pad else "_keys")
 
@@ -454,7 +456,7 @@ func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_ind
 		await capture("packet", paper)
 	if pass_index == 2 and L.current() == "en":
 		expect(not strings.values().any(func(line): return "’" in line), "use proportional English apostrophes on the tribunal and Armistice pages")
-		if not capture_dir.is_empty() and not madeira_captures and not sundy_captures:
+		if not capture_dir.is_empty() and not madeira_captures and not sundy_captures and not fold_captures:
 			root.size = Vector2i(1280, 720)
 			Settings.text_scale = 1.2
 			Settings.refresh_fonts(self)
