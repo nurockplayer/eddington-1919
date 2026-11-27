@@ -516,7 +516,7 @@ msgstr "RB/X button"
 msgid "Rook 在工作檯邊說的話一直在我耳邊。我本想讓 Ashby 先生告訴他，工作是誰做的。"
 msgstr "I keep hearing Rook at the bench. I wanted Ashby to tell him whose work it was."
 
-msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是為此特別築的，勞力來自莊園。報告謝了莊園主人，卻沒有寫下築墩者的名字。"
+msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是為此特別建的，勞力來自莊園。報告謝了莊園主人，卻沒有寫下建墩者的名字。"
 msgstr "Roça Sundy. Owner Jerónimo Carneiro let the expedition draw on estate labour. Carriers took the crates through the forest; the coelostat's stone pier was purpose-built with that labour. The report thanks the owner, but does not name the builders."
 
 msgid "Seeliger 想過：太陽附近也許有一層看不見的物質，像黃道光的塵。聽起來很合理——可是沒有人能證明它多到足以拉住水星。"
