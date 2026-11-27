@@ -56,6 +56,7 @@ func _open_paper(ui: CanvasLayer, parent: Node) -> ColorRect:
 	var madeira := Madeira.strings()
 	_text["M09"] = madeira.M09
 	_text["M50"] = madeira.M50
+	_text["M85"] = madeira.M85
 	_ui = ui
 	var backdrop := ColorRect.new()
 	backdrop.color = Color("30271d")
@@ -92,6 +93,8 @@ func play(director: Node) -> void:
 	await _station()
 	_show("S85")
 	_lines(paper.body, ["S86", "S87", "S88"])
+	paper.rule(paper.body)
+	_line(paper.body, "S92", 19)
 	await _next("M09")
 	await _remember(Cast.MENTOR, ["S47"])
 	for pair in PAIRS:
@@ -342,10 +345,11 @@ func _sky_page() -> void:
 	var earlier: VBoxContainer = paper.column(spread)
 	var eclipse: VBoxContainer = paper.column(spread)
 	var warm: bool = _story.bond_tone == "warm"
+	_line(earlier, "S93", 19)
 	_lines(earlier, ["S82" if warm else "S83", "S89", "S90" if warm else "S91"])
 	paper.rule(earlier)
 	_line(earlier, "M50", 19)
-	paper.label(eclipse, L.t("1919 年 5 月 29 日"), 19, true)
+	paper.label(eclipse, _text.M85, 19, true)
 	Ink.workbook_print(eclipse, true)
 	await _next("S84")
 

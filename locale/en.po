@@ -121,6 +121,9 @@ msgstr "%s. %s."
 msgid "%s。還有你。——14 號？讓我看看。"
 msgstr "%s. And you.—Plate 14? Let me see."
 
+msgid "%s・Kit 的字"
+msgstr "%s · Kit’s handwriting"
+
 msgid "%s九點前要 14 號星場的抄錄圖。說是「核對一下就好」。"
 msgstr "%s wants the tracing of star field 14 before nine. Says it 'just needs checking'."
 
@@ -1319,6 +1322,9 @@ msgstr "What did you see at Sundy?"
 msgid "你在薄的那段裡開、在變厚前停：那張會是清楚的。"
 msgstr "You opened while the cloud was thin and stopped before it thickened: that plate would be clear."
 
+msgid "你在豐沙爾寄出的信還沒有回音。"
+msgstr "Still no answer to the letter you sent from Funchal."
+
 msgid "你在雲薄時開始、變厚前停。"
 msgstr "You started in thin cloud and stopped before it thickened. "
 
@@ -2279,6 +2285,9 @@ msgstr "I want to sit with you after the work is done. I should have said so bef
 msgid "工作簿"
 msgstr "The workbook"
 
+msgid "工作簿・給 Kit 的回信，未寄出"
+msgstr "Workbook · Reply to Kit, unsent"
+
 msgid "工作簿在箱子最上面。最後一頁只有 Kit 寫的日期，下面還空著。"
 msgstr "Your workbook is at the top of the crate. Its last page is still blank under Kit's date."
 
@@ -2547,6 +2556,9 @@ msgstr "I'll shut it. Keep your name off our copy. He can make one line sound li
 
 msgid "我把文件放下。現在桌上有地方擺兩份資料夾了。"
 msgstr "I put the papers down. There's room for both folders now."
+
+msgid "我把燈挪到了工作檯的另一頭。燈光不再照著眼睛，我又看得見那顆比對星了。最近兩次晴夜，我觀測的那顆星都比它暗。"
+msgstr "I moved the lamp to the far end of the bench. With the light out of my eyes, I could see the comparison star again. On the last two clear nights the star I’ve been watching was fainter than it."
 
 msgid "我抵達普林西比時，收到了您 3 月 14 日寫的信；"
 msgstr "I received your letter dated March 14 on arrival at Principe;"
@@ -3052,6 +3064,9 @@ msgstr "Clouded attempt"
 msgid "有點把握"
 msgstr "Fairly sure"
 
+msgid "未寄出的初稿"
+msgstr "First draft · unsent"
+
 msgid "未寫規則"
 msgstr "no rule written"
 
@@ -3138,9 +3153,6 @@ msgstr "Roça Sundy · 13 May 1919"
 
 msgid "桑迪莊園・1919 年 5 月 28 日"
 msgstr "Roça Sundy · 28 May 1919"
-
-msgid "椅子就放那裡吧。我回家後，給我看看你記的時間。"
-msgstr "Keep the chair there. Show me your timings when I come home."
 
 msgid "標準"
 msgstr "Standard"
@@ -3331,6 +3343,9 @@ msgstr "Count it as it stands, with equal weight"
 msgid "熱帶的白天和夜晚差很多，鏡子和鏡筒都會變形。"
 msgstr "Day and night differ greatly in the tropics; the mirror and the tube both distort."
 
+msgid "燈就留在那裡吧。我回家後，給我看看那兩晚的紀錄。"
+msgstr "Leave the lamp there. Show me those two nights in your log when I come home."
+
 msgid "爐火"
 msgstr "Fire"
 
@@ -3444,9 +3459,6 @@ msgstr "Look at the number in the corner of the tracing, then at the one pencill
 
 msgid "看箭頭"
 msgstr "Look at the arrow"
-
-msgid "真希望你在這裡，能幫我核對時間。也希望工作做完以後，你還在。"
-msgstr "I wish you were here to check my times. I wish you were here when the work is done, too."
 
 msgid "示意圖，不按比例。"
 msgstr "Diagram, not to scale."
@@ -3748,8 +3760,8 @@ msgstr ""
 msgid "虛構旅程・你與史實中前往普林西比觀測的兩人 Eddington 和 Cottingham 同行。"
 msgstr "Fictional journey · You travel with Eddington and Cottingham, the two historical Príncipe observers."
 
-msgid "虛構書信・Kit 寫給你・寫於劍橋"
-msgstr "Fictional correspondence · Kit to you · Written in Cambridge"
+msgid "虛構書信・Kit 先前從劍橋寫來的信"
+msgstr "Fictional correspondence · Kit’s earlier letter from Cambridge"
 
 msgid "虛構書信・寄往劍橋，給 Kit"
 msgstr "Fictional correspondence · To Kit, Cambridge"

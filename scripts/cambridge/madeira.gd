@@ -167,13 +167,16 @@ func _worktable() -> void:
 	_show("M46")
 	var sheets: HBoxContainer = paper.columns(paper.body)
 	var draft: VBoxContainer = paper.column(sheets)
+	var workbook: VBoxContainer = paper.column(sheets)
 	var outgoing: VBoxContainer = paper.column(sheets)
+	_line(draft, "M86", 18)
 	_line(draft, "M71")
 	_line(draft, "M72")
 	paper.rule(draft)
 	_line(draft, "M73", 20)
+	_reply_space(workbook)
 	_line(outgoing, "M78", 18)
-	for id in [wrote, "M74", personal]:
+	for id in [wrote, personal, "M74"]:
 		_line(outgoing, id)
 	await _advance("M77")
 	_show("M78")
@@ -188,11 +191,15 @@ func _workbook(wrote: String) -> void:
 	var march: VBoxContainer = paper.column(pages)
 	var may: VBoxContainer = paper.column(pages)
 	_line(march, wrote)
-	_line(march, "M50", 19)
-	for i in 3:
-		paper.rule(march)
-	paper.label(may, L.t("1919 年 5 月 29 日"), 19, true)
+	_reply_space(march)
+	paper.label(may, _text.M85, 19, true)
 	Ink.workbook_print(may, true)
+
+
+func _reply_space(page: VBoxContainer) -> void:
+	_line(page, "M50", 19)
+	for i in 3:
+		paper.rule(page)
 
 
 func _remember(speaker: String, id: String, subject: String) -> void:
