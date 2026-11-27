@@ -239,8 +239,8 @@ func _f16(run: Dictionary, variant: int) -> void:
 	keys = []
 	var chapter = load(EPILOGUE).instantiate()
 	root.add_child(chapter)
-	var deadline := Time.get_ticks_msec() + 15000
-	while chapter._pending != "opening" and Time.get_ticks_msec() < deadline:
+	var opening_deadline := create_timer(15.0, false)
+	while chapter._pending != "opening" and opening_deadline.time_left > 0.0:
 		await process_frame
 	check(chapter._pending == "opening", "epilogue opening reached")
 	var picks := {"astro_weight": variant, "click": variant, "final_reason": [0, 2, 4][variant]}
