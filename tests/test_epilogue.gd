@@ -452,11 +452,15 @@ func _check_interval_pixels(plot: Control, image: Image, state: String) -> void:
 		for value in [wings.x, wings.y]:
 			var local := Vector2(plot._x(value, plot.size.x), y)
 			var pixel := Vector2i((plot.get_global_rect().position + local) * pixel_scale)
-			var ink := false
-			for dy in range(-1, 2):
-				var red := image.get_pixel(pixel.x, pixel.y + dy).r
-				ink = ink or (red > 0.24 and red < 0.53)
-			check(ink, "%s: %s thin interval at %.3f″" % [state, row.label, value])
+			# A vertical prediction line can cross the sampled wing.
+			var painted := 0
+			for dx in [-4, 4]:
+				for dy in range(-1, 2):
+					var red := image.get_pixel(pixel.x + dx, pixel.y + dy).r
+					if red > 0.24 and red < 0.53:
+						painted += 1
+						break
+			check(painted > 0, "%s: %s thin interval at %.3f″" % [state, row.label, value])
 
 
 func _check_second_run(story: Node) -> void:
