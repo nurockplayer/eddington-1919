@@ -299,6 +299,7 @@ void fragment() {
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
 		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
 		float cloud_weight = cloud_body * (0.4 + 0.3 * step(0.6, cloud_field.y) + 0.3 * step(0.85, cloud_field.y));
+		float dense_cloud = step(0.85, cloud_field.y);
 		float cloud_contour = 1.0 - smoothstep(0.35, 0.85, abs(cloud_field.x) / (cloud_pixel * res_k));
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
@@ -327,7 +328,6 @@ void fragment() {
 		}
 		if (totality_plate > 0.0) {
 			float thin_cloud = step(0.35, cloud_field.y);
-			float dense_cloud = step(0.85, cloud_field.y);
 			float plate_cloud = 0.28 * thin_cloud + 0.66 * dense_cloud;
 			float broad = hatch(ruling.x, k, 0.14, l_px * 2.0, 99.0);
 			float plate_ink = broad * 0.36 * (1.0 - dense_cloud);
@@ -393,8 +393,8 @@ void fragment() {
 		float pocket_softness = float(practice_cloud < 0.0) * smoothstep(-6.2, -3.1, pocket_time) * (1.0 - smoothstep(3.0, 7.6, pocket_time));
 		float sun_visibility = 1.0 - smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud);
 		float cloud_veil = max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x));
-		// A moving edge uncovers each ray where it passes, including across the Moon.
-		float moon_cloud = mix(sun_visibility, 1.0, live_cloud.y);
+		// The dense cloud printed at each ray covers the solid Moon in totality.
+		float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - dense_cloud;
 		float corona_cloud = mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
 		moon_ink = before_second_contact ? 0.0 : front * moon_disc * solar_fade * moon_cloud;
 

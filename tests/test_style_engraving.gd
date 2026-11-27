@@ -38,8 +38,9 @@ func _run() -> void:
 	for name in {"cloud_time": "float", "practice_cloud": "float", "cloud_scale": "float", "cloud_tex": "sampler2D", "wind": "vec2"}:
 		var kind: String = {"cloud_tex": "sampler2D", "wind": "vec2"}.get(name, "float")
 		check(shader_text.contains("uniform " + kind + " " + name + " "), "live cloud parameter " + name)
-	check(shader_text.contains("front * moon_disc * solar_fade * moon_cloud")
-		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the Moon is whole whenever the corona is visible")
+	check(shader_text.contains("float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - dense_cloud;")
+		and shader_text.contains("front * moon_disc * solar_fade * moon_cloud")
+		and shader_text.contains("mix(print_colour, ink_col, moon_ink)"), "the opaque Moon is covered by the drawn dense cloud during totality")
 	check(shader_text.contains("float thin_cloud = step(0.35, cloud_field.y);")
 		and shader_text.contains("float dense_cloud = step(0.85, cloud_field.y);")
 		and shader_text.contains("cloud_wash = plate_cloud * band_lines * totality_plate;"), "cloud plate has crisp density steps")
