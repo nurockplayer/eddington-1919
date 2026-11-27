@@ -675,7 +675,8 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		var before: Dictionary = story.to_save().duplicate(true)
 		await _sobral(chapter, L.current() in ["en", "ja"])
 		await press(button(chapter.paper, Sobral.strings().B54))
-		await _homeward(chapter, day)
+		expect(is_instance_valid(chapter) and chapter.page_id == "I4-01", "Sobral opens I4 before October")
+		await _homeward(chapter.paper)
 		expect(story.to_save() == before and day.sim.plates == plates,
 			"Sobral and I4 leave the Príncipe state and plates intact before the October handoff")
 		await press(button(chapter.paper, Homeward.strings()["I4-20"]))
@@ -1243,10 +1244,8 @@ func _sobral_frame(paper: Control, state: String, suffix := "") -> void:
 	await _archive_frames(paper, "sobral_" + state, suffix)
 
 
-func _homeward(chapter: Node, day: Node) -> void:
-	expect(is_instance_valid(day) and chapter.page_id == "I4-01", "Sobral opens I4 before October")
+func _homeward(paper: Control) -> void:
 	var text := Homeward.strings()
-	var paper: Control = chapter.paper
 	var pages := [
 		["return", ["03", "04", "05", "06", "07", "08", "21", "22"]],
 		["plates", ["09", "23", "10", "11", "12", "13", "14"]],
