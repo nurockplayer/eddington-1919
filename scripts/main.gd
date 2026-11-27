@@ -1377,6 +1377,8 @@ func _begin_rehearsal() -> void:
 	ui.set_prompt("")
 	ui.set_hold(0.0)
 	ui.set_clock("")
+	# Reserve space for the shutter hint even while it is hidden during the change.
+	ui.tot_panel.custom_minimum_size.y = Settings.fs(100)
 	_update_rehearsal_hud()
 	ui.show_toast(L.t("Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。") % Prompts.key("shutter"), 12.0)
 
@@ -1437,6 +1439,7 @@ func _finish_rehearsal(feedback: String) -> void:
 	player.pitch = _rehearsal_pitch
 	rehearsing = false
 	ui.set_totality(false)
+	ui.tot_panel.custom_minimum_size.y = 0.0
 	_sync_player_input()
 
 
