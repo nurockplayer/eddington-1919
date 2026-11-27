@@ -5117,3 +5117,293 @@ msgstr ""
 
 msgid "］讀曝光計畫"
 msgstr ""
+
+# London joint meeting
+msgid "聯席會議"
+msgstr "The joint meeting"
+
+msgid "這是你記在本子上的天空。我一直把那頁摺著。"
+msgstr "Here's the sky you put in the book. I kept the page turned down."
+
+msgid "這是你出發前我寫的。旁邊還有空位。"
+msgstr "Here's what I wrote before you went. There's room beside it."
+
+msgid "Ashby 先生的預測・0.87″"
+msgstr "Mr Ashby's prediction · 0.87″"
+
+msgid "你在 1917 年的預測・%s"
+msgstr "Your 1917 prediction · %s"
+
+msgid "你在十月寫下的理由・%s"
+msgstr "Your October reason · %s"
+
+msgid "那頁我寫的是 0.87″。你的底片讓我有理由劃掉它。別劃到看不清。"
+msgstr "I had 0.87″ on that page. Your plates gave me a reason to cross it out. Leave it legible."
+
+msgid "你的底片還容得下零。要叫人相信這個，我會先檢查儀器。"
+msgstr "Your plates leave room for zero. I'd check the apparatus before I asked anyone to believe that."
+
+msgid "你的底片量出來跟我的數字接近。Sobral 的小望遠鏡給了我懷疑它的理由。"
+msgstr "Your plates come down near my figure. Sobral's small telescope gives me a reason to doubt it."
+
+msgid "你的底片還容得下兩個數字。我想看看大西洋另一頭量到了什麼。"
+msgstr "Yours leave room for both figures. I wanted to see what could be measured on the other side of the sea."
+
+msgid "你把數字留白了。我想聽聽其他底片能支持什麼。"
+msgstr "You left the number blank. I want to hear what the other plates can bear."
+
+msgid "要進去了嗎？把本子帶上。"
+msgstr "Shall we go in? Bring the book."
+
+msgid "進入會場"
+msgstr "Enter the meeting"
+
+msgid "續讀"
+msgstr "Continue"
+
+msgid "你的底片・模擬"
+msgstr "Your plates · Simulation"
+
+msgid "%.2f″ ± %.2f″・模擬測量"
+msgstr "%.2f″ ± %.2f″ · Simulated measurement"
+
+msgid "你的底片量不出偏折值。"
+msgstr "No deflection could be measured from your plates."
+
+msgid "倫敦 Burlington House・1919 年 11 月 6 日"
+msgstr "Burlington House, London · 6 November 1919"
+
+msgid "皇家學會與皇家天文學會・聯席會議"
+msgstr "Royal Society and Royal Astronomical Society · Joint meeting"
+
+msgid "J. J. Thomson 爵士主持會議。"
+msgstr "Sir J. J. Thomson chairs the meeting."
+
+msgid "歷史紀錄・會議紀要"
+msgstr "Historical record · Summary of the proceedings"
+
+msgid "皇家天文學家 Frank Dyson 報告 Sobral 的結果。4 吋望遠鏡量得日緣偏折 1.98″。"
+msgstr "The Astronomer Royal, Frank Dyson, reports the Sobral results. The 4-inch telescope gives 1.98″ at the Sun's limb."
+
+msgid "Arthur Eddington 報告 Príncipe 底片量得的 1.61″。"
+msgstr "Arthur Eddington reports 1.61″ from the Príncipe plates."
+
+msgid "重建圖表・歷史觀測"
+msgstr "Reconstructed chart · Historical observations"
+
+msgid "日緣偏折（角秒）"
+msgstr "Deflection at the Sun's limb (arcseconds)"
+
+msgid "0″・無偏折"
+msgstr "0″ · No deflection"
+
+msgid "0.87″・牛頓式比較值"
+msgstr "0.87″ · Newtonian-style comparison"
+
+msgid "1.75″・愛因斯坦的預測"
+msgstr "1.75″ · Einstein's prediction"
+
+msgid "誤差棒表示原報告所列的正負一個機率誤差。"
+msgstr "Bars show ± one probable error, as reported."
+
+msgid "Sobral 4 吋・1.98″ ± 0.12″（機率誤差）"
+msgstr "Sobral 4-inch · 1.98″ ± 0.12″ probable error"
+
+msgid "Príncipe・1.61″ ± 0.30″（機率誤差）"
+msgstr "Príncipe · 1.61″ ± 0.30″ probable error"
+
+msgid "Sobral 天體照相儀・同一批底片，兩種尺度處理"
+msgstr "Sobral astrograph · Same plates, two scale treatments"
+
+msgid "約 0.93″・採用推得的尺度變化"
+msgstr "About 0.93″ · With the inferred scale change"
+
+msgid "約 1.52″・採用另一種尺度處理"
+msgstr "About 1.52″ · With the alternative scale treatment"
+
+msgid "Sobral 的筆記記載，檢視日食底片時發現焦點明顯改變。星像模糊。"
+msgstr "The Sobral notebook records a serious change of focus when the eclipse plates were examined. The star images were blurred."
+
+msgid "底片尺度改變會改變星像之間的距離。資料歸算時須把這項變化與偏折分開。"
+msgstr "A change in plate scale changes the distances between star images. The reduction has to separate that change from the deflection."
+
+msgid "1.52″ 的歸算只計入折射與光行差造成的尺度變化。"
+msgstr "The 1.52″ reduction allows for the scale change from refraction and aberration alone."
+
+msgid "這兩個數值沒有可用的機率誤差。"
+msgstr "Probable errors unavailable for these two values."
+
+msgid "完整報告給天體照相儀底片低得多的權重，並公布其歸算結果。"
+msgstr "The full report gives the astrographic series much less weight and publishes its reductions."
+
+msgid "註記精度"
+msgstr "Annotate precision"
+
+msgid "位移很小。你會從哪裡開始，說明底片能分辨什麼？"
+msgstr "The shifts are small. Where would you begin to show what the plates can distinguish?"
+
+msgid "精度與尺度"
+msgstr "Precision and scale"
+
+msgid "Sobral 4 吋望遠鏡"
+msgstr "Sobral 4-inch"
+
+msgid "4 吋望遠鏡的機率誤差較小。量得的 1.98″ 支持較大的偏折。"
+msgstr "The 4-inch gives the tighter probable error. Its 1.98″ favours the larger deflection."
+
+msgid "Príncipe 是另一處的獨立觀測，精度較低。量得的 1.61″ 也支持較大的偏折。"
+msgstr "The Príncipe observation is independent and less precise. Its 1.61″ also favours the larger deflection."
+
+msgid "Sobral 天體照相儀的結果隨尺度處理由約 0.93″ 變為約 1.52″。兩個數字都留著。"
+msgstr "The Sobral astrograph changes from about 0.93″ to about 1.52″ under a different scale treatment. Keep both figures in view."
+
+msgid "Príncipe"
+msgstr "Príncipe"
+
+msgid "Príncipe 讓另一個觀測地點也能查驗結果。把較大的機率誤差寫在結果旁。"
+msgstr "Príncipe gives a second site's check. The wider probable error goes beside its result."
+
+msgid "Sobral 較清晰的 4 吋底片給出較精確的結果。兩地都支持較大的偏折。"
+msgstr "Sobral's sharper 4-inch plates give the tighter result. Both sites favour the larger deflection."
+
+msgid "Sobral 的天體照相儀"
+msgstr "Sobral astrograph"
+
+msgid "天體照相儀的兩個數值來自同一批模糊底片。尺度假設影響它的權重。"
+msgstr "The astrograph's two figures come from the same blurred plates. The scale assumption affects their weight."
+
+msgid "4 吋底片的機率誤差較小。Príncipe 有較大的機率誤差，獨立支持較大的偏折。"
+msgstr "The 4-inch series gives the tighter probable error. Príncipe independently favours the larger deflection with a wider probable error."
+
+msgid "保留這則註記"
+msgstr "Keep this annotation"
+
+msgid "兩地都支持較大的偏折。把誤差棒和尺度問題與結果一同留下。"
+msgstr "Two sites favour the larger bending. Keep the error bars and the scale question with the result."
+
+msgid "H. F. Newall・延伸的太陽大氣"
+msgstr "H. F. Newall · An extended solar atmosphere"
+
+msgid "“I feel that the Einstein effect holds the day”\n「我認為目前是愛因斯坦效應佔上風。」"
+msgstr "“I feel that the Einstein effect holds the day”"
+
+msgid "Newall 保留另一種解釋。他問能否用類似的觀測檢驗太陽周圍是否有延伸的大氣。"
+msgstr "Newall keeps open another interpretation. He asks whether a similar observation might have been made to test for an extended atmosphere around the Sun."
+
+msgid "他承認這個結果，也保留了他的問題。"
+msgstr "He gives them the result and keeps his question."
+
+msgid "Ludwik Silberstein・太陽光譜"
+msgstr "Ludwik Silberstein · The solar spectrum"
+
+msgid "Silberstein 問預測中的太陽光譜重力紅移如何了。他要求也提出這項檢驗的證據。"
+msgstr "Silberstein asks what has become of the predicted gravitational redshift in the Sun's spectrum. He calls for evidence from that test too."
+
+msgid "威爾遜山當時已有的測量未能偵測到預期的太陽譜線位移。"
+msgstr "The available Mount Wilson measurements had failed to detect the expected displacement of the solar lines."
+
+msgid "另一個問題，要用另一種儀器。把它記在第一個旁邊。"
+msgstr "Another question to take to another instrument. Put it beside the first."
+
+msgid "註記待檢驗的問題"
+msgstr "Annotate the open test"
+
+msgid "日食能檢驗什麼"
+msgstr "What the eclipse can test"
+
+msgid "你會先標記哪個問題？"
+msgstr "Which question would you label first?"
+
+msgid "星光彎了多少？"
+msgstr "How far did starlight bend?"
+
+msgid "這裡做了檢驗。星的位置可以量出偏折。4 吋底片與 Príncipe 都支持較大的位移。"
+msgstr "Tested here. The star positions measure bending. The 4-inch series and Príncipe favour the larger shift."
+
+msgid "太陽大氣能解釋嗎？"
+msgstr "Could a solar atmosphere explain it?"
+
+msgid "解釋仍可受到質疑。Newall 問延伸的太陽大氣是否能解釋這個視位置的位移。"
+msgstr "Interpretation still open to challenge. Newall raises an extended solar atmosphere as a question about the apparent displacement."
+
+msgid "太陽譜線移動了嗎？"
+msgstr "Did the Sun's spectral lines shift?"
+
+msgid "需要獨立檢驗。這些星的位置無法量出太陽譜線的重力紅移。"
+msgstr "An independent test is needed. These star positions cannot measure the gravitational redshift of solar spectral lines."
+
+msgid "日食結果・支持較大的偏折。太陽重力紅移・本次會議仍待檢驗。"
+msgstr "Eclipse result · Evidence for the larger deflection. Solar redshift · An open test at this meeting."
+
+msgid "Sobral 的小望遠鏡量得更精確。再看隔著一整片海的 Príncipe，也指向同一邊。"
+msgstr "The small telescope at Sobral gives the sharper result. And here is Príncipe, across an ocean, leaning the same way."
+
+msgid "沒有那批底片，我會留著我的數字。把光譜的問題也留在這頁上。"
+msgstr "I'd have kept my figure without those plates. Keep the question about the spectrum on the page as well."
+
+msgid "原來的預測還在你面前。你會在這裡說什麼？"
+msgstr "What would you say here, with your old prediction still in front of you?"
+
+msgid "說你能負責的話。就算是個問題也可以。"
+msgstr "Say what you can stand by, even if it's a question."
+
+msgid "寫下你的理由或保留意見"
+msgstr "Write your reason or reservation"
+
+msgid "說出來，留下它"
+msgstr "Say it and keep it"
+
+msgid "修改你的話"
+msgstr "Revise your line"
+
+msgid "你在 Burlington House 說的話"
+msgstr "Your line at Burlington House"
+
+msgid "這裡。放在你帶來的數字旁邊。"
+msgstr "Here. Beside the figure you came with."
+
+msgid "在桑迪，有一頁是寫你看見什麼。這一頁是寫你能說什麼。"
+msgstr "At Sundy there was a page for what you could see. This one is for what you can say."
+
+msgid "讀報"
+msgstr "Read the papers"
+
+msgid "我記得那張工作檯。能告訴我誰願意為柏林的數字作證嗎？"
+msgstr "I remember that bench. Will you give me a name for the person who can vouch for Berlin’s figures?"
+
+msgid "你可以問我底片的事。我能告訴你我做過哪幾張。"
+msgstr "You can ask me about the plates. I can tell you which ones I worked on."
+
+msgid "也可以問我 0.87″。把我的名字寫上，連同我今天說的話。"
+msgstr "And you can ask me about 0.87″. Put my name to it, with what I say today."
+
+msgid "如果我的舊數字又被印出來，我要讓來問的人看見這一頁。"
+msgstr "If my old figure gets printed again, I want this page here for anyone who asks about it."
+
+msgid "從長椅看劍橋的天空：煙囪正上方晴朗。再添一張椅子最好。"
+msgstr "Cambridge sky from the bench: clear just above the chimney. Best seen with a second chair."
+
+msgid "你那頭留著椅子。我來帶茶。"
+msgstr "Keep the chair at your end. I’ll bring the tea."
+
+msgid "明天工作做完，再多陪我一會兒。"
+msgstr "Tomorrow, after the work is done, stay with me a little longer."
+
+msgid "你在十月對天體照相儀的判斷・%s"
+msgstr "Your October judgement of the astrograph · %s"
+
+msgid "你在十月的預測・%s"
+msgstr "Your October prediction · %s"
+
+msgid "我的底片讓我懷疑 0.87″，而 Sobral 較清晰的底片是我敢在這裡說出來的理由。"
+msgstr "My plates made me doubt 0.87″, and the sharper Sobral plates are why I'd say so here."
+
+msgid "我會保留對彎曲幅度的判斷。我還想看看太陽譜線的檢驗。"
+msgstr "I'll reserve judgement on the amount of bending. I want to see the test of the solar lines."
+
+msgid "Sobral 的 4 吋望遠鏡讓我相信星光彎得更多。"
+msgstr "Sobral's 4-inch persuades me about the bending."
+
+msgid "基特"
+msgstr "Kit"
+

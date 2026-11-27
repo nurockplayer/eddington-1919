@@ -8,6 +8,7 @@ const Content := preload("res://scripts/cambridge/content_tribunal.gd")
 const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
 const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
+const London := preload("res://scripts/cambridge/content_london.gd")
 const Sobral := preload("res://scripts/cambridge/content_sobral.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
@@ -30,6 +31,7 @@ var capture_dir := ""
 var madeira_captures := false
 var sundy_captures := false
 var sobral_captures := false
+var london_captures := false
 var temp_settings := ""
 
 
@@ -157,6 +159,7 @@ func check_madeira_scroll(paper: Control, finish_with_pad: bool) -> void:
 
 func _run() -> void:
 	var enabled := OS.get_cmdline_user_args().has("--journey")
+	var london_only := OS.get_cmdline_user_args().has("--london-only")
 	var sobral_only := OS.get_cmdline_user_args().has("--sobral-only")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--journey-captures="):
@@ -171,10 +174,13 @@ func _run() -> void:
 			capture_dir = arg.trim_prefix("--sobral-captures=")
 			sobral_captures = true
 			sobral_only = true
+		elif arg.begins_with("--london-captures="):
+			capture_dir = arg.trim_prefix("--london-captures=")
+			london_captures = true
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
 		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
@@ -186,17 +192,19 @@ func _run() -> void:
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
-	if madeira_captures or sundy_captures or sobral_captures:
+	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only:
 		locales = ["en", "ja"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
-	if enabled and capture_dir.is_empty():
+	if enabled and capture_dir.is_empty() and not london_only:
 		L.apply("en")
 		await _resume_october()
 		await _resume_departure(route)
 	for locale in locales:
 		L.apply(locale)
-		if sobral_only:
+		if london_captures or london_only:
+			await _london_setup()
+		elif sobral_only:
 			var story := root.get_node("Story")
 			story.reset()
 			story.from_prologue = true
@@ -566,10 +574,11 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		await process_frame
 	await _dialogue(day)
 	expect(day._paired_cables == null, "darkroom precedes I3")
-	if enabled and L.current() in ["en", "ko"]:
+	if enabled and L.current() in ["en", "ja", "ko"]:
 		day.sim.plates = [{"number": 1, "start": 100.0, "duration": 10.0, "usable": true,
 			"included": true, "quality": "good", "stars": 5, "trail": 0.0, "read": true,
-			"sigma": 0.18, "reading": day.sim.reading_for_value(1.75)}]
+			"sigma": 0.33 if L.current() == "ja" else 0.18,
+			"reading": day.sim.reading_for_value(1.40 if L.current() == "ja" else 1.75)}]
 		day.sim.measured = true
 		day.plate_textures = [ImageTexture.create_from_image(Image.create_empty(8, 8, false, Image.FORMAT_RGB8))]
 	var plates: Array = day.sim.plates.duplicate(true)
@@ -664,12 +673,14 @@ func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool, com
 		await press(chapter.chart.button)
 	await press(chapter.chart.choices[2])
 	await press(chapter.chart.button)
-	await _dialogue(chapter, {"astro_weight": KEY_2})
+	await _dialogue(chapter, {"astro_weight": KEY_2 if L.current() != "ja" else KEY_4})
 	expect(chapter.beat == chapter.Beat.ORRERY, "the comparison and ledger reply lead to the orrery")
 	chapter._interact("orrery")
+	var strong := Epilogue.ledger_case(story.runs.back()) == "conceded"
+	var choices := {"bet_oct": KEY_3 if strong else KEY_2, "final_reason": KEY_1 if strong else KEY_5}
 	while chapter.ui.dialog_active() and chapter._pending != "close":
 		var entry: Dictionary = chapter.ui._seq[chapter.ui._seq_i]
-		await tap(KEY_5 if entry.get("key") == "final_reason" else (KEY_1 if entry.has("choices") else KEY_ENTER))
+		await tap(choices.get(entry.key, KEY_1) if entry.has("choices") else KEY_ENTER)
 	expect(chapter._pending == "close", "October reaches the closing ledger exchange")
 	var closing_lines: Array = chapter.ui._seq.slice(1).map(func(line): return line.t)
 	var close := await _october_dialogue(chapter, enabled, tone)
@@ -688,7 +699,151 @@ func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool, com
 		await process_frame
 	expect(chapter._pending == "tableau", "October keeps the tableau")
 	await _dialogue(chapter)
-	expect(chapter.beat == chapter.Beat.ENDING, "October reaches the ending")
+	if enabled:
+		await _london(chapter, combined, tone, strong)
+	else:
+		for frame in 150:
+			if chapter.ui.ending_panel.visible:
+				break
+			await process_frame
+		expect(chapter.ui.ending_panel.visible and chapter.get("london") == null,
+			"flag off opens the existing ending directly")
+
+
+func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) -> void:
+	for frame in 150:
+		if chapter.get("london") != null and chapter.ui.fade.color.a == 0.0:
+			break
+		await process_frame
+	expect(chapter.get("london") != null, "the October tableau hands off to London with the flag on")
+	var meeting: Control = chapter.london
+	var paper: Control = meeting.paper
+	var run: Dictionary = root.get_node("Story").runs.back()
+	var original := run.duplicate(true)
+	var text := London.strings()
+	var locale := L.current()
+	var reaction := {"en": "L07", "ja": "L10", "zh_TW": "L11", "ko": "L07"}
+	var read := [
+		["prediction", ["L02", "L03", "L04", reaction[locale]], "L14"],
+		["simulation", ["L15"], "L14"],
+		["threshold", ["L85", "L86", "L87", "L12"], "L13"],
+		["proceedings", ["L18", "L19", "L20", "L21", "L22", "L23"], "L14"],
+		["principal", ["L29", "L30", "L31"], "L14"],
+		["scale", ["L32", "L33", "L34", "L35", "L36", "L37", "L38", "L39"], "L40"],
+		["precision", [], "L14"],
+		["newall", ["L55", "L56", "L57", "L58", "L54"], "L14"],
+		["silberstein", ["L59", "L60", "L61", "L62", "L54"], "L63"],
+		["open_test", [], "L14"],
+		["exchange", ["L73", "L74", "L88", "L75", "L76", "L54", "L72"], "L14"],
+		["reply", ["L77"], "L79"],
+		["workbook", ["L81", "L82", "L83", "L89", "L91" if tone == "close" else "L90"], "L14"],
+		["hold", ["L04", "L81"], "L84"],
+	]
+	var line: String = text.reason if strong else text.reservation
+	for sheet in read:
+		var state: String = sheet[0]
+		expect(meeting.page_id == state, "London paper opens " + state)
+		_check_lines(paper, text, sheet[1])
+		match state:
+			"simulation":
+				var sim_text: String = text.L16 % [combined.value, combined.sigma] if combined.n > 0 else text.L17
+				expect(has_text(paper, sim_text) and not is_instance_valid(meeting.historical_chart),
+					"the simulated measurement is on its own labelled sheet")
+			"principal":
+				var historical: Array = meeting.historical_chart.rows
+				expect(historical.size() == 2 and historical[0].value == 1.98 and historical[0].sigma == 0.12
+					and historical[1].value == 1.61 and historical[1].sigma == 0.30,
+					"London plots only the documented principal results with their probable errors")
+			"precision":
+				var precision := {"en": "L43", "ja": "L50", "zh_TW": "L47", "ko": "L50"}
+				var notes := {"L43": ["L44", "L45", "L46"], "L47": ["L48", "L49", "L46"], "L50": ["L51", "L52"]}
+				await _london_annotate(meeting, text, precision[locale], notes[precision[locale]], "L54")
+				state = "precision_attached"
+			"open_test":
+				var test := {"en": "L70", "ja": "L68", "zh_TW": "L66", "ko": "L68"}
+				var order := {"L70": ["L71", "L67", "L69"], "L68": ["L69", "L67", "L71"], "L66": ["L67", "L69", "L71"]}
+				await _london_annotate(meeting, text, test[locale], order[test[locale]], "L72")
+				state = "open_test_attached"
+			"reply":
+				await _london_frame(paper, state)
+				await press(button(paper, text.reservation))
+				expect(has_text(paper, text.reservation), "the reservation can be previewed")
+				if strong:
+					await press(button(paper, text.L80))
+					await press(button(paper, text.reason))
+				expect(has_text(paper, line), "the chosen words appear before committing")
+				state = "reply_preview"
+			"workbook", "hold":
+				expect(has_text(paper, line), "the spoken line survives into the workbook and final hold")
+		if meeting.historical_chart and meeting.historical_chart.rows.size() == 3:
+			var astro: Dictionary = meeting.historical_chart.rows[2]
+			expect(astro.value == 0.93 and astro.other_value == 1.52 and astro.no_bar,
+				"the same unbarred astrograph pair stays visible on the historical chart")
+		await _london_frame(paper, state)
+		if state == "exchange" and london_captures and locale == "en":
+			Settings.text_scale = 1.2
+			Settings.refresh_fonts(self)
+			meeting.refresh_fonts()
+			await _london_frame(paper, state, "_scale_1_2")
+			Settings.text_scale = 1.0
+			Settings.refresh_fonts(self)
+			meeting.refresh_fonts()
+		await press(button(paper, text[sheet[2]]))
+	for frame in 150:
+		if chapter.ui.ending_panel.visible:
+			break
+		await process_frame
+	expect(chapter.ui.ending_panel.visible and chapter.ui.ending_review.text.ends_with(line),
+		"the last advance reaches the deferred review with the exact spoken line")
+	expect(run == original, "London leaves the run and October's recorded choices intact")
+
+
+func _london_annotate(meeting: Control, text: Dictionary, pick: String, notes: Array, close: String) -> void:
+	var paper: Control = meeting.paper
+	await _london_frame(paper, meeting.page_id)
+	await press(button(paper, text[pick]))
+	expect(has_text(paper, text[notes[0]]) and not has_text(paper, text[close]),
+		"the selected note previews before it is attached")
+	await _london_frame(paper, meeting.page_id + "_preview")
+	await press(button(paper, text.L53))
+	var lines: Array = paper.body.find_children("*", "Label", true, false).map(func(label): return label.text)
+	var start := lines.find(text[notes[0]])
+	expect(start >= 0 and lines.slice(start, start + notes.size() + 1) == (notes + [close]).map(func(id): return text[id]),
+		"the complete annotation starts with the selected note")
+
+
+func _london_frame(paper: Control, state: String, suffix := "") -> void:
+	if not london_captures:
+		return
+	await check_paper_layout(paper, state)
+	var scroll: ScrollContainer = paper.body.get_parent()
+	var previous := scroll.scroll_vertical
+	scroll.scroll_vertical = 0
+	await capture("london_" + state, paper, suffix, Vector2i(1280, 720))
+	if scroll.get_v_scroll_bar().visible:
+		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
+		await capture("london_" + state, paper, suffix + "_end", Vector2i(1280, 720))
+	scroll.scroll_vertical = previous
+
+
+func _london_setup() -> void:
+	var story := root.get_node("Story")
+	story.reset()
+	var strong := L.current() == "en"
+	var combined := {"n": 1, "value": 1.78 if strong else 1.40, "sigma": 0.18 if strong else 0.33}
+	story.bond_tone = "warm" if strong else "close"
+	story.madeira_letter_sent = true
+	story.sundy_letter_read = true
+	story.tribunal_packet_seen = true
+	story.bet_1917 = {"pick": 1, "sure": 1}
+	story.bet = story.bet_1917.duplicate()
+	story.runs.append({"combined": combined, "clean": true, "bounds": {
+		"lo": combined.value - 2.0 * combined.sigma, "hi": combined.value + 2.0 * combined.sigma},
+		"grade": {"title": "", "lines": []}, "telegram_id": "", "reason_text": "", "plate_total": 1,
+		"plates_available": 16, "plate_counts": {"good": 1, "poor": 0, "unusable": 0}})
+	expect(change_scene_to_file("res://scenes/epilogue.tscn") == OK, "load October for London captures")
+	await scene_changed
+	await _october(current_scene, true, story.bond_tone, true, combined)
 
 
 func _october_dialogue(chapter: Node, enabled: bool, tone: String) -> Array:
