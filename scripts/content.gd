@@ -119,7 +119,7 @@ static func plan_text() -> Array:
 
 static func oxford_text() -> Array:
 	return [
-		{"s": L.t("牛津比對底片"), "t": L.t("1919 年 1 月，用[b]同一具望遠鏡[/b]在牛津夜空拍下的同一片星場（金牛座畢宿星團一帶）。日食這天，太陽正好在這片星前面。")},
+		{"s": L.t("牛津比對底片"), "t": L.t("1919 年 1 月，在牛津夜空拍下這片星場（金牛座畢宿星團一帶）。島上重用牛津的物鏡，裝在水平鏡筒上並配合定天鏡。日食這天，太陽正好在這片星前面。")},
 		{"s": L.t("牛津比對底片"), "t": L.t("島上要再過好幾個月才能在夜裡看到這片星，所以比對片必須事先拍好。之後要把日食底片和它疊在一起比較星的位置。")},
 	]
 
@@ -128,7 +128,7 @@ static func night_intro(n_plates: int) -> Array:
 	if n_plates == 0:
 		return [{"s": E, "t": L.t("……我們一張也沒有拍。雲和時間都沒有等我們。")}]
 	return [
-		{"s": E, "t": L.t("接下來的六個晚上，我們每晚沖兩張。")},
+		{"s": E, "t": L.t("暗房六晚為時間壓縮；X 片在普林西比測量，W 片返英後才顯影、測量。")},
 		{"s": E, "t": L.t("都在測量桌上了。[b]先按星像好壞挑片，再量[/b]。量完了，再告訴我你怎麼想。")},
 	]
 
@@ -161,7 +161,7 @@ static func comparison_errand() -> Array:
 
 
 static func comparison_fetched() -> Array:
-	return [{"s": "", "t": L.t("（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）")}]
+	return [{"s": "", "t": L.t("（你把牛津那盒比對片抱上測量桌。一月的夜空；島上重用的是牛津物鏡，配水平鏡筒和定天鏡。）")}]
 
 
 static func calibration_recall(plan: Array, played: bool) -> String:

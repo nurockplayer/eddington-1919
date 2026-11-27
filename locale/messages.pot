@@ -253,7 +253,7 @@ msgid "1918 年 11 月，停戰。"
 msgstr ""
 
 #: scripts/content.gd:132
-msgid "1919 年 1 月，用[b]同一具望遠鏡[/b]在牛津夜空拍下的同一片星場（金牛座畢宿星團一帶）。日食這天，太陽正好在這片星前面。"
+msgid "1919 年 1 月，在牛津夜空拍下這片星場（金牛座畢宿星團一帶）。島上重用牛津的物鏡，裝在水平鏡筒上並配合定天鏡。日食這天，太陽正好在這片星前面。"
 msgstr ""
 
 #: scripts/ending.gd:80
@@ -635,7 +635,7 @@ msgid "Rook 在工作檯邊說的話一直在我耳邊。我本想讓 Ashby 先�
 msgstr ""
 
 #: scripts/main.gd:1138
-msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是莊園的工人砌的。報告謝了莊園主人，卻沒有寫下任何一個工人的名字。"
+msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是為此特別建的，勞力來自莊園。報告謝了莊園主人，卻沒有寫下建墩者的名字。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:384
@@ -3515,7 +3515,7 @@ msgid "接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時�
 msgstr ""
 
 #: scripts/content.gd:141
-msgid "接下來的六個晚上，我們每晚沖兩張。"
+msgid "暗房六晚為時間壓縮；X 片在普林西比測量，W 片返英後才顯影、測量。"
 msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:112
@@ -3787,7 +3787,7 @@ msgid "普林西比・A. S. Eddington・《Nature》103 卷，265–266 頁・19
 msgstr ""
 
 #: scripts/ending.gd:79
-msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
+msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符。1919 年 6 月 5 日的《Nature》刊出「Through cloud, hopeful」一語；原始電報的收件人與發報日期均未確認。遊戲中的電報是虛構草稿。"
 msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:49
@@ -5835,7 +5835,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: scripts/content.gd:174
-msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）"
+msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空；島上重用的是牛津物鏡，配水平鏡筒和定天鏡。）"
 msgstr ""
 
 #: scripts/content_coda.gd:37

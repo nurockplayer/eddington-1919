@@ -1181,7 +1181,7 @@ func _interact(id: String) -> void:
 				_say([{"s": Content.C, "t": L.t("驅動箱就在我旁邊——按一下 %s 開始上發條。") % Prompts.key("interact") if Settings.hold_toggle else L.t("驅動箱就在我旁邊——按住 %s 上發條。") % Prompts.key("interact")}], "")
 		"sundy":
 			# HISTORICAL_RECORD: host and labour; RECONSTRUCTION: wording.
-			_say([{"s": "", "t": L.t("Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是莊園的工人砌的。報告謝了莊園主人，卻沒有寫下任何一個工人的名字。")}], "")
+			_say([{"s": "", "t": L.t("Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是為此特別建的，勞力來自莊園。報告謝了莊園主人，卻沒有寫下建墩者的名字。")}], "")
 		"station":
 			if sim.plates_carried > 0:
 				sim.plates_delivered += sim.plates_carried

@@ -41,7 +41,7 @@
 
 - [Royal Society — Observing general relativity (2024)](https://royalsociety.org/blog/2024/08/observing-relativity/)：兩地觀測、望遠鏡、照片品質及 Príncipe 可用數據。
 - [Nature — The Solar Eclipse (1919-06-05, doi:10.1038/103265c0)](https://www.nature.com/articles/103265c0)：當代對 Sobral 與 Príncipe 的消息。
-- [A. C. M. Correia et al. — Shadow of the Moon and general relativity (2019)](https://www.scielo.br/j/rbef/a/tsCDFzLWszcgV8XzMN9KvQH/)：遠征時間線、拍攝/顯影/測量與科學評估；重要細節仍請與原始資料交叉核對。
+- José P. S. Lemos — [Shadow of the Moon and general relativity (2019)](https://www.scielo.br/j/rbef/a/tsCDFzLWszcgV8XzMN9KvQH/)：遠征時間線、拍攝/顯影/測量與科學評估；重要細節仍請與原始資料交叉核對。
 - [Trinity College Cambridge archives — Account of an expedition to Príncipe](https://archives.trin.cam.ac.uk/index.php/account-of-an-expedition-to-principe)：原始遠征材料線索。
 - [Trinity College Cambridge archives — Eddington letter](https://archives.trin.cam.ac.uk/index.php/letter-from-a-s-eddington-to-sarah-ann-eddington-19)：家書與觀測心境的原始材料線索。
 - [Godot 4.7 official docs — High-level multiplayer](https://docs.godotengine.org/en/4.7/tutorials/networking/high_level_multiplayer.html)：**僅供未來架構參考**，目前不需要建立網路房間、RPC 或伺服器。

@@ -139,13 +139,7 @@ Use one paper view with read and advance controls. Present sources as archival i
 
 These are follow-up content or reference corrections identified by dossier §6. The scene briefs carry the dependencies where they touch them.
 
-| Current file:line | Correction owed |
-|---|---|
-| [`scripts/main.gd:1143`](../../scripts/main.gd#L1143) | The Sundy hotspot identifies the pier builders as plantation workers. The report records purpose-built piers and labour from the plantation. Attribute the known work and leave the builders' identity open. |
-| [`scripts/content.gd:132`](../../scripts/content.gd#L132), [`:174`](../../scripts/content.gd#L174) | The Oxford comparison plate text says “the same telescope.” Specify reuse of the Oxford objective with the island's horizontal tube and coelostat. See expedition report §IV. |
-| [`scripts/content.gd:141`](../../scripts/content.gd#L141) | The island darkroom compresses development and measurement into one playable episode. Mark the simulation's compression where the historic plates are discussed. X was measured on Príncipe. W was developed and measured after the return to England. See expedition report §35. |
-| [`scripts/ending.gd:79`](../../scripts/ending.gd#L79) | The historical block names Dyson as the cable's recipient. Attribute the wording to the June 1919 publication in *Nature* and leave the original addressee open. Keep the player's fictional draft distinguishable from that publication. |
-| [`docs/HISTORY_1919.md:44`](../HISTORY_1919.md#L44) | Credit José P. S. Lemos as the author of *Shadow of the Moon and general relativity* (2019). |
+None owed as of 2026-11-27 15:10 JST.
 
 The 29 May title card dates the playable observation day. I2 supplies the distinct 23 April landing. The cloud timing and plate-count variations are simulated play, and the route already presents 0.87″ as Newtonian-style. [Departure card](../../scripts/cambridge/content_departure.gd#L159) · [Prediction ledger](../../scripts/cambridge/content_1917.gd#L367)
 

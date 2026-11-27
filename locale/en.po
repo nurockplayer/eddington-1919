@@ -223,8 +223,8 @@ msgstr "11 November 1918 · House of Commons"
 msgid "1918 年 11 月，停戰。"
 msgstr "November 1918. The Armistice."
 
-msgid "1919 年 1 月，用[b]同一具望遠鏡[/b]在牛津夜空拍下的同一片星場（金牛座畢宿星團一帶）。日食這天，太陽正好在這片星前面。"
-msgstr "January 1919: the same field, photographed at night over Oxford with [b]the same telescope[/b] (the region of the Hyades in Taurus). On the day of the eclipse the Sun stands in front of this field."
+msgid "1919 年 1 月，在牛津夜空拍下這片星場（金牛座畢宿星團一帶）。島上重用牛津的物鏡，裝在水平鏡筒上並配合定天鏡。日食這天，太陽正好在這片星前面。"
+msgstr "January 1919: this field was photographed at night over Oxford (the Hyades in Taurus). On Príncipe, they reused Oxford's objective in the horizontal tube with a coelostat. On eclipse day the Sun stood before this field."
 
 msgid "1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。"
 msgstr "On 6 November 1919, the results were announced at a joint meeting of the Royal Society and the Royal Astronomical Society. The report relied chiefly on the 4-inch telescope at Sobral in Brazil (1.98″ ± 0.12″); Príncipe gave 1.61″ ± 0.30″ (written at the time as 'probable error', roughly two-thirds of one standard error). The Sobral astrographic result was set aside because the focal length had changed and the star images were blurred—a documented technical reason, not a cover-up. One expedition did not make every doubt disappear."
@@ -519,8 +519,8 @@ msgstr "RB/X button"
 msgid "Rook 在工作檯邊說的話一直在我耳邊。我本想讓 Ashby 先生告訴他，工作是誰做的。"
 msgstr "I keep hearing Rook at the bench. I wanted Ashby to tell him whose work it was."
 
-msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是莊園的工人砌的。報告謝了莊園主人，卻沒有寫下任何一個工人的名字。"
-msgstr "Roça Sundy. The owner, Jerónimo Carneiro, let the expedition draw freely on the estate's workers. Carriers took the crates through the forest, and estate workers built the stone pier for the coelostat. The report thanks the owner, but it does not record a single worker's name."
+msgid "Roça Sundy。莊園主人 Jerónimo Carneiro 讓遠征隊自由調用莊園的人手。挑夫把箱子扛過樹林，放定天鏡的石墩是為此特別建的，勞力來自莊園。報告謝了莊園主人，卻沒有寫下建墩者的名字。"
+msgstr "Roça Sundy. Owner Jerónimo Carneiro let the expedition draw on estate labour. Carriers took the crates through the forest; the coelostat's stone pier was purpose-built with that labour. The report thanks the owner, but does not name the builders."
 
 msgid "Seeliger 想過：太陽附近也許有一層看不見的物質，像黃道光的塵。聽起來很合理——可是沒有人能證明它多到足以拉住水星。"
 msgstr "Seeliger considered it: perhaps there is unseen matter near the Sun, like the dust of the zodiacal light. It sounds reasonable—but no one could show there was enough of it to hold Mercury back."
@@ -2785,8 +2785,8 @@ msgstr "The game’s exposure model gives enough relatively clear stars to measu
 msgid "接下來的六個夜晚\n暗房裡，底片一張張沖洗出來（時間壓縮）"
 msgstr "The next six nights\nin the darkroom, the plates are developed one by one (time compressed)"
 
-msgid "接下來的六個晚上，我們每晚沖兩張。"
-msgstr "For the next six nights we develop two plates a night."
+msgid "暗房六晚為時間壓縮；X 片在普林西比測量，W 片返英後才顯影、測量。"
+msgstr "The six darkroom nights compress time; X was measured on Príncipe, W developed and measured after the return to England."
 
 msgid "接續的航程"
 msgstr "The onward passage"
@@ -3005,7 +3005,10 @@ msgid "普林西比・A. S. Eddington・《Nature》103 卷，265–266 頁・19
 msgstr "Príncipe · A. S. Eddington · Nature 103, pp. 265–266 · 5 June 1919"
 
 msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符；他發給 Dyson 的電報說雲很厚，但「有希望」（1919 年 6 月 5 日的《Nature》引作 \"Through cloud, hopeful\"；發報日期未確認）。"
-msgstr "At Príncipe, 16 plates were exposed during the 302-second totality, with exposures of 2 to 20 seconds; the cloud thinned noticeably only in the last third of totality. The first ten plates showed almost no stars, and in the end only two plates, with five stars in all, could be measured. Eddington measured one plate on the island and found it agreed with Einstein's prediction; his telegram to Dyson said the cloud was thick but 'hopeful' (quoted as \"Through cloud, hopeful\" in Nature, 5 June 1919; the date of sending is not confirmed)."
+msgstr "At Príncipe, 16 plates were exposed during the 302-second totality, with exposures of 2 to 20 seconds; the cloud thinned noticeably only in the last third. The first ten plates showed almost no stars; only two plates, with five stars, could be measured. Eddington measured one on the island, in agreement with Einstein's prediction. Nature published 'Through cloud, hopeful' on 5 June 1919; the original telegram's addressee and date are unconfirmed. The game's telegram is fictional."
+
+msgid "普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符。1919 年 6 月 5 日的《Nature》刊出「Through cloud, hopeful」一語；原始電報的收件人與發報日期均未確認。遊戲中的電報是虛構草稿。"
+msgstr "At Príncipe, 16 photographic plates were exposed for 2 to 20 seconds during the 302-second totality. The clouds thinned noticeably only in the final third of totality. The first ten plates showed almost no stars, and in the end only five stars on two plates were usable for measurement. Eddington measured one of the plates on the island, and the result agreed with Einstein’s prediction. The 5 June 1919 issue of Nature printed the phrase ‘Through cloud, hopeful’. The recipient of the original telegram and the date it was sent are both unconfirmed. The in-game telegram is a fictional draft."
 
 msgid "普林西比清單"
 msgstr "Príncipe checklist"
@@ -4595,8 +4598,8 @@ msgstr[1] "(you are carrying %d of them for Cottingham)"
 msgid "（你把工作簿遞過去。Kit 翻到最後一頁，看了很久。）"
 msgstr "(You hand over the workbook. Kit turns to the last page and studies it for a long time.)"
 
-msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空，同一具望遠鏡。）"
-msgstr "(You carry the box of Oxford comparison plates to the measuring table. A January night sky, the same telescope.)"
+msgid "（你把牛津那盒比對片抱上測量桌。一月的夜空；島上重用的是牛津物鏡，配水平鏡筒和定天鏡。）"
+msgstr "(You carry the Oxford comparison plates to the measuring table. A January night sky; the island reused Oxford's objective with a horizontal tube and coelostat.)"
 
 msgid "（你拿起 %s的放大鏡。）"
 msgstr "(You pick up %s's magnifying glass.)"
