@@ -1863,3 +1863,13 @@ Three generated candidate pairs (toned print and its engraving), no photograph o
 - One correction for the committed file: A's engraving is printed in a lighter, warmer brown than Eddington's near-black line. Bring its ink to Eddington's tone and contrast so the two are plates from one book.
 
 ![mock A](slice_principe/portraits/cottingham-1128/mock-A.png)
+
+### 2026-11-28 05:41 JST · #617 (Cottingham's portrait print and engraving, my lane) at f04823a: accepted
+
+Opened: the worker's side-by-side of `eddington_engraving.jpg` and the committed `cottingham_engraving.jpg` (2120×1104, shown to me at 2000 px wide). The committed files themselves not opened one by one; sizes checked (engraving 1024×1024, print 1254×1254, as Eddington's). The print is candidate A's, seen at the last entry before resizing.
+
+- Technical regression: none possible on screen; no wiring in this PR. test_credits 477 checks, 0 failures by the worker's report; Codex review approve 0/0/0.
+- This change: accepted. The ink is now Eddington's near-black on the same cream; same hatching, same ruled ground and oval vignette. Two plates from one book, two different men.
+- Row 8: not moved until AA 27 wires the 16 Príncipe lines to `res://assets/portraits/cottingham_engraving.jpg`.
+
+![side by side](slice_principe/portraits/cottingham-1128/engraving-side-by-side.png)
