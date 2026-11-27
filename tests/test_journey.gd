@@ -602,11 +602,22 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	expect(chapter.ui.dialog_active() and journey.page_id == "M47", "Kit's sky promise is remembered at the window")
 	await tap(KEY_ENTER)
 	_check_lines(paper, text, ["M46", "M50", "M48" if warm else "M49"])
-	expect(has_text(paper, L.t("1919 年 5 月 29 日")), "the dated blank leaf is separate")
 	await press(button(paper, text.M51))
-	_check_lines(paper, text, ["M71", "M72", "M73", "M74", "M75" if warm else "M76"])
+	await frames(3)
+	var sheets: HBoxContainer = paper.body.get_child(-1)
+	var outgoing: VBoxContainer = sheets.get_child(-1)
+	var question: Label = outgoing.get_child(-1)
+	expect(question.text == text.M74, "Kit's star question is last before sealing")
+	_check_lines(paper, text, ["M86", "M71", "M72", "M73", "M78", "M75" if warm else "M76"])
+	var workbook: VBoxContainer = sheets.get_child(1)
+	var scroll: ScrollContainer = paper.body.get_parent()
+	expect(has_text(workbook, text.M50) and workbook.get_child(-1) is HSeparator
+		and scroll.get_global_rect().encloses(workbook.get_child(0).get_global_rect())
+		and scroll.get_global_rect().encloses(workbook.get_child(-1).get_global_rect())
+		and scroll.get_global_rect().encloses(question.get_global_rect()),
+		"the empty reply space is visible beside the outgoing question")
 	await press(button(paper, text.M77))
-	_check_lines(paper, text, ["M78", "M79", "M50"])
+	_check_lines(paper, text, ["M78", "M79", "M50", "M85"])
 	await press(button(paper, text.M09))
 	_check_lines(paper, text, ["M52", "M53", "M54", "M55", "M56"])
 	await press(button(paper, text.M09))
@@ -663,7 +674,7 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	await _sundy_sheet(paper, "sundy_09_packed_mirror", [text.S28], onward)
 	await _sundy_sheet(paper, "sundy_10_station", [text.S30, text.S31, text.S32, text.S33, text.S34], text.S35)
 	await _sundy_sheet(paper, "sundy_11_field_records", [text.S37, text.S38, text.S39, text.S40], text.S43)
-	await _sundy_sheet(paper, "sundy_12_kit_letter", [text.S86, text.S87, text.S88], onward)
+	await _sundy_sheet(paper, "sundy_12_kit_letter", [text.S85, text.S86, text.S87, text.S88, text.S92], onward)
 	expect(chapter.ui.dialog_active() and chapter.ui.text_label.text == text.S47, "Ashby's remembered instruction precedes the rehearsal")
 	await _check_sundy_memory(paper, chapter.ui)
 	if sundy_captures:
@@ -688,8 +699,8 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	expect(chapter.ui.text_label.text == text.S80, "Kit asks what was seen at Sundy")
 	await _dialogue(chapter)
 	await _sundy_sheet(paper, "sundy_18_workbook", [
-		text.S81, text.S82 if warm else text.S83, text.S89, text.S90 if warm else text.S91,
-		L.t("1919 年 5 月 29 日")], text.S84)
+		text.S81, text.S93, text.S82 if warm else text.S83, text.S89, text.S90 if warm else text.S91,
+		Madeira.strings().M85], text.S84)
 
 
 func _i3(paper: Control) -> void:
