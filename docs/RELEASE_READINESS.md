@@ -4,6 +4,10 @@ The heartbeat question (Owner 2026-11-03 07:5x JST): **is the game at production
 
 Status: DONE / PARTIAL / MISSING. Owner = needs the Owner's decision, account or money; the director never does these alone.
 
+## Completion gate (Owner 2026-11-27 22:4x JST)
+
+Store work (section B, store page, depots) resumes only when all three hold: (1) Príncipe slice acceptance 9/9 on main (`docs/design/SLICE_PRINCIPE.md`); (2) the journey main route, London included, plays from the title to the ending; (3) the top fun-first rows of `docs/design/AA_POLISH_PLAN.md` are merged. Platforms: Steam (Windows, macOS, Linux) first; itch.io or GOG optional later; no consoles. Scope stays B + interludes. Decision record: [#316](https://github.com/nurockplayer/eddington-1919/issues/316#issuecomment-7219825245).
+
 ## A. Director-actionable blockers (in this order)
 
 | # | Item | Status | Evidence | Next action |
