@@ -1548,3 +1548,12 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - Let go: at text scale 1.2 the four-line rehearsal note covers the lower third of the view; the note's length is older than this PR.
 - Not shown: the crate lettering coming back after rehearsal (reported by edd-lead, no frame).
 - **Verdicts:** technical regression none seen; this PR's change accepted; AA row 02 met for its visual part. **Count stays 7/9.**
+
+### 2026-11-27 15:43 JST: #585 AA fun 02, micrometer second setting, at f690c0a: not accepted yet (the marks, the button block, frames owed)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/585/f690c0a36bfa041aeb8b6d06c8d1e2e196edfa35/` (main `ced8f1a9`, seed 1919, en, 1280×720; three frames). Opened whole at native size: all three; then the ruler at 6× from each. Kept in `slice_principe/accept/585/f690c0a/`.
+- **The idea reads.** After the second setting two marks stand on the ruler and two buttons carry their values; at 8 divisions apart the marks are plainly two, at 0.05 they join into one line, which is an honest picture of agreement.
+- **1. The first reading's mark is not clearly a mark.** It is pale blue, the colour of the "Night positions" caption above the ruler, and it lies on the numeral side: in the wide frame it touches "10" and reads as "−10"; in the close frame it runs into "0". The chosen mark (orange, on the star's side) is clear.
+- **2. The button block.** The Micrometer button stretches to a slab 125 px tall beside three stacked buttons, and Record sits above the two readings it records, so top to bottom the order is record, then choose.
+- **3. Frames owed.** Nothing shows the steps before the reveal: the first setting with "Measure again" offered, and the second setting under way with the first mark hidden. I cannot accept a flow from its last frame.
+- For the next head: both marks clear of the numerals and not in the caption's colour, each tied to its button (a 1 and a 2, or the like), the chosen one heavier; Micrometer at its usual height with Record under the two readings. Frames: first setting done, second setting under way, wide reveal, close reveal, and the wide reveal at text scale 1.2.
+- **Verdicts:** technical regression none seen (before-state layout is main's); this PR's change not accepted yet. **Count stays 7/9.**
