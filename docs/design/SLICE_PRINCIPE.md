@@ -1574,3 +1574,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **3. Three alike.** In the regular view the moving trace, "Previous" and "Now" are the same diamond; nothing says which one moves.
 - For the next head: in these same two cases the wrong-way pair and the corrected pair each differ by at least a diamond's width, with the largest drift the drive can show still inside the circle; labels inside the circle beside their marks; the live trace drawn unlike the two held marks. Same eight frames.
 - **Verdicts:** technical regression none seen; this PR's change not accepted yet. **Count stays 7/9.**
+
+### 2026-11-27 16:25 JST: #586 AA fun 05, shelter drive trim comparison, at 0cffc02: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/586/0cffc0243bec23260f4b62f25e1fbd53f8d3e79f/` (seed 77, en, 1280×720; eight frames). Opened whole at native size: the candidate's four (regular and reduced, wrong and corrected). Not opened: main's four (seen at c66666f's capture). Kept in `slice_principe/accept/586/0cffc02/`.
+- **The pair reads.** Each held mark hangs on a bar from the centre line with its label under it, inside the circle. After the wrong-way trim "Now" stands about a diamond's width farther out than "Previous"; after the correction it is less than half as far. Grow, then shrink, can be seen at a glance in both motion modes.
+- **The live trace is its own thing:** a filled dot, not a diamond.
+- Backlog: that dot is about 4 px, the smallest mark in the diagram, and the line under it says to watch the star image move. Stills only; I have not seen its trail in motion.
+- Not shown: the largest drift the drive can reach staying inside the circle (reported by edd-lead, no frame).
+- **Verdicts:** technical regression none seen; this PR's change accepted. **Count stays 7/9.**
