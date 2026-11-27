@@ -1904,3 +1904,30 @@ Frames kept in `docs/design/slice_principe/accept/620/382c0a7/`.
 ![plates en](slice_principe/accept/620/382c0a7/i4_plates_en.png)
 
 **Count stays 7/9.**
+
+### 2026-11-28 08:44 JST · #618 (journey, London joint meeting) at 183a40c: accepted as a chapter; not yet a climax
+
+Opened whole at 1280×720, English, text scale 1.0: threshold, proceedings, principal, precision attached, Silberstein, exchange, hold (first view and end). Not opened: the other 54 (all Japanese, the 1.2 exchange, prediction, simulation, scale, Newall, open test, reply, workbook, the other ends). Stills only: I have not seen how one state turns into the next.
+
+- **Technical regression:** none seen. Same sheet, type, rules and scrollbar as the other journey chapters.
+- **This change: accepted.** The argument reads in order, the speakers are told apart, and the chart keeps both Sobral astrograph figures in view as the text asks. It can merge.
+- **Whole scene (the public climax): not accepted as a climax.** It does not feel epic; it feels like one more page of the folder.
+
+Two defects in these frames, for a follow-up, not held here:
+1. On the chart the row labels ("Sobral 4-inch", "Príncipe", "Sobral astrograph") are crossed by the dashed 0″ line, in every chart frame.
+2. The fold cuts a line in half on hold (first view). Same shared-sheet defect as #600 and #620; it belongs to #611.
+
+**What is missing for the climax** (my lane; brief written, I dispatch it when this is on main):
+- **The result never arrives.** In "principal" the chart is already complete. The two points should land one after the other on an empty axis, Sobral's then Príncipe's, each with its error bar, while the 0.87″ line the player has carried since 1917 stands there to be passed.
+- **The chart is 166 px of a 720 px screen.** It is the picture of the whole game's question and should be the largest thing on screen at that moment, drawn as a plate of the book (ink on paper, as the Sobral and Sundy drawings), not a dark strip.
+- **The player's own figure is a line of text.** "Your 1917 prediction · 0.87" belongs on the chart as their mark, so they see their own number left behind.
+- **No room and no people.** Burlington House, 6 November 1919, is two lines of type on the same 768 px slip as the doorstep talk. One drawn plate of the room would set the scale; Eddington's engraved portrait exists and is not used where he reports.
+- **No held beat.** Every state ends in the same Continue button at the same weight; the announcement and Ashby's concession pass like any other paragraph.
+
+Frames kept in `docs/design/slice_principe/accept/618/183a40c/`.
+
+![principal](slice_principe/accept/618/183a40c/london_principal_en.png)
+![precision attached](slice_principe/accept/618/183a40c/london_precision_attached_en.png)
+![exchange](slice_principe/accept/618/183a40c/london_exchange_en.png)
+
+**Count stays 7/9.**
