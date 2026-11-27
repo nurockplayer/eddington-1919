@@ -165,16 +165,21 @@ func _carve(a: Vector2, b: Vector2, r_full: float, r_soft: float, target: float,
 	var ab := b - a
 	var len2 := maxf(ab.length_squared(), 1e-9)
 	for y in range(y0, y1 + 1):
+		var row := posmod(y, TEX_SIZE) * TEX_SIZE
 		for x in range(x0, x1 + 1):
+			var i := row + posmod(x, TEX_SIZE)
+			var cur := _dens[i]
+			var density := maxf(cur, target) if thicken else minf(cur, target)
+			# Overlapping passes often cover pixels already at the target.
+			if density == cur:
+				continue
 			var p := Vector2((x + 0.5) / TEX_SIZE, (y + 0.5) / TEX_SIZE)
 			var h := clampf((p - a).dot(ab) / len2, 0.0, 1.0)
 			var dist := (p - (a + ab * h)).length()
 			if dist > reach:
 				continue
 			var w := 1.0 - smoothstep(r_full, reach, dist)
-			var i := posmod(y, TEX_SIZE) * TEX_SIZE + posmod(x, TEX_SIZE)
-			var cur := _dens[i]
-			_dens[i] = lerpf(cur, maxf(cur, target) if thicken else minf(cur, target), w)
+			_dens[i] = lerpf(cur, density, w)
 
 
 func _sample(uv: Vector2) -> float:
