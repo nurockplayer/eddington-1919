@@ -1620,3 +1620,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Why not yet:** the row is the passage, how the band arrives over the Sun and leaves, and whether the player can see it coming in the sky. Three stills 3 s apart do not show that, and I have accepted transitions from end states before and been wrong. Owed: one clip, seed 77, 1280×720 at 60 fps, simulation 98 to 113 s, frames kept.
 - Capture note: main's seed 77 seam frame has the input hint in Japanese with the rest in English.
 - **Verdicts:** technical regression none seen in the sky pass; this PR's change not accepted yet (clip owed); row 4 stays met. **Count stays 7/9.**
+
+### 2026-11-27 18:16 JST: #583 AA fun 06, Cambridge lightbox loupe, at 2062f4d: accepted (look only)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/583/2062f4d8d9bb1f39ba37fed8999f6a7a56566639/` (en, 1280×720; four frames). Opened whole at native size: all four. Kept in `slice_principe/accept/583/2062f4d/`.
+- **Holds.** The lens centre is empty over bare glass; over the unmatched point it shows the traced ring with a pale speck, over a matched pair a dark star in its ring. At the glass edge the lens is cut by the edge and the dark frame shows.
+- Let go, as before: the lens does not draw the tracing paper's tint or grid. Backlog: the loupe is a bare black ring; it could be drawn as a glass.
+- Not shown at this head: aligned state and text scale 1.2 (seen at 1d787f3). The newcomer playtest stays owed to a person.
+- **Verdicts:** technical regression none seen; this PR's change accepted at 2062f4d. **Count stays 7/9.**
