@@ -972,12 +972,20 @@ msgstr ""
 msgid "……好吧，喝得慣。快去。"
 msgstr ""
 
+#: scripts/content.gd:94
+msgid "……我也是。先把鐘調好。"
+msgstr ""
+
 #: scripts/content.gd:139
 msgid "……我們一張也沒有拍。雲和時間都沒有等我們。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:37
 msgid "……我回來了。"
+msgstr ""
+
+#: scripts/content.gd:315
+msgid "……我本來連行李都收好了。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:424 scripts/cambridge/content_1917.gd:425
@@ -1498,6 +1506,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:584
 msgid "他喜歡你。他不會說出來——那個人連喜歡什麼都要先量一量。"
+msgstr ""
+
+#: scripts/content.gd:90
+msgid "他是笑著說的。可是他沒說，要是上面什麼都沒有，會怎樣。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:341
@@ -2408,6 +2420,10 @@ msgstr ""
 msgid "單憑這張底片，尚無定論。"
 msgstr ""
 
+#: scripts/content.gd:92
+msgid "嗯。照實說。Dyson 先生讀得懂一張空白的底片。"
+msgstr ""
+
 #: scripts/cambridge/content_epilogue.gd:175
 msgid "嗯。這種事，不常有。"
 msgstr ""
@@ -2654,6 +2670,10 @@ msgstr ""
 
 #: scripts/content.gd:23
 msgid "如果星光經過太陽時會彎曲，太陽旁的星看起來就會被往外推一點點。把今天的底片和一月在牛津拍的同一片星場比較，就能量出推了多少。"
+msgstr ""
+
+#: scripts/content.gd:90
+msgid "如果真的什麼都沒有呢？"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:616
@@ -3136,6 +3156,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:589
 msgid "我信了牛頓三十年。"
+msgstr ""
+
+#: scripts/content.gd:324
+msgid "我們一起回家。看見什麼，就說什麼。"
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:521
@@ -5262,6 +5286,10 @@ msgstr ""
 msgid "那你比我誠實。電報照底片寫。"
 msgstr ""
 
+#: scripts/content.gd:318
+msgid "那回去重挑。我陪你。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:420
 msgid "那多出來的一點，你覺得是什麼？"
 msgstr ""
@@ -5270,12 +5298,20 @@ msgstr ""
 msgid "那天我一個人趕著上發條，走速尚未驗證。下次我們先把這件事做完。"
 msgstr ""
 
+#: scripts/content.gd:90
+msgid "那就一起回家，照實說。"
+msgstr ""
+
 #: scripts/cambridge/content_departure.gd:99
 msgid "那就在五分鐘之前，或是之後。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:213
 msgid "那就寫下來。沒有改變，也是一筆紀錄。"
+msgstr ""
+
+#: scripts/content.gd:93
+msgid "那就帶一箱說『什麼都沒有』的底片回去。那也是答案——只是很貴。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:41
@@ -5300,6 +5336,10 @@ msgstr ""
 
 #: scripts/cambridge/content_1917.gd:261
 msgid "那我收下。但我會在旁邊寫一行：「說抄錄者草率或編造——本紙沒有證據。」"
+msgstr ""
+
+#: scripts/content.gd:322
+msgid "那我等。反正我還有一座鐘要打包。"
 msgstr ""
 
 #: scripts/cambridge/content_epilogue.gd:39
@@ -5494,10 +5534,10 @@ msgstr ""
 
 #: scripts/cambridge/content_sundy.gd:98
 msgid "闔上演練紀錄"
+msgstr ""
 
 #: scripts/content.gd:314
 msgid "關於這份報告，你還有話要說？"
-msgstr ""
 msgstr ""
 
 #: scripts/cambridge/content_1917.gd:448
@@ -5910,6 +5950,10 @@ msgstr ""
 
 #: scripts/cambridge/report_sheet.gd:133
 msgid "（沒有發現）"
+msgstr ""
+
+#: scripts/content.gd:90
+msgid "（沒有說話）"
 msgstr ""
 
 #: scripts/cambridge/content_departure.gd:68
