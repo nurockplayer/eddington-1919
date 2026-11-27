@@ -1034,8 +1034,10 @@ func _layout_viewer() -> void:
 	var extra := minf(76.0 * growth, maxf(0.0, get_viewport().get_visible_rect().size.x - 1556.0 + 32.0 * growth))
 	chart_scroll.custom_minimum_size.x = 560.0 - 32.0 * growth
 	viewer_mid.custom_minimum_size.x = 470.0 + extra
-	plate_stage.custom_minimum_size = Vector2(470.0 + extra, 460.0 + extra)
-	big_plate.custom_minimum_size = Vector2.ONE * (460.0 + extra)
+	# Give the two reading choices, Record, and the note room below the plate.
+	var plate_height := (340.0 if not is_nan(_mic_second) else 460.0) + extra
+	plate_stage.custom_minimum_size = Vector2(470.0 + extra, plate_height)
+	big_plate.custom_minimum_size = Vector2(460.0 + extra, plate_height)
 	chart_scroll.custom_minimum_size.y = 280.0 if _viewer_reporting else 420.0 + 160.0 * growth
 	_fit_chart_height()
 	_fit_chart_width()
@@ -1257,6 +1259,7 @@ func _sync_micrometer_controls() -> void:
 	var editable: bool = not mic_btn.disabled and not (_viewer_locked and _viewer_plates[_viewer_sel].get("read", false))
 	var second_pass := not is_nan(_mic_first) and is_nan(_mic_second)
 	var comparing := not is_nan(_mic_second)
+	var reveal_changed := mic_first_btn.visible != comparing
 	mic_record_btn.visible = not second_pass
 	mic_record_btn.disabled = not editable or second_pass
 	mic_readout.visible = micrometer_on and not comparing
@@ -1276,6 +1279,8 @@ func _sync_micrometer_controls() -> void:
 	else:
 		mic_note.text = L.t("位移為示意放大；真實的位移比一個星點還小得多。")
 		mic_note.add_theme_color_override("font_color", DIM)
+	if reveal_changed:
+		_layout_viewer()
 
 
 func _update_micrometer() -> void:
@@ -1389,6 +1394,7 @@ func _draw_micrometer() -> void:
 	var label_step := maxi(10, _mic_tick_step(window_unit_px, 16.0))
 	# Offset the ruler from the evidence; keep zero aligned with the blue circle.
 	var ruler_zero := night + across * 24.0
+	const MAJOR_TICK_LENGTH := 16.0
 	mic_overlay.draw_line(ruler_zero - one_px * 14.0, ruler_zero + one_px * 70.0,
 		Color(ACCENT, 0.22), 1.0, true)
 	# Thin out graduations in screen space, including the window's canvas stretch.
@@ -1397,29 +1403,28 @@ func _draw_micrometer() -> void:
 			continue
 		var tick := ruler_zero + one_px * float(unit)
 		var major := unit % label_step == 0
-		var half_length := 8.0 if major else 3.0
+		var half_length := MAJOR_TICK_LENGTH * 0.5 if major else 3.0
 		mic_overlay.draw_line(tick - across * half_length, tick + across * half_length,
 			Color(ACCENT, 0.35), 1.0, true)
 		if major:
 			mic_overlay.draw_string(font, tick + across * 11.0 + Vector2(0, 6), str(unit),
 				HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(ACCENT, 0.95))
 	var comparing := not is_nan(_mic_second)
-	if comparing:
-		# Separate lanes on the star side leave the numerals clear, even when
-		# the readings coincide.
-		var first := ruler_zero + one_px * _mic_first
-		var second := ruler_zero + one_px * _mic_second
-		mic_overlay.draw_line(first - across * 2.0, first - across * 6.0,
-			MIC_FIRST_COLOR, 3.5 if mic_first_btn.button_pressed else 2.0, true)
-		mic_overlay.draw_line(second - across * 8.0, second - across * 13.0,
-			ACCENT, 3.5 if mic_second_btn.button_pressed else 2.0, true)
 	mic_overlay.draw_arc(night, 5.0, 0.0, TAU, 20, Color(0.74, 0.84, 0.96, 0.85), 1.0, true)
 	var cross := _plate_to_local(star + dir * micrometer_px)
 	var arm := 16.0 if Settings.mic_large_cross else 9.0
 	var width := 2.5 if Settings.mic_large_cross else 1.5
 	mic_overlay.draw_line(cross - across * arm, cross + across * arm, ACCENT, width, true)
 	mic_overlay.draw_line(cross - along * arm, cross + along * arm, ACCENT, width, true)
-	if not comparing:
+	if comparing:
+		# Keep the lanes on the star side, with the outer lane beyond the crosshair.
+		var first := ruler_zero + one_px * _mic_first - across * 2.0
+		var second := ruler_zero + one_px * _mic_second - across * 43.0
+		mic_overlay.draw_line(first, first - across * MAJOR_TICK_LENGTH,
+			MIC_FIRST_COLOR, 3.5 if mic_first_btn.button_pressed else 2.0, true)
+		mic_overlay.draw_line(second, second - across * MAJOR_TICK_LENGTH,
+			ACCENT, 3.5 if mic_second_btn.button_pressed else 2.0, true)
+	else:
 		var index := cross + across * 14.0
 		mic_overlay.draw_polyline(PackedVector2Array([index - across * 3.0 - along * 3.0,
 			index, index - across * 3.0 + along * 3.0]), ACCENT, 1.5, true)

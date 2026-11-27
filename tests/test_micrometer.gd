@@ -230,9 +230,11 @@ func _check_feel() -> void:
 	await _finish(game)
 
 
-func _check_two_settings(gap: float) -> void:
+func _check_two_settings(gap: float, text_scale: float) -> void:
 	var game := await _new_game([1.75, 1.60])
 	var ui = game.ui
+	Settings.text_scale = text_scale
+	Settings.refresh_fonts(self)
 	ui.mic_btn.button_pressed = true
 	var compare: Button = ui.get("mic_compare_btn")
 	check(compare != null and compare.is_visible_in_tree(), "editable plate offers a second setting")
@@ -258,6 +260,13 @@ func _check_two_settings(gap: float) -> void:
 	check(is_equal_approx(ui._mic_first, first) and is_equal_approx(ui._mic_second, second)
 		and ui.mic_first_btn.is_visible_in_tree() and ui.mic_second_btn.is_visible_in_tree(),
 		"Compare reveals both marks for a gap of %.2f divisions" % gap)
+	var viewport := root.get_visible_rect()
+	check(ui.mic_record_btn.is_visible_in_tree() and viewport.encloses(ui.mic_record_btn.get_global_rect()),
+		"Record fits the viewport at text scale %.2f" % text_scale)
+	check(viewport.encloses(ui.mic_first_btn.get_global_rect())
+		and viewport.encloses(ui.mic_second_btn.get_global_rect())
+		and ui.mic_note.is_visible_in_tree() and viewport.encloses(ui.mic_note.get_global_rect()),
+		"both reading choices and the note fit the viewport at text scale %.2f" % text_scale)
 	await _button(JOY_BUTTON_DPAD_UP)
 	await _button(JOY_BUTTON_A)
 	check(is_equal_approx(ui.micrometer_px, first) and ui.mic_first_btn.button_pressed and readings.is_empty(),
@@ -282,8 +291,11 @@ func _check_two_settings(gap: float) -> void:
 
 
 func _run() -> void:
-	for gap in [8.0, 0.05]:
-		await _check_two_settings(gap)
+	var window_size := root.size
+	root.size = Vector2i(1280, 720)
+	await _check_two_settings(8.0, Settings.TEXT_SCALES.max())
+	await _check_two_settings(0.05, 1.0)
+	root.size = window_size
 	for pad in [false, true]:
 		await _check_comparator_focus(pad)
 	await _check_feel()
