@@ -8,6 +8,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+msgid "Compare readings"
+msgstr "計測値を比較"
+
+msgid "Measure again"
+msgstr "もう一度測る"
+
+msgid "Use first reading: %.2f divisions"
+msgstr "1回目を使う：%.2f目盛り"
+
+msgid "Use second reading: %.2f divisions"
+msgstr "2回目を使う：%.2f目盛り"
+
 msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
 msgstr "\n\n[color=#8f8676]1919年11月6日に発表された結果：ソブラル1.98″、プリンシペ1.61″——どちらもアインシュタインの1.75″に近い。結果がどのように導かれ、どんな疑問が残ったかは「史実では何が起きたか」をご覧ください。[/color]"
 

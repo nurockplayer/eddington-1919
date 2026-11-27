@@ -8,6 +8,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "Compare readings"
+msgstr "Compare readings"
+
+msgid "Measure again"
+msgstr "Measure again"
+
+msgid "Use first reading: %.2f divisions"
+msgstr "Use first reading: %.2f divisions"
+
+msgid "Use second reading: %.2f divisions"
+msgstr "Use second reading: %.2f divisions"
+
 msgid "\n\n[color=#8f8676]1919 年 11 月 6 日公布的結果：Sobral 1.98″、普林西比 1.61″，都比較接近愛因斯坦的 1.75″。怎麼得出、留下哪些疑問，見「歷史上發生了什麼」。[/color]"
 msgstr "\n\n[color=#8f8676]Results announced on 6 November 1919: Sobral 1.98″, Príncipe 1.61″, both closer to Einstein's 1.75″. How they were obtained, and what doubts remained, are in 'What Happened Historically'.[/color]"
 
