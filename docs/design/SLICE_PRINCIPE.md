@@ -1444,3 +1444,9 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Third holder box** is two horizontal lines without sides in every candidate frame. Inherited (main's boxes lose their tops in `01-open`), but it now reads as a state.
 - For the next head: open mark above the track and as heavy as main's block; four boxes drawn alike; same eight frames plus one open frame about 2 s into a short exposure.
 - **Verdicts:** technical regression none seen beyond the open mark; this PR's change not accepted yet; AA row 04 not met. **Count stays 7/9.**
+
+### 2026-11-27 13:07 JST: #552 the weeks at Sundy and I3 at e16ecff: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/552/e16ecff11680be6c780e2d84f05476a66d25af17/` (80 frames). Opened whole at 1920×1080: the twelve pages asked for (02, 06, 07, 09, 12, 13, 14, 16, 17 and I3 page 3 in English; 13 and 17 in Japanese). The other 68 were not opened; the drive check stands on the look at ba1a565.
+- **1 to 4 are gone.** Punctuation is Latin in Kit's letter and the press page. The cloud is one band inside the frame; the porters' crate is at hand height on the ground with whole trunks; the packed crate is on land. The slab on 02 is removed. Portrait card and dialogue box sit inside the sheet in both languages; Kit's card says "(Fiction)".
+- **Carried to #551 before flag-off:** Kit's card is a raw 3D bust on a dark panel beside Ashby's toned print (it should be a toned print); the cloud band ends in straight vertical cuts; on 09 the crate is drawn at the port while the line says it stayed at Sundy; the hatched sea stops short of the shore. Asked: "Kit" stays in Latin letters in Japanese.
+- **Verdicts:** technical regression none claimed for the slice (flag off); this PR's change accepted; chapter not ready to show until #551. **Count stays 7/9.**
