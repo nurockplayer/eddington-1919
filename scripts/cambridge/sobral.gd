@@ -2,6 +2,7 @@ extends Node
 ## Documented Sobral archive. Its exercise state lives on these sheets, apart from Story.
 
 const Content := preload("res://scripts/cambridge/content_sobral.gd")
+const Homeward := preload("res://scripts/cambridge/content_homeward.gd")
 const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Paper := preload("res://scripts/cambridge/interlude_paper.gd")
 const Ink := preload("res://scripts/cambridge/sobral_ink.gd")
@@ -85,9 +86,27 @@ func play(day: Node) -> void:
 	await _next("next")
 	await _pairing()
 	await _scale_check()
-	# Insert I4 here, between the completed Sobral file and the existing October handoff.
+	await _homeward()
 	await _ui.fade_to(1.0, 0.0 if Settings.reduced_motion else 0.7).finished
 	backdrop.queue_free()
+
+
+func _homeward() -> void:
+	_text.merge(Homeward.strings())
+	for index in Homeward.PAGES.size():
+		_show("I4-01")
+		var scroll: ScrollContainer = paper.body.get_parent()
+		var layout: VBoxContainer = scroll.get_parent()
+		paper.label(layout, _text["I4-02"], 18)
+		layout.move_child(layout.get_child(-1), 1)
+		for section in Homeward.PAGES[index]:
+			paper.rule(paper.body)
+			for id in section[0]:
+				if Homeward.EXCERPTS.has(id) and L.current() != "en":
+					paper.label(paper.body, Homeward.EXCERPTS[id], 22)
+				_lines(paper.body, [id])
+			paper.label(paper.body, section[1], 18)
+		await _next("I4-20" if index == Homeward.PAGES.size() - 1 else "next")
 
 
 func _show(id: String) -> void:

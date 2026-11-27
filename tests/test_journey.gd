@@ -10,6 +10,7 @@ const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
 const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
 const London := preload("res://scripts/cambridge/content_london.gd")
 const Sobral := preload("res://scripts/cambridge/content_sobral.gd")
+const Homeward := preload("res://scripts/cambridge/content_homeward.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
 
@@ -35,6 +36,7 @@ var london_captures := false
 var fold_captures := false
 var fold_check := false
 var fold_baseline := false
+var i4_captures := false
 var temp_settings := ""
 
 
@@ -212,6 +214,10 @@ func _run() -> void:
 			capture_dir = arg.trim_prefix("--sobral-captures=")
 			sobral_captures = true
 			sobral_only = true
+		elif arg.begins_with("--i4-captures="):
+			capture_dir = arg.trim_prefix("--i4-captures=")
+			i4_captures = true
+			sobral_only = true
 		elif arg.begins_with("--london-captures="):
 			capture_dir = arg.trim_prefix("--london-captures=")
 			london_captures = true
@@ -222,7 +228,7 @@ func _run() -> void:
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
 		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
@@ -234,7 +240,7 @@ func _run() -> void:
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
-	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only:
+	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only or i4_captures:
 		locales = ["en", "ja"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
@@ -518,7 +524,8 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 	await frames(3)
 	for action in paper.actions.get_children():
 		expect(root.get_visible_rect().grow(1.0).encloses(action.get_global_rect()), "paper controls stay in bounds: " + state)
-	if capture_dir.is_empty() or (sobral_captures and not state.begins_with("sobral_")) or (
+	if capture_dir.is_empty() or (i4_captures and not state.begins_with("i4_")) or (
+		sobral_captures and not state.begins_with("sobral_")) or (
 		madeira_captures and not state.begins_with("madeira_")) or (
 		sundy_captures and not (state.begins_with("sundy_") or state.begins_with("i3_"))):
 		return
@@ -623,13 +630,16 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		await process_frame
 	await _dialogue(day)
 	expect(day._paired_cables == null, "darkroom precedes I3")
-	if enabled and L.current() in ["en", "ja", "ko"]:
+	if enabled:
+		var inconclusive := L.current() in ["ja", "zh_TW"]
 		day.sim.plates = [{"number": 1, "start": 100.0, "duration": 10.0, "usable": true,
 			"included": true, "quality": "good", "stars": 5, "trail": 0.0, "read": true,
-			"sigma": 0.33 if L.current() == "ja" else 0.18,
-			"reading": day.sim.reading_for_value(1.40 if L.current() == "ja" else 1.75)}]
+			"sigma": 0.33 if L.current() == "ja" else (0.25 if inconclusive else 0.18),
+			"reading": day.sim.reading_for_value(1.40 if L.current() == "ja" else (1.30 if inconclusive else 1.75))}]
 		day.sim.measured = true
 		day.plate_textures = [ImageTexture.create_from_image(Image.create_empty(8, 8, false, Image.FORMAT_RGB8))]
+		expect(day.sim.evidence_class() == ("ambiguous" if inconclusive else "favors_e"),
+			"the fixture gives the intended personal result")
 	var plates: Array = day.sim.plates.duplicate(true)
 	var combined: Dictionary = day.sim.combined()
 	day._start_judgment()
@@ -664,11 +674,17 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		expect(chapter != null, "I3 opens the Sobral archive before October")
 		var before: Dictionary = story.to_save().duplicate(true)
 		await _sobral(chapter, L.current() in ["en", "ja"])
-		expect(story.to_save() == before and day.sim.plates == plates,
-			"filing both series in Sobral leaves the Príncipe state and plates intact")
 		await press(button(chapter.paper, Sobral.strings().B54))
+		await _homeward(chapter, day)
+		expect(story.to_save() == before and day.sim.plates == plates,
+			"Sobral and I4 leave the Príncipe state and plates intact before the October handoff")
+		await press(button(chapter.paper, Homeward.strings()["I4-20"]))
 	else:
-		expect(not day.has_node("Sobral") and day._paired_cables == null, "flag off starts no archive")
+		var skipped_archive := true
+		while is_instance_valid(day):
+			skipped_archive = skipped_archive and not day.has_node("Sobral") and day._paired_cables == null
+			await process_frame
+		expect(skipped_archive, "flag off starts no archive")
 	if is_instance_valid(day):
 		await scene_changed
 	expect(current_scene.scene_file_path == "res://scenes/epilogue.tscn" and story.epilogue_done,
@@ -677,6 +693,8 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	expect(run.combined == combined and run.exposures.size() == plates.size()
 		and run.telegram_id == preload("res://scripts/judgment.gd").TELEGRAMS[telegram].id
 		and run.reason_id == reason, "October keeps the Príncipe measurement, telegram and reason")
+	if enabled and L.current() == "zh_TW":
+		expect(Epilogue.ledger_case(run) == "inconclusive", "October retains the inconclusive result")
 	if capture_dir.is_empty():
 		await _october(current_scene, enabled, story.bond_tone, packet_seen, combined)
 
@@ -1222,12 +1240,57 @@ func _sobral_frame(paper: Control, state: String, suffix := "") -> void:
 	await check_paper_layout(paper, state)
 	if not sobral_captures:
 		return
+	await _archive_frames(paper, "sobral_" + state, suffix)
+
+
+func _homeward(chapter: Node, day: Node) -> void:
+	expect(is_instance_valid(day) and chapter.page_id == "I4-01", "Sobral opens I4 before October")
+	var text := Homeward.strings()
+	var paper: Control = chapter.paper
+	var pages := [
+		["return", ["03", "04", "05", "06", "07", "08", "21", "22"]],
+		["plates", ["09", "23", "10", "11", "12", "13", "14"]],
+		["brussels_telegram", ["15", "16", "17"]],
+		["berlin_letter", ["18", "19"]],
+	]
+	for index in pages.size():
+		var state: String = "i4_" + pages[index][0]
+		var ids := ["I4-01", "I4-02"]
+		for number in pages[index][1]:
+			ids.append("I4-" + number)
+		_check_lines(paper, text, ids)
+		var lines: Array = paper.body.find_children("*", "Label", true, false).map(func(label): return label.text)
+		var previous := -1
+		for id in ids.slice(2):
+			var position := lines.find(text[id])
+			expect(position > previous, state + " follows the scripted document order")
+			previous = position
+			if Homeward.EXCERPTS.has(id):
+				expect(lines.has(Homeward.EXCERPTS[id]), state + " retains the original excerpt")
+		var last := index == pages.size() - 1
+		var advance := button(paper, text["I4-20"] if last else Madeira.strings().M09)
+		await check_paper_layout(paper, state)
+		check_paper_focus(advance)
+		if i4_captures:
+			await _archive_frames(paper, state)
+			if index == 0 and L.current() == "en":
+				var scale := Settings.text_scale
+				Settings.text_scale = 1.2
+				Settings.refresh_fonts(self)
+				await _archive_frames(paper, state, "_scale_1_2")
+				Settings.text_scale = scale
+				Settings.refresh_fonts(self)
+		if not last:
+			await press(advance)
+
+
+func _archive_frames(paper: Control, state: String, suffix := "") -> void:
 	var scroll: ScrollContainer = paper.body.get_parent()
 	scroll.scroll_vertical = 0
-	await capture("sobral_" + state, paper, suffix, Vector2i(1280, 720))
+	await capture(state, paper, suffix, Vector2i(1280, 720))
 	if scroll.get_v_scroll_bar().visible:
 		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
-		await capture("sobral_" + state, paper, suffix + "_end", Vector2i(1280, 720))
+		await capture(state, paper, suffix + "_end", Vector2i(1280, 720))
 
 
 func _check_sundy_memory(paper: Control, ui: CanvasLayer) -> void:
