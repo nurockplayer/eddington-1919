@@ -1650,3 +1650,16 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **2. The block's bottom is not shown where it is longest.** On the trailed print at 1.0 the open notes end at y 658 of 720. At text scale 1.2, or with the micrometer in use (two readings, Record and its note, accepted on #585), it has nowhere to go. #585 ran off the screen in just this column.
 - For the next head: notes directly under the notebook button; frames: trailed print with notebook open at text scale 1.2; notebook open with the micrometer reveal showing, at 1.0 and 1.2; everything inside the screen.
 - **Verdicts:** technical regression none seen; this PR's change not accepted yet. **Count stays 7/9.**
+
+### 2026-11-27 20:35 JST · #602 (AA fun 04 darkroom notebook) at a2fdc9b: accepted
+
+Opened whole at 1280×720: five of the seven candidate frames (fogged + notebook at 1.0; trailed + notebook at 1.0 and 1.2; notebook + micrometer reveal at 1.0 and 1.2). Main's five frames not opened; main's bottom y taken from the index.
+
+- Technical regression: none in the frames shown.
+- This change: accepted. The notes now open directly under "The notebook" and read as its content; Micrometer follows below. Everything stays inside the screen: lowest control at y 709 of 720 with notebook and micrometer reveal both open, at text scale 1.0 and 1.2 (main without the notebook ran to 755 at 1.2).
+- Whole scene: darkroom readiness unchanged; a newcomer playtest is still owed to a person.
+- Backlog: with notebook and micrometer both open at 1.2 the print shrinks to about 178×175 px. The mark and scale still read; the player can close the notebook to get the print back.
+
+![notebook + micrometer at 1.2](slice_principe/accept/602/a2fdc9b/after-1.2-trailed-excluded-compare-notebook.png)
+![trailed + notebook at 1.2](slice_principe/accept/602/a2fdc9b/after-1.2-trailed-excluded-notebook.png)
+![fogged + notebook at 1.0](slice_principe/accept/602/a2fdc9b/after-1.0-fogged-included-notebook.png)
