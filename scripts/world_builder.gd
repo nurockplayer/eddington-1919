@@ -1028,7 +1028,9 @@ func _props() -> Dictionary:
 	var case_node := box(Vector3(0.4, 0.22, 0.32), Vector3(-2.65, 0.95, -3.45), Color(0.15, 0.18, 0.22))
 	case_node.find_children("*", "MeshInstance3D", true, false)[0].layers = 3
 	interactable(case_node, "oxford_case", L.t("牛津比對底片盒"))
-	return _hurricane_lantern()
+	var props := _hurricane_lantern()
+	props.crate_label = label
+	return props
 
 
 ## A paraffin hurricane lantern on the observing bench (period reconstruction).

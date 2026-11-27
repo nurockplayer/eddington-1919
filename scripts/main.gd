@@ -1370,14 +1370,13 @@ func _begin_rehearsal() -> void:
 	world.roof.visible = false
 	world.eddington.visible = false
 	world.cottingham.visible = false
+	world.crate_label.hide()
 	player.look_at_point(_totality_aim_point())
 	sky_mat.set_shader_parameter("practice_cloud", 0.93)
 	_sync_player_input()
 	ui.set_prompt("")
 	ui.set_hold(0.0)
 	ui.set_clock("")
-	ui.tot_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	ui.tot_panel.position.y = 20.0
 	_update_rehearsal_hud()
 	ui.show_toast(L.t("Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。") % Prompts.key("shutter"), 12.0)
 
@@ -1431,14 +1430,13 @@ func _finish_rehearsal(feedback: String) -> void:
 	world.roof.visible = _rehearsal_roof_visible
 	world.eddington.visible = true
 	world.cottingham.visible = true
+	world.crate_label.show()
 	player.global_position = _rehearsal_position
 	player.velocity = _rehearsal_velocity
 	player.yaw = _rehearsal_yaw
 	player.pitch = _rehearsal_pitch
 	rehearsing = false
 	ui.set_totality(false)
-	ui.tot_panel.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	ui.tot_panel.position.y = ui.hud.size.y - 250.0
 	_sync_player_input()
 
 
