@@ -5440,8 +5440,8 @@ msgstr "Liverpool · August 1919. A Women’s Royal Naval Service report records
 msgid "索布拉爾・1919 年 7 月 11–18 日。觀測隊趁太陽已移到別處，拍攝同一片星野。"
 msgstr "Sobral · 11–18 July 1919. The team photographs the same star field with the Sun elsewhere."
 
-msgid "《Estado do Pará》・貝倫・1919 年 8 月 3 日。報紙再次報導這場日食，刊出第二次對克羅梅林和戴維森的訪談。"
-msgstr "Estado do Pará · Belém · 3 August 1919. The newspaper returns to the eclipse in a second interview with Crommelin and Davidson."
+msgid "《Estado do Pará》・貝倫・1919 年 8 月 3 日。報紙刊出對克羅梅林和戴維森的日食訪談。兩人曾在四月為該報撰文。"
+msgstr "Estado do Pará · Belém · 3 August 1919. The paper interviews Crommelin and Davidson about the eclipse. In April it published an article they wrote."
 
 msgid "格林威治・1919 年 8 月 25 日。英國索布拉爾觀測隊帶回了兩組底片。"
 msgstr "Greenwich · 25 August 1919. The British Sobral team has brought home two series of plates."
