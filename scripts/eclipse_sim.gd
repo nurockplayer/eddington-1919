@@ -156,13 +156,16 @@ func sun_track(t: float) -> Vector2:
 
 
 func _carve(a: Vector2, b: Vector2, r_full: float, r_soft: float, target: float, thicken: bool) -> void:
-	var reach := r_full + r_soft
+	var edge := r_full + r_soft
+	var reach := edge if thicken else edge + 0.014
 	var x0 := int(floor((minf(a.x, b.x) - reach) * TEX_SIZE))
 	var x1 := int(ceil((maxf(a.x, b.x) + reach) * TEX_SIZE))
 	var y0 := int(floor((minf(a.y, b.y) - reach) * TEX_SIZE))
 	var y1 := int(ceil((maxf(a.y, b.y) + reach) * TEX_SIZE))
 	var ab := b - a
 	var len2 := maxf(ab.length_squared(), 1e-9)
+	var along := ab.normalized()
+	var across := along.orthogonal()
 	for y in range(y0, y1 + 1):
 		var row := posmod(y, TEX_SIZE) * TEX_SIZE
 		for x in range(x0, x1 + 1):
@@ -173,11 +176,16 @@ func _carve(a: Vector2, b: Vector2, r_full: float, r_soft: float, target: float,
 			if density == cur:
 				continue
 			var p := Vector2((x + 0.5) / TEX_SIZE, (y + 0.5) / TEX_SIZE)
+			if not thicken:
+				# Keep the solar track open while bending the sides of the thinning.
+				var side := absf((p - a).dot(across))
+				var bend := 0.009 * sin(p.dot(along) * 95.0) + 0.005 * sin(p.x * 164.0 + p.y * 127.0)
+				p += across * bend * smoothstep(0.009, 0.029, side)
 			var h := clampf((p - a).dot(ab) / len2, 0.0, 1.0)
 			var dist := (p - (a + ab * h)).length()
-			if dist > reach:
+			if dist > edge:
 				continue
-			var w := 1.0 - smoothstep(r_full, reach, dist)
+			var w := 1.0 - smoothstep(r_full, edge, dist)
 			_dens[i] = lerpf(cur, density, w)
 
 
@@ -203,8 +211,11 @@ func _sample_with_middle_band(uv: Vector2, t: float) -> float:
 	# Match eclipse_cloud.gdshaderinc in texture space so the plate meters the visible band.
 	var along := wind.normalized()
 	var offset := uv - sun_track(t) - 2.25 * wind * elapsed
-	var distance := Vector2(offset.dot(along), maxf(absf(offset.dot(along.orthogonal())) - 0.036, 0.0)).length()
-	var cover := (1.0 - smoothstep(0.016, 0.034, distance)) * (1.0 - smoothstep(7.0, 9.0, absf(elapsed)))
+	var side := offset.dot(Vector2(-along.y, along.x))
+	var scallop := 0.005 * (sin(side * 96.0) + 0.5 * sin(side * 211.0)) * smoothstep(0.010, 0.034, absf(side))
+	var island := Vector2((offset.dot(along) + 0.006 + scallop) / 0.020, side / 0.070)
+	var distance := 0.020 * (island.length() - 1.0)
+	var cover := (1.0 - smoothstep(-0.001, 0.001, distance)) * (1.0 - smoothstep(7.0, 9.0, absf(elapsed)))
 	return lerpf(density, maxf(density, 0.93), cover)
 
 

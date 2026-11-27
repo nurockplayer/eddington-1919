@@ -4,12 +4,15 @@ float eclipse_middle_band_distance(vec2 plane, float elapsed) {
 	vec2 along = normalize(wind);
 	vec2 across = vec2(-along.y, along.x);
 	vec2 offset = plane - sun_plane - 2.25 * wind * elapsed;
-	return length(vec2(dot(offset, along), max(abs(dot(offset, across)) - 0.036, 0.0)));
+	float side = dot(offset, across);
+	float scallop = 0.005 * (sin(side * 96.0) + 0.5 * sin(side * 211.0))
+		* smoothstep(0.010, 0.034, abs(side));
+	vec2 island = vec2((dot(offset, along) + 0.006 + scallop) / 0.020, side / 0.070);
+	return 0.020 * (length(island) - 1.0);
 }
 
-float eclipse_middle_band_density(float distance_to_band, float elapsed, float density) {
-	float cover = (1.0 - smoothstep(0.016, 0.034, distance_to_band)) * (1.0 - smoothstep(7.0, 9.0, abs(elapsed)));
-	return mix(density, max(density, 0.93), cover);
+float eclipse_middle_band_cover(float distance_to_band, float elapsed) {
+	return (1.0 - smoothstep(-0.001, 0.001, distance_to_band)) * (1.0 - smoothstep(7.0, 9.0, abs(elapsed)));
 }
 
 float eclipse_middle_band(vec2 plane, float time, float density) {
@@ -17,7 +20,8 @@ float eclipse_middle_band(vec2 plane, float time, float density) {
 	if (practice_cloud >= 0.0 || before_second_contact || night > 0.5 || abs(elapsed) >= 9.0) {
 		return density;
 	}
-	return eclipse_middle_band_density(eclipse_middle_band_distance(plane, elapsed), elapsed, density);
+	float cover = eclipse_middle_band_cover(eclipse_middle_band_distance(plane, elapsed), elapsed);
+	return mix(density, max(density, 0.93), cover);
 }
 
 float eclipse_cloud_texture(vec3 d, float time) {

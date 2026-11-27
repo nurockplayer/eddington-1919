@@ -46,9 +46,10 @@ func _run() -> void:
 		and shader_text.contains("cloud_wash = plate_cloud * band_lines * totality_plate;"), "cloud plate has crisp density steps")
 	check(shader_text.contains("float density = eclipse_cloud_density_from_sample(cloud);")
 		and shader_text.contains("cloud_field = print_cloud(live_cloud, sky_plate_darkness);")
-		and shader_text.contains("live_cloud.x = mix(live_cloud.x, pocket_print_density(ray_w, print_time, live_cloud.x, false), pocket_print);")
-		and shader_text.contains("solar_density = eclipse_cloud_density_from_sample(live_cloud);"),
-		"the contour uses the drifting pocket and the solar veil adds the seam")
+		and shader_text.contains("live_cloud.x = mix(live_cloud.x, pocket_print_density(ray_w, print_time, live_cloud.x), pocket_print);")
+		and shader_text.contains("band_body = band_active * eclipse_middle_band_cover(band_distance, seam_elapsed);")
+		and shader_text.contains("cloud_wash = mix(cloud_wash, 0.60 * bank_print, band_body);"),
+		"the drifting pocket and the moving island both print on the cloud plate")
 	check(shader_text.contains("if (night <= 0.5 && sky_plate_darkness > 0.0) {\n\t\t\tcloud_field = print_cloud")
 		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
 		"the existing cloud plate grades its ruling and wash with darkness")
@@ -195,9 +196,10 @@ func _check_totality_visibility(shader: String, material: ShaderMaterial, seam_b
 	if blends == null:
 		check(false, "find the solar compositing expressions")
 		return
-	for cloud: Vector2 in [Vector2(0.20, 0.20), Vector2(0.50, 0.50), Vector2(0.95, 0.95), Vector2(0.20, 0.95)]:
+	for cloud: Vector2 in [Vector2(0.20, 0.20), Vector2(0.50, 0.50), Vector2(0.95, 0.95), Vector2(0.20, 0.95), Vector2.ZERO]:
 		var outer_density := cloud.x
 		var inner_density := cloud.y
+		var on_seam := cloud == Vector2.ZERO
 		var detached_ray := outer_density < inner_density
 		var values := {
 			"print_darkness": material.get_shader_parameter("darkness"),
@@ -205,7 +207,7 @@ func _check_totality_visibility(shader: String, material: ShaderMaterial, seam_b
 			"practice_cloud": material.get_shader_parameter("practice_cloud"),
 			"pocket_time": pocket_time, "returning_sky": false,
 			"sun_cloud": inner_density, "live_cloud": Vector2(outer_density, 0.0),
-			"solar_density": outer_density, "inner_density": inner_density, "seam_blend": seam_blend, "front": 1.0,
+			"band_body": float(on_seam), "solar_density": outer_density, "inner_density": inner_density, "seam_blend": seam_blend, "front": 1.0,
 			"moon_pixel": 0.01, "rays": float(detached_ray), "ink_col": 0.0, "white": 1.0,
 		}
 		for name in ["solar_fade", "cloud_cutoff", "pocket_softness", "sun_visibility", "thin_veil",
@@ -222,7 +224,9 @@ func _check_totality_visibility(shader: String, material: ShaderMaterial, seam_b
 			values.print_colour = 0.5
 			values.print_colour = _evaluate_solar(blends.get_string(1), values)
 			var colour := _evaluate_solar(blends.get_string(2), values)
-			if detached_ray:
+			if on_seam:
+				check(absf(colour - 0.5) < 0.001, "the seam island clips both the disc and corona")
+			elif detached_ray:
 				check(absf(colour - 0.5) < 0.001,
 					"thick inner cloud hides the clear outer ray (contrast %.3f)" % (colour - 0.5))
 			elif radius < 1.0:
