@@ -61,6 +61,7 @@ func _run_all() -> void:
 	_test_bands()
 	_test_strip_model()
 	await _test_sim_invariance()
+	await _test_middle_seam()
 	await _test_totality_pacing()
 	await _test_rehearsal()
 	await _test_rehearsal_carry()
@@ -198,6 +199,72 @@ func _test_sim_invariance() -> void:
 
 
 # ------------------------------------------- A integration: read on the toast
+
+func _test_middle_seam() -> void:
+	var shutter := InputEventAction.new()
+	shutter.action = "shutter"
+	var main := load("res://scripts/main.gd")
+	for run_seed in [77, 1919]:
+		var continuous: Dictionary
+		var continuous_sky: Array[float] = []
+		for split in [false, true]:
+			main.next_seed = run_seed
+			var game: Node = load("res://scenes/main.tscn").instantiate()
+			root.add_child(game)
+			main.next_seed = -1
+			game.set_process(false)
+			game.sim.drive_wound = true
+			game.sim.drive_rate_checked = true
+			game.sim.drive_error = 0.0
+			game._start_game()
+			Settings.slower_totality = false
+			await game._begin_totality()
+			var middle: Dictionary = game.sim.gaps[1]
+			var start := snappedf(middle.t, GAME_STEP)
+			var finish := snappedf(middle.t + middle.d, GAME_STEP)
+			var seam := snappedf((start + finish) * 0.5, GAME_STEP)
+			var stops := [seam - 3.0, seam + 1.75, finish] if split else [finish]
+			game._process_totality(start / Sim.TIME_SCALE)
+			await _rehearsal_press(shutter)
+			var sky: Array[float] = []
+			for tick in range(1, roundi((finish - start) / GAME_STEP) + 1):
+				game._process_totality(STEP)
+				var t: float = game.sky_mat.get_shader_parameter("cloud_time")
+				sky.append(game.sim._sample(game.sim.sun_track(t)))
+				if t == stops.front():
+					stops.pop_front()
+					await _rehearsal_press(shutter)
+			game._process_totality(STEP)
+			var plates: Array = game.sim.plates
+			var intervals: Array = game.ui.tot_strip.model.segments
+			if split:
+				check(sky == continuous_sky, "seed %d replays the same middle sky" % run_seed)
+				check(intervals == [[start, seam - 3.0], [seam + 1.75, finish]]
+					and plates.size() == 2 and game.plates_left == Sim.BASE_PLATES - 2,
+					"seed %d closes early and uses a fresh holder for the second thinning" % run_seed)
+				if plates.size() == 2:
+					check(continuous.clear > plates[0].clear + plates[1].clear
+						and continuous.fog > plates[0].fog + plates[1].fog,
+						"seed %d riding the seam adds clear time and fog" % run_seed)
+			else:
+				continuous_sky = sky
+				var cloudy := sky.filter(func(d): return d >= 0.85)
+				var seam_tick := roundi((seam - start) / GAME_STEP) - 1
+				check(sky[seam_tick - 12] < 0.60 and sky[seam_tick] >= 0.85
+					and sky[seam_tick + 12] < 0.60 and cloudy.size() * GAME_STEP < Sim.PLATE_CHANGE_S,
+					"seed %d shows two thinnings separated by cloud shorter than a holder change" % run_seed)
+				check(intervals == [[start, finish]] and plates.size() == 1
+					and game.plates_left == Sim.BASE_PLATES - 1,
+					"seed %d holds one exposure through both thinnings" % run_seed)
+				continuous = plates[0]
+			var records := plates.map(func(p):
+				return "[%.2f–%.2f] clear %.2f, fog %.3f, %d stars" % [
+					p.start, p.start + p.duration, p.clear, p.fog, p.stars])
+			print("middle seed %d %s: %s" % [run_seed, "split" if split else "continuous", records])
+			game.stop_all_audio()
+			game.queue_free()
+			await process_frame
+
 
 func _test_totality_pacing() -> void:
 	var normal
