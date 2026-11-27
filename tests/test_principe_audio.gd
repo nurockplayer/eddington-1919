@@ -167,6 +167,10 @@ func _second_contact_gap(hold_log := false) -> void:
 			root.push_input(shutter)
 			check(not game.sim.is_exposing() and "close" in game._sfx_log and game.audio_click.playing,
 				"the shutter closes the exposure and sounds inside the quiet gap")
+			var interact := InputEventAction.new()
+			interact.action = "interact"
+			interact.pressed = true
+			root.push_input(interact)
 	check(score_s >= 1.8 and score_s <= 2.5, "the first score cue enters 1.8-2.5 s after second contact (%.2f s)" % score_s)
 	check(exposed and closed, "both shutter actions ran during the quiet gap")
 	check(gap_max <= before - 12.0,
@@ -198,9 +202,10 @@ func _second_contact_gap(hold_log := false) -> void:
 			else:
 				game._toggle_shutter()
 				game._toggle_shutter()
+				game._order_plate_change()
 				check(game.change_left > 0.0 and game.audio_click.playing and game.audio_change.playing
 					and game.audio_click.bus == &"Totality Actions" and game.audio_change.bus == &"Totality Actions",
-					"closing a scored exposure puts the shutter close and plate change on the action submix")
+					"closing a scored exposure and ordering a change puts both cues on the action submix")
 			check(game.audio_tick.playing and game.audio_tick.bus == &"Totality Actions",
 				"the metronome counts on the action submix over the score")
 			check(AudioServer.get_bus_volume_db(action_bus) > 0.0

@@ -20,3 +20,6 @@ msgstr "選用第一次：%.2f 格"
 msgid "Use second reading: %.2f divisions"
 msgstr "選用第二次：%.2f 格"
 
+
+msgid "［%s］換底片匣"
+msgstr "［%s］換底片匣"

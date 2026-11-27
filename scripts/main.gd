@@ -87,6 +87,7 @@ var _rehearsal_position := Vector3.ZERO
 var _rehearsal_velocity := Vector3.ZERO
 var t_game := 0.0                # totality clock, game-seconds
 var _totality_rate := Sim.TIME_SCALE
+var _holder_spent := false
 var change_left := 0.0           # plate change in progress
 var plate_changed := false       # a plate change was made this run (the workbook remembers it)
 var plates_left := 0
@@ -894,19 +895,26 @@ func _sync_player_input() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	var interact := event.is_action_pressed("interact")
 	if rehearsing and _ui_free():
-		if event.is_action_pressed("shutter") or event.is_action_pressed("interact"):
-			_rehearse_shutter()
+		if event.is_action_pressed("shutter") or interact:
+			if interact and _rehearsal_step == 2:
+				_change_rehearsal_holder()
+			else:
+				_rehearse_shutter()
 			get_viewport().set_input_as_handled()
 		return
 	if phase == Phase.TOTALITY and _ui_free() and not tot_done:
-		if event.is_action_pressed("shutter") or event.is_action_pressed("interact"):
-			_toggle_shutter()
+		if event.is_action_pressed("shutter") or interact:
+			if interact and _holder_spent and change_left <= 0.0:
+				_order_plate_change()
+			else:
+				_toggle_shutter()
 			get_viewport().set_input_as_handled()
 			return
 	if not _ui_free():
 		return
-	if event.is_action_pressed("interact"):
+	if interact:
 		var n: Node = player.aimed_interactable()
 		if n:
 			_interact(n.get_meta("interact_id"))
@@ -933,12 +941,14 @@ func _process_prep(delta: float) -> void:
 			sky_mat.set_shader_parameter("practice_cloud", _rehearsal_cloud(_rehearsal_time))
 			sky_mat.set_shader_parameter("cloud_time", _rehearsal_time - prep_left)
 			if _rehearsal_step == 0 and _rehearsal_time >= 9.5:
-				_finish_rehearsal(Content.rehearsal_feedback("never", ""))
+				_miss_rehearsal(Content.rehearsal_feedback("never", ""))
 			elif _rehearsal_step == 1 and _rehearsal_time >= 12.5:
 				_sfx("close")
-				_finish_rehearsal(_rehearsal_feedback(false))
+				_miss_rehearsal(_rehearsal_feedback(false))
 			else:
 				_update_rehearsal_hud()
+		elif _rehearsal_step == 2:
+			_update_rehearsal_hud()
 		return
 	if _ui_free() or (calibration.visible and not get_tree().paused):
 		var active_delta := minf(delta, maxf(prep_left, 0.0))
@@ -1446,21 +1456,38 @@ func _rehearse_shutter() -> void:
 			_update_rehearsal_hud()
 		1:
 			_sfx("close")
-			_finish_rehearsal(_rehearsal_feedback(true))
-		2:
+			_rehearsal_step = 2
+			_show_rehearsal_feedback(_rehearsal_feedback(true))
+			_update_rehearsal_hud()
+		3:
 			ui.show_toast(L.t("Eddington 還在換片……"), 1.5)
 
 
-func _finish_rehearsal(feedback: String) -> void:
-	_sfx("change")
-	_rehearsal_step = 2
-	_update_rehearsal_hud()
-	var message := L.t("Eddington：") + feedback + Content.rehearsal_change()
+func _show_rehearsal_feedback(feedback: String) -> void:
+	var message := L.t("Eddington：") + feedback
 	if _rehearsal_exposure.is_empty():
 		ui.show_toast(message, 7.0)
 	else:
 		var band := Cues.sky_band(_rehearsal_exposure.clear, _rehearsal_exposure.duration)
 		ui.show_toast(message + "\n" + Content.totality_read(band, true), 3.5)
+
+
+func _change_rehearsal_holder() -> void:
+	_rehearsal_step = 3
+	_sfx("change")
+	ui.show_toast(Content.rehearsal_change().strip_edges(), 3.5)
+	_update_rehearsal_hud()
+	await _finish_rehearsal()
+
+
+func _miss_rehearsal(feedback: String) -> void:
+	_rehearsal_step = 4
+	_show_rehearsal_feedback(feedback)
+	_update_rehearsal_hud()
+	await _finish_rehearsal()
+
+
+func _finish_rehearsal() -> void:
 	await get_tree().create_timer(sim.PLATE_CHANGE_S / sim.TIME_SCALE, false).timeout
 	sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	world.roof.visible = _rehearsal_roof_visible
@@ -1479,9 +1506,11 @@ func _finish_rehearsal(feedback: String) -> void:
 
 func _update_rehearsal_hud() -> void:
 	var duration: float = _rehearsal_exposure.duration if _rehearsal_step == 1 else -1.0
-	var changing := _rehearsal_step == 2
-	ui.tot_hint.visible = not changing
-	ui.set_totality(true, _shutter_status(duration, changing, true))
+	var spent := _rehearsal_step == 2
+	var changing := _rehearsal_step == 3
+	ui.tot_hint.visible = _rehearsal_step < 2
+	var status := _holder_change_prompt() if spent else _shutter_status(duration, changing, true)
+	ui.set_totality(true, "" if _rehearsal_step == 4 else status)
 
 
 # -------------------------------------------------------------------- Totality
@@ -1524,6 +1553,8 @@ func _begin_totality() -> void:
 	world.cottingham.visible = false
 	world.roof.visible = false
 	t_game = 0.0
+	_holder_spent = false
+	change_left = 0.0
 	_ever_exposed = false
 	_long_called = false
 	_callout_last_plate = false
@@ -1558,21 +1589,25 @@ func _toggle_shutter() -> void:
 		p.sky_read = Cues.sky_band(p.clear, p.duration)
 		_sfx("close")
 		plates_left -= 1
+		_holder_spent = plates_left > 0
 		ui.show_toast(L.t("你：「停！」　Cottingham 蓋上遮光板。第 %d 號底片曝光 %.1f 秒。\n%s") % [p.number, p.duration, Content.totality_read(p.sky_read)], 3.5)
-		if plates_left > 0:
-			change_left = sim.PLATE_CHANGE_S
-			_sfx("change")
-			plate_changed = true
 	elif change_left > 0.0:
 		ui.show_toast(L.t("Eddington 還在換片……"), 1.5)
 	elif plates_left <= 0:
 		t_game = maxf(t_game, sim.TOTALITY_S - 3.0)
-	else:
+	elif not _holder_spent:
 		sim.open_shutter(t_game)
 		_ever_exposed = true
 		_long_called = false
 		_sfx("open")
 		ui.show_toast(L.t("你：「開始！」　Cottingham 移開遮光板。"), 2.0)
+	_update_totality_hud()
+
+
+func _order_plate_change() -> void:
+	change_left = sim.PLATE_CHANGE_S
+	_was_changing = true
+	_sfx("change")
 	_update_totality_hud()
 
 
@@ -1615,6 +1650,9 @@ func _process_totality(delta: float) -> void:
 			cursor = end
 	if change_left > 0.0:
 		change_left = maxf(change_left - dt, 0.0)
+		if change_left == 0.0:
+			_holder_spent = false
+			plate_changed = true
 	_apply_light(1.0, 1.0, t_game, 0.0)
 	_tick_acc += dt
 	if _tick_acc >= 1.0:
@@ -1635,6 +1673,10 @@ func _process_totality(delta: float) -> void:
 		_end_totality()
 
 
+func _holder_change_prompt() -> String:
+	return L.t("［%s］換底片匣") % Prompts.key("interact")
+
+
 func _shutter_status(duration: float, changing: bool, ready: bool) -> String:
 	if duration >= 0.0:
 		return L.t("[color=#fd8]● 曝光中 %.1f 秒[/color]") % duration
@@ -1653,12 +1695,16 @@ func _update_totality_hud() -> void:
 		header = L.t("[b]全食[/b]　[font_size=%d][color=#e88]%d[/color][/font_size] 秒") % [Settings.fs(42), int(ceil(left))]
 	else:
 		header = L.t("[b]全食[/b]　剩餘 %d 秒（共 302）") % int(left)
-	header += "\n" + _shutter_status(duration, changing, plates_left > 0)
+	var waiting_for_order := _holder_spent and not changing
+	header += "\n" + (_holder_change_prompt() if waiting_for_order else _shutter_status(duration, changing, plates_left > 0))
 	var open_start: float = sim._open.start if exposing else -1.0
-	ui.tot_hint.visible = not changing
+	ui.tot_hint.visible = not changing and not waiting_for_order
 	ui.set_totality(true, header, Cues.strip_model(t_game, sim.TOTALITY_S, sim.plates, open_start, sim.plates_available()))
+	# The strip infers auto-change from the last close. Use the actual holder state here.
+	if not exposing and plates_left > 0:
+		ui.tot_strip.holder_mark = &"changing" if changing else (&"spent" if waiting_for_order else &"ready")
 	var prompt := L.t("底片用完了。［%s］等待第三接觸") if plates_left <= 0 and not exposing else L.t("［%s］開始／停")
-	ui.set_prompt("" if changing else prompt % Prompts.key("shutter"))
+	ui.set_prompt("" if changing or waiting_for_order else prompt % Prompts.key("shutter"))
 	ui.set_clock("")
 
 

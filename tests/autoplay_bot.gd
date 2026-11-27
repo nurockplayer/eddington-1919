@@ -448,6 +448,9 @@ func _totality() -> void:
 			_disruption("empty rack wait key=%d" % wait_key)
 			await _tap(wait_key)
 			continue
+		if main._holder_spent and main.change_left <= 0.0:
+			await _tap(KEY_E)
+			continue
 		var want := false
 		if scenario == "rushed":
 			# Ignore the sky: fixed long exposures back to back.
@@ -765,8 +768,9 @@ func monkey_step(context: String, walking := false) -> void:
 
 func _monkey_finish_rehearsal() -> void:
 	if main.rehearsing:
-		for i in 3:
+		for i in 2:
 			await _tap(KEY_SPACE)
+		await _tap(KEY_E)
 		await _wait(main.sim.PLATE_CHANGE_S + 0.2)
 
 

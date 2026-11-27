@@ -352,6 +352,7 @@ func _trim_checks(game) -> int:
 		game._busy = false
 		game.tot_done = false
 		game.change_left = 0.0
+		game._holder_spent = false
 		game.plates_left = 4
 		game.t_game = 220.0
 		await _event(KEY_SPACE, true)

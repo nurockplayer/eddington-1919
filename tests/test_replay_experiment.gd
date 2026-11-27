@@ -141,6 +141,8 @@ func finish_run(game, rule := 0, reason := 0, expose := true) -> void:
 			game._toggle_shutter()
 		if game.sim.is_exposing() and game.sim._open.duration >= (5.0 if rule == 0 else 6.0):
 			game._toggle_shutter()
+			if game.plates_left > 0:
+				game._order_plate_change()
 			shot += 1
 		game._process_totality(0.1 / game.sim.TIME_SCALE)
 	await wait_for(func(): return game._pending == "after_totality" and game.ui.dialog_active(), "third contact closes on the spoken aftermath")
