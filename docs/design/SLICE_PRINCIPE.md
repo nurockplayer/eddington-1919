@@ -1533,3 +1533,11 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **2. For edd-lead (text, not look):** after a rehearsal close Cottingham says "I could see the edge of the corona." There is no corona at a daylight rehearsal; it is the live cloud read reused.
 - For the next head: no world lettering cut by the panel in any rehearsal state (the panel keeps one height, or the label is clear of it); the six rehearsal frames again, keyboard and pad.
 - **Verdicts:** technical regression none seen in live; this PR's change not accepted yet; AA row 02 not met. **Count stays 7/9.**
+
+### 2026-11-27 15:19 JST: #580 AA 02, rehearsal shutter cues, at dac0406: not accepted (the panel left the live corner)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/580/dac0406f96d9b96a82893da72e0f17ca987423b0/` (six rehearsal frames, seed 77, en, 1280×720; no live frames at this head). Opened whole at native size: the three keyboard frames and the pad closed frame. Kept in `slice_principe/accept/580/dac0406/`.
+- **Holds:** both crate lines are whole in every frame; the panel keeps one height through ready, open and closed; Cottingham now says he saw the cloud's edge cross the Sun.
+- **Does not:** the rehearsal panel is now at the top right and the live panel stays at the bottom right. The row exists so that the rehearsal teaches where to glance during totality; it now teaches the wrong corner. My last note allowed "the label clear of it" without saying the live corner is fixed; that was my omission.
+- **Not shown:** this head sets the live panel's position in code on leaving rehearsal, and there is no live frame at this head.
+- For the next head: the rehearsal panel in the live corner, at the live position, one height in all three states, and no crate lettering cut by its edge (wholly covered is fine, or the lettering hidden while the panel is up). Frames: the six rehearsal frames, rehearsal closed at text scale 1.2, and live ready and live closed for one input, which should equal 5017684's.
+- **Verdicts:** technical regression not checkable in live (no frames); this PR's change not accepted yet; AA row 02 not met. **Count stays 7/9.**
