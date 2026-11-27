@@ -1602,3 +1602,13 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Not shown:** the third opening with six filed; the wrong-heading hint; text scale 1.2; any locale but English. edd-lead reports a Korean stall still open.
 - Inherited: the lower half of the sheet is empty; "Reconstructed" in the title is the only word about what the document is.
 - **Verdicts:** technical regression none seen (flag off untouched); this PR's change accepted at df2afeb for the two states shown. **Count stays 7/9.**
+
+### 2026-11-27 17:27 JST: #583 AA fun 06, Cambridge lightbox loupe, at 1d787f3: not accepted yet (the centre ring, the lens off the glass)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/583/1d787f3d48df55dd91d6f2bec88db20055b3d1d2/` (en, 1280×720; six frames, one at text scale 1.2). Opened whole at native size: all six. Kept in `slice_principe/accept/583/1d787f3/`.
+- **Holds:** the loupe goes where the player sends it; over a matched pair it shows a dark star inside its traced ring at twice the size, over the unmatched point a ring with a pale speck; a pair at the rim is cut by the rim; the note moves above the loupe when the loupe is low; the line under the plate no longer counts matches.
+- **1. The lens has a ring at its centre that is a tracing mark.** Over bare glass (`04`, `05`) and beside a pair (`06`) the lens shows an empty circle at its centre, the same size and line as the tracing's empty ring at the unmatched point. Wherever the player looks, the loupe shows the very thing they are hunting for.
+- **2. The lens paints glass over the frame.** With its centre at the glass edge (`04`, `05`) half the lens lies on the dark frame and is filled with the glass's pale blue.
+- Let go: inside the lens the tracing paper's tint and grid are not drawn, so over the paper the lens is a blue hole.
+- For the next head: no ring at the lens centre (a fine cross, or nothing); outside the glass the lens shows what is there, or the loupe stops at the glass. Frames: 02, 03, 04, 05 again.
+- The newcomer playtest stays owed to a person.
+- **Verdicts:** technical regression none seen; this PR's change not accepted yet. **Count stays 7/9.**
