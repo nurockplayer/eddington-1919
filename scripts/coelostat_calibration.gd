@@ -228,17 +228,30 @@ func _draw_diagram() -> void:
 	diagram.draw_line(center - Vector2(radius, 0), center + Vector2(radius, 0), ink, width, true)
 	diagram.draw_line(center - Vector2(0, radius), center + Vector2(0, radius), ink, width, true)
 	var font := get_theme_default_font()
-	var font_size := Settings.fs(22)
-	var baseline := (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
-	var mark_span := radius * 0.7
-	for row: Array in [[L.t("剛才"), -23.0, previous_mark], [L.t("現在"), 34.0, now_mark]]:
-		var origin := center + Vector2(0, row[1])
-		var label_width := font.get_string_size(row[0], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-		diagram.draw_string(font, origin + Vector2(-mark_span - 20.0 - label_width, baseline), row[0], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink)
-		var mark: float = row[2] * mark_span / 24.0
-		if not is_nan(mark):
+	var font_size := mini(Settings.fs(22), floori(radius * 0.26))
+	var diamond_width := minf(12.0, radius * 0.06)
+	var diamond_height := diamond_width * 7.0 / 6.0
+	# Expand the fine-trim range while keeping ±24 within the field.
+	var mark_scale := radius * 0.83 / atan(24.0 / 1.7)
+	for row: Array in [[L.t("剛才"), -0.40, previous_mark], [L.t("現在"), 0.24, now_mark]]:
+		var origin := center + Vector2(0, row[1] * radius)
+		var drift: float = row[2]
+		var mark := 0.0
+		if not is_nan(drift):
+			mark = atan(drift / 1.7) * mark_scale
 			diagram.draw_line(origin, origin + Vector2(mark, 0), ink, width, true)
-			_tracking_mark(origin, mark)
+			var star := origin + Vector2(mark, 0)
+			diagram.draw_polyline(PackedVector2Array([
+				star + Vector2(0, -diamond_height), star + Vector2(diamond_width, 0),
+				star + Vector2(0, diamond_height), star + Vector2(-diamond_width, 0),
+				star + Vector2(0, -diamond_height),
+			]), ink, width, true)
+		var label_top := origin.y + diamond_height + 4.0
+		var label_edge := maxf(absf(label_top - center.y), absf(label_top + font.get_height(font_size) - center.y))
+		var label_width := font.get_string_size(row[0], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		var label_span := sqrt(radius * radius - label_edge * label_edge) - label_width * 0.5 - width
+		var label_origin := Vector2(center.x + clampf(mark, -label_span, label_span) - label_width * 0.5, label_top + font.get_ascent(font_size))
+		diagram.draw_string(font, label_origin, row[0], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink)
 	if not Settings.reduced_motion:
 		# Wrap only the figure; trail points stay relative to the current star.
 		var x := wrapf(displacement, -radius + 20.0, radius - 20.0)
@@ -252,9 +265,4 @@ func _draw_diagram() -> void:
 			points.append(star_center + Vector2(x + sample.y - displacement, 0))
 		if points.size() >= 2:
 			diagram.draw_polyline(points, ink, width, true)
-		_tracking_mark(star_center, x)
-
-
-func _tracking_mark(center: Vector2, offset: float) -> void:
-	var star := center + Vector2(offset, 0)
-	diagram.draw_polyline(PackedVector2Array([star + Vector2(0, -14), star + Vector2(12, 0), star + Vector2(0, 14), star + Vector2(-12, 0), star + Vector2(0, -14)]), Print.INK, _stroke_width(), true)
+		diagram.draw_circle(star_center + Vector2(x, 0), 2.5, ink, true, -1, true)
