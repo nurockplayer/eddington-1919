@@ -1853,3 +1853,13 @@ Opened whole at 1280×720: candidate prep-pad, darkroom-pad, darkroom-keyboard; 
 
 ![pad, prep](slice_principe/accept/614/f49e3a9/candidate-prep-pad.png)
 ![pad, darkroom](slice_principe/accept/614/f49e3a9/candidate-darkroom-pad.png)
+
+### 2026-11-28 05:18 JST · Cottingham's portrait (row 8, AA 27): candidate A picked
+
+Three generated candidate pairs (toned print and its engraving), no photograph of the real man used or imitated; manifest in `/Volumes/KIOXIA/eddington-1919-cache/director/portraits/cottingham/2026-11-28/`. Opened whole at native size: the three prints (1254×1254), A's engraving, A's 720p dialogue mock, and Eddington's engraving beside it. Not opened: B's and C's engravings and mocks, the 6430 px comparison sheet.
+
+- **A is the pick.** A square-jawed man of about fifty, greying at the temples, grey moustache, open work shirt, looking off to the side: practical and steady, and plainly not Eddington. Its engraving has the same build as Eddington's (hatching that follows the form, ruled ground fading into an oval vignette) and at the slip's 130×173 px the head, moustache and shirt still read.
+- B is out: round and jovial, a comic turn the lines do not have. C is out: gaunt and severe, he would read as a threat beside Eddington.
+- One correction for the committed file: A's engraving is printed in a lighter, warmer brown than Eddington's near-black line. Bring its ink to Eddington's tone and contrast so the two are plates from one book.
+
+![mock A](slice_principe/portraits/cottingham-1128/mock-A.png)
