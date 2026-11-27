@@ -1708,3 +1708,17 @@ Opened whole at 1280×720: early partial clear / thin / thick and the mostly-cle
 ![thin](slice_principe/accept/605/46bead9/early-partial-thin-candidate.png)
 ![thick](slice_principe/accept/605/46bead9/early-partial-thick-candidate.png)
 ![mostly clear sky](slice_principe/accept/605/46bead9/early-partial-mostly-clear-sky-candidate.png)
+
+### 2026-11-27 23:47 JST · #604 (AA fun 03 plate-holder order) at 85391fd: accepted for the four states shown
+
+Opened whole at 1280×720: all four candidate frames, and main's practice close and live close. Main's other two not opened. Head 4443ef5 changes test fixtures only (edd-lead); not seen in a frame.
+
+- Technical regression: none in the frames shown; sky, camp and the other HUD are main's.
+- This change: accepted for what is shown. After "Stop" the panel's status line reads "[E] Change plate holder" where main already read "Eddington is changing plates…"; same slip, same type, nothing over the Sun. In live totality the second plate box stays empty until the change is ordered (main hatched it at once), and five seconds later the clock has run from 254 to 249 with the prompt still up.
+- Not shown, so not judged: live totality during and after an ordered change; the empty rack; what the player sees on pressing the shutter while the holder is spent.
+- Whole scene: unchanged. Asked, not a hold: in the live frame at plus five seconds nothing but one line of small type says seconds are being lost. A mark for the spent holder on the plate strip would tell it without reading.
+
+![live close, candidate](slice_principe/accept/604/85391fd/after-live-close.png)
+![live close, main](slice_principe/accept/604/85391fd/before-live-close.png)
+![live plus five, candidate](slice_principe/accept/604/85391fd/after-live-plus-five.png)
+![practice close, candidate](slice_principe/accept/604/85391fd/after-practice-close.png)
