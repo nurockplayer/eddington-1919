@@ -1829,3 +1829,14 @@ Verdicts: technical regression none seen (rows 4 and 5 hold on these frames); th
 ![clear 660](slice_principe/accept/589/3694d73/clear-frame-0660.png)
 
 **Count stays 7/9.**
+
+### 2026-11-28 04:59 JST · #609 (AA 19 Continue restores the recorded plate) at 47f2be1: accepted
+
+Opened whole at 1280×720: the new `candidate-recorded-viewer.png`. `main-recorded-viewer.png` not opened; it has the same hash (4e90a1f5…). Candidate continued and main continued were opened at the last entry.
+
+- Technical regression: none seen.
+- This change: accepted. The viewer right after "Record reading" on plate 2 and the viewer after Continue are the same screen: Plate 2, "Reading: 0.76 div.", the scale on the print, "Micrometer readings 1/2". Main returns to Plate 1 with no readout.
+- Whole scene: unchanged.
+- Backlog, not a hold: the white frame sits on Plate 1's thumbnail while Plate 2 is in the viewer, on main and on the candidate alike (focus moves to the next plate after recording). The plate in the viewer has no mark of its own on the thumbnail row.
+
+![viewer after recording](slice_principe/accept/609/47f2be1/candidate-recorded-viewer.png)
