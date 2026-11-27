@@ -1766,3 +1766,16 @@ Verdicts: technical regression none claimed for the slice (flag off); this PR's 
 ![06_darkroom_covered](slice_principe/accept/600/3bdb042/sobral_06_darkroom_covered_en.png)
 
 **Count stays 7/9.**
+
+### 2026-11-28 03:30 JST · #606 (journey, four Sundy drawings, my lane, Refs #551) at db62667: accepted, look only
+
+Opened whole at 1920×1080: all six candidate frames (02, 09, 14, 16, 17 in English; 17 in Japanese). No main pair: the worker's main-side capture is still waiting in the heavy queue after four hours. I judged against #552's accepted frames as described in the entry of 2026-11-27 13:07 JST, not reopened.
+
+- Technical regression: none seen on these pages; flag off untouched (test_journey off 46 checks, on 1496 checks, 0 failures by the worker's report; the portrait revert check was still pending).
+- This change: accepted. Kit's card is a toned print like Ashby's, with "(Fiction)" and "Kit" in Latin letters in Japanese. The cloud band tapers to a point at both ends. Page 09 has no crate at the port. The sea's ruling runs to the shore.
+- Whole scene: the chapter still waits for #551's sheet items (scroll for one line, slices at the fold, scrollbar, port names, the three from #542).
+- Seen, minor: the top sea line on 02 and 09 ends in the air above the land instead of at it.
+
+![Kit's card](slice_principe/accept/606/db62667/sundy_17_kit_memory_en.png)
+![cloud band](slice_principe/accept/606/db62667/sundy_14_cloud_crossing_en.png)
+![page 09](slice_principe/accept/606/db62667/sundy_09_packed_mirror_en.png)
