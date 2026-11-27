@@ -1677,3 +1677,20 @@ Opened whole at 1280×720: all five candidate frames and main's 01 and 02. Main'
 ![hold at 50%, main](slice_principe/accept/603/d646693/before-02-partial-hold.png)
 ![aimed, candidate](slice_principe/accept/603/d646693/after-01-aimed-unwound.png)
 ![verified, candidate](slice_principe/accept/603/d646693/after-05-verified.png)
+
+### 2026-11-27 21:51 JST · #605 (daylight cloud, my lane) at 25ccbaf: not accepted
+
+Opened whole at 1280×720: early partial clear / thin / thick on the candidate, thick and clear on main, rehearsal thin on both. The other rehearsal and all totality pairs by numbers only (mean difference 0.10 to 0.37 of 255, the same pixel count in each state of a camera; not opened).
+
+- Technical regression: none seen; rehearsal thin is main's frame, totality not opened.
+- This change: not accepted. What holds: cloud is now drawn, behind palms and beams; the crescent is bright in a gap at 0.12, dim under ruling at 0.57 and gone at 0.97, so the missing Sun has a cause.
+  1. **The three states are not told apart at a glance.** The same ruling covers most of the sky in all three (changed pixels 19%, 20%, 25% of the frame); only the Sun's own spot differs. "Clear" is a sky mostly under cloud.
+  2. **One line weight for every density.** Cloud at 0.57 and at 0.97 is ruled with the same line and spacing. Thin cloud should be fewer, finer lines; thick cloud closer and darker.
+  3. **The lines are not engraved lines.** About 4 px thick, mid grey, with blurred feathered ends and soft dark swellings. They are as loud as the palms. Wanted: thin hard-edged lines that end by thinning to a point, clearly lighter than anything on the ground.
+  4. **The thick frame reads backwards.** A sky ruled edge to edge with small contoured white patches reads as a ruled clear sky with white clouds. The cloud bodies need to look like bodies (rounded contours on the cloud's side, lines following the form), and open sky must be the larger bare-paper area whenever the sky is mostly clear.
+- Whole scene: early partial not ready. Seen beside it: the rehearsal sky at the same densities is still bare paper, so the same cloud is drawn two ways; to settle after this look is right.
+
+![clear](slice_principe/accept/605/25ccbaf/early-partial-clear-candidate.png)
+![thin](slice_principe/accept/605/25ccbaf/early-partial-thin-candidate.png)
+![thick](slice_principe/accept/605/25ccbaf/early-partial-thick-candidate.png)
+![thick, main](slice_principe/accept/605/25ccbaf/early-partial-thick-main.png)
