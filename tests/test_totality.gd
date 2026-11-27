@@ -326,7 +326,7 @@ func _test_rehearsal_carry() -> void:
 		var practice_change: String = game.ui.tot_label.text
 		check(game._rehearsal_step == 2 and not game.ui.tot_hint.visible,
 			"rehearsal close withdraws the shutter action during the change")
-		check(game.ui.toast.text.contains(Content.totality_read("clear")),
+		check(game.ui.toast.text.contains("我看見雲邊經過太陽"),
 			"rehearsal close reports the band sampled during the completed exposure")
 		await create_timer(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE + 0.1).timeout
 		check(not game.rehearsing and not game.ui.tot_panel.visible,

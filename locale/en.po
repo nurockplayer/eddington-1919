@@ -319,6 +319,9 @@ msgstr "Cottingham: “Watch where it was and where it is now. Try one small adj
 msgid "Cottingham：「這幾秒雲很薄，我看得見日冕的邊。」"
 msgstr "Cottingham: 'The cloud was thin for those seconds; I could see the edge of the corona.'"
 
+msgid "Cottingham：「這幾秒雲很薄，我看見雲邊經過太陽。」"
+msgstr "Cottingham: 'The cloud was thin for those seconds; I could see its edge cross the Sun.'"
+
 msgid "Crommelin 和 Davidson・「Anselm」號繼續駛向巴西。"
 msgstr "Crommelin and Davidson · Anselm continues towards Brazil."
 

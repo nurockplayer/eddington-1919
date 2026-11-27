@@ -1376,6 +1376,8 @@ func _begin_rehearsal() -> void:
 	ui.set_prompt("")
 	ui.set_hold(0.0)
 	ui.set_clock("")
+	ui.tot_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	ui.tot_panel.position.y = 20.0
 	_update_rehearsal_hud()
 	ui.show_toast(L.t("Eddington：沒有底片，只練眼睛和口令。看太陽那一塊雲——變薄就按［%s］喊『開始』，變厚之前喊『停』。") % Prompts.key("shutter"), 12.0)
 
@@ -1423,7 +1425,7 @@ func _finish_rehearsal(feedback: String) -> void:
 		ui.show_toast(message, 7.0)
 	else:
 		var band := Cues.sky_band(_rehearsal_exposure.clear, _rehearsal_exposure.duration)
-		ui.show_toast(message + "\n" + Content.totality_read(band), 3.5)
+		ui.show_toast(message + "\n" + Content.totality_read(band, true), 3.5)
 	await get_tree().create_timer(sim.PLATE_CHANGE_S / sim.TIME_SCALE, false).timeout
 	sky_mat.set_shader_parameter("practice_cloud", -1.0)
 	world.roof.visible = _rehearsal_roof_visible
@@ -1435,6 +1437,8 @@ func _finish_rehearsal(feedback: String) -> void:
 	player.pitch = _rehearsal_pitch
 	rehearsing = false
 	ui.set_totality(false)
+	ui.tot_panel.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	ui.tot_panel.position.y = ui.hud.size.y - 250.0
 	_sync_player_input()
 
 
