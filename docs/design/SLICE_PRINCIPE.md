@@ -1885,3 +1885,22 @@ Capture of 9df8510 (adac387 after it changes the capture's settings handling onl
 
 ![letter](slice_principe/accept/611/9df8510/077_en_first.png)
 ![drive check, first view](slice_principe/accept/611/9df8510/105_en_first.png)
+
+### 2026-11-28 08:31 JST · #620 (journey I4, Homeward and across Europe) at 382c0a7: accepted, fold slice carried to #611
+
+Opened whole at 1280×720: return en (first view, end, first view at 1.2), plates en, Brussels telegram en, Berlin letter en, return ja, plates ja. Not opened: the other six (1.2 end, plates en end, the two ja ends, Brussels ja, Berlin ja).
+
+- Technical regression: none seen. Same sheet, type, rules and brown scrollbar as the Sobral chapter.
+- This change: accepted. Four sheets read in order; quotations, sources and rules are told apart; Japanese sets cleanly with the English quotation kept above its translation; at 1.2 the return sheet's fold falls between entries.
+- Whole chapter: reads, but plain. Four sheets of text and no picture; the Brussels and Berlin sheets are two entries and one entry on an otherwise empty page.
+
+Carried, not held here (same as #600): the fold cuts a line in half on the first view of return en, plates en and return ja, and the top of the scrolled view cuts one on return en end. That is the shared sheet's defect and belongs to #611 (Refs #551); I check these I4 sheets there.
+
+Backlog: a homeward route strip (Príncipe to Liverpool) on the first sheet, as the outward chapters have; Brussels and Berlin could share one sheet.
+
+Frames kept in `docs/design/slice_principe/accept/620/382c0a7/`.
+
+![return en](slice_principe/accept/620/382c0a7/i4_return_en.png)
+![plates en](slice_principe/accept/620/382c0a7/i4_plates_en.png)
+
+**Count stays 7/9.**
