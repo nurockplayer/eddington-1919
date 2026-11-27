@@ -1,0 +1,30 @@
+{
+  "id": "cottingham_neutral",
+  "variant": 1,
+  "prompt": "Use case: historical-scene. Create a new sepia studio portrait for a 1919 game's cast, a wholly invented face for a 50-year-old Northamptonshire clockmaker. Treat the attached game's generated Kit portrait strictly as a reference for the photographic process, warm brown tonal range, dark softly mottled studio backdrop, lighting, and square plate composition. Invent the sitter from the following written design, with no resemblance to the reference sitter or to any real person. The subject has a solid medium build, stronger neck and broader shoulders than a slender academic, short dark greying hair neatly brushed back with a subtle side part, and a clearly legible broad grey moustache with natural drooping ends; otherwise clean-shaven, dark eyes, bare head, no eyewear. Practical light linen work shirt with turned-down collar, no tie, no jacket; early twentieth-century cut. Quiet, observant, capable, accustomed to precision bench work.\nFace A: broad rectangular face, square jaw, comparatively flat cheeks, low straight brows over close-set deep eyes, a wide blunt straight nose, broad chin. Moderately weathered skin.\nSquare canvas, 1:1. Three-quarter head-and-shoulders seated studio pose looking just to image left, close scale comparable to the game prints: small headroom of about 5%, face and hair occupying the center and upper 60%, shoulders span the lower corners, cut at upper chest. Soft directional studio light, restrained deep brown shadows, subtle print grain, matte warm sepia silver print from around 1919, brown throughout. Fill the square; no paper margin, border, typography, props, or signature. One portrait.",
+  "reference": {
+    "path": "assets/portraits/kit_neutral.jpg",
+    "sha256": "476a9e71bb92dae227f0660898ee26ce069b33f8659f34a5cf3ea9cdd8b3bb0c"
+  },
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 05:09:32 JST",
+  "retries": 0,
+  "raw_sha256": "91858b125fbde65ed5f16c898510578b73b031479fab09eb4de8297afd6eada8",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/portraits/cottingham/2026-11-28/A-print.png",
+  "file": "assets/portraits/cottingham_neutral.jpg",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a21e9f-b3f6-7bb2-b557-b4b9c194af8d/exec-ad5e457c-48f1-4bb2-abdc-f8723fdf33e7.png",
+  "source_commit": "f9610a13d56795355f34ef47880f992ff9970d46",
+  "run_manifest": {
+    "path": "/Volumes/KIOXIA/eddington-1919-cache/director/portraits/cottingham/2026-11-28/manifest.json",
+    "id": "A-print"
+  },
+  "jpeg": {
+    "size_px": [
+      1254,
+      1254
+    ],
+    "quality": 85,
+    "chroma_subsampling": "4:2:0",
+    "sha256": "de096babf293834df16c83626ca3ee7cc1c30e95f652b0d641680431542f0582"
+  }
+}

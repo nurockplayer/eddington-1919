@@ -28,3 +28,12 @@ The four dialogue JPEGs are exact copies of Owner-approved generated p02 picks,
 with source filenames and manifest ids recorded in `REFERENCE.md` and
 `art/runs/p02-portraits/manifest.jsonl`. They are labelled reconstructions in the
 runtime UI; Ashby is fictional. No new image generation or paid API is used here.
+
+## Príncipe dialogue portraits (2026-11-28 JST)
+
+`cottingham_neutral.jpg` and `cottingham_engraving.jpg` are generated
+reconstructions made with Codex’s built-in image generation. The engraving
+uses the generated print as its source. No photograph of Cottingham was used
+or imitated. The dialogue UI labels reconstructed portraits “Reconstructed
+portrait, not a historical photograph”. See `assets/portraits/LICENSES.md`
+and the two adjacent provenance files.
