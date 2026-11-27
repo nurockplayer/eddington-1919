@@ -26,15 +26,16 @@ func _run() -> void:
 	game.sim = Sim.new(7)
 	game._start_game()
 	game.prep_left = 5.0
-	for frame in 300:
+	# One extra tick covers the floating point remainder after 300 steps.
+	for frame in 301:
 		game._process_prep(STEP)
 		if game.prep_left > 0.0:
 			check(not game.ui.clock_label.text.contains("倒數 0:00"), "frame %d: countdown reaches zero early at %.4f s" % [frame, game.prep_left])
 			if game.prep_left <= STEP:
 				check(game.ui.clock_label.text.contains("倒數 0:01"), "final positive frame shows one second remaining")
 		else:
-			check(game.phase == game.Phase.TOTALITY, "second contact starts totality")
 			break
+	check(game.phase == game.Phase.TOTALITY, "second contact starts totality")
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
