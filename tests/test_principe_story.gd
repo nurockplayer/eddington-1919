@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Content := preload("res://scripts/content.gd")
+const Settings := preload("res://scripts/settings.gd")
 
 var failures := 0
 var checks := 0
@@ -61,6 +62,77 @@ func walk_briefing(from_cambridge: bool) -> String:
 	await process_frame
 	return "\n".join(thoughts)
 
+func drive_objective_is(game: Node, row: int) -> bool:
+	return game.ui.objectives.text == game.ui._paper_text(game.ui._objectives_bb).split("\n")[row]
+
+func aim_at(game: Node, point: Vector3) -> void:
+	game.player.look_at_point(point)
+	await physics_frame
+	await process_frame
+
+func walk_drive_lesson(from_cambridge: bool) -> void:
+	var game := make_game(from_cambridge)
+	Settings.hold_toggle = from_cambridge
+	game._interact("eddington")
+	finish_dialogue(game)
+	game.player.global_position = Vector3(0.85, 0.05, -5.65)
+	await physics_frame
+	await aim_at(game, Vector3(0.62, 0.92, -6.6))
+	game._process_interaction(0.0)
+	check(game.player.aimed_interactable().get_meta("interact_id") == "drive", "the drive box is under the crosshair")
+	check(drive_objective_is(game, 3), "aiming at the unwound drive shows the winding objective")
+
+	Input.action_press("interact")
+	game._process_interaction(0.5)
+	Input.action_release("interact")
+	check(game.ui.hold_bar.visible and not game.sim.drive_wound, "partial winding shows progress without completing")
+	await aim_at(game, Vector3(0.85, 1.5, 0))
+	game._process_interaction(3.0)
+	check(not game.ui.hold_bar.visible and not game.sim.drive_wound and game.hold_t == 0.0,
+		"looking away interrupts winding without completing it")
+	check(drive_objective_is(game, 2), "looking away restores the prep objective")
+
+	await aim_at(game, Vector3(0.62, 0.92, -6.6))
+	Input.action_press("interact")
+	game._process_interaction(0.5)
+	if from_cambridge:
+		Input.action_release("interact")
+		await process_frame
+	game._process_interaction(2.5)
+	check(game.sim.drive_wound and not game.calibration.visible and not game.ui.hold_bar.visible,
+		"winding completes without opening calibration or leaving the hold bar visible")
+	check(drive_objective_is(game, 4), "winding advances the aimed objective to rate-check")
+	Input.action_release("interact")
+	game._process_interaction(0.0)
+
+	var event := InputEventKey.new()
+	event.physical_keycode = KEY_E
+	event.pressed = true
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+	event = InputEventKey.new()
+	event.physical_keycode = KEY_E
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+	check(game.calibration.visible and not game.sim.drive_rate_checked, "a fresh press at the same drive opens the rate-check")
+	game.calibration.advance(1.0)
+	Input.action_press("ui_left")
+	for step in 170:
+		game.calibration.advance(0.1)
+	Input.action_release("ui_left")
+	game.calibration.advance(3.0)
+	check(game.sim.drive_rate_checked, "trimming and observing verifies the drive rate")
+	event = InputEventKey.new()
+	event.keycode = KEY_ENTER
+	event.pressed = true
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+	check(not game.calibration.visible and drive_objective_is(game, 4) and game.ui.objectives.text.begins_with("✓"),
+		"recording the rate shows a completed objective at the drive")
+	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+
 func _run() -> void:
 	var source_thoughts := []
 	for locale in L.LOCALES:
@@ -73,6 +145,8 @@ func _run() -> void:
 		else:
 			check(direct != source_thoughts[0] and cambridge != source_thoughts[1], "both briefing thoughts are localized")
 	L.apply("zh_TW")
+	await walk_drive_lesson(false)
+	await walk_drive_lesson(true)
 	var game := make_game()
 	game._interact("eddington")
 	game.ui._advance()

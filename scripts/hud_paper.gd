@@ -253,6 +253,7 @@ func _layout() -> void:
 	for label in [ui.clock_label, ui.prompt_label]:
 		label.size = label.get_minimum_size()
 		label.position.x = (ui.hud.size.x - label.size.x) * 0.5
+	ui.hold_bar.position.y = ui.prompt_label.position.y + ui.prompt_label.size.y + 20.0
 	if task.visible:
 		var left: float = task.position.x + task.size.x + 32.0
 		ui.clock_label.position.x = maxf(ui.clock_label.position.x, left)
