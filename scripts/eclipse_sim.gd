@@ -146,7 +146,7 @@ func _make_clouds() -> void:
 	var across := wind.orthogonal().normalized() * 0.036
 	if middle_seam_time >= 0.0:
 		# The visible bank has feathered shoulders ahead of its opaque core.
-		_carve(seam - across, seam + across, 0.003, 0.024, 0.93, true)
+		_carve(seam - across, seam + across, 0.003, 0.017, 0.93, true)
 	cloud_img = Image.create_empty(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8)
 	var bytes := PackedByteArray()
 	bytes.resize(TEX_SIZE * TEX_SIZE)
