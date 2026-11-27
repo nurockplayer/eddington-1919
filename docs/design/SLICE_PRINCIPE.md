@@ -1840,3 +1840,16 @@ Opened whole at 1280×720: the new `candidate-recorded-viewer.png`. `main-record
 - Backlog, not a hold: the white frame sits on Plate 1's thumbnail while Plate 2 is in the viewer, on main and on the candidate alike (focus moves to the next plate after recording). The plate in the viewer has no mark of its own on the thumbnail row.
 
 ![viewer after recording](slice_principe/accept/609/47f2be1/candidate-recorded-viewer.png)
+
+### 2026-11-28 05:05 JST · #614 (AA 08 last active device's hints win) at f49e3a9: accepted
+
+Opened whole at 1280×720: candidate prep-pad, darkroom-pad, darkroom-keyboard; main prep-pad. The other four not opened.
+
+- Technical regression: none seen; the frames differ from main only in the hint line.
+- This change: accepted. After pad input the dialogue hint reads "[A button] Continue" and the choice hint "[Arrow keys/A button] Choose", in the slip's small capitals at the same place and size; after a key it reads "[1–3 or click] Choose" again. Main shows the keyboard hint in the pad state.
+- Whole scene: unchanged.
+- For edd-lead (copy): the pad hint says "Arrow keys"; on a pad that is the D-pad.
+- Seen here, mine, not this PR's: this is the first play-camera frame with #605's daylight cloud. The contour lines cover the whole sky down to the horizon and read close to a contour map. To be judged in the row 2 motion capture (early partial under cloud) before I call it right.
+
+![pad, prep](slice_principe/accept/614/f49e3a9/candidate-prep-pad.png)
+![pad, darkroom](slice_principe/accept/614/f49e3a9/candidate-darkroom-pad.png)
