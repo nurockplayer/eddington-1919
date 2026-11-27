@@ -69,8 +69,6 @@ func print_label(label: Label3D) -> void:
 
 func light(main: Node, contact: float, darkness: float, night: float) -> void:
 	impl.light(main, self, contact, darkness, night)
-	if label_darkness == darkness and label_night == night:
-		return
 	label_darkness = darkness
 	label_night = night
 	for label in main.find_children("*", "Label3D", true, false):
