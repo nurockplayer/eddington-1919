@@ -334,21 +334,29 @@ func _test_full_flow(story: Node) -> void:
 	check(chapter.chart.visible, "the letter hands to the chart overlay")
 	check(chapter.chart.rows.size() == 1 and str(chapter.chart.rows[0].label) == "你的底片（示意模擬）",
 		"the chart starts with the player's own row")
-	check(not chapter.chart.notes.has("你的底片：沒有數值。"), "a measured run has a value, not the empty note")
+	var pages := chapter.chart.find_child("SobralInstruments", true, false) as TabContainer
+	check(pages != null and not pages.visible, "Sobral tabs are hidden before either record is copied")
 	chapter.chart.button.pressed.emit()
 	check(chapter.chart.step == 1 and chapter.chart.rows.size() == 2, "press 1 copies the 4-inch row")
 	var four: Dictionary = chapter.chart.rows[1]
 	check(str(four.label) == "Sobral 4 吋" and is_equal_approx(float(four.value), 1.98) and is_equal_approx(float(four.sigma), 0.18),
 		"the 4-inch row carries 1.98 with a 0.18 standard deviation")
-	check(chapter.chart.notes.has("Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差"),
-		"the 4-inch note keeps the probable error and the standard deviation apart")
+	check(pages != null and pages.visible and pages.current_tab == 0 and pages.is_tab_hidden(1),
+		"the first copy opens only the 4-inch record")
 	check(chapter.chart.button.text == "抄上 Sobral 天體照相儀", "press 1 advances the button")
 	chapter.chart.button.pressed.emit()
 	check(chapter.chart.step == 2 and chapter.chart.rows.size() == 3, "press 2 copies the astrographic row")
 	var astro: Dictionary = chapter.chart.rows[2]
-	check(str(astro.label) == "Sobral 天體照相儀" and bool(astro.get("weak", false)) and bool(astro.get("no_bar", false)),
-		"the astrographic row is weak and has no bar")
-	check(chapter.chart.notes.has("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差"), "the astrographic note says why")
+	check(str(astro.label) == "Sobral 天體照相儀" and is_equal_approx(float(astro.value), 0.93)
+		and bool(astro.get("weak", false)) and bool(astro.get("no_bar", false)),
+		"the astrographic row keeps 0.93, marked weak with no bar")
+	check(pages != null and pages.current_tab == 1 and not pages.is_tab_hidden(1)
+		and pages.get_tab_title(0) == four.label and pages.get_tab_title(1) == astro.label,
+		"the second copy opens the astrographic record and both tabs match their chart rows")
+	if pages != null:
+		pages.get_tab_bar().current_tab = 0
+		check(pages.get_current_tab_control().visible and not pages.get_tab_control(1).visible,
+			"returning to the 4-inch tab shows only its record")
 	check(chapter.chart.button.text == "抄好了", "press 2 advances the button to 抄好了")
 	await process_frame
 	await process_frame
@@ -359,7 +367,14 @@ func _test_full_flow(story: Node) -> void:
 	chapter.chart.button.pressed.emit()
 	check(chapter.chart.visible and chapter.chart.step == 3 and chapter.chart.question.visible,
 		"press 3 asks the Sobral reading with the chart still open")
+	check(pages != null and pages.current_tab == 0, "the interval question opens the 4-inch record")
+	if pages != null:
+		pages.get_tab_bar().current_tab = 1
+		check(chapter.chart.step == 3 and chapter.chart.read_answer == -1,
+			"browsing during the reading does not submit an answer")
+		pages.get_tab_bar().current_tab = 0
 	chapter.chart.choices[1].pressed.emit()
+	check(pages != null and pages.current_tab == 1, "reading feedback opens the record named in the weighting question")
 	check(chapter.chart.button.text == "好" and chapter.chart.button.visible,
 		"the reading answer offers the 好 press")
 	chapter.chart.button.pressed.emit()

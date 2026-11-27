@@ -16,7 +16,6 @@ const SOBRAL_TRUTH := 1
 var run: Dictionary = {}
 var chart
 var rows: Array = []
-var notes: Array[String] = []
 var step := 0
 var button: Button
 var question: Label
@@ -27,11 +26,15 @@ var input_blocked := false:
 		input_blocked = value
 		if is_instance_valid(button):
 			button.disabled = value
+		if is_instance_valid(_instrument_pages):
+			for i in _instrument_pages.get_tab_count():
+				_instrument_pages.set_tab_disabled(i, value)
 		for b in choices:
 			if is_instance_valid(b):
 				b.disabled = value or read_answer >= 0
 var _built := false
-var _note_box: VBoxContainer
+var _empty_note: Label
+var _instrument_pages: TabContainer
 var _choice_box: VBoxContainer
 var _column: VBoxContainer
 
@@ -81,9 +84,18 @@ func _build() -> void:
 	chart.custom_minimum_size = Vector2(0, 340)
 	chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_column.add_child(chart)
-	_note_box = VBoxContainer.new()
-	_note_box.add_theme_constant_override("separation", 2)
-	_column.add_child(_note_box)
+	_empty_note = _record_note(L.t("你的底片：沒有數值。"))
+	_column.add_child(_empty_note)
+	_instrument_pages = TabContainer.new()
+	_instrument_pages.name = "SobralInstruments"
+	_column.add_child(_instrument_pages)
+	_instrument_pages.add_child(_record_note(L.t("Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差")))
+	_instrument_pages.add_child(_record_note(L.t("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差")))
+	_instrument_pages.set_tab_title(0, L.t("Sobral 4 吋"))
+	_instrument_pages.set_tab_title(1, L.t("Sobral 天體照相儀"))
+	var tab_bar := _instrument_pages.get_tab_bar()
+	Settings.track_font(tab_bar, 17)
+	tab_bar.focus_mode = Control.FOCUS_ALL
 	question = Label.new()
 	question.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	Settings.track_font(question, 20)
@@ -113,31 +125,29 @@ func _build() -> void:
 	_column.add_child(button)
 
 
+func _record_note(text: String) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	Settings.track_font(label, 17)
+	label.add_theme_color_override("font_color", Color(0.85, 0.82, 0.75))
+	return label
+
+
 func _refresh() -> void:
 	rows = []
-	notes = []
 	var c: Dictionary = run.get("combined", {})
+	_empty_note.visible = int(c.get("n", 0)) == 0
 	if int(c.get("n", 0)) > 0:
 		rows.append({"label": L.t("你的底片（示意模擬）"), "value": float(c.value), "sigma": float(c.sigma)})
-	else:
-		notes.append(L.t("你的底片：沒有數值。"))
 	if step >= 1:
 		rows.append({"label": L.t("Sobral 4 吋"), "value": 1.98, "sigma": 0.18})
-		notes.append(L.t("Sobral 4 吋：1.98″，±0.12″ 機率誤差，約 0.18″ 標準差"))
 	if step >= 2:
 		rows.append({"label": L.t("Sobral 天體照相儀"), "value": 0.93, "sigma": 0.0, "weak": true, "no_bar": true})
-		notes.append(L.t("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差"))
 	chart.set_data(rows, {}, true)
-	for child in _note_box.get_children():
-		_note_box.remove_child(child)
-		child.queue_free()
-	for line in notes:
-		var label := Label.new()
-		label.text = line
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		Settings.track_font(label, 17)
-		label.add_theme_color_override("font_color", Color(0.85, 0.82, 0.75))
-		_note_box.add_child(label)
+	_instrument_pages.visible = step >= 1
+	_instrument_pages.set_tab_hidden(1, step < 2)
+	_instrument_pages.current_tab = 1 if step == 2 else 0
 	if step >= 3:
 		question.visible = true
 		_choice_box.visible = true
@@ -177,6 +187,8 @@ func _read(index: int) -> void:
 	if CambridgeContentEpilogue.ledger_case(run) == "conceded":
 		text += L.t("\n（和你的底片放在一起看——兩套儀器、隔一個大西洋。）")
 	question.text = text
+	# The next dialogue asks how to weight this set.
+	_instrument_pages.current_tab = 1
 	button.text = L.t("好")
 	button.visible = true
 	button.grab_focus()
