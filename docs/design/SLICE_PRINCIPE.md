@@ -1694,3 +1694,17 @@ Opened whole at 1280×720: early partial clear / thin / thick on the candidate, 
 ![thin](slice_principe/accept/605/25ccbaf/early-partial-thin-candidate.png)
 ![thick](slice_principe/accept/605/25ccbaf/early-partial-thick-candidate.png)
 ![thick, main](slice_principe/accept/605/25ccbaf/early-partial-thick-main.png)
+
+### 2026-11-27 22:05 JST · #605 (daylight cloud, my lane) at 46bead9: accepted, look only
+
+Opened whole at 1280×720: early partial clear / thin / thick and the mostly-clear view on the candidate; totality wide thick on both. The other eleven control pairs by numbers only (mean difference 0.10 to 0.40 of 255, the same as at 25ccbaf; not opened). Main's early-partial frames not reopened.
+
+- Technical regression: none seen. Totality wide thick is main's frame to the eye. The test result at this head was not in the worker's report (the run was waiting for a slot) and CI suites were pending when I looked; that is for the review gate.
+- This change: accepted. The four items from 25ccbaf are gone. The cloud is drawn in thin hard lines that bend round the cloud's form, lighter than the palms and behind them. Open sky is bare paper: the mostly-clear view (72.9% clear) is nearly empty. Clear, thin and thick are told apart: bright crescent in open paper, dim crescent at a cloud's edge, no Sun under close ruling.
+- Whole scene: early partial is better and not judged ready from four stills; the sky has not been seen moving.
+- Backlog: some lines step in short horizontal jogs (lower right of the clear frame); the rehearsal sky at the same densities is still bare paper, so the same cloud is drawn two ways.
+
+![clear](slice_principe/accept/605/46bead9/early-partial-clear-candidate.png)
+![thin](slice_principe/accept/605/46bead9/early-partial-thin-candidate.png)
+![thick](slice_principe/accept/605/46bead9/early-partial-thick-candidate.png)
+![mostly clear sky](slice_principe/accept/605/46bead9/early-partial-mostly-clear-sky-candidate.png)
