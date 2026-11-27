@@ -43,8 +43,10 @@ func _run() -> void:
 	check(shader_text.contains("float thin_cloud = step(0.35, cloud_field.y);")
 		and shader_text.contains("float dense_cloud = step(0.85, cloud_field.y);")
 		and shader_text.contains("cloud_wash = plate_cloud * band_lines * totality_plate;"), "cloud plate has crisp density steps")
-	check(shader_text.contains("float density = eclipse_cloud_density_at(direction, time);")
-		and shader_text.contains("cloud_field = print_cloud(ray_w, sky_plate_darkness, returning_sky ? day_return_cloud_time : cloud_time);"), "contours use the live exposure field")
+	check(shader_text.contains("float density = eclipse_cloud_density_from_sample(cloud);")
+		and shader_text.contains("cloud_field = print_cloud(live_cloud, sky_plate_darkness);")
+		and shader_text.contains("live_cloud.x = mix(live_cloud.x, pocket_print_density(ray_w, print_time, live_cloud.x), pocket_print);"),
+		"the printed contour and ray veil share the drifting pocket density")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
 	check(shader_text.contains("max(0.5 * smoothstep(0.30, 0.35, live_cloud.x), smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x))")
 		and shader_text.contains("smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud)") and shader_text.contains("step(1.0, r) * corona_cloud"), "cloud density veils the corona")

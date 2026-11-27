@@ -170,10 +170,27 @@ vec2 page_ruling(vec3 ray, mat4 camera) {
 	return vec2(atan(ray.y, -ray.z), atan(ray.y + 0.62 * ray.x, -ray.z)) + vec2(pitch);
 }
 
-// Engrave the live field's 0.35 contour; the second component retains density
-// for line weights and solar veiling. No separate cloud geometry is invented.
-vec2 print_cloud(vec3 direction, float print_darkness, float time) {
-	float density = eclipse_cloud_density_at(direction, time);
+// Bend the carved track with the surrounding cloud in advected texture space.
+// The transverse weight pins the solar sightline and rejoins the surrounding bank.
+float pocket_print_density(vec3 d, float time, float density) {
+	vec2 across = normalize(vec2(-wind.y, wind.x));
+	vec2 plane = d.xz / max(d.y, 0.06) * cloud_scale;
+	vec2 sun_plane = sun_dir.xz / sun_dir.y * cloud_scale;
+	float cross_track = abs(dot(plane - sun_plane, across));
+	if (cross_track >= 0.09) {
+		return density;
+	}
+	float edge = smoothstep(0.0, 0.014, cross_track) * (1.0 - smoothstep(0.05, 0.09, cross_track));
+	vec2 uv = plane - wind * time;
+	float bank = texture(cloud_tex, uv + across * 0.13).r - texture(cloud_tex, uv - across * 0.13).r;
+	float bent = texture(cloud_tex, uv + 0.026 * edge * bank * across).r;
+	float haze = smoothstep(0.35, 0.05, d.y);
+	return mix(bent, 0.97, haze);
+}
+
+// Engrave the cloud's 0.35 contour and retain density for tone and solar veiling.
+vec2 print_cloud(vec2 cloud, float print_darkness) {
+	float density = eclipse_cloud_density_from_sample(cloud);
 	float contour_density = mix(0.10, 0.35, print_darkness);
 	return vec2(contour_density - density, density);
 }
@@ -265,9 +282,18 @@ void fragment() {
 		// A silhouette against the sky is drawn from the sky's side too: not for distant land.
 		float d_near = min(min(length(p_l), length(p_r)), min(length(p_d), length(p_u)));
 		edge *= mix(1.0, far_line, smoothstep(far_start, far_end, d_near));
+		float from_contact = cloud_time - third_contact_cloud_clock.x;
+		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
+		float print_time = returning_sky ? day_return_cloud_time : cloud_time;
+		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, print_time);
+		// Ease back to the accepted third-contact field before the passage starts.
+		float pocket_print = smoothstep(0.0, 5.0, cloud_time) * (1.0 - smoothstep(-12.0, -6.5, pocket_time));
+		if (practice_cloud < 0.0 && !before_second_contact && night == 0.0 && ray_w.y > 0.0 && pocket_print > 0.0) {
+			live_cloud.x = mix(live_cloud.x, pocket_print_density(ray_w, print_time, live_cloud.x), pocket_print);
+		}
 		vec2 cloud_field = vec2(10.0, 0.0);
 		if (night <= 0.5 && (sky_plate_darkness > 0.0 || practice_cloud >= 0.0)) {
-			cloud_field = print_cloud(ray_w, sky_plate_darkness, returning_sky ? day_return_cloud_time : cloud_time);
+			cloud_field = print_cloud(live_cloud, sky_plate_darkness);
 		}
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
@@ -360,9 +386,9 @@ void fragment() {
 		float moon_pixel = max(fwidth(r) * 0.5, 0.00001);
 		float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);
 		float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time).x;
-		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, cloud_time);
-		float from_contact = cloud_time - third_contact_cloud_clock.x;
-		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
+		if (returning_sky) {
+			live_cloud = eclipse_cloud_sample_at(ray_w, cloud_time);
+		}
 		// Ease the thresholds across the passage as the pocket overlaps the solar drawing.
 		float pocket_softness = float(practice_cloud < 0.0) * smoothstep(-6.2, -3.1, pocket_time) * (1.0 - smoothstep(3.0, 7.6, pocket_time));
 		float sun_visibility = 1.0 - smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud);
