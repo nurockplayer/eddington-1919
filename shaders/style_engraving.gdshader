@@ -463,8 +463,8 @@ void fragment() {
 		float moon_cover = mix(cloud_cutoff, smoothstep(0.66, 0.91, solar_density), seam_blend);
 		float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - moon_cover;
 		bool cloud_covers_sun = !returning_sky && sun_visibility < 1.0;
-		float corona_cloud = cloud_covers_sun ? (1.0 - cloud_cutoff) * (1.0 - thin_veil) : mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
-		corona_cloud = mix(corona_cloud, (1.0 - smoothstep(0.48, 0.90, solar_density)) * (1.0 - thin_veil), seam_blend);
+		float corona_base = cloud_covers_sun ? (1.0 - cloud_cutoff) * (1.0 - thin_veil) : mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
+		float corona_cloud = mix(corona_base, (1.0 - smoothstep(0.48, 0.90, solar_density)) * (1.0 - thin_veil), seam_blend);
 		moon_ink = before_second_contact ? 0.0 : front * moon_disc * solar_fade * moon_cloud;
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
