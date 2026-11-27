@@ -55,6 +55,8 @@ func begin(wide := false, comparison := false) -> void:
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 14)
 	scroll.add_child(body)
+	body.sort_children.connect(_align_end_fold.bind(scroll, body))
+	scroll.resized.connect(_align_end_fold.bind(scroll, body))
 
 	actions = HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -62,6 +64,25 @@ func begin(wide := false, comparison := false) -> void:
 	layout.add_child(actions)
 	actions.hide()
 	show()
+
+
+func _align_end_fold(scroll: ScrollContainer, contents: VBoxContainer) -> void:
+	var height := scroll.size.y
+	var end := floori(contents.get_minimum_size().y - height)
+	var padded_height := 0.0
+	if end > 0:
+		for row: Control in contents.get_children():
+			var bottom := row.position.y + row.size.y
+			if row is Label and row.position.y < end and end < bottom:
+				# Give the scroll range enough paper below the final line to
+				# move the resting top edge past the interrupted text row.
+				padded_height = height + ceilf(bottom)
+				break
+	if padded_height == contents.custom_minimum_size.y:
+		return
+	contents.custom_minimum_size.y = padded_height
+	if padded_height > 0.0 and scroll.scroll_vertical >= end:
+		scroll.set_deferred("scroll_vertical", ceili(padded_height))
 
 
 func label(parent: Container, text: String, font_size: int, centered := false) -> void:

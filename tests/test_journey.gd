@@ -32,6 +32,9 @@ var madeira_captures := false
 var sundy_captures := false
 var sobral_captures := false
 var london_captures := false
+var fold_captures := false
+var fold_check := false
+var fold_baseline := false
 var temp_settings := ""
 
 
@@ -157,10 +160,43 @@ func check_madeira_scroll(paper: Control, finish_with_pad: bool) -> void:
 		"scroll input reveals the last Madeira line and leaves continue focused")
 
 
+func check_letter_fold(paper: Control, state: String, pad: bool) -> void:
+	var scroll: ScrollContainer = paper.body.get_parent()
+	var bar := scroll.get_v_scroll_bar()
+	var advance: Button = paper.actions.get_child(0)
+	for direction in [-1, 1]:
+		while scroll.scroll_vertical != (0 if direction < 0 else floori(bar.max_value - bar.page)):
+			var previous := scroll.scroll_vertical
+			if pad:
+				await tap_pad(JOY_BUTTON_DPAD_UP if direction < 0 else JOY_BUTTON_DPAD_DOWN)
+			else:
+				await tap(KEY_UP if direction < 0 else KEY_DOWN)
+			expect((scroll.scroll_vertical - previous) * direction > 0,
+				"%s: letter scroll responds to %s" % [L.current(), "pad" if pad else "keys"])
+	await frames(2)
+	var fold := scroll.get_global_rect()
+	var tail: Control = paper.body.get_child(-1)
+	expect(fold.grow(1.0).encloses(tail.get_global_rect()), "the final letter row is visible")
+	expect(advance.has_focus() and root.get_visible_rect().encloses(advance.get_global_rect()),
+		"Advance stays focused and visible at the end of the letter")
+	var split := false
+	for row: Control in paper.body.get_children():
+		var rect := row.get_global_rect()
+		if row is Label and rect.position.y < fold.position.y - 0.5 and rect.end.y > fold.position.y + 0.5:
+			print("%s %s %s: y=%.1f crosses text row %.1f–%.1f" % [
+				state, L.current(), "pad" if pad else "keys", fold.position.y, rect.position.y, rect.end.y])
+			split = true
+	if not fold_baseline:
+		expect(not split, "%s %s: the resting fold leaves whole letter rows" % [state, L.current()])
+	if fold_captures:
+		await capture(state, paper, "_pad" if pad else "_keys")
+
+
 func _run() -> void:
 	var enabled := OS.get_cmdline_user_args().has("--journey")
 	var london_only := OS.get_cmdline_user_args().has("--london-only")
 	var sobral_only := OS.get_cmdline_user_args().has("--sobral-only")
+	fold_baseline = OS.get_cmdline_user_args().has("--fold-baseline")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--journey-captures="):
 			capture_dir = arg.trim_prefix("--journey-captures=")
@@ -177,10 +213,14 @@ func _run() -> void:
 		elif arg.begins_with("--london-captures="):
 			capture_dir = arg.trim_prefix("--london-captures=")
 			london_captures = true
+		elif arg.begins_with("--fold-captures="):
+			capture_dir = arg.trim_prefix("--fold-captures=")
+			fold_captures = true
+	fold_check = fold_captures or OS.get_cmdline_user_args().has("--fold-check")
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
 		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
@@ -196,7 +236,7 @@ func _run() -> void:
 		locales = ["en", "ja"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
-	if enabled and capture_dir.is_empty() and not london_only:
+	if enabled and capture_dir.is_empty() and not london_only and not fold_check:
 		L.apply("en")
 		await _resume_october()
 		await _resume_departure(route)
@@ -275,7 +315,7 @@ func _route(route: Array[PackedScene], enabled: bool, misfile: bool) -> void:
 			"departure checkpoint restores M1 state including the packet record")
 		Checkpoint.clear()
 	await _departure_opening()
-	if capture_dir.is_empty() or madeira_captures or sundy_captures:
+	if capture_dir.is_empty() or madeira_captures or sundy_captures or fold_captures:
 		await _departure(current_scene, route[2], enabled, misfile, enabled)
 
 
@@ -358,7 +398,7 @@ func _tribunal(director: Node, misfile: bool) -> void:
 		else:
 			if id == "T29":
 				check_paper_focus(button(paper, strings.T22))
-				if capture_dir.is_empty() or L.current() in ["en", "ja"]:
+				if capture_dir.is_empty() or fold_captures or L.current() in ["en", "ja"]:
 					await capture("hearing", paper)
 			if id == "T54":
 				expect(has_text(paper, strings.T54), "July condition has its own page")
@@ -480,6 +520,8 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 		madeira_captures and not state.begins_with("madeira_")) or (
 		sundy_captures and not (state.begins_with("sundy_") or state.begins_with("i3_"))):
 		return
+	if fold_captures:
+		dimensions = Vector2i(1280, 720)
 	await RenderingServer.frame_post_draw
 	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
 	var image := root.get_texture().get_image()
@@ -519,8 +561,11 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		while sketch.release_btn.disabled:
 			await process_frame
 	await press(sketch.next_btn)
+	var gift := {"shown": false}
+	chapter.keepsake.visibility_changed.connect(func():
+		gift.shown = gift.shown or chapter.keepsake.visible)
 	await _dialogue(chapter, {"light_box": KEY_1})
-	expect(chapter.keepsake.visible, "Ashby's real farewell shows the gift")
+	expect(gift.shown, "Ashby's real farewell shows the gift")
 	var previous: Dictionary = story.to_save()
 	expect(previous.slip_fix == 1 and previous.bond_tone == ("warm" if warm else "close"),
 		"M2 has a correction and a bond tone to carry forward")
@@ -534,6 +579,8 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 				break
 			await process_frame
 		expect(is_instance_valid(chapter) and chapter.get("sundy") != null, "I2 must enter Sundy before observation day")
+		if fold_check:
+			return
 		await _sundy(chapter.sundy, chapter, warm)
 	else:
 		for entry in Departure.montage():
@@ -989,11 +1036,23 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	for id in Madeira.PASSAGE:
 		expect(journey.page_id == id, "onward stop in order: " + id)
 		_check_lines(paper, text, [id])
+		if id == "I06" and (capture_dir.is_empty() or fold_captures):
+			await frames(3)
+			await check_letter_fold(paper, "i2_landfall_end", false)
+			await check_letter_fold(paper, "i2_landfall_end", true)
 		await press(button(paper, text.I07 if id == "I06" else text.M09))
 	_check_lines(paper, text, ["I01", "I02", "I06", "I08", "I09", "I11"])
 	if L.current() != "en":
 		expect(has_text(paper, Madeira.QUOTES.I09), "translated passage retains original excerpt")
 	await check_paper_layout(paper, "onward passage letter")
+	if capture_dir.is_empty() or fold_captures:
+		await check_letter_fold(paper, "i2_letter_end", false)
+		await check_letter_fold(paper, "i2_letter_end", true)
+		if L.current() in ["en", "zh_TW"]:
+			await tap(KEY_ENTER)
+		else:
+			await tap_pad(JOY_BUTTON_A)
+		return
 	if L.current() in ["en", "ja"]:
 		await check_madeira_scroll(paper, true)
 	if madeira_captures:
