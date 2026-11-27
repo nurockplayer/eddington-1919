@@ -167,6 +167,10 @@ func _second_contact_gap(hold_log := false) -> void:
 			root.push_input(shutter)
 			check(not game.sim.is_exposing() and "close" in game._sfx_log and game.audio_click.playing,
 				"the shutter closes the exposure and sounds inside the quiet gap")
+			var interact := InputEventAction.new()
+			interact.action = "interact"
+			interact.pressed = true
+			root.push_input(interact)
 	check(score_s >= 1.8 and score_s <= 2.5, "the first score cue enters 1.8-2.5 s after second contact (%.2f s)" % score_s)
 	check(exposed and closed, "both shutter actions ran during the quiet gap")
 	check(gap_max <= before - 12.0,
