@@ -132,6 +132,10 @@ msgstr ""
 msgid "%s。還有你。——14 號？讓我看看。"
 msgstr ""
 
+#: scripts/cambridge/content_madeira.gd:112
+msgid "%s・Kit 的字"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:25
 msgid "%s九點前要 14 號星場的抄錄圖。說是「核對一下就好」。"
 msgstr ""
@@ -1644,6 +1648,10 @@ msgstr ""
 msgid "你在桑迪看見了什麼？"
 msgstr ""
 
+#: scripts/cambridge/content_sundy.gd:115
+msgid "你在豐沙爾寄出的信還沒有回音。"
+msgstr ""
+
 #: scripts/content.gd:46
 msgid "你在雲薄時開始、變厚前停。"
 msgstr ""
@@ -2884,6 +2892,10 @@ msgstr ""
 msgid "工作簿"
 msgstr ""
 
+#: scripts/cambridge/content_sundy.gd:116
+msgid "工作簿・給 Kit 的回信，未寄出"
+msgstr ""
+
 #: scripts/cambridge/content_madeira.gd:34
 msgid "工作簿在箱子最上面。最後一頁只有 Kit 寫的日期，下面還空著。"
 msgstr ""
@@ -3236,6 +3248,10 @@ msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:42
 msgid "我把文件放下。現在桌上有地方擺兩份資料夾了。"
+msgstr ""
+
+#: scripts/cambridge/content_sundy.gd:110
+msgid "我把燈挪到了工作檯的另一頭。燈光不再照著眼睛，我又看得見那顆比對星了。最近兩次晴夜，我觀測的那顆星都比它暗。"
 msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:120
@@ -3862,6 +3878,10 @@ msgstr ""
 msgid "有點把握"
 msgstr ""
 
+#: scripts/cambridge/content_madeira.gd:113
+msgid "未寄出的初稿"
+msgstr ""
+
 #: scripts/content.gd:416
 msgid "未寫規則"
 msgstr ""
@@ -3976,10 +3996,6 @@ msgstr ""
 
 #: scripts/cambridge/content_sundy.gd:100
 msgid "桑迪莊園・1919 年 5 月 28 日"
-msgstr ""
-
-#: scripts/cambridge/content_sundy.gd:112
-msgid "椅子就放那裡吧。我回家後，給我看看你記的時間。"
 msgstr ""
 
 #: scripts/ui.gd:2149 scripts/ui.gd:2152 scripts/ui.gd:267
@@ -4234,6 +4250,10 @@ msgstr ""
 msgid "熱帶的白天和夜晚差很多，鏡子和鏡筒都會變形。"
 msgstr ""
 
+#: scripts/cambridge/content_sundy.gd:112
+msgid "燈就留在那裡吧。我回家後，給我看看那兩晚的紀錄。"
+msgstr ""
+
 #: scripts/cambridge/content_1917.gd:100
 msgid "爐火"
 msgstr ""
@@ -4376,10 +4396,6 @@ msgstr ""
 
 #: scripts/cambridge/overlay_viewer.gd:162
 msgid "看箭頭"
-msgstr ""
-
-#: scripts/cambridge/content_sundy.gd:110
-msgid "真希望你在這裡，能幫我核對時間。也希望工作做完以後，你還在。"
 msgstr ""
 
 #: scripts/cambridge/box_sketch.gd:37
@@ -4767,7 +4783,7 @@ msgid "虛構旅程・你與史實中前往普林西比觀測的兩人 Eddington
 msgstr ""
 
 #: scripts/cambridge/content_sundy.gd:108
-msgid "虛構書信・Kit 寫給你・寫於劍橋"
+msgid "虛構書信・Kit 先前從劍橋寫來的信"
 msgstr ""
 
 #: scripts/cambridge/content_madeira.gd:105

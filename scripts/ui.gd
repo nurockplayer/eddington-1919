@@ -414,7 +414,7 @@ func _build_hud(root: Control) -> void:
 	tot_strip = Strip.new()
 	tot_strip.custom_minimum_size = Vector2(394, 32)
 	tot_box.add_child(tot_strip)
-	tot_hint = _label(L.t("［空白鍵／E／左鍵］開始・停"), 16, DIM)
+	tot_hint = _label("", 16, DIM)
 	tot_box.add_child(tot_hint)
 	# In the panel's VBox so the (variable-height) header can never overlap it.
 	callout = _label("", 19, PAPER)
@@ -2664,6 +2664,15 @@ func _return_to_title() -> void:
 	title_pressed.emit()
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		_refresh_totality_hint()
+
+
+func _refresh_totality_hint() -> void:
+	tot_hint.text = L.t("［%s／%s］開始・停") % [Prompts.key("shutter"), Prompts.key("interact")]
+
+
 func _refresh_hints() -> void:
 	if title_controls:
 		title_controls.text = L.t("WASD／左搖桿 移動 · 滑鼠／方向鍵／右搖桿 觀看 · Shift／L3 跑\n%s 互動 · %s 紀錄 · %s 開始與停 · %s 暫停") % [Prompts.key("interact"), Prompts.key("toggle_log"), Prompts.key("shutter"), Prompts.key("pause")]
@@ -2674,7 +2683,7 @@ func _refresh_hints() -> void:
 		log_title.text = L.t("對話紀錄　［%s 關閉］") % Prompts.key("toggle_log")
 	if log_back:
 		log_back.text = L.t("返回　%s") % Prompts.key("toggle_log")
-	tot_hint.text = L.t("［%s／%s］開始・停") % [Prompts.key("shutter"), Prompts.key("interact")]
+	_refresh_totality_hint()
 	if not _choice_buttons.is_empty():
 		hint_label.text = L.t("［方向鍵／A 鍵］選擇") if Prompts.joypad else L.t("［1–%d 或點擊］選擇") % _choice_buttons.size()
 	else:

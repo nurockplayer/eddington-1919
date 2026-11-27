@@ -1642,3 +1642,24 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **The drawing is not.** At frame 0 the sky is the engraving: ruled islands with hard contours, the Sun in its own island. By frame 84 and through the seam to about frame 300 every island in the whole sky has lost its contour and become a soft-edged smudge with faint ruling; the Sun's island is gone and the disc is cut by a blurred gradient, not a drawn edge. For five of the clip's six seconds the totality sky is an airbrushed picture. This is the look refused at #564 (7bff723) and the contour #567 was accepted for.
 - For the next head: every frame of the clip has frame 0's drawing: hard contours on every island, the Sun's island present, the band a cloud shape with its own contour that travels over the disc and cuts it. The timings may stay. Same clip; whole frames 84, 120, 180, 240 are what I will open first.
 - **Verdicts:** technical regression: the sky's contours during the passage; this PR's change not accepted; row 4 would fall if this merged. **Count stays 7/9.**
+
+### 2026-11-27 19:28 JST: #602 AA fun 04, darkroom notes behind "The notebook", at f4b134b: not accepted yet (two states owed, notes under the wrong button)
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/602/f4b134b320c3f27c5648b105dd2d70ae932acaca/` (main `2da6d873`, seed 77, en, 1280×720, text scale 1.0; six frames). Opened whole at native size: main's fogged print; the candidate's fogged print closed and open, trailed print closed and open. Not opened: main's trailed print. Kept in `slice_principe/accept/602/f4b134b/`.
+- **Holds.** A print now opens with its number, exposure line and tools only; star count, Cottingham's sky remark and the drive note appear when "The notebook" is pressed, and the button shows lit while open. The print is judged by eye first, which is the row.
+- **1. The notes hang under Micrometer.** The button order is notebook, then Micrometer, then the notes; the notes read as the micrometer's. Put them directly under the notebook button.
+- **2. The block's bottom is not shown where it is longest.** On the trailed print at 1.0 the open notes end at y 658 of 720. At text scale 1.2, or with the micrometer in use (two readings, Record and its note, accepted on #585), it has nowhere to go. #585 ran off the screen in just this column.
+- For the next head: notes directly under the notebook button; frames: trailed print with notebook open at text scale 1.2; notebook open with the micrometer reveal showing, at 1.0 and 1.2; everything inside the screen.
+- **Verdicts:** technical regression none seen; this PR's change not accepted yet. **Count stays 7/9.**
+
+### 2026-11-27 20:35 JST · #602 (AA fun 04 darkroom notebook) at a2fdc9b: accepted
+
+Opened whole at 1280×720: five of the seven candidate frames (fogged + notebook at 1.0; trailed + notebook at 1.0 and 1.2; notebook + micrometer reveal at 1.0 and 1.2). Main's five frames not opened; main's bottom y taken from the index.
+
+- Technical regression: none in the frames shown.
+- This change: accepted. The notes now open directly under "The notebook" and read as its content; Micrometer follows below. Everything stays inside the screen: lowest control at y 709 of 720 with notebook and micrometer reveal both open, at text scale 1.0 and 1.2 (main without the notebook ran to 755 at 1.2).
+- Whole scene: darkroom readiness unchanged; a newcomer playtest is still owed to a person.
+- Backlog: with notebook and micrometer both open at 1.2 the print shrinks to about 178×175 px. The mark and scale still read; the player can close the notebook to get the print back.
+
+![notebook + micrometer at 1.2](slice_principe/accept/602/a2fdc9b/after-1.2-trailed-excluded-compare-notebook.png)
+![trailed + notebook at 1.2](slice_principe/accept/602/a2fdc9b/after-1.2-trailed-excluded-notebook.png)
+![fogged + notebook at 1.0](slice_principe/accept/602/a2fdc9b/after-1.0-fogged-included-notebook.png)
