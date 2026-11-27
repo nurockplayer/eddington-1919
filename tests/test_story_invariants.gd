@@ -220,10 +220,13 @@ func _chart_frame(chapter) -> void:
 	for line in text.split("\n"):
 		if line.contains("0.12"):
 			check(line.to_lower().contains(str(PE[L.current()]).to_lower()), "F16 0.12 labelled probable error: " + line)
+	if chapter.chart.step == 1:
+		check(text.contains("0.12"), "F16 4-inch probable error displayed on its own page")
 	if chapter.chart.step == 2:
 		check(text.contains(L.t("Sobral 4 吋")), "F16 displayed 4-inch instrument")
 		check(text.contains(L.t("Sobral 天體照相儀")), "F16 displayed astrographic instrument")
-		check(text.contains("0.12"), "F16 probable error displayed")
+		check(text.contains(L.t("Sobral 天體照相儀：約 0.93″，沒有可靠的誤差")), "F16 astrographic record shows no reliable error")
+		check(not text.contains("0.12"), "F16 4-inch probable error hidden on the astrographic page")
 
 
 func _f16(run: Dictionary, variant: int) -> void:
