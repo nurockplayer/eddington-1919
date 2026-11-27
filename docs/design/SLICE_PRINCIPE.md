@@ -1454,3 +1454,9 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 ### 2026-11-27 13:08 JST: #486 first item, far-ridge contour switching with camera distance: not reproduced on main 85d3bd32
 - Read-only run, no change. Capture `/Volumes/KIOXIA/eddington-1919-cache/director/accept/issue-486/85d3bd32e97b3299197b71342733a1980eaeca1e/`: two daylight walks at 1280×720 (arrival 99 frames, shelter approach 97). Opened whole: arrival first and last, shelter last, and the 6× crop of the one flagged pair. Not opened: the other 193 frames; for those I rely on the worker's measurement (largest aligned change in ridge contrast 5/255 on both walks).
 - The ridge keeps its line in the frames I saw; the flagged dropout is the roof post crossing the first ridge pixel. #508 had already removed the cutoff the item cites. Item treated as done without a change.
+
+### 2026-11-27 13:19 JST: #571 AA 06, camp instrument silhouettes, at 824d717: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/aa-06/824d717ec9f489082e917884f5c5e6d4f0cd52f3/`. Opened whole at 1280×720: all four frames. Thumbnails of this head not reopened.
+- **Drive holds.** Cottingham stands a step and a half to the right; from the 3 m approach the housing shows whole against the crate and light ground, with a crank on its face and the weight under it. Mirror and plate box as at 5507e2a.
+- **Backlog, not holds:** Cottingham's arm is out in the winding pose holding nothing; the new grey arm on top is a second handle and leans on the mirror's base.
+- **Verdicts:** technical regression none seen; this PR's change accepted; AA row 06 met as far as stills can say. **Count stays 7/9.**
