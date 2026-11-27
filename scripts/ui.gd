@@ -44,6 +44,7 @@ const PAPER := Color(0.93, 0.89, 0.80)
 const INK := Color(0.10, 0.09, 0.08)
 const DIM := Color(0.70, 0.66, 0.58)
 const ACCENT := Color(0.95, 0.72, 0.38)
+const MIC_FIRST_COLOR := Color("#b4dfa8")
 
 var font: Font
 var theme_res: Theme
@@ -153,7 +154,7 @@ var loupe_btn: Button
 var blink_btn: Button
 var blink_label: Label
 var mic_btn: Button
-var mic_row: HFlowContainer
+var mic_row: VBoxContainer
 var mic_record_btn: Button
 var mic_readout: Label
 var mic_compare_btn: Button
@@ -914,35 +915,44 @@ func _build_viewer(root: Control) -> void:
 	mid.add_child(mic_bar)
 	mic_btn = _button(L.t("測微器"))
 	mic_btn.toggle_mode = true
+	mic_btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	mic_btn.tooltip_text = L.t("顯微測微器：把十字線對到參考星在日食底片上的位置。←／→（方向鍵／D-pad）每次 0.25 格，Shift 或 L2 微調 0.05 格；滑鼠可直接拖曳十字線。對好後按「記下讀數」或 A 鍵，這張底片才算量過。1 格 = 底片上 1 像素。")
 	mic_btn.toggled.connect(_set_micrometer)
 	mic_bar.add_child(mic_btn)
 	blink_btn.focus_neighbor_bottom = blink_btn.get_path_to(mic_btn)
-	# A flow row as well: the readout label grows with a longer language, and a box
-	# would widen the middle column instead of dropping it under the record button.
-	mic_row = HFlowContainer.new()
-	mic_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	mic_row.visible = false
-	mic_bar.add_child(mic_row)
-	mic_record_btn = _button(L.t("記下讀數"))
-	mic_record_btn.pressed.connect(_record_micrometer)
-	mic_row.add_child(mic_record_btn)
+	# Keep the dial actions beside the toggle, with a full-width stack for the
+	# reading choices and Record below it.
+	var dial_row := HFlowContainer.new()
+	dial_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mic_bar.add_child(dial_row)
 	mic_readout = _label(L.t("讀數：0.00 格"), 16, ACCENT)
 	mic_readout.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	mic_row.add_child(mic_readout)
+	dial_row.add_child(mic_readout)
 	mic_compare_btn = _button(L.t("Measure again"))
 	mic_compare_btn.pressed.connect(_compare_micrometer)
-	mic_row.add_child(mic_compare_btn)
+	dial_row.add_child(mic_compare_btn)
+	mic_row = VBoxContainer.new()
+	mic_row.visible = false
+	mid.add_child(mic_row)
 	mic_first_btn = _button("")
 	mic_second_btn = _button("")
 	var choices := ButtonGroup.new()
 	for button in [mic_first_btn, mic_second_btn]:
 		button.toggle_mode = true
 		button.button_group = choices
+		button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		var color: Color = MIC_FIRST_COLOR if button == mic_first_btn else ACCENT
+		for theme_color in ["font_color", "font_hover_color", "font_pressed_color",
+				"font_hover_pressed_color", "font_focus_color"]:
+			button.add_theme_color_override(theme_color, color)
 		mic_row.add_child(button)
-	mic_first_btn.focus_neighbor_top = mic_first_btn.get_path_to(mic_record_btn)
+	mic_record_btn = _button(L.t("記下讀數"))
+	mic_record_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	mic_record_btn.pressed.connect(_record_micrometer)
+	mic_row.add_child(mic_record_btn)
 	mic_first_btn.focus_neighbor_bottom = mic_first_btn.get_path_to(mic_second_btn)
 	mic_second_btn.focus_neighbor_top = mic_second_btn.get_path_to(mic_first_btn)
+	mic_second_btn.focus_neighbor_bottom = mic_second_btn.get_path_to(mic_record_btn)
 	mic_first_btn.pressed.connect(func(): _choose_micrometer(_mic_first))
 	mic_second_btn.pressed.connect(func(): _choose_micrometer(_mic_second))
 	mic_note = _label(L.t("位移為示意放大；真實的位移比一個星點還小得多。"), 14, DIM)
@@ -1249,17 +1259,17 @@ func _sync_micrometer_controls() -> void:
 	var comparing := not is_nan(_mic_second)
 	mic_record_btn.visible = not second_pass
 	mic_record_btn.disabled = not editable or second_pass
-	mic_readout.visible = not comparing
-	mic_compare_btn.visible = editable and not comparing
+	mic_readout.visible = micrometer_on and not comparing
+	mic_compare_btn.visible = micrometer_on and editable and not comparing
 	mic_compare_btn.text = L.t("Compare readings") if second_pass else L.t("Measure again")
 	mic_first_btn.visible = comparing
 	mic_second_btn.visible = comparing
 	if comparing:
 		mic_first_btn.text = L.t("Use first reading: %.2f divisions") % _mic_first
 		mic_second_btn.text = L.t("Use second reading: %.2f divisions") % _mic_second
-	mic_record_btn.focus_neighbor_bottom = mic_record_btn.get_path_to(
-		mic_first_btn if comparing else mic_compare_btn) if editable else NodePath()
-	mic_compare_btn.focus_neighbor_top = NodePath() if second_pass else mic_compare_btn.get_path_to(mic_record_btn)
+	mic_record_btn.focus_neighbor_top = mic_record_btn.get_path_to(
+		mic_second_btn if comparing else mic_compare_btn) if editable else NodePath()
+	mic_compare_btn.focus_neighbor_bottom = NodePath() if second_pass else mic_compare_btn.get_path_to(mic_record_btn)
 	if micrometer_on and has_plate and not _viewer_reporting and is_nan(_mic_first) and not _viewer_plates[_viewer_sel].get("read", false):
 		mic_note.text = L.t("把十字線對準參考星，再按「記下讀數」。")
 		mic_note.add_theme_color_override("font_color", ACCENT)
@@ -1393,21 +1403,26 @@ func _draw_micrometer() -> void:
 		if major:
 			mic_overlay.draw_string(font, tick + across * 11.0 + Vector2(0, 6), str(unit),
 				HORIZONTAL_ALIGNMENT_LEFT, -1, Settings.fs(18), Color(ACCENT, 0.95))
-	if not is_nan(_mic_second):
-		# Opposite sides keep even coincident readings distinguishable.
+	var comparing := not is_nan(_mic_second)
+	if comparing:
+		# Separate lanes on the star side leave the numerals clear, even when
+		# the readings coincide.
 		var first := ruler_zero + one_px * _mic_first
 		var second := ruler_zero + one_px * _mic_second
-		mic_overlay.draw_line(first, first + across * 10.0, Color(0.74, 0.84, 0.96), 2.5, true)
-		mic_overlay.draw_line(second, second - across * 10.0, ACCENT, 2.5, true)
+		mic_overlay.draw_line(first - across * 2.0, first - across * 6.0,
+			MIC_FIRST_COLOR, 3.5 if mic_first_btn.button_pressed else 2.0, true)
+		mic_overlay.draw_line(second - across * 8.0, second - across * 13.0,
+			ACCENT, 3.5 if mic_second_btn.button_pressed else 2.0, true)
 	mic_overlay.draw_arc(night, 5.0, 0.0, TAU, 20, Color(0.74, 0.84, 0.96, 0.85), 1.0, true)
 	var cross := _plate_to_local(star + dir * micrometer_px)
 	var arm := 16.0 if Settings.mic_large_cross else 9.0
 	var width := 2.5 if Settings.mic_large_cross else 1.5
 	mic_overlay.draw_line(cross - across * arm, cross + across * arm, ACCENT, width, true)
 	mic_overlay.draw_line(cross - along * arm, cross + along * arm, ACCENT, width, true)
-	var index := cross + across * 14.0
-	mic_overlay.draw_polyline(PackedVector2Array([index - across * 3.0 - along * 3.0,
-		index, index - across * 3.0 + along * 3.0]), ACCENT, 1.5, true)
+	if not comparing:
+		var index := cross + across * 14.0
+		mic_overlay.draw_polyline(PackedVector2Array([index - across * 3.0 - along * 3.0,
+			index, index - across * 3.0 + along * 3.0]), ACCENT, 1.5, true)
 	var label_pos := night - along * 34.0 + across * 12.0
 	mic_overlay.draw_string(font, label_pos, L.t("夜裡的位置"), HORIZONTAL_ALIGNMENT_LEFT, -1,
 		Settings.fs(13), Color(0.74, 0.84, 0.96, 0.9))

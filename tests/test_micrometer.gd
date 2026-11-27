@@ -244,7 +244,7 @@ func _check_two_settings(gap: float) -> void:
 	var second: float = game.sim.reading_for_value(1.75)
 	var first := second + gap
 	ui.set_micrometer_reading(first)
-	await _button(JOY_BUTTON_DPAD_DOWN)
+	await _button(JOY_BUTTON_DPAD_UP)
 	check(compare.has_focus(), "the second setting is reachable from Record")
 	await _button(JOY_BUTTON_A)
 	check(ui.micrometer_px == 0.0 and ui.mic_readout.is_visible_in_tree() and is_nan(ui._mic_second)
@@ -260,12 +260,12 @@ func _check_two_settings(gap: float) -> void:
 		"Compare reveals both marks for a gap of %.2f divisions" % gap)
 	await _button(JOY_BUTTON_DPAD_UP)
 	await _button(JOY_BUTTON_A)
-	check(is_equal_approx(ui.micrometer_px, first) and readings.is_empty(),
+	check(is_equal_approx(ui.micrometer_px, first) and ui.mic_first_btn.button_pressed and readings.is_empty(),
 		"choosing the first mark selects it without recording")
-	await _button(JOY_BUTTON_DPAD_DOWN)
-	await _button(JOY_BUTTON_DPAD_DOWN)
+	await _button(JOY_BUTTON_DPAD_UP)
 	await _button(JOY_BUTTON_A)
-	check(ui.mic_record_btn.has_focus() and is_equal_approx(ui.micrometer_px, second) and readings.is_empty(),
+	check(ui.mic_record_btn.has_focus() and is_equal_approx(ui.micrometer_px, second)
+		and ui.mic_second_btn.button_pressed and readings.is_empty(),
 		"choosing the second mark brings the chosen setting to Record")
 	await _button(JOY_BUTTON_A)
 	check(readings == [second] and is_equal_approx(game.sim.plates[0].reading, second)
