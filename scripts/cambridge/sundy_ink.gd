@@ -54,15 +54,15 @@ func _shore() -> void:
 		draw_rect(Rect2(at, Vector2(42, 27)), LIGHT)
 		_shape([at + Vector2(-5, 1), at + Vector2(20, -15), at + Vector2(48, 1)], INK)
 	if subject == "packed":
-		_crate(Vector2(260, 123))
+		_crate(Vector2(338, 148))
 
 
 func _forest() -> void:
 	draw_rect(Rect2(2, 108, 595, 48), WASH)
-	for i in 16:
+	for i in 15:
 		var x := 220.0 + i * 24
 		var height := 45.0 + (i * 19) % 38
-		draw_rect(Rect2(x, 115 - height, 4, height), INK)
+		draw_rect(Rect2(x, 104 - height, 4, height), INK)
 		draw_circle(Vector2(x, 105 - height), 23, WASH.darkened(0.2), true, -1, true)
 	if subject == "handoff":
 		for i in 8:
@@ -70,23 +70,25 @@ func _forest() -> void:
 			_stroke([Vector2(x, 151 - i * 1.9), Vector2(x + 13, 127 - i * 0.7)], INK, 4)
 		_stroke([Vector2(2, 144), Vector2(187, 132)])
 		_stroke([Vector2(2, 129), Vector2(187, 121)])
-	_stroke([Vector2(189, 130), Vector2(268, 128), Vector2(370, 116), Vector2(497, 102)], LIGHT, 8)
-	var at := Vector2(212, 128).lerp(Vector2(368, 115), clampf(progress * 1.4 - 0.4, 0, 1))
+	_stroke([Vector2(189, 133), Vector2(268, 140), Vector2(370, 146), Vector2(497, 136)], LIGHT, 3)
+	var at := Vector2(212, 139).lerp(Vector2(368, 147), clampf(progress * 1.4 - 0.4, 0, 1))
 	if subject == "delivery":
-		at = Vector2(387, 120)
+		at = Vector2(387, 146)
 	var lift := smoothstep(0, 0.45, progress)
 	var stride := sin(progress * TAU * 3) * lift
-	_porter(at + Vector2(-20, 2), stride)
-	_porter(at + Vector2(60, -6), -stride)
-	_crate(at - Vector2(0, lift * 45))
+	var crate := at - Vector2(0, lift * 23)
+	_crate(crate)
+	_porter(at + Vector2(-15, 0), crate + Vector2(3, -9), stride)
+	_porter(at + Vector2(55, 0), crate + Vector2(37, -9), -stride)
 
 
-func _porter(at: Vector2, stride: float) -> void:
-	draw_circle(at + Vector2(2, -56), 7, INK, true, -1, true)
-	_stroke([at + Vector2(2, -47), at + Vector2(-1, -24)], INK, 10)
-	_stroke([at + Vector2(-8 - 8 * stride, 0), at + Vector2(-1, -24),
+func _porter(at: Vector2, grip: Vector2, stride: float) -> void:
+	draw_circle(at + Vector2(0, -47), 6, INK, true, -1, true)
+	var shoulder := at + Vector2(0, -36)
+	_stroke([shoulder, at + Vector2(0, -19)], INK, 8)
+	_stroke([at + Vector2(-8 - 8 * stride, 0), at + Vector2(0, -19),
 		at + Vector2(9 + 8 * stride, -2)], INK, 4)
-	_stroke([at + Vector2(-5, -43), at + Vector2(10, -32), at + Vector2(26, -39)], INK, 4)
+	_stroke([shoulder, shoulder.lerp(grip, 0.55) + Vector2(0, 8), grip], INK, 4)
 
 
 func _crate(at: Vector2) -> void:
@@ -119,10 +121,22 @@ func _horizon() -> void:
 			draw_circle(Vector2(14 + (i * 83) % 570, 8 + (i * 37) % 84), 1 + i % 3 * 0.4, LIGHT, true, -1, true)
 	var coverage := 1.0 if subject == "cloud" else progress
 	if coverage > 0:
-		for j in 3:
-			for i in 8:
-				var x := 626.0 - coverage * 730 + i * 97 + (j % 2) * 22
-				draw_circle(Vector2(x, 8 + j * 20 + (i * 17) % 18), 37, Color(CLOUD, 0.55), true, -1, true)
+		var left := lerpf(584, 14, coverage)
+		var ridge := PackedVector2Array()
+		var base := PackedVector2Array()
+		for i in 33:
+			var x := lerpf(left, 586, i / 32.0)
+			ridge.append(Vector2(x, 35 + 11 * sin(x * 0.034) + 6 * cos(x * 0.056)))
+			base.append(Vector2(x, 71 + 7 * sin(x * 0.028 + 2) + 5 * cos(x * 0.057)))
+		base.reverse()
+		var bank := ridge + base
+		draw_colored_polygon(bank, CLOUD)
+		bank.append(bank[0])
+		_stroke(bank, CLOUD.darkened(0.25), 1)
+		for i in range(1, 31, 2):
+			var at := Vector2(ridge[i].x, base[32 - i].y - 5)
+			_stroke([at - Vector2(5 * coverage, 0), at + Vector2(9 * coverage, -2)],
+				CLOUD.darkened(0.18), 1)
 	_shape([Vector2(2, 155), Vector2(2, 112), Vector2(83, 97), Vector2(177, 118),
 		Vector2(299, 108), Vector2(432, 88), Vector2(597, 103), Vector2(597, 155)], Color("565549"))
 	_stroke([Vector2(395, 145), Vector2(395, 105), Vector2(501, 105), Vector2(501, 144)], INK, 4)

@@ -642,6 +642,7 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	await _sundy_sheet(paper, "sundy_11_field_records", [text.S37, text.S38, text.S39, text.S40], text.S43)
 	await _sundy_sheet(paper, "sundy_12_kit_letter", [text.S86, text.S87, text.S88], onward)
 	expect(chapter.ui.dialog_active() and chapter.ui.text_label.text == text.S47, "Ashby's remembered instruction precedes the rehearsal")
+	await _check_sundy_memory(paper, chapter.ui)
 	if sundy_captures:
 		await capture("sundy_13_ashby_memory", paper)
 	await _dialogue(chapter)
@@ -655,6 +656,9 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	await _sundy_sheet(paper, "sundy_15_clear_horizon", [], text.S76)
 	await _sundy_sheet(paper, "sundy_16_clouded_day", [text.S77], text.S78)
 	expect(chapter.ui.dialog_active() and chapter.ui.text_label.text == text.S79, "Kit remembers the room left on the page")
+	await _check_sundy_memory(paper, chapter.ui)
+	expect(chapter.ui.dialogue_portrait.disclosure.text == (L.t("%s\n\n（虛構）") % "").strip_edges(),
+		"Kit's portrait is captioned as fiction")
 	if sundy_captures:
 		await capture("sundy_17_kit_memory", paper)
 	await tap(KEY_ENTER)
@@ -676,12 +680,27 @@ func _i3(paper: Control) -> void:
 	await _sundy_sheet(paper, "i3_02_nature_clipping", [
 		text["I3-08"], text["I3-09"], text["I3-10"], text["I3-11"], text["I3-12"], text["I3-13"]], onward)
 	await _sundy_sheet(paper, "i3_03_brazil_press", [
-		text["I3-15"], text["I3-16"], text["I3-17"]], text["I3-14"])
+		L.t("檔案剪報・據史料編成"), text["I3-15"], text["I3-16"], text["I3-17"]], text["I3-14"])
+
+
+func _check_sundy_memory(paper: Control, ui: CanvasLayer) -> void:
+	await frames(3)
+	var sheet: Rect2 = paper.actions.get_parent().get_parent().get_global_rect()
+	expect(sheet.encloses(ui.dialog_panel.get_global_rect()), "Sundy memory dialogue stays inside the sheet")
+	expect(ui.dialogue_portrait.visible and sheet.encloses(ui.dialogue_portrait.get_global_rect()),
+		"Sundy memory portrait stays inside the sheet")
 
 
 func _sundy_sheet(paper: Control, state: String, lines: Array, advance: String, scroll_probe := false) -> void:
 	for line in lines:
 		expect(has_text(paper, line), state + " shows " + line)
+	if L.current() == "en" and state in ["sundy_12_kit_letter", "i3_03_brazil_press"]:
+		for label: Label in paper.find_children("*", "Label", true, false):
+			for glyph in "‘’“”()":
+				if glyph in label.text:
+					var font := label.get_theme_font("font")
+					expect(font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 100).x < 65.0,
+						state + " uses proportional English punctuation for " + glyph)
 	if paper.body.get_child_count() > 0:
 		await check_paper_layout(paper, state)
 	var next := button(paper, advance)

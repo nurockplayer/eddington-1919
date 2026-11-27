@@ -16,7 +16,8 @@ const SERIF_FACES := {
 ## Primary face first, the rest as fallbacks.
 const ORDERS := {
 	"zh_TW": ["TC", "JP", "KR"],
-	"en": ["TC", "JP", "KR"],
+	# The TC face uses full-em advances for curly quotes and apostrophes.
+	"en": ["JP", "TC", "KR"],
 	"ja": ["JP", "TC", "KR"],
 	"ko": ["KR", "JP", "TC"],
 }

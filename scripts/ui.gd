@@ -76,6 +76,7 @@ var text_label: RichTextLabel
 var choice_box: VBoxContainer
 var hint_label: Label
 var dialogue_portrait: DialoguePortrait
+var dialogue_sheet: Control
 var cambridge_portraits := false
 var fade: ColorRect
 var caption: Label
@@ -615,7 +616,9 @@ func _build_dialog(root: Control) -> void:
 func _layout_dialogue_portrait() -> void:
 	if not dialog_panel.visible:
 		return
-	var frame: Vector2 = dialog_panel.get_parent().size
+	var frame := Rect2(Vector2.ZERO, dialog_panel.get_parent().size)
+	if dialogue_sheet != null:
+		frame = dialogue_sheet.get_global_rect()
 	var column := 240.0 if cambridge_portraits else 0.0
 	var printed := paper_hud and not viewer.visible
 	dialogue_portrait.set_paper(printed)
@@ -637,7 +640,7 @@ func _layout_dialogue_portrait() -> void:
 	elif _portrait_source != null and dialogue_portrait.image.texture == _portrait_oval:
 		dialogue_portrait.image.texture = _portrait_source
 		dialogue_portrait.reset_size()
-	var maximum := minf(frame.x - column - 64.0, 1080.0)
+	var maximum := minf(frame.size.x - column - 64.0, 1080.0)
 	var natural := maxf(speaker_label.get_minimum_size().x, hint_label.get_minimum_size().x)
 	var body_font := text_label.get_theme_font("normal_font")
 	var body_size := text_label.get_theme_font_size("normal_font_size")
@@ -650,8 +653,8 @@ func _layout_dialogue_portrait() -> void:
 	dialog_panel.custom_minimum_size = Vector2.ZERO
 	# Apply the width once so fit_content never wraps at a temporary width.
 	dialog_panel.size = Vector2(width, 0.0)
-	var left := 32.0 + column if printed else (frame.x + column - dialog_panel.size.x) * 0.5
-	dialog_panel.position = Vector2(left, frame.y - 18.0 - dialog_panel.size.y)
+	var left := 32.0 + column if printed else (frame.size.x + column - dialog_panel.size.x) * 0.5
+	dialog_panel.position = Vector2(frame.position.x + left, frame.end.y - 18.0 - dialog_panel.size.y)
 	_position_dialogue_portrait()
 
 

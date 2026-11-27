@@ -81,8 +81,6 @@ func play(director: Node) -> void:
 			if id == "S24":
 				paper.rule(paper.body)
 			_line(paper.body, id, 18 if id in ["S03", "S08", "S24"] else 23)
-		if setup[0] == "S02":
-			Ink.workbook_print(paper.body, false, true)
 		if setup[3] == "handoff":
 			if Settings.reduced_motion:
 				image.progress = 1.0
@@ -114,12 +112,12 @@ func _motion(seconds: float) -> float:
 	return 0.0 if Settings.reduced_motion else seconds
 
 
-func _show(id: String) -> void:
+func _show(id: String, heading := "") -> void:
 	page_id = id
 	paper.begin(true)
 	_scroll = paper.body.get_parent()
 	_layout = _scroll.get_parent()
-	_line(_layout, id, 32)
+	paper.label(_layout, _text[id] if heading.is_empty() else heading, 32)
 	_layout.move_child(_layout.get_child(-1), 0)
 
 
@@ -170,15 +168,18 @@ func _remember(speaker: String, ids: Array) -> void:
 	_show("S46")
 	_picture("night", 245)
 	var lines: Array = []
-	for id in ids:
-		lines.append({"s": speaker, "t": _text[id]})
-	_ui.play(lines)
+	var kit_portrait: Texture2D
 	if speaker == Cast.KIT:
 		var portrait := Ink.print_view(paper.body, Kit.instantiate(), Vector3(0, 1.57, 0),
-			Vector3(0.25, 0.08, 2), 0.56)
-		_ui.dialogue_portrait.image.texture = portrait.get_texture()
-		_ui.dialogue_portrait.show()
+			Vector3(0.25, 0.08, 2), 0.42)
+		portrait.size = Vector2i(200, 250)
+		kit_portrait = portrait.get_texture()
+	for id in ids:
+		lines.append({"s": speaker, "t": _text[id], "fictional_portrait": kit_portrait})
+	_ui.dialogue_sheet = _layout.get_parent()
+	_ui.play(lines)
 	await _ui.dialogue_done
+	_ui.dialogue_sheet = null
 
 
 func _rehearse(pair: Dictionary) -> void:
@@ -379,9 +380,7 @@ func play_cables(ui: CanvasLayer) -> void:
 	paper.body.add_child(route)
 	_lines(paper.body, ["I3-10", "I3-11", "I3-12", "I3-13"])
 	await _next("M09")
-	_show("I3-01")
-	page_id = "I3-15"
-	paper.label(paper.body, L.t("檔案剪報・據史料編成"), 18)
+	_show("I3-15", L.t("檔案剪報・據史料編成"))
 	_lines(paper.body, ["I3-15", "I3-16", "I3-17"])
 	await _next("I3-14")
 	await _ui.fade_to(1.0, _motion(0.7)).finished
