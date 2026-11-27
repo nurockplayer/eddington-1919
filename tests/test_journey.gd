@@ -185,11 +185,12 @@ func _run() -> void:
 	if sheet_captures:
 		Engine.time_scale = 10.0
 		root.size = Vector2i(1280, 720)
-	if capture_dir.is_empty():
+	if capture_dir.is_empty() or sheet_captures:
 		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
-		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
+		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated journey settings directory")
 		temp_settings = directory.path_join("settings.cfg")
 		OS.set_environment("EDD_SETTINGS_PATH", temp_settings)
+	if capture_dir.is_empty():
 		var settings := ConfigFile.new()
 		settings.set_value("ui", "text_scale", 1.2)
 		settings.set_value("ui", "reduced_motion", true)
@@ -210,19 +211,18 @@ func _run() -> void:
 		settings.set_value("ui", "reduced_motion", true)
 		for sample in [["en", 1.0], ["en", 1.2], ["ja", 1.0]]:
 			settings.set_value("ui", "text_scale", sample[1])
-			expect(settings.save(OS.get_environment("EDD_SETTINGS_PATH")) == OK, "save isolated capture settings")
+			expect(settings.save(temp_settings) == OK, "save isolated capture settings")
 			L.apply(sample[0])
 			story.reset()
 			await _route(route, enabled, sample[0] == "ja")
-		DirAccess.remove_absolute(OS.get_environment("EDD_SETTINGS_PATH"))
 	else:
 		for locale in locales:
 			L.apply(locale)
 			await _route(route, enabled, locale == "ja")
 			if capture_dir.is_empty():
 				Checkpoint.clear()
-	if capture_dir.is_empty():
-		DirAccess.remove_absolute(Settings.settings_path())
+	if not temp_settings.is_empty():
+		DirAccess.remove_absolute(temp_settings)
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
 	print("test_journey %s: %d checks, 0 failures" % ["on" if enabled else "off", checks])
 	quit()
