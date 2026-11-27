@@ -182,6 +182,10 @@ func _build_ui() -> void:
 	loupe.focus_exited.connect(func(): loupe.set_pressed_no_signal(false))
 	buttons["loupe"] = loupe
 	details.add_child(loupe)
+	buttons.flip.focus_neighbor_top = buttons.flip.get_path_to(buttons.label_mirrored)
+	buttons.label_mirrored.focus_neighbor_bottom = buttons.label_mirrored.get_path_to(buttons.flip)
+	buttons.close.focus_neighbor_top = buttons.close.get_path_to(loupe)
+	loupe.focus_neighbor_bottom = loupe.get_path_to(buttons.close)
 
 
 func refresh_prompts() -> void:
@@ -214,11 +218,16 @@ func _button(text: String) -> Button:
 	var hover := StyleBoxFlat.new()
 	hover.bg_color = Color(0.24, 0.21, 0.16, 1.0)
 	hover.set_border_width_all(1)
-	hover.border_color = GOLD
+	hover.border_color = normal.border_color
 	hover.set_corner_radius_all(3)
+	var focus := StyleBoxFlat.new()
+	focus.draw_center = false
+	focus.set_border_width_all(2)
+	focus.border_color = GOLD
+	focus.set_corner_radius_all(3)
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("focus", hover)
+	button.add_theme_stylebox_override("focus", focus)
 	button.add_theme_stylebox_override("pressed", hover)
 	button.add_theme_color_override("font_color", PAPER_LIGHT)
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.94, 0.80))
@@ -280,6 +289,8 @@ func _gui_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 		else:
 			if _pointer_pressed and not _pointer_moved and canvas_rect().has_point(event.position):
+				buttons.loupe.set_pressed_no_signal(false)
+				buttons.loupe.grab_focus()
 				_inspect_plate(event.position)
 			_pointer_pressed = false
 			_dragging = false
@@ -342,6 +353,8 @@ func _toggle_flip() -> void:
 func _rotate(amount: float) -> void:
 	if is_instance_valid(ui) and ui.blocks_world_input():
 		return
+	var control: Button = buttons.left if amount < 0.0 else buttons.right
+	control.grab_focus()
 	angle_deg += amount
 	sound.emit("nudge")
 	_update_alignment()
@@ -366,8 +379,8 @@ func _record_progress_stage() -> void:
 
 func _update_alignment() -> void:
 	var next := MathModel.alignment(flipped, angle_deg, offset)
-	if next:
-		# Once the computed geometry is close enough, settle it onto the exact plate pose.
+	if next and not aligned:
+		# Settle on entry so later nudges within tolerance still move the tracing.
 		angle_deg = SOURCE_TILT
 		offset = Vector2.ZERO
 		next = MathModel.alignment(flipped, angle_deg, offset)
