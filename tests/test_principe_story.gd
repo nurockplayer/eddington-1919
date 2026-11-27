@@ -80,7 +80,7 @@ func walk_drive_lesson(from_cambridge: bool) -> void:
 	await aim_at(game, Vector3(0.62, 0.92, -6.6))
 	game._process_interaction(0.0)
 	check(game.player.aimed_interactable().get_meta("interact_id") == "drive", "the drive box is under the crosshair")
-	check(drive_objective_is(game, 3), "aiming at the unwound drive shows the winding objective")
+	check(drive_objective_is(game, 4), "aiming at the unwound drive shows the winding objective")
 
 	Input.action_press("interact")
 	game._process_interaction(0.5)
@@ -90,7 +90,7 @@ func walk_drive_lesson(from_cambridge: bool) -> void:
 	game._process_interaction(3.0)
 	check(not game.ui.hold_bar.visible and not game.sim.drive_wound and game.hold_t == 0.0,
 		"looking away interrupts winding without completing it")
-	check(drive_objective_is(game, 2), "looking away restores the prep objective")
+	check(drive_objective_is(game, 3), "looking away restores the prep objective")
 
 	await aim_at(game, Vector3(0.62, 0.92, -6.6))
 	Input.action_press("interact")
@@ -101,7 +101,7 @@ func walk_drive_lesson(from_cambridge: bool) -> void:
 	game._process_interaction(2.5)
 	check(game.sim.drive_wound and not game.calibration.visible and not game.ui.hold_bar.visible,
 		"winding completes without opening calibration or leaving the hold bar visible")
-	check(drive_objective_is(game, 4), "winding advances the aimed objective to rate-check")
+	check(drive_objective_is(game, 5), "winding advances the aimed objective to rate-check")
 	Input.action_release("interact")
 	game._process_interaction(0.0)
 
@@ -127,7 +127,7 @@ func walk_drive_lesson(from_cambridge: bool) -> void:
 	event.pressed = true
 	Input.parse_input_event(event)
 	Input.flush_buffered_events()
-	check(not game.calibration.visible and drive_objective_is(game, 4) and game.ui.objectives.text.begins_with("✓"),
+	check(not game.calibration.visible and drive_objective_is(game, 5) and game.ui.objectives.text.begins_with("✓"),
 		"recording the rate shows a completed objective at the drive")
 	game.stop_all_audio()
 	game.queue_free()
