@@ -36,10 +36,12 @@ func _new_game(case_id: String) -> Node:
 		game.plates_left = 2
 		for exposure in [[50.0, 24.0, 0.67], [100.0, 45.0, 0.0]]:
 			game.t_game = exposure[0]
-			game.change_left = 0.0
 			game._toggle_shutter()
 			game.sim.accumulate(exposure[1], exposure[2])
 			game._toggle_shutter()
+			if game.plates_left > 0:
+				game._order_plate_change()
+				game._process_totality(Sim.PLATE_CHANGE_S / Sim.TIME_SCALE)
 	elif case_id == "washout":
 		game.sim.open_shutter(292.0)
 		game.sim.accumulate(10.0, 0.0)
