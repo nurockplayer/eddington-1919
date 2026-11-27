@@ -1737,3 +1737,32 @@ Opened whole at 1280×720: candidate recorded, candidate continued, main continu
 ![candidate after Continue](slice_principe/accept/609/47f2be1/candidate-continued.png)
 ![main after Continue](slice_principe/accept/609/47f2be1/main-continued.png)
 ![candidate "recorded" is the title](slice_principe/accept/609/47f2be1/candidate-recorded.png)
+
+### 2026-11-28 01:42 JST · #600 (journey, Sobral chapter, behind `--journey`) at 3bdb042: not accepted
+
+Opened whole at 1280×720: 22 of the 58 frames. English: 01 to 06, 07 B21, 08 B21 and its end, 09, 10, 11, 12 B36, 13 to 18, 18 at text scale 1.2. Japanese: 05 and 09. Not opened: the other 27 Japanese frames, the B20 and B22 loupe and revise frames, 12 B35, and the remaining end frames.
+
+**Holds.** The plates, the loupe and the comparison task (11 to 17) read well: plate, label, choices, one answer at a time. The plate pictures are consistent with each other.
+
+**Against it, this chapter's own drawings:**
+1. **The eclipsed Sun is a flattened ellipse** on 03 and 05, and the stars on 10 are ovals. The drawings are stretched. Sun, Moon and stars are round.
+2. **04 and 05 have a blurred photographic sky** behind flat ink silhouettes on paper; every other drawing in the journey is ink on paper. Draw the cloud. On 05 the eclipsed Sun sits on the shelter roof, cut by its beam: the chapter's main image is its weakest.
+3. **05's exposure diagram has no labels.** Two rows of blocks and a row of ovals; nothing says which row is which instrument or what the ovals are. The two captions above run into each other ("5 and 10 seconds" wraps under Davidson's as if it were a new line).
+4. **09, plate 6:** the dark disc spills past the plate onto its frame and the mat.
+5. **03:** "Corona diagram" and "Corona photographed with the Mailhat instrument…" sit under the names paragraph, away from the pictures they caption; the instrument is a bar on a tripod.
+6. **06:** the two disabled rows are pale grey text on grey; they cannot be read, and they tell the player what comes next.
+7. **01** is a sheet with two lines on it. Give it the racecourse drawing or fold it into 03, which has the same title.
+
+**Carried to #551, not this PR:** the right column scrolls for one hidden button on 08; text and a plate are sliced at the fold on 09 and 18 (worse at 1.2).
+
+**For edd-lead (copy):** in Japanese "Leocádio Araújo", "Davidson" and "Crommelin" stay in Latin letters; I asked that only for "Kit".
+
+Verdicts: technical regression none claimed for the slice (flag off); this PR's change not accepted, items 1 to 7; chapter not ready to show. For the next head: 01 to 06, 09 and 10 in English, 05 and 09 in Japanese.
+
+![05_programmes](slice_principe/accept/600/3bdb042/sobral_05_programmes_en.png)
+![04_first_contact](slice_principe/accept/600/3bdb042/sobral_04_first_contact_en.png)
+![03_brazil](slice_principe/accept/600/3bdb042/sobral_03_brazil_en.png)
+![09_series_log](slice_principe/accept/600/3bdb042/sobral_09_series_log_en.png)
+![06_darkroom_covered](slice_principe/accept/600/3bdb042/sobral_06_darkroom_covered_en.png)
+
+**Count stays 7/9.**
