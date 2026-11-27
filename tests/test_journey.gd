@@ -116,7 +116,12 @@ func check_paper_layout(paper: Control, state: String) -> void:
 		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
 		await frames(2)
 	var tail: Control = paper.body.get_child(-1)
-	if not scroll.get_global_rect().grow(1.0).encloses(tail.get_global_rect()):
+	# A comparison row can be taller than the viewport. Check the whole
+	# region swept by scrolling from the top to the end.
+	var reachable := scroll.get_global_rect().grow(1.0)
+	reachable.position.y -= scroll.scroll_vertical
+	reachable.size.y += scroll.scroll_vertical
+	if not reachable.encloses(tail.get_global_rect()):
 		failures.append("last paper row cannot fit or scroll fully into view")
 	scroll.scroll_vertical = previous
 	expect(failures.is_empty(), "%s %s scale %.1f: %s" % [L.current(), state, Settings.text_scale, "; ".join(failures)])
