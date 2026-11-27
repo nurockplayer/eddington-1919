@@ -206,11 +206,13 @@ func _run() -> void:
 		await _resume_departure(route)
 	if sheet_captures:
 		var settings := ConfigFile.new()
+		var story := root.get_node("Story")
 		settings.set_value("ui", "reduced_motion", true)
 		for sample in [["en", 1.0], ["en", 1.2], ["ja", 1.0]]:
 			settings.set_value("ui", "text_scale", sample[1])
 			expect(settings.save(OS.get_environment("EDD_SETTINGS_PATH")) == OK, "save isolated capture settings")
 			L.apply(sample[0])
+			story.reset()
 			await _route(route, enabled, sample[0] == "ja")
 		DirAccess.remove_absolute(OS.get_environment("EDD_SETTINGS_PATH"))
 	else:
@@ -610,6 +612,10 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 		expect(Checkpoint.peek() == "principe", "the existing checkpoint is written at the slice handoff")
 		expect(Checkpoint.restore() == "principe", "the slice checkpoint can be restored")
 		Checkpoint.clear()
+	else:
+		# Observation day enters from the 1917 prediction before any checkpoint restore.
+		previous.bet = previous.bet_1917
+		previous.kit_first = -1
 	expect(story.to_save() == previous, "the handoff preserves the prediction, certainty and M2 choices verbatim")
 	await _sundy_coda(current_scene, enabled, packet_seen)
 
