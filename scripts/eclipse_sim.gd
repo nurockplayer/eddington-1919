@@ -147,11 +147,6 @@ func _make_clouds() -> void:
 	for i in _dens.size():
 		bytes[i] = int(clampf(_dens[i], 0.0, 1.0) * 255.0)
 	cloud_img.set_data(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8, bytes)
-	if middle_seam_time >= 0.0:
-		# Keep the original timed density profile for metering and plate fog.
-		var seam := sun_track(middle_seam_time)
-		var across := wind.orthogonal().normalized() * 0.036
-		_carve(seam - across, seam + across, 0.003, 0.010, 0.93, true)
 
 
 ## Where in cloud-texture space the Sun's line of sight is at game-time `t`
@@ -200,12 +195,26 @@ func _sample(uv: Vector2) -> float:
 	return lerpf(lerpf(a, b, tx), lerpf(c, d, tx), ty)
 
 
+func _sample_with_middle_band(uv: Vector2, t: float) -> float:
+	var density := _sample(uv)
+	var elapsed := t - middle_seam_time
+	if middle_seam_time < 0.0 or absf(elapsed) >= 9.0:
+		return density
+	# Match eclipse_cloud.gdshaderinc in texture space so the plate meters the visible band.
+	var along := wind.normalized()
+	var offset := uv - sun_track(t) - 2.25 * wind * elapsed
+	var distance := Vector2(offset.dot(along), maxf(absf(offset.dot(along.orthogonal())) - 0.036, 0.0)).length()
+	var cover := (1.0 - smoothstep(0.016, 0.034, distance)) * (1.0 - smoothstep(7.0, 9.0, absf(elapsed)))
+	return lerpf(density, maxf(density, 0.93), cover)
+
+
 ## Cloud density over the Sun's disc at game-time `t` (0 clear … 1 opaque).
 func cloud_over_sun(t: float) -> float:
 	var c := sun_track(t)
 	var k := 0.01
-	return (_sample(c) * 2.0 + _sample(c + Vector2(k, 0)) + _sample(c - Vector2(k, 0))
-		+ _sample(c + Vector2(0, k)) + _sample(c - Vector2(0, k))) / 6.0
+	return (_sample_with_middle_band(c, t) * 2.0
+		+ _sample_with_middle_band(c + Vector2(k, 0), t) + _sample_with_middle_band(c - Vector2(k, 0), t)
+		+ _sample_with_middle_band(c + Vector2(0, k), t) + _sample_with_middle_band(c - Vector2(0, k), t)) / 6.0
 
 
 # ---------------------------------------------------------------------------

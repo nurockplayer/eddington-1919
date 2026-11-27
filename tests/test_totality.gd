@@ -232,7 +232,7 @@ func _test_middle_seam() -> void:
 			for tick in range(1, roundi((finish - start) / GAME_STEP) + 1):
 				game._process_totality(STEP)
 				var t: float = game.sky_mat.get_shader_parameter("cloud_time")
-				sky.append(game.sim._sample(game.sim.sun_track(t)))
+				sky.append(game.sim._sample_with_middle_band(game.sim.sun_track(t), t))
 				if t == stops.front():
 					stops.pop_front()
 					await _rehearsal_press(shutter)
@@ -254,6 +254,9 @@ func _test_middle_seam() -> void:
 				continuous_sky = sky
 				var cloudy := sky.filter(func(d): return d >= 0.85)
 				var seam_tick := roundi((seam - start) / GAME_STEP) - 1
+				var shoulder: float = game.sim.middle_seam_time + 1.5
+				check(game.sim.cloud_over_sun(shoulder) >= 0.85,
+					"seed %d: the plate still meters dense cloud 1.5 seconds after the seam midpoint" % run_seed)
 				check(sky[seam_tick - 12] < 0.60 and sky[seam_tick] >= 0.85
 					and sky[seam_tick + 12] < 0.60 and cloudy.size() * GAME_STEP < Sim.PLATE_CHANGE_S,
 					"seed %d shows two thinnings separated by cloud shorter than a holder change" % run_seed)
