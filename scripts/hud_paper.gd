@@ -12,7 +12,6 @@ var selected_button: StyleBoxFlat
 var hovered_button: StyleBoxFlat
 var choice_focus := StyleBoxEmpty.new()
 var foreground: Color
-var light_paper := Color.TRANSPARENT
 var evidence_dialogue := {}
 var portrait_tint := Color.WHITE
 var serif: Font
@@ -76,7 +75,6 @@ func setup(target: Node, colours: Dictionary) -> void:
 	hovered_button = buttons.duplicate()
 	hovered_button.set_border_width_all(3)
 	ui.dialogue_entry.connect(func(_speaker: String): _choices())
-	ui.viewer.visibility_changed.connect(_choices)
 	ui.tot_panel.visibility_changed.connect(_central_visibility)
 	ui.paper_layout = _layout
 	ui.paper_toast_layout = _fit_toast
@@ -105,22 +103,16 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 			"disclosure": ui.dialogue_portrait.disclosure.get_theme_color("font_color"),
 		}
 	var background: Color = palette.paper
-	var ink: Color = palette.ink_col
-	var tint := Color.WHITE
+	foreground = palette.ink_col
+	portrait_tint = Color.WHITE
 	if night * float(params.night_wash) > 0.5:
 		background = palette.safe_paper
-		ink = palette.safe_light
-		tint = ink
+		foreground = palette.safe_light
+		portrait_tint = foreground
 	elif darkness * float(params.tot_wash) > 0.5:
 		background = palette.tot_paper
-		ink = palette.paper
-		tint = background.lerp(Color.WHITE, 0.4)
-	# The lighting tween runs every frame. Theme overrides invalidate control layout.
-	if background == light_paper and ink == foreground and tint == portrait_tint:
-		return
-	light_paper = background
-	foreground = ink
-	portrait_tint = tint
+		foreground = palette.paper
+		portrait_tint = background.lerp(Color.WHITE, 0.4)
 	ui.set_overlay_paper(background, foreground)
 	for slip in slips:
 		slip.bg_color = background
