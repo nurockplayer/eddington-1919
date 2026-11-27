@@ -1460,3 +1460,14 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Drive holds.** Cottingham stands a step and a half to the right; from the 3 m approach the housing shows whole against the crate and light ground, with a crank on its face and the weight under it. Mirror and plate box as at 5507e2a.
 - **Backlog, not holds:** Cottingham's arm is out in the winding pose holding nothing; the new grey arm on top is a second handle and leans on the mirror's base.
 - **Verdicts:** technical regression none seen; this PR's change accepted; AA row 06 met as far as stills can say. **Count stays 7/9.**
+
+### 2026-11-27 13:21 JST: #559 (issue #549, AA 21) HUD palette at the return, at 4be7174: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/vis-549/4be7174a11db99977aa679900dd45f817f4fdbe8/` and `…/vis-549-fu1-main/3b72424276c8e0491a129915e40eef67e9aedfba/` (seed 1551, 1280×720, zh-TW, text scale 1.2, 961 frames each, −2 s to +14 s). Opened whole: candidate at +5.5 s and +14 s, main at +14 s. Measured: darkest and brightest value in the dialogue line every 4 frames, +4.4 s to +6.3 s. Looked at: a native strip of the line at fourteen moments, every second frame through the change. Not watched as video; reduced motion not captured.
+- **Text never grey, no outline, one weight.** The ink changes from white to dark in a left-to-right sweep between +4.73 s and +5.0 s; each glyph is one ink or the other. **The end is main's** at +14 s. Tests 106,912 / 0 (size of that test left to the review lane).
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene unchanged. **Count stays 7/9.**
+
+### 2026-11-27 13:21 JST: #564 (issue #505) rehearsal cloud, at 44e8bb1: accepted; daylight cloud itself to the backlog
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/564/44e8bb1188e4254c7ce10f7fcc261fa66364d1bd/` (seed 7, 1920×1080). Opened whole: six of seven (rehearsal and observation day at 0°, 60°, 120° from the Sun). Not opened: `observation-60deg-roof`.
+- **The pairs match.** At 60° and 120° rehearsal and observation are the same picture; facing the Sun the rehearsal adds only its crescent. Main's hatched disc round the rehearsal Sun and 7bff723's full ruling are both gone.
+- **Backlog, next sky item:** in early partial daylight cloud has no drawn weight. Bare paper at mean density 0.77 to 0.79; the observation-day Sun at 0.98 is absent from a blank sky with no visible cause. Daylight cloud should be drawn lightly, behind the palms and beams.
+- **Verdicts:** technical regression none seen; this PR's change accepted; whole scene unchanged. **Count stays 7/9.**
