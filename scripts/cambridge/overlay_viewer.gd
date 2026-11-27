@@ -19,6 +19,8 @@ const INK := Color(0.10, 0.105, 0.10)
 const GOLD := Color(0.83, 0.67, 0.40)
 const MUTED := Color(0.71, 0.69, 0.63)
 const SOURCE_TILT := 3.2
+const LOUPE_GLASS_RADIUS := 41.0
+const LOUPE_FEATURE_RADIUS := 34.0
 
 var aligned := false
 var flipped := false
@@ -593,7 +595,19 @@ func _draw_copy_layer() -> void:
 
 func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
 	if aligned:
-		draw_arc(point, 5.0 * zoom, 0.0, TAU, 20, Color(0.025, 0.08, 0.065, 0.65), zoom, true)
+		var radius := 5.0 * zoom
+		var start := 0.0
+		var end := TAU
+		if zoom == 2.0:
+			var inward := _loupe_position - point
+			var distance := inward.length()
+			# Leave half the stroke inside the glass at the ends of the arc.
+			var limit := LOUPE_GLASS_RADIUS - zoom / 2.0
+			if distance + radius > limit:
+				var half_arc := acos((distance * distance + radius * radius - limit * limit) / (2.0 * distance * radius))
+				start = inward.angle() - half_arc
+				end = inward.angle() + half_arc
+		draw_arc(point, radius, start, end, 20, Color(0.025, 0.08, 0.065, 0.65), zoom, true)
 	else:
 		var radius := 2.2 if index < 17 else 3.5
 		draw_circle(point, radius * zoom, Color(0.025, 0.08, 0.065, 0.88) if index < 17 else Color(0.05, 0.20, 0.15, 0.96))
@@ -631,19 +645,19 @@ func _draw_difference_arrows() -> void:
 
 func _draw_loupe() -> void:
 	draw_circle(_loupe_position, 44.0, INK)
-	draw_circle(_loupe_position, 41.0, GLASS)
+	draw_circle(_loupe_position, LOUPE_GLASS_RADIUS, GLASS)
 	var points := MathModel.star_points()
 	for i in points.size():
 		var displacement := (_point_to_pixel(points[i]) - _loupe_position) * 2.0
-		if displacement.length() <= 34.0:
+		if displacement.length() <= LOUPE_FEATURE_RADIUS:
 			_draw_star(_loupe_position + displacement, i, 2.0)
 	var speck := (_point_to_pixel(MathModel.speck_point()) - _loupe_position) * 2.0
-	if speck.length() <= 34.0:
+	if speck.length() <= LOUPE_FEATURE_RADIUS:
 		_draw_speck(_loupe_position + speck, 2.0)
 	var copy_stars := MathModel.transformed_copy(flipped, angle_deg, offset)
 	for i in copy_stars.size():
 		var displacement := (_point_to_pixel(copy_stars[i]) - _loupe_position) * 2.0
-		if displacement.length() <= 30.0:
+		if displacement.length() <= LOUPE_FEATURE_RADIUS:
 			_draw_copy_mark(_loupe_position + displacement, i, 2.0)
 	draw_arc(_loupe_position, 12.0, 0.0, TAU, 32, INK, 1.0, true)
 

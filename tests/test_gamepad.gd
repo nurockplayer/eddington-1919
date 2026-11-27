@@ -25,10 +25,17 @@ class WorldInputProbe extends Node:
 
 class LightboxDrawProbe extends Overlay:
 	var magnified_marks: Dictionary = {}
+	var magnified_stars: Dictionary = {}
 
 	func _draw_loupe() -> void:
 		magnified_marks.clear()
+		magnified_stars.clear()
 		super._draw_loupe()
+
+	func _draw_star(point: Vector2, index: int, zoom: float) -> void:
+		if zoom == 2.0:
+			magnified_stars[index] = point
+		super._draw_star(point, index, zoom)
 
 	func _draw_copy_mark(point: Vector2, index: int, zoom: float) -> void:
 		if zoom == 2.0:
@@ -153,6 +160,16 @@ func _test_lightbox_inspection(overlay, pad: bool) -> void:
 		var speck: Vector2 = overlay.detail_position("residual")
 		check(matched_mark_drawn and marks.has(17) and marks[17].is_equal_approx(lens + (speck - lens) * 2.0),
 			"the live loupe draws magnified tracing marks at the matched point and over the pale speck")
+		# Place the matched pair 33 px from the centre after magnification.
+		var offset_from_match := Vector2(16.5, 0.0)
+		overlay._loupe_position = matched - offset_from_match
+		overlay.queue_redraw()
+		await process_frame
+		await process_frame
+		var stars: Dictionary = overlay.magnified_stars
+		var expected := matched + offset_from_match
+		check(stars.has(16) and marks.has(16) and stars[16].is_equal_approx(expected) and marks[16].is_equal_approx(expected),
+			"the live loupe draws both layers of a matched pair 33 px from its centre")
 	else:
 		check(hints.is_empty(), "keyboard inspection can finish before the timed hint")
 
