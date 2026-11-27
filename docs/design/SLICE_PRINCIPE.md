@@ -1541,3 +1541,10 @@ Performance: 1080p60 is the target; the MSAA level is not sacred (2× or a cheap
 - **Not shown:** this head sets the live panel's position in code on leaving rehearsal, and there is no live frame at this head.
 - For the next head: the rehearsal panel in the live corner, at the live position, one height in all three states, and no crate lettering cut by its edge (wholly covered is fine, or the lettering hidden while the panel is up). Frames: the six rehearsal frames, rehearsal closed at text scale 1.2, and live ready and live closed for one input, which should equal 5017684's.
 - **Verdicts:** technical regression not checkable in live (no frames); this PR's change not accepted yet; AA row 02 not met. **Count stays 7/9.**
+
+### 2026-11-27 15:36 JST: #580 AA 02, rehearsal shutter cues, at 0eebe2b: accepted
+- Capture: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/580/0eebe2b786419819057092381921bf8c25e06c1b/` (nine frames, seed 77, en, 1280×720). Opened whole at native size: keyboard rehearsal ready, open, closed, closed at text scale 1.2, pad rehearsal closed, live closed. By numbers only: pad ready and open, live ready (equal to main pixel for pixel). Kept in `slice_principe/accept/580/0eebe2b/`.
+- **Holds.** The rehearsal panel is in the live corner with the live panel's left and top edge, one height through ready, open and closed, at text scale 1.0 and 1.2. The crate lettering is not drawn while the panel is up, so nothing is cut. Live ready is main's; live closed is as at 5017684 (differences are palm sway).
+- Let go: at text scale 1.2 the four-line rehearsal note covers the lower third of the view; the note's length is older than this PR.
+- Not shown: the crate lettering coming back after rehearsal (reported by edd-lead, no frame).
+- **Verdicts:** technical regression none seen; this PR's change accepted; AA row 02 met for its visual part. **Count stays 7/9.**
