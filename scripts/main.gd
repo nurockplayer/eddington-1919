@@ -878,6 +878,7 @@ func _process(delta: float) -> void:
 func _sync_style_sky() -> void:
 	if _style == null:
 		return
+	_style.quad_material.set_shader_parameter("middle_seam_time", sim.middle_seam_time)
 	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "third_contact_cloud_clock", "practice_cloud", "wind", "cloud_scale"]:
 		_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
 	_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)

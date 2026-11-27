@@ -33,6 +33,7 @@ var sun_uv: Vector2
 var gaps: Array = []                  # [{t, d, depth}] scheduled thinning over the Sun
 var star_offsets := PackedVector2Array()   # in solar radii, local to the Sun
 var cloud_img: Image
+var middle_seam_time := -100.0
 var _dens := PackedFloat32Array()
 
 # --- preparation state ------------------------------------------------------
@@ -135,19 +136,27 @@ func _make_clouds() -> void:
 		_carve(sun_track(t), sun_track(t + 10.0), 0.05, 0.05, 0.93, true)
 		t += 10.0
 	# …with the scheduled thin patches cut into it.
+	middle_seam_time = -100.0
 	for g in gaps:
 		_carve(sun_track(g.t), sun_track(g.t + g.d), 0.006, 0.03, g.depth, false)
 		if g.get("seam", false):
-			# A narrow bank crosses the whole disc for less than a holder change.
-			var seam := sun_track(g.t + g.d * 0.5)
-			var across := wind.orthogonal().normalized() * 0.036
-			_carve(seam - across, seam + across, 0.003, 0.010, 0.93, true)
+			middle_seam_time = g.t + g.d * 0.5
+	var exposure_dens := _dens.duplicate()
+	var seam := sun_track(middle_seam_time)
+	var across := wind.orthogonal().normalized() * 0.036
+	if middle_seam_time >= 0.0:
+		# The visible bank has feathered shoulders ahead of its opaque core.
+		_carve(seam - across, seam + across, 0.003, 0.024, 0.93, true)
 	cloud_img = Image.create_empty(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8)
 	var bytes := PackedByteArray()
 	bytes.resize(TEX_SIZE * TEX_SIZE)
 	for i in _dens.size():
 		bytes[i] = int(clampf(_dens[i], 0.0, 1.0) * 255.0)
 	cloud_img.set_data(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8, bytes)
+	if middle_seam_time >= 0.0:
+		# Keep the original timed density profile for metering and plate fog.
+		_dens = exposure_dens
+		_carve(seam - across, seam + across, 0.003, 0.010, 0.93, true)
 
 
 ## Where in cloud-texture space the Sun's line of sight is at game-time `t`
