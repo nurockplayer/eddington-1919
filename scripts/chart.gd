@@ -8,6 +8,7 @@ const Settings := preload("res://scripts/settings.gd")
 var rows: Array = []        # [{label, value, sigma, weak}]
 var combined: Dictionary = {}
 var revealed := false
+var reference_only := false
 var ledger: Array = []
 ## London uses one capped probable-error bar per independent result.
 var probable_error_guides: Array = []
@@ -106,6 +107,8 @@ func refresh_fonts() -> void:
 
 
 func _get_minimum_size() -> Vector2:
+	if reference_only:
+		return Vector2(0, 150)
 	var font := get_theme_default_font()
 	var first_y := 30.0 + font.get_ascent(_label_px) - 5.0 * Settings.text_scale
 	var step := maxf(34.0, font.get_height(_label_px) + 8.0)
@@ -227,14 +230,16 @@ func _draw() -> void:
 	var axis_height := font.get_height(axis_px)
 	for ref in refs:
 		axis_height = maxf(axis_height, font.get_string_size(ref[1], HORIZONTAL_ALIGNMENT_LEFT, -1, axis_px).y)
-	var compact := h < 240.0 and not probable_errors
+	var compact := h < 240.0 and not probable_errors and not reference_only
 	var bottom := scroll + h - axis_height if compact else scroll + h - 22.0 * Settings.text_scale - 2.0 * axis_height - 3.0 + font.get_ascent(axis_px) - 4.0
 	for ref in refs:
 		var x := _x(ref[0], w)
 		draw_dashed_line(Vector2(x, top), Vector2(x, bottom), ref[2], 2.0, 6.0)
 	_row_canvas.visible = false
-	if not revealed or rows.is_empty():
+	if reference_only or not revealed or rows.is_empty():
 		_paint_axis(font, refs, w, bottom, axis_px, axis_height, compact)
+	if reference_only:
+		return
 	if not revealed:
 		var unmeasured := L.t("先選片，再量測。數值會在量測後顯示。")
 		_drawn_texts.append(unmeasured)

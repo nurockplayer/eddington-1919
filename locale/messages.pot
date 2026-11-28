@@ -6785,3 +6785,165 @@ msgstr ""
 
 msgid "返回劍橋"
 msgstr ""
+
+msgid "見諸報端"
+msgstr ""
+
+msgid "歷史紀錄・新聞剪報與插圖"
+msgstr ""
+
+msgid "The Times・倫敦・1919 年 11 月 7 日・第 12 頁"
+msgstr ""
+
+msgid "REVOLUTION IN SCIENCE.（科學革命。）"
+msgstr ""
+
+msgid "NEW THEORY OF THE UNIVERSE.（新的宇宙理論。）"
+msgstr ""
+
+msgid "NEWTONIAN IDEAS OVERTHROWN.（牛頓的觀念遭推翻。）"
+msgstr ""
+
+msgid "The New York Times・紐約・1919 年 11 月 10 日・第 17 頁"
+msgstr ""
+
+msgid "LIGHTS ALL ASKEW IN THE HEAVENS（天上光線全都歪了）"
+msgstr ""
+
+msgid "EINSTEIN THEORY TRIUMPHS（愛因斯坦理論獲勝）"
+msgstr ""
+
+msgid "兩組日食觀測支持愛因斯坦預測的較大光線偏折。第三組對底片尺度很敏感。太陽的譜線仍須另行檢驗。"
+msgstr ""
+
+msgid "英國・1919 年 11 月 11 日。停戰一週年，舉行兩分鐘默哀。"
+msgstr ""
+
+msgid "閱讀各方回應"
+msgstr ""
+
+msgid "虛構評論專欄"
+msgstr ""
+
+msgid "埃德蒙・魯克"
+msgstr ""
+
+msgid "有關太陽的問題還沒有答案。可他們要我們憑一群不肯站在我們這邊的人說的話，站到柏林那邊去。"
+msgstr ""
+
+msgid "The New York Times・紐約・1919 年 11 月 9 日。〈Eclipse Showed Gravity Variation〉（日食顯示重力變化）。"
+msgstr ""
+
+msgid "O Paiz・里約熱內盧／Correio Paulistano・聖保羅・1919 年 11 月 9 日。哈瓦斯通訊社的電稿把結果說成一條「反射」定律。"
+msgstr ""
+
+msgid "The New York Times・紐約・1919 年 11 月 11 日。一篇社論開玩笑說，或許連乘法表都值得懷疑。"
+msgstr ""
+
+msgid "O Jornal・里約熱內盧・1919 年 11 月 12 日。數學家馬諾埃爾・阿莫羅索・科斯塔的〈Theoria de Einstein〉（愛因斯坦的理論）。"
+msgstr ""
+
+msgid "O Século・里斯本・1919 年 11 月 15 日。〈A Luz Pesa〉（光有重量）。報導由巴黎轉來。"
+msgstr ""
+
+msgid "Vorwärts・柏林・1919 年 11 月 18 日。〈Revolution in der Wissenschaft〉（科學革命）。"
+msgstr ""
+
+msgid "Illustrated London News・倫敦・1919 年 11 月 22 日。W. B. 羅賓遜的插圖採用 Crommelin 提供的資料。"
+msgstr ""
+
+msgid "星光掠過太陽附近時會改變方向。將抵達的光線沿直線往回延伸，就能看見恆星的視位置如何偏移。"
+msgstr ""
+
+msgid "日全食時，月球遮住明亮的日面，讓觀測者得以拍攝恆星。藉由比對照片，觀測者能檢驗太陽邊緣偏折量的三種預測：零、約 0.87″ 或約 1.75″。"
+msgstr ""
+
+msgid "The Times・倫敦・1919 年 11 月 28 日。愛因斯坦肯定牛頓的成就，並說明兩種理論在一般應用中相當吻合。"
+msgstr ""
+
+msgid "各方回應"
+msgstr ""
+
+msgid "歷史紀錄・書信、理事會紀錄、法令與報刊"
+msgstr ""
+
+msgid "亞瑟・愛丁頓致阿爾伯特・愛因斯坦・1919 年 12 月 1 日"
+msgstr ""
+
+msgid "愛丁頓寫到日食結果在英國受到的反響。他希望這項工作能幫助英德科學家恢復往來。"
+msgstr ""
+
+msgid "“It is the best possible thing that could have happened for scientific relations between England and Germany.”\n「就英德兩國的科學關係而言，這是再好不過的事。」"
+msgstr ""
+
+msgid "皇家天文學會・金質獎章"
+msgstr ""
+
+msgid "1919 年 11 月 14 日・H. H. 特納與詹姆斯・金斯提名愛因斯坦。"
+msgstr ""
+
+msgid "1919 年 12 月 12 日・理事會選定愛因斯坦，尚待確認。"
+msgstr ""
+
+msgid "1920 年 1 月 9 日・理事會決定不確認授獎。"
+msgstr ""
+
+msgid "學會在 1920 年未頒發金質獎章。"
+msgstr ""
+
+msgid "柏林愛樂音樂廳・1920 年 8 月 24 日"
+msgstr ""
+
+msgid "一場公開集會抨擊相對論及其提出者。"
+msgstr ""
+
+msgid "阿爾伯特・愛因斯坦・Berliner Tageblatt・1920 年 8 月 27 日・第 1–2 頁"
+msgstr ""
+
+msgid "Meine Antwort（我的答覆）"
+msgstr ""
+
+msgid "愛因斯坦在公開回應中說，對他猶太身分的敵意與民族主義情緒是這些攻擊的部分動因。"
+msgstr ""
+
+msgid "開啟本次觀測回顧"
+msgstr ""
+
+msgid "La Nouvelle Revue française・巴黎・1919 年 12 月 1 日。〈La Théorie de la gravitation selon Einstein〉（愛因斯坦的重力理論）。保羅・瓦勒里翻譯了一篇歸於伯特蘭・羅素名下的 Athenæum 文章。"
+msgstr ""
+
+msgid "《性別資格限制（撤銷）法》・1919 年 12 月 23 日。該法涵蓋的專業與公職，不再能以性別或婚姻狀態取消資格。第 3 條讓大學自行決定是否接納女性為成員或授予學位。"
+msgstr ""
+
+msgid "《天文月報》（天文學月刊）・1920 年 1 月。日本天文學會的期刊報導，日食結果與愛因斯坦的預測大致吻合。"
+msgstr ""
+
+msgid "Electrical Experimenter・紐約・1920 年 3 月・第 1165 頁。漫畫讓地球說：「哎呀，我想我該剪頭髮了！」"
+msgstr ""
+
+msgid "愛因斯坦的理論"
+msgstr ""
+
+msgid "光有重量"
+msgstr ""
+
+msgid "科學革命"
+msgstr ""
+
+msgid "愛因斯坦的重力理論"
+msgstr ""
+
+msgid "天文學月刊"
+msgstr ""
+
+msgid "我的答覆"
+msgstr ""
+
+msgid "恆星的真實位置"
+msgstr ""
+
+msgid "恆星的視位置"
+msgstr ""
+
+msgid "Einstein Archives ALS 9-260"
+msgstr ""
