@@ -1,7 +1,6 @@
 extends SceneTree
 
 const UI := preload("res://scripts/ui.gd")
-const Main := preload("res://scripts/main.gd")
 const L := preload("res://scripts/l10n.gd")
 
 var checks := 0
@@ -105,7 +104,8 @@ func _run() -> void:
 	config.set_value("ui", "text_scale", 1.2)
 	check(config.save(settings_path) == OK, "test settings are written")
 	L.apply("en")
-	Main._ensure_inputs()
+	var main := load("res://scripts/main.gd")
+	main._ensure_inputs()
 	Checkpoint.force_enabled = true
 	for saved in [false, true]:
 		if saved:
