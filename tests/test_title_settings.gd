@@ -53,6 +53,8 @@ func _run() -> void:
 	main.set_process(false)
 	var ui = main.ui
 	ui.pause_toggled.connect(func(_p): pause_events += 1)
+	var plates: Array[Node] = ui.title_panel.find_children("*", "TextureRect", true, false)
+	check(plates.size() == 1 and plates[0].texture != null and plates[0].is_visible_in_tree(), "title displays its totality plate")
 	var settings := find_button(ui.title_panel, "設定")
 	check(settings != null, "title offers settings")
 	settings.grab_focus()

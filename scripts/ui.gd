@@ -1803,36 +1803,53 @@ func thumb_center(i: int) -> Vector2:
 
 func _build_title(root: Control) -> void:
 	title_panel = ColorRect.new()
-	(title_panel as ColorRect).color = Color(0.03, 0.03, 0.04, 0.78)
 	title_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.add_child(title_panel)
-	# The same Hyades sky, faint behind the title (it follows the panel's 0.78 alpha).
-	var sky := FadeStars.new()
-	sky.target = title_panel as ColorRect
-	sky.drop = 0.16  # keeps Aldebaran clear of the title buttons
-	sky.meteors = true
-	sky.figure = true
-	title_panel.add_child(sky)
+	var page := CenterContainer.new()
+	page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_panel.add_child(page)
 	var v := VBoxContainer.new()
-	v.set_anchors_preset(Control.PRESET_CENTER)
-	v.position = Vector2(-460, -330)
-	v.custom_minimum_size = Vector2(920, 0)
-	v.add_theme_constant_override("separation", 14)
-	title_panel.add_child(v)
-	var t := _label(L.t("雲層之後"), 64, PAPER)
+	v.custom_minimum_size = Vector2(1252, 0)
+	v.add_theme_constant_override("separation", 6)
+	page.add_child(v)
+	var frontispiece := HBoxContainer.new()
+	frontispiece.add_theme_constant_override("separation", 32)
+	v.add_child(frontispiece)
+	var heading := VBoxContainer.new()
+	heading.alignment = BoxContainer.ALIGNMENT_CENTER
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	frontispiece.add_child(heading)
+	var serif := Fonts.paper_serif(font)
+	var t := _label(L.t("雲層之後"), 56, PAPER)
+	t.add_theme_font_override("font", serif)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(t)
-	var st := _label(L.t("劍橋，1917 → 普林西比，1919"), 26, ACCENT)
+	heading.add_child(t)
+	var st := _label(L.t("劍橋，1917 → 普林西比，1919"), 24, ACCENT)
+	st.add_theme_font_override("font", serif)
 	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(st)
+	heading.add_child(st)
+	var mount := PanelContainer.new()
+	var rule := _panel_style(MenuPrint.PAPER, MenuPrint.INK)
+	rule.set_content_margin_all(7)
+	mount.add_theme_stylebox_override("panel", rule)
+	frontispiece.add_child(mount)
+	# Totality frame from the #589 clear capture, cropped above the gameplay HUD.
+	var plate := TextureRect.new()
+	plate.texture = preload("res://assets/textures/principe/title-totality.png")
+	plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	plate.custom_minimum_size = Vector2(800, 320)
+	mount.add_child(plate)
 	var body := _rich(19)
 	body.text = L.t("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n")
 	v.add_child(body)
 	var disclaimer := _rich(15)
-	disclaimer.text = "[color=#8f8676]" + L.t(Credits.DISCLAIMER) + "[/color]"
+	disclaimer.text = "[center][color=#8f8676]" + L.t(Credits.DISCLAIMER) + "[/color][/center]"
 	v.add_child(disclaimer)
 	title_controls = _label("", 18, DIM)
 	title_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(title_controls)
 	# Steam Deck starts on the pad, so the first hints must already name its buttons.
 	Prompts.joypad = not Input.get_connected_joypads().is_empty()
@@ -1850,7 +1867,10 @@ func _build_title(root: Control) -> void:
 	# axes keeps the single row exactly where the box had it.
 	hb.add_theme_constant_override("h_separation", 20)
 	hb.add_theme_constant_override("v_separation", 20)
-	v.add_child(hb)
+	var menu := CenterContainer.new()
+	menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(menu)
+	menu.add_child(hb)
 	_title_row = hb
 	var chapter := Checkpoint.peek()
 	if chapter != "":
@@ -1908,11 +1928,10 @@ func _fit_title_row() -> void:
 		one_line += b.get_combined_minimum_size().x
 		shown += 1
 	one_line += 20.0 * maxi(shown - 1, 0)
-	# The title block is anchored at the centre with a fixed -460 offset (see
-	# _build_title), so the row can grow right only to the viewport's edge.
+	# Keep the existing wrap threshold while centering the whole page.
 	var screen := get_viewport().get_visible_rect().size.x
 	var room := screen - (screen * 0.5 - 460.0) - 8.0
-	_title_row.custom_minimum_size.x = minf(ceilf(one_line), room)
+	_title_row.custom_minimum_size.x = maxf(920.0, minf(ceilf(one_line), room))
 
 
 func hide_title() -> void:
@@ -2913,7 +2932,7 @@ func _print_menu(node: Node, paper_color := MenuPrint.PAPER, ink_color := MenuPr
 			node.add_theme_color_override("font_disabled_color", _locked_pace_ink())
 		for state in ["font_focus_color", "font_pressed_color", "font_hover_pressed_color"]:
 			node.add_theme_color_override(state, paper_color)
-		if pause_panel.is_ancestor_of(node) or help_panel.is_ancestor_of(node) or log_panel.is_ancestor_of(node):
+		if title_panel.is_ancestor_of(node) or pause_panel.is_ancestor_of(node) or help_panel.is_ancestor_of(node) or log_panel.is_ancestor_of(node):
 			# Godot still draws the focus fill when it uses the hover text color.
 			node.add_theme_stylebox_override("hover", focus)
 			node.add_theme_color_override("font_hover_color", paper_color)
