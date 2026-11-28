@@ -2439,3 +2439,15 @@ Next: swapped in on #636 after follow-up 2 reports.
 ![v2, accepted](slice_principe/plates/journey-20261129-b5/sobral-square-v2.jpg)
 ![v3, not accepted](slice_principe/plates/journey-20261129-b5/sobral-square-v3.jpg)
 
+## #644 · row 8e slips on their own paper: accepted at 4b588b5, 8e met (2026-11-29 01:20 JST)
+
+What I looked at: after-totality 1 candidate and main, night prediction 1, night pause, totality ready strip, all at 720p text scale 1.2. Not looked at: the rest of the survey, 1080p. Contrast survey 175 → 2 rows below 4.5:1 (credits at the scroll edge).
+
+- **Technical regression:** none seen.
+- **The change: accepted; 8e met.** The return-to-day slip goes from blue paper with lilac ink to cream paper with dark ink; night slips are deep red with light warm ink. Each slip has one paper and one ink.
+- **Whole-scene readiness: not accepted.** Row 8 waits on 8b, 8c, 8d. Backlog: night choice boxes lose their right border; pause notes cut at the bottom at 1.2; two credits rows.
+
+![main](slice_principe/accept/644-4b588b5/after-totality-1-main.jpg)
+![candidate](slice_principe/accept/644-4b588b5/after-totality-1-candidate.jpg)
+![night](slice_principe/accept/644-4b588b5/night-prediction-1.jpg)
+
