@@ -1,6 +1,6 @@
 import unittest
 
-from contrast import contrast_ratio, measure, missing_control_gap
+from contrast import contrast_ratio, measure, control_evidence_gaps
 
 
 class ContrastTests(unittest.TestCase):
@@ -8,7 +8,7 @@ class ContrastTests(unittest.TestCase):
         sampled = {"surface": "dialog", "text": "Visible title"}
         unsampled = {"surface": "dialog", "text": "Nearly invisible label"}
 
-        gaps = [missing_control_gap("cfg state case", control) for control in (sampled, unsampled)[1:]]
+        gaps = control_evidence_gaps("cfg state case", (sampled, unsampled), ((4.8,), None))
 
         self.assertEqual(gaps, [
             "cfg state case / dialog / Nearly invisible label: no differing glyph pixels in the visible bounds."
