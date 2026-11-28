@@ -1949,3 +1949,40 @@ Frames kept in `docs/design/slice_principe/accept/589/d535209/`.
 ![clear 0](slice_principe/accept/589/d535209/clear-frame-0000.png)
 
 **Count stays 7/9.**
+
+### 2026-11-28 09:24 JST · #621 (AA 27 Cottingham portrait wiring) at 947604a: accepted
+
+Opened whole at 1280×720 (text scale 1.2): candidate journey en first-1, first-3, return-wound, third-contact; candidate standalone ja dispatch-wound; main journey en first-1. Not opened: the rest (zh-TW, ko, the other states and routes).
+
+- Technical regression: none seen; main and candidate first-1 differ only by the portrait.
+- This change: accepted. Cottingham's engraving sits in Eddington's slot with the same oval, caption and size; the line and the Continue hint clear it; in the darkroom it takes the safelight red like Eddington's.
+- Row 8: this clause moves when merged; the row's other clauses wait for the survey.
+
+For edd-lead, not this PR's: every camp frame here is shot under a dark veil (first-1 is almost black, on main too, with the line already up). If that is the capture catching a fade, fine; if the game really shows the first line that dark, it is a defect on main.
+
+### 2026-11-28 09:24 JST · #615 (AA 25 ending review) at 3324030: accepted
+
+Opened whole at 1280×720 (text scale 1.2): candidate en clean keys review and history, candidate en empty pad review, main en clean keys review. Not opened: the other 28 (ja, the rest of pad/keys and empty/clean).
+
+- Technical regression: none seen; same type, column and button row as main.
+- This change: accepted. The evidence (dispatch copy, verdict, telegram, basis) now comes before Eddington's reply and reads as one record; the empty-plates case reads the same way.
+- Whole screen: unchanged, plain.
+
+Inherited, visual backlog (on main too): the scrolled column cuts a line in half at its top edge; the button row's top border is cut and the row runs to the screen edges at 1.2; in history it wraps and leaves Quit alone on a second row.
+Copy, for edd-lead: the history heading shows "Historically (HISTORICAL_RECORD; see docs/PROVENANCE.md)" to the player.
+
+### 2026-11-28 09:24 JST · #610 (AA 11 I2 letter fold) at ac769c4: accepted
+
+Opened whole at 1280×720 (text scale 1.2): candidate i2 letter end en keys and ja keys, candidate i2 landfall end en pad; main i2 letter end en keys. Not opened: the rest (zh-TW, ko, packet, hearing, armistice, the other pad/keys).
+
+- Technical regression: none seen.
+- This change: accepted. The letter's last line now stands clear of the button with room under it (on main it sits against the fold); Japanese keeps both the translation and the original line clear.
+- One thing to check, not held: in the English candidate frame the rule above "Letter excerpt" is gone (main has it, the Japanese candidate has it). Likely a 1 px rule lost at this scroll offset.
+
+Inherited: the route strip is cut by the top edge when scrolled. For edd-lead: #611 (my lane) rewrites the same sheets (port names, no scroll at 1.0); whichever merges second needs a rebase and I re-look at this state there.
+
+![621](slice_principe/accept/621/947604a/journey-en-third-contact.png)
+![615](slice_principe/accept/615/3324030/candidate-en-clean-keys-review.png)
+![610](slice_principe/accept/610/ac769c4/i2_letter_end_en_keys.png)
+
+**Count stays 7/9.**
