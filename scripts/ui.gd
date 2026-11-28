@@ -173,8 +173,7 @@ var _mic_first := NAN
 var _mic_second := NAN
 var _mic_had_loupe := false
 var _mic_dragging := false
-var _mic_hold := 0.0
-var _mic_repeat := 0.0
+var _mic_repeat_left := 0.0
 var _mic_last_tick_ms := -50
 ## Set by main before open_viewer: returns {value, sigma} for a read plate.
 var measurement_of := Callable()
@@ -512,23 +511,19 @@ func _process(delta: float) -> void:
 			_blink_elapsed -= blink_interval
 			_blink_oxford = not _blink_oxford
 			_update_blink()
-	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible:
-		var held: float = 0.0
-		if _mic_dial_focused():
-			if Input.is_action_pressed("ui_right"):
-				held = 1.0
-			elif Input.is_action_pressed("ui_left"):
-				held = -1.0
-		if held != 0.0:
-			_mic_hold += delta
-			if _mic_hold >= 0.35:
-				_mic_repeat += delta
-				while _mic_repeat >= 0.08:
-					_mic_repeat -= 0.08
-					_nudge_micrometer(held, _mic_fine())
-		else:
-			_mic_hold = 0.0
-			_mic_repeat = 0.0
+	var held: float = 0.0
+	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible and _mic_dial_focused():
+		if Input.is_action_pressed("ui_right"):
+			held = 1.0
+		elif Input.is_action_pressed("ui_left"):
+			held = -1.0
+	if held == 0.0:
+		_mic_repeat_left = 0.0
+	elif _mic_repeat_left > 0.0:
+		_mic_repeat_left -= delta
+		if _mic_repeat_left <= 0.0:
+			_mic_repeat_left = 0.12
+			_nudge_micrometer(held, _mic_fine())
 	if viewer.visible and loupe_btn.button_pressed and (loupe_btn.has_focus() or blink_btn.has_focus()) and not get_tree().paused and not log_panel.visible:
 		var pan := Input.get_vector("gamepad_look_left", "gamepad_look_right", "gamepad_look_up", "gamepad_look_down")
 		if pan != Vector2.ZERO:
@@ -1251,8 +1246,7 @@ func _set_micrometer(on: bool) -> void:
 		_mic_first = NAN
 		_mic_second = NAN
 		_mic_dragging = false
-		_mic_hold = 0.0
-		_mic_repeat = 0.0
+		_mic_repeat_left = 0.0
 		if not _mic_had_loupe and loupe_btn.button_pressed:
 			_set_loupe(false)
 	mic_overlay.visible = micrometer_on
@@ -1318,8 +1312,7 @@ func _compare_micrometer() -> void:
 		_mic_first = micrometer_px
 		micrometer_px = 0.0
 		_mic_dragging = false
-		_mic_hold = 0.0
-		_mic_repeat = 0.0
+		_mic_repeat_left = 0.0
 		_sync_micrometer_controls()
 	else:
 		_mic_second = micrometer_px
@@ -2755,8 +2748,10 @@ func _input(event: InputEvent) -> void:
 	if Prompts.joypad != was_joypad:
 		prompts_changed.emit()
 	if viewer.visible and micrometer_on and not _viewer_reporting and not get_tree().paused and not log_panel.visible and (event is InputEventKey or event is InputEventJoypadButton):
-		if _mic_dial_focused() and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
-			_nudge_micrometer(-1.0 if event.is_action_pressed("ui_left") else 1.0, _mic_fine())
+		if _mic_dial_focused() and (event.is_action_pressed("ui_left", true) or event.is_action_pressed("ui_right", true)):
+			if not event.is_echo():
+				_mic_repeat_left = 0.45
+				_nudge_micrometer(-1.0 if event.is_action_pressed("ui_left") else 1.0, _mic_fine())
 			get_viewport().set_input_as_handled()
 			return
 		# Escape/B puts the micrometer away before leaving the table.
