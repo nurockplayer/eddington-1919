@@ -20,8 +20,6 @@ func _draw() -> void:
 	match subject:
 		"hotel", "window", "wait":
 			_hotel()
-		"dock", "principe_folder":
-			_dock()
 		_:
 			_route()
 	draw_rect(Rect2(1, 1, 598, 158), WASH, false, 1)
@@ -94,38 +92,6 @@ func _hotel() -> void:
 	draw_circle(Vector2.ZERO, 11, INK, false, 1.3, true)
 	draw_set_transform(Vector2.ZERO, 0, size / Vector2(600, 160))
 	_shape([Vector2(205, 127), Vector2(221, 110), Vector2(287, 108), Vector2(278, 129)], LIGHT)
-
-
-func _dock() -> void:
-	for y in range(29, 100, 9):
-		for x in range(14 + (y % 20), 560, 76):
-			_stroke([Vector2(x, y), Vector2(x + 38, y - 2)], WASH, 1)
-	_shape([Vector2(596, 31), Vector2(304, 31), Vector2(265, 52), Vector2(320, 76), Vector2(596, 76)], WASH)
-	for x in range(323, 577, 12):
-		_stroke([Vector2(x, 71), Vector2(x + 7, 61)], INK, 0.8)
-	for x in [458, 503, 548]:
-		var crate := Rect2(x, 31, 36, 21)
-		draw_rect(crate, LIGHT)
-		draw_rect(crate, INK, false, 1.5)
-		_stroke([crate.position + Vector2(8, 0), crate.position + Vector2(8, 21)], INK, 1)
-	_stroke([Vector2(265, 52), Vector2(596, 52)])
-	var quay_left := Vector2(4, 109)
-	var quay_corner := Vector2(518, 93)
-	_shape([quay_left, quay_corner, Vector2(596, 123), Vector2(596, 155), Vector2(4, 155)], WASH)
-	_stroke([quay_left + Vector2(0, 17), quay_corner + Vector2(0, 17), Vector2(596, 140)], INK, 1)
-	for x in range(12, 515, 12):
-		var edge := quay_left.lerp(quay_corner, (x - quay_left.x) / (quay_corner.x - quay_left.x))
-		_stroke([edge + Vector2(0, 15), edge + Vector2(8, 4)], INK, 0.8)
-	if subject == "principe_folder":
-		var base := Vector2(72, 140).lerp(Vector2(336, 52), last_leg)
-		var lid := base - Vector2(0, 33)
-		_shape([lid, lid + Vector2(109, 0), base + Vector2(109, 0), base], LIGHT)
-		draw_arc(lid + Vector2(54, 0), 9, PI, TAU, 16, INK, 2, true)
-		_stroke([lid + Vector2(0, 10), lid + Vector2(109, 10)], INK, 1)
-		for x in [16, 93]:
-			_stroke([lid + Vector2(x, 0), base + Vector2(x, 0)], INK, 2)
-	elif last_leg < 0.5:
-		_shape([Vector2(48, 123), Vector2(66, 108), Vector2(190, 104), Vector2(177, 122)], LIGHT)
 
 
 static func print_view(parent: Node, world: Node3D, target: Vector3, distance: Vector3, width: float) -> SubViewport:

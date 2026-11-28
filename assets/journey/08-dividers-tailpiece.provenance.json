@@ -1,0 +1,20 @@
+{
+  "id": "08-dividers-tailpiece",
+  "variant": 1,
+  "prompt": "Make one small original engraved centered tailpiece for a sober 1910s scientific journal. One open pair of metal drawing dividers, two pointed legs and a visible pivot, set over a tiny sparse field of differently sized engraved stars. Keep it a discreet compact mark with generous plain cream paper around it and separated specks and clear silhouettes. No border, no ruled band, no other tools, no flowers, no cherubs. Only black ink on flat light cream paper. Build tone exclusively from fine parallel burin hatching, cross-hatching and stipple. No grey wash, gradients, photographic shading, other colours, lettering, numerals, watermark, or signature.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:46:27 JST",
+  "retries": 0,
+  "raw_sha256": "2a132bb8dc7140efcaadea4756225335ada213309cd8cfab51364631ae04dfae",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/raw/08-dividers-tailpiece.png",
+  "file": "08-dividers-tailpiece.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-06339595-b828-4874-a64b-2afd76aaa2c0.png",
+  "source_commit": "4aa36d5e0ab6499b342f5cbb3eda23b38d10c71f",
+  "prior_errors": [],
+  "size_px": [
+    220,
+    200
+  ],
+  "manifest": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/manifest.json"
+}

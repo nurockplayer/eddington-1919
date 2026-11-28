@@ -34,6 +34,9 @@ var _chart: Control
 
 func open() -> void:
 	resized.connect(queue_redraw)
+	begin_plate(preload("res://assets/journey/london-news-v2.png"), L.t("倫敦・1919 年 11 月 7 日"))
+	advance(_next)
+	await action
 	action.connect(_advance)
 	_show_page()
 
@@ -59,7 +62,7 @@ func _advance(_id: String) -> void:
 func _show_page() -> void:
 	var page: Array = PAGES[_page]
 	var lines: Array = page[2]
-	begin(lines[0] == "I5-22")
+	begin(true)
 	var scroll: ScrollContainer = body.get_parent()
 	var layout: VBoxContainer = scroll.get_parent()
 	label(layout, _text[page[0]], 32)

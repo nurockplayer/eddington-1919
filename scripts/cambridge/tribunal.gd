@@ -22,6 +22,10 @@ func play(director: Node, prediction: Dictionary) -> void:
 	director.ui.hud.hide()
 	director.player.position = Vector3(0.0, 0.0, 1.95)
 	_bench()
+	page_id = "plate"
+	paper.begin_plate(preload("res://assets/journey/cambridge-observatory-v2.png"), L.t("劍橋天文台"))
+	await _director.ui.fade_to(0.0, 0.0 if Settings.reduced_motion else 0.8).finished
+	await _prompt("T22")
 	var extracts: Array = []
 	for beat in Content.BEATS:
 		if beat.has("speaker"):
@@ -84,7 +88,9 @@ func _read_page(beat: Dictionary) -> void:
 		_show_page(beat.open)
 		paper.label(paper.body, _text[id], 32, true)
 		await _prompt(beat.open)
-	_show_page(id)
+	_show_page(id, id == "T01")
+	if id == "T01":
+		paper.headpiece()
 	var lines := _lines(beat.paper)
 	var title: String = lines.pop_front()
 	var source := ""
@@ -100,8 +106,8 @@ func _read_page(beat: Dictionary) -> void:
 		lines.push_front(title)
 		title = ""
 	paper.section(paper.body, title, lines, source)
-	if id == "T01":
-		await _director.ui.fade_to(0.0, 0.0 if Settings.reduced_motion else 0.8).finished
+	if id == "T72":
+		paper.tailpiece()
 	await _prompt("T22")
 
 

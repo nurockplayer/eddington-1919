@@ -16,10 +16,9 @@ func _draw() -> void:
 	draw_rect(Rect2(1, 1, 598, 158), LIGHT)
 	match subject:
 		"map": _map()
-		"handoff", "delivery": _forest()
+		"delivery": _forest()
 		"cutaway": _cutaway()
 		"night", "cloud": _horizon()
-		"arrival": _shore()
 	draw_rect(Rect2(1, 1, 598, 158), WASH, false, 1)
 
 
@@ -44,18 +43,6 @@ func _map() -> void:
 		draw_colored_polygon([Vector2(135, 55), Vector2(144, 51), Vector2(144, 59)], INK)
 
 
-func _shore() -> void:
-	for y in range(35, 135, 8):
-		# The shore polygon painted over the ruling trims each line to the coast.
-		_stroke([Vector2(12, y), Vector2(462 if y == 35 else 497, y)], WASH, 1)
-	_shape([Vector2(294, 158), Vector2(339, 100), Vector2(290, 82), Vector2(413, 66),
-		Vector2(497, 43), Vector2(598, 63), Vector2(598, 158)], WASH)
-	for i in 4:
-		var at := Vector2(380 + 49 * i, 89 - 9 * i)
-		draw_rect(Rect2(at, Vector2(42, 27)), LIGHT)
-		_shape([at + Vector2(-5, 1), at + Vector2(20, -15), at + Vector2(48, 1)], INK)
-
-
 func _forest() -> void:
 	draw_rect(Rect2(2, 108, 595, 48), WASH)
 	for i in 15:
@@ -63,16 +50,8 @@ func _forest() -> void:
 		var height := 45.0 + (i * 19) % 38
 		draw_rect(Rect2(x, 104 - height, 4, height), INK)
 		draw_circle(Vector2(x, 105 - height), 23, WASH.darkened(0.2), true, -1, true)
-	if subject == "handoff":
-		for i in 8:
-			var x := 10.0 + i * 23
-			_stroke([Vector2(x, 151 - i * 1.9), Vector2(x + 13, 127 - i * 0.7)], INK, 4)
-		_stroke([Vector2(2, 144), Vector2(187, 132)])
-		_stroke([Vector2(2, 129), Vector2(187, 121)])
 	_stroke([Vector2(189, 133), Vector2(268, 140), Vector2(370, 146), Vector2(497, 136)], LIGHT, 3)
-	var at := Vector2(212, 139).lerp(Vector2(368, 147), clampf(progress * 1.4 - 0.4, 0, 1))
-	if subject == "delivery":
-		at = Vector2(387, 146)
+	var at := Vector2(387, 146)
 	var lift := smoothstep(0, 0.45, progress)
 	var stride := sin(progress * TAU * 3) * lift
 	var crate := at - Vector2(0, lift * 23)

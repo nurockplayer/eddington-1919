@@ -87,6 +87,48 @@ func _align_end_fold(scroll: ScrollContainer, contents: VBoxContainer) -> void:
 		scroll.set_deferred("scroll_vertical", ceili(padded_height))
 
 
+func begin_plate(texture: Texture2D, place_date: String) -> void:
+	begin(true)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var image := TextureRect.new()
+	image.name = "OpeningPlate"
+	image.texture = texture
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_child(image)
+	label(body, L.t("%s・歷史重建") % place_date, 18, true)
+	var caption: Label = body.get_child(-1)
+	caption.add_theme_font_override("font", Fonts.paper_serif(get_theme_default_font()))
+
+
+func engraving(parent: Control, texture: Texture2D, dimensions: Vector2) -> TextureRect:
+	var image := TextureRect.new()
+	image.texture = texture
+	image.custom_minimum_size = dimensions
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	image.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(image)
+	return image
+
+
+func headpiece() -> void:
+	# Use the top paper margin so the mark doesn't take a line from the text.
+	var sheet: Panel = actions.get_parent().get_parent()
+	var image := engraving(sheet, preload("res://assets/journey/07-eclipse-headpiece.png"), Vector2(100, 18))
+	image.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	image.offset_top += 2
+	image.offset_bottom += 2
+
+
+func tailpiece() -> void:
+	engraving(body, preload("res://assets/journey/08-dividers-tailpiece.png"), Vector2(30, 27))
+
+
 func label(parent: Container, text: String, font_size: int, centered := false) -> void:
 	var line := Label.new()
 	line.text = text

@@ -1,0 +1,15 @@
+{
+  "id": "funchal",
+  "variant": 1,
+  "prompt": "Funchal harbour, Madeira, March 1919, seen low from the water. A single unmarked early twentieth-century passenger steamer lies at anchor in three-quarter view offshore, a few small working boats across the foreground, the dense low tiled town rising behind in tiers up the steep island hill. A broad view of the bay and hillside under a lightly ruled sky.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. No recognizable person, even in the distance. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:40:25 JST",
+  "retries": 0,
+  "raw_sha256": "fcc7c77a6dadad93d9a755f5ed5f363bd09a1ee0267a535cdbf556e1cd04d96d",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28/funchal-v1.png",
+  "file": "funchal-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a2214d-fc37-7912-97ab-800e3596bf8a/exec-8aec16cb-aa4c-445f-b003-826b5961ed9d.png",
+  "source_commit": null,
+  "started": "2026-11-28 17:39:00 JST"
+}

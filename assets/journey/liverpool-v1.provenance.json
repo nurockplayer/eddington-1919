@@ -1,0 +1,15 @@
+{
+  "id": "liverpool",
+  "variant": 1,
+  "prompt": "Liverpool’s floating landing stage on the Mersey, 8 March 1919. The Booth Line passenger steamer Anselm is making ready to sail, shown unmarked in a broadside view along the stage from the foot of a sloping passenger gangway. The near diagonal of the gangway lattice frames the left; the low floating walkway, ship and a sliver of city waterfront run horizontally beyond. Put a few tiny rear-facing travellers on the stage and let the river open to the right. Period steamship and dock gear, no bollard focal point.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 18:00:54 JST",
+  "retries": 0,
+  "raw_sha256": "0d5529d462fe522def4ead7d06a8cdc65d46d609a253450323bc9c63ba88cf9a",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/liverpool-v1.png",
+  "file": "liverpool-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22161-1e89-77b0-8ce1-7bafcddbf8e4/exec-b782fec3-786a-43d8-a54a-6563d3348a31.png",
+  "source_commit": null,
+  "started": "2026-11-28 17:59:41 JST"
+}

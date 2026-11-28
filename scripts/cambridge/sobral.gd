@@ -10,9 +10,9 @@ const Plate := preload("res://scripts/plate_render.gd")
 const Settings := preload("res://scripts/settings.gd")
 
 const SETUP := [
-	["B02", "station", ["B03"]],
-	["B04", "station", ["B05", "B06", "B07", "B08"]],
-	["B09", "", ["B09", "B10"]],
+	["B02", ["B03"]],
+	["B04", ["B05", "B06", "B07", "B08"]],
+	["B09", ["B09", "B10"]],
 ]
 const SAMPLES := [
 	["B20", "B25", "B27", "may_astro"],
@@ -60,11 +60,18 @@ func play(day: Node) -> void:
 	paper.theme = _ui.theme_res
 	backdrop.add_child(paper)
 
+	var place_plates := {
+		"B04": [preload("res://assets/journey/sobral-racecourse-v1.png"), L.t("索布拉爾賽馬場・1919 年 5 月")],
+		"B09": [preload("res://assets/journey/sobral-square-v1.png"), L.t("索布拉爾帕特羅西尼奧廣場・1919 年 5 月")],
+	}
 	for setup in SETUP:
+		if place_plates.has(setup[0]):
+			var plate: Array = place_plates[setup[0]]
+			page_id = "plate"
+			paper.begin_plate(plate[0], plate[1])
+			await _next("next")
 		_show(setup[0])
-		if not setup[1].is_empty():
-			_picture(paper.body, setup[1], 340 if setup[0] == "B02" else 185)
-		_lines(paper.body, setup[2])
+		_lines(paper.body, setup[1])
 		if setup[0] == "B09":
 			var prints: HBoxContainer = paper.columns(paper.body)
 			var corona: VBoxContainer = paper.column(prints)
@@ -74,6 +81,7 @@ func play(day: Node) -> void:
 			_picture(instrument, "mailhat", 155)
 			_lines(instrument, ["MAILHAT"], 18)
 		if setup[0] == "B02":
+			paper.headpiece()
 			await _ui.fade_to(0.0, 0.0 if Settings.reduced_motion else 0.7).finished
 		await _next("next")
 
@@ -93,6 +101,9 @@ func play(day: Node) -> void:
 
 func _homeward() -> void:
 	_text.merge(Homeward.strings())
+	page_id = "plate"
+	paper.begin_plate(preload("res://assets/journey/homeward-v1.png"), L.t("扎伊爾號甲板・1919 年 6 月"))
+	await _next("next")
 	for index in Homeward.PAGES.size():
 		_show("I4-01")
 		var scroll: ScrollContainer = paper.body.get_parent()
@@ -218,6 +229,7 @@ func _inspection() -> void:
 			_glass(loupe, data[3], 245, true, true)
 			_lines(loupe, ["loupe"], 18)
 		_lines(sample, [data[0]], 20)
+		paper.engraving(sample, preload("res://assets/journey/02-darkroom-bench.png"), Vector2(152, 80))
 		_lines(ledger, ["B23"])
 		if opened or not logged.is_empty():
 			_lines(ledger, ["B19"], 20)
@@ -345,6 +357,7 @@ func _scale_check() -> void:
 			_glass(auxiliary, "may_aux", 190)
 			_lines(auxiliary, ["MAY_AUX"], 18)
 			_lines(paper.column(archive), ["B52", "B53"], 20)
+			paper.tailpiece()
 			paper.advance(_text.B54)
 		match await paper.action:
 			"advance": return

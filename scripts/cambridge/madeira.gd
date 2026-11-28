@@ -98,14 +98,26 @@ func _advance(id := "M09", reveal_tail := false) -> void:
 
 
 func _arrival() -> void:
-	_show("M01")
+	page_id = "plate"
+	paper.begin_plate(preload("res://assets/journey/funchal-v1.png"), L.t("馬德拉豐沙爾・1919 年 3 月 14 日"))
 	await _director.ui.fade_to(0.0, _motion(0.7)).finished
 	await _advance()
+	_show("M01")
+	paper.headpiece()
+	await _advance()
+	var port_plates := {
+		"M04": [preload("res://assets/journey/liverpool-v1.png"), L.t("利物浦・1919 年 3 月 8 日")],
+		"M05": [preload("res://assets/journey/lisbon-v1.png"), L.t("里斯本・1919 年 3 月 12 日")],
+	}
 	for i in Content.ARRIVAL.size():
 		var stop: Array = Content.ARRIVAL[i]
+		if port_plates.has(stop[0]):
+			var plate: Array = port_plates[stop[0]]
+			page_id = "plate"
+			paper.begin_plate(plate[0], plate[1])
+			await _advance()
 		_show("M01", "M02")
 		page_id = stop[0]
-		_ink(paper.body, "arrival", i + 1, i > 0)
 		_line(paper.body, "M03", 18)
 		for j in range(i + 1):
 			_line(paper.body, Content.ARRIVAL[j][0])
@@ -113,7 +125,6 @@ func _arrival() -> void:
 		for j in stop[1].size():
 			_show("M01", "M02")
 			page_id = stop[1][j]
-			_ink(paper.body, "arrival", i + 1)
 			_archive(paper.body, [page_id])
 			await _advance()
 	_show("M01", "M02")
@@ -152,7 +163,9 @@ func _worktable() -> void:
 	await _advance("M18")
 	await _sort_copies()
 	_show("M39")
-	_ink(paper.body, "sobral", 5)
+	var route: HBoxContainer = paper.columns(paper.body)
+	_ink(paper.column(route), "sobral", 5)
+	paper.engraving(route, preload("res://assets/journey/05-cargo-steamer.png"), Vector2(142, 92))
 	_archive(paper.body, Content.SOBRAL)
 	await _advance("M44")
 	_show("M14")
@@ -269,7 +282,9 @@ func _input(event: InputEvent) -> void:
 func _board(focus: String, correction: String) -> void:
 	_show("M14")
 	page_id = "M20"
-	_ink(paper.body, "hotel", 0, false, 126)
+	var illustration: HBoxContainer = paper.columns(paper.body)
+	_ink(paper.column(illustration), "hotel", 0, false, 126)
+	paper.engraving(illustration, preload("res://assets/journey/01-coelostat.png"), Vector2(148, 76))
 	var complete := filed.size() == Content.LOOSE.size()
 	var columns: HBoxContainer = paper.columns(paper.body)
 	var controls := {}
@@ -380,7 +395,6 @@ func _wait() -> void:
 
 func _dockside() -> void:
 	_show("M65", "M03")
-	var dock := _ink(paper.body, "dock", 0, true, 212)
 	_line(paper.body, "M66")
 	_line(paper.body, "M67")
 	var folders: HBoxContainer = paper.columns(paper.body)
@@ -392,13 +406,7 @@ func _dockside() -> void:
 	_line(recall, "M68")
 	_line(aboard, "M22", 19)
 	_line(aboard, "M69")
-	if not Settings.reduced_motion:
-		await get_tree().create_timer(0.75, false).timeout
-	dock.subject = "principe_folder"
-	dock.last_leg = 1.0
-	if not Settings.reduced_motion:
-		dock.last_leg = 0.0
-		await dock.create_tween().tween_property(dock, "last_leg", 1.0, 0.7).finished
+	paper.tailpiece()
 	await _advance("M70")
 
 

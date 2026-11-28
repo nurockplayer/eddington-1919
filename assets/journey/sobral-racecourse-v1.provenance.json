@@ -1,0 +1,15 @@
+{
+  "id": "sobral-racecourse",
+  "variant": 1,
+  "prompt": "Sobral’s Jockey Club racecourse, May 1919, the camp of the British eclipse party. Look out from the shadow of the covered grandstand. A stepped timber bench end occupies the left foreground; beyond it, on open ground, two low independent working shelters and a few tiny rear-facing figures preparing the camp. Use modest early twentieth-century materials, one or two wood packing cases near the shelters, and an open horizon with fine ruled sky. Keep the track ground open with no runners or crowd.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 18:06:13 JST",
+  "retries": 0,
+  "raw_sha256": "5f56b6f87acfe56a8ca3c623ac05d87d98cdad0613bbefc0e80a7e3db6794265",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/sobral-racecourse-v1.png",
+  "file": "sobral-racecourse-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22161-1e89-77b0-8ce1-7bafcddbf8e4/exec-bb2d9a9a-cb21-404a-9aea-ba29357f2ff1.png",
+  "source_commit": null,
+  "started": "2026-11-28 18:05:39 JST"
+}

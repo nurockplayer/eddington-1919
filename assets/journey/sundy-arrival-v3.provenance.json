@@ -1,0 +1,45 @@
+{
+  "prompt": "Edit the supplied square detail from the accepted 1919 Roça Sundy steel engraving. Return that exact square crop at the same framing and perspective, with all background landmarks fixed in their input positions. Change only the four people, their baggage, and their footprints/shadows where necessary. Completely remove all four original figures and replace the group with exactly TWO adult men, Eddington and Cottingham, viewed from behind heading toward the house in April 1919. No other people. Keep the two figures in the open yard, near the horizontal locations of the leftmost and third original people, close together as a travelling pair and at the two original apparent scales. Keep their heads visually clear of the house and railing. Each carries one closed rectangular instrument case by its top handle, held low at his outer side. Both are British civilians dressed for the tropics: pale loose linen civilian lounge jackets with ordinary lapels, pale straight full-length trousers falling to the tops of ordinary low leather shoes, and soft light brimmed civilian hats. Plain civilian tailoring, without puttees, leg wraps, boots, military jackets, military or explorer gear, belts over coats, shoulder cross straps, or backpacks. Use fine black steel-engraved linework, parallel hatching and cross-hatching and warm cream paper identical to the input. Where old figures disappear, continue the original ground texture and reveal whatever was hidden. Copy the porch railing, posts, plinth, roof, cocoa, palms, hills, sky, foreground, and margins exactly in position and engraving. Do not enlarge, reframe, shift or redesign any part of the background. Return the square detail only, full bleed with no border or text.",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a222d0-351b-78c1-96bb-617e0432bd8d/exec-9a36199f-c10a-47bd-b5a9-d31c34385a0e.png",
+  "started": "2026-11-29 00:43:33 JST",
+  "time": "2026-11-29 00:44:17 JST",
+  "id": "sundy-arrival",
+  "variant": 3,
+  "reference": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-29-b4/sundy-arrival-v2.png",
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "retries": 0,
+  "raw_sha256": "2ddbda6b05525cf44302f19db001ae7cd42ae630e84c874128fa69b255ca28b7",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-29-b4/sundy-arrival-v3.png",
+  "file": "sundy-arrival-v3.png",
+  "source_commit": null,
+  "provenance": {
+    "tool": "Codex built-in image_gen.imagegen",
+    "parent_sha256": "9e2b103db037be958af02bb6365c14552ae72cdb0d79d5ffb864203894a24355",
+    "input_crop_xywh_px": [
+      115,
+      405,
+      512,
+      512
+    ],
+    "input_sha256": "8e594ef33936c4cc651f7f72c1a90353f362a61df579262d7a9ec2ff4fb78a17",
+    "generation_output_dimensions_px": [
+      1254,
+      1254
+    ],
+    "generation_output_sha256": "3c7e8bcb1542140d535624916f77cefeaddbc17716d8e6ac6a582176902115ab",
+    "composite": "Lanczos resize to input crop size, then blend over the v2 master with a feathered mask covering the figures and their shadows.",
+    "mask_polygon_xy_px_relative_to_crop": "139,321 161,307 162,244 189,215 196,174 252,174 260,199 274,198 279,170 320,170 325,197 335,188 373,190 385,205 396,176 428,176 434,203 452,260 470,306 455,343 434,350 450,418 434,474 314,485 264,487 168,486 145,452 158,386 139,379",
+    "mask_blur_sigma_px": 3,
+    "saved_dimensions_px": [
+      1672,
+      941
+    ],
+    "changed_pixel_bounds_xyxy_px": [
+      247,
+      568,
+      592,
+      900
+    ]
+  },
+  "manifest": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-29-b4/manifest.json"
+}

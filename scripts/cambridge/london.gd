@@ -49,6 +49,10 @@ func open(run: Dictionary, prediction: Dictionary, bond_tone: String) -> void:
 	add_child(backdrop)
 	paper = Paper.new()
 	add_child(paper)
+	page_id = "plate"
+	paper.begin_plate(preload("res://assets/journey/burlington-house-v2.png"), _text.L18)
+	paper.advance(_text.L14)
+	await paper.action
 	paper.action.connect(_action)
 	_show_page()
 
@@ -61,7 +65,7 @@ func refresh_fonts() -> void:
 func _show_page() -> void:
 	var page: Dictionary = Content.PAGES[_step]
 	page_id = page.id
-	paper.begin(page.has("chart") or page_id == "proceedings")
+	paper.begin(true)
 	var scroll: ScrollContainer = paper.body.get_parent()
 	var layout: VBoxContainer = scroll.get_parent()
 	if page.has("chart"):
@@ -72,6 +76,8 @@ func _show_page() -> void:
 		paper.label(layout, _text.L01, 32)
 		layout.move_child(layout.get_child(-1), 0)
 	_show_lines(page.lines)
+	if _step == 0:
+		paper.headpiece()
 	if page.has("choices") and not _notes.has(page_id):
 		_show_choices(page, scroll)
 	else:
@@ -94,6 +100,8 @@ func _show_page() -> void:
 		paper.rule(paper.body)
 		_show_lines(["L42" if key == "precision" else "L64"])
 		_show_lines(_notes[key])
+	if page_id == "hold":
+		paper.tailpiece()
 
 
 func _show_title_plate() -> void:

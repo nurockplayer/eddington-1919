@@ -112,6 +112,34 @@ func check_paper_focus(control: Button) -> void:
 		"focused paper button uses ink: " + control.text)
 
 
+func check_opening_plate(paper: Control, plate_file: String, onwards: String) -> void:
+	await frames(3)
+	var plate := paper.body.get_node_or_null("OpeningPlate") as TextureRect
+	expect(plate != null, "the chapter opens on " + plate_file)
+	expect(plate.texture.resource_path.get_file() == plate_file, "the chapter uses its approved plate")
+	expect(paper.body.get_child_count() == 2, "only the plate and caption are on the opening sheet")
+	var caption: Label = paper.body.get_child(1)
+	var scroll: ScrollContainer = paper.body.get_parent()
+	var sheet: Control = paper.actions.get_parent().get_parent()
+	var plate_page := sheet.get_global_rect()
+	expect(plate.size.y > 0, "the plate has room above its caption")
+	expect(scroll.get_global_rect().grow(1).encloses(plate.get_global_rect().merge(caption.get_global_rect())),
+		"the whole plate and caption fit before the fold")
+	expect(caption.get_line_count() == 1, "the caption fits on one line")
+	check_paper_focus(button(paper, onwards))
+	match L.current():
+		"en":
+			await tap(KEY_ENTER)
+		"ja":
+			await tap_pad(JOY_BUTTON_A)
+		_:
+			await press(button(paper, onwards))
+	await frames(3)
+	sheet = paper.actions.get_parent().get_parent()
+	expect(sheet.get_global_rect().is_equal_approx(plate_page),
+		plate_file + " and the following text share the same page bounds")
+
+
 func check_paper_layout(paper: Control, state: String) -> void:
 	await frames(3)
 	var failures: Array[String] = []
@@ -437,6 +465,7 @@ func _tribunal(director: Node, misfile: bool) -> void:
 	while director.ui.fade.color.a > 0.0:
 		await process_frame
 	await frames(2)
+	await check_opening_plate(paper, "cambridge-observatory-v2.png", strings.T22)
 	for id in TRIBUNAL_PAGES:
 		expect(journey.page_id == id, "expected %s, got %s" % [id, journey.page_id])
 		if bench_speakers.has(id):
@@ -779,6 +808,7 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		var before: Dictionary = story.to_save().duplicate(true)
 		await _sobral(chapter, L.current() in ["en", "ja"])
 		await press(button(chapter.paper, Sobral.strings().B54))
+		await check_opening_plate(chapter.paper, "homeward-v1.png", Madeira.strings().M09)
 		expect(is_instance_valid(chapter) and chapter.page_id == "I4-01", "Sobral opens I4 before October")
 		await _homeward(chapter.paper)
 		expect(story.to_save() == before and day.sim.plates == plates,
@@ -905,9 +935,10 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 	var original := run.duplicate(true)
 	var text := London.strings()
 	var locale := L.current()
-	var reaction := {"en": "L07", "ja": "L10", "zh_TW": "L10", "ko": "L07"}
+	await check_opening_plate(paper, "burlington-house-v2.png", text.L14)
+	var reaction := "L07" if strong else ("L11" if combined.n == 0 else "L10")
 	var read := [
-		["prediction", ["L02", "L03", "L04", reaction[locale]], "L14"],
+		["prediction", ["L02", "L03", "L04", reaction], "L14"],
 		["simulation", ["L15"], "L14"],
 		["threshold", ["L85", "L86", "L87", "L12"], "L13"],
 		["proceedings", ["L19", "L20", "L21"], "L14"],
@@ -985,6 +1016,7 @@ func _london_print(chapter: Node, next: String) -> void:
 	var paper: Control = chapter.get("london_print")
 	expect(is_instance_valid(paper) and not chapter.ui.ending_panel.visible,
 		"Read the headlines opens In print before the run review")
+	await check_opening_plate(paper, "london-news-v2.png", next)
 	var text := Print.strings()
 	var pages := [
 		["I5-03", "I5-04", "I5-05", "I5-06"], ["I5-16", "I5-17"], ["I5-07", "I5-08", "I5-09"],
@@ -1213,7 +1245,12 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	var story := root.get_node("Story")
 	while chapter.ui.fade.color.a > 0.0 or paper.actions.get_child_count() == 0:
 		await process_frame
+	await check_opening_plate(paper, "funchal-v1.png", text.M09)
 	for id in ["M01", "M04", "M80", "M81", "M05", "M82", "M06", "M83", "M84", "M07", "M10", "M12"]:
+		if id == "M04":
+			await check_opening_plate(paper, "liverpool-v1.png", text.M09)
+		elif id == "M05":
+			await check_opening_plate(paper, "lisbon-v1.png", text.M09)
 		expect(journey.page_id == id, "arrival order: " + id)
 		_check_lines(paper, text, [id])
 		if id == "M06":
@@ -1370,13 +1407,16 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	var paper: Control = journey.paper
 	while not paper.actions.visible:
 		await process_frame
+	await check_opening_plate(paper, "santo-antonio-v1.png", onward)
 	await _sundy_sheet(paper, "sundy_01_title", [text.S01], onward)
 	await _sundy_sheet(paper, "sundy_02_shore", [text.S04, text.S05], text.S06)
 	await _sundy_sheet(paper, "sundy_03_esperanca", [text.S09], onward)
 	expect(not has_text(paper, text.S12), "the site is only revealed after the other two visits")
 	await _sundy_sheet(paper, "sundy_04_sao_joaquim", [text.S10, text.S11], onward)
 	await _sundy_sheet(paper, "sundy_05_sundy_choice", [text.S12], text.S13, true)
+	await check_opening_plate(paper, "forest-road-v1.png", onward)
 	await _sundy_sheet(paper, "sundy_06_track_end", [text.S15, text.S16, text.S17], onward)
+	await check_opening_plate(paper, "sundy-arrival-v3.png", onward)
 	await _sundy_sheet(paper, "sundy_07_cargo_arrival", [text.S18, text.S19], text.S20)
 	await _sundy_sheet(paper, "sundy_08_work_record", [text.S22, text.S23, text.S24, text.S25], text.S26)
 	await _sundy_sheet(paper, "sundy_09_packed_mirror", [text.S28], onward)
@@ -1443,6 +1483,10 @@ func _sobral(chapter: Node, revise: bool) -> void:
 	for sheet in setup:
 		while not paper.actions.visible:
 			await process_frame
+		if sheet[0] == "02_racecourse":
+			await check_opening_plate(paper, "sobral-racecourse-v1.png", onward)
+		elif sheet[0] == "03_brazil":
+			await check_opening_plate(paper, "sobral-square-v1.png", onward)
 		_check_lines(paper, text, sheet[1])
 		await _sobral_frame(paper, sheet[0])
 		await press(button(paper, sheet[2]))
