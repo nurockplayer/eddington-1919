@@ -222,6 +222,10 @@ func _case(full: bool, choice: int) -> void:
 	check(resolutions.all(func(e): return e.submitted), label + ": no resolution before verdict")
 	check(resolutions.all(func(e): return e.ending and e.scene == (OCTOBER if full else MAIN)), label + ": resolution belongs to route ending")
 	check(starts.all(func(e): return not e.submitted or (e.cue == "coda_resolution" and e.ending)), label + ": no verdict win sting")
+	if full and root.get_node("Story").runs.back().verdict_class == "underclaim":
+		var street_pcm: PackedByteArray = current_scene.street.stream.data
+		check(street_pcm.decode_s16(0) == street_pcm.decode_s16(street_pcm.size() - 2),
+			label + ": October street loop wraps without a PCM step")
 	# A second ending notification after the one-shot has stopped must not replay it.
 	current_scene.score.stop("coda_resolution")
 	current_scene.ui.dialogue_done.emit({})
