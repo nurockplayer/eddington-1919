@@ -1931,3 +1931,21 @@ Frames kept in `docs/design/slice_principe/accept/618/183a40c/`.
 ![exchange](slice_principe/accept/618/183a40c/london_exchange_en.png)
 
 **Count stays 7/9.**
+
+### 2026-11-28 09:02 JST · #589 (AA fun 01 middle cloud seam) at d535209: accepted, daylight stripe carried
+
+Opened whole at 1280×720: seam frames 120 and 180; clear frames 0 and 660. A strip of twelve native crops of the Sun through the seam (frames 0 to 340). Not opened: the other seam frames, the mp4. The peak Sun-crop step (0.293 of 255) is the capture's own figure; I did not re-measure it. No thin or thick clip in this capture: thin is judged on the row 2 re-shoot after merge.
+
+- **Technical regression:** none seen. Islands keep hard contours and ruling through the seam; corona and Moon intact before and after.
+- **This change: accepted.** The seam is now a cloud: a filled, ruled island with an uneven contour, darker than its neighbours, and the disc and corona end hard at its edge. It comes in from one side, covers the disc with the rays still showing around it, and leaves on the other. The opening the corona sits in at clear frame 660 has irregular edges.
+- **Whole scene (totality):** readiness unchanged; row 2 still to be judged in motion.
+
+Carried, not held (this is the third round and the seam itself is right): at clear frame 0, 20 s before second contact in daylight, the thinning is still a pale stripe with straight parallel sides pointing at the crescent, like a beam. It goes into my daylight/rehearsal sky brief after this merges.
+
+Frames kept in `docs/design/slice_principe/accept/589/d535209/`.
+
+![seam strip](slice_principe/accept/589/d535209/seam-sun-strip-12.png)
+![seam 180](slice_principe/accept/589/d535209/seam-frame-0180.png)
+![clear 0](slice_principe/accept/589/d535209/clear-frame-0000.png)
+
+**Count stays 7/9.**
