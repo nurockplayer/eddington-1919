@@ -1342,9 +1342,12 @@ func _person(id: String, body: Node3D) -> bool:
 			var hat := fig.find_child("eddington_hat", true, false) as Node3D
 			# Follow the crown of the head through the work poses, with a level brim.
 			var attachment := hat.get_parent() as Node3D
-			var authored_basis := hat.basis
+			var seat := hat.transform
 			sk.skeleton_updated.connect(func() -> void:
-				var heading := (attachment.global_basis * authored_basis).z.slide(Vector3.UP)
-				hat.global_basis = Basis.looking_at(-heading, Vector3.UP)
+				var posed := attachment.global_transform * seat
+				var up := posed.basis.y.normalized()
+				# As the head bows, the top of the skull rolls back under the brim.
+				var centre := posed.origin + Vector3.UP * (0.08 * (1.0 - up.y)) - up.slide(Vector3.UP) * 0.058
+				hat.global_transform = Transform3D(Basis.looking_at(-posed.basis.z.slide(Vector3.UP)), centre)
 			)
 	return true

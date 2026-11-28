@@ -19,6 +19,26 @@ func check(ok: bool, message: String) -> void:
 		failures += 1
 		print("FAIL: ", message)
 
+func _test_principe_faces(game: Node) -> void:
+	for id in ["eddington", "cottingham"]:
+		var body := game.world[id].find_child(id + "_body", true, false) as MeshInstance3D
+		var triangles := body.mesh.get_faces()
+		var offset := 0.0 if id == "eddington" else 0.056
+		var single_surface := true
+		# Depth rays across the former mouth and eye folds of the bind mesh.
+		for datum in [Vector2(-0.0153, 1.6133), Vector2(0.0047, 1.6133), Vector2(0.0147, 1.6453)]:
+			var front := Vector3(datum.x, datum.y - offset, 0.18)
+			var back := Vector3(front.x, front.y, 0.11)
+			var crossings := 0
+			for i in range(0, triangles.size(), 3):
+				if Geometry3D.segment_intersects_triangle(front, back, triangles[i], triangles[i + 1], triangles[i + 2]) != null:
+					crossings += 1
+			single_surface = single_surface and crossings == 1
+		check(single_surface, id + " face has one skin surface across the former folds")
+
+	var hat := game.world.eddington.find_child("eddington_hat", true, false) as Node3D
+	check(hat.global_basis.y.is_equal_approx(Vector3.UP), "Eddington's brim stays level in the working pose")
+
 
 func _run() -> void:
 	var shader_text := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
@@ -73,6 +93,7 @@ func _run() -> void:
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
+	_test_principe_faces(game)
 	var post_puddles: Array = game.find_children("*", "MeshInstance3D", true, false).filter(
 		func(mesh): return mesh.mesh is CylinderMesh and mesh.position.is_equal_approx(Vector3(2.6, 0.03, -0.4)))
 	check(post_puddles.is_empty(), "no placeholder puddle at the front shelter post")
