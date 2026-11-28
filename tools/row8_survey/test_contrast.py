@@ -1,26 +1,77 @@
 import unittest
 import json
+import runpy
 import subprocess
 import sys
 import tempfile
+import types
 from pathlib import Path
 
-from PIL import Image
-
 from contrast import contrast_ratio, measure
+
+
+class FixtureImage:
+    def __init__(self, width, height, pixels):
+        self.width, self.height, self.pixels = width, height, pixels
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        pass
+
+    def convert(self, mode):
+        return self
+
+    def crop(self, box):
+        x0, y0, x1, y1 = box
+        return FixtureImage(x1 - x0, y1 - y0, [
+            self.pixels[y * self.width + x]
+            for y in range(y0, y1) for x in range(x0, x1)
+        ])
+
+    def get_flattened_data(self):
+        return self.pixels
+
+    def paste(self, image, position):
+        pass
+
+    def resize(self, size, resampling):
+        return FixtureImage(*size, [(255, 255, 255)] * (size[0] * size[1]))
+
+    def save(self, path, **kwargs):
+        Path(path).write_bytes(b"fixture")
+
+
+def fixture_pil_modules():
+    image = types.ModuleType("PIL.Image")
+    image.Resampling = types.SimpleNamespace(LANCZOS=0)
+
+    def open(path):
+        pixels = [(255, 255, 255)] * (32 * 16)
+        if Path(path).name != "background.png":
+            for y in range(2, 10):
+                for x in range(2, 8):
+                    pixels[y * 32 + x] = (0, 0, 0)
+        return FixtureImage(32, 16, pixels)
+
+    image.open = open
+    image.new = lambda mode, size, color: FixtureImage(
+        *size, [tuple(bytes.fromhex(color.removeprefix("#")))] * (size[0] * size[1])
+    )
+    draw = types.ModuleType("PIL.ImageDraw")
+    draw.Draw = lambda target: types.SimpleNamespace(text=lambda *args, **kwargs: None)
+    pil = types.ModuleType("PIL")
+    pil.Image, pil.ImageDraw = image, draw
+    return {"PIL": pil, "PIL.Image": image, "PIL.ImageDraw": draw}
 
 
 class ContrastTests(unittest.TestCase):
     def test_unsampled_control_gap_is_reported_alongside_sampled_sibling(self):
         with tempfile.TemporaryDirectory() as directory:
             out = Path(directory)
-            frame = Image.new("RGB", (32, 16), "white")
-            for x in range(2, 8):
-                for y in range(2, 10):
-                    frame.putpixel((x, y), (0, 0, 0))
-            frame.save(out / "frame.png")
-            Image.new("RGB", (32, 16), "white").save(out / "background.png")
-            frame.save(out / "repeat.png")
+            for name in ("frame.png", "background.png", "repeat.png"):
+                (out / name).touch()
             (out / "commands.tsv").write_text("cfg\tfixture command\n")
             (out / "sheets").mkdir()
             (out / ".work").mkdir()
@@ -34,12 +85,24 @@ class ContrastTests(unittest.TestCase):
                 ],
             }
             (out / "receipts-fixture.jsonl").write_text(json.dumps(row) + "\n")
-            sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+            sha = "fixture"
 
-            subprocess.run(
-                [sys.executable, str(Path(__file__).with_name("report.py")), str(out), sha],
-                check=True,
-            )
+            previous_argv = sys.argv
+            previous_check_output = subprocess.check_output
+            previous_modules = {name: sys.modules.get(name) for name in ("PIL", "PIL.Image", "PIL.ImageDraw")}
+            sys.modules.update(fixture_pil_modules())
+            try:
+                sys.argv = ["report.py", str(out), sha]
+                subprocess.check_output = lambda *args, **kwargs: ""
+                runpy.run_path(str(Path(__file__).with_name("report.py")), run_name="__main__")
+            finally:
+                sys.argv = previous_argv
+                subprocess.check_output = previous_check_output
+                for name, module in previous_modules.items():
+                    if module is None:
+                        sys.modules.pop(name, None)
+                    else:
+                        sys.modules[name] = module
 
             expected = "cfg state case / dialog / Nearly invisible label: no differing glyph pixels in the visible bounds."
             self.assertIn(expected, (out / "index.md").read_text())
