@@ -376,32 +376,22 @@ func _test_return_paper(game: Node) -> void:
 	frames.append(14 * 60)
 	for reduced_motion in [false, true]:
 		Settings.reduced_motion = reduced_motion
-		var wipe_frames := 0
 		for frame in frames:
 			var elapsed: float = frame / 60.0
 			game._update_day_return(elapsed)
 			var darkness: float = game._style.quad_material.get_shader_parameter("darkness")
-			var paper := Engraving.PAPER.lerp(blue, darkness)
-			wipe_frames += int(ui.text_label.material != null)
+			var paper := blue if darkness > 0.75 else Engraving.PAPER
 			for entry in labels:
 				var label: Control = entry[1]
 				var slip: StyleBoxFlat = entry[0].get_theme_stylebox("normal" if entry[0] == label else "panel")
 				var ink := label.get_theme_color(entry[2])
-				_check_slip(slip, ink, paper, 3.5)
-				check(label.get_theme_constant("outline_size") == 0, "return text has no outline at %.3f s" % elapsed)
-				check(ink == Engraving.PAPER or ink == Engraving.INK, "return text only uses the original inks")
-				check(label.material == ui.text_label.material, "return text shares the ink transition")
-				if label.material != null:
-					for channel in ["light_ink", "dark_ink"]:
-						var wipe_ink: Color = label.material.get_shader_parameter(channel)
-						check(wipe_ink == (Engraving.PAPER if channel == "light_ink" else Engraving.INK)
-							and _contrast(wipe_ink, slip.bg_color) >= 3.5, "both original inks read during the wipe")
-				if elapsed >= game.DAY_RETURN_S:
-					check(slip.bg_color == Engraving.PAPER and slip.border_color == Engraving.INK and ink == Engraving.INK,
-						"return ends on exact daylight paper and ink")
+				_check_slip(slip, ink, paper)
+				check(label.material == null and slip.border_color == ink, "return text and rule use one solid ink")
+				if elapsed >= game.THIRD_CONTACT_S + 1.5:
+					check(slip.bg_color == Engraving.PAPER and ink == Engraving.INK,
+						"return dialogue starts on exact daylight paper and ink")
 			check(ui.dialogue_portrait.image.self_modulate.is_equal_approx(Color.WHITE.lerp(blue.lerp(Color.WHITE, 0.4), darkness)),
 				"portrait follows page darkness at %.3f s (reduced motion %s)" % [elapsed, reduced_motion])
-		check(wipe_frames >= 15 and wipe_frames <= 21, "ink transition takes about 0.3 s")
 	Settings.reduced_motion = saved_motion
 
 
@@ -422,7 +412,7 @@ func _test_hud_paper(game: Node) -> void:
 	check(ui.crosshair.modulate == Color.WHITE, "interaction cannot fade or tint the crosshair slip")
 	ui.title_panel.visible = was_title
 	game._busy = was_busy
-	for state in [[0.0, 0.0, Engraving.PAPER], [1.0, 0.0, Engraving.PAGES.tot_paper], [0.0, 1.0, Engraving.PAGES.safe_paper]]:
+	for state in [[0.0, 0.0, Engraving.PAPER], [1.0, 0.0, Engraving.PAGES.tot_paper], [0.0, 1.0, Color("4d1714")]]:
 		game._apply_light(0.62, state[0], -150.0, state[1])
 		for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption]:
 			check(label.has_theme_stylebox_override("normal"), "HUD text has its own slip: " + str(label.get_path()))

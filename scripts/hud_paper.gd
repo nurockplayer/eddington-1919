@@ -2,7 +2,9 @@ extends RefCounted
 ## In-play print furniture and the overlays that open over it.
 
 const Fonts := preload("res://scripts/fonts.gd")
-const InkShader := preload("res://shaders/hud_ink.gdshader")
+const NIGHT_PAPER := Color("4d1714")
+const NIGHT_INK := Color("ffdbc9")
+const TOTALITY_INK := Color("fffbf2")
 
 var ui: Node
 var palette: Dictionary
@@ -11,8 +13,6 @@ var panel_slips := {}
 var buttons: StyleBoxFlat
 var selected_button: StyleBoxFlat
 var hovered_button: StyleBoxFlat
-var ink_wipe := ShaderMaterial.new()
-var ink_crossover: float
 var choice_focus := StyleBoxEmpty.new()
 var foreground: Color
 var evidence_dialogue := {}
@@ -25,13 +25,6 @@ var small_caps: FontVariation
 func setup(target: Node, colours: Dictionary) -> void:
 	ui = target
 	palette = colours
-	ink_wipe.shader = InkShader
-	ink_wipe.set_shader_parameter("light_ink", palette.paper)
-	ink_wipe.set_shader_parameter("dark_ink", palette.ink_col)
-	var light_ink: Color = palette.paper
-	var dark_ink: Color = palette.ink_col
-	ink_crossover = sqrt((light_ink.srgb_to_linear().get_luminance() + 0.05)
-		* (dark_ink.srgb_to_linear().get_luminance() + 0.05)) - 0.05
 	ui.paper_hud = true
 	var face := SystemFont.new()
 	face.font_names = PackedStringArray(["Baskerville", "Georgia", "serif"])
@@ -111,39 +104,29 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 			"text": ui.text_label.get_theme_color("default_color"),
 			"hint": ui.hint_label.get_theme_color("font_color"),
 			"disclosure": ui.dialogue_portrait.disclosure.get_theme_color("font_color"),
+			"hint_outline": ui.hint_label.get_theme_constant("outline_size"),
+			"disclosure_outline": ui.dialogue_portrait.disclosure.get_theme_constant("outline_size"),
 		}
 	var background: Color = palette.paper
 	foreground = palette.ink_col
 	portrait_tint = Color.WHITE
-	var rule := foreground
-	var ink_material: ShaderMaterial
 	if night * float(params.night_wash) > 0.5:
-		background = palette.safe_paper
-		foreground = palette.safe_light
-		portrait_tint = foreground
-		rule = foreground
-		ui.set_overlay_paper(background, foreground)
+		background = NIGHT_PAPER
+		foreground = NIGHT_INK
+		portrait_tint = palette.safe_light
 	else:
 		var blue: Color = palette.tot_paper
 		var wash := clampf(darkness * float(params.tot_wash), 0.0, 1.0)
-		background = blue if wash == 1.0 else background.lerp(blue, wash)
+		# Turn the HUD page before the return dialogue. The scene and portrait
+		# can keep fading while every letter uses the ink for a solid stock.
+		if wash > 0.75:
+			background = blue
+			foreground = TOTALITY_INK
 		portrait_tint = Color.WHITE.lerp(blue.lerp(Color.WHITE, 0.4), wash)
-		var luminance := background.srgb_to_linear().get_luminance()
-		# This luminance band takes about 0.3 s to cross and supports both inks.
-		var ink_progress := inverse_lerp(ink_crossover - 0.01, ink_crossover + 0.01, luminance)
-		foreground = palette.paper if ink_progress < 0.5 else palette.ink_col
-		rule = foreground
-		if ink_progress > 0.0 and ink_progress < 1.0:
-			var light_ink: Color = palette.paper
-			rule = light_ink.lerp(palette.ink_col, ink_progress)
-			ink_wipe.set_shader_parameter("source_ink", foreground)
-			ink_wipe.set_shader_parameter("progress", ink_progress)
-			ink_material = ink_wipe
-		# Pause, help and log stop the scene clock and keep their solid print palettes.
-		ui.set_overlay_paper(blue if wash > 0.5 else palette.paper, palette.paper if wash > 0.5 else palette.ink_col)
+	ui.set_overlay_paper(background, foreground)
 	for slip in slips:
 		slip.bg_color = background
-		slip.border_color = rule
+		slip.border_color = foreground
 	for panel in panel_slips:
 		panel.add_theme_stylebox_override("panel", panel_slips[panel])
 	buttons.bg_color = background
@@ -152,17 +135,16 @@ func light(darkness: float, night: float, params: Dictionary) -> void:
 	selected_button.border_color = foreground
 	hovered_button.bg_color = background
 	hovered_button.border_color = foreground
-	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption, ui.tot_hint, ui.callout, ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
+	for label in [ui.clock_label, ui.prompt_label, ui.toast, ui.caption, ui.tot_hint, ui.callout]:
 		label.add_theme_color_override("font_color", foreground)
 		label.add_theme_constant_override("outline_size", 0)
-		label.material = ink_material
 	ui.crosshair.add_theme_color_override("font_color", foreground)
 	ui.crosshair.add_theme_color_override("font_outline_color", background)
 	ui.crosshair.add_theme_constant_override("outline_size", 3)
-	for label in [ui.objectives, ui.tot_label, ui.text_label]:
+	for label in [ui.objectives, ui.tot_label]:
 		label.add_theme_color_override("default_color", foreground)
-		label.add_theme_constant_override("outline_size", 0)
-		label.material = ink_material
+		label.add_theme_color_override("font_outline_color", foreground)
+		label.add_theme_constant_override("outline_size", 1)
 	_choices()
 	_central_visibility()
 
@@ -177,6 +159,8 @@ func _choices() -> void:
 		ui.text_label.add_theme_color_override("default_color", evidence_dialogue.text)
 		ui.hint_label.add_theme_color_override("font_color", evidence_dialogue.hint)
 		ui.dialogue_portrait.disclosure.add_theme_color_override("font_color", evidence_dialogue.disclosure)
+		ui.hint_label.add_theme_constant_override("outline_size", evidence_dialogue.hint_outline)
+		ui.dialogue_portrait.disclosure.add_theme_constant_override("outline_size", evidence_dialogue.disclosure_outline)
 		ui.dialogue_portrait.image.self_modulate = Color.WHITE
 		for label in [ui.speaker_label, ui.hint_label, ui.dialogue_portrait.disclosure]:
 			label.remove_theme_font_override("font")
@@ -195,8 +179,10 @@ func _choices() -> void:
 	ui.dialogue_portrait.add_theme_stylebox_override("panel", panel_slips[ui.dialogue_portrait])
 	ui.speaker_label.add_theme_color_override("font_color", foreground)
 	ui.text_label.add_theme_color_override("default_color", foreground)
-	ui.hint_label.add_theme_color_override("font_color", foreground)
-	ui.dialogue_portrait.disclosure.add_theme_color_override("font_color", foreground)
+	for label in [ui.hint_label, ui.dialogue_portrait.disclosure]:
+		label.add_theme_color_override("font_color", foreground)
+		label.add_theme_color_override("font_outline_color", foreground)
+		label.add_theme_constant_override("outline_size", 1)
 	for button in ui._choice_buttons:
 		if not button.focus_entered.is_connected(_choices):
 			button.focus_entered.connect(_choices)

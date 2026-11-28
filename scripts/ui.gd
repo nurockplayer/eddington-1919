@@ -1014,12 +1014,14 @@ func _build_viewer(root: Control) -> void:
 	)
 	btns.add_child(measure_btn)
 	reselect_btn = _button(L.t("重新選片"))
+	reselect_btn.add_theme_color_override("font_disabled_color", Color("ded4c2"))
 	reselect_btn.pressed.connect(func():
 		_viewer_sound("mark")
 		reselect_pressed.emit()
 	)
 	btns.add_child(reselect_btn)
 	report_btn = _button(L.t("向 Eddington 報告 →"))
+	report_btn.add_theme_color_override("font_disabled_color", Color("ded4c2"))
 	report_btn.pressed.connect(func(): report_pressed.emit())
 	btns.add_child(report_btn)
 	var close := _button(L.t("離開桌子"))
@@ -1030,7 +1032,7 @@ func _build_viewer(root: Control) -> void:
 	for b: Button in [measure_btn, reselect_btn, report_btn, close]:
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var model_note := _label(L.t("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"), 15, DIM)
+	var model_note := _label(L.t("示意模擬資料：數值為遊戲模型，不是 1919 年的實際量測。"), 15, PAPER)
 	model_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(model_note)
 	viewer.resized.connect(_layout_viewer)
@@ -2417,7 +2419,7 @@ func lock_totality_pace() -> void:
 
 
 func _locked_pace_ink() -> Color:
-	return INK.lerp(PAPER, 0.25) if _overlay_paper == MenuPrint.PAPER else _overlay_ink.lerp(_overlay_paper, 0.1)
+	return _overlay_ink.lerp(_overlay_paper, 0.1)
 
 
 func _toggle_fullscreen() -> void:
@@ -2860,6 +2862,9 @@ func _print_menu(node: Node, paper_color := MenuPrint.PAPER, ink_color := MenuPr
 		node.add_theme_stylebox_override("separator", rule)
 	if node is RichTextLabel:
 		node.add_theme_color_override("default_color", ink_color)
+		if node == pause_objectives or credits_panel.is_ancestor_of(node) or log_panel.is_ancestor_of(node):
+			node.add_theme_color_override("font_outline_color", ink_color)
+			node.add_theme_constant_override("outline_size", 1)
 		# Print existing BBCode colours in ink without altering any stored text.
 		var ink := ShaderMaterial.new()
 		ink.shader = preload("res://shaders/menu_ink.gdshader")
