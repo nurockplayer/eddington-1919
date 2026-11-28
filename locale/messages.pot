@@ -6973,3 +6973,9 @@ msgstr ""
 
 msgid "倫敦・1919 年 11 月 7 日"
 msgstr ""
+
+msgid "劍橋天文台"
+msgstr ""
+
+msgid "桑迪莊園・1919 年 4 月 28 日"
+msgstr ""

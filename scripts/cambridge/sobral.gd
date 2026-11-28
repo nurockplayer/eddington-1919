@@ -81,6 +81,7 @@ func play(day: Node) -> void:
 			_picture(instrument, "mailhat", 155)
 			_lines(instrument, ["MAILHAT"], 18)
 		if setup[0] == "B02":
+			paper.headpiece()
 			await _ui.fade_to(0.0, 0.0 if Settings.reduced_motion else 0.7).finished
 		await _next("next")
 
@@ -228,6 +229,7 @@ func _inspection() -> void:
 			_glass(loupe, data[3], 245, true, true)
 			_lines(loupe, ["loupe"], 18)
 		_lines(sample, [data[0]], 20)
+		paper.engraving(sample, preload("res://assets/journey/02-darkroom-bench.png"), Vector2(152, 80))
 		_lines(ledger, ["B23"])
 		if opened or not logged.is_empty():
 			_lines(ledger, ["B19"], 20)
@@ -355,6 +357,7 @@ func _scale_check() -> void:
 			_glass(auxiliary, "may_aux", 190)
 			_lines(auxiliary, ["MAY_AUX"], 18)
 			_lines(paper.column(archive), ["B52", "B53"], 20)
+			paper.tailpiece()
 			paper.advance(_text.B54)
 		match await paper.action:
 			"advance": return

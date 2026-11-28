@@ -1,0 +1,30 @@
+{
+  "id": "05-cargo-steamer",
+  "variant": 2,
+  "prompt": "One original 1919 cargo steamer steel-engraved vignette on landscape cream paper. View from behind, clearly off the stern at about 35 degrees to the ship's centerline, with the transom or rounded stern prominent in the foreground at left, the starboard side narrowing strongly away to the right, and the widening wake coming toward us. The smaller bow points away from the viewer. One short funnel with smoke blowing back above the wake, simple cargo gear, no flags or names. Center the complete ship and let the few sea and smoke marks taper to broad bare cream paper at every edge. Black engraved lines, hatching, cross-hatching and stipple only, no gray wash, other colours, lettering, signature or border.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:48:37 JST",
+  "retries": 1,
+  "raw_sha256": "ec6cd3eb6e220974316a168b7d770d3ac0fd8c510e25fe23888d6e849720594f",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/raw/05-cargo-steamer.png",
+  "file": "05-cargo-steamer.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-6e69969b-bb05-42be-8614-0801aabf1cf4.png",
+  "source_commit": "4aa36d5e0ab6499b342f5cbb3eda23b38d10c71f",
+  "prior_errors": [],
+  "model_comparison": "Generic aft-quarter cargo steamer. The checked journey research names Anselm, Portugal and Zaire for distinct legs. The illustrated hull, masts, rigging and funnel do not identify any of them.",
+  "previous_attempts": [
+    {
+      "variant": 1,
+      "prompt": "Create one original landscape steel engraving vignette for an early scientific journal. Center the objects with generous bare paper on all four sides. Let the last bench or water marks taper and fade into bare paper without a rectangular edge. A small ocean cargo steamer in 1919, underway and viewed from its aft quarter at sea level. Modest single funnel with smoke streaming aft nearly horizontally, simple cargo boom masts, low workmanlike hull, partial wake and short bands of open sea. Give the ship room to breathe. Unnamed generic vessel, no identifying markings and no people. Only black ink on flat light cream paper. Build tone exclusively from fine parallel burin hatching, cross-hatching and stipple. No grey wash, gradients, photographic shading, other colours, lettering, numerals, watermark, or signature.",
+      "raw_sha256": "385d1dfefd4af06f8b6f73504436fcc0782fc863d6dea3ffba050fd1613b88f7",
+      "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-52f80343-5e98-4f83-9945-83014fb3a08c.png",
+      "time": "2026-11-28 17:45:30 JST"
+    }
+  ],
+  "size_px": [
+    279,
+    200
+  ],
+  "manifest": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/manifest.json"
+}

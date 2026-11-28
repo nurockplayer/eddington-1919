@@ -103,6 +103,7 @@ func _arrival() -> void:
 	await _director.ui.fade_to(0.0, _motion(0.7)).finished
 	await _advance()
 	_show("M01")
+	paper.headpiece()
 	await _advance()
 	var port_plates := {
 		"M04": [preload("res://assets/journey/liverpool-v1.png"), L.t("利物浦・1919 年 3 月 8 日")],
@@ -162,7 +163,9 @@ func _worktable() -> void:
 	await _advance("M18")
 	await _sort_copies()
 	_show("M39")
-	_ink(paper.body, "sobral", 5)
+	var route: HBoxContainer = paper.columns(paper.body)
+	_ink(paper.column(route), "sobral", 5)
+	paper.engraving(route, preload("res://assets/journey/05-cargo-steamer.png"), Vector2(142, 92))
 	_archive(paper.body, Content.SOBRAL)
 	await _advance("M44")
 	_show("M14")
@@ -279,7 +282,9 @@ func _input(event: InputEvent) -> void:
 func _board(focus: String, correction: String) -> void:
 	_show("M14")
 	page_id = "M20"
-	_ink(paper.body, "hotel", 0, false, 126)
+	var illustration: HBoxContainer = paper.columns(paper.body)
+	_ink(paper.column(illustration), "hotel", 0, false, 126)
+	paper.engraving(illustration, preload("res://assets/journey/01-coelostat.png"), Vector2(148, 76))
 	var complete := filed.size() == Content.LOOSE.size()
 	var columns: HBoxContainer = paper.columns(paper.body)
 	var controls := {}
@@ -401,6 +406,7 @@ func _dockside() -> void:
 	_line(recall, "M68")
 	_line(aboard, "M22", 19)
 	_line(aboard, "M69")
+	paper.tailpiece()
 	await _advance("M70")
 
 

@@ -1,0 +1,21 @@
+{
+  "id": "02-darkroom-bench",
+  "variant": 1,
+  "prompt": "Create one original landscape steel engraving vignette for an early scientific journal. Center the objects with generous bare paper on all four sides. Let the last bench or water marks taper and fade into bare paper without a rectangular edge. A 1919 glass-plate darkroom bench in oblique view. Exactly three shallow rectangular enamel developing trays in a row, two or three cork-stoppered dark glass bottles, a slotted wooden drying rack with upright glass negatives (visible edges), and one hooded upright safelight with a screened window. Isolate the group and a short run of bare bench. Keep the trays and rack clearly separable and glass surfaces legible. Only black ink on flat light cream paper. Build tone exclusively from fine parallel burin hatching, cross-hatching and stipple. No grey wash, gradients, photographic shading, other colours, lettering, numerals, watermark, or signature.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:44:12 JST",
+  "retries": 0,
+  "raw_sha256": "76c4f4736fb9cafb1d7856b74b4b597e093841b41c3b01cd308b779e95c089ce",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/raw/02-darkroom-bench.png",
+  "file": "02-darkroom-bench.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-66cbc72d-deac-41a0-837e-7dcbbf35b7f7.png",
+  "source_commit": "4aa36d5e0ab6499b342f5cbb3eda23b38d10c71f",
+  "prior_errors": [],
+  "model_comparison": "The game stages three corked, blank-label bottles behind the trays and the rack on the side shelf. This engraving groups two unlabelled bottles and the rack on one bench. Its hooded lamp is freestanding, while the game lamp is an iron box suspended on a roof wire.",
+  "size_px": [
+    320,
+    169
+  ],
+  "manifest": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/manifest.json"
+}

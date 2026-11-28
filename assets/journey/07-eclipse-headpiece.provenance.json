@@ -1,0 +1,29 @@
+{
+  "id": "07-eclipse-headpiece",
+  "variant": 2,
+  "prompt": "One original printer's headpiece, a restrained 1910s scientific journal ornament, on flat untextured pale cream. This is a small centered horizontal band made from a single round eclipse medallion and two thin paired horizontal rules. Explicit dimensions: make the full inked band 6 times as wide as its height; the black sun plus its radial corona should occupy one sixth of the band width, and each pair of straight ruled wings should be just 2.5 medallion diameters long from the corona to its end. The eclipse medallion is deliberately substantial relative to the short rules. Leave large blank margins around the entire band. Simple black line engraving and tiny radial hatch marks only. No colours other than black and cream, grey wash, flourishes, lettering or signature.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:48:50 JST",
+  "retries": 1,
+  "raw_sha256": "979ee8535f5ecd707b09152c5336475e55ffd39921a30cd631a7ca2331b6ff5b",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/raw/07-eclipse-headpiece.png",
+  "file": "07-eclipse-headpiece.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-1f189448-66aa-49d0-a2cf-fe9d09d8c21b.png",
+  "source_commit": "4aa36d5e0ab6499b342f5cbb3eda23b38d10c71f",
+  "prior_errors": [],
+  "previous_attempts": [
+    {
+      "variant": 1,
+      "prompt": "Make one small original wood- or steel-engraved printer’s headpiece for a sober 1910s scientific journal. Center a very wide and low approximately 6:1 band on a larger wide sheet of flat blank cream paper, with generous blank cream above and below to allow cropping. Two fine straight parallel ruled lines extend symmetrically left and right from a small round central device of the eclipsed Sun, a black disk with a tiny lightly hatched radial corona. The band overall is six times as wide as its inked height. Spare restrained geometry, no decoration other than the ruled lines and the eclipse, no flowers, no cherubs. Only black ink on flat light cream paper. Build tone exclusively from fine parallel burin hatching, cross-hatching and stipple. No grey wash, gradients, photographic shading, other colours, lettering, numerals, watermark, or signature.",
+      "raw_sha256": "4cbc79573392a958b35cb3be90df0922496239e54bf8042b681d1d1f1de7dab2",
+      "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-907b419d-149a-4439-bd8d-47f2af90fbf5.png",
+      "time": "2026-11-28 17:46:16 JST"
+    }
+  ],
+  "size_px": [
+    320,
+    58
+  ],
+  "manifest": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/manifest.json"
+}

@@ -1,0 +1,30 @@
+{
+  "id": "01-coelostat",
+  "variant": 2,
+  "prompt": "One original wide steel engraving vignette centered within broad bare cream paper, depicting the 1919 Príncipe eclipse camp optics as an oblique side view. Exact distinctive silhouettes: a small tilted round flat mirror held in a compact U-shaped yoke on top of a tall square masonry pier, with a small wooden clock drive box attached to the side of the pier and a tiny hanging weight. The mirror is at the height of the tube axis and there is a short clear air gap before the objective. It feeds a separate long fully horizontal, pale rectangular-section box telescope, with a series of dark straps around the casing and a broad flat square blank dark plate holder on the far end. Two simple wooden trestles support the tube. A low thin rectangular thatched roof with a very shallow single slope, on plain slender timber posts, shelters the aligned equipment; no gabled roof, no walls, no people. Make pier, drive, mirror and telescope the readable subject, shelter pared down. Inked ground trails off into empty cream; no vignette frame. Only fine black steel-engraved hatching, cross-hatching and stipple on flat light cream paper, no gray wash, no color accents, lettering, numerals or signature.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:49:29 JST",
+  "retries": 1,
+  "raw_sha256": "5c837dff2e93251de4abd0f0f80eccaa7b018952e7ead072f9e09bfbbe7d6bc1",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/raw/01-coelostat.png",
+  "file": "01-coelostat.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-e8331d74-aa6f-405b-8952-34804f57423d.png",
+  "source_commit": "4aa36d5e0ab6499b342f5cbb3eda23b38d10c71f",
+  "prior_errors": [],
+  "model_comparison": "The square pier, yoke, clock box, separate tube and shallow shelter follow the camp. The stand uses large masonry courses in place of the game pier’s fine horizontal courses. The tube straps and trestles are heavier, and the thatch is rougher than in the game frame.",
+  "previous_attempts": [
+    {
+      "variant": 1,
+      "prompt": "Generate one original landscape steel engraving for an early scientific journal, a centered object vignette with broad bare cream paper at every edge. Príncipe eclipse camp, 1919. Under a low, shallow-pitched thatched canopy on plain timber posts, open on all sides, a single circular flat coelostat mirror tilted on a compact mechanical stand reflects into a long fully horizontal telescope. Use the game’s box camera silhouette: a narrow rectangular-section pale tube made from successive bands of casing, broad square dark plate end, on plain timber supports, not a brass refractor or tripod. Show both aligned devices and their distinct profiles in an oblique three-quarter view. No people. Fine black burin lines follow the forms; dense cross-hatching for shadows, fine stipple for midtones; sparse marks fade into blank cream paper, no rectangular vignette edge. Only black ink and flat cream paper, no grey wash, no photographic shading, no color accents, no lettering, numerals, signature or border.",
+      "raw_sha256": "8acbfb8ace91a8eaa0ff26c867dfdc2ab3d31f1af5d7d255a3890a302e946de6",
+      "source_file": "/Users/tachikoma/.codex/generated_images/01a22151-9e83-7142-a29a-b55d48007b0c/exec-eb8c092a-c0ce-443a-8e33-1199cc75c7a5.png",
+      "time": "2026-11-28 17:43:10 JST"
+    }
+  ],
+  "size_px": [
+    320,
+    148
+  ],
+  "manifest": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/manifest.json"
+}

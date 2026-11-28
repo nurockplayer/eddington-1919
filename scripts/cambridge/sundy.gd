@@ -75,11 +75,16 @@ func play(director: Node) -> void:
 	await _ui.fade_to(0.0, _motion(0.7)).finished
 	await _next("M09")
 	_show("S01")
+	paper.headpiece()
 	await _next("M09")
 	for setup in SETUP:
 		if setup[1][0] == "S15":
 			page_id = "plate"
 			paper.begin_plate(preload("res://assets/journey/forest-road-v1.png"), L.t("普林西比林間小徑・1919 年 4 月 28 日"))
+			await _next("M09")
+		elif setup[1][0] == "S18":
+			page_id = "plate"
+			paper.begin_plate(preload("res://assets/journey/sundy-arrival-v3.png"), L.t("桑迪莊園・1919 年 4 月 28 日"))
 			await _next("M09")
 		_show(setup[0])
 		var image := _picture(setup[3]) if not setup[3].is_empty() else null
@@ -349,6 +354,7 @@ func _sky_page() -> void:
 	_line(earlier, "M50", 19)
 	paper.label(eclipse, _text.M85, 19, true)
 	Ink.workbook_print(eclipse, true)
+	paper.tailpiece()
 	await _next("S84")
 
 

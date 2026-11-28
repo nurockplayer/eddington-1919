@@ -1,6 +1,7 @@
 # Third-party notices
 
-- **Journey engravings** — Liverpool, Lisbon, Funchal, Santo António, the Príncipe forest road, the Sobral racecourse and square, the homeward deck, Burlington House and London news are historical reconstructions made with Codex’s built-in image generation. See the corresponding provenance files in [assets/journey](assets/journey).
+- **Journey engravings** — Cambridge Observatory, Liverpool, Lisbon, Funchal, Santo António, the Príncipe forest road, Roça Sundy, the Sobral racecourse and square, the homeward deck, Burlington House and London news are historical reconstructions made with Codex’s built-in image generation. See the corresponding provenance files in [assets/journey](assets/journey).
+- **Journey figures and chapter marks** — Coelostat, darkroom bench, cargo steamer, eclipse headpiece and dividers tailpiece were made with Codex’s built-in image generation. See the corresponding provenance files in [assets/journey](assets/journey).
 
 - **Godot Engine** — MIT licence. The credits screen includes the engine licence text and bundled third-party copyright and licence information provided by Godot.
 - **Noto Sans TC, JP and KR Regular** — SIL Open Font License 1.1. The full SIL Open Font License is in `assets/fonts/OFL.txt`.

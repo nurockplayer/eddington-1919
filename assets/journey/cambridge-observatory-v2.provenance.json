@@ -1,0 +1,20 @@
+{
+  "id": "cambridge-observatory",
+  "variant": 2,
+  "prompt": "Cambridge Observatory, August 1919, when the returned Príncipe material is being measured. From the clipped lawn and a shallow sweep of gravel, look squarely north at the complete 1823 south entrance front from middle distance. A long, low, symmetrical two-storey Greek Revival façade of pale Bath ashlar, with low matching wings clearly visible on both sides. The central entrance projects as a Greek Doric portico: exactly four distinct fluted columns in one row support a plain triangular pediment. A single small, shallow copper observing dome on a low drum rises just behind the pediment, directly over its apex and on the same central axis as the doorway; the wings have clear low rooflines. Let the open lawn lead up to the whole façade. Mature trees to the sides leave the architecture clear, with a fine ruled summer sky and open paper above. Still and unpeopled.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a2224c-0324-7200-898d-6bb4753ed10c/exec-418d2f51-27ec-4575-901a-543b77c10230.png",
+  "started": "2026-11-28 22:16:19 JST",
+  "time": "2026-11-28 22:16:55 JST",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "retries": 0,
+  "dimensions_px": [
+    1672,
+    941
+  ],
+  "raw_sha256": "7dbb9d75ccbd64b21c793f3ac87ccf057d2d688c2ad8ae55282c07fdfdd62cee",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b3/cambridge-observatory-v2.png",
+  "file": "cambridge-observatory-v2.png",
+  "source_commit": null,
+  "manifest": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b3/manifest.json"
+}

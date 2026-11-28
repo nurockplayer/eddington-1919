@@ -120,6 +120,9 @@ func check_opening_plate(paper: Control, plate_file: String, onwards: String) ->
 	expect(paper.body.get_child_count() == 2, "only the plate and caption are on the opening sheet")
 	var caption: Label = paper.body.get_child(1)
 	var scroll: ScrollContainer = paper.body.get_parent()
+	var sheet: Control = paper.actions.get_parent().get_parent()
+	var plate_page := sheet.get_global_rect()
+	expect(plate.size.y > 0, "the plate has room above its caption")
 	expect(scroll.get_global_rect().grow(1).encloses(plate.get_global_rect().merge(caption.get_global_rect())),
 		"the whole plate and caption fit before the fold")
 	expect(caption.get_line_count() == 1, "the caption fits on one line")
@@ -131,6 +134,10 @@ func check_opening_plate(paper: Control, plate_file: String, onwards: String) ->
 			await tap_pad(JOY_BUTTON_A)
 		_:
 			await press(button(paper, onwards))
+	await frames(3)
+	sheet = paper.actions.get_parent().get_parent()
+	expect(sheet.get_global_rect().is_equal_approx(plate_page),
+		plate_file + " and the following text share the same page bounds")
 
 
 func check_paper_layout(paper: Control, state: String) -> void:
@@ -458,6 +465,7 @@ func _tribunal(director: Node, misfile: bool) -> void:
 	while director.ui.fade.color.a > 0.0:
 		await process_frame
 	await frames(2)
+	await check_opening_plate(paper, "cambridge-observatory-v2.png", strings.T22)
 	for id in TRIBUNAL_PAGES:
 		expect(journey.page_id == id, "expected %s, got %s" % [id, journey.page_id])
 		if bench_speakers.has(id):
@@ -1408,6 +1416,7 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	await _sundy_sheet(paper, "sundy_05_sundy_choice", [text.S12], text.S13, true)
 	await check_opening_plate(paper, "forest-road-v1.png", onward)
 	await _sundy_sheet(paper, "sundy_06_track_end", [text.S15, text.S16, text.S17], onward)
+	await check_opening_plate(paper, "sundy-arrival-v3.png", onward)
 	await _sundy_sheet(paper, "sundy_07_cargo_arrival", [text.S18, text.S19], text.S20)
 	await _sundy_sheet(paper, "sundy_08_work_record", [text.S22, text.S23, text.S24, text.S25], text.S26)
 	await _sundy_sheet(paper, "sundy_09_packed_mirror", [text.S28], onward)
