@@ -88,6 +88,82 @@ func _comparator_press(pad: bool, code: Key, joy: JoyButton) -> void:
 		await process_frame
 
 
+func _send_input(event, pressed: bool) -> void:
+	event.pressed = pressed
+	Input.parse_input_event(event.duplicate())
+	Input.flush_buffered_events()
+
+
+func _check_nudge_cadence(ui: Control, pad: bool) -> void:
+	var device := "pad" if pad else "keyboard"
+	var right
+	var left
+	if pad:
+		right = InputEventJoypadButton.new()
+		right.button_index = JOY_BUTTON_DPAD_RIGHT
+		left = InputEventJoypadButton.new()
+		left.button_index = JOY_BUTTON_DPAD_LEFT
+	else:
+		right = InputEventKey.new()
+		right.keycode = KEY_RIGHT
+		left = InputEventKey.new()
+		left.keycode = KEY_LEFT
+	var saved_step: float = Settings.mic_step
+	Settings.mic_step = 1.0
+	var start: float = ui.micrometer_px
+	ui.viewer_sfx_log.clear()
+	ui._mic_last_tick_ms = Time.get_ticks_msec() - 50
+	_send_input(right, true)
+	_send_input(right, false)
+	ui._process(1.0 / 60.0)
+	check(is_equal_approx(ui.micrometer_px, start + 0.25), device + ": one tap moves one coarse step")
+	var away_ticks: Array = ui.viewer_sfx_log.duplicate()
+
+	# Advance the live comparator's frame handler at 60 Hz after routing real inputs.
+	_send_input(right, true)
+	for frame in 48:
+		if frame == 20 and not pad:
+			var echo := right.duplicate() as InputEventKey
+			echo.echo = true
+			_send_input(echo, true)
+		ui._process(1.0 / 60.0)
+		if frame == 25:
+			check(is_equal_approx(ui.micrometer_px, start + 0.50),
+				device + ": hold still has one step after 26 frames (got %s)" % ((ui.micrometer_px - start - 0.25) / 0.25))
+	var held: float = ui.micrometer_px
+	check(is_equal_approx(held, start + 1.25),
+		device + ": hold takes four steps in 48 frames (got %s)" % ((held - start - 0.25) / 0.25))
+	_send_input(right, false)
+	for frame in 30:
+		ui._process(1.0 / 60.0)
+	check(ui.micrometer_px == held, device + ": release stops coarse motion")
+
+	var trigger := InputEventJoypadMotion.new()
+	trigger.axis = JOY_AXIS_TRIGGER_LEFT
+	var shift := InputEventKey.new()
+	shift.keycode = KEY_SHIFT
+	if pad:
+		trigger.axis_value = 1.0
+		Input.parse_input_event(trigger.duplicate())
+		Input.flush_buffered_events()
+	else:
+		_send_input(shift, true)
+	for i in 5:
+		ui.viewer_sfx_log.clear()
+		ui._mic_last_tick_ms = Time.get_ticks_msec() - 50
+		_send_input(left, true)
+		_send_input(left, false)
+	check(is_equal_approx(ui.micrometer_px, held - 0.25), device + ": five fine taps reach the previous coarse point")
+	check(away_ticks == ["tick"] and ui.viewer_sfx_log == away_ticks, device + ": toward and away play the same tick")
+	if pad:
+		trigger.axis_value = 0.0
+		Input.parse_input_event(trigger)
+		Input.flush_buffered_events()
+	else:
+		_send_input(shift, false)
+	Settings.mic_step = saved_step
+
+
 func _check_comparator_focus(pad: bool) -> void:
 	var game := await _new_game([1.75, 1.60], true)
 	await process_frame
@@ -115,7 +191,7 @@ func _check_comparator_focus(pad: bool) -> void:
 	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
 	check(ui.mic_record_btn.has_focus() and ui.mic_record_btn.is_visible_in_tree(),
 		device + ": opening the micrometer focuses visible Record")
-	await _comparator_press(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+	_check_nudge_cadence(ui, pad)
 	await _comparator_press(pad, KEY_ENTER, JOY_BUTTON_A)
 	check(records == [0] and game.sim.plates[0].read and ui.thumbs.get_child(2).has_focus(),
 		device + ": one confirm records once and focuses the next unread plate")
