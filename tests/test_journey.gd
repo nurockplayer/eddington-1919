@@ -109,6 +109,27 @@ func check_paper_focus(control: Button) -> void:
 		"focused paper button uses ink: " + control.text)
 
 
+func check_opening_plate(paper: Control, plate_file: String, onwards: String) -> void:
+	await frames(3)
+	var plate := paper.body.get_node_or_null("OpeningPlate") as TextureRect
+	expect(plate != null, "the chapter opens on " + plate_file)
+	expect(plate.texture.resource_path.get_file() == plate_file, "the chapter uses its approved plate")
+	expect(paper.body.get_child_count() == 2, "only the plate and caption are on the opening sheet")
+	var caption: Label = paper.body.get_child(1)
+	var scroll: ScrollContainer = paper.body.get_parent()
+	expect(scroll.get_global_rect().grow(1).encloses(plate.get_global_rect().merge(caption.get_global_rect())),
+		"the whole plate and caption fit before the fold")
+	expect(caption.get_line_count() == 1, "the caption fits on one line")
+	check_paper_focus(button(paper, onwards))
+	match L.current():
+		"en":
+			await tap(KEY_ENTER)
+		"ja":
+			await tap_pad(JOY_BUTTON_A)
+		_:
+			await press(button(paper, onwards))
+
+
 func check_paper_layout(paper: Control, state: String) -> void:
 	await frames(3)
 	var failures: Array[String] = []
@@ -828,6 +849,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 	var original := run.duplicate(true)
 	var text := London.strings()
 	var locale := L.current()
+	await check_opening_plate(paper, "burlington-house-v2.png", text.L14)
 	var reaction := {"en": "L07", "ja": "L10", "zh_TW": "L11", "ko": "L07"}
 	var read := [
 		["prediction", ["L02", "L03", "L04", reaction[locale]], "L14"],
@@ -984,6 +1006,7 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	var story := root.get_node("Story")
 	while chapter.ui.fade.color.a > 0.0 or paper.actions.get_child_count() == 0:
 		await process_frame
+	await check_opening_plate(paper, "funchal-v1.png", text.M09)
 	for id in ["M01", "M04", "M80", "M81", "M05", "M82", "M06", "M83", "M84", "M07", "M10", "M12"]:
 		expect(journey.page_id == id, "arrival order: " + id)
 		_check_lines(paper, text, [id])
@@ -1128,6 +1151,7 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	var paper: Control = journey.paper
 	while not paper.actions.visible:
 		await process_frame
+	await check_opening_plate(paper, "santo-antonio-v1.png", onward)
 	await _sundy_sheet(paper, "sundy_01_title", [text.S01], onward)
 	await _sundy_sheet(paper, "sundy_02_shore", [text.S04, text.S05], text.S06)
 	await _sundy_sheet(paper, "sundy_03_esperanca", [text.S09], onward)

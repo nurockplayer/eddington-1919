@@ -1,0 +1,15 @@
+{
+  "id": "santo-antonio",
+  "variant": 1,
+  "prompt": "Santo António, Príncipe, April 1919, as seen from water level on the approach to shore. A ship's open rowing boat, with a few tiny anonymous figures turned away, is coming in toward a small simple stone quay. A quiet row of low Portuguese colonial buildings is dwarfed by layered forested peaks behind the bay. The boat and quay share the middle ground, with space for reflections in the foreground and delicate ruled sky above.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. No recognizable person, even in the distance. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:42:41 JST",
+  "retries": 0,
+  "raw_sha256": "67957f336d7d46419f9c7adc93fc1bb9dd38734c8d3236b775ab83a84aa272d8",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28/santo-antonio-v1.png",
+  "file": "santo-antonio-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a2214d-fc37-7912-97ab-800e3596bf8a/exec-873b70b6-1d10-4113-979c-ba96ffc6ff21.png",
+  "source_commit": null,
+  "started": "2026-11-28 17:41:15 JST"
+}

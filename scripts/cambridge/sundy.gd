@@ -12,14 +12,14 @@ const Settings := preload("res://scripts/settings.gd")
 const KIT_PRINT := "res://assets/portraits/kit_neutral.jpg"
 
 const SETUP := [
-	["S02", ["S03", "S04", "S05"], "S06", "arrival"],
+	["S02", ["S03", "S04", "S05"], "S06", ""],
 	["S07", ["S08", "S02", "S09"], "M09", "map", 2],
 	["S07", ["S08", "S02", "S09", "S10", "S11"], "M09", "map", 3],
 	["S07", ["S08", "S02", "S09", "S10", "S11", "S12"], "S13", "map", 4],
 	["S14", ["S15", "S16", "S17"], "M09", "handoff"],
 	["S14", ["S18", "S19"], "S20", "delivery"],
 	["S21", ["S03", "S22", "S23", "S24", "S25"], "S26", "delivery"],
-	["S27", ["S28"], "M09", "arrival"],
+	["S27", ["S28"], "M09", ""],
 ]
 const PAIRS := [
 	{"label": "S57", "shift": 0.07, "clear": [0, 1, 2, 3], "marks": [0, 1, 2, 3],
@@ -70,12 +70,15 @@ func _open_paper(ui: CanvasLayer, parent: Node) -> ColorRect:
 
 func play(director: Node) -> void:
 	var backdrop := _open_paper(director.ui, director.checklist.get_parent())
-	_show("S01")
+	page_id = "plate"
+	paper.begin_plate(preload("res://assets/journey/santo-antonio-v1.png"), _text.S02)
 	await _ui.fade_to(0.0, _motion(0.7)).finished
+	await _next("M09")
+	_show("S01")
 	await _next("M09")
 	for setup in SETUP:
 		_show(setup[0])
-		var image := _picture(setup[3])
+		var image := _picture(setup[3]) if not setup[3].is_empty() else null
 		if setup.size() == 5:
 			image.steps = setup[4]
 		for id in setup[1]:

@@ -87,6 +87,25 @@ func _align_end_fold(scroll: ScrollContainer, contents: VBoxContainer) -> void:
 		scroll.set_deferred("scroll_vertical", ceili(padded_height))
 
 
+func begin_plate(texture: Texture2D, place_date: String) -> void:
+	begin(true)
+	var sheet: Panel = actions.get_parent().get_parent()
+	# Fit the entire landscape plate above the caption and footer at large text scale.
+	sheet.anchor_left = 0.17
+	sheet.anchor_right = 0.83
+	var image := TextureRect.new()
+	image.name = "OpeningPlate"
+	image.texture = texture
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_child(image)
+	var contents := body
+	var aspect := float(texture.get_height()) / texture.get_width()
+	contents.resized.connect(func(): image.custom_minimum_size.y = ceilf(contents.size.x * aspect))
+	label(body, L.t("%s・歷史重建") % place_date, 18, true)
+
+
 func label(parent: Container, text: String, font_size: int, centered := false) -> void:
 	var line := Label.new()
 	line.text = text

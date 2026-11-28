@@ -6785,3 +6785,9 @@ msgstr ""
 
 msgid "返回劍橋"
 msgstr ""
+
+msgid "%s・歷史重建"
+msgstr ""
+
+msgid "馬德拉豐沙爾・1919 年 3 月 14 日"
+msgstr ""

@@ -98,8 +98,11 @@ func _advance(id := "M09", reveal_tail := false) -> void:
 
 
 func _arrival() -> void:
-	_show("M01")
+	page_id = "plate"
+	paper.begin_plate(preload("res://assets/journey/funchal-v1.png"), L.t("馬德拉豐沙爾・1919 年 3 月 14 日"))
 	await _director.ui.fade_to(0.0, _motion(0.7)).finished
+	await _advance()
+	_show("M01")
 	await _advance()
 	for i in Content.ARRIVAL.size():
 		var stop: Array = Content.ARRIVAL[i]
@@ -357,7 +360,6 @@ func _wait() -> void:
 
 func _dockside() -> void:
 	_show("M65", "M03")
-	var dock := _ink(paper.body, "dock", 0, true, 212)
 	_line(paper.body, "M66")
 	_line(paper.body, "M67")
 	var folders: HBoxContainer = paper.columns(paper.body)
@@ -369,13 +371,6 @@ func _dockside() -> void:
 	_line(recall, "M68")
 	_line(aboard, "M22", 19)
 	_line(aboard, "M69")
-	if not Settings.reduced_motion:
-		await get_tree().create_timer(0.75, false).timeout
-	dock.subject = "principe_folder"
-	dock.last_leg = 1.0
-	if not Settings.reduced_motion:
-		dock.last_leg = 0.0
-		await dock.create_tween().tween_property(dock, "last_leg", 1.0, 0.7).finished
 	await _advance("M70")
 
 

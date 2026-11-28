@@ -19,7 +19,6 @@ func _draw() -> void:
 		"handoff", "delivery": _forest()
 		"cutaway": _cutaway()
 		"night", "cloud": _horizon()
-		"arrival": _shore()
 	draw_rect(Rect2(1, 1, 598, 158), WASH, false, 1)
 
 
@@ -42,18 +41,6 @@ func _map() -> void:
 		_stroke([Vector2(224, 13), STOPS[3], Vector2(135, 55)], INK, 1.6)
 		draw_colored_polygon([Vector2(224, 13), Vector2(220, 22), Vector2(228, 22)], INK)
 		draw_colored_polygon([Vector2(135, 55), Vector2(144, 51), Vector2(144, 59)], INK)
-
-
-func _shore() -> void:
-	for y in range(35, 135, 8):
-		# The shore polygon painted over the ruling trims each line to the coast.
-		_stroke([Vector2(12, y), Vector2(462 if y == 35 else 497, y)], WASH, 1)
-	_shape([Vector2(294, 158), Vector2(339, 100), Vector2(290, 82), Vector2(413, 66),
-		Vector2(497, 43), Vector2(598, 63), Vector2(598, 158)], WASH)
-	for i in 4:
-		var at := Vector2(380 + 49 * i, 89 - 9 * i)
-		draw_rect(Rect2(at, Vector2(42, 27)), LIGHT)
-		_shape([at + Vector2(-5, 1), at + Vector2(20, -15), at + Vector2(48, 1)], INK)
 
 
 func _forest() -> void:

@@ -45,6 +45,10 @@ func open(run: Dictionary, prediction: Dictionary, bond_tone: String) -> void:
 	add_child(backdrop)
 	paper = Paper.new()
 	add_child(paper)
+	page_id = "plate"
+	paper.begin_plate(preload("res://assets/journey/burlington-house-v2.png"), _text.L18)
+	paper.advance(_text.L14)
+	await paper.action
 	paper.action.connect(_action)
 	_show_page()
 

@@ -5475,3 +5475,9 @@ msgstr "Einstein writes to his mother with the good news from Lorentz that the B
 
 msgid "返回劍橋"
 msgstr "Return to Cambridge"
+
+msgid "%s・歷史重建"
+msgstr "%s · Historical reconstruction"
+
+msgid "馬德拉豐沙爾・1919 年 3 月 14 日"
+msgstr "Funchal, Madeira · 14 March 1919"

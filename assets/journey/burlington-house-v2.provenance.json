@@ -1,0 +1,15 @@
+{
+  "id": "burlington-house",
+  "variant": 2,
+  "prompt": "Burlington House, London, the Royal Society's crowded Meeting Room on 6 November 1919 in the afternoon, seen from a slightly elevated position over the back-left bank of wooden pews. Show the central aisle clearly splitting the two banks of eight pew rows in a compact rectangular 45 by 36 foot room. Use the close backs of shoulders and ranks of small listening figures to make the room feel crowded, with a few standing against the wall. At the front show only an anonymous distant figure turned toward the gathering and one small wall portrait rendered as an indistinct silhouette with no facial detail. Restrained period interior, side-lit. Do not depict Einstein.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. No recognizable person, even in the distance. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 17:44:20 JST",
+  "retries": 0,
+  "raw_sha256": "c2c2f1877ffc8974cb758caed823732107bad4b6cc54f3f8feaee6d948974e7f",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28/burlington-house-v2.png",
+  "file": "burlington-house-v2.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a2214d-fc37-7912-97ab-800e3596bf8a/exec-b66b685f-d38d-46f2-96f1-d00a44c61c5b.png",
+  "source_commit": null,
+  "started": "2026-11-28 17:43:51 JST"
+}
