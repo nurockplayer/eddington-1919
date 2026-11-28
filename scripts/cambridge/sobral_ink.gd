@@ -20,7 +20,7 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, size / Vector2(600, 160))
 	draw_rect(Rect2(1, 1, 598, 158), LIGHT)
 	match subject:
-		"station", "first_contact", "totality", "dawn": _racecourse()
+		"first_contact", "totality", "dawn": _racecourse()
 		"corona": _draw_sun(Vector2(300, 80), 36, true)
 		"mailhat": _mailhat()
 		"metronome", "astrograph", "four_inch": _programme()

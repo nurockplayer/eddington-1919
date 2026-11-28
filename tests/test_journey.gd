@@ -800,6 +800,7 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		var before: Dictionary = story.to_save().duplicate(true)
 		await _sobral(chapter, L.current() in ["en", "ja"])
 		await press(button(chapter.paper, Sobral.strings().B54))
+		await check_opening_plate(chapter.paper, "homeward-v1.png", Madeira.strings().M09)
 		expect(is_instance_valid(chapter) and chapter.page_id == "I4-01", "Sobral opens I4 before October")
 		await _homeward(chapter.paper)
 		expect(story.to_save() == before and day.sim.plates == plates,
@@ -1007,6 +1008,7 @@ func _london_print(chapter: Node, next: String) -> void:
 	var paper: Control = chapter.get("london_print")
 	expect(is_instance_valid(paper) and not chapter.ui.ending_panel.visible,
 		"Read the headlines opens In print before the run review")
+	await check_opening_plate(paper, "london-news-v2.png", next)
 	var text := Print.strings()
 	var pages := [
 		["I5-03", "I5-04", "I5-05", "I5-06"], ["I5-16", "I5-17"], ["I5-07", "I5-08", "I5-09"],
@@ -1237,6 +1239,10 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 		await process_frame
 	await check_opening_plate(paper, "funchal-v1.png", text.M09)
 	for id in ["M01", "M04", "M80", "M81", "M05", "M82", "M06", "M83", "M84", "M07", "M10", "M12"]:
+		if id == "M04":
+			await check_opening_plate(paper, "liverpool-v1.png", text.M09)
+		elif id == "M05":
+			await check_opening_plate(paper, "lisbon-v1.png", text.M09)
 		expect(journey.page_id == id, "arrival order: " + id)
 		_check_lines(paper, text, [id])
 		if id == "M06":
@@ -1400,6 +1406,7 @@ func _sundy(journey: Node, chapter: Node, warm: bool) -> void:
 	expect(not has_text(paper, text.S12), "the site is only revealed after the other two visits")
 	await _sundy_sheet(paper, "sundy_04_sao_joaquim", [text.S10, text.S11], onward)
 	await _sundy_sheet(paper, "sundy_05_sundy_choice", [text.S12], text.S13, true)
+	await check_opening_plate(paper, "forest-road-v1.png", onward)
 	await _sundy_sheet(paper, "sundy_06_track_end", [text.S15, text.S16, text.S17], onward)
 	await _sundy_sheet(paper, "sundy_07_cargo_arrival", [text.S18, text.S19], text.S20)
 	await _sundy_sheet(paper, "sundy_08_work_record", [text.S22, text.S23, text.S24, text.S25], text.S26)
@@ -1467,6 +1474,10 @@ func _sobral(chapter: Node, revise: bool) -> void:
 	for sheet in setup:
 		while not paper.actions.visible:
 			await process_frame
+		if sheet[0] == "02_racecourse":
+			await check_opening_plate(paper, "sobral-racecourse-v1.png", onward)
+		elif sheet[0] == "03_brazil":
+			await check_opening_plate(paper, "sobral-square-v1.png", onward)
 		_check_lines(paper, text, sheet[1])
 		await _sobral_frame(paper, sheet[0])
 		await press(button(paper, sheet[2]))

@@ -104,11 +104,19 @@ func _arrival() -> void:
 	await _advance()
 	_show("M01")
 	await _advance()
+	var port_plates := {
+		"M04": [preload("res://assets/journey/liverpool-v1.png"), L.t("利物浦・1919 年 3 月 8 日")],
+		"M05": [preload("res://assets/journey/lisbon-v1.png"), L.t("里斯本・1919 年 3 月 12 日")],
+	}
 	for i in Content.ARRIVAL.size():
 		var stop: Array = Content.ARRIVAL[i]
+		if port_plates.has(stop[0]):
+			var plate: Array = port_plates[stop[0]]
+			page_id = "plate"
+			paper.begin_plate(plate[0], plate[1])
+			await _advance()
 		_show("M01", "M02")
 		page_id = stop[0]
-		_ink(paper.body, "arrival", i + 1, i > 0)
 		_line(paper.body, "M03", 18)
 		for j in range(i + 1):
 			_line(paper.body, Content.ARRIVAL[j][0])
@@ -116,7 +124,6 @@ func _arrival() -> void:
 		for j in stop[1].size():
 			_show("M01", "M02")
 			page_id = stop[1][j]
-			_ink(paper.body, "arrival", i + 1)
 			_archive(paper.body, [page_id])
 			await _advance()
 	_show("M01", "M02")

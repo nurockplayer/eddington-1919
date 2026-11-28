@@ -1,0 +1,15 @@
+{
+  "id": "london-news",
+  "variant": 2,
+  "prompt": "London on 7 November 1919, when the joint eclipse meeting enters public newsprint. A quiet reconstruction on an ordinary London street outside a small newspaper shop. A low wooden newspaper display rack with a few folded blank sheets enters the extreme lower right close to the viewer. Beyond it an anonymous, small reader seen entirely from behind pauses under the shop awning and holds an open sheet turned away so its print is invisible. A terrace of modest unmarked shopfronts leads the eye down the street to a quiet, anonymous distance. Fine horizontal ruling in the narrow strip of exposed sky. No street lamps, lamp posts, street fixtures, signs, tall domes, spires or identifiable landmarks. No text, script, glyphs or simulated lettering anywhere on the sheets or buildings. Make the newspaper rack the sole foreground object.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 18:09:44 JST",
+  "retries": 1,
+  "raw_sha256": "0740b26d7dac4fd66e18d6bf8acac231167d2e217845ba9b8918bece8d24401d",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/london-news-v2.png",
+  "file": "london-news-v2.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22161-1e89-77b0-8ce1-7bafcddbf8e4/exec-8219d79c-ef3f-4fb3-a4ff-67ff87dc4361.png",
+  "source_commit": null,
+  "started": "2026-11-28 18:09:12 JST"
+}

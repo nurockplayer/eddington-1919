@@ -1,0 +1,15 @@
+{
+  "id": "lisbon",
+  "variant": 1,
+  "prompt": "Lisbon at its recorded March 1919 call, seen looking down from the stone landing toward the Tagus. An early iron street-lamp silhouetted near one edge marks the foreground, and broad unadorned paving leads to the water. Place a few tiny anonymous rear-facing travellers in the middle distance, amid low dock activity, with terraced Lisbon roofs receding in the far ground. Let the estuary open on the right. Use plausible 1919 fabric and a modest shore landing; exact berth unspecified.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 18:03:52 JST",
+  "retries": 0,
+  "raw_sha256": "6a1d6d7670a54d424d35d4b3b6f98a628f5ea0ed3ce3725f2ccd9548b0240e4e",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/lisbon-v1.png",
+  "file": "lisbon-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22161-1e89-77b0-8ce1-7bafcddbf8e4/exec-795736c8-f1fb-452f-a732-7567bd11a42f.png",
+  "source_commit": null,
+  "started": "2026-11-28 18:03:16 JST"
+}

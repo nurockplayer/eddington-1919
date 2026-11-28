@@ -1,0 +1,15 @@
+{
+  "id": "forest-road",
+  "variant": 1,
+  "prompt": "Príncipe on 28 April 1919, where the plantation track ends and expedition loads are carried on through forest toward Sundy. A short pair of narrow rails runs up from the left foreground and ends visibly in hard earth. The adjoining narrow footpath threads to the right through dense tropical trunks and ground growth. Two or three tiny anonymous porters walk away carrying modest wooden instrument loads, each silhouette legible and unposed. Delicate horizontal sky ruling through small canopy openings.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 18:04:28 JST",
+  "retries": 0,
+  "raw_sha256": "f6bade5be66ae89abababa8a1f6e16bc1379aad8496ba2134f83e4a38c02d713",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/forest-road-v1.png",
+  "file": "forest-road-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22161-1e89-77b0-8ce1-7bafcddbf8e4/exec-f6ec86b4-4c3d-4fdd-9a5a-2467fd5a8eca.png",
+  "source_commit": null,
+  "started": "2026-11-28 18:03:52 JST"
+}

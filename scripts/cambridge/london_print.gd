@@ -34,6 +34,9 @@ var _chart: Control
 
 func open() -> void:
 	resized.connect(queue_redraw)
+	begin_plate(preload("res://assets/journey/london-news-v2.png"), L.t("倫敦・1919 年 11 月 7 日"))
+	advance(_next)
+	await action
 	action.connect(_advance)
 	_show_page()
 

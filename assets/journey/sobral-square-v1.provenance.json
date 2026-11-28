@@ -1,0 +1,15 @@
+{
+  "id": "sobral-square",
+  "variant": 1,
+  "prompt": "Sobral in May 1919, the Brazilian Observatório Nacional eclipse station at Praça do Patrocínio. Look across the broad dry square with the edge of a modest churchyard wall and its rough corner stones at the bottom right. Small temporary work shelters and plausible period photographic and spectroscopic equipment occupy a modest area of the square, with one or two tiny rear-view people attending it. A low church facade and a few tiled roofs frame the square in the middle distance; let the dusty open space and low horizon give room to the scene. Ordinary daylight, with a finely ruled sky.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 18:05:39 JST",
+  "retries": 0,
+  "raw_sha256": "e0d01c715500715cada5fed8bf34911e69dfbfd32c3db9d1cd248beea9977e96",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/sobral-square-v1.png",
+  "file": "sobral-square-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22161-1e89-77b0-8ce1-7bafcddbf8e4/exec-68ecb80a-0034-4972-a249-4dcf090fba8f.png",
+  "source_commit": null,
+  "started": "2026-11-28 18:05:05 JST"
+}

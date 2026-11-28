@@ -16,7 +16,7 @@ func _draw() -> void:
 	draw_rect(Rect2(1, 1, 598, 158), LIGHT)
 	match subject:
 		"map": _map()
-		"handoff", "delivery": _forest()
+		"delivery": _forest()
 		"cutaway": _cutaway()
 		"night", "cloud": _horizon()
 	draw_rect(Rect2(1, 1, 598, 158), WASH, false, 1)
@@ -50,16 +50,8 @@ func _forest() -> void:
 		var height := 45.0 + (i * 19) % 38
 		draw_rect(Rect2(x, 104 - height, 4, height), INK)
 		draw_circle(Vector2(x, 105 - height), 23, WASH.darkened(0.2), true, -1, true)
-	if subject == "handoff":
-		for i in 8:
-			var x := 10.0 + i * 23
-			_stroke([Vector2(x, 151 - i * 1.9), Vector2(x + 13, 127 - i * 0.7)], INK, 4)
-		_stroke([Vector2(2, 144), Vector2(187, 132)])
-		_stroke([Vector2(2, 129), Vector2(187, 121)])
 	_stroke([Vector2(189, 133), Vector2(268, 140), Vector2(370, 146), Vector2(497, 136)], LIGHT, 3)
-	var at := Vector2(212, 139).lerp(Vector2(368, 147), clampf(progress * 1.4 - 0.4, 0, 1))
-	if subject == "delivery":
-		at = Vector2(387, 146)
+	var at := Vector2(387, 146)
 	var lift := smoothstep(0, 0.45, progress)
 	var stride := sin(progress * TAU * 3) * lift
 	var crate := at - Vector2(0, lift * 23)

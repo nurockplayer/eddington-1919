@@ -1,0 +1,15 @@
+{
+  "id": "homeward",
+  "variant": 1,
+  "prompt": "June 1919, the Príncipe expedition’s homeward passage aboard the crowded steamship Zaire. View onboard along a narrow side deck from beneath the overhang. A curved row of empty wooden deck chairs is the immediate foreground device and leads to a small number of rear-view passengers clustered farther away at the rail. Beyond the right-hand rail show open Atlantic water and a shallow ruled sky. Keep the unmarked period deck architecture plausible and restrained, with the viewpoint firmly onboard.\n\nCreate a new historical reconstruction for an illustrated journey sheet, at the largest available landscape size, 16:9. Compose in a 16:9 field, keeping critical subject matter within the central area with room for a shallow trim at top and bottom if required. Engrave it as a nineteenth-century scientific journal steel plate: black ink lines only on plain warm cream paper. Build every tone with fine parallel hatching and cross-hatching that follow each surface's form, with swelling strokes in shade, fine stipple in highlights, clear engraved contours, thin horizontal ruled lines for the sky where visible. Let the strokes taper irregularly into bare cream at all four edges, with restrained paper margins and no graphic frame. No gray wash, gradients, photographic or painterly shading, color accents, lettering, numerals, signatures, seals, or watermarks. Figures small or from behind, no recognizable person. Invent a new composition from this text alone. Do not use, reference, or imitate any photograph or existing artwork.",
+  "reference": null,
+  "tool_model": "OpenAI built-in image generation (gpt-image; exact version not exposed)",
+  "time": "2026-11-28 18:06:45 JST",
+  "retries": 0,
+  "raw_sha256": "990f4e47dd4f68050907a56fe70397b87c04a54157b8586df66bf72e93c455c1",
+  "raw_path": "/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/homeward-v1.png",
+  "file": "homeward-v1.png",
+  "source_file": "/Users/tachikoma/.codex/generated_images/01a22161-1e89-77b0-8ce1-7bafcddbf8e4/exec-08e93406-58af-4289-86da-34b287451d77.png",
+  "source_commit": null,
+  "started": "2026-11-28 18:06:13 JST"
+}
