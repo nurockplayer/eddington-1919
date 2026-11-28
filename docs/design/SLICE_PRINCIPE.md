@@ -2244,3 +2244,24 @@ Fix rows, in the order I would brief them:
 ![plate box](slice_principe/accept/main-row8/176b5f0/1080-100_day_interactables_plate_box.jpg)
 
 **Count stays 7/9** (rows 2 and 8 open).
+
+## Row 2 on main 176b5f0: not met, on the daylight cloud sky only (2026-11-28 19:34 JST)
+
+Capture by edd-lead: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/main-row2/176b5f0258adc27f9498e71745bcf2b6e49aa28a/index.md` (four states, 960 frames each at 60 fps: 10 s walk, then a full turn on the spot).
+
+How I looked, and its limit: I cannot play the MP4. I stepped frames: four consecutive native-size frames, sky and ground crops, in the walk (frame 300) and in the turn (frame 780), for clear day (ground), early partial under cloud (sky, walk and turn) and clear totality (sky). Not looked at: thin-cloud totality, the ridge, palms and beams singly, the contact sheets, any pitch change (the capture has none). Stepping shows whether a line belongs to its surface; it shows shimmer only as far as four frames can. The row's other judge, the Owner's reaction in play, is still owed.
+
+- **Ground: holds.** In the turn the hatching of the palm shadow swings round with the ground, frame for frame; in the walk it stays put under the feet. The lines are on the surface.
+- **Totality sky: holds as far as stepping shows.** The ruling is faint and lives inside the cloud bands; the bands travel with the ridge.
+- **Daylight cloud sky (early partial): does not hold.** The cloud outlines travel with the world, about 12 px a frame in the turn; the ruling stays on fixed screen rows. So every ruled line is cut at a new place by a moving outline on every frame, across the whole sky, and the sky has hundreds of such ends: the contour-map density I noted on #605 and #614. A line that stays while its end runs along it is the definition of not staying on its surface. (edd-lead's numbers point the same way: 0.9 px a frame median slip, 6 px at the 95th percentile, against 0.07 in totality.)
+
+The capture's "candidate pops" are not pops: the cluster at frames 137 to 144 is the camera's own turn in the walk. I saw no pop in the frames I stepped; I did not step all 106 flagged pairs.
+
+**Row 2: not met.** One fix row:
+- **2a Daylight cloud sky.** The ruling belongs to the cloud, not to the screen: it turns and drifts with the cloud it shades. And there is far less of it: ruling inside cloud bodies only, one outline per cloud, bare paper between, so that what remains has few ends to run. Clear day stays bare paper. This is item (c) of the sky brief I have been holding, now with a reason to go first.
+
+![daylight cloud sky, four consecutive frames of the turn](slice_principe/accept/main-row2/176b5f0/partial_cloud_780_sky.jpg)
+![totality sky, four consecutive frames](slice_principe/accept/main-row2/176b5f0/totality_clear_780_sky.jpg)
+![ground, four consecutive frames](slice_principe/accept/main-row2/176b5f0/day_clear_780_ground.jpg)
+
+**Count stays 7/9** (rows 2 and 8 open).
