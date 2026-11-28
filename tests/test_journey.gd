@@ -516,6 +516,8 @@ func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_ind
 		var tray_card := button(paper, title)
 		if not tray_card.button_pressed:
 			await press(tray_card, pad)
+		var citation: Label = paper.actions.get_parent().get_child(paper.actions.get_index() - 1)
+		expect(citation.is_visible_in_tree() and citation.text == source, "tray citation matches selected extract: " + card)
 		await press(button(paper, strings.T57), pad)
 		expect(has_text(paper, source), "extract carries its source: " + card)
 		expect(button(paper, strings.T59).disabled, "file waits for a heading")
