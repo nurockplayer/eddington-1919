@@ -130,3 +130,17 @@ Stop: done — all reference entries were checked in all three locales, with unr
 | ko | `[b]全食[/b]　剩餘 %d 秒（共 302）` | 개기일식 | 개기식 | [K2] |
 | ko | `Cottingham 負責定天鏡的驅動裝置。` | 코엘로스타트 | 실로스탯 | [K3] |
 | ko | `日緣偏折（角秒）` | 각초 | 초각 | glossary / [K1] |
+
+
+### Dispositions for remaining flagged rows
+
+| Locale | Row | Disposition | Reason |
+|---|---|---|---|
+| ja | Totality | skipped | The current keys are event/phase prose; no repeated caption/control key matching the prescribed lockout or timing-control case was present. |
+| ja | Reference / comparison plate | skipped | Prose and check-field mentions are explicitly excluded by the audit; no additional repeated same-plate label could be changed without reclassifying source context. |
+| ja | Second / third contact | fixed | Unified phase labels to 第2接触／第3接触. |
+| zh_TW | Second / third contact | fixed | Phase labels use 食既／生光; source quotations remain unchanged. |
+| zh_TW | Reference / comparison plate | fixed | Recurring Oxford plate label uses 比對底片; check-field label retained. |
+| ko | Light deflection | fixed | Equivalent chart/result labels use 휘어짐; formal 편향 and conversational verbs remain. |
+| ko | Reference / comparison plate | fixed | Repeated same-field labels use 비교 건판; 기준 건판 remains the separate check-field designation. |
+| ko | Arthur Stanley Eddington | skipped | The remaining Latin forms are in the game title or source-credit text; the audit explicitly preserves both. |
