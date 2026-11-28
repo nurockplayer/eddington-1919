@@ -25,14 +25,17 @@ class CaptureFailure(Exception):
         self.status = status
 
 
-def terminate_group(pid):
+def terminate_group(process):
     try:
-        os.killpg(pid, signal.SIGTERM)
-    except ProcessLookupError:
-        return
-    time.sleep(0.5)
-    try:
-        os.killpg(pid, signal.SIGKILL)
+        os.killpg(process.pid, signal.SIGKILL)
+    except PermissionError:
+        # macOS can deny a group signal while its exited leader awaits reaping.
+        if process.poll() is None:
+            raise
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
     except ProcessLookupError:
         pass
 
@@ -94,7 +97,7 @@ def run_phase(label, command, env, deadline, first_frame_seconds, interrupted, l
             if label == "windowed run" and tuple(stages) != STAGES:
                 raise CaptureFailure(f"capture exited without completion (last stage: {stages[-1] if stages else 'none'})")
         except BaseException:
-            terminate_group(process.pid)
+            terminate_group(process)
             raise
 
 
