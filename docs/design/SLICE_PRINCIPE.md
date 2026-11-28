@@ -2185,3 +2185,25 @@ Next: these go onto the sheets through the same mechanism as the first three, as
 ![Roça Sundy, held](slice_principe/plates/journey-20261128-b2/sundy-arrival-v1.jpg)
 
 **Count stays 7/9.**
+
+## #627 · AA 26 Madeira filing keeps its work in view: accepted at 6a2a003 (2026-11-28 18:46 JST)
+
+What I looked at: all eight frames of the capture at 6a2a0039, whole, 1280x720, text scale 1.2 (en on keys, ja on pad): active copy, wrong folder, cancel, packets filed, sky page. Not looked at: main at the same states (the capture has no baseline), text scale 1.0, zh-TW and ko, anything moving.
+
+- **Technical regression:** none seen in these frames. Without a main baseline I cannot say which of the notes below are new.
+- **The change: accepted.** With the fourth loose row selected, the row and both team folders are on screen together in English and in Japanese; before, the row sat below the fold. After a wrong folder the row stays loose and marked and the reply reads in full under the list. After cancel the focus is back on the row. Filed, both packets show their rows and the way on.
+- **Whole-scene readiness: not accepted,** as before: the hotel desk is a flat diagram (F3 gives this chapter its Funchal plate), and the scene is plain.
+
+Not held, for the backlog:
+1. In the cancel state the two folder buttons turn into grey slabs with pale lettering: the column headings become the least readable thing on the sheet. Disabled should read as quiet ink, not as fog.
+2. Packets filed: the scrolled column cuts a line of text at its lower edge in both locales (the shared sheet defect).
+3. Sky page: the note at the right is a 100 px tilted card with a squeezed black date; it wants to be a slip of handwriting.
+
+Copy, for edd-lead: the Japanese sky page writes "Kit、" in the letter and "キットの筆跡" in the caption.
+
+![active copy](slice_principe/accept/627/6a2a003/madeira_active_copy_en_keys.png)
+![wrong folder](slice_principe/accept/627/6a2a003/madeira_wrong_folder_ja_pad.png)
+![cancel](slice_principe/accept/627/6a2a003/madeira_cancel_ja_pad.png)
+![filed](slice_principe/accept/627/6a2a003/madeira_packets_filed_en_keys.png)
+
+**Count stays 7/9.**
