@@ -1,6 +1,8 @@
 extends SceneTree
 
 const Score := preload("res://scripts/audio/score.gd")
+const London := preload("res://scripts/cambridge/london.gd")
+const Chart := preload("res://scripts/cambridge/london_chart.gd")
 var checks := 0
 var failures := 0
 
@@ -60,6 +62,47 @@ func check_playing_players(node: Node, allowed: Array) -> void:
 		check(node in allowed, "unexpected playing audio player: " + str(node.get_path()))
 	for child in node.get_children():
 		check_playing_players(child, allowed)
+
+func london_principal() -> Control:
+	var meeting := London.new()
+	root.add_child(meeting)
+	meeting.open({"combined": {"n": 0}, "bet_oct": 1, "final_reason_text": "", "astro_weight": 1},
+		{"pick": 1}, "warm")
+	while meeting.page_id != "principal":
+		meeting.paper.action.emit("advance")
+	return meeting
+
+func check_london_landings() -> void:
+	var meeting := london_principal()
+	var chart: Control = meeting.historical_chart
+	var audio := meeting.get_node_or_null("LandingAudio") as AudioStreamPlayer
+	check(audio != null and audio.stream == null, "London starts with silent axes")
+	chart._update_arrival(Chart.SOBRAL_LANDS_SECONDS - 0.001)
+	check(audio != null and audio.stream == null, "London holds sound until Sobral lands")
+	chart._update_arrival(Chart.SOBRAL_LANDS_SECONDS)
+	var sobral: AudioStream = audio.stream if audio != null else null
+	check(sobral != null and audio.playing, "Sobral lands with the first excerpt")
+	chart._update_arrival(Chart.PRINCIPE_LANDS_SECONDS - 0.001)
+	check(audio != null and audio.stream == sobral, "London holds Príncipe until its point lands")
+	chart._update_arrival(Chart.PRINCIPE_LANDS_SECONDS)
+	check(audio != null and audio.playing and audio.stream != sobral, "Príncipe lands with a distinct excerpt")
+	meeting.free()
+
+	meeting = london_principal()
+	chart = meeting.historical_chart
+	audio = meeting.get_node_or_null("LandingAudio") as AudioStreamPlayer
+	chart._update_arrival(Chart.SOBRAL_LANDS_SECONDS)
+	sobral = audio.stream if audio != null else null
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	meeting._unhandled_input(accept)
+	var advance: Button = meeting.paper.actions.get_child(0)
+	check(not advance.disabled and sobral != null and audio.stream == sobral,
+		"skip unlocks Continue immediately without playing the pending Príncipe excerpt")
+	await create_timer(0.2).timeout
+	check(audio != null and audio.volume_linear < 0.001, "skip fades the active excerpt to silence")
+	meeting.free()
 
 func _run() -> void:
 	print("mix rate: %d Hz" % AudioServer.get_mix_rate())
@@ -136,5 +179,6 @@ func _run() -> void:
 	game.stop_all_audio()
 	game.queue_free()
 	await process_frame
+	await check_london_landings()
 	print("test_mix: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
