@@ -19,8 +19,9 @@ mkdir -p "$main_out" "$revert_out" "$scratch/main" "$scratch/revert"
 
 nice -n 15 git archive "$main_sha" | nice -n 15 tar -xf - -C "$scratch/main"
 nice -n 15 git archive "$head_sha" | nice -n 15 tar -xf - -C "$scratch/revert"
+# Stop discovery before the outer worktree so apply sees the archive root.
 nice -n 15 git diff "$main_sha" 58b91640 -- scripts/hud_paper.gd |
-    nice -n 15 git -C "$scratch/revert" apply --reverse
+    GIT_CEILING_DIRECTORIES="$scratch" nice -n 15 git -C "$scratch/revert" apply --reverse
 tachi-run --host -- godot --headless --path "$scratch/main" --import > "$main_out/import.log"
 tachi-run --host -- godot --headless --path "$scratch/revert" --import > "$revert_out/import.log"
 
@@ -65,7 +66,7 @@ SETTINGS
             printf '\n```\n\n'
         } >> "$out/index.md"
         "${cmd[@]}" > "$folder/render.log" 2>&1
-        if rg -n 'SCRIPT ERROR|SHADER ERROR' "$folder/render.log"; then return 1; fi
+        if /usr/bin/grep -En 'SCRIPT ERROR|SHADER ERROR' "$folder/render.log"; then return 1; fi
         tail -1 "$folder/render.log"
     done
 }
