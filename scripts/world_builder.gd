@@ -1,5 +1,5 @@
 extends RefCounted
-## Builds the Roça Sundy observing site from primitives.
+## Builds the Roça Sundy observing site.
 ## RECONSTRUCTION: no photographs of the Príncipe station in situ are known; the
 ## layout (sun-shelter over a horizontal tube fed by a coelostat, a darkroom hut,
 ## the plantation house) is a plausible stage, not a documented plan.
@@ -724,29 +724,51 @@ func _safelight_lantern(safe: OmniLight3D) -> MeshInstance3D:
 
 
 func _plantation_house() -> void:
-	var c := Vector3(-15, 0, -20)
-	var wall := P("whitewash")
-	box(Vector3(14, 5, 8), c + Vector3(0, 2.5, 0), wall)
-	var roof := MeshInstance3D.new()
-	var pr := PrismMesh.new()
-	pr.size = Vector3(15, 2.4, 9)
-	roof.mesh = pr
-	roof.material_override = mat(P("roof_tile"))
-	roof.position = c + Vector3(0, 6.2, 0)
-	root.add_child(roof)
-	for i in 7:
-		box(Vector3(1.0, 1.6, 0.05), c + Vector3(-6 + i * 2, 3.1, 4.03), Color(0.22, 0.3, 0.28), null, false)
-		cyl(0.1, 2.5, c + Vector3(-6.5 + i * 2.2, 1.25, 6.2), Color(0.9, 0.88, 0.82), null, true)
-	box(Vector3(15, 0.2, 2.6), c + Vector3(0, 2.6, 5.3), P("roof_tile"), null, false)
-	box(Vector3(15, 0.3, 2.6), c + Vector3(0, 0.15, 5.3), Color(0.6, 0.55, 0.5))
-	var sign := Label3D.new()
-	sign.text = "ROÇA SUNDY"
-	sign.font_size = 160
-	sign.pixel_size = 0.006
-	sign.position = c + Vector3(0, 4.4, 4.1)
-	sign.modulate = Color(0.25, 0.2, 0.15)
-	root.add_child(sign)
-	var sundy := hotspot(Vector3(2.0, 2.5, 0.5), c + Vector3(0, 1.5, 5.8), "sundy", L.t("Roça Sundy"))
+	var house := (preload("res://assets/models/sundy_house.glb") as PackedScene).instantiate() as Node3D
+	house.name = "SundyHouse"
+	house.position = Vector3(-15, 0, -20)
+	house.rotation_degrees.y = 24.0
+	root.add_child(house)
+
+	if engraving_pilot:
+		var stock := {
+			"whitewash": [Swatch.PAPER, LAND],
+			"stone": [Swatch.PAPER, Color("bdb29c")],
+			"roof_tile": [Swatch.TIMBER, Color("ae9278")],
+			"teak": [Swatch.TIMBER, Color("b4a089")],
+			"teak_dark": [Swatch.TIMBER, Color("87725d")],
+			"iron": [Swatch.TIMBER, Color("625549")],
+		}
+		for mesh: MeshInstance3D in house.find_children("*", "MeshInstance3D", true, false):
+			for i in mesh.mesh.get_surface_count():
+				var name_ := mesh.mesh.surface_get_material(i).resource_name.trim_prefix("E1919_")
+				_pilot_surface(mesh, i, stock[name_][0], stock[name_][1])
+
+	# Closed masonry shell, raised verandah, and rails with a gap at the stair.
+	var yaw := house.rotation_degrees.y
+	collider(Vector3(14, 5.05, 8), house.to_global(Vector3(0, 2.525, 0)), yaw)
+	collider(Vector3(14.48, 0.9, 2.44), house.to_global(Vector3(0, 0.45, 5.22)), yaw)
+	for side in [-1, 1]:
+		collider(Vector3(5.82, 1.05, 0.22), house.to_global(Vector3(side * 4.25, 1.425, 6.23)), yaw)
+		collider(Vector3(0.22, 1.05, 2.23), house.to_global(Vector3(side * 7.05, 1.425, 5.115)), yaw)
+
+	# The player has no step-up motion. A slope through the tread nosings
+	# connects grade to the deck while the visual stairs keep their risers.
+	var stair := StaticBody3D.new()
+	stair.name = "Stair"
+	var cs := CollisionShape3D.new()
+	var ramp := ConvexPolygonShape3D.new()
+	var points := PackedVector3Array()
+	for x in [-1.34, 1.34]:
+		for point in [Vector2(0.0, 6.4), Vector2(0.0, 8.04), Vector2(0.90, 6.4)]:
+			points.append(Vector3(x, point.x, point.y))
+	ramp.points = points
+	cs.shape = ramp
+	stair.add_child(cs)
+	house.add_child(stair)
+
+	var sundy := hotspot(Vector3(2.0, 2.5, 0.5), house.to_global(Vector3(0, 1.5, 5.8)), "sundy", L.t("Roça Sundy"))
+	sundy.rotation_degrees.y = yaw
 	sundy.name = "SundyHotspot"
 
 
