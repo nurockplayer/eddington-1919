@@ -883,6 +883,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 		["hold", ["L04", "L81"], "L84"],
 	]
 	var line: String = text.reason if strong else text.reservation
+	var route_time_scale := Engine.time_scale
 	for sheet in read:
 		var state: String = sheet[0]
 		expect(meeting.page_id == state, "London paper opens " + state)
@@ -896,6 +897,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 				expect(text.L23.contains("1.6″ ± 0.3″"), "London gives the Príncipe figure reported at the meeting")
 			"principal":
 				await _london_arrival(meeting, text)
+				Engine.time_scale = route_time_scale
 				var historical: Array = meeting.historical_chart.rows
 				expect(historical.size() == 2 and historical[0].value == 1.98 and historical[0].sigma == 0.12
 					and historical[1].value == 1.61 and historical[1].sigma == 0.30,
@@ -921,7 +923,8 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 			var astro: Dictionary = meeting.historical_chart.rows[2]
 			expect(astro.value == 0.93 and astro.other_value == 1.52 and not astro.has("sigma"),
 				"the same unbarred astrograph pair stays visible on the historical chart")
-		if state == "proceedings" and london_captures:
+		if state == "proceedings":
+			# A scaled frame can otherwise cross the first cue before the assertion runs.
 			Engine.time_scale = 1.0
 		await press(button(paper, text[sheet[2]]))
 	await _london_print(chapter, text.L14)
@@ -1011,7 +1014,6 @@ func _london_arrival(meeting: Control, text: Dictionary) -> void:
 				_save_capture(state, state + "_" + L.current() + _london_scale_suffix() + ".png", dimensions)
 			if motion and frame % 2 == 0:
 				_save_capture("london_arrival frame %03d" % frame, "london_arrival_%03d_en.png" % frame, dimensions)
-		Engine.time_scale = 2.0
 	elif L.current() == "ja":
 		await tap(KEY_ENTER)
 		expect(meeting.page_id == "principal" and chart.beat == 2 and chart.stroke == 1.0
