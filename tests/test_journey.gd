@@ -31,6 +31,7 @@ const TRIBUNAL_PAGES := [
 var checks := 0
 var capture_dir := ""
 var madeira_captures := false
+var madeira_filing := false
 var sundy_captures := false
 var sobral_captures := false
 var london_captures := false
@@ -210,6 +211,7 @@ func _run() -> void:
 	var enabled := OS.get_cmdline_user_args().has("--journey")
 	var london_only := OS.get_cmdline_user_args().has("--london-only")
 	var sobral_only := OS.get_cmdline_user_args().has("--sobral-only")
+	madeira_filing = OS.get_cmdline_user_args().has("--madeira-filing")
 	fold_baseline = OS.get_cmdline_user_args().has("--fold-baseline")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--journey-captures="):
@@ -217,6 +219,9 @@ func _run() -> void:
 		elif arg.begins_with("--madeira-captures="):
 			capture_dir = arg.trim_prefix("--madeira-captures=")
 			madeira_captures = true
+		elif arg.begins_with("--filing-captures="):
+			capture_dir = arg.trim_prefix("--filing-captures=")
+			madeira_filing = true
 		elif arg.begins_with("--sundy-captures="):
 			capture_dir = arg.trim_prefix("--sundy-captures=")
 			sundy_captures = true
@@ -245,7 +250,7 @@ func _run() -> void:
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures or print_captures else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures or print_captures or madeira_filing else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := DirAccess.create_temp("edd-journey", true)
 		expect(directory != null, "create isolated checkpoint directory: " + error_string(DirAccess.get_open_error()))
@@ -257,19 +262,28 @@ func _run() -> void:
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
-	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only or i4_captures:
+	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only or i4_captures or madeira_filing:
 		locales = ["en", "ja"]
 	elif tribunal_captures:
 		locales = ["en"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
-	if enabled and capture_dir.is_empty() and not london_only and not fold_check:
+	if enabled and capture_dir.is_empty() and not london_only and not fold_check and not madeira_filing:
 		L.apply("en")
 		await _resume_october()
 		await _resume_departure(route)
 	for locale in locales:
 		L.apply(locale)
-		if london_captures or london_only:
+		if madeira_filing:
+			var story := root.get_node("Story")
+			story.reset()
+			story.from_prologue = true
+			story.prologue_done = true
+			expect(change_scene_to_packed(route[1]) == OK, "load departure before Madeira filing")
+			await scene_changed
+			await _departure_opening()
+			await _departure(current_scene, route[2], enabled, locale == "ja", false)
+		elif london_captures or london_only:
 			await _london_setup()
 		elif sobral_only:
 			var story := root.get_node("Story")
@@ -573,7 +587,7 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 		madeira_captures and not state.begins_with("madeira_")) or (
 		sundy_captures and not (state.begins_with("sundy_") or state.begins_with("i3_"))):
 		return
-	if fold_captures:
+	if fold_captures or madeira_filing:
 		dimensions = Vector2i(1280, 720)
 	await RenderingServer.frame_post_draw
 	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
@@ -627,6 +641,8 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 			await process_frame
 		expect(is_instance_valid(chapter) and chapter.madeira != null, "--journey must enter Madeira after M2")
 		await _madeira(chapter.madeira, chapter, warm)
+		if madeira_filing:
+			return
 		for frame in 150:
 			if not is_instance_valid(chapter) or chapter.get("sundy") != null:
 				break
@@ -1033,6 +1049,71 @@ func _check_lines(paper: Control, strings: Dictionary, ids: Array) -> void:
 		expect(has_text(paper, strings[id]), "%s shows %s" % [L.current(), id])
 
 
+func _filing_tap(pad: bool, key: Key, pad_button: JoyButton) -> void:
+	if pad:
+		await tap_pad(pad_button)
+	else:
+		await tap(key)
+	await frames(2)
+
+
+func _filing_in_view(paper: Control, text: Dictionary, id: String) -> void:
+	var bounds: Rect2 = paper.body.get_parent().get_global_rect().grow(1.0)
+	for row in [id, "M21", "M22"]:
+		var rect := button(paper, text[row]).get_global_rect()
+		expect(bounds.encloses(rect), "%s stays visible with %s (%s in %s)" % [row, id, rect, bounds])
+
+
+func _madeira_file_with_device(journey: Node, paper: Control, text: Dictionary, pad: bool) -> void:
+	var device := "_pad" if pad else "_keys"
+	var order := ["M28", "M25", "M26", "M27"]
+	await frames(3)
+	expect(button(paper, text.M25).has_focus(), "first loose row starts focused")
+	for id in Madeira.LOOSE.slice(1):
+		await _filing_tap(pad, KEY_DOWN, JOY_BUTTON_DPAD_DOWN)
+		expect(button(paper, text[id]).has_focus(), "down reaches next loose copy " + id)
+	for i in order.size():
+		var id: String = order[i]
+		var folder := "M21" if id in Madeira.COPIES.M21 else "M22"
+		expect(button(paper, text[id]).has_focus(), "filing focuses the next loose copy " + id)
+		await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.selected == id and journey.filed.size() == i, "selects a loose copy without filing " + id)
+		_filing_in_view(paper, text, id)
+		await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+		expect(button(paper, text.M21).has_focus(), "right from the active copy reaches the first folder")
+		if i == 0:
+			await _filing_tap(pad, KEY_LEFT, JOY_BUTTON_DPAD_LEFT)
+			expect(button(paper, text[id]).has_focus(), "left from the folder returns to the active copy " + id)
+			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+		if folder == "M22" or (pad and i == 0):
+			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+			expect(button(paper, text.M22).has_focus(), "right from the first folder reaches the second")
+		_filing_in_view(paper, text, id)
+		if i == 0:
+			await capture("madeira_active_copy", paper, device)
+		if pad and i == 0:
+			await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+			expect(journey.selected == id and journey.filed.is_empty() and button(paper, text.M22).has_focus(),
+				"wrong folder leaves the copy loose with destination focus")
+			_filing_in_view(paper, text, id)
+			await capture("madeira_wrong_folder", paper, device)
+			await _filing_tap(pad, KEY_ESCAPE, JOY_BUTTON_B)
+			expect(journey.selected.is_empty() and journey.filed.is_empty() and button(paper, text[id]).has_focus(),
+				"cancel returns to the same loose copy")
+			_filing_in_view(paper, text, id)
+			await capture("madeira_cancel", paper, device)
+			await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+		expect(button(paper, text[folder]).has_focus(), "correct packet receives focus for " + id)
+		await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.selected.is_empty() and journey.filed.get(id) == folder and journey.filed.size() == i + 1,
+			"correct packet receives only the active copy " + id)
+		if i + 1 < order.size():
+			_filing_in_view(paper, text, order[i + 1])
+	expect(button(paper, text.M38).has_focus(), "both packets complete and continue receives focus")
+	await capture("madeira_packets_filed", paper, device)
+
+
 func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	var text := Madeira.strings()
 	var paper: Control = journey.paper
@@ -1058,6 +1139,19 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	expect(Checkpoint.peek() != "principe" and not story.departure_done,
 		"Madeira remains before the departure handoff")
 	expect(button(paper, text.M21).disabled and button(paper, text.M22).disabled, "folders wait for a selection")
+	if madeira_filing:
+		await _madeira_file_with_device(journey, paper, text, warm)
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.page_id == "M39", "completed packets hand off to the Sobral papers")
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(chapter.ui.dialog_active() and journey.page_id == "M47", "Kit's sky promise follows filing")
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.page_id == "M46" and button(paper, text.M51).has_focus(), "sky page opens with continue focused")
+		await capture("madeira_sky_page", paper, "_pad" if warm else "_keys")
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(button(paper, text.M77).has_focus(), "sky page continues into the letter")
+		return
 	await press(button(paper, text.M25))
 	await press(button(paper, text.M26))
 	expect(journey.selected == "M26" and journey.filed.is_empty(), "another loose row changes only the selection")
