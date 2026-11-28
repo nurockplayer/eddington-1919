@@ -275,6 +275,7 @@ func _board(focus: String, correction: String) -> void:
 	var controls := {}
 	if not complete:
 		var tray: VBoxContainer = paper.column(columns)
+		tray.size_flags_stretch_ratio = 1.35
 		_line(tray, "M20", 19)
 		for id in Content.LOOSE:
 			if filed.has(id):
@@ -315,7 +316,29 @@ func _board(focus: String, correction: String) -> void:
 			var layout: VBoxContainer = paper.actions.get_parent()
 			_line(layout, correction, 21)
 			layout.move_child(layout.get_child(-1), paper.actions.get_index())
+		var first: Button = controls.M21
+		var second: Button = controls.M22
+		var active: Button = controls[focus if selected.is_empty() else selected]
+		if not selected.is_empty():
+			for id in Content.LOOSE:
+				if controls.has(id):
+					controls[id].focus_neighbor_right = controls[id].get_path_to(first)
+			first.focus_neighbor_left = first.get_path_to(active)
+			first.focus_neighbor_right = first.get_path_to(second)
+			second.focus_neighbor_left = second.get_path_to(first)
 		controls[focus].grab_focus()
+		_reveal_filing_controls(active, first, second)
+
+
+func _reveal_filing_controls(active: Button, first: Button, second: Button) -> void:
+	# The rebuilt columns have no final row positions when focus is restored.
+	await get_tree().process_frame
+	if not is_instance_valid(active):
+		return
+	var scroll: ScrollContainer = paper.body.get_parent()
+	scroll.ensure_control_visible(active)
+	scroll.ensure_control_visible(first)
+	scroll.ensure_control_visible(second)
 
 
 func _wait() -> void:

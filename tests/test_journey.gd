@@ -1085,12 +1085,12 @@ func _madeira_file_with_device(journey: Node, paper: Control, text: Dictionary, 
 			await _filing_tap(pad, KEY_LEFT, JOY_BUTTON_DPAD_LEFT)
 			expect(button(paper, text[id]).has_focus(), "left from the folder returns to the active copy " + id)
 			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+			_filing_in_view(paper, text, id)
+			await capture("madeira_active_copy", paper, device)
 		if folder == "M22" or (pad and i == 0):
 			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
 			expect(button(paper, text.M22).has_focus(), "right from the first folder reaches the second")
 		_filing_in_view(paper, text, id)
-		if i == 0:
-			await capture("madeira_active_copy", paper, device)
 		if pad and i == 0:
 			await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
 			expect(journey.selected == id and journey.filed.is_empty() and button(paper, text.M22).has_focus(),
