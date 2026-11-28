@@ -2383,3 +2383,15 @@ What I looked at: candidate arrival daylight and totality, the nameboard from th
 ![from the shelter](slice_principe/accept/637-d20a25b/candidate-sign-shelter-daylight.jpg)
 ![at 3 m](slice_principe/accept/637-d20a25b/candidate-sign-3m-daylight.jpg)
 
+## Roça Sundy arrival plate · redrawn to the #637 house: v3 accepted (2026-11-29 00:46 JST)
+
+Raws, prompts, hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-29-b4/manifest.json`. What I looked at: v2 and v3 whole at native size. Not looked at: the contact sheet.
+
+- **v2: house right, people wrong.** Hipped roof, raised plinth, six bracketed posts, turned balusters, louvred shutters, central steps and the ROÇA SUNDY board all agree with the accepted model. But the party was four, one a woman, in military jackets and puttees; the Príncipe party was Eddington and Cottingham.
+- **v3: accepted.** The same plate with only the party redrawn: two men in light civilian suits and soft hats, a case each. Their hatching is lighter than the ground's, which their pale suits justify.
+
+Next: wired with Cambridge v2 as the second follow-up on #636.
+
+![v3, accepted](slice_principe/plates/journey-20261129-b4/sundy-arrival-v3.jpg)
+![v2, party wrong](slice_principe/plates/journey-20261129-b4/sundy-arrival-v2.jpg)
+
