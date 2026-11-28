@@ -2324,3 +2324,23 @@ Sent back once: `vis-fid-title-fu1` (whole frame, a line of air, one measure).
 ![candidate en 1.2](slice_principe/accept/635/72a8ee1/candidate-en-1.2-title.jpg)
 ![candidate ja 1.2](slice_principe/accept/635/72a8ee1/candidate-ja-1.2-title.jpg)
 ![main en 1.0](slice_principe/accept/635/72a8ee1/main-en-1.0-title.jpg)
+
+## #637 · F1 Roça Sundy house: a real house at last; not accepted at b8c8033 for colour and name (2026-11-28 20:08 JST)
+
+What I looked at, whole at 1280x720: candidate arrival and shelter in daylight, arrival in totality, main's arrival in daylight, the Blender three-quarter still. Read: draws and row 9 tables. Not looked at: early partial, the 180° turn frames, the other two Blender stills, the house from the verandah or at 3 m, collision in play.
+
+- **Technical regression:** none seen. Draws fall (339 to 311 on arrival), row 9 worst p95 x3 25.4 ms against main's 29.1; tests green.
+- **The change: not accepted yet, and close.** The grey box with letters floating before it is gone; in its place a raised house with a hipped tile roof, a verandah on posts, shutters, steps. From the shelter it is the first thing in the camp that looks built. In totality it is a good dark shape under the corona's sky. Three things:
+  1. it is the only coloured object in the daylight camp (terracotta roof, brown timber): a model set into an engraving;
+  2. it has no name; row 8a wants ROÇA SUNDY painted on it;
+  3. its walls and roof are flat tone beside the ruled shelter.
+- **Whole-scene readiness: not accepted.** The ground is still bare paper to the horizon and the forest a few cut-outs.
+
+Sent back once: `vis-fid-sundy-house-fu1`. For edd-lead's fact list: the form is a generic period bungalow, not the real Sundy house, which is larger; the credits or history page should not call it a likeness.
+
+The Roça Sundy arrival plate I held in the journey batch: it shows a two-storey house and disagrees with this model. Redraw the plate to the model once the follow-up lands.
+
+![candidate from the shelter](slice_principe/accept/637/b8c8033/candidate-shelter-daylight.jpg)
+![candidate arrival](slice_principe/accept/637/b8c8033/candidate-arrival-daylight.jpg)
+![main arrival](slice_principe/accept/637/b8c8033/main-arrival-daylight.jpg)
+![candidate totality](slice_principe/accept/637/b8c8033/candidate-arrival-totality.jpg)
