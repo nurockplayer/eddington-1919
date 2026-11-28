@@ -2,6 +2,7 @@
 """Capture the paired row 8d receipt under one heavy host reservation."""
 from datetime import datetime
 import json
+import os
 from pathlib import Path
 from statistics import median
 import struct
@@ -42,7 +43,8 @@ def capture(project, settings, folder, size, perf=False):
     command.extend(["--seed=7", "--bench-quality=standard", "--bench-cloud-t=215"])
     if perf:
         command.append("--perf")
-    attempt = Path(subprocess.check_output(command, cwd=ROOT, text=True).strip())
+    attempt = Path(subprocess.check_output(command, cwd=ROOT, text=True,
+                                           env=dict(os.environ, EDD_LOCALE="en")).strip())
     for png in attempt.glob("*.png"):
         with png.open("rb") as image:
             image.seek(16)

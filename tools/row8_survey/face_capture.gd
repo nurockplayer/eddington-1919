@@ -28,6 +28,8 @@ func _run() -> void:
 		bench.main = game
 		bench.out_dir = out
 		game.add_child(bench)
+		await bench.sampled
+		await finish()
 		return
 	await process_frame
 	game._start_game()
@@ -49,7 +51,14 @@ func _run() -> void:
 	var receipt := FileAccess.open(out.path_join("walking.json"), FileAccess.WRITE)
 	receipt.store_string(JSON.stringify(evidence, "\t"))
 	receipt.close()
+	await finish()
+
+
+func finish() -> void:
 	game.stop_all_audio()
+	game.queue_free()
+	await process_frame
+	await process_frame
 	print("CAPTURE done")
 	quit()
 
@@ -199,6 +208,8 @@ func walk_to(point: Vector3) -> bool:
 
 
 class ShelterBenchmark extends "res://tests/benchmark.gd":
+	signal sampled
+
 	func _run() -> void:
 		main.set_process(false)
 		main.player.set_physics_process(false)
@@ -220,5 +231,4 @@ class ShelterBenchmark extends "res://tests/benchmark.gd":
 		var receipt := FileAccess.open(out_dir.path_join("perf.json"), FileAccess.WRITE)
 		receipt.store_string(JSON.stringify({"p95_ms": _p95(samples), "samples_ms": samples}))
 		receipt.close()
-		print("CAPTURE done")
-		get_tree().quit()
+		sampled.emit()
