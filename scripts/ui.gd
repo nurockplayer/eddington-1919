@@ -56,6 +56,8 @@ var clock_label: Label
 var objectives: RichTextLabel
 var pause_objectives: RichTextLabel
 var pause_scroll: ScrollContainer
+var _pause_rows: GridContainer
+var _pause_columns: Array[Array]
 var _pause_tasks: MarginContainer
 var _objectives_bb := ""
 var _portrait_source: Texture2D
@@ -2226,7 +2228,7 @@ func _build_pause(root: Control) -> void:
 	v.add_theme_constant_override("separation", 0)
 	scroll.add_child(v)
 	var rows := GridContainer.new()
-	rows.columns = 2
+	_pause_rows = rows
 	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rows.add_theme_constant_override("h_separation", 12)
 	rows.add_theme_constant_override("v_separation", 0)
@@ -2364,11 +2366,11 @@ func _build_pause(root: Control) -> void:
 	rows.add_child(quit_button)
 	# Fill the two visual columns in reading order, keeping each group together.
 	var volume_cards := [first_slider.get_parent().get_parent(), music_row.get_parent(), last_slider.get_parent().get_parent()]
-	var left := [r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look]
-	var right := [invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
-	for i in left.size():
-		rows.move_child(left[i], i * 2)
-		rows.move_child(right[i], i * 2 + 1)
+	_pause_columns = [
+		[r, volume_cards[0], volume_cards[1], volume_cards[2], music_button, fullscreen_button, text_size_button, quality_button, look],
+		[invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button],
+	]
+	_layout_pause_rows()
 	v.add_child(totality_pace_button)
 	v.add_child(language_button)
 	var focus_order := [r, first_slider, music_slider, last_slider, music_button, fullscreen_button, text_size_button, quality_button, look, totality_pace_button, language_button, invert, motion, hold_button, help, mic_step, mic_cross, restart_button, pause_title, quit_button]
@@ -2378,13 +2380,14 @@ func _build_pause(root: Control) -> void:
 		button.focus_previous = button.get_path_to(focus_order[(i - 1 + focus_order.size()) % focus_order.size()])
 	for button in [r, music_button, fullscreen_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, totality_pace_button, restart_button, quit_button]:
 		button.focus_mode = Control.FOCUS_ALL
-	# Keep the engraved rows in two columns so both text sizes fit at 720p.
 	for row: Control in rows.get_children():
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# Long confirmation labels wrap within their column.
 	for button in [r, music_button, fullscreen_button, text_size_button, quality_button, language_button, look, invert, mic_step, mic_cross, motion, hold_button, totality_pace_button, help, pause_title, restart_button, quit_button]:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size.y = Settings.fs(46)
+	for button: Button in [music_button, fullscreen_button, text_size_button, quality_button, look, invert, mic_step, mic_cross, motion, hold_button, totality_pace_button]:
+		button.pressed.connect(_keep_setting_visible.bind(button))
 	_pause_tasks = MarginContainer.new()
 	for edge in ["left", "right", "top", "bottom"]:
 		_pause_tasks.add_theme_constant_override("margin_" + edge, 18)
@@ -2406,6 +2409,26 @@ func _build_pause(root: Control) -> void:
 	_pause_heading.minimum_size_changed.connect(fit_slip)
 	root.resized.connect(fit_slip)
 	fit_slip.call_deferred()
+
+
+func _layout_pause_rows() -> void:
+	var left := _pause_columns[0]
+	var right := _pause_columns[1]
+	_pause_rows.columns = 1 if _settings_only else 2
+	var order := left + right
+	if not _settings_only:
+		for i in left.size():
+			order[i * 2] = left[i]
+			order[i * 2 + 1] = right[i]
+	for i in order.size():
+		_pause_rows.move_child(order[i], i)
+
+
+func _keep_setting_visible(button: Button) -> void:
+	# A new caption or text size can reflow the list without moving focus.
+	await get_tree().process_frame
+	if _settings_only and button.has_focus():
+		pause_scroll.ensure_control_visible(button)
 
 
 func _fit_pause_slip(v: VBoxContainer, root: Control, scroll: ScrollContainer, slip: PanelContainer, title_rule: HSeparator) -> void:
@@ -2446,6 +2469,7 @@ func _sync_music_row() -> void:
 func open_settings() -> void:
 	_pause_focus = get_viewport().gui_get_focus_owner()
 	_settings_only = true
+	_layout_pause_rows()
 	_pause_tasks.hide()
 	(pause_panel as ColorRect).color = preload("res://scripts/styles/engraving.gd").PAPER
 	_title_focus_modes.clear()
@@ -2463,6 +2487,7 @@ func open_settings() -> void:
 	Settings.sync_fullscreen()
 	fullscreen_button.text = L.t("全螢幕：開") if Settings.fullscreen else L.t("全螢幕：關")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	pause_scroll.scroll_vertical = 0
 	_resume_button.grab_focus()
 
 
@@ -2474,6 +2499,7 @@ func close_settings() -> void:
 	restart_button.show()
 	quit_button.show()
 	_settings_only = false
+	_layout_pause_rows()
 	_pause_tasks.visible = not _objectives_bb.is_empty()
 	(pause_panel as ColorRect).color = Color.TRANSPARENT
 	var buttons := prologue_btn.get_parent().get_children()
