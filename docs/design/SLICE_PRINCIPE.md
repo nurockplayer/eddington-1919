@@ -2159,3 +2159,29 @@ Next: one in-engine test before any more surface images: earth on the camp groun
 ![roof tiles](slice_principe/plates/surfaces-20261128/clay-roof-tiles.jpg)
 
 **Count stays 7/9.**
+
+## Journey plates · batch two: the whole road now has places (2026-11-28 18:12 JST)
+
+Ten more plates in the batch-one recipe, one per place the journey passes (subjects chosen by the worker from `docs/research`, each with its supporting line in the run report). Raws, prompts, hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/manifest.json`.
+
+What I looked at: all ten plates whole at native size (London news in its second pass). Not looked at: the contact sheet, London's first pass.
+
+**Verdict: the best batch of the day. Nine of ten go to wiring.** The hand holds across ten subjects, and no two share a foreground: the gangway girder at Liverpool, the swell in the Atlantic, the lamp at Lisbon, the buttress roots, the grandstand steps at Sobral, the deck chairs. A player turning these pages travels.
+
+- **Wire:** Liverpool landing stage, the Atlantic, Lisbon, the forest leg, Sobral square, Sobral racecourse, homeward deck, London news.
+- **Wire after one redraw: Cambridge Observatory.** A handsome house, but not that house: the real building is known (a long low front, a four-column portico in the middle with the dome above it), and this one has its dome on a wing. One more generation from a written description of the real front.
+- **Held: Roça Sundy on arrival.** A good plate of a one-storey verandah house. It must agree with the house being modelled for the camp (F1); I decide when the model stills are in. If they disagree, the plate is redrawn to the model, not the other way.
+
+For edd-lead's fact-check before these ship (they are captioned as reconstructions, but a wrong landmark is still wrong): the church on Sobral's square is drawn as a small chapel; Lisbon and Liverpool show a woman among the travellers; the forest plate shows porters carrying the cases, which the research supports and which the text beside it should speak of with care.
+
+Next: these go onto the sheets through the same mechanism as the first three, as a follow-up to the plate wiring run once it reports.
+
+![contact sheet](slice_principe/plates/journey-20261128-b2/contact-sheet.png)
+![Liverpool](slice_principe/plates/journey-20261128-b2/liverpool-v1.jpg)
+![forest leg](slice_principe/plates/journey-20261128-b2/forest-road-v1.jpg)
+![Sobral square](slice_principe/plates/journey-20261128-b2/sobral-square-v1.jpg)
+![homeward](slice_principe/plates/journey-20261128-b2/homeward-v1.jpg)
+![Cambridge, to redraw](slice_principe/plates/journey-20261128-b2/cambridge-observatory-v1.jpg)
+![Roça Sundy, held](slice_principe/plates/journey-20261128-b2/sundy-arrival-v1.jpg)
+
+**Count stays 7/9.**
