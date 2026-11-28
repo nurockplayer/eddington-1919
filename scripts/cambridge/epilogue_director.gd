@@ -391,7 +391,7 @@ func _build_audio() -> void:
 	for i in 22050 * 4:
 		brown = clampf(brown + (randf() - 0.5) * 0.025, -1.0, 1.0) * 0.99
 		samples.append(brown * 0.3)
-	if Story.runs.back().verdict_class == "underclaim":
+	if Story.runs.back().get("verdict_class", "") == "underclaim":
 		# Bring the tail to the opening sample without cutting the street noise.
 		var last := samples.size() - 1
 		var blend_frames := 1102 # 50 ms at 22050 Hz.
