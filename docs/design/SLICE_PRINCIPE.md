@@ -2284,3 +2284,25 @@ This is fix row 8e; brief `vis-row8e-slip.md`.
 ![night](slice_principe/accept/main-row8/176b5f0/720-100_night_prediction-1.jpg)
 
 **Count stays 7/9.**
+
+## #622 · London, the answer arrives: accepted at 158b232 (2026-11-28 19:40 JST)
+
+Follow-up to the 3a4b2f0 review, which left two things: Príncipe's report line cut at the fold, and the beats too fast.
+
+What I looked at: the three arrival steps at English text scale 1.2 and the Príncipe step in Japanese, whole, 1280x720; eight frames of the 60 fps arrival, in pairs either side of each beat (0.40/0.60, 1.87/2.13, 4.37/4.63, 5.87/6.13 s), at half size in two montages. Not looked at: English 1.0, the Japanese axis and Sobral steps, zh-TW, ko, reduced motion, the 200 other motion frames, main.
+
+- **Technical regression:** none seen. The windowed flag-on run on this head passed (`test_journey on: 826 checks, 0 failures`); the headless suite was red twice before the last commit and has not been run on 158b232, so the gate's CI is the proof, not this capture.
+- **The change: accepted.** Both things hold. Príncipe's line and Eddington's portrait are whole on the sheet with no scroll at 1.2 and in Japanese. The beats land where I set them: the two predictions at 0.5 s, Sobral's bar growing from its point at 2.0, Príncipe's at 4.5, and Continue wakes at 6.0. The eye is led: prediction, then the first answer far to the right of it, then our own.
+- **Whole-scene readiness: not accepted.** It is a chart on a sheet. The answer arrives; nobody is in the room when it does. Still owed, as listed: the Burlington House plate behind or before it (now accepted as a plate), Thomson's line as its own beat.
+
+Not held:
+1. The Sobral row label runs through the dashed 0.87 line ("probable er|ror").
+2. Eddington's portrait is about 50 px; at that size it is a stamp.
+3. While it waits, Continue is a grey slab with pale lettering (same disabled style as #627).
+
+![Príncipe step, en 1.2](slice_principe/accept/622/158b232/london_principal_principe_en_scale_1_2.png)
+![Príncipe step, ja](slice_principe/accept/622/158b232/london_principal_principe_ja.png)
+![beats 0.5 and 2.0](slice_principe/accept/622/158b232/beats_0p4_0p6_1p9_2p1.png)
+![beats 4.5 and 6.0](slice_principe/accept/622/158b232/beats_4p4_4p6_5p9_6p1.png)
+
+**Count stays 7/9.**
