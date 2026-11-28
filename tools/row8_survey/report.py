@@ -10,7 +10,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from contrast import measure
+from contrast import measure, missing_control_gap
 
 out = Path(sys.argv[1])
 capture_sha = sys.argv[2] if len(sys.argv) > 2 else out.name
@@ -81,13 +81,13 @@ with (out / "contrast.tsv").open("w", newline="") as report:
                         contrast_fails.append(
                             f'{prefix(r)} / {t["surface"]} / {excerpt} ({sample[0]:.3f}:1) {link(r)}'
                         )
+                else:
+                    additional_gaps.append(missing_control_gap(prefix(r), t))
         r["minima"] = {s:min(samples) for s,samples in by_surface.items()}
         for surface, sample in r["minima"].items():
             key = r["config"],r["state"],surface
             if key not in minima or sample[0] < minima[key][0]:
                 minima[key] = sample[0],r
-        for surface in {t["surface"] for t in r.get("text", [])} - r["minima"].keys():
-            additional_gaps.append(f"{prefix(r)} / {surface}: no differing glyph pixels in the visible bounds.")
         if r["clause"] == "text" and r.get("frame") and not r.get("text"):
             additional_gaps.append(f"{prefix(r)}: no visible text controls for pixel measurement.")
         if r["clause"] == "interactables" and r.get("frame") and abs(r["distance_m"]-3.0) > .01:
