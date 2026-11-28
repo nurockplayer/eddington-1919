@@ -14,7 +14,6 @@ const Sobral := preload("res://scripts/cambridge/content_sobral.gd")
 const Homeward := preload("res://scripts/cambridge/content_homeward.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Settings := preload("res://scripts/settings.gd")
-const ObservationDirector := preload("res://scripts/main.gd")
 
 const CAMBRIDGE := "res://scenes/cambridge.tscn"
 const DEPARTURE := "res://scenes/departure.tscn"
@@ -689,7 +688,7 @@ func _coda_without_epilogue(observation_day: PackedScene) -> void:
 		if label == "post-epilogue replay":
 			story.departure_done = true
 			story.epilogue_done = true
-			ObservationDirector.prepare_replay(572, true, true)
+			load("res://scripts/main.gd").prepare_replay(572, true, true)
 		else:
 			story.from_prologue = true
 		expect(change_scene_to_packed(observation_day) == OK, "load " + label)
