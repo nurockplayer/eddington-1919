@@ -1,7 +1,5 @@
 # Speaker / portrait coverage
 
-Generated from commit `c863115d8ca25e3f5f5bfaf3a04f8a43582dd465`.
-
 Regenerate: `tachi-run --host -- godot --headless --path . --script res://tools/portrait_coverage.gd`
 
 Acceptance row: **F4**, portrait clause made judgeable; existing gaps remain.
@@ -17,7 +15,7 @@ Default main presentation (engraving; no debug overrides). Paths and names are o
 | (blank) | 4 | none | (blank) / (blank) / (blank) / (blank) |
 | 1915 年觀測日誌 | 2 | none | Observing Log, 1915 / 1915年の観測日誌 / 1915 年觀測日誌 / 1915년 관측 일지 |
 | Ashby 先生 | 95 | res://assets/portraits/ashby_neutral.jpg | Mr Ashby / アシュビー先生 / Ashby 先生 / 애슈비 선생님 |
-| Eddington | 55 | res://assets/portraits/eddington_neutral.jpg | Eddington / Eddington / Eddington / Eddington |
+| Eddington | 55 | res://assets/portraits/eddington_neutral.jpg | Eddington / エディントン / Eddington / 에딩턴 |
 | Kit | 45 | none | Kit / Kit / Kit / Kit |
 | Kit的帳簿 | 1 | none | Kit's Ledger / Kitの記録簿 / Kit的帳簿 / Kit의 장부 |
 | 你 | 2 | none | You / あなた / 你 / 당신 |
@@ -50,10 +48,10 @@ Default main presentation (engraving; no debug overrides). Paths and names are o
 | --- | ---: | --- | --- |
 | (blank) | 14 | none | (blank) / (blank) / (blank) / (blank) |
 | 1917 年的筆記 | 1 | none | The 1917 notes / 1917年のノート / 1917 年的筆記 / 1917년의 노트 |
-| Cottingham | 16 | none | Cottingham / Cottingham / Cottingham / Cottingham |
-| Eddington | 47 | res://assets/portraits/eddington_engraving.jpg | Eddington / Eddington / Eddington / Eddington |
+| Cottingham | 8 | res://assets/portraits/cottingham_engraving.jpg | Cottingham / コッティンガム / Cottingham / 코팅엄 |
+| Eddington | 43 | res://assets/portraits/eddington_engraving.jpg | Eddington / エディントン / Eddington / 에딩턴 |
 | 上一回的曝光 | 1 | none | The last exposure / 前回の露出 / 上一回的曝光 / 지난번 노출 |
-| 你 | 16 | none | You / あなた / 你 / 당신 |
+| 你 | 19 | none | You / あなた / 你 / 당신 |
 | 曝光計畫（筆記，遊戲內重建） | 1 | none | Exposure Plan (notebook, reconstructed in-game) / 露出計画（ノート・ゲーム内再構成） / 曝光計畫（筆記，遊戲內重建） / 노출 계획(노트, 게임 내 재구성) |
 | 牛津比對底片 | 2 | none | Oxford comparison plate / オックスフォードの比較用乾板 / 牛津比對底片 / 옥스퍼드 비교용 건판 |
 
@@ -61,13 +59,14 @@ Default main presentation (engraving; no debug overrides). Paths and names are o
 
 | Speaker (source) | Line count | Portrait path | Displayed name (en / ja / zh-TW / ko) |
 | --- | ---: | --- | --- |
+| (blank) | 3 | none | (blank) / (blank) / (blank) / (blank) |
 | 1917 年的帳本 | 2 | none | The 1917 ledger / 1917年の記録簿 / 1917 年的帳本 / 1917년의 장부 |
-| Ashby 先生 | 31 | none | Mr Ashby / アシュビー先生 / Ashby 先生 / 애슈비 선생님 |
+| Ashby 先生 | 33 | none | Mr Ashby / アシュビー先生 / Ashby 先生 / 애슈비 선생님 |
 | Dyson 的信（推測重建，非原文） | 1 | none | Dyson's letter (speculative reconstruction, not a quotation) / ダイソン卿の手紙（推測による再構成、原文ではない） / Dyson 的信（推測重建，非原文） / 다이슨의 편지(추측 재구성, 원문 아님) |
-| Kit | 9 | none | Kit / Kit / Kit / Kit |
-| 你 | 1 | none | You / あなた / 你 / 당신 |
+| Kit | 11 | none | Kit / Kit / Kit / Kit |
+| 你 | 2 | none | You / あなた / 你 / 당신 |
 | 太陽系儀 | 3 | none | The orrery / オーラリー / 太陽系儀 / 오러리 |
 | 年鑑・水星（1919 年 10 月補記） | 1 | none | Almanac · Mercury (note added October 1919) / 年鑑・水星（1919年10月の追記） / 年鑑・水星（1919 年 10 月補記） / 연감 · 수성(1919년 10월 추기) |
 | 筆記本 | 1 | none | The notebook / ノート / 筆記本 / 공책 |
 
-Source fingerprint: `28a760757cf24eaf0cab63830bd05126ce74613311240e638ef1c110b07278f6`
+Source fingerprint: `82dd58b880aad789aea4fcb668df39cef6ab26ebb2042c3a4ae937d7cb818fbf`

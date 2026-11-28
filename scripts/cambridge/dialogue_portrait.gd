@@ -5,6 +5,7 @@ const PRINT_SIZE := 204.0
 ## Owner-selected P1 prints. This CanvasLayer control never receives the 3D
 ## environment grade: the source images already carry their toned-print look.
 const Cast := preload("res://scripts/cambridge/cast.gd")
+const Content := preload("res://scripts/content.gd")
 const PRINTS := {
 	Cast.MENTOR: {
 		"neutral": "res://assets/portraits/ashby_neutral.jpg",
@@ -13,6 +14,9 @@ const PRINTS := {
 	Cast.EDDINGTON: {
 		"neutral": "res://assets/portraits/eddington_neutral.jpg",
 		"intent": "res://assets/portraits/eddington_intent.jpg",
+	},
+	Content.C: {
+		"neutral": "res://assets/portraits/cottingham_engraving.jpg",
 	},
 }
 

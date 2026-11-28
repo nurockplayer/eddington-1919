@@ -2,6 +2,7 @@ extends SceneTree
 const Coverage := preload("res://tools/portrait_coverage.gd")
 const Portrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
+const Content := preload("res://scripts/content.gd")
 const Engraving := preload("res://scripts/styles/engraving.gd")
 var checks := 0
 var failures := 0
@@ -20,7 +21,7 @@ func check(ok: bool, message: String) -> void:
 
 func mapping_errors(prints: Dictionary) -> Array:
 	var errors := []
-	var identities := {Cast.MENTOR: "ashby", Cast.EDDINGTON: "eddington"}
+	var identities := {Cast.MENTOR: "ashby", Cast.EDDINGTON: "eddington", Content.C: "cottingham"}
 	for speaker in prints:
 		for path in prints[speaker].values():
 			if not FileAccess.file_exists(path):
@@ -44,5 +45,17 @@ func _run() -> void:
 	var changed: Array = Coverage.authored_entries()
 	changed.append({"chapter": 0, "s": Cast.KIT, "t": "new line", "mood": "neutral"})
 	check(Coverage.render(self, changed) != report, "revert check: added content makes table stale")
+	var game: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	game._start_game()
+	game._interact("cottingham")
+	var ui = game.ui
+	var print_texture: Texture2D = ui.dialogue_portrait.image.texture
+	check(ui.dialog_active() and ui.speaker_label.text == L.t(Content.C)
+		and ui.dialogue_portrait.visible and print_texture != null
+		and print_texture.resource_path == "res://assets/portraits/cottingham_engraving.jpg",
+		"meeting Cottingham in Príncipe shows his engraving beside his name")
+	game.stop_all_audio()
+	game.free()
 	print("%d portrait coverage checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
