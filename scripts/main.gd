@@ -102,7 +102,6 @@ var met_cottingham := false
 var plate_textures: Array = []
 var comparison_tex: Texture2D
 var _comparison_fetched := false
-var _tick_acc := 0.0
 var _warned_end := false
 var _glanced := false
 const GLANCE_THICK := 0.6  # cloud_over_sun at or above this reads as 「雲還是很厚」
@@ -1624,8 +1623,7 @@ func _process_totality(delta: float) -> void:
 	var dt := t_game - previous
 	var score_start := TOTALITY_SCORE_DELAY_S * _totality_rate
 	if previous < score_start and t_game >= score_start:
-		# The metronome counts throughout totality. Keep a steady balance around
-		# the count so the score and beds don't pulse back up between ticks.
+		# Give the shutter and plate change a steady lead over the score and beds.
 		AudioServer.set_bus_volume_db(_totality_actions_bus, TOTALITY_ACTION_DB)
 		score.play("totality_drone", TOTALITY_SCORE_FADE_S)
 		score.play("totality_glass", TOTALITY_SCORE_FADE_S)
@@ -1655,9 +1653,7 @@ func _process_totality(delta: float) -> void:
 			_holder_spent = false
 			plate_changed = true
 	_apply_light(1.0, 1.0, t_game, 0.0)
-	_tick_acc += dt
-	if _tick_acc >= 1.0:
-		_tick_acc -= 1.0
+	if previous < 1.0 and t_game >= 1.0:
 		audio_tick.play()
 	_totality_callouts()
 	# The glance states what the sky is doing, so it waits out a thin patch

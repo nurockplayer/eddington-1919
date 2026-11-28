@@ -74,8 +74,7 @@ static func glow_embers(ember_mat: StandardMaterial3D, flicker: float, t: float)
 	ember_mat.emission_energy_multiplier = EMBER_GLOW * (1.0 + 2.5 * (flicker - 1.0) + 0.12 * sin(t * 0.6))
 
 
-## A seconds pendulum: it crosses the middle on every whole second, when the
-## directors play the tick, and swings along the wall (about the x axis).
+## A seconds pendulum crosses the middle on every whole second and swings along the wall.
 static func swing_pendulum(pendulum: Node3D, t: float) -> void:
 	pendulum.rotation.x = deg_to_rad(PENDULUM_SWING) * sin(PI * t)
 

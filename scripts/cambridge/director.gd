@@ -47,7 +47,6 @@ var _caption_elapsed := -1.0
 var _caption_advance := false
 var _pending := ""
 var _busy := true
-var _clock_t := 0.0
 var _light_t := 0.0
 var _daylight := false
 var _orrery_camera: Camera3D
@@ -57,7 +56,6 @@ var _lens_tween: Tween
 var _conversation_active := false
 var _last_speaker := ""
 var score: Node
-var tick: AudioStreamPlayer
 var click: AudioStreamPlayer
 var rain: AudioStreamPlayer
 var rain_stopped := false
@@ -216,10 +214,6 @@ func _process(delta: float) -> void:
 	Room.swing_pendulum(world.pendulum, _light_t)
 	Room.StarDecor.turn_orrery(world.orrery, _light_t)
 	Room.StarDecor.spin_gramophone(world.gramophone, delta, gramophone_playing)
-	_clock_t += delta
-	if _clock_t >= 1.0:
-		_clock_t -= 1.0
-		tick.play()
 	if _free() and beat in [Beat.INVESTIGATE, Beat.TRIAL_TASK, Beat.ORRERY]:
 		var target: Node = player.aimed_interactable()
 		var relevant: bool = target != null
@@ -672,11 +666,6 @@ func _build_audio() -> void:
 	score.play("cambridge_rain", 1.1)
 	print("[SCORE READY] scene=cambridge added_ms=%.3f" % [(Time.get_ticks_usec() - score_ready + ui.music_ready_usec) / 1000.0])
 	var samples := PackedFloat32Array()
-	for i in 700:
-		var t := i / 22050.0
-		samples.append(sin(t * TAU * 1700.0) * exp(-t * 180.0) * 0.6)
-	tick = _audio(samples, -22.0)
-	samples.clear()
 	for i in 1800:
 		var t := i / 22050.0
 		samples.append((randf() - 0.5) * exp(-t * 90.0))
