@@ -2055,3 +2055,25 @@ Inherited, already on my list from #542: "Filed with source." floats in the midd
 ![filed](slice_principe/accept/613/fd593c2/candidate-pad-filed.png)
 
 **Count stays 7/9.**
+
+### 2026-11-28 16:20 JST · #624 (journey I5 In print, I6 Replies) at 19427c7: accepted as chapters
+
+Opened whole at 1280×720: I5-03 en, I5-22 en at 1.0 and 1.2, I5-13 en, I6-17 en, I6-13 ja. Not opened: the other 26. Head cbc8c2c (test fixture only) not seen in a frame.
+
+- Technical regression: none seen. Same sheet, type and scrollbar as the other chapters.
+- This change: accepted. The press, the fictional column and the replies read in order; fiction is labelled apart from record; Japanese sets cleanly; at 1.2 the illustration sheet's fold falls between paragraphs.
+- Whole chapters: plain, like the rest of the journey (VISUAL_FIDELITY F3).
+
+Not held, for follow-ups:
+1. **I5-22 mixes two looks on one sheet.** The ray drawing is ink on paper; beside it sits the old dark chart strip with pale labels, and its right end is cut by the sheet's edge. Once #622's ink chart is on main this strip should be that chart. Mine, after #622.
+2. **The Times headline is three lines of interface type.** "REVOLUTION IN SCIENCE" is the most quoted line of the whole story; it should be set as a newspaper column (the book's serif, rules, column width). Mine, with the journey plates.
+3. The fold cuts a line on I5-22 and I6-17 at 1.0 (same shared-sheet defect as #600, #620; this capture predates the rebase). I look again on main.
+
+Copy, for edd-lead: I6-17 reads "天文月報 · January 1920 JST": a zone on a 1920 month in player-facing text looks like our own log rule leaking into the game.
+
+Frames kept in `docs/design/slice_principe/accept/624/19427c7/`.
+
+![times](slice_principe/accept/624/19427c7/I5-03_en.png)
+![illustration](slice_principe/accept/624/19427c7/I5-22_en.png)
+
+**Count stays 7/9.**
