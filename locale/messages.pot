@@ -6848,7 +6848,7 @@ msgstr ""
 msgid "Vorwärts・柏林・1919 年 11 月 18 日。〈Revolution in der Wissenschaft〉（科學革命）。"
 msgstr ""
 
-msgid "Illustrated London News・倫敦・1919 年 11 月 22 日。W. B. 羅賓遜的插圖採用愛丁頓提供的資料。"
+msgid "Illustrated London News・倫敦・1919 年 11 月 22 日。W. B. 羅賓遜的插圖採用 Crommelin 提供的資料。"
 msgstr ""
 
 msgid "星光掠過太陽附近時會改變方向。將抵達的光線沿直線往回延伸，就能看見恆星的視位置如何偏移。"
@@ -6914,7 +6914,7 @@ msgstr ""
 msgid "《性別資格限制（撤銷）法》・1919 年 12 月 23 日。該法涵蓋的專業與公職，不再能以性別或婚姻狀態取消資格。第 3 條讓大學自行決定是否接納女性為成員或授予學位。"
 msgstr ""
 
-msgid "《天文月報》（天文學月刊）・1920 年 1 月 JST。日本天文學會的期刊報導，日食結果與愛因斯坦的預測大致吻合。"
+msgid "《天文月報》（天文學月刊）・1920 年 1 月。日本天文學會的期刊報導，日食結果與愛因斯坦的預測大致吻合。"
 msgstr ""
 
 msgid "Electrical Experimenter・紐約・1920 年 3 月・第 1165 頁。漫畫讓地球說：「哎呀，我想我該剪頭髮了！」"
