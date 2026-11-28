@@ -237,7 +237,13 @@ func _principe(chapter) -> void:
 				_talk(chapter)
 				chapter._interact("measure")
 				_talk(chapter)
-				await _viewer_case(chapter)
+				if route == "direct":
+					await _viewer_case(chapter)
+				else:
+					chapter.ui.plate_toggled.emit(0, true)
+					chapter.ui.reading_set.emit(0, chapter.sim.reading_for_value(1.75))
+					chapter.ui.measure_pressed.emit()
+					chapter.ui.report_pressed.emit()
 		chapter.Phase.CODA:
 			match chapter.coda_step:
 				chapter.CodaStep.WORKBOOK: chapter._interact("departure_workbook")
