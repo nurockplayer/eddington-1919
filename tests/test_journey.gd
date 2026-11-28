@@ -798,6 +798,8 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 				var sim_text: String = text.L16 % [combined.value, combined.sigma] if combined.n > 0 else text.L17
 				expect(has_text(paper, sim_text) and not is_instance_valid(meeting.historical_chart),
 					"the simulated measurement is on its own labelled sheet")
+			"proceedings":
+				expect(text.L23.contains("1.6″ ± 0.3″"), "London gives the Príncipe figure reported at the meeting")
 			"principal":
 				var historical: Array = meeting.historical_chart.rows
 				expect(historical.size() == 2 and historical[0].value == 1.98 and historical[0].sigma == 0.12

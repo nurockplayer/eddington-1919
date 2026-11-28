@@ -217,8 +217,8 @@ msgstr "November 1918. The Armistice."
 msgid "1919 年 1 月，在牛津夜空拍下這片星場（金牛座畢宿星團一帶）。島上重用牛津的物鏡，裝在水平鏡筒上並配合定天鏡。日食這天，太陽正好在這片星前面。"
 msgstr "January 1919: this field was photographed at night over Oxford (the Hyades in Taurus). On Príncipe, they reused Oxford's objective in the horizontal tube with a coelostat. On eclipse day the Sun stood before this field."
 
-msgid "1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的結果因焦距改變、星像模糊而未採用——這是有紀錄的技術理由，而非掩蓋。一次遠征並沒有讓所有疑問就此消失。"
-msgstr "On 6 November 1919, the results were announced at a joint meeting of the Royal Society and the Royal Astronomical Society. The report relied chiefly on the 4-inch telescope at Sobral in Brazil (1.98″ ± 0.12″); Príncipe gave 1.61″ ± 0.30″ (written at the time as 'probable error', roughly two-thirds of one standard error). The Sobral astrographic result was set aside because the focal length had changed and the star images were blurred—a documented technical reason, not a cover-up. One expedition did not make every doubt disappear."
+msgid "1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的星像模糊，底片尺度也不確定，因此報告給這組結果的權重較低。一次遠征並沒有讓所有疑問就此消失。"
+msgstr "On 6 November 1919, the results were announced at a joint meeting of the Royal Society and the Royal Astronomical Society. The report relied chiefly on the 4-inch telescope at Sobral in Brazil (1.98″ ± 0.12″); Príncipe gave 1.61″ ± 0.30″ (written at the time as 'probable error', roughly two-thirds of one standard error). The report gave the Sobral astrograph less weight because its star images were blurred and its plate scale was uncertain. One expedition did not make every doubt disappear."
 
 msgid "1919 年 2 月 20 日・下議院"
 msgstr "20 February 1919 · House of Commons"
@@ -5185,8 +5185,8 @@ msgstr "Historical record · Summary of the proceedings"
 msgid "皇家天文學家 Frank Dyson 報告 Sobral 的結果。4 吋望遠鏡量得日緣偏折 1.98″。"
 msgstr "The Astronomer Royal, Frank Dyson, reports the Sobral results. The 4-inch telescope gives 1.98″ at the Sun's limb."
 
-msgid "Arthur Eddington 報告 Príncipe 底片量得的 1.61″。"
-msgstr "Arthur Eddington reports 1.61″ from the Príncipe plates."
+msgid "Arthur Eddington 報告 Príncipe 兩張底片量得的 1.6″ ± 0.3″（機率誤差）。"
+msgstr "Arthur Eddington reports 1.6″ ± 0.3″ (probable error) from two Príncipe plates."
 
 msgid "重建圖表・歷史觀測"
 msgstr "Reconstructed chart · Historical observations"

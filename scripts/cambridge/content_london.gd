@@ -66,7 +66,7 @@ static func strings() -> Dictionary:
 		"L20": L.t("J. J. Thomson 爵士主持會議。"),
 		"L21": L.t("歷史紀錄・會議紀要"),
 		"L22": L.t("皇家天文學家 Frank Dyson 報告 Sobral 的結果。4 吋望遠鏡量得日緣偏折 1.98″。"),
-		"L23": L.t("Arthur Eddington 報告 Príncipe 底片量得的 1.61″。"),
+		"L23": L.t("Arthur Eddington 報告 Príncipe 兩張底片量得的 1.6″ ± 0.3″（機率誤差）。"),
 		"L24": L.t("重建圖表・歷史觀測"),
 		"L25": L.t("日緣偏折（角秒）"),
 		"L26": L.t("0″・無偏折"),
