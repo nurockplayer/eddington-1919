@@ -12,6 +12,8 @@ const Chart := preload("res://scripts/cambridge/london_chart.gd")
 const Portrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
 const EDDINGTON_PRINT := preload("res://assets/portraits/eddington_engraving.jpg")
 const Cast := preload("res://scripts/cambridge/cast.gd")
+const SOBRAL_SAMPLE := preload("res://assets/music/departure_motif.ogg")
+const PRINCIPE_SAMPLE := preload("res://assets/music/coda_resolution.ogg")
 
 var paper: Control
 var historical_chart: Control
@@ -24,6 +26,9 @@ var _step := 0
 var _selected := ""
 var _preview := ""
 var _prediction_pick: int
+var _landing_audio: AudioStreamPlayer
+var _landing_excerpts: Array[AudioStreamWAV]
+var _skipping_arrival := false
 
 
 func open(run: Dictionary, prediction: Dictionary, bond_tone: String) -> void:
@@ -50,6 +55,14 @@ func open(run: Dictionary, prediction: Dictionary, bond_tone: String) -> void:
 	paper = Paper.new()
 	add_child(paper)
 	paper.action.connect(_action)
+	_landing_audio = AudioStreamPlayer.new()
+	_landing_audio.name = "LandingAudio"
+	_landing_audio.bus = &"Music"
+	add_child(_landing_audio)
+	_landing_excerpts = [
+		_excerpt(SOBRAL_SAMPLE, 0.75, 1.75, -7.0),
+		_excerpt(PRINCIPE_SAMPLE, 6.25, Chart.CONTINUE_LIVE_SECONDS - Chart.PRINCIPE_LANDS_SECONDS, 5.0),
+	]
 	_show_page()
 
 
@@ -126,6 +139,9 @@ func _show_chart(layout: VBoxContainer, scroll: ScrollContainer, row_count: int)
 
 
 func _show_report(beat: int) -> void:
+	if not _skipping_arrival:
+		_landing_audio.stream = _landing_excerpts[beat - 1]
+		_landing_audio.play()
 	if beat == 1:
 		_show_lines(["L22"])
 		return
@@ -140,6 +156,28 @@ func _show_report(beat: int) -> void:
 	var report: VBoxContainer = paper.column(row)
 	report.alignment = BoxContainer.ALIGNMENT_CENTER
 	paper.label(report, _text.L23, 24)
+
+
+func _excerpt(source: AudioStreamOggVorbis, offset: float, length: float, gain_db: float) -> AudioStreamWAV:
+	var rate := int(AudioServer.get_mix_rate())
+	var playback := source.instantiate_playback()
+	playback.start(offset)
+	var frames := playback.mix_audio(1.0, roundi(length * rate))
+	var pcm := PackedByteArray()
+	pcm.resize(frames.size() * 4)
+	var gain := db_to_linear(gain_db) * 32767.0
+	for i in frames.size():
+		var time := float(i) / rate
+		var envelope := smoothstep(0.0, 0.015, time) * (1.0 - smoothstep(length - 0.48, length, time))
+		var frame := frames[i] * (gain * envelope)
+		pcm.encode_s16(i * 4, roundi(frame.x))
+		pcm.encode_s16(i * 4 + 2, roundi(frame.y))
+	var clip := AudioStreamWAV.new()
+	clip.format = AudioStreamWAV.FORMAT_16_BITS
+	clip.stereo = true
+	clip.mix_rate = rate
+	clip.data = pcm
+	return clip
 
 
 func _show_lines(ids: Array) -> void:
@@ -178,6 +216,9 @@ func _show_choices(page: Dictionary, scroll: ScrollContainer) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if page_id == "principal" and historical_chart.is_processing() and event.is_action_pressed("ui_accept"):
 		get_viewport().set_input_as_handled()
+		_skipping_arrival = true
+		if _landing_audio.playing:
+			create_tween().tween_property(_landing_audio, "volume_linear", 0.0, 0.12)
 		historical_chart.finish_arrival()
 
 
