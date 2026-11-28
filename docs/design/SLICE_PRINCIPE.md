@@ -2040,3 +2040,18 @@ Not covered by this capture (it stops at I3): the I4 sheets (#620), the I2 lette
 ![letter 1.2](slice_principe/accept/611/2533d41/077_en_first.png)
 ![onward 1.2](slice_principe/accept/611/2533d41/090_en_first.png)
 ![drive check 1.2](slice_principe/accept/611/2533d41/106_en_first.png)
+
+### 2026-11-28 16:03 JST · #613 (AA 24 tribunal back-out) at fd593c2: accepted
+
+Opened whole at 1280×720 (en, text scale 1.2): candidate keys back and correction, candidate pad filed, main keys back. Not opened: the other 24. Head 4c93318 (headless test setup only) not seen in a frame.
+
+- Technical regression: none seen; main and candidate differ only by the source line.
+- This change: accepted. After backing out, and after Kit's correction, the same card keeps the focus and its source ("Cambridge Observatory Syndicate minutes · ObsA1/iii/123–125") stays on the sheet above the button; once filed the card sits under its heading with the focus and can be read again.
+- Whole scene: unchanged.
+
+Inherited, already on my list from #542: "Filed with source." floats in the middle of the sheet. Noted for VISUAL_FIDELITY F9: the Cambridge room behind the sheet is smooth-shaded 3D with no engraving treatment.
+
+![back](slice_principe/accept/613/fd593c2/candidate-keys-back.png)
+![filed](slice_principe/accept/613/fd593c2/candidate-pad-filed.png)
+
+**Count stays 7/9.**
