@@ -53,6 +53,7 @@ func _run() -> void:
 	var empty := _rushed()
 	empty.plates = []
 	_check_review(game, story, empty, -1)
+	_check_history_heading(game, story)
 
 	var recall: Dictionary = runs[0].snapshot.duplicate(true)
 	for entry in [["consistent", "相符"], ["overclaim", "說得比你的誤差範圍滿"], ["underclaim", "比你的誤差範圍保守"]]:
@@ -120,6 +121,20 @@ func _check_review(game: Node, story: Node, spec: Dictionary, verdict: int) -> v
 		"%s: historical record opens separately" % spec.name)
 	ui.ending_history_toggle.pressed.emit()
 	check(story.runs.back() == run, "%s: reading both panels preserves the stored run" % spec.name)
+
+
+func _check_history_heading(game: Node, story: Node) -> void:
+	var original_locale := L.current()
+	for locale in L.LOCALES:
+		L.apply(locale)
+		_record(game, story, _honest())
+		var heading: String = game.ui.ending_history_toggle.text
+		game.ui.ending_history_toggle.pressed.emit()
+		var text: String = game.ui.ending_history.get_parsed_text()
+		check(game.ui.ending_history.visible and text.strip_edges().get_slice("\n", 0) == heading
+			and not text.contains("HISTORICAL_RECORD") and not text.contains("docs/PROVENANCE.md"),
+			"%s: history opens with the localized heading and no internal provenance text" % locale)
+	L.apply(original_locale)
 
 
 func _check_purity(record: Dictionary, context: String) -> void:
