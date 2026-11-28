@@ -97,7 +97,8 @@ func _show_page() -> void:
 
 
 func _show_title_plate() -> void:
-	var separator := " · " if _text.L18.contains(" · ") else "・"
+	const CJK_SEPARATOR := "・"
+	var separator := " · " if _text.L18.contains(" · ") else CJK_SEPARATOR
 	var split_at: int = _text.L18.rfind(separator)
 	paper.label(paper.body, _text.L01, 20, true)
 	paper.label(paper.body, _text.L18.left(split_at), 54, true)
