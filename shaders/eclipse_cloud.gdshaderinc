@@ -1,7 +1,32 @@
 // Shared presentation cloud: sky light, engraved burst and Moon ink.
+float eclipse_middle_band_distance(vec2 plane, float elapsed) {
+	vec2 sun_plane = sun_dir.xz / sun_dir.y * cloud_scale;
+	vec2 along = normalize(wind);
+	vec2 across = vec2(-along.y, along.x);
+	vec2 offset = plane - sun_plane - 2.25 * wind * elapsed;
+	float side = dot(offset, across);
+	float scallop = 0.005 * (sin(side * 96.0) + 0.5 * sin(side * 211.0))
+		* smoothstep(0.010, 0.034, abs(side));
+	vec2 island = vec2((dot(offset, along) + 0.006 + scallop) / 0.020, side / 0.048);
+	return 0.020 * (length(island) - 1.0);
+}
+
+float eclipse_middle_band_cover(float distance_to_band, float elapsed) {
+	return (1.0 - smoothstep(-0.001, 0.001, distance_to_band)) * (1.0 - smoothstep(7.0, 9.0, abs(elapsed)));
+}
+
+float eclipse_middle_band(vec2 plane, float time, float density) {
+	float elapsed = time - middle_seam_time;
+	if (practice_cloud >= 0.0 || before_second_contact || night > 0.5 || abs(elapsed) >= 9.0) {
+		return density;
+	}
+	float cover = eclipse_middle_band_cover(eclipse_middle_band_distance(plane, elapsed), elapsed);
+	return mix(density, max(density, 0.93), cover);
+}
+
 float eclipse_cloud_texture(vec3 d, float time) {
-	vec2 plane = d.xz / max(d.y, 0.06);
-	return texture(cloud_tex, plane * cloud_scale - wind * time).r;
+	vec2 plane = d.xz / max(d.y, 0.06) * cloud_scale;
+	return texture(cloud_tex, plane - wind * time).r;
 }
 
 float third_contact_cloud_gap(vec3 d, float time) {
@@ -13,11 +38,14 @@ float third_contact_cloud_gap(vec3 d, float time) {
 	return pocket * (1.0 - smoothstep(3.5, 5.0, length(local_sun)));
 }
 
-vec2 eclipse_cloud_sample_at(vec3 d, float time) {
+vec2 eclipse_cloud_sample_at(vec3 d, float time, bool include_middle_band) {
 	float h = d.y;
 	float dens = 0.0;
 	if (h > 0.0) {
 		dens = eclipse_cloud_texture(d, time);
+		if (include_middle_band) {
+			dens = eclipse_middle_band(d.xz / max(h, 0.06) * cloud_scale, time, dens);
+		}
 		dens = mix(dens, 0.97, smoothstep(0.35, 0.05, h));   // haze toward horizon
 	} else {
 		dens = 1.0;
@@ -35,6 +63,10 @@ vec2 eclipse_cloud_sample_at(vec3 d, float time) {
 		gap = third_contact_cloud_gap(d, time);
 	}
 	return vec2(mix(dens, dens * 0.55, night), gap);
+}
+
+vec2 eclipse_cloud_sample_at(vec3 d, float time) {
+	return eclipse_cloud_sample_at(d, time, true);
 }
 
 float eclipse_cloud_density_from_sample(vec2 cloud) {

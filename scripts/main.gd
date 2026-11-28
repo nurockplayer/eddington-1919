@@ -372,6 +372,7 @@ func _build_environment() -> void:
 	sky_mat = ShaderMaterial.new()
 	sky_mat.shader = SKY_SHADER
 	sky_mat.set_shader_parameter("cloud_tex", ImageTexture.create_from_image(sim.cloud_img))
+	sky_mat.set_shader_parameter("middle_seam_time", sim.middle_seam_time)
 	sky_mat.set_shader_parameter("wind", sim.wind)
 	sky_mat.set_shader_parameter("cloud_scale", sim.CLOUD_SCALE)
 	sky_mat.set_shader_parameter("sun_dir", sim.sun_dir)
@@ -878,7 +879,7 @@ func _process(delta: float) -> void:
 func _sync_style_sky() -> void:
 	if _style == null:
 		return
-	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "third_contact_cloud_clock", "practice_cloud", "wind", "cloud_scale"]:
+	for name in ["contact", "before_second_contact", "cloud_tex", "cloud_time", "middle_seam_time", "third_contact_cloud_clock", "practice_cloud", "wind", "cloud_scale"]:
 		_style.quad_material.set_shader_parameter(name, sky_mat.get_shader_parameter(name))
 	_style.quad_material.set_shader_parameter("diamond", sky_mat.get_shader_parameter("third_contact").y)
 

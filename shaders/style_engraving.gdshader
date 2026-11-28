@@ -21,6 +21,7 @@ uniform bool before_second_contact = false;
 // The sky's live cloud field, including the rehearsal override.
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
+uniform float middle_seam_time = -100.0;
 uniform vec3 third_contact_cloud_clock = vec3(302.0, 2.5, 3.333333);
 uniform float day_return_cloud_time = -1.0; // cloud plate at the start of the light return
 uniform float practice_cloud = -1.0;
@@ -304,7 +305,7 @@ void fragment() {
 		float from_contact = cloud_time - third_contact_cloud_clock.x;
 		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
 		float print_time = returning_sky ? day_return_cloud_time : cloud_time;
-		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, print_time);
+		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, print_time, false);
 		// Ease back to the accepted third-contact field before the passage starts.
 		float pocket_print = smoothstep(0.0, 5.0, cloud_time) * (1.0 - smoothstep(-12.0, -6.5, pocket_time));
 		bool print_pocket = practice_cloud < 0.0 && !before_second_contact && night == 0.0 && ray_w.y > 0.0 && pocket_print > 0.0;
@@ -318,8 +319,17 @@ void fragment() {
 		vec2 cloud_gradient = vec2(dFdx(cloud_field.x), dFdy(cloud_field.x));
 		float cloud_pixel = max(length(cloud_gradient), 0.00001);
 		float cloud_body = 1.0 - smoothstep(-cloud_pixel, cloud_pixel, cloud_field.x);
-		float cloud_weight = cloud_body * (0.4 + 0.3 * step(0.6, cloud_field.y) + 0.3 * step(0.85, cloud_field.y));
+		// The moving island's contour borders its ruling and cuts the solar print.
+		float seam_elapsed = print_time - middle_seam_time;
+		float band_distance = eclipse_middle_band_distance(ray_w.xz / max(ray_w.y, 0.06) * cloud_scale, seam_elapsed);
+		float band_pixel = max(fwidth(band_distance), 0.00001);
+		float band_active = float(practice_cloud < 0.0 && !before_second_contact && !returning_sky && night <= 0.5 && ray_w.y > 0.0);
+		float band_body = band_active * eclipse_middle_band_cover(band_distance, seam_elapsed);
+		float seam_blend = float(practice_cloud < 0.0 && !before_second_contact && !returning_sky)
+			* (1.0 - smoothstep(5.0, 7.0, abs(seam_elapsed)));
 		float dense_cloud = step(0.85, cloud_field.y);
+		float medium_cloud = step(0.6, cloud_field.y);
+		float cloud_weight = cloud_body * (0.4 + 0.3 * medium_cloud + 0.3 * dense_cloud);
 		float cloud_contour = 1.0 - smoothstep(0.35, 0.85, abs(cloud_field.x) / (cloud_pixel * res_k));
 		float horizon = 1.0 - smoothstep(0.0, 0.16, abs(elev));
 		float high_sky = smoothstep(0.0, 1.2, elev);
@@ -353,6 +363,13 @@ void fragment() {
 			float plate_ink = broad * 0.36 * (1.0 - dense_cloud);
 			ink = mix(ink, plate_ink * band_lines, totality_plate);
 			cloud_wash = plate_cloud * band_lines * totality_plate;
+			float bank_print = band_lines * totality_plate;
+			float bank_hatch = hatch(ruling.x, k, 0.30, l_px * 2.0, 99.0);
+			cloud_wash = mix(cloud_wash, 0.60 * bank_print, band_body);
+			ink = mix(ink, (0.23 + 0.55 * bank_hatch) * bank_print, band_body);
+			float bank_line = 1.0 - smoothstep(0.45, 1.45, abs(band_distance) / band_pixel);
+			float bank_fade = band_active * (1.0 - smoothstep(7.0, 9.0, abs(seam_elapsed)));
+			ink = max(ink, 0.52 * bank_print * bank_fade * bank_line);
 		}
 		ink = max(ink, cloud_contour * band_lines * contour_ink * (1.0 - totality_plate));
 		if (night <= 0.5) {
@@ -427,19 +444,23 @@ void fragment() {
 		// Reserve a solid disc over the printed sky, with coverage only at its limb.
 		float moon_pixel = max(fwidth(r) * 0.5, 0.00001);
 		float moon_disc = 1.0 - smoothstep(1.0 - moon_pixel, 1.0 + moon_pixel, r);
-		float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time).x;
+		float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time, false).x;
+		float solar_density = cloud_field.y;
 		if (returning_sky) {
 			live_cloud = eclipse_cloud_sample_at(ray_w, cloud_time);
 		}
+		float cloud_cutoff = step(0.85, solar_density);
 		// Ease the thresholds across the passage as the pocket overlaps the solar drawing.
 		float pocket_softness = float(practice_cloud < 0.0) * smoothstep(-6.2, -3.1, pocket_time) * (1.0 - smoothstep(3.0, 7.6, pocket_time));
 		float sun_visibility = 1.0 - smoothstep(mix(0.80, 0.40, pocket_softness), 0.85, sun_cloud);
 		float thin_veil = 0.5 * smoothstep(0.30, 0.35, live_cloud.x);
 		float cloud_veil = max(thin_veil, smoothstep(mix(0.80, 0.60, pocket_softness), 0.85, live_cloud.x));
 		// The dense cloud printed at each ray covers the solid Moon in totality.
-		float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - dense_cloud;
+		float moon_cover = max(band_body, mix(cloud_cutoff, smoothstep(0.66, 0.91, solar_density), seam_blend));
+		float moon_cloud = returning_sky ? mix(sun_visibility, 1.0, live_cloud.y) : 1.0 - moon_cover;
 		bool cloud_covers_sun = !returning_sky && sun_visibility < 1.0;
-		float corona_cloud = cloud_covers_sun ? moon_cloud * (1.0 - thin_veil) : mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
+		float corona_base = cloud_covers_sun ? (1.0 - cloud_cutoff) * (1.0 - thin_veil) : mix((1.0 - cloud_veil) * sun_visibility, 1.0, live_cloud.y);
+		float corona_cloud = (1.0 - band_body) * mix(corona_base, (1.0 - smoothstep(0.48, 0.90, solar_density)) * (1.0 - thin_veil), seam_blend);
 		moon_ink = before_second_contact ? 0.0 : front * moon_disc * solar_fade * moon_cloud;
 
 		// 2026-11-23 JST: hairline cuts, with four unequal streamer bundles.
@@ -465,15 +486,17 @@ void fragment() {
 			// A clear Sun keeps the complete starburst; the printed cloud's own
 			// body and optical density veil it under thin and thick cloud.
 			corona_white = max(limb_white, rays) * step(1.0, r) * corona_cloud;
-			if (cloud_covers_sun && corona_white > 0.0) {
+			if ((cloud_covers_sun || seam_blend > 0.0) && corona_white > 0.0) {
 				// A gap farther out cannot show a ray through a covered inner corona.
 				vec2 inner = lp * (1.125 * sun_r / r);
 				vec3 inner_ray = sun_dir * sqrt(1.0 - dot(inner, inner)) + t1 * inner.x + t2 * inner.y;
-				vec2 inner_cloud = eclipse_cloud_sample_at(inner_ray, print_time);
+				vec2 inner_cloud = eclipse_cloud_sample_at(inner_ray, print_time, false);
 				if (print_pocket) {
 					inner_cloud.x = mix(inner_cloud.x, pocket_print_density(inner_ray, print_time, inner_cloud.x), pocket_print);
 				}
-				corona_white *= 1.0 - step(0.85, eclipse_cloud_density_from_sample(inner_cloud));
+				float inner_density = eclipse_cloud_density_from_sample(inner_cloud);
+				float inner_cover = mix(float(cloud_covers_sun) * step(0.85, inner_density), smoothstep(0.48, 0.90, inner_density), seam_blend);
+				corona_white *= 1.0 - inner_cover;
 			}
 		}
 

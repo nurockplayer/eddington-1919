@@ -33,6 +33,7 @@ var sun_uv: Vector2
 var gaps: Array = []                  # [{t, d, depth}] scheduled thinning over the Sun
 var star_offsets := PackedVector2Array()   # in solar radii, local to the Sun
 var cloud_img: Image
+var middle_seam_time := -100.0
 var _dens := PackedFloat32Array()
 
 # --- preparation state ------------------------------------------------------
@@ -110,8 +111,10 @@ func _make_gaps() -> void:
 	]
 	if r.randf() < 0.6:
 		plan.append([r.randf_range(262.0, 282.0), r.randf_range(5.0, 8.0), r.randf_range(0.15, 0.30)])
+	plan[1][1] += PLATE_CHANGE_S  # room for a second thinning after the seam
 	for g in plan:
 		gaps.append({"t": g[0], "d": g[1], "depth": g[2]})
+	gaps[1]["seam"] = true
 
 
 func _make_clouds() -> void:
@@ -133,8 +136,11 @@ func _make_clouds() -> void:
 		_carve(sun_track(t), sun_track(t + 10.0), 0.05, 0.05, 0.93, true)
 		t += 10.0
 	# …with the scheduled thin patches cut into it.
+	middle_seam_time = -100.0
 	for g in gaps:
 		_carve(sun_track(g.t), sun_track(g.t + g.d), 0.006, 0.03, g.depth, false)
+		if g.get("seam", false):
+			middle_seam_time = g.t + g.d * 0.5
 	cloud_img = Image.create_empty(TEX_SIZE, TEX_SIZE, false, Image.FORMAT_L8)
 	var bytes := PackedByteArray()
 	bytes.resize(TEX_SIZE * TEX_SIZE)
@@ -150,24 +156,37 @@ func sun_track(t: float) -> Vector2:
 
 
 func _carve(a: Vector2, b: Vector2, r_full: float, r_soft: float, target: float, thicken: bool) -> void:
-	var reach := r_full + r_soft
+	var edge := r_full + r_soft
+	var reach := edge if thicken else edge + 0.014
 	var x0 := int(floor((minf(a.x, b.x) - reach) * TEX_SIZE))
 	var x1 := int(ceil((maxf(a.x, b.x) + reach) * TEX_SIZE))
 	var y0 := int(floor((minf(a.y, b.y) - reach) * TEX_SIZE))
 	var y1 := int(ceil((maxf(a.y, b.y) + reach) * TEX_SIZE))
 	var ab := b - a
 	var len2 := maxf(ab.length_squared(), 1e-9)
+	var along := ab.normalized()
+	var across := along.orthogonal()
 	for y in range(y0, y1 + 1):
+		var row := posmod(y, TEX_SIZE) * TEX_SIZE
 		for x in range(x0, x1 + 1):
+			var i := row + posmod(x, TEX_SIZE)
+			var cur := _dens[i]
+			var density := maxf(cur, target) if thicken else minf(cur, target)
+			# Overlapping passes often cover pixels already at the target.
+			if density == cur:
+				continue
 			var p := Vector2((x + 0.5) / TEX_SIZE, (y + 0.5) / TEX_SIZE)
+			if not thicken:
+				# Keep the solar track open while bending the sides of the thinning.
+				var side := absf((p - a).dot(across))
+				var bend := 0.009 * sin(p.dot(along) * 95.0) + 0.005 * sin(p.x * 164.0 + p.y * 127.0)
+				p += across * bend * smoothstep(0.009, 0.029, side)
 			var h := clampf((p - a).dot(ab) / len2, 0.0, 1.0)
 			var dist := (p - (a + ab * h)).length()
-			if dist > reach:
+			if dist > edge:
 				continue
-			var w := 1.0 - smoothstep(r_full, reach, dist)
-			var i := posmod(y, TEX_SIZE) * TEX_SIZE + posmod(x, TEX_SIZE)
-			var cur := _dens[i]
-			_dens[i] = lerpf(cur, maxf(cur, target) if thicken else minf(cur, target), w)
+			var w := 1.0 - smoothstep(r_full, edge, dist)
+			_dens[i] = lerpf(cur, density, w)
 
 
 func _sample(uv: Vector2) -> float:
@@ -184,12 +203,29 @@ func _sample(uv: Vector2) -> float:
 	return lerpf(lerpf(a, b, tx), lerpf(c, d, tx), ty)
 
 
+func _sample_with_middle_band(uv: Vector2, t: float) -> float:
+	var density := _sample(uv)
+	var elapsed := t - middle_seam_time
+	if middle_seam_time < 0.0 or absf(elapsed) >= 9.0:
+		return density
+	# Match eclipse_cloud.gdshaderinc in texture space so the plate meters the visible band.
+	var along := wind.normalized()
+	var offset := uv - sun_track(t) - 2.25 * wind * elapsed
+	var side := offset.dot(Vector2(-along.y, along.x))
+	var scallop := 0.005 * (sin(side * 96.0) + 0.5 * sin(side * 211.0)) * smoothstep(0.010, 0.034, absf(side))
+	var island := Vector2((offset.dot(along) + 0.006 + scallop) / 0.020, side / 0.048)
+	var distance := 0.020 * (island.length() - 1.0)
+	var cover := (1.0 - smoothstep(-0.001, 0.001, distance)) * (1.0 - smoothstep(7.0, 9.0, absf(elapsed)))
+	return lerpf(density, maxf(density, 0.93), cover)
+
+
 ## Cloud density over the Sun's disc at game-time `t` (0 clear … 1 opaque).
 func cloud_over_sun(t: float) -> float:
 	var c := sun_track(t)
 	var k := 0.01
-	return (_sample(c) * 2.0 + _sample(c + Vector2(k, 0)) + _sample(c - Vector2(k, 0))
-		+ _sample(c + Vector2(0, k)) + _sample(c - Vector2(0, k))) / 6.0
+	return (_sample_with_middle_band(c, t) * 2.0
+		+ _sample_with_middle_band(c + Vector2(k, 0), t) + _sample_with_middle_band(c - Vector2(k, 0), t)
+		+ _sample_with_middle_band(c + Vector2(0, k), t) + _sample_with_middle_band(c - Vector2(0, k), t)) / 6.0
 
 
 # ---------------------------------------------------------------------------

@@ -20,12 +20,12 @@ func check(ok: bool, message: String) -> void:
 
 
 func _run() -> void:
-	# P2 (#351) intentionally changes drive drift; pin that approved simulation,
-	# including the unchanged exposure/plate and seeded cloud model.
-	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "b3a9c3bf179b79d44ecd6bd0f39bf79878884bda1deaa83a9ab88fa7ef451af2", "simulation matches the approved P2 oracle")
+	# Pin the P2 simulation with the middle-totality seam added in #589.
+	check(FileAccess.get_sha256("res://scripts/eclipse_sim.gd") == "e2df0872b381cef1e89459ff81d78b9a821a07d93dbbea3568b2be547c59a1fb", "simulation matches the P2 oracle with the middle seam")
 	var engraving := FileAccess.get_file_as_string("res://shaders/style_engraving.gdshader")
 	var ternary := RegEx.create_from_string("^([a-z_]+) \\? ([^:]+) : (.+)$")
-	for name in ["solar_fade", "pocket_print", "pocket_softness", "sun_visibility", "thin_veil", "cloud_veil", "moon_cloud", "corona_cloud"]:
+	for name in ["solar_fade", "pocket_print", "pocket_softness", "sun_visibility", "thin_veil",
+			"cloud_veil", "moon_cover", "moon_cloud", "corona_base", "corona_cloud"]:
 		var expression := RegEx.create_from_string("float " + name + " = ([^;]+);").search(engraving)
 		check(expression != null, "engraving defines " + name)
 		if expression != null:
@@ -37,7 +37,8 @@ func _run() -> void:
 				code = "lerpf(%s, %s, float(%s))" % [branches.get_string(3), branches.get_string(2), branches.get_string(1)]
 			var result := parsed.parse(code, ["print_darkness", "sun_cloud", "live_cloud", "sun_visibility", "cloud_veil",
 				"pocket_time", "practice_cloud", "pocket_softness", "cloud_time", "thin_veil",
-				"dense_cloud", "returning_sky", "cloud_covers_sun", "moon_cloud"])
+				"cloud_cutoff", "returning_sky", "cloud_covers_sun", "moon_cloud",
+				"solar_density", "seam_blend", "moon_cover", "corona_base", "band_body"])
 			check(result == OK, "evaluate shipping " + name + ": " + parsed.get_error_text())
 			if result == OK:
 				solar[name] = parsed
@@ -50,7 +51,7 @@ func _run() -> void:
 	check(engraving.contains("front * moon_disc * solar_fade * moon_cloud")
 		and engraving.contains("step(1.0, r) * corona_cloud")
 		and engraving.contains("corona_white * solar_fade"), "engraving applies the measured visibility to the Moon and corona")
-	check(engraving.contains("float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time).x;")
+	check(engraving.contains("float sun_cloud = eclipse_cloud_sample_at(sun_dir, cloud_time, false).x;")
 		and engraving.contains("1.0 - smoothstep(0.35, 0.80, eclipse_cloud_density(direction))"),
 		"Sun-centre and field-star gates use the original cloud field")
 	for seed_ in [7, 1551]:
@@ -102,7 +103,7 @@ func _check_front(game: Node, seed_: int) -> void:
 	game._process_totality(step)
 	var clock: Variant = game.sky_mat.get_shader_parameter("third_contact_cloud_clock")
 	check(clock is Vector3, "seed %d: real contact flow supplies the cloud clock" % seed_)
-	if not clock is Vector3 or solar.size() != 8:
+	if not clock is Vector3 or solar.size() != 10:
 		return
 	var plate: ShaderMaterial = game._style.quad_material
 	var sun: Vector3 = game.sim.sun_dir
@@ -112,7 +113,7 @@ func _check_front(game: Node, seed_: int) -> void:
 	# Sweep centre and ray density independently through the totality gates.
 	for density in [0.30, 0.32, 0.35, 0.49, 0.78, 0.80, 0.81, 0.84, 0.85, 0.93]:
 		var args := [1.0, density, Vector2(density, mid_cloud.y), 0.0, 0.0, (mid_time - clock.x) / clock.y,
-			-1.0, 0.0, mid_time, 0.0, 0.0, false, false, 0.0]
+			-1.0, 0.0, mid_time, 0.0, 0.0, false, false, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 		args[7] = solar.pocket_softness.execute(args)
 		args[3] = solar.sun_visibility.execute(args)
 		args[12] = args[3] < 1.0
@@ -123,7 +124,10 @@ func _check_front(game: Node, seed_: int) -> void:
 			args[9] = solar.thin_veil.execute(args)
 			args[4] = solar.cloud_veil.execute(args)
 			args[10] = float(ray_density >= 0.85)
+			args[14] = ray_density
+			args[16] = solar.moon_cover.execute(args)
 			args[13] = solar.moon_cloud.execute(args)
+			args[17] = solar.corona_base.execute(args)
 			var expected_moon := float(ray_density < 0.85)
 			var thin_veil := 0.5 * smoothstep(0.30, 0.35, ray_density)
 			var expected_corona := expected_moon * (1.0 - thin_veil) if expected_sun < 1.0 \
@@ -132,7 +136,7 @@ func _check_front(game: Node, seed_: int) -> void:
 				and is_equal_approx(args[13], expected_moon),
 				"seed %d: totality Moon and corona gates at centre %.2f, ray %.2f" % [seed_, density, ray_density])
 	var warp_args := [1.0, mid_cloud.x, mid_cloud, 0.0, 0.0, (mid_time - clock.x) / clock.y,
-		-1.0, 0.0, mid_time, 0.0, 0.0, false, false, 0.0]
+		-1.0, 0.0, mid_time, 0.0, 0.0, false, false, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 	check(solar.pocket_print.execute(warp_args) == 1.0, "seed %d: contour bends in mid-totality" % seed_)
 	warp_args[5] = -6.5
 	warp_args[8] = clock.x - 6.5 * clock.y
@@ -192,7 +196,7 @@ func _check_front(game: Node, seed_: int) -> void:
 		var from_contact: float = t - clock.x
 		var pocket_time: float = from_contact / (clock.y if from_contact < 0.0 else clock.z)
 		var args := [darkness, centre_cloud.x, Vector2.ZERO, 0.0, 0.0, pocket_time, -1.0, 0.0, t,
-			0.0, 0.0, returning_sky, false, 0.0]
+			0.0, 0.0, returning_sky, false, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 		var light: float = solar.solar_fade.execute(args)
 		args[7] = solar.pocket_softness.execute(args)
 		args[3] = solar.sun_visibility.execute(args)
@@ -200,15 +204,19 @@ func _check_front(game: Node, seed_: int) -> void:
 		args[12] = cloud_covers_sun
 		for i in rays.size():
 			var cloud := Cues.third_contact_cloud_sample(game.sim, rays[i], t, clock)
-			var dense := Cues.third_contact_cloud_density(cloud) >= 0.85
+			var ray_density := Cues.third_contact_cloud_density(cloud)
+			var dense := ray_density >= 0.85
 			args[2] = cloud
 			args[9] = solar.thin_veil.execute(args)
 			args[4] = solar.cloud_veil.execute(args)
 			args[10] = float(dense)
+			args[14] = ray_density
+			args[16] = solar.moon_cover.execute(args)
 			args[13] = solar.moon_cloud.execute(args)
 			var gate: float = args[13]
 			var mask := int(returning_sky)
 			if i < inner_rays.size():
+				args[17] = solar.corona_base.execute(args)
 				gate = solar.corona_cloud.execute(args)
 				if cloud_covers_sun:
 					var inner_cloud := Cues.third_contact_cloud_sample(game.sim, inner_rays[i], t, clock)
