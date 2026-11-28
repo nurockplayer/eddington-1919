@@ -2426,3 +2426,16 @@ What I looked at: en, ja, zh-TW, ko at 1280x720, text scale 1.2, Language focuse
 
 Also: edd-lead's fact-check on #636 says the Sobral church must be the Patrocínio; redraw vis-gen-sobral-patrocinio dispatched, the square plate is replaced before #636 merges.
 
+## Sobral square plate · redrawn with the Igreja do Patrocínio: v2 accepted (2026-11-29 01:09 JST)
+
+edd-lead's fact-check: the church on the square is the Patrocínio. Two generations from the 1919 Observatório Nacional glass plates and the Ceará inventory (sources in `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-29-b5/manifest.json`). What I looked at: v2 and v3 whole at native size. Not looked at: the contact sheet.
+
+- **v2: accepted.** Pale three-bay façade, arched door and oculus, long nave, one square tower with a slender spire; the square, shelters, tree and wall of v1 kept. The instruments read as instruments: a telescope on its tripod, a camera under its cloth.
+- **v3: not accepted.** Same church, but the instrument at right is a fat tube on a trestle and reads as a cannon.
+- Fact for the text beside it (to edd-lead): the instruments on this square were the Brazilian Observatório Nacional's; the British party observed at the Jockey Club racecourse (Dyson et al. 1920, §10). The caption names only the place; the text must not imply the British stood here.
+
+Next: swapped in on #636 after follow-up 2 reports.
+
+![v2, accepted](slice_principe/plates/journey-20261129-b5/sobral-square-v2.jpg)
+![v3, not accepted](slice_principe/plates/journey-20261129-b5/sobral-square-v3.jpg)
+
