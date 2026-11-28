@@ -865,7 +865,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 	var original := run.duplicate(true)
 	var text := London.strings()
 	var locale := L.current()
-	var reaction := {"en": "L07", "ja": "L10", "zh_TW": "L11", "ko": "L07"}
+	var reaction := {"en": "L07", "ja": "L10", "zh_TW": "L10", "ko": "L07"}
 	var read := [
 		["prediction", ["L02", "L03", "L04", reaction[locale]], "L14"],
 		["simulation", ["L15"], "L14"],
