@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-"""Apply row 8's unfinished faces after build_person.py; only skin data changes.
-
-Close the proxy's eye/mouth openings and fair their surrounding relief onto
-smooth convex patches. Retain the jaw, ears, accessories and skin weights.
-Run once on freshly generated eddington.glb and cottingham.glb.
-"""
+"""Refit the Príncipe heads after build_person.py, using the unmodified exports."""
+import argparse
 import collections
 import json
 import math
@@ -14,9 +10,9 @@ import struct
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def smooth(name):
+def smooth(name, source):
     path = ROOT / 'assets/models' / (name + '.glb')
-    raw = path.read_bytes()
+    raw = (source / path.name).read_bytes()
     size = struct.unpack_from('<I', raw, 12)[0]
     doc = json.loads(raw[20:20 + size])
     blob = bytearray(raw[28 + size:])
@@ -24,8 +20,8 @@ def smooth(name):
     def read(index):
         a = doc['accessors'][index]
         view = doc['bufferViews'][a['bufferView']]
-        width = {'SCALAR': 1, 'VEC3': 3}[a['type']]
-        fmt = '<' + {5123: 'H', 5125: 'I', 5126: 'f'}[a['componentType']] * width
+        width = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4}[a['type']]
+        fmt = '<' + {5121: 'B', 5123: 'H', 5125: 'I', 5126: 'f'}[a['componentType']] * width
         start = view.get('byteOffset', 0) + a.get('byteOffset', 0)
         stride = view.get('byteStride', struct.calcsize(fmt))
         return [struct.unpack_from(fmt, blob, start + i * stride) for i in range(a['count'])]
@@ -33,7 +29,7 @@ def smooth(name):
     def append(data, kind, component):
         while len(blob) % 4:
             blob.append(0)
-        fmt = '<' + {5125: 'I', 5126: 'f'}[component] * len(data[0])
+        fmt = '<' + {5121: 'B', 5123: 'H', 5125: 'I', 5126: 'f'}[component] * len(data[0])
         packed = b''.join(struct.pack(fmt, *v) for v in data)
         view = len(doc['bufferViews'])
         doc['bufferViews'].append({'buffer': 0, 'byteOffset': len(blob), 'byteLength': len(packed)})
@@ -47,17 +43,30 @@ def smooth(name):
 
     node = next(n for n in doc['nodes'] if n.get('name') == name + '_body')
     prim = doc['meshes'][node['mesh']]['primitives'][0]
-    positions = read(prim['attributes']['POSITION'])
-    normals = read(prim['attributes']['NORMAL'])
-    indices = [v[0] for v in read(prim['indices'])]
-    # Weld UV seams only for finding the three anatomical openings. Keep the
-    # original vertices/UVs/weights and all non-head triangles unchanged.
+    attributes = {key: read(index) for key, index in prim['attributes'].items()}
+    positions = attributes['POSITION']
+    normals = attributes['NORMAL']
+    source_indices = [v[0] for v in read(prim['indices'])]
+
+    # Take out the folded front completely. Capping individual holes leaves
+    # doubled lip and eyelid surfaces that show through under grazing light.
+    observer = name == 'eddington'
+    offset = 0 if observer else .056
+    centre = 1.67 if observer else 1.594
+    front = .151 if observer else .145
+    top = 1.75 if observer else 1.72
     representatives = {}
     welded = [representatives.setdefault(v, i) for i, v in enumerate(positions)]
     edges = collections.Counter()
     directed = {}
-    for a, b, c in zip(indices[::3], indices[1::3], indices[2::3]):
-        for u, v in [(a, b), (b, c), (c, a)]:
+    indices = []
+    for i in range(0, len(source_indices), 3):
+        a, b, c = source_indices[i:i + 3]
+        x, y, z = (sum(positions[j][axis] for j in (a, b, c)) / 3 for axis in range(3))
+        if not (abs(x) < .065 and 1.54 - offset < y < top - offset and z > .10):
+            indices.extend((a, b, c))
+            continue
+        for u, v in ((a, b), (b, c), (c, a)):
             u, v = welded[u], welded[v]
             key = tuple(sorted((u, v)))
             edges[key] += 1
@@ -72,46 +81,70 @@ def smooth(name):
             current = boundary.pop(current)
             if current == first:
                 break
-        if all(positions[i][1] > 1.54 and positions[i][2] > .11 for i in loop):
-            loops.append(loop)
-    assert len(loops) == 3, f'{name}: expected two eye openings and one mouth, got {len(loops)}'
-    mouth = min(sum(positions[i][1] for i in loop) / len(loop) for loop in loops)
-    eye = max(sum(positions[i][1] for i in loop) / len(loop) for loop in loops)
-    front = .152 if name == 'eddington' else .145
+        loops.append(loop)
+    rim = max(loops, key=len)
 
-    def weight(value, inner, outer):
-        t = max(0.0, min(1.0, (abs(value) - inner) / (outer - inner)))
-        return 1 - t * t * (3 - 2 * t)
+    def add_vertex(pos, normal, landmark):
+        index = len(positions)
+        attrs = {'POSITION': pos, 'NORMAL': normal}
+        for key, values in attributes.items():
+            values.append(attrs.get(key, values[landmark]))
+        return index
 
-    def depth(x, y, z):
-        centre = (eye + mouth) / 2
-        w = weight(x, .055, .080) * weight(y - centre, (eye - mouth) / 2 + .015, (eye - mouth) / 2 + .045)
-        target = front - 1.4 * x * x - (y - centre) ** 2
-        z += (target - z) * w
-        return z
+    # Concentric rings give the new patch a continuous convex contour. Their
+    # outer ring meets the original cheek, chin and forehead exactly.
+    landmark = min(rim, key=lambda i: abs(positions[i][0]) + abs(positions[i][1] - centre))
+    middle = add_vertex((0, centre, front), (0, 0, 1), landmark)
+    rings = []
+    for radius in (.33, .66):
+        ring = []
+        for i in rim:
+            x, y, z = positions[i]
+            px, py = radius * x, radius * (y - centre)
+            target = front - 2.5 * px * px - 1.6 * py * py
+            boundary_target = front - 2.5 * x * x - 1.6 * (y - centre) ** 2
+            depth = target + radius ** 3 * (z - boundary_target)
+            normal = tuple((1 - radius) * a + radius * b
+                           for a, b in zip((5 * px, 3.2 * py, 1), normals[i]))
+            length = math.sqrt(sum(v * v for v in normal))
+            ring.append(add_vertex((px, centre + py, depth), tuple(v / length for v in normal), i))
+        rings.append(ring)
+    for i in range(len(rim)):
+        j = (i + 1) % len(rim)
+        indices.extend((middle, rings[0][i], rings[0][j]))
+        for inner, outer in zip(rings, [rings[1], rim]):
+            indices.extend((inner[i], outer[i], outer[j], inner[i], outer[j], inner[j]))
 
-    changed = 0
-    for i, (x, y, z) in enumerate(positions):
-        if z < .11 or y < mouth - .045 or y > eye + .045:
-            continue
-        new_z = depth(x, y, z)
-        if new_z == z:
-            continue
-        positions[i] = (x, y, new_z)
-        # Analytic patch normals keep the ruling continuous over the filled
-        # openings, including the proxy's former inward-facing lip vertices.
-        epsilon = .0001
-        dx = (depth(x + epsilon, y, z) - depth(x - epsilon, y, z)) / (2 * epsilon)
-        dy = (depth(x, y + epsilon, z) - depth(x, y - epsilon, z)) / (2 * epsilon)
-        length = math.sqrt(dx * dx + dy * dy + 1)
-        normals[i] = (-dx / length, -dy / length, 1 / length)
-        changed += 1
-    for loop in loops:
-        for j in range(1, len(loop) - 1):
-            indices.extend((loop[0], loop[j + 1], loop[j]))
-    prim['attributes']['POSITION'] = append(positions, 'VEC3', 5126)
-    prim['attributes']['NORMAL'] = append(normals, 'VEC3', 5126)
-    prim['indices'] = append([(i,) for i in indices], 'SCALAR', 5125)
+    used = sorted(set(indices))
+    remap = {index: i for i, index in enumerate(used)}
+    for key, values in attributes.items():
+        accessor = doc['accessors'][prim['attributes'][key]]
+        prim['attributes'][key] = append([values[i] for i in used], accessor['type'], accessor['componentType'])
+    prim['indices'] = append([(remap[i],) for i in indices], 'SCALAR', 5125)
+
+    if observer:
+        hat = next(n for n in doc['nodes'] if n.get('name') == 'eddington_hat')
+        # Put the attachment origin at the brim so leveling the hat keeps its seat.
+        hat['translation'][1] -= .043
+        hat['translation'][2] += .025
+        for surface in doc['meshes'][hat['mesh']]['primitives']:
+            attrs = surface['attributes']
+            positions = read(attrs['POSITION'])
+            normals = read(attrs['NORMAL'])
+            band = doc['materials'][surface['material']]['name'] == 'E1919_teak_dark'
+            shaped = []
+            corrected = []
+            for (x, y, z), (nx, ny, nz) in zip(positions, normals):
+                height = y + .044
+                # A lower, slightly tapered crown and an oval, closer-cut brim.
+                brim = not band and x * x + z * z > .115 ** 2
+                scale = .78 if brim else .98 - 1.2 * height
+                shaped.append((x * scale, height * .74, z * scale * 1.12))
+                normal = (nx / scale, ny / .74, nz / (scale * 1.12))
+                length = math.sqrt(sum(v * v for v in normal))
+                corrected.append(tuple(v / length for v in normal))
+            attrs['POSITION'] = append(shaped, 'VEC3', 5126)
+            attrs['NORMAL'] = append(corrected, 'VEC3', 5126)
     doc['buffers'][0]['byteLength'] = len(blob)
     encoded = json.dumps(doc, separators=(',', ':')).encode()
     encoded += b' ' * (-len(encoded) % 4)
@@ -119,9 +152,12 @@ def smooth(name):
     path.write_bytes(struct.pack('<III', 0x46546C67, 2, 28 + len(encoded) + len(blob))
                      + struct.pack('<II', len(encoded), 0x4E4F534A) + encoded
                      + struct.pack('<II', len(blob), 0x004E4942) + blob)
-    print(f'{name}: {changed} skin vertices faired; {len(loops)} openings closed')
+    print(f'{name}: replaced the face with a {len(rim)}-point patch')
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source', type=Path, default=ROOT / 'assets/models')
+    args = parser.parse_args()
     for person in ['eddington', 'cottingham']:
-        smooth(person)
+        smooth(person, args.source)

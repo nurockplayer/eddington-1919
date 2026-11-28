@@ -1236,6 +1236,8 @@ class WorkingPose extends SkeletonModifier3D:
 	var _work_rotations: Dictionary[int, Quaternion] = {}
 	var _finger_rotations: Dictionary[int, Quaternion] = {}
 	var _turn: Tween
+	var _hat: Node3D
+	var _hat_seat: Transform3D
 
 	func _ready() -> void:
 		figure = get_skeleton().find_parent("figure") as Node3D
@@ -1262,6 +1264,18 @@ class WorkingPose extends SkeletonModifier3D:
 
 	func restore_work() -> void:
 		_turn_to(work_yaw, 1.0)
+
+	func seat_hat(hat: Node3D) -> void:
+		_hat = hat
+		_hat_seat = hat.transform
+		get_skeleton().skeleton_updated.connect(_level_hat)
+
+	func _level_hat() -> void:
+		# As the head bows, the top of the skull rolls back under the brim.
+		var posed := (_hat.get_parent() as Node3D).global_transform * _hat_seat
+		var up := posed.basis.y.normalized()
+		var centre := posed.origin + Vector3.UP * (0.08 * (1.0 - up.y)) - up.slide(Vector3.UP) * 0.058
+		_hat.global_transform = Transform3D(Basis.looking_at(-posed.basis.z.slide(Vector3.UP)), centre)
 
 	func _turn_to(yaw: float, weight: float) -> void:
 		if _turn:
@@ -1338,4 +1352,6 @@ func _person(id: String, body: Node3D) -> bool:
 		look.duration = 0.6
 		look.influence = 0.0
 		sk.add_child(look)
+		if observer:
+			pose.seat_hat(fig.find_child("eddington_hat", true, false) as Node3D)
 	return true
