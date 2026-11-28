@@ -6784,6 +6784,7 @@ msgid "愛因斯坦寫信給母親，轉告洛倫茲帶來的好消息：英國�
 msgstr ""
 
 msgid "返回劍橋"
+msgstr ""
 
 msgid "見諸報端"
 msgstr ""
