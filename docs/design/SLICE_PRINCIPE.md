@@ -2306,3 +2306,21 @@ Not held:
 ![beats 4.5 and 6.0](slice_principe/accept/622/158b232/beats_4p4_4p6_5p9_6p1.png)
 
 **Count stays 7/9.**
+
+## #635 · F4 title page: better than main, not accepted at 72a8ee1 (2026-11-28 20:03 JST)
+
+What I looked at, whole at 1280x720: candidate en 1.0, en 1.2, ja 1.2, zh-TW 1.0, ko 1.2; main en 1.0. Not looked at: the other three candidate frames, the keyboard and d-pad frames, 1080, motion (there is none).
+
+- **Technical regression:** none seen in these frames; tests green on the head (title settings 93/0, fonts 1408/0).
+- **The change: not accepted yet.** The direction is right: the book's serif for the name, and the game's best minute, the corona over the camp, on the first page instead of a grey manual. Three faults, all of layout:
+  1. the plate's ruled frame is broken, differently in each locale and scale (en 1.2 has left and bottom only; ko 1.2 has no right side; ja 1.2 no bottom);
+  2. the text starts 10 px under the plate, touching it in ja 1.2;
+  3. heading left, plate right, seven centred lines beneath: three blocks that share no edge.
+- **Whole-scene readiness: not accepted.** Still seven lines of small print before the first button; cutting copy is not this PR's job.
+
+Sent back once: `vis-fid-title-fu1` (whole frame, a line of air, one measure).
+
+![candidate en 1.0](slice_principe/accept/635/72a8ee1/candidate-en-1.0-title.jpg)
+![candidate en 1.2](slice_principe/accept/635/72a8ee1/candidate-en-1.2-title.jpg)
+![candidate ja 1.2](slice_principe/accept/635/72a8ee1/candidate-ja-1.2-title.jpg)
+![main en 1.0](slice_principe/accept/635/72a8ee1/main-en-1.0-title.jpg)
