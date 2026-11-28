@@ -2159,3 +2159,188 @@ Next: one in-engine test before any more surface images: earth on the camp groun
 ![roof tiles](slice_principe/plates/surfaces-20261128/clay-roof-tiles.jpg)
 
 **Count stays 7/9.**
+
+## Journey plates · batch two: the whole road now has places (2026-11-28 18:12 JST)
+
+Ten more plates in the batch-one recipe, one per place the journey passes (subjects chosen by the worker from `docs/research`, each with its supporting line in the run report). Raws, prompts, hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b2/manifest.json`.
+
+What I looked at: all ten plates whole at native size (London news in its second pass). Not looked at: the contact sheet, London's first pass.
+
+**Verdict: the best batch of the day. Nine of ten go to wiring.** The hand holds across ten subjects, and no two share a foreground: the gangway girder at Liverpool, the swell in the Atlantic, the lamp at Lisbon, the buttress roots, the grandstand steps at Sobral, the deck chairs. A player turning these pages travels.
+
+- **Wire:** Liverpool landing stage, the Atlantic, Lisbon, the forest leg, Sobral square, Sobral racecourse, homeward deck, London news.
+- **Wire after one redraw: Cambridge Observatory.** A handsome house, but not that house: the real building is known (a long low front, a four-column portico in the middle with the dome above it), and this one has its dome on a wing. One more generation from a written description of the real front.
+- **Held: Roça Sundy on arrival.** A good plate of a one-storey verandah house. It must agree with the house being modelled for the camp (F1); I decide when the model stills are in. If they disagree, the plate is redrawn to the model, not the other way.
+
+For edd-lead's fact-check before these ship (they are captioned as reconstructions, but a wrong landmark is still wrong): the church on Sobral's square is drawn as a small chapel; Lisbon and Liverpool show a woman among the travellers; the forest plate shows porters carrying the cases, which the research supports and which the text beside it should speak of with care.
+
+Next: these go onto the sheets through the same mechanism as the first three, as a follow-up to the plate wiring run once it reports.
+
+![contact sheet](slice_principe/plates/journey-20261128-b2/contact-sheet.png)
+![Liverpool](slice_principe/plates/journey-20261128-b2/liverpool-v1.jpg)
+![forest leg](slice_principe/plates/journey-20261128-b2/forest-road-v1.jpg)
+![Sobral square](slice_principe/plates/journey-20261128-b2/sobral-square-v1.jpg)
+![homeward](slice_principe/plates/journey-20261128-b2/homeward-v1.jpg)
+![Cambridge, to redraw](slice_principe/plates/journey-20261128-b2/cambridge-observatory-v1.jpg)
+![Roça Sundy, held](slice_principe/plates/journey-20261128-b2/sundy-arrival-v1.jpg)
+
+**Count stays 7/9.**
+
+## #627 · AA 26 Madeira filing keeps its work in view: accepted at 6a2a003 (2026-11-28 18:46 JST)
+
+What I looked at: all eight frames of the capture at 6a2a0039, whole, 1280x720, text scale 1.2 (en on keys, ja on pad): active copy, wrong folder, cancel, packets filed, sky page. Not looked at: main at the same states (the capture has no baseline), text scale 1.0, zh-TW and ko, anything moving.
+
+- **Technical regression:** none seen in these frames. Without a main baseline I cannot say which of the notes below are new.
+- **The change: accepted.** With the fourth loose row selected, the row and both team folders are on screen together in English and in Japanese; before, the row sat below the fold. After a wrong folder the row stays loose and marked and the reply reads in full under the list. After cancel the focus is back on the row. Filed, both packets show their rows and the way on.
+- **Whole-scene readiness: not accepted,** as before: the hotel desk is a flat diagram (F3 gives this chapter its Funchal plate), and the scene is plain.
+
+Not held, for the backlog:
+1. In the cancel state the two folder buttons turn into grey slabs with pale lettering: the column headings become the least readable thing on the sheet. Disabled should read as quiet ink, not as fog.
+2. Packets filed: the scrolled column cuts a line of text at its lower edge in both locales (the shared sheet defect).
+3. Sky page: the note at the right is a 100 px tilted card with a squeezed black date; it wants to be a slip of handwriting.
+
+Copy, for edd-lead: the Japanese sky page writes "Kit、" in the letter and "キットの筆跡" in the caption.
+
+![active copy](slice_principe/accept/627/6a2a003/madeira_active_copy_en_keys.png)
+![wrong folder](slice_principe/accept/627/6a2a003/madeira_wrong_folder_ja_pad.png)
+![cancel](slice_principe/accept/627/6a2a003/madeira_cancel_ja_pad.png)
+![filed](slice_principe/accept/627/6a2a003/madeira_packets_filed_en_keys.png)
+
+**Count stays 7/9.**
+
+## Row 8 on main 176b5f0: not met (2026-11-28 19:09 JST)
+
+Survey capture by edd-lead: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/main-row8/176b5f0258adc27f9498e71745bcf2b6e49aa28a/index.md` (258 frames; 1080 and 720, text 1.0 and 1.2; English, journey flag off).
+
+What I looked at, whole at native size: the Roça Sundy sign, the Sun-crescent and firefly frames (1080); Eddington's closest day view and Cottingham's closest night view (1080); plate box and chronometer at 3 m (1080); the after-totality line, the coda choice, the drive trim diagram, a briefing line, the totality strip and the plate viewer (720 and 1080). As contact sheets: faces, interactables 1 and 3. Read: the contrast table, the portrait tables. Not looked at: the other 240-odd frames singly, interactables sheets 2, 4, 5, the text and dialogue sheets, text scale 1.2, any locale but English. A fail needs only its failing clauses; a pass would have needed all of it.
+
+**Row 8: not met.** Clause by clause:
+
+1. **Signs, crescents, fireflies drawn: no, none of the three.**
+   - "ROÇA SUNDY" is interface sans with a white outline, hanging in the air in front of the house, with leaves passing behind and before it. Not painted on anything.
+   - Before second contact the palm shadow has pale dashes in it; none is a crescent.
+   - The fireflies are soft white balls up to 35 px across. Lamps in fog, not insects, and not ink.
+2. **No face features at reach: no.** At 0.35 m Eddington shows the spectacles (fine, they are his) and a mouth: three specks and a tick. In the darkroom his lit face shows nose and eye lines. Cottingham is shadow shapes and a moustache, which I accept. Separately: at this distance the hat is a tilted drum with a post through its brim. (The poses were collision-checked, not walked; if the player cannot in fact stand there, the fix is the distance.)
+3. **Interactables identifiable at 3 m: mostly, with three misses.** The drive, tube, plan, chronometer, Oxford case and both men read. The plate box is a blank white block. "Roça Sundy" is a prompt on a bare wall between posts. By day the darkroom is smooth grey fog with no engraving on it at all (F7's subject).
+4. **Text contrast 4.5:1: not certifiable from this table, and two real failures by eye.** The table calls black on cream 1.05:1 (drive trim) and 1.97:1 (a briefing line); it is measuring something other than the text, so I do not take its 194 cases as failures. What I see fail without a number: the after-totality line is dark grey on a slate-blue slip; the plate viewer's captions are small grey on black. The measure needs repair before this clause can be closed either way.
+5. **Every line shows the portrait: the clause as written is not the right test.** The 31 lines without one are narration, the player's own thoughts, and documents (the exposure plan, the Oxford plate). No named speaker lacks a portrait in the rendered sample. A face on "You blow out the lamp" would be wrong. I propose the clause read: every line spoken by a named person shows the engraved portrait; narration, the player's thoughts and documents show none. With that wording this clause is met; the change of wording is edd-lead's to record.
+
+Also seen, for edd-lead: "[E] The magnifying glass Ashby gave you." sits in the middle of the screen in frames where the player is looking at the sign, at the ground, at Eddington's forehead. Either the survey's staging or a live bug; worth one look.
+
+Fix rows, in the order I would brief them:
+- **8a Sign.** The house name painted on the house, in the book's serif, taking light and occlusion like the wall. Goes with the F1 house (same building); also the slanted "R.A.S. ECLIPSE" board.
+- **8b Fireflies.** Small drawn sparks, a few pixels of paper with a short ink tail, no glow disc.
+- **8c Crescents.** In the last minutes before second contact the gaps in leaf shadow are crescents, horns the right way.
+- **8d Faces.** No mouth or eye marks on the 3D heads at any reachable distance, by day and under the safelight; hat scaled and seated.
+- **8e Blue-paper slip.** Dialogue on blue paper reads as light ink on blue or dark ink on cream, not grey on slate.
+- **8f Contrast measure.** Repair the measure (it fails plain black on cream), then re-run; tooling, edd-lead's.
+- Plate box, day darkroom and plate viewer belong to F7 and F8, already listed.
+
+![sign](slice_principe/accept/main-row8/176b5f0/1080-100_day_drawn_roca-sundy-sign.jpg)
+![fireflies](slice_principe/accept/main-row8/176b5f0/1080-100_night_drawn_fireflies.jpg)
+![crescents](slice_principe/accept/main-row8/176b5f0/1080-100_pre-contact-30s_drawn_sun-crescents.jpg)
+![face](slice_principe/accept/main-row8/176b5f0/1080-100_day_faces_eddington.jpg)
+![blue slip](slice_principe/accept/main-row8/176b5f0/1080-100_day-return_dialogue_after-totality-3.jpg)
+![plate box](slice_principe/accept/main-row8/176b5f0/1080-100_day_interactables_plate_box.jpg)
+
+**Count stays 7/9** (rows 2 and 8 open).
+
+## Row 2 on main 176b5f0: not met, on the daylight cloud sky only (2026-11-28 19:34 JST)
+
+Capture by edd-lead: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/main-row2/176b5f0258adc27f9498e71745bcf2b6e49aa28a/index.md` (four states, 960 frames each at 60 fps: 10 s walk, then a full turn on the spot).
+
+How I looked, and its limit: I cannot play the MP4. I stepped frames: four consecutive native-size frames, sky and ground crops, in the walk (frame 300) and in the turn (frame 780), for clear day (ground), early partial under cloud (sky, walk and turn) and clear totality (sky). Not looked at: thin-cloud totality, the ridge, palms and beams singly, the contact sheets, any pitch change (the capture has none). Stepping shows whether a line belongs to its surface; it shows shimmer only as far as four frames can. The row's other judge, the Owner's reaction in play, is still owed.
+
+- **Ground: holds.** In the turn the hatching of the palm shadow swings round with the ground, frame for frame; in the walk it stays put under the feet. The lines are on the surface.
+- **Totality sky: holds as far as stepping shows.** The ruling is faint and lives inside the cloud bands; the bands travel with the ridge.
+- **Daylight cloud sky (early partial): does not hold.** The cloud outlines travel with the world, about 12 px a frame in the turn; the ruling stays on fixed screen rows. So every ruled line is cut at a new place by a moving outline on every frame, across the whole sky, and the sky has hundreds of such ends: the contour-map density I noted on #605 and #614. A line that stays while its end runs along it is the definition of not staying on its surface. (edd-lead's numbers point the same way: 0.9 px a frame median slip, 6 px at the 95th percentile, against 0.07 in totality.)
+
+The capture's "candidate pops" are not pops: the cluster at frames 137 to 144 is the camera's own turn in the walk. I saw no pop in the frames I stepped; I did not step all 106 flagged pairs.
+
+**Row 2: not met.** One fix row:
+- **2a Daylight cloud sky.** The ruling belongs to the cloud, not to the screen: it turns and drifts with the cloud it shades. And there is far less of it: ruling inside cloud bodies only, one outline per cloud, bare paper between, so that what remains has few ends to run. Clear day stays bare paper. This is item (c) of the sky brief I have been holding, now with a reason to go first.
+
+![daylight cloud sky, four consecutive frames of the turn](slice_principe/accept/main-row2/176b5f0/partial_cloud_780_sky.jpg)
+![totality sky, four consecutive frames](slice_principe/accept/main-row2/176b5f0/totality_clear_780_sky.jpg)
+![ground, four consecutive frames](slice_principe/accept/main-row2/176b5f0/day_clear_780_ground.jpg)
+
+**Count stays 7/9** (rows 2 and 8 open).
+
+## Row 8 contrast, re-measured (#639): the table now agrees with the eye (2026-11-28 19:38 JST)
+
+New packet on the same main 176b5f0 frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/row8f-contrast/7a9d31429cd56e0c5a9987934889a41562e2f551/index.md`, 171 text rows under 4.5:1.
+
+Spot-check, five rows against frames I have looked at whole at native size: drive trim (now 9.0 to 13.6; black on cream, agrees), a briefing line (7.4 to 12.8; agrees), the after-totality lines (2.8 to 3.9; agrees, they are weak), the night choices (3.0 to 4.2; salmon on dark red, soft but legible, agrees), the plate viewer caption (4.3; agrees). The measure is usable. Not checked: the other rows one by one.
+
+The failures are four things, not 171:
+1. **The slip after totality.** The sky is already grey daylight; the slip is still slate blue with pale grey text, and the portrait's caption is two colours in one line ("Recons" dark, "tructed portrait" pale): a palette caught half-way. 2.0 to 3.9.
+2. **The safelight slip at night.** Salmon text on dark red: 2.9 to 4.2 for body and choices.
+3. **The small print everywhere.** "[E/Space/Click] Continue", "[1–3 or click] Choose", "Reconstructed portrait, not a historical photograph": the lowest numbers in every palette (2.0 to 3.6).
+4. **Dimmed text in pause, help, history, credits and prompts at night** (3.5 to 4.4).
+
+This is fix row 8e; brief `vis-row8e-slip.md`.
+
+![after totality](slice_principe/accept/main-row8/176b5f0/720-100_day-return_after-totality-2.jpg)
+![night](slice_principe/accept/main-row8/176b5f0/720-100_night_prediction-1.jpg)
+
+**Count stays 7/9.**
+
+## #622 · London, the answer arrives: accepted at 158b232 (2026-11-28 19:40 JST)
+
+Follow-up to the 3a4b2f0 review, which left two things: Príncipe's report line cut at the fold, and the beats too fast.
+
+What I looked at: the three arrival steps at English text scale 1.2 and the Príncipe step in Japanese, whole, 1280x720; eight frames of the 60 fps arrival, in pairs either side of each beat (0.40/0.60, 1.87/2.13, 4.37/4.63, 5.87/6.13 s), at half size in two montages. Not looked at: English 1.0, the Japanese axis and Sobral steps, zh-TW, ko, reduced motion, the 200 other motion frames, main.
+
+- **Technical regression:** none seen. The windowed flag-on run on this head passed (`test_journey on: 826 checks, 0 failures`); the headless suite was red twice before the last commit and has not been run on 158b232, so the gate's CI is the proof, not this capture.
+- **The change: accepted.** Both things hold. Príncipe's line and Eddington's portrait are whole on the sheet with no scroll at 1.2 and in Japanese. The beats land where I set them: the two predictions at 0.5 s, Sobral's bar growing from its point at 2.0, Príncipe's at 4.5, and Continue wakes at 6.0. The eye is led: prediction, then the first answer far to the right of it, then our own.
+- **Whole-scene readiness: not accepted.** It is a chart on a sheet. The answer arrives; nobody is in the room when it does. Still owed, as listed: the Burlington House plate behind or before it (now accepted as a plate), Thomson's line as its own beat.
+
+Not held:
+1. The Sobral row label runs through the dashed 0.87 line ("probable er|ror").
+2. Eddington's portrait is about 50 px; at that size it is a stamp.
+3. While it waits, Continue is a grey slab with pale lettering (same disabled style as #627).
+
+![Príncipe step, en 1.2](slice_principe/accept/622/158b232/london_principal_principe_en_scale_1_2.png)
+![Príncipe step, ja](slice_principe/accept/622/158b232/london_principal_principe_ja.png)
+![beats 0.5 and 2.0](slice_principe/accept/622/158b232/beats_0p4_0p6_1p9_2p1.png)
+![beats 4.5 and 6.0](slice_principe/accept/622/158b232/beats_4p4_4p6_5p9_6p1.png)
+
+**Count stays 7/9.**
+
+## #635 · F4 title page: better than main, not accepted at 72a8ee1 (2026-11-28 20:03 JST)
+
+What I looked at, whole at 1280x720: candidate en 1.0, en 1.2, ja 1.2, zh-TW 1.0, ko 1.2; main en 1.0. Not looked at: the other three candidate frames, the keyboard and d-pad frames, 1080, motion (there is none).
+
+- **Technical regression:** none seen in these frames; tests green on the head (title settings 93/0, fonts 1408/0).
+- **The change: not accepted yet.** The direction is right: the book's serif for the name, and the game's best minute, the corona over the camp, on the first page instead of a grey manual. Three faults, all of layout:
+  1. the plate's ruled frame is broken, differently in each locale and scale (en 1.2 has left and bottom only; ko 1.2 has no right side; ja 1.2 no bottom);
+  2. the text starts 10 px under the plate, touching it in ja 1.2;
+  3. heading left, plate right, seven centred lines beneath: three blocks that share no edge.
+- **Whole-scene readiness: not accepted.** Still seven lines of small print before the first button; cutting copy is not this PR's job.
+
+Sent back once: `vis-fid-title-fu1` (whole frame, a line of air, one measure).
+
+![candidate en 1.0](slice_principe/accept/635/72a8ee1/candidate-en-1.0-title.jpg)
+![candidate en 1.2](slice_principe/accept/635/72a8ee1/candidate-en-1.2-title.jpg)
+![candidate ja 1.2](slice_principe/accept/635/72a8ee1/candidate-ja-1.2-title.jpg)
+![main en 1.0](slice_principe/accept/635/72a8ee1/main-en-1.0-title.jpg)
+
+## #637 · F1 Roça Sundy house: a real house at last; not accepted at b8c8033 for colour and name (2026-11-28 20:08 JST)
+
+What I looked at, whole at 1280x720: candidate arrival and shelter in daylight, arrival in totality, main's arrival in daylight, the Blender three-quarter still. Read: draws and row 9 tables. Not looked at: early partial, the 180° turn frames, the other two Blender stills, the house from the verandah or at 3 m, collision in play.
+
+- **Technical regression:** none seen. Draws fall (339 to 311 on arrival), row 9 worst p95 x3 25.4 ms against main's 29.1; tests green.
+- **The change: not accepted yet, and close.** The grey box with letters floating before it is gone; in its place a raised house with a hipped tile roof, a verandah on posts, shutters, steps. From the shelter it is the first thing in the camp that looks built. In totality it is a good dark shape under the corona's sky. Three things:
+  1. it is the only coloured object in the daylight camp (terracotta roof, brown timber): a model set into an engraving;
+  2. it has no name; row 8a wants ROÇA SUNDY painted on it;
+  3. its walls and roof are flat tone beside the ruled shelter.
+- **Whole-scene readiness: not accepted.** The ground is still bare paper to the horizon and the forest a few cut-outs.
+
+Sent back once: `vis-fid-sundy-house-fu1`. For edd-lead's fact list: the form is a generic period bungalow, not the real Sundy house, which is larger; the credits or history page should not call it a likeness.
+
+The Roça Sundy arrival plate I held in the journey batch: it shows a two-storey house and disagrees with this model. Redraw the plate to the model once the follow-up lands.
+
+![candidate from the shelter](slice_principe/accept/637/b8c8033/candidate-shelter-daylight.jpg)
+![candidate arrival](slice_principe/accept/637/b8c8033/candidate-arrival-daylight.jpg)
+![main arrival](slice_principe/accept/637/b8c8033/main-arrival-daylight.jpg)
+![candidate totality](slice_principe/accept/637/b8c8033/candidate-arrival-totality.jpg)

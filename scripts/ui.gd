@@ -632,14 +632,7 @@ func _layout_dialogue_portrait() -> void:
 		column = dialogue_portrait.size.x + 16.0
 		if image.texture != _portrait_oval and image.texture != null:
 			_portrait_source = image.texture
-			var pixels := _portrait_source.get_image()
-			pixels.convert(Image.FORMAT_RGBA8)
-			pixels.resize(96, 128)
-			for y in 128:
-				for x in 96:
-					if Vector2((x - 47.5) / 47.5, (y - 63.5) / 63.5).length_squared() > 1.0:
-						pixels.set_pixel(x, y, Color.TRANSPARENT)
-			_portrait_oval = ImageTexture.create_from_image(pixels)
+			_portrait_oval = DialoguePortrait.paper_oval(_portrait_source)
 			image.texture = _portrait_oval
 	elif _portrait_source != null and dialogue_portrait.image.texture == _portrait_oval:
 		dialogue_portrait.image.texture = _portrait_source
@@ -1883,8 +1876,14 @@ func _build_title(root: Control) -> void:
 	hb.add_child(q)
 	_fit_title_row()
 	get_viewport().size_changed.connect(_fit_title_row)
+	var previous: Control
 	for b: Control in hb.get_children():
 		b.minimum_size_changed.connect(_fit_title_row)
+		# Follow reading order even when the title row wraps.
+		if previous:
+			previous.focus_neighbor_right = previous.get_path_to(b)
+			b.focus_neighbor_left = b.get_path_to(previous)
+		previous = b
 	var version := _label("v" + str(ProjectSettings.get_setting("application/config/version")), 15, Color("8f8676"))
 	version.name = "Version"
 	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -2824,6 +2823,13 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif log_panel.visible:
 		if event is InputEventKey and not event.is_action("pause") and not event.is_action("ui_accept") and not event.is_action("ui_up") and not event.is_action("ui_down"):
+			get_viewport().set_input_as_handled()
+	elif ending_panel.visible and event.is_action_pressed("ui_cancel"):
+		if ending_review.visible and ending_review_toggle.has_focus():
+			_toggle_ending_review()
+			get_viewport().set_input_as_handled()
+		elif ending_history.visible and ending_history_toggle.has_focus():
+			_toggle_ending_history()
 			get_viewport().set_input_as_handled()
 	elif viewer.visible and not _viewer_reporting and event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause") and not get_tree().paused:
 		viewer_closed.emit()

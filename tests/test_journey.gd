@@ -9,6 +9,7 @@ const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
 const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
 const London := preload("res://scripts/cambridge/content_london.gd")
+const Print := preload("res://scripts/cambridge/content_london_print.gd")
 const Sobral := preload("res://scripts/cambridge/content_sobral.gd")
 const Homeward := preload("res://scripts/cambridge/content_homeward.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
@@ -30,6 +31,7 @@ const TRIBUNAL_PAGES := [
 var checks := 0
 var capture_dir := ""
 var madeira_captures := false
+var madeira_filing := false
 var sundy_captures := false
 var sobral_captures := false
 var london_captures := false
@@ -38,6 +40,7 @@ var fold_check := false
 var fold_baseline := false
 var i4_captures := false
 var tribunal_captures := false
+var print_captures := false
 var temp_settings := ""
 
 
@@ -229,6 +232,7 @@ func _run() -> void:
 	var enabled := OS.get_cmdline_user_args().has("--journey")
 	var london_only := OS.get_cmdline_user_args().has("--london-only")
 	var sobral_only := OS.get_cmdline_user_args().has("--sobral-only")
+	madeira_filing = OS.get_cmdline_user_args().has("--madeira-filing")
 	fold_baseline = OS.get_cmdline_user_args().has("--fold-baseline")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--journey-captures="):
@@ -236,6 +240,9 @@ func _run() -> void:
 		elif arg.begins_with("--madeira-captures="):
 			capture_dir = arg.trim_prefix("--madeira-captures=")
 			madeira_captures = true
+		elif arg.begins_with("--filing-captures="):
+			capture_dir = arg.trim_prefix("--filing-captures=")
+			madeira_filing = true
 		elif arg.begins_with("--sundy-captures="):
 			capture_dir = arg.trim_prefix("--sundy-captures=")
 			sundy_captures = true
@@ -256,35 +263,59 @@ func _run() -> void:
 		elif arg.begins_with("--tribunal-captures="):
 			capture_dir = arg.trim_prefix("--tribunal-captures=")
 			tribunal_captures = true
+		elif arg.begins_with("--print-captures="):
+			capture_dir = arg.trim_prefix("--print-captures=")
+			print_captures = true
+			london_only = true
 	fold_check = fold_captures or OS.get_cmdline_user_args().has("--fold-check")
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures else Vector2i(1920, 1080)
-	if capture_dir.is_empty():
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures or print_captures or madeira_filing else Vector2i(1920, 1080)
+	if capture_dir.is_empty() or london_captures:
 		var directory := DirAccess.create_temp("edd-journey", true)
-		expect(directory != null, "create isolated checkpoint directory: " + error_string(DirAccess.get_open_error()))
+		expect(directory != null, "create isolated journey directory: " + error_string(DirAccess.get_open_error()))
 		temp_settings = directory.get_current_dir().path_join("settings.cfg")
 		OS.set_environment("EDD_SETTINGS_PATH", temp_settings)
+		expect(Settings.settings_path() == temp_settings, "journey settings are isolated from user://settings.cfg")
+	if capture_dir.is_empty():
 		var settings := ConfigFile.new()
 		settings.set_value("ui", "text_scale", 1.2)
 		settings.set_value("ui", "reduced_motion", true)
 		expect(settings.save(temp_settings) == OK, "save isolated test settings")
 		Checkpoint.force_enabled = true
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
-	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only or i4_captures:
+	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only or i4_captures or madeira_filing:
 		locales = ["en", "ja"]
 	elif tribunal_captures:
 		locales = ["en"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
-	if enabled and capture_dir.is_empty() and not london_only and not fold_check:
+	if enabled and capture_dir.is_empty() and not london_only and not fold_check and not madeira_filing:
 		L.apply("en")
+		await _coda_without_epilogue(route[2])
 		await _resume_october()
 		await _resume_departure(route)
 	for locale in locales:
 		L.apply(locale)
-		if london_captures or london_only:
+		if madeira_filing:
+			var story := root.get_node("Story")
+			story.reset()
+			story.from_prologue = true
+			story.prologue_done = true
+			expect(change_scene_to_packed(route[1]) == OK, "load departure before Madeira filing")
+			await scene_changed
+			await _departure_opening()
+			await _departure(current_scene, route[2], enabled, locale == "ja", false)
+		elif london_captures:
+			var scales := [1.0, 1.2] if locale == "en" else [1.0]
+			for scale in scales:
+				var settings := ConfigFile.new()
+				settings.set_value("ui", "text_scale", scale)
+				settings.set_value("ui", "reduced_motion", false)
+				expect(settings.save(temp_settings) == OK, "save isolated capture settings")
+				await _london_setup()
+		elif london_only:
 			await _london_setup()
 		elif sobral_only:
 			var story := root.get_node("Story")
@@ -298,8 +329,11 @@ func _run() -> void:
 			await _route(route, enabled, locale == "ja")
 		if capture_dir.is_empty():
 			Checkpoint.clear()
-	if capture_dir.is_empty():
-		DirAccess.remove_absolute(Settings.settings_path())
+	if london_captures:
+		var ready := FileAccess.open(capture_dir.path_join(".archive-ready"), FileAccess.WRITE)
+		ready.close()
+	if capture_dir.is_empty() or london_captures:
+		DirAccess.remove_absolute(temp_settings)
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
 	print("test_journey %s: %d checks, 0 failures" % ["on" if enabled else "off", checks])
 	quit()
@@ -517,6 +551,8 @@ func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_ind
 		var tray_card := button(paper, title)
 		if not tray_card.button_pressed:
 			await press(tray_card, pad)
+		var citation: Label = paper.actions.get_parent().get_child(paper.actions.get_index() - 1)
+		expect(citation.is_visible_in_tree() and citation.text == source, "tray citation matches selected extract: " + card)
 		await press(button(paper, strings.T57), pad)
 		expect(has_text(paper, source), "extract carries its source: " + card)
 		expect(button(paper, strings.T59).disabled, "file waits for a heading")
@@ -588,13 +624,16 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 		madeira_captures and not state.begins_with("madeira_")) or (
 		sundy_captures and not (state.begins_with("sundy_") or state.begins_with("i3_"))):
 		return
-	if fold_captures:
+	if fold_captures or madeira_filing:
 		dimensions = Vector2i(1280, 720)
 	await RenderingServer.frame_post_draw
 	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
+	_save_capture(state, state + "_" + L.current() + suffix + ".png", dimensions)
+
+
+func _save_capture(state: String, filename: String, dimensions: Vector2i) -> void:
 	var image := root.get_texture().get_image()
 	expect(image.get_size() == dimensions, "capture is %s, got %s" % [dimensions, image.get_size()])
-	var filename := state + "_" + L.current() + suffix + ".png"
 	expect(image.save_png(capture_dir.path_join(filename)) == OK, "write " + filename)
 	var receipt := FileAccess.open(capture_dir.path_join("index.md"), FileAccess.READ_WRITE)
 	receipt.seek_end()
@@ -642,6 +681,8 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 			await process_frame
 		expect(is_instance_valid(chapter) and chapter.madeira != null, "--journey must enter Madeira after M2")
 		await _madeira(chapter.madeira, chapter, warm)
+		if madeira_filing:
+			return
 		for frame in 150:
 			if not is_instance_valid(chapter) or chapter.get("sundy") != null:
 				break
@@ -678,6 +719,38 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 	await _sundy_coda(current_scene, enabled, packet_seen)
 
 
+func _coda_without_epilogue(observation_day: PackedScene) -> void:
+	var story := root.get_node("Story")
+	var outcomes := {}
+	for label in ["Príncipe tail only", "post-epilogue replay"]:
+		story.reset()
+		if label == "post-epilogue replay":
+			story.departure_done = true
+			story.epilogue_done = true
+			load("res://scripts/main.gd").prepare_replay(572, true, true)
+		else:
+			story.from_prologue = true
+		expect(change_scene_to_packed(observation_day) == OK, "load " + label)
+		await scene_changed
+		var day := current_scene
+		if day._is_replay:
+			await day._start_from_title()
+		day._setup_darkroom()
+		day._start_judgment()
+		await _dialogue(day)
+		await _close_coda(day)
+		for frame in 150:
+			if day._paired_cables != null or day.phase == day.Phase.ENDING:
+				break
+			await process_frame
+		outcomes[label] = "I3" if day._paired_cables != null else (
+			"ending" if day.phase == day.Phase.ENDING and day.ui.ending_panel.visible else "no ending")
+		Checkpoint.clear()
+	expect(outcomes == {"Príncipe tail only": "ending", "post-epilogue replay": "ending"},
+		"codas without a journey epilogue should go straight to the ending: %s" % str(outcomes))
+	story.reset()
+
+
 func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	await _dialogue(day)
 	expect(day._paired_cables == null, "no I3 at the observation-day opening")
@@ -707,17 +780,10 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		while day._verdict_hold_s > 0.0:
 			await process_frame
 		await _dialogue(day)
-	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
-	day._interact("departure_workbook")
-	await _dialogue(day)
-	day._interact("mentor_loupe")
-	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
-	await _dialogue(day)
+	await _close_coda(day)
 	var story := root.get_node("Story")
 	var telegram: int = day._telegram
 	var reason: String = day._reasons[day._reason].id
-	expect(story.kit_first >= 0 and day.coda_step == day.CodaStep.FADING and day._paired_cables == null,
-		"coda Kit choice is committed before I3")
 	if enabled:
 		for frame in 150:
 			if not is_instance_valid(day) or day._paired_cables != null:
@@ -730,7 +796,7 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 				break
 			await process_frame
 		var chapter: Node = day.get_node_or_null("Sobral") if is_instance_valid(day) else null
-		expect(chapter != null, "I3 opens the Sobral archive before October")
+		expect(chapter != null and day._paired_cables == null, "I3 closes before the Sobral archive opens")
 		var before: Dictionary = story.to_save().duplicate(true)
 		await _sobral(chapter, L.current() in ["en", "ja"])
 		await press(button(chapter.paper, Sobral.strings().B54))
@@ -757,6 +823,17 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		expect(Epilogue.ledger_case(run) == "inconclusive", "October retains the inconclusive result")
 	if capture_dir.is_empty():
 		await _october(current_scene, enabled, story.bond_tone, packet_seen, combined)
+
+
+func _close_coda(day: Node) -> void:
+	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
+	day._interact("departure_workbook")
+	await _dialogue(day)
+	day._interact("mentor_loupe")
+	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
+	await _dialogue(day)
+	expect(root.get_node("Story").kit_first >= 0 and day.coda_step == day.CodaStep.FADING
+		and day._paired_cables == null, "coda Kit choice is committed before I3")
 
 
 func _october_opening(chapter: Node, enabled: bool, tone: String, madeira_sent: bool, sundy_read: bool) -> void:
@@ -833,7 +910,7 @@ func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool, com
 			if chapter.ui.ending_panel.visible:
 				break
 			await process_frame
-		expect(chapter.ui.ending_panel.visible and chapter.get("london") == null,
+		expect(chapter.ui.ending_panel.visible and chapter.get("london") == null and chapter.get("london_print") == null,
 			"flag off opens the existing ending directly")
 
 
@@ -855,8 +932,8 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 		["prediction", ["L02", "L03", "L04", reaction], "L14"],
 		["simulation", ["L15"], "L14"],
 		["threshold", ["L85", "L86", "L87", "L12"], "L13"],
-		["proceedings", ["L18", "L19", "L20", "L21", "L22", "L23"], "L14"],
-		["principal", ["L29", "L30", "L31"], "L14"],
+		["proceedings", ["L19", "L20", "L21"], "L14"],
+		["principal", [], "L14"],
 		["scale", ["L32", "L33", "L34", "L35", "L36", "L37", "L38", "L39"], "L40"],
 		["precision", [], "L14"],
 		["newall", ["L55", "L56", "L57", "L58", "L54"], "L14"],
@@ -868,6 +945,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 		["hold", ["L04", "L81"], "L84"],
 	]
 	var line: String = text.reason if strong else text.reservation
+	var route_time_scale := Engine.time_scale
 	for sheet in read:
 		var state: String = sheet[0]
 		expect(meeting.page_id == state, "London paper opens " + state)
@@ -880,6 +958,8 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 			"proceedings":
 				expect(text.L23.contains("1.6″ ± 0.3″"), "London gives the Príncipe figure reported at the meeting")
 			"principal":
+				await _london_arrival(meeting, text)
+				Engine.time_scale = route_time_scale
 				var historical: Array = meeting.historical_chart.rows
 				expect(historical.size() == 2 and historical[0].value == 1.98 and historical[0].sigma == 0.12
 					and historical[1].value == 1.61 and historical[1].sigma == 0.30,
@@ -888,37 +968,28 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 				var precision := {"en": "L43", "ja": "L50", "zh_TW": "L47", "ko": "L50"}
 				var notes := {"L43": ["L44", "L45", "L46"], "L47": ["L48", "L49", "L46"], "L50": ["L51", "L52"]}
 				await _london_annotate(meeting, text, precision[locale], notes[precision[locale]], "L54")
-				state = "precision_attached"
 			"open_test":
 				var test := {"en": "L70", "ja": "L68", "zh_TW": "L66", "ko": "L68"}
 				var order := {"L70": ["L71", "L67", "L69"], "L68": ["L69", "L67", "L71"], "L66": ["L67", "L69", "L71"]}
 				await _london_annotate(meeting, text, test[locale], order[test[locale]], "L72")
-				state = "open_test_attached"
 			"reply":
-				await _london_frame(paper, state)
 				await press(button(paper, text.reservation))
 				expect(has_text(paper, text.reservation), "the reservation can be previewed")
 				if strong:
 					await press(button(paper, text.L80))
 					await press(button(paper, text.reason))
 				expect(has_text(paper, line), "the chosen words appear before committing")
-				state = "reply_preview"
 			"workbook", "hold":
 				expect(has_text(paper, line), "the spoken line survives into the workbook and final hold")
 		if meeting.historical_chart and meeting.historical_chart.rows.size() == 3:
 			var astro: Dictionary = meeting.historical_chart.rows[2]
-			expect(astro.value == 0.93 and astro.other_value == 1.52 and astro.no_bar,
+			expect(astro.value == 0.93 and astro.other_value == 1.52 and not astro.has("sigma"),
 				"the same unbarred astrograph pair stays visible on the historical chart")
-		await _london_frame(paper, state)
-		if state == "exchange" and london_captures and locale == "en":
-			Settings.text_scale = 1.2
-			Settings.refresh_fonts(self)
-			meeting.refresh_fonts()
-			await _london_frame(paper, state, "_scale_1_2")
-			Settings.text_scale = 1.0
-			Settings.refresh_fonts(self)
-			meeting.refresh_fonts()
+		if state == "proceedings":
+			# A scaled frame can otherwise cross the first cue before the assertion runs.
+			Engine.time_scale = 1.0
 		await press(button(paper, text[sheet[2]]))
+	await _london_print(chapter, text.L14)
 	for frame in 150:
 		if chapter.ui.ending_panel.visible:
 			break
@@ -928,13 +999,55 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 	expect(run == original, "London leaves the run and October's recorded choices intact")
 
 
+func _london_print(chapter: Node, next: String) -> void:
+	for frame in 150:
+		if chapter.get("london_print") != null and chapter.ui.fade.color.a == 0.0:
+			break
+		await process_frame
+	var paper: Control = chapter.get("london_print")
+	expect(is_instance_valid(paper) and not chapter.ui.ending_panel.visible,
+		"Read the headlines opens In print before the run review")
+	var text := Print.strings()
+	var pages := [
+		["I5-03", "I5-04", "I5-05", "I5-06"], ["I5-16", "I5-17"], ["I5-07", "I5-08", "I5-09"],
+		["I5-18"], ["I5-19", "I5-20", "I5-21"], ["I5-22", "I5-23", "I5-24", "I5-10"],
+		["I5-25"], ["I5-13", "I5-14", "I5-15"], ["I5-11"],
+		["I6-03", "I6-04", "I6-05"], ["I6-06", "I6-07", "I6-08", "I6-09", "I6-10"],
+		["I6-17", "I6-18", "I6-19", "I6-20"], ["I6-11", "I6-12"], ["I6-13", "I6-14", "I6-15"],
+	]
+	for ids in pages:
+		var state: String = ids[0]
+		var fiction := state == "I5-13"
+		var print_sheet := state.begins_with("I5")
+		_check_lines(paper, text, ids)
+		_check_lines(paper, text, ["I5-01" if print_sheet else "I6-01"])
+		expect(has_text(paper, text["I5-02" if print_sheet else "I6-02"]) != fiction,
+			"the historical frame is absent only on the fictional sheet")
+		expect(has_text(paper, text["I5-13"]) == fiction and has_text(paper, text["I5-15"]) == fiction,
+			"Rook's labelled column appears only on its own page")
+		var advance_text: String = text["I5-12"] if state == "I5-11" else (
+			text["I6-16"] if state == "I6-13" else next)
+		var advance := button(paper, advance_text)
+		check_paper_focus(advance)
+		expect(not chapter.ui.ending_panel.visible, "the review waits until after " + state)
+		if print_captures:
+			await _paper_frame(paper, state)
+			if state == "I5-22" and L.current() == "en":
+				Settings.text_scale = 1.2
+				Settings.refresh_fonts(self)
+				paper.refresh_fonts()
+				await _paper_frame(paper, state, "_scale_1_2")
+				Settings.text_scale = 1.0
+				Settings.refresh_fonts(self)
+				paper.refresh_fonts()
+		await press(advance)
+
+
 func _london_annotate(meeting: Control, text: Dictionary, pick: String, notes: Array, close: String) -> void:
 	var paper: Control = meeting.paper
-	await _london_frame(paper, meeting.page_id)
 	await press(button(paper, text[pick]))
 	expect(has_text(paper, text[notes[0]]) and not has_text(paper, text[close]),
 		"the selected note previews before it is attached")
-	await _london_frame(paper, meeting.page_id + "_preview")
 	await press(button(paper, text.L53))
 	var lines: Array = paper.body.find_children("*", "Label", true, false).map(func(label): return label.text)
 	var start := lines.find(text[notes[0]])
@@ -942,17 +1055,68 @@ func _london_annotate(meeting: Control, text: Dictionary, pick: String, notes: A
 		"the complete annotation starts with the selected note")
 
 
-func _london_frame(paper: Control, state: String, suffix := "") -> void:
-	if not london_captures:
+func _london_arrival(meeting: Control, text: Dictionary) -> void:
+	var chart: Control = meeting.historical_chart
+	var paper: Control = meeting.paper
+	var advance := button(paper, text.L14)
+	expect(chart.custom_minimum_size.y >= 450.0 and advance.disabled,
+		"London starts on a half-screen plate and holds Continue for the result")
+	expect(chart.beat == 0 and not has_text(paper, text.L22) and not has_text(paper, text.L23),
+		"the axes precede both reports (beat %d at %.3f s, Sobral %s, Príncipe %s)" % [
+			chart.beat, chart._elapsed, has_text(paper, text.L22), has_text(paper, text.L23)])
+	if london_captures:
+		var dimensions := Vector2i(1280, 720)
+		var stills := {60: "axis", 180: "sobral", 330: "principe"}
+		var motion := L.current() == "en" and Settings.text_scale == 1.0
+		for frame in (420 if motion else 362):
+			await RenderingServer.frame_post_draw
+			if stills.has(frame):
+				var state: String = "london_principal_" + stills[frame]
+				expect(chart.beat == stills.keys().find(frame) and chart.stroke == 1.0,
+					"capture the completed stroke of " + state)
+				_save_capture(state, state + "_" + L.current() + _london_scale_suffix() + ".png", dimensions)
+			if motion and frame % 2 == 0:
+				_save_capture("london_arrival frame %03d" % frame, "london_arrival_%03d_en.png" % frame, dimensions)
+	elif L.current() == "ja":
+		await tap(KEY_ENTER)
+		expect(meeting.page_id == "principal" and chart.beat == 2 and chart.stroke == 1.0
+			and has_text(paper, text.L22) and has_text(paper, text.L23) and not advance.disabled,
+			"one accept completes both reports and unlocks Continue on the same sheet")
+	else:
+		for beat in [1, 2]:
+			await chart.beat_started
+			expect(chart.beat == beat and (not Settings.reduced_motion or chart.stroke == 1.0)
+				and has_text(paper, text.L22) and has_text(paper, text.L23) == (beat == 2),
+				"London stages the reports in order, with an instant stroke under reduced motion")
+		if advance.disabled:
+			await chart.arrived
+	expect(not advance.disabled, "Continue resumes after the results have arrived")
+	await frames(3)
+	var scroll: ScrollContainer = paper.body.get_parent()
+	var report: Control = paper.body.get_child(-1)
+	expect(not scroll.get_v_scroll_bar().visible and scroll.get_global_rect().grow(1.0).encloses(report.get_global_rect()),
+		"%s at %.1f shows the whole Príncipe report and portrait in the first view" % [L.current(), Settings.text_scale])
+
+
+func _london_scale_suffix() -> String:
+	return "_scale_1_2" if Settings.text_scale == 1.2 else ""
+
+
+func _london_frame(paper: Control, state: String) -> void:
+	if not london_captures or state == "principal":
 		return
+	await _paper_frame(paper, "london_" + state, _london_scale_suffix())
+
+
+func _paper_frame(paper: Control, state: String, suffix := "") -> void:
 	await check_paper_layout(paper, state)
 	var scroll: ScrollContainer = paper.body.get_parent()
 	var previous := scroll.scroll_vertical
 	scroll.scroll_vertical = 0
-	await capture("london_" + state, paper, suffix, Vector2i(1280, 720))
+	await capture(state, paper, suffix, Vector2i(1280, 720))
 	if scroll.get_v_scroll_bar().visible:
 		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
-		await capture("london_" + state, paper, suffix + "_end", Vector2i(1280, 720))
+		await capture(state, paper, suffix + "_end", Vector2i(1280, 720))
 	scroll.scroll_vertical = previous
 
 
@@ -1000,6 +1164,71 @@ func _check_lines(paper: Control, strings: Dictionary, ids: Array) -> void:
 		expect(has_text(paper, strings[id]), "%s shows %s" % [L.current(), id])
 
 
+func _filing_tap(pad: bool, key: Key, pad_button: JoyButton) -> void:
+	if pad:
+		await tap_pad(pad_button)
+	else:
+		await tap(key)
+	await frames(2)
+
+
+func _filing_in_view(paper: Control, text: Dictionary, id: String) -> void:
+	var bounds: Rect2 = paper.body.get_parent().get_global_rect().grow(1.0)
+	for row in [id, "M21", "M22"]:
+		var rect := button(paper, text[row]).get_global_rect()
+		expect(bounds.encloses(rect), "%s stays visible with %s (%s in %s)" % [row, id, rect, bounds])
+
+
+func _madeira_file_with_device(journey: Node, paper: Control, text: Dictionary, pad: bool) -> void:
+	var device := "_pad" if pad else "_keys"
+	var order := ["M28", "M25", "M26", "M27"]
+	await frames(3)
+	expect(button(paper, text.M25).has_focus(), "first loose row starts focused")
+	for id in Madeira.LOOSE.slice(1):
+		await _filing_tap(pad, KEY_DOWN, JOY_BUTTON_DPAD_DOWN)
+		expect(button(paper, text[id]).has_focus(), "down reaches next loose copy " + id)
+	for i in order.size():
+		var id: String = order[i]
+		var folder := "M21" if id in Madeira.COPIES.M21 else "M22"
+		expect(button(paper, text[id]).has_focus(), "filing focuses the next loose copy " + id)
+		await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.selected == id and journey.filed.size() == i, "selects a loose copy without filing " + id)
+		_filing_in_view(paper, text, id)
+		await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+		expect(button(paper, text.M21).has_focus(), "right from the active copy reaches the first folder")
+		if i == 0:
+			await _filing_tap(pad, KEY_LEFT, JOY_BUTTON_DPAD_LEFT)
+			expect(button(paper, text[id]).has_focus(), "left from the folder returns to the active copy " + id)
+			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+			_filing_in_view(paper, text, id)
+			await capture("madeira_active_copy", paper, device)
+		if folder == "M22" or (pad and i == 0):
+			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+			expect(button(paper, text.M22).has_focus(), "right from the first folder reaches the second")
+		_filing_in_view(paper, text, id)
+		if pad and i == 0:
+			await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+			expect(journey.selected == id and journey.filed.is_empty() and button(paper, text.M22).has_focus(),
+				"wrong folder leaves the copy loose with destination focus")
+			_filing_in_view(paper, text, id)
+			await capture("madeira_wrong_folder", paper, device)
+			await _filing_tap(pad, KEY_ESCAPE, JOY_BUTTON_B)
+			expect(journey.selected.is_empty() and journey.filed.is_empty() and button(paper, text[id]).has_focus(),
+				"cancel returns to the same loose copy")
+			_filing_in_view(paper, text, id)
+			await capture("madeira_cancel", paper, device)
+			await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+			await _filing_tap(pad, KEY_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+		expect(button(paper, text[folder]).has_focus(), "correct packet receives focus for " + id)
+		await _filing_tap(pad, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.selected.is_empty() and journey.filed.get(id) == folder and journey.filed.size() == i + 1,
+			"correct packet receives only the active copy " + id)
+		if i + 1 < order.size():
+			_filing_in_view(paper, text, order[i + 1])
+	expect(button(paper, text.M38).has_focus(), "both packets complete and continue receives focus")
+	await capture("madeira_packets_filed", paper, device)
+
+
 func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	var text := Madeira.strings()
 	var paper: Control = journey.paper
@@ -1026,6 +1255,19 @@ func _madeira(journey: Node, chapter: Node, warm: bool) -> void:
 	expect(Checkpoint.peek() != "principe" and not story.departure_done,
 		"Madeira remains before the departure handoff")
 	expect(button(paper, text.M21).disabled and button(paper, text.M22).disabled, "folders wait for a selection")
+	if madeira_filing:
+		await _madeira_file_with_device(journey, paper, text, warm)
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.page_id == "M39", "completed packets hand off to the Sobral papers")
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(chapter.ui.dialog_active() and journey.page_id == "M47", "Kit's sky promise follows filing")
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(journey.page_id == "M46" and button(paper, text.M51).has_focus(), "sky page opens with continue focused")
+		await capture("madeira_sky_page", paper, "_pad" if warm else "_keys")
+		await _filing_tap(warm, KEY_ENTER, JOY_BUTTON_A)
+		expect(button(paper, text.M77).has_focus(), "sky page continues into the letter")
+		return
 	await press(button(paper, text.M25))
 	await press(button(paper, text.M26))
 	expect(journey.selected == "M26" and journey.filed.is_empty(), "another loose row changes only the selection")

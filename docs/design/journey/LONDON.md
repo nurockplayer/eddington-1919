@@ -275,7 +275,7 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 | I5-19 | Rio headline | O Jornal · Rio de Janeiro · 12 November 1919. “Theoria de Einstein”, by mathematician Manoel Amoroso Costa. | HISTORICAL_RECORD · SOC §3, Moreira facsimile |
 | I5-20 | Lisbon headline | O Século · Lisbon · 15 November 1919. “A Luz Pesa”. The report comes via Paris. | HISTORICAL_RECORD · SOC §3, press index PT13–PT17 and Portuguese historical analysis, p. 60 |
 | I5-21 | Berlin headline | Vorwärts · Berlin · 18 November 1919. “Revolution in der Wissenschaft”. | HISTORICAL_RECORD · SOC §3, press index DE47 |
-| I5-22 | Illustration credit | Illustrated London News · London · 22 November 1919. W. B. Robinson’s illustration draws on material supplied by Eddington. | HISTORICAL_RECORD · SOC §3, illustrated spread |
+| I5-22 | Illustration credit | Illustrated London News · London · 22 November 1919. W. B. Robinson’s illustration draws on material supplied by Crommelin. | HISTORICAL_RECORD · SOC §3, illustrated spread |
 | I5-23 | Ray diagram caption | Starlight changes direction as it passes close to the Sun. Trace the arriving ray back in a straight line to see the star’s shifted apparent position. | HISTORICAL_RECORD · SOC §3, Robinson illustration and R §1 |
 | I5-24 | Plate comparison caption | During totality the Moon hides the bright solar disc, allowing the stars to be photographed. Reference photographs let observers test three predictions for the deflection at the Sun’s limb: zero, about 0.87″ or about 1.75″. | HISTORICAL_RECORD · SOC §3, Robinson illustration and R §§1, 37 |
 | I5-25 | Einstein’s explanation | The Times · London · 28 November 1919. Einstein credits Newton’s achievement and explains that the theories agree closely in ordinary applications. | HISTORICAL_RECORD · SOC §3, Einstein’s Times article, paraphrase |
@@ -306,7 +306,7 @@ Page groups are I4-01–08, I4-09–14, I4-15–17 and I4-18–20. Use I4-02 on 
 | I6-10 | Outcome | The Society awards no Gold Medal in 1920. | HISTORICAL_RECORD · M |
 | I6-17 | French translation | La Nouvelle Revue française · Paris · 1 December 1919. “La Théorie de la gravitation selon Einstein”. Paul Valéry translates an Athenæum article attributed to Bertrand Russell. | HISTORICAL_RECORD · SOC §3, issue 75, pp. 1118–1122 |
 | I6-18 | Professions and universities | Sex Disqualification (Removal) Act · 23 December 1919. Sex or marriage can no longer disqualify someone from the professions and public posts covered by the Act. Section 3 leaves universities free to admit women to membership or degrees. | HISTORICAL_RECORD · SOC §2, Act §§1–3, paraphrase |
-| I6-19 | Japanese astronomy journal | 天文月報 · January 1920 JST. The Astronomical Society of Japan’s journal reports that the eclipse result broadly agrees with Einstein’s prediction. | HISTORICAL_RECORD · SOC §3, January issue, paraphrase |
+| I6-19 | Japanese astronomy journal | 天文月報 · January 1920. The Astronomical Society of Japan’s journal reports that the eclipse result broadly agrees with Einstein’s prediction. | HISTORICAL_RECORD · SOC §3, January issue, paraphrase |
 | I6-20 | American cartoon | Electrical Experimenter · New York · March 1920 · p. 1165. The cartoon gives Earth a line: “Gosh, I think I need a haircut!” | HISTORICAL_RECORD · SOC §3, facsimile, excerpt |
 | I6-11 | Rally record | Berlin Philharmonie · 24 August 1920 | HISTORICAL_RECORD · BT, D §1 |
 | I6-12 | Rally caption | A public rally attacks relativity and its author. | HISTORICAL_RECORD · BT, D §§1, 3 |

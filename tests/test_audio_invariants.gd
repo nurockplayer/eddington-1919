@@ -233,7 +233,23 @@ func _case(full: bool, choice: int) -> void:
 	await process_frame
 
 
+func _check_october_street_loop() -> void:
+	var story := root.get_node("Story")
+	story.runs.append({"verdict_class": "underclaim"})
+	var chapter: Node = load(OCTOBER).new()
+	root.add_child(chapter)
+	var street: AudioStreamWAV = chapter.street.stream
+	var pcm := street.data
+	var seam := street.loop_end * 2
+	check(pcm.size() == seam + 2 and pcm.decode_s16(seam - 2) == pcm.decode_s16(0)
+		and pcm.decode_s16(seam) == pcm.decode_s16(0),
+		"October street loop wraps without a PCM step and has a playable boundary frame")
+	chapter.free()
+	story.runs.pop_back()
+
+
 func _run() -> void:
+	_check_october_street_loop()
 	Engine.max_fps = 30
 	Engine.time_scale = 10.0
 	for full in [false, true]:
