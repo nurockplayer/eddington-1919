@@ -2008,3 +2008,21 @@ Where the look stands: the engraving treatment holds and totality is the best fr
 | F9 | Cambridge, departure and epilogue in 3D | (to survey) | (after a capture of main) | Survey first. |
 
 Dispatched now: F1 (house), F3 (three plates as candidates), F4 (title). Next as slots free: F1 ground dressing, F2, F5.
+
+### 2026-11-28 15:23 JST · #622 (London climax staging, my lane) at 3a4b2f0: the answer arrives; two things left
+
+Opened whole at 1280×720: proceedings en; arrival motion frames 000, 040, 100, 238; Príncipe step en at 1.2 and ja at 1.0; precision attached en. By numbers only: frame-to-frame change over all 120 motion frames, to read the timing. Not opened: the other 140 frames.
+
+- **Technical regression:** none seen.
+- **What works:** the chart is the largest thing on screen and is ink on paper; the axis draws, Sobral's point lands, then Príncipe's, each with its report line; Ashby's 0.87″ and the player's 1917 figure are marked on the 0.87″ line; no label is crossed; later states keep the same chart smaller. The proceedings is a title plate.
+- **Timing as built:** axis drawn by 0.47 s, Sobral at 1.13 s, Príncipe at 2.23 s, Continue live at 2.70 s.
+
+**Left:**
+1. **Príncipe's own line is cut.** When Príncipe lands, "Arthur Eddington reports 1.61″ from the Príncipe plates" sits at the fold with his portrait in a black box sliced in half; at text scale 1.2 the line is under the fold entirely, behind a black bar. This is the player's expedition being announced. It must be whole in the first view at 1.0, 1.2 and in ja, with no scroll in this state; the portrait as the dialogue shows it (oval on paper, no black box) or not at all.
+2. **It is over in 2.2 s.** For the public answer to a question asked in 1917 the beats need air. Target: axis complete by 0.5 s; Sobral lands at 2.0 s; Príncipe lands at 4.5 s; Continue becomes live at 6.0 s. A press during the arrival completes it at once. Reduced motion as now.
+
+Whole scene: closer, not yet a climax. Still to come from other briefs: a drawn plate of the room (F3 candidates), sound at the two landings (edd-lead).
+
+![axis](slice_principe/accept/622/3a4b2f0/london_arrival_040_en.png)
+![arrived](slice_principe/accept/622/3a4b2f0/london_arrival_238_en.png)
+![1.2 cut](slice_principe/accept/622/3a4b2f0/london_principal_principe_en_scale_1_2.png)
