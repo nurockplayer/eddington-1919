@@ -497,6 +497,7 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float,
 	env.fog_light_color = Color(0.62, 0.65, 0.68).lerp(Color(0.07, 0.08, 0.12), maxf(darkness, night))
 	if _style != null and not world.is_empty():
 		_style.light(self, contact, darkness, night)
+		_style.quad_material.set_shader_parameter("day_cloud_cover", dens)
 		_style.quad_material.set_shader_parameter("day_return_cloud_time", t_game if day_return else -1.0)
 	_sync_style_sky()
 

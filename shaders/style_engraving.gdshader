@@ -21,6 +21,7 @@ uniform bool before_second_contact = false;
 // The sky's live cloud field, including the rehearsal override.
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
+uniform float day_cloud_cover = 0.0;
 uniform float middle_seam_time = -100.0;
 uniform vec3 third_contact_cloud_clock = vec3(302.0, 2.5, 3.333333);
 uniform float day_return_cloud_time = -1.0; // cloud plate at the start of the light return
@@ -305,7 +306,9 @@ void fragment() {
 		float from_contact = cloud_time - third_contact_cloud_clock.x;
 		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
 		float print_time = returning_sky ? day_return_cloud_time : cloud_time;
-		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, print_time, false);
+		vec2 cloud_uv = eclipse_cloud_uv(ray_w, print_time);
+		float field_density;
+		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, print_time, false, cloud_uv, field_density);
 		// Ease back to the accepted third-contact field before the passage starts.
 		float pocket_print = smoothstep(0.0, 5.0, cloud_time) * (1.0 - smoothstep(-12.0, -6.5, pocket_time));
 		bool print_pocket = practice_cloud < 0.0 && !before_second_contact && night == 0.0 && ray_w.y > 0.0 && pocket_print > 0.0;
@@ -377,24 +380,27 @@ void fragment() {
 			cloud_wash *= sky_plate_darkness;
 		}
 		if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {
-			// Bow the strokes across the density field and cut finer strokes in
-			// between as the cloud thickens. Each stroke tapers at its own edge.
-			float density = eclipse_cloud_density_from_sample(live_cloud);
-			float stroke = (ruling.x + 0.18 * density) / (34.0 * k * res_k);
+			// Offset the radial phase along the Sun's bearing to make open
+			// parabolas. Their broad bends stay with the drifting cloud field.
+			vec2 plane = (cloud_uv - wind * 150.0) / cloud_scale;
+			float sweep = length(vec3(plane, 3.0)) + dot(plane, normalize(sun_dir.xz)) - 3.0;
+			float stroke = atan(2.0, sweep) / 0.024;
 			float stroke_pixel = max(length(vec2(dFdx(stroke), dFdy(stroke))), 0.00001);
 			float stroke_aa = 0.5 * stroke_pixel;
-			float weight = smoothstep(0.50, 0.97, density);
-			float half_width = mix(0.50, 0.82, weight) * res_k * stroke_pixel;
-			float primary_stroke = line_cov(abs(fract(stroke + 0.5) - 0.5),
-				half_width * smoothstep(0.50, 0.57, density), stroke_aa);
+			// The measured cover sets how much of the field prints. Local
+			// density still cuts the bodies and leaves paper between them.
+			float cover = smoothstep(0.18, 0.94, day_cloud_cover);
+			float boundary = mix(0.96, 0.54, cover);
+			float body = smoothstep(boundary, boundary + 0.04, field_density);
+			float weight = smoothstep(0.50, 0.94, day_cloud_cover) * smoothstep(boundary, 0.97, field_density);
+			float half_width = mix(0.56, 1.05, weight) * res_k * stroke_pixel;
+			float primary_stroke = line_cov(abs(fract(stroke + 0.5) - 0.5), half_width, stroke_aa);
 			float middle_stroke = line_cov(abs(fract(stroke) - 0.5),
-				half_width * smoothstep(0.61, 0.77, density), stroke_aa);
-			float fine_stroke = line_cov(0.5 * abs(fract(2.0 * stroke) - 0.5),
-				half_width * smoothstep(0.78, 0.97, density), stroke_aa);
-			float density_pixel = max(length(vec2(dFdx(density), dFdy(density))), 0.00001);
-			float contour = line_cov(abs(density - 0.53), 0.62 * res_k * density_pixel, 0.5 * density_pixel);
-			float cloud_ink = max(0.14 * contour, mix(0.15, 0.33, weight)
-				* max(primary_stroke, max(middle_stroke, fine_stroke)));
+				half_width * weight, stroke_aa);
+			float density_pixel = max(length(vec2(dFdx(field_density), dFdy(field_density))), 0.00001);
+			float contour = line_cov(abs(field_density - boundary), 0.52 * res_k * density_pixel, 0.5 * density_pixel);
+			float ruling_ink = body * mix(0.26, 0.63, weight) * max(primary_stroke, middle_stroke);
+			float cloud_ink = max(0.20 * contour, ruling_ink);
 			ink = mix(cloud_ink * band_lines, ink, smoothstep(0.0, 0.35, print_darkness));
 		}
 		sky_white = horizon * 0.85;
