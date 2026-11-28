@@ -1,0 +1,88 @@
+{
+  "asset": "sundy_house",
+  "file": "assets/models/sundy_house.glb",
+  "pass": true,
+  "checks": {
+    "triangles": {
+      "value": 11040,
+      "max": 15000,
+      "ok": true
+    },
+    "materials": {
+      "value": [
+        "E1919_iron",
+        "E1919_roof_tile",
+        "E1919_stone",
+        "E1919_teak",
+        "E1919_teak_dark",
+        "E1919_whitewash"
+      ],
+      "max": 6,
+      "ok": true
+    },
+    "texture_px": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "dimensions_m": {
+      "value": [
+        15.503,
+        12.809,
+        7.659
+      ],
+      "target": [
+        15.4,
+        12.8,
+        7.7
+      ],
+      "tolerance": 0.15,
+      "ok": true
+    },
+    "origin_bottom_centre": {
+      "value": [
+        0.0,
+        -1.655,
+        0.0
+      ],
+      "ok": true
+    },
+    "object_origins": {
+      "value": {
+        "sundy_house": {
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ok": true
+        }
+      },
+      "ok": true
+    },
+    "degenerate_faces": {
+      "value": 0,
+      "ok": true
+    },
+    "loose_vertices": {
+      "value": 0,
+      "ok": true
+    },
+    "names_prefixed": {
+      "value": [
+        "sundy_house"
+      ],
+      "ok": true
+    }
+  }
+}

@@ -27,6 +27,15 @@ static func cjk() -> Font:
 	return for_locale(L.current())
 
 
+static func paper_serif(fallback: Font) -> SystemFont:
+	var face := SystemFont.new()
+	face.font_names = PackedStringArray(["Baskerville", "Georgia", "serif"])
+	face.fallbacks = [fallback]
+	if SERIF_FACES.has(L.current()):
+		face.fallbacks = [SERIF_FACES[L.current()], fallback]
+	return face
+
+
 static func for_locale(locale: String) -> Font:
 	var order: Array = ORDERS.get(locale, ORDERS["en"])
 	var bundled := FontVariation.new()

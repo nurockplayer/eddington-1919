@@ -7,6 +7,9 @@ uniform vec3 stock : source_color = vec3(0.937255, 0.901961, 0.823529);
 uniform vec3 paper : source_color = vec3(0.937255, 0.901961, 0.823529);
 uniform vec3 ink : source_color = vec3(0.133333, 0.109804, 0.094118);
 uniform bool earth = false;
+uniform vec3 daylight_stock : source_color = vec3(0.937255, 0.901961, 0.823529);
+uniform float daylight_pitch = 0.0;
+instance uniform float sundy_daylight = 0.0;
 
 varying vec3 origin;
 varying vec3 axis;
@@ -45,9 +48,10 @@ void fragment() {
 	ROUGHNESS = 17.0 / 127.0;
 	ALBEDO = vec3(1.0);
 	vec3 n = normalize(axis);
-	vec3 lit = stock;
-	vec3 middle = stock;
-	vec3 shadow = stock;
+	vec3 stock_colour = mix(stock, daylight_stock, sundy_daylight);
+	vec3 lit = stock_colour;
+	vec3 middle = stock_colour;
+	vec3 shadow = stock_colour;
 	if (swatch == 3 || swatch == 4) {
 		float facing = abs(dot(normalize(NORMAL), VIEW));
 		float rim = 1.0 - smoothstep(0.14, swatch == 4 ? 0.55 : 0.31, facing);
@@ -69,6 +73,8 @@ void fragment() {
 			across_along = abs(n.y) > 0.7 ? origin.zx : vec2(origin.y, side);
 			pitch = swatch == 1 ? 0.026 : 0.045;
 		}
+		float daylight_ruling = daylight_pitch > 0.0 ? sundy_daylight : 0.0;
+		pitch = mix(pitch, daylight_pitch, daylight_ruling);
 		float across = across_along.x / pitch;
 		float along = across_along.y / pitch;
 		float first = stroke(across, along, 0.12, VIEWPORT_SIZE.y);
@@ -76,9 +82,10 @@ void fragment() {
 		if (swatch == 1) {
 			extra = stroke(across * 0.94 + along * 0.342, along, 0.10, VIEWPORT_SIZE.y);
 		}
-		middle = mix(stock, ink, 0.08 + 0.67 * first);
+		middle = mix(stock_colour, ink, 0.08 + 0.67 * first);
 		shadow = mix(middle, ink, 0.52 + 0.22 * extra);
-		if (swatch == 1) lit = mix(stock, ink, 0.18 * first);
+		float lit_ruling = mix(swatch == 1 ? 0.18 : 0.0, 0.32, daylight_ruling);
+		lit = mix(stock_colour, ink, lit_ruling * first);
 	}
 	EMISSION = shadow;
 	to_middle = middle - shadow;

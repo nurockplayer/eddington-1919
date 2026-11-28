@@ -155,6 +155,25 @@ func _run() -> void:
 	finish_dialogue(game)
 	var hotspot := game.get_node_or_null("SundyHotspot")
 	check(hotspot != null and hotspot.get_meta("interact_id") == "sundy", "Sundy hotspot exists in PREP")
+	var house := game.get_node_or_null("SundyHouse") as Node3D
+	check(house != null and house.scene_file_path == "res://assets/models/sundy_house.glb",
+		"the Sundy house in the camp is the imported model")
+	var sign := game.get_node_or_null("SundyHouse/Nameboard/PaintedName") as Label3D
+	check(sign != null and sign.text == "ROÇA SUNDY" and sign.shaded and not sign.fixed_size
+		and not sign.no_depth_test, "the house name is painted in the lit, depth-tested world")
+	if house != null:
+		await physics_frame
+		var space := house.get_world_3d().direct_space_state
+		var wall := PhysicsRayQueryParameters3D.create(
+			house.to_global(Vector3(0, 1.7, 5.5)), house.to_global(Vector3(0, 1.7, 3.5)), 1)
+		var hit := space.intersect_ray(wall)
+		check(not hit.is_empty() and is_equal_approx(house.to_local(hit.position).z, 4.0),
+			"the masonry shell is solid behind the playable verandah")
+		var stair := PhysicsRayQueryParameters3D.create(
+			house.to_global(Vector3(0, 1.2, 7.22)), house.to_global(Vector3(0, 0.1, 7.22)), 1)
+		hit = space.intersect_ray(stair)
+		check(not hit.is_empty() and absf(hit.position.y - 0.45) < 0.02,
+			"the central stair has a continuous walkable slope")
 	game._interact("sundy")
 	check(game.ui.text_label.text.contains("Jerónimo Carneiro"), "Sundy dialogue credits the plantation")
 	finish_dialogue(game)
