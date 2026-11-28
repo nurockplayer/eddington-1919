@@ -1817,22 +1817,25 @@ func _build_title(root: Control) -> void:
 	frontispiece.add_theme_constant_override("separation", 32)
 	v.add_child(frontispiece)
 	var heading := VBoxContainer.new()
-	heading.alignment = BoxContainer.ALIGNMENT_CENTER
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	frontispiece.add_child(heading)
 	var serif := Fonts.paper_serif(font)
 	var t := _label(L.t("雲層之後"), 56, PAPER)
 	t.add_theme_font_override("font", serif)
-	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	heading.add_child(t)
 	var st := _label(L.t("劍橋，1917 → 普林西比，1919"), 24, ACCENT)
 	st.add_theme_font_override("font", serif)
-	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	heading.add_child(st)
-	var mount := PanelContainer.new()
-	var rule := _panel_style(MenuPrint.PAPER, MenuPrint.INK)
-	rule.set_content_margin_all(7)
-	mount.add_theme_stylebox_override("panel", rule)
+	var mount := MarginContainer.new()
+	mount.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for side in ["left", "top", "right", "bottom"]:
+		mount.add_theme_constant_override("margin_" + side, 10)
+	# At 720p the rule is two pixels and the paper inset is six pixels.
+	mount.draw.connect(func():
+		var frame := Rect2(Vector2.ZERO, mount.size)
+		mount.draw_rect(frame, MenuPrint.INK)
+		mount.draw_rect(frame.grow(-2.5), MenuPrint.PAPER))
 	frontispiece.add_child(mount)
 	# Totality frame from the #589 clear capture, cropped above the gameplay HUD.
 	var plate := TextureRect.new()
@@ -1841,21 +1844,22 @@ func _build_title(root: Control) -> void:
 	plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	plate.custom_minimum_size = Vector2(800, 320)
 	mount.add_child(plate)
+	var gutter := Control.new()
+	gutter.custom_minimum_size.y = 32
+	v.add_child(gutter)
 	var body := _rich(19)
-	body.text = L.t("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n")
+	body.text = L.t("[center]1917 年，劍橋的雨夜。記錄同一片星空的兩張圖，對不上。\n有人會說，對不上的東西就是假的。\n兩年後，在赤道的雲層底下，你只有 302 秒——去量星光經過太陽時，有沒有彎。[/center]\n").replace("[center]", "").replace("[/center]", "")
 	v.add_child(body)
 	var disclaimer := _rich(15)
-	disclaimer.text = "[center][color=#8f8676]" + L.t(Credits.DISCLAIMER) + "[/color][/center]"
+	disclaimer.text = "[color=#8f8676]" + L.t(Credits.DISCLAIMER) + "[/color]"
 	v.add_child(disclaimer)
 	title_controls = _label("", 18, DIM)
-	title_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(title_controls)
 	# Steam Deck starts on the pad, so the first hints must already name its buttons.
 	Prompts.joypad = not Input.get_connected_joypads().is_empty()
 	_refresh_hints()
 	title_note = _label(L.t("第一次玩請從序章開始；只玩尾章會略過劍橋的調查、出發前的準備與結尾的後續。"), 15, Color("8f8676"))
-	title_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_note.custom_minimum_size.x = 920
 	v.add_child(title_note)
