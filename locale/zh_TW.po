@@ -91,8 +91,8 @@ msgstr "歷史紀錄・會議紀要"
 msgid "皇家天文學家 Frank Dyson 報告 Sobral 的結果。4 吋望遠鏡量得日緣偏折 1.98″。"
 msgstr "皇家天文學家 Frank Dyson 報告 Sobral 的結果。4 吋望遠鏡量得日緣偏折 1.98″。"
 
-msgid "Arthur Eddington 報告 Príncipe 底片量得的 1.61″。"
-msgstr "Arthur Eddington 報告 Príncipe 底片量得的 1.61″。"
+msgid "Arthur Eddington 報告 Príncipe 兩張底片量得的 1.6″ ± 0.3″（機率誤差）。"
+msgstr "Arthur Eddington 報告 Príncipe 兩張底片量得的 1.6″ ± 0.3″（機率誤差）。"
 
 msgid "重建圖表・歷史觀測"
 msgstr "重建圖表・歷史觀測"

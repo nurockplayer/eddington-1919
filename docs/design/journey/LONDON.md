@@ -95,7 +95,7 @@ The workbook shows any numerical personal result on its own page, using L15–L1
 | L20 | Chair | Sir J. J. Thomson chairs the meeting. | HISTORICAL_RECORD · O p. 389 |
 | L21 | Paper label | Historical record · Summary of the proceedings | RECONSTRUCTION · J |
 | L22 | Sobral announcement | The Astronomer Royal, Frank Dyson, reports the Sobral results. The 4-inch telescope gives 1.98″ at the Sun's limb. | HISTORICAL_RECORD · O, N, R §V |
-| L23 | Príncipe announcement | Arthur Eddington reports 1.61″ from the Príncipe plates. | HISTORICAL_RECORD · O, N, R §V |
+| L23 | Príncipe announcement | Arthur Eddington reports 1.6″ ± 0.3″ (probable error) from two Príncipe plates. | HISTORICAL_RECORD · [O, proceedings extract, p. 122](https://revistas.usp.br/khronos/article/download/155595/155701) |
 | L24 | Chart label | Reconstructed chart · Historical observations | RECONSTRUCTION · J |
 | L25 | Axis | Deflection at the Sun's limb (arcseconds) | HISTORICAL_RECORD · R §V |
 | L26 | Guide | 0″ · No deflection | HISTORICAL_RECORD · R §§1–3 |

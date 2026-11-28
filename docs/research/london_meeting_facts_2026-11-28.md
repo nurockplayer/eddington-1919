@@ -1,0 +1,66 @@
+## Answer
+
+**Thursday afternoon, 6 November 1919 GMT**, the Royal Society and the Royal Astronomical Society met in the **Royal Society’s Meeting Room at Burlington House, Piccadilly**. The strongest result came from Sobral’s 4-inch instrument. Príncipe supplied independent support. Dyson also reported two estimates from Sobral’s blurred astrographic plates and gave the sharper plates greater weight. Historical findings checked against the sources below on **28 November 2026 JST**. [Sponsel, pp. 456–463](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf), [Earman and Glymour, pp. 76–78](https://www.cmu.edu/dietrich/philosophy/docs/glymour/relativityeclipses.pdf)
+
+### 1. Proceedings and speakers
+
+| Order | What the record supports |
+|---|---|
+| **J. J. Thomson opens → Frank Dyson** | Thomson, president of the Royal Society, chaired and called on Dyson. The Astronomer Royal described the expedition and gave the Sobral reductions. He judged the sharp plates decisive in favour of Einstein’s predicted deflection. [*Observatory*, p. 391, transcribed by Earman and Glymour](https://www.cmu.edu/dietrich/philosophy/docs/glymour/relativityeclipses.pdf) |
+| **Andrew Crommelin → Arthur Eddington** | Crommelin explained the blurred Sobral images, favoured the 4-inch evidence, and thanked the Brazilian hosts and collaborators, including Henrique Morize and Leocádio Araújo. Eddington described the Príncipe cloud, the two plates with five measurable stars each, and their agreement with the stronger Sobral result. He suggested the cloud may have helped keep the mirror cool. [Simões, Soares and Carolino](https://doi.org/10.1017/S0007087425000305), [Earman and Glymour](https://www.cmu.edu/dietrich/philosophy/docs/glymour/relativityeclipses.pdf), [Sponsel](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf) |
+| **Thomson opens discussion → Alfred Fowler** | Thomson called it the most important result for gravitation since Newton, recalled that Newton himself had suggested a possible effect on light, and cited Mercury’s perihelion as another severe test. **Alfred** Fowler, the RAS president, thanked Dyson and urged confirmation by other means. He mentioned Evershed’s clouded-out attempt to photograph Regulus near the Sun. [Stanley, pp. 79–80](https://www.academia.edu/25307759/_An_Expedition_to_Heal_the_Wounds_of_War_), [Kennefick, chs. 11–13](https://dokumen.pub/no-shadow-of-a-doubt-the-1919-eclipse-that-confirmed-einsteins-theory-of-relativity-9780691190051.html) |
+| **Frederick Lindemann and H. F. Newall → Ludwik Silberstein** | Lindemann argued against refraction in solar material as an explanation. Newall accepted that the Einstein effect had the advantage but kept open the possibility of refraction in an extended solar atmosphere. Silberstein accepted the observed deflection as a fact and disputed what it established. He argued that the missing solar spectral redshift mattered and that spectroscopy could test it more readily than another favourable eclipse. [Earman and Glymour, pp. 77–78](https://www.cmu.edu/dietrich/philosophy/docs/glymour/relativityeclipses.pdf), [Contemporary PASP account quoting Newall](https://adsabs.harvard.edu/pdf/1920PASP...32...71.) |
+| **Dyson and Eddington reply → Thomson closes** | Dyson wanted checks at the next two eclipses and hoped to avoid mirrors. Eddington defended the result as confirmation of Einstein’s law of gravitation while leaving the broader theory open to other tests. Thomson closed by thanking Dyson and Eddington. James Jeans has a documented speaking part at the later RAS relativity discussion on **12 December 1919 GMT**. The joint eclipse report does not list him as a speaker. Oliver Lodge attended and left early. His qualified congratulations appeared in the press afterward. [Kennefick, ch. 11](https://dokumen.pub/no-shadow-of-a-doubt-the-1919-eclipse-that-confirmed-einsteins-theory-of-relativity-9780691190051.html), [Sponsel, pp. 462–463](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf), [RAS discussion record](https://academic.oup.com/mnras/article-pdf/80/2/95/3066998/mnras80-0095.pdf) |
+
+**Newton’s portrait.** The contemporary *Observatory* report, pp. 396–397, attributes the gesture to **Silberstein** and records his words as “We owe it to that great man … to proceed very carefully in modifying or retouching his Law of Gravitation.” A. N. Whitehead separately remembered Newton’s portrait in the background. The “who is the third person?” joke comes from Eddington’s later recollection as told by Chandrasekhar, who places it as the meeting dispersed. Treat the joke as an anecdote. [Sponsel, pp. 461–463 and notes 76, 82, 85](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf)
+
+*Scene:* Thomson gives the floor to Dyson, Crommelin and Eddington in turn. Silberstein’s documented gesture gives the portrait its dramatic moment during the discussion.
+
+### 2. Room, attendance and press
+
+Sponsel reconstructs a **45 × 36 ft meeting room**, with eight pews on each side of a central aisle. He estimates roughly **100 seated and room for 30–40 standing**, with an adjacent anteroom. Those figures describe capacity. Accounts describe a crowded room, and Whitehead’s recollection confirms his presence. The Royal Society Council scheduled an afternoon meeting, and *The Times* described it as taking place the previous afternoon. [Sponsel, pp. 456, 460–461 and n. 74](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf)
+
+On **Friday, 7 November 1919 GMT**, *The Times* printed this three-part headline at the **top right of page 12**:
+
+> **REVOLUTION IN SCIENCE.**  
+> **NEW THEORY OF THE UNIVERSE.**  
+> **NEWTONIAN IDEAS OVERTHROWN.**
+
+The report said the observations were generally accepted as verifying Einstein’s prediction, compared their significance to the discovery of Neptune, and acknowledged disagreement over what followed for gravitational theory. Sponsel identifies the writer as **Peter Chalmers Mitchell**, a zoologist and Royal Society fellow, from the newspaper’s marked copies. [*The Times* facsimile, Open University fig. 29](https://www.open.edu/openlearn/science-maths-technology/the-restless-universe/content-section-1/?printable=1), [Mussell on page placement](https://pmc.ncbi.nlm.nih.gov/articles/PMC4213436/), [Sponsel on authorship](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf)
+
+*Scene:* Use a crowded afternoon meeting room with pews and a central aisle. The next day’s newspaper reveal belongs on page 12, alongside the paper’s Armistice remembrance coverage.
+
+### 3. Numbers the room heard
+
+All values are deflections extrapolated to the Sun’s limb, in arcseconds. The comparison was roughly **0.87″** for the classical half-value and **1.75″** for Einstein’s general-relativistic prediction. [Dyson, Eddington and Davidson, pp. 291–292](https://w.astro.berkeley.edu/~kalas/labs/documents/dyson1920.pdf)
+
+| Series | At the meeting | Published reduction |
+|---|---|---|
+| **Sobral 4-inch** | Dyson gave **1.98″** and emphasized the agreement among the individual stars. | **1.98″ ± 0.12″** probable error. |
+| **Sobral 13-inch astrographic** | Dyson gave **0.97″** with the scale inferred from the eclipse plates and **1.40″** with the scale taken from the check plates. Dyson and Crommelin explained that the images had blurred. Heating of the coelostat mirror was the suspected cause. | **0.93″** with scale fitted from the plates, and **1.52″** under a different scale assumption. The conclusion gave the discordant series little weight. |
+| **Príncipe astrographic** | Eddington gave **1.6″ ± 0.3″** probable error from two plates. | **1.61″ ± 0.30″** probable error. |
+
+The distinction matters because Sponsel says the astrographic figure went unmentioned, while Earman and Glymour **quote Dyson giving both preliminary values**, citing *The Observatory*, p. 391. The quoted passage is the stronger evidence for the dialogue. The later **0.93″** belongs to the paper. [Earman and Glymour, p. 77](https://www.cmu.edu/dietrich/philosophy/docs/glymour/relativityeclipses.pdf), [Sponsel, p. 461](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf), [Dyson, Eddington and Davidson, pp. 312, 331–332](https://w.astro.berkeley.edu/~kalas/labs/documents/dyson1920.pdf)
+
+*Scene:* Let Dyson give both blurred-plate reductions aloud, then explain why the sharp Sobral plates carry the conclusion. Eddington’s Príncipe result adds corroboration after that.
+
+### 4. Myths that change the scene
+
+- **Eddington made the discovery alone or calculated it live.** The reductions preceded the meeting. Dyson led the Greenwich analysis with Davidson, Crommelin reported on Sobral, and Eddington reported on Príncipe, where he worked with Edwin Cottingham. *Scene:* Give the speakers distinct evidence and let them arrive with their figures already worked out. [Kennefick, chs. 10–12](https://dokumen.pub/no-shadow-of-a-doubt-the-1919-eclipse-that-confirmed-einsteins-theory-of-relativity-9780691190051.html), [Royal Society](https://www.royalsociety.org/blog/2024/08/observing-relativity/)
+- **Eddington secretly threw away a clean Newtonian result.** The Greenwich group handled the troublesome Sobral series. The focus and scale problem was discussed, the preliminary values were stated, and the later paper published the discordant reduction. Historians have disputed how much weight it deserved. *Scene:* The disagreement is over how much to trust a blurred image and an uncertain scale. [Kennefick](https://arxiv.org/abs/0709.0685), [Stanley](https://doi.org/10.1086/376099), [Earman and Glymour](https://www.cmu.edu/dietrich/philosophy/docs/glymour/relativityeclipses.pdf)
+- **The room unanimously overthrew Newton and settled every test of relativity.** The speakers distinguished the deflection result from the wider theory. Refraction, redshift and replication remained live questions. Crelinsten distinguishes the surge in Einstein’s public fame from the longer process of scientific acceptance. *Scene:* The chair can be emphatic while the discussion remains open, and the newspaper can go further than the speakers did. [Stanley](https://doi.org/10.1086/376099), [Crelinsten](https://books.google.com/books/about/Einstein_s_Jury.html?id=W1Dt15vWYGQC), [Coles](https://arxiv.org/abs/astro-ph/0102462)
+- **Einstein was in the room or first learned the result that afternoon.** He was absent and had already received preliminary word by telegram from Lorentz. *Scene:* Keep Einstein offstage. Any telegram showing his first news belongs before the London chapter. [Einstein Papers chronology](https://assets.press.princeton.edu/books/einstein11/chronology.pdf), [Institute for Advanced Study](https://www.ias.edu/ideas/einsteins-eclipse)
+
+## Sources
+
+- [*The Observatory* 42, pp. 389–398](https://adsabs.harvard.edu/full/1919Obs....42..389.) is the contemporary meeting report. [Earman and Glymour](https://www.cmu.edu/dietrich/philosophy/docs/glymour/relativityeclipses.pdf) reproduce the key numerical statements and discussion. [Sponsel](https://alistairsponsel.com/wp-content/uploads/2018/09/sponsel-2002.pdf) reproduces the portrait passage and traces the room, council decision, eyewitness account and press attribution.
+- [Dyson, Eddington and Davidson, *Philosophical Transactions* 220, pp. 291–333](https://doi.org/10.1098/rsta.1920.0009) gives the formal reductions and the authors’ weighting. [Crommelin’s contemporary *Nature* report](https://www.nature.com/articles/104280a0) covers the observing instruments and results.
+- [*The Times* facsimile, Open University fig. 29](https://www.open.edu/openlearn/science-maths-technology/the-restless-universe/content-section-1/?printable=1) supplies the headline and report. [Randall Stevenson](https://modernismmodernity.org/forums/posts/stevenson-time-space) documents its page placement alongside remembrance coverage.
+- [Kennefick, *No Shadow of a Doubt*](https://press.princeton.edu/books/hardcover/9780691183862/no-shadow-of-a-doubt), [Stanley, *An Expedition to Heal the Wounds of War*](https://doi.org/10.1086/376099), [Crelinsten, *Einstein’s Jury*](https://books.google.com/books/about/Einstein_s_Jury.html?id=W1Dt15vWYGQC), and [Coles, *A Revolution in Science*](https://arxiv.org/abs/astro-ph/0102462) cover the data dispute, Eddington’s internationalism, and the differing pace of public and scientific acceptance.
+
+## Unsure
+
+- The **exact opening and closing times**, **attendance count and full roster**, and **exact order of the Lindemann and Newall remarks** remain unconfirmed. The published account supports an afternoon meeting and the named speakers above.
+- Direct scan access via `web.open("https://adsabs.harvard.edu/full/1919Obs....42..389.")` returned HTTP 500 on redirect. The web tool supplies no shell exit code. The public PDF and Google Books routes also failed to open, so I used page-numbered extracts in the scholarship and contemporary corroboration. The shell and review alternatives do not apply to the brief’s web-search-only scope.
+
+Stop: done — the evidence supports the staged sequence, room, headline and spoken figures. Remaining archival uncertainties are listed above.
