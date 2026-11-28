@@ -8,7 +8,9 @@ const October := preload("res://scripts/cambridge/content_epilogue.gd")
 const Tribunal := preload("res://scripts/cambridge/content_tribunal.gd")
 const Predictions := preload("res://scripts/content.gd")
 const Paper := preload("res://scripts/cambridge/interlude_paper.gd")
-const Chart := preload("res://scripts/chart.gd")
+const Chart := preload("res://scripts/cambridge/london_chart.gd")
+const Portrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
+const Report := preload("res://scripts/cambridge/report_sheet.gd")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 
 var paper: Control
@@ -21,12 +23,14 @@ var _notes := {}
 var _step := 0
 var _selected := ""
 var _preview := ""
+var _prediction_pick: int
 
 
 func open(run: Dictionary, prediction: Dictionary, bond_tone: String) -> void:
 	var case_id := October.ledger_case(run)
 	var combined: Dictionary = run.combined
-	_text.L05 %= Predictions.bet_pick_text(int(prediction.get("pick", -1)))
+	_prediction_pick = int(prediction.get("pick", -1))
+	_text.L05 %= Predictions.bet_pick_text(_prediction_pick)
 	_text.bet %= Predictions.bet_pick_text(int(run.bet_oct))
 	_text.L06 %= L.t(str(run.final_reason_text))
 	_text.weight %= October.weight()[0].choices[run.astro_weight]
@@ -57,11 +61,13 @@ func refresh_fonts() -> void:
 func _show_page() -> void:
 	var page: Dictionary = Content.PAGES[_step]
 	page_id = page.id
-	paper.begin(page.has("chart"))
+	paper.begin(page.has("chart") or page_id == "proceedings")
 	var scroll: ScrollContainer = paper.body.get_parent()
 	var layout: VBoxContainer = scroll.get_parent()
 	if page.has("chart"):
 		_show_chart(layout, scroll, page.chart)
+	elif page_id == "proceedings":
+		_show_title_plate()
 	else:
 		paper.label(layout, _text.L01, 32)
 		layout.move_child(layout.get_child(-1), 0)
@@ -70,6 +76,14 @@ func _show_page() -> void:
 		_show_choices(page, scroll)
 	else:
 		paper.advance(_text[page.get("advance", "L14")])
+	if page_id == "principal":
+		var advance: Button = paper.actions.get_child(0)
+		advance.disabled = true
+		historical_chart.beat_started.connect(_show_report)
+		historical_chart.arrived.connect(func():
+			advance.disabled = false
+			if get_viewport().gui_get_focus_owner() == null:
+				advance.grab_focus())
 	if _notes.has(page_id):
 		_show_lines(_notes[page_id])
 	for key in _notes:
@@ -80,20 +94,48 @@ func _show_page() -> void:
 		_show_lines(_notes[key])
 
 
+func _show_title_plate() -> void:
+	var separator := " · " if _text.L18.contains(" · ") else "・"
+	var split_at: int = _text.L18.rfind(separator)
+	paper.label(paper.body, _text.L01, 20, true)
+	paper.label(paper.body, _text.L18.left(split_at), 54, true)
+	paper.label(paper.body, _text.L18.substr(split_at + separator.length()), 38, true)
+	paper.rule(paper.body)
+	paper.label(paper.body, _text.L19, 27, true)
+	paper.label(paper.body, _text.L20, 24, true)
+	paper.label(paper.body, _text.L21, 20, true)
+
+
 func _show_chart(layout: VBoxContainer, scroll: ScrollContainer, row_count: int) -> void:
-	paper.label(layout, "%s · %s" % [_text.L24, _text.L25], 18)
-	layout.move_child(layout.get_child(-1), 0)
-	historical_chart = Chart.new()
-	historical_chart.probable_error_guides = [_text.L26, _text.L27, _text.L28]
-	layout.add_child(historical_chart)
-	layout.move_child(historical_chart, scroll.get_index())
 	var rows := [
 		{"label": _text.L30, "value": 1.98, "sigma": 0.12},
 		{"label": _text.L31, "value": 1.61, "sigma": 0.30},
 	]
 	if row_count == 3:
-		rows.append({"label": _text.L50, "value": 0.93, "other_value": 1.52, "weak": true, "no_bar": true})
-	historical_chart.set_data(rows, {}, true)
+		rows.append({"label": _text.L50, "value": 0.93, "other_value": 1.52})
+	historical_chart = Chart.new()
+	historical_chart.rows = rows
+	historical_chart.labels = _text
+	historical_chart.pick = _prediction_pick
+	historical_chart.custom_minimum_size.y = 450 if page_id == "principal" else 304
+	layout.add_child(historical_chart)
+	layout.move_child(historical_chart, scroll.get_index())
+
+
+func _show_report(beat: int) -> void:
+	if beat == 1:
+		_show_lines(["L22"])
+		return
+	var row: HBoxContainer = paper.columns(paper.body)
+	var portrait := Portrait.new()
+	row.add_child(portrait)
+	portrait.setup(Report.INK)
+	portrait.image.custom_minimum_size = Vector2(76, 94)
+	portrait.disclosure.hide()
+	portrait.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	portrait.prints_override[Cast.EDDINGTON] = "res://assets/portraits/eddington_engraving.jpg"
+	portrait.show_entry({"s": Cast.EDDINGTON})
+	paper.label(paper.column(row), _text.L23, 24)
 
 
 func _show_lines(ids: Array) -> void:

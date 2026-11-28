@@ -5,8 +5,8 @@ const PAGES := [
 	{"id": "prediction", "lines": ["L02", "L03", "L04", "L05", "bet", "L06", "reaction"]},
 	{"id": "simulation", "lines": ["L15", "personal"]},
 	{"id": "threshold", "lines": ["L85", "L86", "L87", "L12"], "advance": "L13"},
-	{"id": "proceedings", "lines": ["L18", "L19", "L20", "L21", "L22", "L23"]},
-	{"id": "principal", "chart": 2, "lines": ["L29", "L30", "L31"]},
+	{"id": "proceedings", "lines": []},
+	{"id": "principal", "chart": 2, "lines": ["L29"]},
 	{"id": "scale", "chart": 3, "lines": ["L32", "L33", "L34", "L35", "L36", "L37", "L38", "L39", "weight"], "advance": "L40"},
 	{"id": "precision", "chart": 3, "lines": ["L42", "L41"], "choices": {
 		"L43": ["L44", "L45", "L46", "L54"],

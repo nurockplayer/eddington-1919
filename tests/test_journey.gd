@@ -283,7 +283,15 @@ func _run() -> void:
 			await scene_changed
 			await _departure_opening()
 			await _departure(current_scene, route[2], enabled, locale == "ja", false)
-		elif london_captures or london_only:
+		elif london_captures:
+			var scales := [1.0, 1.2] if locale == "en" else [1.0]
+			for scale in scales:
+				var settings := ConfigFile.new()
+				settings.set_value("ui", "text_scale", scale)
+				settings.set_value("ui", "reduced_motion", false)
+				expect(settings.save(Settings.settings_path()) == OK, "save isolated capture settings")
+				await _london_setup()
+		elif london_only:
 			await _london_setup()
 		elif sobral_only:
 			var story := root.get_node("Story")
@@ -297,6 +305,10 @@ func _run() -> void:
 			await _route(route, enabled, locale == "ja")
 		if capture_dir.is_empty():
 			Checkpoint.clear()
+	if london_captures:
+		DirAccess.remove_absolute(Settings.settings_path())
+		var ready := FileAccess.open(capture_dir.path_join(".archive-ready"), FileAccess.WRITE)
+		ready.close()
 	if capture_dir.is_empty():
 		DirAccess.remove_absolute(Settings.settings_path())
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
@@ -591,9 +603,12 @@ func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i
 		dimensions = Vector2i(1280, 720)
 	await RenderingServer.frame_post_draw
 	expect(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "capture stays windowed")
+	_save_capture(state, state + "_" + L.current() + suffix + ".png", dimensions)
+
+
+func _save_capture(state: String, filename: String, dimensions: Vector2i) -> void:
 	var image := root.get_texture().get_image()
 	expect(image.get_size() == dimensions, "capture is %s, got %s" % [dimensions, image.get_size()])
-	var filename := state + "_" + L.current() + suffix + ".png"
 	expect(image.save_png(capture_dir.path_join(filename)) == OK, "write " + filename)
 	var receipt := FileAccess.open(capture_dir.path_join("index.md"), FileAccess.READ_WRITE)
 	receipt.seek_end()
@@ -855,8 +870,8 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 		["prediction", ["L02", "L03", "L04", reaction[locale]], "L14"],
 		["simulation", ["L15"], "L14"],
 		["threshold", ["L85", "L86", "L87", "L12"], "L13"],
-		["proceedings", ["L18", "L19", "L20", "L21", "L22", "L23"], "L14"],
-		["principal", ["L29", "L30", "L31"], "L14"],
+		["proceedings", ["L19", "L20", "L21"], "L14"],
+		["principal", ["L29"], "L14"],
 		["scale", ["L32", "L33", "L34", "L35", "L36", "L37", "L38", "L39"], "L40"],
 		["precision", [], "L14"],
 		["newall", ["L55", "L56", "L57", "L58", "L54"], "L14"],
@@ -880,6 +895,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 			"proceedings":
 				expect(text.L23.contains("1.6″ ± 0.3″"), "London gives the Príncipe figure reported at the meeting")
 			"principal":
+				await _london_arrival(meeting, text)
 				var historical: Array = meeting.historical_chart.rows
 				expect(historical.size() == 2 and historical[0].value == 1.98 and historical[0].sigma == 0.12
 					and historical[1].value == 1.61 and historical[1].sigma == 0.30,
@@ -907,17 +923,11 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 				expect(has_text(paper, line), "the spoken line survives into the workbook and final hold")
 		if meeting.historical_chart and meeting.historical_chart.rows.size() == 3:
 			var astro: Dictionary = meeting.historical_chart.rows[2]
-			expect(astro.value == 0.93 and astro.other_value == 1.52 and astro.no_bar,
+			expect(astro.value == 0.93 and astro.other_value == 1.52 and not astro.has("sigma"),
 				"the same unbarred astrograph pair stays visible on the historical chart")
 		await _london_frame(paper, state)
-		if state == "exchange" and london_captures and locale == "en":
-			Settings.text_scale = 1.2
-			Settings.refresh_fonts(self)
-			meeting.refresh_fonts()
-			await _london_frame(paper, state, "_scale_1_2")
-			Settings.text_scale = 1.0
-			Settings.refresh_fonts(self)
-			meeting.refresh_fonts()
+		if state == "proceedings" and london_captures:
+			Engine.time_scale = 1.0
 		await press(button(paper, text[sheet[2]]))
 	await _london_print(chapter, text.L14)
 	for frame in 150:
@@ -987,10 +997,47 @@ func _london_annotate(meeting: Control, text: Dictionary, pick: String, notes: A
 		"the complete annotation starts with the selected note")
 
 
-func _london_frame(paper: Control, state: String, suffix := "") -> void:
-	if not london_captures:
+func _london_arrival(meeting: Control, text: Dictionary) -> void:
+	var chart: Control = meeting.historical_chart
+	var paper: Control = meeting.paper
+	var advance := button(paper, text.L14)
+	expect(chart.custom_minimum_size.y >= 450.0 and advance.disabled,
+		"London starts on a half-screen plate and holds Continue for the result")
+	expect(chart.beat == 0 and not has_text(paper, text.L22) and not has_text(paper, text.L23),
+		"the axes precede both reports")
+	if london_captures:
+		var dimensions := Vector2i(1280, 720)
+		var stills := {44: "axis", 109: "sobral", 176: "principe"}
+		var motion := L.current() == "en" and Settings.text_scale == 1.0
+		for frame in (240 if motion else 177):
+			await RenderingServer.frame_post_draw
+			if stills.has(frame):
+				var state: String = "london_principal_" + stills[frame]
+				expect(chart.beat == stills.keys().find(frame) and chart.stroke == 1.0,
+					"capture the completed stroke of " + state)
+				_save_capture(state, state + "_" + L.current() + _london_scale_suffix() + ".png", dimensions)
+			if motion and frame % 2 == 0:
+				_save_capture("london_arrival frame %03d" % frame, "london_arrival_%03d_en.png" % frame, dimensions)
+		Engine.time_scale = 2.0
+	else:
+		for beat in [1, 2]:
+			await chart.beat_started
+			expect(chart.beat == beat and (not Settings.reduced_motion or chart.stroke == 1.0)
+				and has_text(paper, text.L22) and has_text(paper, text.L23) == (beat == 2),
+				"London stages the reports in order, with an instant stroke under reduced motion")
+		if advance.disabled:
+			await chart.arrived
+	expect(not advance.disabled, "Continue resumes after the results have arrived")
+
+
+func _london_scale_suffix() -> String:
+	return "_scale_1_2" if Settings.text_scale == 1.2 else ""
+
+
+func _london_frame(paper: Control, state: String) -> void:
+	if not london_captures or state == "principal":
 		return
-	await _paper_frame(paper, "london_" + state, suffix)
+	await _paper_frame(paper, "london_" + state, _london_scale_suffix())
 
 
 func _paper_frame(paper: Control, state: String, suffix := "") -> void:
