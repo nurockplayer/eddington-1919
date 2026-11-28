@@ -2370,3 +2370,16 @@ What I looked at: en 1.0, en 1.2, ja 1.2, ko 1.2 whole at 1280x720. Not looked a
 ![en 1.0](slice_principe/accept/635-80048ac/en-1.0.jpg)
 ![ja 1.2](slice_principe/accept/635-80048ac/ja-1.2.jpg)
 
+## #637 · F1 Roça Sundy house, follow-up: accepted at d20a25b3, row 8a met (2026-11-29 00:38 JST)
+
+What I looked at: candidate arrival daylight and totality, the nameboard from the shelter and at 3 m, main arrival daylight. Not looked at: early-partial, the turn frames, the shelter stills. Story suite 64/0; row 9 worst p95 −0.22 ms.
+
+- **Technical regression:** none seen.
+- **The change: accepted; row 8a met.** A grey box with a clipped sans sign becomes a single-storey hipped-roof verandah house in ink-grey, ruled boards, shutters, steps, and ROÇA SUNDY in the book serif.
+- **Whole-scene readiness: not accepted.** The house stands on bare paper; no yard or path meets it. Next F1 item: ground dressing. The held arrival plate is now redrawn to this model.
+
+![candidate](slice_principe/accept/637-d20a25b/candidate-arrival-daylight.jpg)
+![main](slice_principe/accept/637-d20a25b/main-arrival-daylight.jpg)
+![from the shelter](slice_principe/accept/637-d20a25b/candidate-sign-shelter-daylight.jpg)
+![at 3 m](slice_principe/accept/637-d20a25b/candidate-sign-3m-daylight.jpg)
+
