@@ -10,7 +10,7 @@ const Predictions := preload("res://scripts/content.gd")
 const Paper := preload("res://scripts/cambridge/interlude_paper.gd")
 const Chart := preload("res://scripts/cambridge/london_chart.gd")
 const Portrait := preload("res://scripts/cambridge/dialogue_portrait.gd")
-const Report := preload("res://scripts/cambridge/report_sheet.gd")
+const EDDINGTON_PRINT := preload("res://assets/portraits/eddington_engraving.jpg")
 const Cast := preload("res://scripts/cambridge/cast.gd")
 
 var paper: Control
@@ -77,6 +77,8 @@ func _show_page() -> void:
 	else:
 		paper.advance(_text[page.get("advance", "L14")])
 	if page_id == "principal":
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		paper.body.add_theme_constant_override("separation", 8)
 		var advance: Button = paper.actions.get_child(0)
 		advance.disabled = true
 		historical_chart.beat_started.connect(_show_report)
@@ -127,15 +129,16 @@ func _show_report(beat: int) -> void:
 		_show_lines(["L22"])
 		return
 	var row: HBoxContainer = paper.columns(paper.body)
-	var portrait := Portrait.new()
+	var portrait := TextureRect.new()
+	portrait.texture = Portrait.paper_oval(EDDINGTON_PRINT)
+	portrait.custom_minimum_size = Vector2(66, 88)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(portrait)
-	portrait.setup(Report.INK)
-	portrait.image.custom_minimum_size = Vector2(76, 94)
-	portrait.disclosure.hide()
-	portrait.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	portrait.prints_override[Cast.EDDINGTON] = "res://assets/portraits/eddington_engraving.jpg"
-	portrait.show_entry({"s": Cast.EDDINGTON})
-	paper.label(paper.column(row), _text.L23, 24)
+	var report: VBoxContainer = paper.column(row)
+	report.alignment = BoxContainer.ALIGNMENT_CENTER
+	paper.label(report, _text.L23, 24)
 
 
 func _show_lines(ids: Array) -> void:
@@ -169,6 +172,12 @@ func _show_choices(page: Dictionary, scroll: ScrollContainer) -> void:
 	else:
 		paper.actions.show()
 		paper.button(paper.actions, _text.L53, "commit").grab_focus()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if page_id == "principal" and historical_chart.is_processing() and event.is_action_pressed("ui_accept"):
+		get_viewport().set_input_as_handled()
+		historical_chart.finish_arrival()
 
 
 func _action(id: String) -> void:

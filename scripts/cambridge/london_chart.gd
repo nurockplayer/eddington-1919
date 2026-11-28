@@ -11,7 +11,10 @@ const GUIDE := Color(0.47, 0.39, 0.29)
 const ASHBY := Color(0.47, 0.23, 0.17)
 const PLAYER := Color(0.21, 0.33, 0.36)
 const REFERENCES := [0.0, 0.87, 1.75]
-const BEAT_SECONDS := 1.12
+const AXIS_COMPLETE_SECONDS := 0.5
+const SOBRAL_LANDS_SECONDS := 2.0
+const PRINCIPE_LANDS_SECONDS := 4.5
+const CONTINUE_LIVE_SECONDS := 6.0
 const STROKE_SECONDS := 0.46
 
 var rows: Array
@@ -34,14 +37,30 @@ func refresh_fonts() -> void:
 
 
 func _process(delta: float) -> void:
-	_elapsed += delta
-	var next := mini(int(_elapsed / BEAT_SECONDS), rows.size())
-	stroke = 1.0 if Settings.reduced_motion else smoothstep(0.0, STROKE_SECONDS, _elapsed - next * BEAT_SECONDS)
+	_update_arrival(_elapsed + delta)
+
+
+func finish_arrival() -> void:
+	_update_arrival(CONTINUE_LIVE_SECONDS)
+
+
+func _update_arrival(elapsed: float) -> void:
+	_elapsed = elapsed
+	var next := 0
+	var start := 0.0
+	if elapsed >= PRINCIPE_LANDS_SECONDS:
+		next = 2
+		start = PRINCIPE_LANDS_SECONDS
+	elif elapsed >= SOBRAL_LANDS_SECONDS:
+		next = 1
+		start = SOBRAL_LANDS_SECONDS
+	var duration := AXIS_COMPLETE_SECONDS if next == 0 else STROKE_SECONDS
+	stroke = 1.0 if Settings.reduced_motion else smoothstep(0.0, duration, elapsed - start)
 	while beat < next:
 		beat += 1
 		beat_started.emit(beat)
 	queue_redraw()
-	if beat == rows.size() and stroke == 1.0:
+	if elapsed >= CONTINUE_LIVE_SECONDS:
 		set_process(false)
 		arrived.emit()
 
@@ -78,7 +97,11 @@ func _draw() -> void:
 	_print("%s · %s" % [labels.L24, labels.L25], size.x / 2, 33.0, Report.INK, true)
 	var line_height := get_theme_default_font().get_height(Settings.fs(20))
 	var top := 67.0 + 2.0 * line_height
-	var bottom := size.y - line_height - 26.0
+	var axis_label_y := size.y - 16.0
+	if rows.size() == 2:
+		_print(labels.L29, size.x / 2, axis_label_y, Report.INK, true)
+		axis_label_y -= line_height + 4.0
+	var bottom := axis_label_y - line_height - 10.0
 	var axis := stroke if beat == 0 else 1.0
 	draw_line(Vector2(_x(0), bottom), Vector2(lerpf(_x(0), _x(2.32), axis), bottom), Report.INK, 2.0, true)
 	for i in REFERENCES.size():
@@ -88,7 +111,7 @@ func _draw() -> void:
 		var x := _x(value)
 		draw_dashed_line(Vector2(x, bottom), Vector2(x, lerpf(bottom, top, axis)), GUIDE, 1.5, 5.0, true, true)
 		draw_line(Vector2(x, bottom - 5), Vector2(x, bottom + 6), Report.INK, 2.0, true)
-		_print(labels["L%d" % (26 + i)], x, size.y - 16.0, Report.INK, true)
+		_print(labels["L%d" % (26 + i)], x, axis_label_y, Report.INK, true)
 	if axis == 1.0:
 		_prediction(0.87, labels.L04, 43.0 + line_height, ASHBY, false)
 		var value: float = REFERENCES[pick] if pick >= 0 and pick < REFERENCES.size() else -1.0

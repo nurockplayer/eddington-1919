@@ -632,14 +632,7 @@ func _layout_dialogue_portrait() -> void:
 		column = dialogue_portrait.size.x + 16.0
 		if image.texture != _portrait_oval and image.texture != null:
 			_portrait_source = image.texture
-			var pixels := _portrait_source.get_image()
-			pixels.convert(Image.FORMAT_RGBA8)
-			pixels.resize(96, 128)
-			for y in 128:
-				for x in 96:
-					if Vector2((x - 47.5) / 47.5, (y - 63.5) / 63.5).length_squared() > 1.0:
-						pixels.set_pixel(x, y, Color.TRANSPARENT)
-			_portrait_oval = ImageTexture.create_from_image(pixels)
+			_portrait_oval = DialoguePortrait.paper_oval(_portrait_source)
 			image.texture = _portrait_oval
 	elif _portrait_source != null and dialogue_portrait.image.texture == _portrait_oval:
 		dialogue_portrait.image.texture = _portrait_source

@@ -871,7 +871,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 		["simulation", ["L15"], "L14"],
 		["threshold", ["L85", "L86", "L87", "L12"], "L13"],
 		["proceedings", ["L19", "L20", "L21"], "L14"],
-		["principal", ["L29"], "L14"],
+		["principal", [], "L14"],
 		["scale", ["L32", "L33", "L34", "L35", "L36", "L37", "L38", "L39"], "L40"],
 		["precision", [], "L14"],
 		["newall", ["L55", "L56", "L57", "L58", "L54"], "L14"],
@@ -904,28 +904,23 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 				var precision := {"en": "L43", "ja": "L50", "zh_TW": "L47", "ko": "L50"}
 				var notes := {"L43": ["L44", "L45", "L46"], "L47": ["L48", "L49", "L46"], "L50": ["L51", "L52"]}
 				await _london_annotate(meeting, text, precision[locale], notes[precision[locale]], "L54")
-				state = "precision_attached"
 			"open_test":
 				var test := {"en": "L70", "ja": "L68", "zh_TW": "L66", "ko": "L68"}
 				var order := {"L70": ["L71", "L67", "L69"], "L68": ["L69", "L67", "L71"], "L66": ["L67", "L69", "L71"]}
 				await _london_annotate(meeting, text, test[locale], order[test[locale]], "L72")
-				state = "open_test_attached"
 			"reply":
-				await _london_frame(paper, state)
 				await press(button(paper, text.reservation))
 				expect(has_text(paper, text.reservation), "the reservation can be previewed")
 				if strong:
 					await press(button(paper, text.L80))
 					await press(button(paper, text.reason))
 				expect(has_text(paper, line), "the chosen words appear before committing")
-				state = "reply_preview"
 			"workbook", "hold":
 				expect(has_text(paper, line), "the spoken line survives into the workbook and final hold")
 		if meeting.historical_chart and meeting.historical_chart.rows.size() == 3:
 			var astro: Dictionary = meeting.historical_chart.rows[2]
 			expect(astro.value == 0.93 and astro.other_value == 1.52 and not astro.has("sigma"),
 				"the same unbarred astrograph pair stays visible on the historical chart")
-		await _london_frame(paper, state)
 		if state == "proceedings" and london_captures:
 			Engine.time_scale = 1.0
 		await press(button(paper, text[sheet[2]]))
@@ -985,11 +980,9 @@ func _london_print(chapter: Node, next: String) -> void:
 
 func _london_annotate(meeting: Control, text: Dictionary, pick: String, notes: Array, close: String) -> void:
 	var paper: Control = meeting.paper
-	await _london_frame(paper, meeting.page_id)
 	await press(button(paper, text[pick]))
 	expect(has_text(paper, text[notes[0]]) and not has_text(paper, text[close]),
 		"the selected note previews before it is attached")
-	await _london_frame(paper, meeting.page_id + "_preview")
 	await press(button(paper, text.L53))
 	var lines: Array = paper.body.find_children("*", "Label", true, false).map(func(label): return label.text)
 	var start := lines.find(text[notes[0]])
@@ -1007,9 +1000,9 @@ func _london_arrival(meeting: Control, text: Dictionary) -> void:
 		"the axes precede both reports")
 	if london_captures:
 		var dimensions := Vector2i(1280, 720)
-		var stills := {44: "axis", 109: "sobral", 176: "principe"}
+		var stills := {60: "axis", 180: "sobral", 330: "principe"}
 		var motion := L.current() == "en" and Settings.text_scale == 1.0
-		for frame in (240 if motion else 177):
+		for frame in (420 if motion else 362):
 			await RenderingServer.frame_post_draw
 			if stills.has(frame):
 				var state: String = "london_principal_" + stills[frame]
@@ -1019,6 +1012,11 @@ func _london_arrival(meeting: Control, text: Dictionary) -> void:
 			if motion and frame % 2 == 0:
 				_save_capture("london_arrival frame %03d" % frame, "london_arrival_%03d_en.png" % frame, dimensions)
 		Engine.time_scale = 2.0
+	elif L.current() == "ja":
+		await tap(KEY_ENTER)
+		expect(meeting.page_id == "principal" and chart.beat == 2 and chart.stroke == 1.0
+			and has_text(paper, text.L22) and has_text(paper, text.L23) and not advance.disabled,
+			"one accept completes both reports and unlocks Continue on the same sheet")
 	else:
 		for beat in [1, 2]:
 			await chart.beat_started
@@ -1028,6 +1026,11 @@ func _london_arrival(meeting: Control, text: Dictionary) -> void:
 		if advance.disabled:
 			await chart.arrived
 	expect(not advance.disabled, "Continue resumes after the results have arrived")
+	await frames(3)
+	var scroll: ScrollContainer = paper.body.get_parent()
+	var report: Control = paper.body.get_child(-1)
+	expect(not scroll.get_v_scroll_bar().visible and scroll.get_global_rect().grow(1.0).encloses(report.get_global_rect()),
+		"%s at %.1f shows the whole Príncipe report and portrait in the first view" % [L.current(), Settings.text_scale])
 
 
 func _london_scale_suffix() -> String:
