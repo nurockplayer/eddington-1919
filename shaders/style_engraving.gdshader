@@ -21,6 +21,7 @@ uniform bool before_second_contact = false;
 // The sky's live cloud field, including the rehearsal override.
 uniform sampler2D cloud_tex : repeat_enable, filter_linear;
 uniform float cloud_time = 0.0;
+uniform float day_cloud_cover = 0.0;
 uniform float middle_seam_time = -100.0;
 uniform vec3 third_contact_cloud_clock = vec3(302.0, 2.5, 3.333333);
 uniform float day_return_cloud_time = -1.0; // cloud plate at the start of the light return
@@ -379,21 +380,25 @@ void fragment() {
 			cloud_wash *= sky_plate_darkness;
 		}
 		if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {
-			// Cut the body and rule it in the same moving cloud plane. Horizon
-			// haze belongs to optical density, so it never opens a ruled body.
-			float stroke = dot(cloud_uv, vec2(0.6, 0.8)) / 0.28;
+			// Shallow arcs of constant elevation, centred at the start-of-prep
+			// zenith in the moving cloud plane, keep their phase as the bank drifts.
+			float stroke = atan(cloud_scale, length(cloud_uv + wind * -150.0)) / 0.032;
 			float stroke_pixel = max(length(vec2(dFdx(stroke), dFdy(stroke))), 0.00001);
 			float stroke_aa = 0.5 * stroke_pixel;
-			float body = smoothstep(0.60, 0.67, field_density);
-			float weight = smoothstep(0.67, 0.95, field_density);
-			float half_width = mix(0.42, 0.64, weight) * res_k * stroke_pixel;
+			// The measured cover sets how much of the field prints. Local
+			// density still cuts the bodies and leaves paper between them.
+			float cover = smoothstep(0.18, 0.94, day_cloud_cover);
+			float boundary = mix(0.96, 0.38, cover);
+			float body = smoothstep(boundary, boundary + 0.04, field_density);
+			float weight = smoothstep(0.50, 0.94, day_cloud_cover) * smoothstep(0.45, 0.83, field_density);
+			float half_width = mix(0.56, 1.05, weight) * res_k * stroke_pixel;
 			float primary_stroke = line_cov(abs(fract(stroke + 0.5) - 0.5), half_width, stroke_aa);
 			float middle_stroke = line_cov(abs(fract(stroke) - 0.5),
 				half_width * weight, stroke_aa);
 			float density_pixel = max(length(vec2(dFdx(field_density), dFdy(field_density))), 0.00001);
-			float contour = line_cov(abs(field_density - 0.60), 0.52 * res_k * density_pixel, 0.5 * density_pixel);
-			float ruling_ink = body * mix(0.13, 0.30, weight) * max(primary_stroke, middle_stroke);
-			float cloud_ink = max(0.15 * contour, ruling_ink) * (1.0 - smoothstep(0.12, 0.28, stroke_pixel));
+			float contour = line_cov(abs(field_density - boundary), 0.52 * res_k * density_pixel, 0.5 * density_pixel);
+			float ruling_ink = body * mix(0.26, 0.63, weight) * max(primary_stroke, middle_stroke);
+			float cloud_ink = max(0.20 * contour, ruling_ink);
 			ink = mix(cloud_ink * band_lines, ink, smoothstep(0.0, 0.35, print_darkness));
 		}
 		sky_white = horizon * 0.85;

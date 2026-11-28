@@ -54,11 +54,12 @@ func _run() -> void:
 		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
 		"the existing cloud plate grades its ruling and wash with darkness")
 	check(shader_text.contains("if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {")
-		and shader_text.contains("float stroke = dot(cloud_uv, vec2(0.6, 0.8)) / 0.28;")
+		and shader_text.contains("atan(cloud_scale, length(cloud_uv + wind * -150.0))")
 		and cloud_shader.contains("return d.xz / max(d.y, 0.06) * cloud_scale - wind * time;")
 		and cloud_shader.contains("field_density = texture(cloud_tex, uv).r;")
-		and shader_text.contains("float body = smoothstep(0.60, 0.67, field_density);")
-		and shader_text.contains("abs(field_density - 0.60)")
+		and shader_text.contains("float boundary = mix(0.96, 0.38, cover);")
+		and shader_text.contains("float body = smoothstep(boundary, boundary + 0.04, field_density);")
+		and shader_text.contains("abs(field_density - boundary)")
 		and shader_text.contains("ink = mix(cloud_ink * band_lines, ink,"),
 		"daylight cloud outline and ruling use the same advected field, with ruling inside the outline")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
@@ -132,8 +133,11 @@ func _run() -> void:
 	check(material.get_shader_parameter("night") == 0.0, "totality is daytime")
 	_check_totality_visibility(shader_text, material, 0.0)
 	_check_totality_visibility(shader_text, material, 1.0)
-	game._apply_light(0.62, 0.0, -150.0, 0.0)
+	game._apply_light(0.62, 0.0, -150.0, 0.0, true)
 	check(material.get_shader_parameter("darkness") == 0.0, "daylight darkness")
+	var day_cover: Variant = material.get_shader_parameter("day_cloud_cover")
+	check(day_cover is float and is_equal_approx(day_cover, game.sim.cloud_over_sun(-150.0)),
+		"daylight engraving receives the measured cloud cover")
 	game._apply_light(0.62, 0.0, -150.0, 1.0)
 	check(material.get_shader_parameter("night") == 1.0, "night follows lighting")
 	for mesh in pilot:
