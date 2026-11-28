@@ -2103,3 +2103,37 @@ Next: wire these three; a second batch for the chapters still without a place (L
 ![Burlington House](slice_principe/plates/journey-20261128/burlington-house-v2.jpg)
 
 **Count stays 7/9.**
+
+## Object vignettes, ending plate, ornaments · generated batch two (2026-11-28 17:53 JST)
+
+Second image batch of the Owner's 2026-11-28 request: nine candidates for F4, F7 and F8. Raws, prompts and hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/vignettes/2026-11-28/manifest.json`. (The previous entry's header time should read 17:48 JST.)
+
+What I looked at: all nine raws whole at native size, the ending mock and the Cambridge mock. Not looked at: the journey-sheet mock.
+
+**Technical regression:** none possible, nothing is wired. **The change:** candidates. **Whole-scene readiness:** not judged; no in-engine frame yet.
+
+Accepted as candidates:
+- **Coelostat and tube under the shelter (01), measuring micrometer (04), darkroom bench (02), steamer (05).** These are instrument-catalogue figures: finer and paler than the journey plates, object alone on bare paper. That is the right register for a figure set into a page of text, and they sit with the portraits. 04 is the best of the batch. 02 is the softest: the bottles lean toward airbrush; usable small.
+- **Totality over the clearing (06).** A real picture: black Sun, hatched dark sky, palms, the shelter, two men from behind. The cut is coarser than the portraits, a wood-engraving hand; for a night scene I take it. One reservation: helmet, breeches and puttees read as soldier or explorer, not as two astronomers. Kept as a candidate for the page that tells what happened in history; not the title (in-engine plate, F4) and not the ending's lead image (the player's own plate).
+- **Headpiece (07) and tailpiece (08).** Plain and in taste: an eclipsed Sun on a double rule, dividers among stars. Marks for chapter heads and ends.
+
+Not accepted:
+- **Plate box, holder and loupe (03).** Soft pencil shading, three dull objects on a table; says nothing the 3D props do not.
+- **Rule border (09).** Four lines and four blocks: drawn in code if ever needed.
+
+Two things the mocks settled:
+1. **The ending mock shows the plate at 304 px: a stamp over a column of text.** A plate on the ending needs its own page or the full width. It does not rescue that screen; the ending stays on the F4 list as a layout job.
+2. **A cream frame round the Cambridge panel does not move F8.** The panel is still a dark product with sans type; the frame reads as pasted on. F8 stays a restyle of the panel itself, and generated ornament is not its means.
+
+Next: after the plate wiring PR (same sheets), one brief sets the four figures where their objects are first named and the head and tail marks on the chapters.
+
+![micrometer](slice_principe/plates/vignettes-20261128/04-measuring-micrometer.jpg)
+![coelostat](slice_principe/plates/vignettes-20261128/01-coelostat.jpg)
+![darkroom bench](slice_principe/plates/vignettes-20261128/02-darkroom-bench.jpg)
+![steamer](slice_principe/plates/vignettes-20261128/05-cargo-steamer.jpg)
+![totality](slice_principe/plates/vignettes-20261128/06-totality-ending.jpg)
+![not accepted: plate box](slice_principe/plates/vignettes-20261128/03-plate-box-holder-loupe.jpg)
+![ending mock](slice_principe/plates/vignettes-20261128/mock-ending-review.png)
+![Cambridge mock](slice_principe/plates/vignettes-20261128/mock-cambridge-star-field.png)
+
+**Count stays 7/9.**
