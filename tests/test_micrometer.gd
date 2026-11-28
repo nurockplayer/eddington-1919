@@ -94,7 +94,7 @@ func _send_input(event, pressed: bool) -> void:
 	Input.flush_buffered_events()
 
 
-func _check_nudge_cadence(ui: Control, pad: bool) -> void:
+func _check_nudge_cadence(ui: CanvasLayer, pad: bool) -> void:
 	var device := "pad" if pad else "keyboard"
 	var right
 	var left
