@@ -2265,3 +2265,22 @@ The capture's "candidate pops" are not pops: the cluster at frames 137 to 144 is
 ![ground, four consecutive frames](slice_principe/accept/main-row2/176b5f0/day_clear_780_ground.jpg)
 
 **Count stays 7/9** (rows 2 and 8 open).
+
+## Row 8 contrast, re-measured (#639): the table now agrees with the eye (2026-11-28 19:38 JST)
+
+New packet on the same main 176b5f0 frames: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/row8f-contrast/7a9d31429cd56e0c5a9987934889a41562e2f551/index.md`, 171 text rows under 4.5:1.
+
+Spot-check, five rows against frames I have looked at whole at native size: drive trim (now 9.0 to 13.6; black on cream, agrees), a briefing line (7.4 to 12.8; agrees), the after-totality lines (2.8 to 3.9; agrees, they are weak), the night choices (3.0 to 4.2; salmon on dark red, soft but legible, agrees), the plate viewer caption (4.3; agrees). The measure is usable. Not checked: the other rows one by one.
+
+The failures are four things, not 171:
+1. **The slip after totality.** The sky is already grey daylight; the slip is still slate blue with pale grey text, and the portrait's caption is two colours in one line ("Recons" dark, "tructed portrait" pale): a palette caught half-way. 2.0 to 3.9.
+2. **The safelight slip at night.** Salmon text on dark red: 2.9 to 4.2 for body and choices.
+3. **The small print everywhere.** "[E/Space/Click] Continue", "[1–3 or click] Choose", "Reconstructed portrait, not a historical photograph": the lowest numbers in every palette (2.0 to 3.6).
+4. **Dimmed text in pause, help, history, credits and prompts at night** (3.5 to 4.4).
+
+This is fix row 8e; brief `vis-row8e-slip.md`.
+
+![after totality](slice_principe/accept/main-row8/176b5f0/720-100_day-return_after-totality-2.jpg)
+![night](slice_principe/accept/main-row8/176b5f0/720-100_night_prediction-1.jpg)
+
+**Count stays 7/9.**
