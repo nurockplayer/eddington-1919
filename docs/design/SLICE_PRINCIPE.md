@@ -2395,3 +2395,11 @@ Next: wired with Cambridge v2 as the second follow-up on #636.
 ![v3, accepted](slice_principe/plates/journey-20261129-b4/sundy-arrival-v3.jpg)
 ![v2, party wrong](slice_principe/plates/journey-20261129-b4/sundy-arrival-v2.jpg)
 
+## #641 · row 2 daylight sky: not accepted at ce5a4efd (2026-11-29 00:50 JST)
+
+What I looked at: turn frames 700-703 stepped, walk frame 300 main vs candidate, clear/thin/thick/totality stills main vs candidate. Not looked at: the MP4s (I step frames), other walk frames.
+
+- **Technical regression: blocker.** Clear, thin and thick daylight skies render alike, near-blank paper; cloud cover no longer reads (the sim-truth rule).
+- **The change:** lines now travel with the cloud (slip p95 6.0 → 0.04 px/frame) and the contour map is gone; but the ruling fans in perspective into long diagonals that read as rain.
+- **Readiness:** not judged. Row 2 count unchanged. Follow-up vis-row2-sky-fu1 sent.
+
