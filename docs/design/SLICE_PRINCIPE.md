@@ -2137,3 +2137,25 @@ Next: after the plate wiring PR (same sheets), one brief sets the four figures w
 ![Cambridge mock](slice_principe/plates/vignettes-20261128/mock-cambridge-star-field.png)
 
 **Count stays 7/9.**
+
+## Surface sheets and decals · generated batch three: three of nine, and not yet a way in (2026-11-28 17:54 JST)
+
+Third image batch of the Owner's 2026-11-28 request, for F1 and F7: six tiling sheets and three decals. Raws, prompts and hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/surfaces/2026-11-28/manifest.json`.
+
+What I looked at: the contact sheet, and the 1024 px tiles of earth, timber and roof tiles whole at native size. Not looked at: the 3x3 previews, the keyed decals at native size, anything in engine.
+
+**Verdict: a weaker batch, and the lane is not scaled.**
+- **Line, kept as candidates: trodden earth, timber planks, clay roof tiles.** At native size all three are cut, not washed: the earth has stones and tufts, the tiles are ruled along their curve. The timber and the roof tiles show a pale horizontal band at mid-height where the seam was blended; that must be redone before either is used.
+- **Wash, not accepted: limewashed plaster, zinc bench top, damp stain.** Grey cloud with no line; exactly what the recipe forbids. A wall in this book is bare paper with a few cracks drawn on it, and that needs no texture.
+- **Not accepted: the footpath** (reads as a bristled caterpillar on white) **and the canvas** (a weave, flat). **Fallen fronds:** drawn well, but a single cluster; of use as one decal at most.
+
+The fact that matters more than the pictures (worker's reading of `scripts/world_builder.gd`): ground, house walls and darkroom bench carry a palette colour only; the ground's daytime shader reads no albedo texture, and all hatching comes from the screen-space engraving pass. A sheet with its own hatching under that pass is hatching on hatching. Whether that reads as richer or as moire is not something a contact sheet can say.
+
+Next: one in-engine test before any more surface images: earth on the camp ground, roof tiles and timber on the new Sundy house, after the F1 house run lands (same file) and with the GPU switch on. Things to look at (people, places, instruments) come from plates and models, which is where the image lane goes on.
+
+![contact sheet](slice_principe/plates/surfaces-20261128/contact-sheet.png)
+![earth](slice_principe/plates/surfaces-20261128/trodden-earth.jpg)
+![timber](slice_principe/plates/surfaces-20261128/timber-planks.jpg)
+![roof tiles](slice_principe/plates/surfaces-20261128/clay-roof-tiles.jpg)
+
+**Count stays 7/9.**
