@@ -380,17 +380,19 @@ void fragment() {
 			cloud_wash *= sky_plate_darkness;
 		}
 		if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {
-			// Shallow arcs of constant elevation, centred at the start-of-prep
-			// zenith in the moving cloud plane, keep their phase as the bank drifts.
-			float stroke = atan(cloud_scale, length(cloud_uv + wind * -150.0)) / 0.032;
+			// Offset the radial phase along the Sun's bearing to make open
+			// parabolas. Their broad bends stay with the drifting cloud field.
+			vec2 plane = (cloud_uv - wind * 150.0) / cloud_scale;
+			float sweep = length(vec3(plane, 3.0)) + dot(plane, normalize(sun_dir.xz)) - 3.0;
+			float stroke = atan(2.0, sweep) / 0.024;
 			float stroke_pixel = max(length(vec2(dFdx(stroke), dFdy(stroke))), 0.00001);
 			float stroke_aa = 0.5 * stroke_pixel;
 			// The measured cover sets how much of the field prints. Local
 			// density still cuts the bodies and leaves paper between them.
 			float cover = smoothstep(0.18, 0.94, day_cloud_cover);
-			float boundary = mix(0.96, 0.38, cover);
+			float boundary = mix(0.96, 0.54, cover);
 			float body = smoothstep(boundary, boundary + 0.04, field_density);
-			float weight = smoothstep(0.50, 0.94, day_cloud_cover) * smoothstep(0.45, 0.83, field_density);
+			float weight = smoothstep(0.50, 0.94, day_cloud_cover) * smoothstep(boundary, 0.97, field_density);
 			float half_width = mix(0.56, 1.05, weight) * res_k * stroke_pixel;
 			float primary_stroke = line_cov(abs(fract(stroke + 0.5) - 0.5), half_width, stroke_aa);
 			float middle_stroke = line_cov(abs(fract(stroke) - 0.5),
