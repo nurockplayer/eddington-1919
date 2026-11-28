@@ -9,6 +9,7 @@ const Madeira := preload("res://scripts/cambridge/content_madeira.gd")
 const Sundy := preload("res://scripts/cambridge/content_sundy.gd")
 const Epilogue := preload("res://scripts/cambridge/content_epilogue.gd")
 const London := preload("res://scripts/cambridge/content_london.gd")
+const Print := preload("res://scripts/cambridge/content_london_print.gd")
 const Sobral := preload("res://scripts/cambridge/content_sobral.gd")
 const Homeward := preload("res://scripts/cambridge/content_homeward.gd")
 const Report := preload("res://scripts/cambridge/report_sheet.gd")
@@ -38,6 +39,7 @@ var fold_check := false
 var fold_baseline := false
 var i4_captures := false
 var tribunal_captures := false
+var print_captures := false
 var temp_settings := ""
 
 
@@ -235,11 +237,15 @@ func _run() -> void:
 		elif arg.begins_with("--tribunal-captures="):
 			capture_dir = arg.trim_prefix("--tribunal-captures=")
 			tribunal_captures = true
+		elif arg.begins_with("--print-captures="):
+			capture_dir = arg.trim_prefix("--print-captures=")
+			print_captures = true
+			london_only = true
 	fold_check = fold_captures or OS.get_cmdline_user_args().has("--fold-check")
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures or print_captures else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
 		var directory := DirAccess.create_temp("edd-journey", true)
 		expect(directory != null, "create isolated checkpoint directory: " + error_string(DirAccess.get_open_error()))
@@ -812,7 +818,7 @@ func _october(chapter: Node, enabled: bool, tone: String, packet_seen: bool, com
 			if chapter.ui.ending_panel.visible:
 				break
 			await process_frame
-		expect(chapter.ui.ending_panel.visible and chapter.get("london") == null,
+		expect(chapter.ui.ending_panel.visible and chapter.get("london") == null and chapter.get("london_print") == null,
 			"flag off opens the existing ending directly")
 
 
@@ -897,6 +903,7 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 			Settings.refresh_fonts(self)
 			meeting.refresh_fonts()
 		await press(button(paper, text[sheet[2]]))
+	await _london_print(chapter, text.L14)
 	for frame in 150:
 		if chapter.ui.ending_panel.visible:
 			break
@@ -904,6 +911,50 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 	expect(chapter.ui.ending_panel.visible and chapter.ui.ending_review.text.ends_with(line),
 		"the last advance reaches the deferred review with the exact spoken line")
 	expect(run == original, "London leaves the run and October's recorded choices intact")
+
+
+func _london_print(chapter: Node, next: String) -> void:
+	for frame in 150:
+		if chapter.get("london_print") != null and chapter.ui.fade.color.a == 0.0:
+			break
+		await process_frame
+	var paper: Control = chapter.get("london_print")
+	expect(is_instance_valid(paper) and not chapter.ui.ending_panel.visible,
+		"Read the headlines opens In print before the run review")
+	var text := Print.strings()
+	var pages := [
+		["I5-03", "I5-04", "I5-05", "I5-06"], ["I5-16", "I5-17"], ["I5-07", "I5-08", "I5-09"],
+		["I5-18"], ["I5-19", "I5-20", "I5-21"], ["I5-22", "I5-23", "I5-24", "I5-10"],
+		["I5-25"], ["I5-13", "I5-14", "I5-15"], ["I5-11"],
+		["I6-03", "I6-04", "I6-05"], ["I6-06", "I6-07", "I6-08", "I6-09", "I6-10"],
+		["I6-17", "I6-18", "I6-19", "I6-20"], ["I6-11", "I6-12"], ["I6-13", "I6-14", "I6-15"],
+	]
+	for ids in pages:
+		var state: String = ids[0]
+		var fiction := state == "I5-13"
+		var print_sheet := state.begins_with("I5")
+		_check_lines(paper, text, ids)
+		_check_lines(paper, text, ["I5-01" if print_sheet else "I6-01"])
+		expect(has_text(paper, text["I5-02" if print_sheet else "I6-02"]) != fiction,
+			"the historical frame is absent only on the fictional sheet")
+		expect(has_text(paper, text["I5-13"]) == fiction and has_text(paper, text["I5-15"]) == fiction,
+			"Rook's labelled column appears only on its own page")
+		var advance_text: String = text["I5-12"] if state == "I5-11" else (
+			text["I6-16"] if state == "I6-13" else next)
+		var advance := button(paper, advance_text)
+		check_paper_focus(advance)
+		expect(not chapter.ui.ending_panel.visible, "the review waits until after " + state)
+		if print_captures:
+			await _paper_frame(paper, state)
+			if state == "I5-22" and L.current() == "en":
+				Settings.text_scale = 1.2
+				Settings.refresh_fonts(self)
+				paper.refresh_fonts()
+				await _paper_frame(paper, state, "_scale_1_2")
+				Settings.text_scale = 1.0
+				Settings.refresh_fonts(self)
+				paper.refresh_fonts()
+		await press(advance)
 
 
 func _london_annotate(meeting: Control, text: Dictionary, pick: String, notes: Array, close: String) -> void:
@@ -923,14 +974,18 @@ func _london_annotate(meeting: Control, text: Dictionary, pick: String, notes: A
 func _london_frame(paper: Control, state: String, suffix := "") -> void:
 	if not london_captures:
 		return
+	await _paper_frame(paper, "london_" + state, suffix)
+
+
+func _paper_frame(paper: Control, state: String, suffix := "") -> void:
 	await check_paper_layout(paper, state)
 	var scroll: ScrollContainer = paper.body.get_parent()
 	var previous := scroll.scroll_vertical
 	scroll.scroll_vertical = 0
-	await capture("london_" + state, paper, suffix, Vector2i(1280, 720))
+	await capture(state, paper, suffix, Vector2i(1280, 720))
 	if scroll.get_v_scroll_bar().visible:
 		scroll.scroll_vertical = ceili(scroll.get_v_scroll_bar().max_value)
-		await capture("london_" + state, paper, suffix + "_end", Vector2i(1280, 720))
+		await capture(state, paper, suffix + "_end", Vector2i(1280, 720))
 	scroll.scroll_vertical = previous
 
 

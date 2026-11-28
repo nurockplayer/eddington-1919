@@ -14,6 +14,7 @@ const Content := preload("res://scripts/cambridge/content_epilogue.gd")
 const ChartOverlay := preload("res://scripts/cambridge/epilogue_chart.gd")
 const LondonText := preload("res://scripts/cambridge/content_london.gd")
 const London := preload("res://scripts/cambridge/london.gd")
+const LondonPrint := preload("res://scripts/cambridge/london_print.gd")
 const Ending := preload("res://scripts/ending.gd")
 
 enum Beat { OPENING, LETTER, CHART, WEIGHT, LEDGER, ORRERY, ORRERY_TALK, CLOSE, ENDING }
@@ -23,6 +24,7 @@ var player
 var ui
 var chart
 var london: Control
+var london_print: Control
 var _pending := ""
 var _busy := true
 var _clock_t := 0.0
@@ -71,7 +73,9 @@ func _ready() -> void:
 	ui.text_size_button.pressed.connect(func():
 		chart.refresh_fonts()
 		if is_instance_valid(london):
-			london.refresh_fonts())
+			london.refresh_fonts()
+		if is_instance_valid(london_print):
+			london_print.refresh_fonts())
 	ui.dialog_panel.offset_top = -214
 	ui.dialog_panel.offset_bottom = -18
 	ui.dialog_panel.custom_minimum_size.y = 196
@@ -147,7 +151,7 @@ func _process(delta: float) -> void:
 	Room.swing_pendulum(world.pendulum, _light_t)
 	Room.StarDecor.turn_orrery(world.orrery, _light_t)
 	_clock_t += delta
-	if _clock_t >= 1.0 and not is_instance_valid(london):
+	if _clock_t >= 1.0 and not is_instance_valid(london) and not is_instance_valid(london_print):
 		_clock_t -= 1.0
 		tick.play()
 	if _free():
@@ -281,9 +285,17 @@ func _open_london() -> void:
 	await ui.fade_to(0.0, fade_time).finished
 	await london.completed
 	await ui.fade_to(1.0, fade_time).finished
-	# I5 will open on this cut, before the deferred ending review.
 	var line: String = london.committed_line
 	london.queue_free()
+	london_print = LondonPrint.new()
+	london_print.theme = ui.theme_res
+	parent.add_child(london_print)
+	parent.move_child(london_print, ui.pause_panel.get_index())
+	london_print.open()
+	await ui.fade_to(0.0, fade_time).finished
+	await london_print.completed
+	await ui.fade_to(1.0, fade_time).finished
+	london_print.queue_free()
 	_show_ending(line)
 
 

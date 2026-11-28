@@ -5467,3 +5467,165 @@ msgstr "アインシュタインは母への手紙で、イギリスの観測隊
 
 msgid "返回劍橋"
 msgstr "ケンブリッジへ戻る"
+
+msgid "見諸報端"
+msgstr "新聞に載る"
+
+msgid "歷史紀錄・新聞剪報與插圖"
+msgstr "史料・新聞の切り抜きと挿絵"
+
+msgid "The Times・倫敦・1919 年 11 月 7 日・第 12 頁"
+msgstr "The Times・ロンドン・1919年11月7日・12頁"
+
+msgid "REVOLUTION IN SCIENCE.（科學革命。）"
+msgstr "REVOLUTION IN SCIENCE.（科学の革命。）"
+
+msgid "NEW THEORY OF THE UNIVERSE.（新的宇宙理論。）"
+msgstr "NEW THEORY OF THE UNIVERSE.（宇宙の新理論。）"
+
+msgid "NEWTONIAN IDEAS OVERTHROWN.（牛頓的觀念遭推翻。）"
+msgstr "NEWTONIAN IDEAS OVERTHROWN.（ニュートンの考えが覆る。）"
+
+msgid "The New York Times・紐約・1919 年 11 月 10 日・第 17 頁"
+msgstr "The New York Times・ニューヨーク・1919年11月10日・17頁"
+
+msgid "LIGHTS ALL ASKEW IN THE HEAVENS（天上光線全都歪了）"
+msgstr "LIGHTS ALL ASKEW IN THE HEAVENS（天空の光はみな曲がっている）"
+
+msgid "EINSTEIN THEORY TRIUMPHS（愛因斯坦理論獲勝）"
+msgstr "EINSTEIN THEORY TRIUMPHS（アインシュタインの理論が勝利）"
+
+msgid "兩組日食觀測支持愛因斯坦預測的較大光線偏折。第三組對底片尺度很敏感。太陽的譜線仍須另行檢驗。"
+msgstr "二つの日食観測系列がアインシュタインの予測した大きい方の光の曲がりを支持した。三つ目の結果は写真乾板の尺度に左右された。太陽のスペクトル線は別の検証課題として残った。"
+
+msgid "英國・1919 年 11 月 11 日。停戰一週年，舉行兩分鐘默哀。"
+msgstr "英国・1919年11月11日。休戦から一年を迎え、二分間の黙祷が捧げられた。"
+
+msgid "閱讀各方回應"
+msgstr "反響を読む"
+
+msgid "虛構評論專欄"
+msgstr "架空の論説欄"
+
+msgid "埃德蒙・魯克"
+msgstr "エドマンド・ルーク"
+
+msgid "有關太陽的問題還沒有答案。可他們要我們憑一群不肯站在我們這邊的人說的話，站到柏林那邊去。"
+msgstr "太陽についての問いは未回答のままだ。それなのに、こちらの側に立とうとしなかった者たちの言葉を信じ、ベルリンの側に立てという。"
+
+msgid "The New York Times・紐約・1919 年 11 月 9 日。〈Eclipse Showed Gravity Variation〉（日食顯示重力變化）。"
+msgstr "The New York Times・ニューヨーク・1919年11月9日。「Eclipse Showed Gravity Variation」（日食が重力の変化を示した）。"
+
+msgid "O Paiz・里約熱內盧／Correio Paulistano・聖保羅・1919 年 11 月 9 日。哈瓦斯通訊社的電稿把結果說成一條「反射」定律。"
+msgstr "O Paiz・リオデジャネイロ／Correio Paulistano・サンパウロ・1919年11月9日。アヴァス通信社の電報記事は、結果を「反射」の法則と伝えた。"
+
+msgid "The New York Times・紐約・1919 年 11 月 11 日。一篇社論開玩笑說，或許連乘法表都值得懷疑。"
+msgstr "The New York Times・ニューヨーク・1919年11月11日。社説は、九九すら疑わしいかもしれないと冗談を飛ばした。"
+
+msgid "O Jornal・里約熱內盧・1919 年 11 月 12 日。數學家馬諾埃爾・阿莫羅索・科斯塔的〈Theoria de Einstein〉（愛因斯坦的理論）。"
+msgstr "O Jornal・リオデジャネイロ・1919年11月12日。数学者マノエル・アモローゾ・コスタによる「Theoria de Einstein」（アインシュタインの理論）。"
+
+msgid "O Século・里斯本・1919 年 11 月 15 日。〈A Luz Pesa〉（光有重量）。報導由巴黎轉來。"
+msgstr "O Século・リスボン・1919年11月15日。「A Luz Pesa」（光には重さがある）。記事はパリ経由で届いた。"
+
+msgid "Vorwärts・柏林・1919 年 11 月 18 日。〈Revolution in der Wissenschaft〉（科學革命）。"
+msgstr "Vorwärts・ベルリン・1919年11月18日。「Revolution in der Wissenschaft」（科学の革命）。"
+
+msgid "Illustrated London News・倫敦・1919 年 11 月 22 日。W. B. 羅賓遜的插圖採用愛丁頓提供的資料。"
+msgstr "Illustrated London News・ロンドン・1919年11月22日。W. B. ロビンソンの挿絵はエディントンが提供した資料に基づく。"
+
+msgid "星光掠過太陽附近時會改變方向。將抵達的光線沿直線往回延伸，就能看見恆星的視位置如何偏移。"
+msgstr "星の光は太陽の近くを通ると向きを変える。届いた光を直線で逆にたどると、ずれた星の見かけの位置がわかる。"
+
+msgid "日全食時，月球遮住明亮的日面，讓觀測者得以拍攝恆星。藉由比對照片，觀測者能檢驗太陽邊緣偏折量的三種預測：零、約 0.87″ 或約 1.75″。"
+msgstr "皆既中は月が明るい太陽面を隠すため、星を撮影できる。比較写真を用いれば、太陽の縁での光の曲がりについて、ゼロ、約0.87″、約1.75″という三つの予測を検証できる。"
+
+msgid "The Times・倫敦・1919 年 11 月 28 日。愛因斯坦肯定牛頓的成就，並說明兩種理論在一般應用中相當吻合。"
+msgstr "The Times・ロンドン・1919年11月28日。アインシュタインはニュートンの業績をたたえ、通常の応用では二つの理論がよく一致すると説明した。"
+
+msgid "各方回應"
+msgstr "反響"
+
+msgid "歷史紀錄・書信、理事會紀錄、法令與報刊"
+msgstr "史料・書簡、理事会記録、法律と報道"
+
+msgid "亞瑟・愛丁頓致阿爾伯特・愛因斯坦・1919 年 12 月 1 日"
+msgstr "アーサー・エディントンからアルベルト・アインシュタインへ・1919年12月1日"
+
+msgid "愛丁頓寫到日食結果在英國受到的反響。他希望這項工作能幫助英德科學家恢復往來。"
+msgstr "エディントンは日食観測の結果が英国でどう受け止められたかを伝えた。この仕事が英国とドイツの科学者の交流再開を助けることを願った。"
+
+msgid "“It is the best possible thing that could have happened for scientific relations between England and Germany.”\n「就英德兩國的科學關係而言，這是再好不過的事。」"
+msgstr "“It is the best possible thing that could have happened for scientific relations between England and Germany.”\n「イングランドとドイツの科学交流にとって、これ以上望ましいことはありませんでした。」"
+
+msgid "皇家天文學會・金質獎章"
+msgstr "王立天文学会・金メダル"
+
+msgid "1919 年 11 月 14 日・H. H. 特納與詹姆斯・金斯提名愛因斯坦。"
+msgstr "1919年11月14日・H. H. ターナーとジェームズ・ジーンズがアインシュタインを推薦。"
+
+msgid "1919 年 12 月 12 日・理事會選定愛因斯坦，尚待確認。"
+msgstr "1919年12月12日・理事会がアインシュタインを選出。正式決定は持ち越された。"
+
+msgid "1920 年 1 月 9 日・理事會決定不確認授獎。"
+msgstr "1920年1月9日・理事会は授賞を承認しなかった。"
+
+msgid "學會在 1920 年未頒發金質獎章。"
+msgstr "学会は1920年の金メダルを授与しなかった。"
+
+msgid "柏林愛樂音樂廳・1920 年 8 月 24 日"
+msgstr "ベルリン・フィルハーモニー・1920年8月24日"
+
+msgid "一場公開集會抨擊相對論及其提出者。"
+msgstr "公開集会で相対性理論とその提唱者が攻撃された。"
+
+msgid "阿爾伯特・愛因斯坦・Berliner Tageblatt・1920 年 8 月 27 日・第 1–2 頁"
+msgstr "アルベルト・アインシュタイン・Berliner Tageblatt・1920年8月27日・1–2頁"
+
+msgid "Meine Antwort（我的答覆）"
+msgstr "Meine Antwort（私の返答）"
+
+msgid "愛因斯坦在公開回應中說，對他猶太身分的敵意與民族主義情緒是這些攻擊的部分動因。"
+msgstr "アインシュタインは公開の返答で、自分がユダヤ人であることへの敵意とナショナリズムが攻撃の一因だったと述べた。"
+
+msgid "開啟本次觀測回顧"
+msgstr "今回の観測を振り返る"
+
+msgid "La Nouvelle Revue française・巴黎・1919 年 12 月 1 日。〈La Théorie de la gravitation selon Einstein〉（愛因斯坦的重力理論）。保羅・瓦勒里翻譯了一篇歸於伯特蘭・羅素名下的 Athenæum 文章。"
+msgstr "La Nouvelle Revue française・パリ・1919年12月1日。「La Théorie de la gravitation selon Einstein」（アインシュタインの重力理論）。ポール・ヴァレリーが、バートランド・ラッセルの筆とされる Athenæum の記事を訳した。"
+
+msgid "《性別資格限制（撤銷）法》・1919 年 12 月 23 日。該法涵蓋的專業與公職，不再能以性別或婚姻狀態取消資格。第 3 條讓大學自行決定是否接納女性為成員或授予學位。"
+msgstr "性別による資格制限を撤廃する法律・1919年12月23日。法律の対象となる専門職や公職から、性別や婚姻を理由に人を排除できなくなった。第3条では、女性を大学の構成員として認めるか、学位を授与するかは大学の裁量に委ねられた。"
+
+msgid "《天文月報》（天文學月刊）・1920 年 1 月 JST。日本天文學會的期刊報導，日食結果與愛因斯坦的預測大致吻合。"
+msgstr "『天文月報』・1920年1月 JST。日本天文学会の会誌は、日食観測の結果がおおむねアインシュタインの予測と一致すると報じた。"
+
+msgid "Electrical Experimenter・紐約・1920 年 3 月・第 1165 頁。漫畫讓地球說：「哎呀，我想我該剪頭髮了！」"
+msgstr "Electrical Experimenter・ニューヨーク・1920年3月・1165頁。漫画の地球は言う。「おや、そろそろ髪を切らなくちゃ！」"
+
+msgid "愛因斯坦的理論"
+msgstr "アインシュタインの理論"
+
+msgid "光有重量"
+msgstr "光には重さがある"
+
+msgid "科學革命"
+msgstr "科学の革命"
+
+msgid "愛因斯坦的重力理論"
+msgstr "アインシュタインの重力理論"
+
+msgid "天文學月刊"
+msgstr "天文学の月刊会誌"
+
+msgid "我的答覆"
+msgstr "私の返答"
+
+msgid "恆星的真實位置"
+msgstr "星の実際の位置"
+
+msgid "恆星的視位置"
+msgstr "星の見かけの位置"
+
+msgid "Einstein Archives ALS 9-260"
+msgstr "Einstein Archives ALS 9-260"
