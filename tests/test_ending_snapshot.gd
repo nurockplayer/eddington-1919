@@ -7,6 +7,7 @@ extends SceneTree
 const Sim := preload("res://scripts/eclipse_sim.gd")
 const Judgment := preload("res://scripts/judgment.gd")
 const Ending := preload("res://scripts/ending.gd")
+const Content := preload("res://scripts/content.gd")
 
 const TEXTS := ["title", "body", "history", "review", "telegram"]
 # Every field the ending reads from the stored run. build() must not need the live sim.
@@ -48,6 +49,12 @@ func _run() -> void:
 	check(measured_bounds.has("lo") and measured_bounds.has("hi"), "measured run records the interval bounds")
 	check(empty_bounds.is_empty(), "no-measurement run records empty interval bounds")
 
+	_check_review(game, story, _honest(), 2)
+	var empty := _rushed()
+	empty.plates = []
+	_check_review(game, story, empty, -1)
+	_check_history_heading(game, story)
+
 	var recall: Dictionary = runs[0].snapshot.duplicate(true)
 	for entry in [["consistent", "相符"], ["overclaim", "說得比你的誤差範圍滿"], ["underclaim", "比你的誤差範圍保守"]]:
 		recall["verdict"] = 2
@@ -73,6 +80,61 @@ func _run() -> void:
 
 	print("ENDING SNAPSHOT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
+
+
+func _check_review(game: Node, story: Node, spec: Dictionary, verdict: int) -> void:
+	_setup(game, story, spec)
+	game._verdict = -1
+	game._verdict_truth = -1
+	game._verdict_class = ""
+	var ui = game.ui
+	game._start_judgment()
+	if verdict >= 0:
+		ui._choose(verdict)
+		game._offer_telegram()
+	while game._pending == "judgment":
+		var choice: String = ui._seq[ui._seq_i].get("key", "")
+		if choice.is_empty():
+			ui._advance()
+		else:
+			ui._choose(spec[choice])
+	ui.dialog_panel.hide()
+	game._show_ending()
+
+	var run: Dictionary = story.runs.back().duplicate(true)
+	check(run.verdict == verdict and run.telegram_id == Judgment.TELEGRAMS[spec.telegram].id
+		and run.reason_id == Judgment.REASONS[spec.reason].id, "%s: ending stores the submitted choices" % spec.name)
+	check(not ui.ending_review.visible and not ui.ending_history.visible, "%s: review and history start closed" % spec.name)
+	ui.ending_review_toggle.pressed.emit()
+	var record: String = Content.telegram_record(run.verdict, Judgment.TELEGRAMS[spec.telegram].text, L.t(run.reason_text)).t
+	var summary: int = ui.ending_review.text.find(record)
+	var reply: int = ui.ending_review.text.find(run.grade.lines[0])
+	var heading := L.t("[b]你留下的證據[/b]")
+	var evidence: int = ui.ending_review.text.find(heading)
+	print("ENDING REVIEW %s: record=%d evidence=%d reply=%d" % [spec.name, summary, evidence, reply])
+	check(ui.ending_review.text.begins_with(heading + "\n" + record + "\n") and reply > summary,
+		"%s: stored dispatch leads the evidence and precedes the reply" % spec.name)
+	check(ui.ending_review.visible and not ui.ending_history.visible, "%s: review opens on its own" % spec.name)
+	ui.ending_review_toggle.pressed.emit()
+	ui.ending_history_toggle.pressed.emit()
+	check(ui.ending_history.visible and not ui.ending_review.visible and not ui.ending_history.text.contains(record),
+		"%s: historical record opens separately" % spec.name)
+	ui.ending_history_toggle.pressed.emit()
+	check(story.runs.back() == run, "%s: reading both panels preserves the stored run" % spec.name)
+
+
+func _check_history_heading(game: Node, story: Node) -> void:
+	var original_locale := L.current()
+	for locale in L.LOCALES:
+		L.apply(locale)
+		_record(game, story, _honest())
+		var heading: String = game.ui.ending_history_toggle.text
+		game.ui.ending_history_toggle.pressed.emit()
+		var text: String = game.ui.ending_history.get_parsed_text()
+		check(game.ui.ending_history.visible and text.strip_edges().get_slice("\n", 0) == heading
+			and not text.contains("HISTORICAL_RECORD") and not text.contains("docs/PROVENANCE.md"),
+			"%s: history opens with the localized heading and no internal provenance text" % locale)
+	L.apply(original_locale)
 
 
 func _check_purity(record: Dictionary, context: String) -> void:

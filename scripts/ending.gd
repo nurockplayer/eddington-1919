@@ -36,15 +36,16 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 		workbook += L.t("（%s）") % first_result
 	if run.get("departure_kit", false):
 		workbook += "\n" + str(run.get("kit_line", ""))
-	var telegram := L.t("[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s") % [Settings.fs(17), Settings.fs(30), _telegram_text(run["telegram_id"]), L.t(str(run["reason_text"]))]
+	var verdict := int(run.get("verdict", -1))
+	var wording := _telegram_text(run["telegram_id"])
+	var reason := L.t(str(run["reason_text"]))
+	var telegram := L.t("[font_size=%d]電報　普林西比 → 倫敦　Dyson 收[/font_size]\n\n[font_size=%d][b]%s[/b][/font_size]\n\n理由：%s") % [Settings.fs(17), Settings.fs(30), wording, reason]
 	var tableau := "[color=#8f8676]%s[/color]" % workbook
 	var counts: Dictionary = run["plate_counts"]
 	var lines := []
-	lines.append(L.t("[b]Eddington 的回應[/b]"))
-	for l in grade.lines:
-		lines.append("· " + l)
-	lines.append("")
 	lines.append(L.t("[b]你留下的證據[/b]"))
+	lines.append(Content.telegram_record(verdict, wording, reason).t)
+	lines.append("")
 	lines.append(L.t("· 拍了 %d 張底片（底片匣一共 %d 張）。星像清楚 %d、有瑕疵 %d、星不足五顆 %d。") % [run["plate_total"], run["plates_available"], counts["good"], counts["poor"], counts["unusable"]])
 	if c.n > 0:
 		lines.append(L.tn("· 你量了 %d 張，合併 %.2f″ ± %.2f″（示意模擬）。", c.n) % [c.n, c.value, c.sigma])
@@ -62,7 +63,6 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 		lines.append(L.t("· 量之前你寫的：%s（%s）。") % [Content.bet_pick_text(int(bet.pick)), Content.bet_sure_text(int(bet.sure))])
 	if int(bet.get("ashby", 0)) == 1:
 		lines.append(L.t("· Ashby 先生寫的：0.87。"))
-	var verdict := int(run.get("verdict", -1))
 	if verdict >= 0:
 		var phrases := {"consistent": L.t("和你自己的誤差範圍相符"), "overclaim": L.t("說得比你的誤差範圍滿"), "underclaim": L.t("比你的誤差範圍保守")}
 		lines.append(L.t("· 你在暗房的判斷：%s——%s。") % [Content.verdict_text(verdict), phrases.get(str(run.get("verdict_class", "")), "")])
@@ -74,8 +74,12 @@ static func build(run: Dictionary, story: Dictionary) -> Dictionary:
 		lines.append(L.t("· 筆記本最後一句：%s。") % L.t(str(run.final_reason_text)))
 	if run.has("astro_weight"):
 		lines.append(L.t("· Sobral 天體照相儀那組：%s。") % _astro_weight_text(int(run.astro_weight)))
+	lines.append("")
+	lines.append(L.t("[b]Eddington 的回應[/b]"))
+	for l in grade.lines:
+		lines.append("· " + l)
 	var history := []
-	history.append(L.t("\n[b]歷史上[/b] [color=#8f8676](HISTORICAL_RECORD，詳見 docs/PROVENANCE.md)[/color]"))
+	history.append("\n[b]%s[/b]" % L.t("歷史上發生了什麼"))
 	history.append(L.t("普林西比在 302 秒的全食中拍了 16 張底片，曝光 2 到 20 秒；雲在全食最後三分之一才明顯變薄。前十張幾乎沒有星，最後只有兩張、五顆星能用於量測。Eddington 在島上量了一張，結果與愛因斯坦的預測相符。1919 年 6 月 5 日的《Nature》刊出「Through cloud, hopeful」一語；原始電報的收件人與發報日期均未確認。遊戲中的電報是虛構草稿。"))
 	history.append(L.t("1919 年 11 月 6 日，皇家學會與皇家天文學會聯席會議公布結果。報告最倚重的是巴西 Sobral 的 4 吋望遠鏡（1.98″ ± 0.12″）；普林西比是 1.61″ ± 0.30″（當年寫的是「機率誤差」，約是一倍標準誤差的三分之二）。Sobral 天體照相儀的星像模糊，底片尺度也不確定，因此報告給這組結果的權重較低。一次遠征並沒有讓所有疑問就此消失。"))
 	history.append(L.t("1979 年，有人重新量了 Sobral 的底片（Harvey）：4 吋 1.90″ ± 0.11″，天體照相儀 1.55″ ± 0.34″——支持了當年團隊對那組 0.93″ 的疑慮。"))
