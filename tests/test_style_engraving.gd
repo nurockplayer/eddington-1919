@@ -54,9 +54,13 @@ func _run() -> void:
 		and shader_text.contains("if (night <= 0.5) {\n\t\t\tink *= sky_plate_darkness;\n\t\t\tcloud_wash *= sky_plate_darkness;"),
 		"the existing cloud plate grades its ruling and wash with darkness")
 	check(shader_text.contains("if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {")
-		and shader_text.contains("float density = eclipse_cloud_density_from_sample(live_cloud);")
+		and shader_text.contains("float stroke = dot(cloud_uv, vec2(0.6, 0.8)) / 0.28;")
+		and cloud_shader.contains("return d.xz / max(d.y, 0.06) * cloud_scale - wind * time;")
+		and cloud_shader.contains("field_density = texture(cloud_tex, uv).r;")
+		and shader_text.contains("float body = smoothstep(0.60, 0.67, field_density);")
+		and shader_text.contains("abs(field_density - 0.60)")
 		and shader_text.contains("ink = mix(cloud_ink * band_lines, ink,"),
-		"density-cut strokes replace the daytime sky ruling before second contact outside rehearsal")
+		"daylight cloud outline and ruling use the same advected field, with ruling inside the outline")
 	check(not shader_text.contains("for (int bank") and not shader_text.contains("1.0 - visible_diamond));"), "no invented banks or diamond-dependent disc fill")
 	check(shader_text.contains("moon_ink = before_second_contact ? 0.0 :")
 		and shader_text.contains("if (!before_second_contact && solar_fade > 0.0 && front > 0.0)"),

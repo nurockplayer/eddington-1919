@@ -24,9 +24,12 @@ float eclipse_middle_band(vec2 plane, float time, float density) {
 	return mix(density, max(density, 0.93), cover);
 }
 
+vec2 eclipse_cloud_uv(vec3 d, float time) {
+	return d.xz / max(d.y, 0.06) * cloud_scale - wind * time;
+}
+
 float eclipse_cloud_texture(vec3 d, float time) {
-	vec2 plane = d.xz / max(d.y, 0.06) * cloud_scale;
-	return texture(cloud_tex, plane - wind * time).r;
+	return texture(cloud_tex, eclipse_cloud_uv(d, time)).r;
 }
 
 float third_contact_cloud_gap(vec3 d, float time) {
@@ -38,11 +41,13 @@ float third_contact_cloud_gap(vec3 d, float time) {
 	return pocket * (1.0 - smoothstep(3.5, 5.0, length(local_sun)));
 }
 
-vec2 eclipse_cloud_sample_at(vec3 d, float time, bool include_middle_band) {
+vec2 eclipse_cloud_sample_at(vec3 d, float time, bool include_middle_band, vec2 uv, out float field_density) {
 	float h = d.y;
 	float dens = 0.0;
+	field_density = 0.0;
 	if (h > 0.0) {
-		dens = eclipse_cloud_texture(d, time);
+		field_density = texture(cloud_tex, uv).r;
+		dens = field_density;
 		if (include_middle_band) {
 			dens = eclipse_middle_band(d.xz / max(h, 0.06) * cloud_scale, time, dens);
 		}
@@ -63,6 +68,11 @@ vec2 eclipse_cloud_sample_at(vec3 d, float time, bool include_middle_band) {
 		gap = third_contact_cloud_gap(d, time);
 	}
 	return vec2(mix(dens, dens * 0.55, night), gap);
+}
+
+vec2 eclipse_cloud_sample_at(vec3 d, float time, bool include_middle_band) {
+	float field_density;
+	return eclipse_cloud_sample_at(d, time, include_middle_band, eclipse_cloud_uv(d, time), field_density);
 }
 
 vec2 eclipse_cloud_sample_at(vec3 d, float time) {

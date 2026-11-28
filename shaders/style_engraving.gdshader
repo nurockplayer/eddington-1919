@@ -305,7 +305,9 @@ void fragment() {
 		float from_contact = cloud_time - third_contact_cloud_clock.x;
 		float pocket_time = from_contact / (from_contact < 0.0 ? third_contact_cloud_clock.y : third_contact_cloud_clock.z);
 		float print_time = returning_sky ? day_return_cloud_time : cloud_time;
-		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, print_time, false);
+		vec2 cloud_uv = eclipse_cloud_uv(ray_w, print_time);
+		float field_density;
+		vec2 live_cloud = eclipse_cloud_sample_at(ray_w, print_time, false, cloud_uv, field_density);
 		// Ease back to the accepted third-contact field before the passage starts.
 		float pocket_print = smoothstep(0.0, 5.0, cloud_time) * (1.0 - smoothstep(-12.0, -6.5, pocket_time));
 		bool print_pocket = practice_cloud < 0.0 && !before_second_contact && night == 0.0 && ray_w.y > 0.0 && pocket_print > 0.0;
@@ -377,24 +379,21 @@ void fragment() {
 			cloud_wash *= sky_plate_darkness;
 		}
 		if (before_second_contact && practice_cloud < 0.0 && night <= 0.5 && print_darkness < 0.35) {
-			// Bow the strokes across the density field and cut finer strokes in
-			// between as the cloud thickens. Each stroke tapers at its own edge.
-			float density = eclipse_cloud_density_from_sample(live_cloud);
-			float stroke = (ruling.x + 0.18 * density) / (34.0 * k * res_k);
+			// Cut the body and rule it in the same moving cloud plane. Horizon
+			// haze belongs to optical density, so it never opens a ruled body.
+			float stroke = dot(cloud_uv, vec2(0.6, 0.8)) / 0.28;
 			float stroke_pixel = max(length(vec2(dFdx(stroke), dFdy(stroke))), 0.00001);
 			float stroke_aa = 0.5 * stroke_pixel;
-			float weight = smoothstep(0.50, 0.97, density);
-			float half_width = mix(0.50, 0.82, weight) * res_k * stroke_pixel;
-			float primary_stroke = line_cov(abs(fract(stroke + 0.5) - 0.5),
-				half_width * smoothstep(0.50, 0.57, density), stroke_aa);
+			float body = smoothstep(0.60, 0.67, field_density);
+			float weight = smoothstep(0.67, 0.95, field_density);
+			float half_width = mix(0.42, 0.64, weight) * res_k * stroke_pixel;
+			float primary_stroke = line_cov(abs(fract(stroke + 0.5) - 0.5), half_width, stroke_aa);
 			float middle_stroke = line_cov(abs(fract(stroke) - 0.5),
-				half_width * smoothstep(0.61, 0.77, density), stroke_aa);
-			float fine_stroke = line_cov(0.5 * abs(fract(2.0 * stroke) - 0.5),
-				half_width * smoothstep(0.78, 0.97, density), stroke_aa);
-			float density_pixel = max(length(vec2(dFdx(density), dFdy(density))), 0.00001);
-			float contour = line_cov(abs(density - 0.53), 0.62 * res_k * density_pixel, 0.5 * density_pixel);
-			float cloud_ink = max(0.14 * contour, mix(0.15, 0.33, weight)
-				* max(primary_stroke, max(middle_stroke, fine_stroke)));
+				half_width * weight, stroke_aa);
+			float density_pixel = max(length(vec2(dFdx(field_density), dFdy(field_density))), 0.00001);
+			float contour = line_cov(abs(field_density - 0.60), 0.52 * res_k * density_pixel, 0.5 * density_pixel);
+			float ruling_ink = body * mix(0.13, 0.30, weight) * max(primary_stroke, middle_stroke);
+			float cloud_ink = max(0.15 * contour, ruling_ink) * (1.0 - smoothstep(0.12, 0.28, stroke_pixel));
 			ink = mix(cloud_ink * band_lines, ink, smoothstep(0.0, 0.35, print_darkness));
 		}
 		sky_white = horizon * 0.85;
