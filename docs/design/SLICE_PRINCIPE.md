@@ -2207,3 +2207,40 @@ Copy, for edd-lead: the Japanese sky page writes "Kit、" in the letter and "キ
 ![filed](slice_principe/accept/627/6a2a003/madeira_packets_filed_en_keys.png)
 
 **Count stays 7/9.**
+
+## Row 8 on main 176b5f0: not met (2026-11-28 19:09 JST)
+
+Survey capture by edd-lead: `/Volumes/KIOXIA/eddington-1919-cache/director/accept/main-row8/176b5f0258adc27f9498e71745bcf2b6e49aa28a/index.md` (258 frames; 1080 and 720, text 1.0 and 1.2; English, journey flag off).
+
+What I looked at, whole at native size: the Roça Sundy sign, the Sun-crescent and firefly frames (1080); Eddington's closest day view and Cottingham's closest night view (1080); plate box and chronometer at 3 m (1080); the after-totality line, the coda choice, the drive trim diagram, a briefing line, the totality strip and the plate viewer (720 and 1080). As contact sheets: faces, interactables 1 and 3. Read: the contrast table, the portrait tables. Not looked at: the other 240-odd frames singly, interactables sheets 2, 4, 5, the text and dialogue sheets, text scale 1.2, any locale but English. A fail needs only its failing clauses; a pass would have needed all of it.
+
+**Row 8: not met.** Clause by clause:
+
+1. **Signs, crescents, fireflies drawn: no, none of the three.**
+   - "ROÇA SUNDY" is interface sans with a white outline, hanging in the air in front of the house, with leaves passing behind and before it. Not painted on anything.
+   - Before second contact the palm shadow has pale dashes in it; none is a crescent.
+   - The fireflies are soft white balls up to 35 px across. Lamps in fog, not insects, and not ink.
+2. **No face features at reach: no.** At 0.35 m Eddington shows the spectacles (fine, they are his) and a mouth: three specks and a tick. In the darkroom his lit face shows nose and eye lines. Cottingham is shadow shapes and a moustache, which I accept. Separately: at this distance the hat is a tilted drum with a post through its brim. (The poses were collision-checked, not walked; if the player cannot in fact stand there, the fix is the distance.)
+3. **Interactables identifiable at 3 m: mostly, with three misses.** The drive, tube, plan, chronometer, Oxford case and both men read. The plate box is a blank white block. "Roça Sundy" is a prompt on a bare wall between posts. By day the darkroom is smooth grey fog with no engraving on it at all (F7's subject).
+4. **Text contrast 4.5:1: not certifiable from this table, and two real failures by eye.** The table calls black on cream 1.05:1 (drive trim) and 1.97:1 (a briefing line); it is measuring something other than the text, so I do not take its 194 cases as failures. What I see fail without a number: the after-totality line is dark grey on a slate-blue slip; the plate viewer's captions are small grey on black. The measure needs repair before this clause can be closed either way.
+5. **Every line shows the portrait: the clause as written is not the right test.** The 31 lines without one are narration, the player's own thoughts, and documents (the exposure plan, the Oxford plate). No named speaker lacks a portrait in the rendered sample. A face on "You blow out the lamp" would be wrong. I propose the clause read: every line spoken by a named person shows the engraved portrait; narration, the player's thoughts and documents show none. With that wording this clause is met; the change of wording is edd-lead's to record.
+
+Also seen, for edd-lead: "[E] The magnifying glass Ashby gave you." sits in the middle of the screen in frames where the player is looking at the sign, at the ground, at Eddington's forehead. Either the survey's staging or a live bug; worth one look.
+
+Fix rows, in the order I would brief them:
+- **8a Sign.** The house name painted on the house, in the book's serif, taking light and occlusion like the wall. Goes with the F1 house (same building); also the slanted "R.A.S. ECLIPSE" board.
+- **8b Fireflies.** Small drawn sparks, a few pixels of paper with a short ink tail, no glow disc.
+- **8c Crescents.** In the last minutes before second contact the gaps in leaf shadow are crescents, horns the right way.
+- **8d Faces.** No mouth or eye marks on the 3D heads at any reachable distance, by day and under the safelight; hat scaled and seated.
+- **8e Blue-paper slip.** Dialogue on blue paper reads as light ink on blue or dark ink on cream, not grey on slate.
+- **8f Contrast measure.** Repair the measure (it fails plain black on cream), then re-run; tooling, edd-lead's.
+- Plate box, day darkroom and plate viewer belong to F7 and F8, already listed.
+
+![sign](slice_principe/accept/main-row8/176b5f0/1080-100_day_drawn_roca-sundy-sign.jpg)
+![fireflies](slice_principe/accept/main-row8/176b5f0/1080-100_night_drawn_fireflies.jpg)
+![crescents](slice_principe/accept/main-row8/176b5f0/1080-100_pre-contact-30s_drawn_sun-crescents.jpg)
+![face](slice_principe/accept/main-row8/176b5f0/1080-100_day_faces_eddington.jpg)
+![blue slip](slice_principe/accept/main-row8/176b5f0/1080-100_day-return_dialogue_after-totality-3.jpg)
+![plate box](slice_principe/accept/main-row8/176b5f0/1080-100_day_interactables_plate_box.jpg)
+
+**Count stays 7/9** (rows 2 and 8 open).
