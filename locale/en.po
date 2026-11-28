@@ -5074,7 +5074,7 @@ msgid "［按住 %s］替 Cottingham 報秒、校走速"
 msgstr "[Hold %s] Call the seconds for Cottingham, check the drive rate"
 
 msgid "［方向鍵／A 鍵］選擇"
-msgstr "[Arrow keys/A button] Choose"
+msgstr "[D-pad/A button] Choose"
 
 msgid "［空白鍵／E／左鍵］開始・停"
 msgstr "[Space/E/Left click] Start/Stop"
