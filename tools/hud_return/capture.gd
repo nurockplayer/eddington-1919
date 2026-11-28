@@ -55,7 +55,8 @@ func _run() -> void:
 			frames.append({"file": file, "contact_s": float(frame) / FPS, "time_jst": _time_jst(),
 				"panel": _bounds(panel, panel_crop), "portrait": _bounds(portrait, portrait_crop)})
 			if cloud_stills and frame == 6 * FPS:
-				var native: float = game.sky_mat.get_shader_parameter("practice_cloud")
+				# The native scene can leave the uniform unset and use its shader default.
+				var native: Variant = game.sky_mat.get_shader_parameter("practice_cloud")
 				for cloud in CLOUDS:
 					game.sky_mat.set_shader_parameter("practice_cloud", CLOUDS[cloud])
 					game._sync_style_sky()

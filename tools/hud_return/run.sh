@@ -7,14 +7,15 @@ head_sha=$(git rev-parse HEAD)
 main_sha=$(git rev-parse 58b91640^)
 base="/Volumes/KIOXIA/eddington-1919-cache/director/accept/$pr"
 head_out="$base/$head_sha"
-main_out="$base/$main_sha"
+main_out="$head_out/pre-fix-main/$main_sha"
 revert_out="$head_out/reverted"
 project=$PWD
 capture="$project/tools/hud_return/capture.gd"
 scratch=$(mktemp -d "$project/.godot/hud-return.XXXXXX")
 trap 'trash "$scratch"' EXIT
 mkdir -p "$base"
-mkdir "$head_out" "$main_out" "$revert_out" "$scratch/main" "$scratch/revert"
+mkdir "$head_out"
+mkdir -p "$main_out" "$revert_out" "$scratch/main" "$scratch/revert"
 
 nice -n 15 git archive "$main_sha" | nice -n 15 tar -xf - -C "$scratch/main"
 nice -n 15 git archive "$head_sha" | nice -n 15 tar -xf - -C "$scratch/revert"
@@ -73,7 +74,7 @@ capture_pass "$scratch/main" "$main_out" "Pre-fix main $main_sha"
 capture_pass "$scratch/revert" "$revert_out" "Candidate with the HUD palette change reversed"
 {
     printf '## Comparison\n\n'
-    printf '[Pre-fix main](../%s/index.md) · [Revert](reverted/index.md)\n\n' "$main_sha"
+    printf '[Pre-fix main](pre-fix-main/%s/index.md) · [Revert](reverted/index.md)\n\n' "$main_sha"
     printf 'The revert reverses only the palette patch to scripts/hud_paper.gd from #559 on the candidate.\n\n'
     printf 'Indexed %s.\n\n' "$(TZ=Asia/Tokyo date '+%F %H:%M:%S %Z')"
 } >> "$head_out/index.md"
