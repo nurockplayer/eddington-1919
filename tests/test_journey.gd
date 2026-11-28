@@ -272,6 +272,7 @@ func _run() -> void:
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
 	if enabled and capture_dir.is_empty() and not london_only and not fold_check and not madeira_filing:
 		L.apply("en")
+		await _coda_without_epilogue(route[2])
 		await _resume_october()
 		await _resume_departure(route)
 	for locale in locales:
@@ -697,6 +698,38 @@ func _departure(chapter: Node, observation_day: PackedScene, enabled: bool, warm
 	await _sundy_coda(current_scene, enabled, packet_seen)
 
 
+func _coda_without_epilogue(observation_day: PackedScene) -> void:
+	var story := root.get_node("Story")
+	var outcomes := {}
+	for label in ["Príncipe tail only", "post-epilogue replay"]:
+		story.reset()
+		if label == "post-epilogue replay":
+			story.departure_done = true
+			story.epilogue_done = true
+			load("res://scripts/main.gd").prepare_replay(572, true, true)
+		else:
+			story.from_prologue = true
+		expect(change_scene_to_packed(observation_day) == OK, "load " + label)
+		await scene_changed
+		var day := current_scene
+		if day._is_replay:
+			await day._start_from_title()
+		day._setup_darkroom()
+		day._start_judgment()
+		await _dialogue(day)
+		await _close_coda(day)
+		for frame in 150:
+			if day._paired_cables != null or day.phase == day.Phase.ENDING:
+				break
+			await process_frame
+		outcomes[label] = "I3" if day._paired_cables != null else (
+			"ending" if day.phase == day.Phase.ENDING and day.ui.ending_panel.visible else "no ending")
+		Checkpoint.clear()
+	expect(outcomes == {"Príncipe tail only": "ending", "post-epilogue replay": "ending"},
+		"codas without a journey epilogue should go straight to the ending: %s" % str(outcomes))
+	story.reset()
+
+
 func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 	await _dialogue(day)
 	expect(day._paired_cables == null, "no I3 at the observation-day opening")
@@ -726,17 +759,10 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		while day._verdict_hold_s > 0.0:
 			await process_frame
 		await _dialogue(day)
-	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
-	day._interact("departure_workbook")
-	await _dialogue(day)
-	day._interact("mentor_loupe")
-	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
-	await _dialogue(day)
+	await _close_coda(day)
 	var story := root.get_node("Story")
 	var telegram: int = day._telegram
 	var reason: String = day._reasons[day._reason].id
-	expect(story.kit_first >= 0 and day.coda_step == day.CodaStep.FADING and day._paired_cables == null,
-		"coda Kit choice is committed before I3")
 	if enabled:
 		for frame in 150:
 			if not is_instance_valid(day) or day._paired_cables != null:
@@ -749,7 +775,7 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 				break
 			await process_frame
 		var chapter: Node = day.get_node_or_null("Sobral") if is_instance_valid(day) else null
-		expect(chapter != null, "I3 opens the Sobral archive before October")
+		expect(chapter != null and day._paired_cables == null, "I3 closes before the Sobral archive opens")
 		var before: Dictionary = story.to_save().duplicate(true)
 		await _sobral(chapter, L.current() in ["en", "ja"])
 		await press(button(chapter.paper, Sobral.strings().B54))
@@ -776,6 +802,17 @@ func _sundy_coda(day: Node, enabled: bool, packet_seen: bool) -> void:
 		expect(Epilogue.ledger_case(run) == "inconclusive", "October retains the inconclusive result")
 	if capture_dir.is_empty():
 		await _october(current_scene, enabled, story.bond_tone, packet_seen, combined)
+
+
+func _close_coda(day: Node) -> void:
+	expect(day.phase == day.Phase.CODA and day._paired_cables == null, "coda opening precedes I3")
+	day._interact("departure_workbook")
+	await _dialogue(day)
+	day._interact("mentor_loupe")
+	expect(day._pending == "coda_loupe" and day._paired_cables == null, "coda loupe precedes I3")
+	await _dialogue(day)
+	expect(root.get_node("Story").kit_first >= 0 and day.coda_step == day.CodaStep.FADING
+		and day._paired_cables == null, "coda Kit choice is committed before I3")
 
 
 func _october_opening(chapter: Node, enabled: bool, tone: String, madeira_sent: bool, sundy_read: bool) -> void:
