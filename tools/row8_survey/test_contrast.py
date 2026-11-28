@@ -40,5 +40,20 @@ class ContrastTests(unittest.TestCase):
         self.assertEqual(sample[4], 2)
 
 
+    def test_short_dim_run_in_long_caption(self):
+        paper, dim, bright = (13, 11, 10), (95, 90, 82), (239, 230, 210)
+        width, height = 60, 16
+        hidden = [paper] * (width * height)
+        visible = hidden.copy()
+        for y in range(3, 13):
+            for left, right, ink in ((3, 11, dim), (16, 34, bright), (39, 57, bright)):
+                visible[y * width + left:y * width + right] = [ink] * (right - left)
+
+        sample = measure(visible, hidden, visible, width)
+
+        self.assertLess(sample[0], 4.5)
+        self.assertEqual(sample[1:3], (dim, paper))
+
+
 if __name__ == "__main__":
     unittest.main()
