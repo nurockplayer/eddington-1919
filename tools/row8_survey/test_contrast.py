@@ -1,18 +1,111 @@
 import unittest
+import json
+import runpy
+import subprocess
+import sys
+import tempfile
+import types
+from pathlib import Path
 
-from contrast import contrast_ratio, measure, control_evidence_gaps
+from contrast import contrast_ratio, measure
+
+
+class FixtureImage:
+    def __init__(self, width, height, pixels):
+        self.width, self.height, self.pixels = width, height, pixels
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        pass
+
+    def convert(self, mode):
+        return self
+
+    def crop(self, box):
+        x0, y0, x1, y1 = box
+        return FixtureImage(x1 - x0, y1 - y0, [
+            self.pixels[y * self.width + x]
+            for y in range(y0, y1) for x in range(x0, x1)
+        ])
+
+    def get_flattened_data(self):
+        return self.pixels
+
+    def paste(self, image, position):
+        pass
+
+    def resize(self, size, resampling):
+        return FixtureImage(*size, [(255, 255, 255)] * (size[0] * size[1]))
+
+    def save(self, path, **kwargs):
+        Path(path).write_bytes(b"fixture")
+
+
+def fixture_pil_modules():
+    image = types.ModuleType("PIL.Image")
+    image.Resampling = types.SimpleNamespace(LANCZOS=0)
+
+    def open(path):
+        pixels = [(255, 255, 255)] * (32 * 16)
+        if Path(path).name != "background.png":
+            for y in range(2, 10):
+                for x in range(2, 8):
+                    pixels[y * 32 + x] = (0, 0, 0)
+        return FixtureImage(32, 16, pixels)
+
+    image.open = open
+    image.new = lambda mode, size, color: FixtureImage(
+        *size, [tuple(bytes.fromhex(color.removeprefix("#")))] * (size[0] * size[1])
+    )
+    draw = types.ModuleType("PIL.ImageDraw")
+    draw.Draw = lambda target: types.SimpleNamespace(text=lambda *args, **kwargs: None)
+    pil = types.ModuleType("PIL")
+    pil.Image, pil.ImageDraw = image, draw
+    return {"PIL": pil, "PIL.Image": image, "PIL.ImageDraw": draw}
 
 
 class ContrastTests(unittest.TestCase):
     def test_unsampled_control_gap_is_reported_alongside_sampled_sibling(self):
-        sampled = {"surface": "dialog", "text": "Visible title"}
-        unsampled = {"surface": "dialog", "text": "Nearly invisible label"}
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            for name in ("frame.png", "background.png", "repeat.png"):
+                (out / name).touch()
+            (out / "commands.tsv").write_text("cfg\tfixture command\n")
+            (out / "sheets").mkdir()
+            (out / ".work").mkdir()
+            (out / ".work" / "completed.txt").write_text("720-100\n1080-100\n720-120\n")
+            row = {
+                "config": "cfg", "state": "state", "case": "case", "clause": "text",
+                "frame": "frame.png", "background": "background.png", "repeat": "repeat.png",
+                "text": [
+                    {"surface": "dialog", "text": "Visible title", "rect": [0, 0, 15, 12], "node": "a"},
+                    {"surface": "dialog", "text": "Nearly invisible label", "rect": [16, 0, 32, 12], "node": "b"},
+                ],
+            }
+            (out / "receipts-fixture.jsonl").write_text(json.dumps(row) + "\n")
+            sha = "fixture"
 
-        gaps = control_evidence_gaps("cfg state case", (sampled, unsampled), ((4.8,), None))
+            previous_argv = sys.argv
+            previous_check_output = subprocess.check_output
+            previous_modules = {name: sys.modules.get(name) for name in ("PIL", "PIL.Image", "PIL.ImageDraw")}
+            sys.modules.update(fixture_pil_modules())
+            try:
+                sys.argv = ["report.py", str(out), sha]
+                subprocess.check_output = lambda *args, **kwargs: ""
+                runpy.run_path(str(Path(__file__).with_name("report.py")), run_name="__main__")
+            finally:
+                sys.argv = previous_argv
+                subprocess.check_output = previous_check_output
+                for name, module in previous_modules.items():
+                    if module is None:
+                        sys.modules.pop(name, None)
+                    else:
+                        sys.modules[name] = module
 
-        self.assertEqual(gaps, [
-            "cfg state case / dialog / Nearly invisible label: no differing glyph pixels in the visible bounds."
-        ])
+            expected = "cfg state case / dialog / Nearly invisible label: no differing glyph pixels in the visible bounds."
+            self.assertIn(expected, (out / "index.md").read_text())
 
     def test_wcag_ratio(self):
         self.assertAlmostEqual(contrast_ratio((0, 0, 0), (255, 255, 255)), 21)
