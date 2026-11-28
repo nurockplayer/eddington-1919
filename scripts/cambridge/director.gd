@@ -284,8 +284,10 @@ func _interact(id: String) -> void:
 				# Music round 2 (proposal): a record, never forced on the player.
 				if gramophone_playing:
 					_say(C17.examine("gramophone_stop"), "gramophone_stop")
+				elif gramophone_plays == 0:
+					_say(C17.examine("gramophone"), "gramophone_play")
 				else:
-					_say(C17.examine("gramophone" if gramophone_plays == 0 else "gramophone_again"), "gramophone_play")
+					_say(C17.examine("gramophone_again"), "")
 				return
 			_say(C17.examine(id), "logbook" if id == "logbook" else "")
 
@@ -346,9 +348,6 @@ func _gramophone_start() -> void:
 		# Without the record, never duck the rain behind a silent machine.
 		push_warning("gramophone record missing; not playing")
 		return
-	if _gramophone_fade:
-		_gramophone_fade.kill()
-		_gramophone_fade = null
 	_gramophone.volume_db = -16.0
 	if DisplayServer.get_name() != "headless":
 		_gramophone.play()
