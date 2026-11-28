@@ -236,7 +236,7 @@ Owner's release question at L84: “Does it feel epic?” Judge it in both walks
 | I4-21 | Employment record | House of Commons · 14 July 1919. The government says covered workplaces must end wartime “diluted labour” where it departed from pre-war practice, unless an agreement modifies that obligation. The requirement applies to men and women. | HISTORICAL_RECORD · SOC §2, Hansard, “Women (Employment)”, paraphrase |
 | I4-22 | Liverpool report | Liverpool · August 1919. A Women’s Royal Naval Service report records the Liverpool division’s involvement in the police strike. | HISTORICAL_RECORD · SOC §2, J. E. Bell report, Royal Museums Greenwich |
 | I4-09 | Sobral comparison record | Sobral · 11–18 July 1919. The team photographs the same star field with the Sun elsewhere. | HISTORICAL_RECORD · R §§14–15 |
-| I4-23 | Belém press caption | Estado do Pará · Belém · 3 August 1919. The newspaper returns to the eclipse in a second interview with Crommelin and Davidson. | HISTORICAL_RECORD · SOC §3, Crispino and Lima transcript |
+| I4-23 | Belém press caption | Estado do Pará · Belém · 3 August 1919. The paper interviews Crommelin and Davidson about the eclipse. In April it published an article they wrote. | HISTORICAL_RECORD · SOC §3, Crispino and Lima transcript |
 | I4-10 | Sobral return record | Greenwich · 25 August 1919. The British Sobral team has brought home two series of plates. | HISTORICAL_RECORD · R §15 |
 | I4-11 | Notebook attribution | British Sobral expedition notebook · Entry for 30 May 1919 | HISTORICAL_RECORD · SN |
 | I4-12 | Notebook excerpt | “there had been a serious change of focus” | HISTORICAL_RECORD · SN, excerpt |
