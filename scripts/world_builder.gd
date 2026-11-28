@@ -306,7 +306,7 @@ func build() -> Dictionary:
 	_bounds()
 	randomize()  # vegetation reseeded the global RNG; don't leak that into "new sky" restarts
 	out.eddington = npc(L.t("Eddington"), Vector3(-1.1, 0, -0.9), Color(0.16, 0.15, 0.16), Color(0.85, 0.83, 0.78), "eddington")
-	out.cottingham = npc(L.t("Cottingham"), Vector3(1.35, 0, -6.1), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
+	out.cottingham = npc(L.t("Cottingham"), Vector3(1.65, 0, -7.25), Color(0.42, 0.36, 0.28), Color(0.88, 0.86, 0.8), "cottingham")
 	out.cottingham.rotation.y = deg_to_rad(-60)
 	return out
 
@@ -538,6 +538,9 @@ func _shelter_and_instrument() -> Dictionary:
 			"brick": Swatch.PAPER, "stone": Swatch.PAPER, "mirror": Swatch.PAPER,
 			"iron": Swatch.DENSE, "brass": Swatch.DENSE, "teak_dark": Swatch.TIMBER,
 		})
+		# Widen the mirror cell around its existing pivot so the oval reads above the pier.
+		var mirror_cell := coelostat.find_child("coelostat_mirror", true, false) as Node3D
+		mirror_cell.scale = Vector3(1.3, 1.3, 1.0)
 		# Production model (art/assets.toml: coelostat). Colliders stay simple boxes.
 		collider(Vector3(1.0, 1.06, 1.0), Vector3(0, 0.53, -6.6))
 		# The drive housing stays solid AND interactable, like the old primitive box.
@@ -546,14 +549,20 @@ func _shelter_and_instrument() -> Dictionary:
 		var brick := P("brick")
 		box(Vector3(1.0, 1.05, 1.0), Vector3(0, 0.525, -6.6), brick)
 		cyl(0.08, 0.35, Vector3(0, 1.22, -6.6), P("iron"))
-		var mirror := cyl(0.24, 0.05, Vector3(0, 1.4, -6.6), P("mirror"), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)))
+		var mirror := cyl(0.31, 0.05, Vector3(0, 1.4, -6.6), P("mirror"), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)))
 		(mirror as MeshInstance3D).material_override = mat(P("mirror"), 0.05, 0.95)
-		cyl(0.26, 0.07, Vector3(0, 1.4, -6.6), P("brass"), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)), 0.26)
-		# Clock-drive box with winding crank.
+		cyl(0.33, 0.07, Vector3(0, 1.4, -6.6), P("brass"), null, false, Vector3(deg_to_rad(62), 0, deg_to_rad(12)))
+		# Clock-drive box and weight.
 		drive = box(Vector3(0.42, 0.36, 0.34), Vector3(0.62, 0.92, -6.6), P("teak_dark"))
-		box(Vector3(0.05, 0.05, 0.2), Vector3(0.86, 0.95, -6.6), P("brass"), null, false)
 		cyl(0.05, 0.6, Vector3(0.6, 0.45, -6.6), P("iron"))  # weight chain housing
 		interactable(drive, "drive", L.t("時鐘驅動"))
+	# A hub, diagonal arm, and projecting grip silhouette the winding crank.
+	var axle_rotation := Vector3(PI / 2, 0, 0)
+	cyl(0.064, 0.08, Vector3(-0.08, 0.02, 0.20), P("iron"), drive, false, axle_rotation)
+	var crank := box(Vector3(0.055, 0.33, 0.045), Vector3(0.012, 0.158, 0.24), P("brass"), drive, false, Vector3(0, 0, -PI / 5.2)) as MeshInstance3D
+	crank.name = "WindingCrank"
+	_pilot_surface(crank, -1, Swatch.DENSE, LAND)
+	cyl(0.04, 0.18, Vector3(0.104, 0.295, 0.33), P("teak_dark"), drive, false, axle_rotation)
 	out.drive_pos = Vector3(0.62, 0.92, -6.6)
 	# Horizontal tube (lens near the coelostat, plate end toward the shelter front).
 	var carrier: Node3D
@@ -625,8 +634,14 @@ func _darkroom() -> Dictionary:
 	# Shelf with the plate box.
 	var shelf_wood := P("teak_dark")
 	box(Vector3(0.5, 0.05, 1.6), c + Vector3(1.65, 1.0, -0.6), shelf_wood)
-	var pbox := box(Vector3(0.36, 0.3, 0.5), c + Vector3(1.65, 1.18, -0.75), Color(0.22, 0.16, 0.1))
+	var pbox := box(Vector3(0.36, 0.3, 0.5), c + Vector3(1.65, 1.18, -0.75), P("teak_dark"))
 	interactable(pbox, "plate_box", L.t("底片匣箱"))
+	# A lipped lid and carry handle break the case's outline against the shelf.
+	box(Vector3(0.39, 0.05, 0.53), Vector3(0, 0.145, 0), P("teak"), pbox, false)
+	for z in [-0.13, 0.13]:
+		box(Vector3(0.055, 0.10, 0.055), Vector3(-0.09, 0.21, z), P("brass"), pbox, false)
+	var handle := cyl(0.031, 0.30, Vector3(-0.09, 0.26, 0), P("iron"), pbox, false, Vector3(PI / 2, 0, 0))
+	handle.name = "CarryHandle"
 	out.plate_box_pos = c + Vector3(1.65, 1.18, -0.75)
 	# Developing bench with trays.
 	box(Vector3(1.4, 0.06, 0.6), c + Vector3(0.2, 0.85, -1.3), shelf_wood)
