@@ -95,6 +95,15 @@ func _run() -> void:
 	check(labels.size() > 0 and labels[0].modulate == Engraving.INK and labels[0].outline_modulate == Engraving.PAPER, "labels use print palette")
 	check(game.world.sun_crescents.material_override.get_shader_parameter("print_paper") == Engraving.PAPER, "crescents use paper colour")
 	check(game.world.sun_crescents.material_override.get_shader_parameter("print_ink") == Engraving.INK, "crescents use ink rim")
+	var clear_time := -150.0
+	for t in range(-1000, -60, 10):
+		if game.sim.cloud_over_sun(t) < game.sim.cloud_over_sun(clear_time):
+			clear_time = t
+	game._apply_light(0.97, 0.96, clear_time, 0.0, true)
+	check(game.world.sun_crescents.visible, "a thin crescent still prints while the Sun transmits through cloud")
+	game._apply_light(0.97, 0.96, -30.0, 0.0, true)
+	check(not game.world.sun_crescents.visible, "the opaque cloud bank hides the crescent")
+	game._update_sky_prep()
 	for name in Engraving.PARAMS:
 		check(material.get_shader_parameter(name) == Engraving.PARAMS[name], "material parameter " + name)
 	check(material.get_shader_parameter("line_px") == 5.0, "default line spacing")

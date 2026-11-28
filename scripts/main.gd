@@ -477,12 +477,17 @@ func _apply_light(contact: float, darkness: float, cloud_t: float, night: float,
 		meteors.set_night(night > 0.5)
 	sky_mat.set_shader_parameter("star_vis", clampf((darkness - 0.85) / 0.15, 0.0, 1.0) * (1.0 - night))
 	var dens: float = sim.cloud_over_sun(cloud_t)
-	var vis := _crescent(contact) * (1.0 - darkness)
+	var solar_fraction := _crescent(contact)
+	var vis := solar_fraction * (1.0 - darkness)
 	var sun_floor := 0.15 if _look.is_empty() else float(_look.sun_floor) * (1.0 - darkness)
 	var daylight := (1.0 - smoothstep(0.9, 0.95, darkness) if _style != null else float(darkness <= 0.95)) * (1.0 - night)
 	sun.light_energy = (sun_floor + 1.4 * vis * (1.0 - dens * 0.85)) * daylight * _look_sun
 	if world.has("sun_crescents"):
 		var lit := daylight * SunCrescents.sunlight(vis, dens)
+		if _style != null and before_second_contact and solar_fraction < 1.0:
+			# The engraved sky transmits this fraction through cloud. The crescent's
+			# shrinking area already accounts for the Moon covering the Sun.
+			lit = (1.0 - night) * (1.0 - clampf(1.08 * dens, 0.0, 1.0))
 		world.sun_crescents.set_eclipse(contact, lit)
 	world.doorway_daylight.light_energy = 16.0 * (1.0 - darkness) * (1.0 - night)
 	world.oxford_lantern.visible = night > 0.5
