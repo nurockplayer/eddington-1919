@@ -32,6 +32,7 @@ capture_pass() {
         printf '# #549 · %s\n\n' "$label"
         printf 'Seed 1551, totality_live, 1280×720 at 60 fps, zh_TW, reduced motion off.\n'
         printf 'C3 is frame zero. Each scale retains all 601 frames through C3+10 s.\n\n'
+        printf 'The unrecorded preparation starts at its final second. Both contacts and the full totality clock run normally.\n\n'
     } > "$out/index.md"
     if [[ "$out" == "$head_out" ]]; then
         printf 'First capture list at C3+6 s, scale 1.0: [clear](1.0/clear-c3-plus6.png), [thin](1.0/thin-c3-plus6.png), [thick](1.0/thick-c3-plus6.png).\n\n' >> "$out/index.md"

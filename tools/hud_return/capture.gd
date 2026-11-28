@@ -26,6 +26,10 @@ func _run() -> void:
 	await process_frame
 	game.ui.start_btn.pressed.emit()
 	RenderingServer.render_loop_enabled = false
+	while game.phase != game.Phase.PREP:
+		await process_frame
+	# Skip unattended prep. Both contacts and the full totality clock still run normally.
+	game.prep_left = 1.0
 	while game.phase != game.Phase.TOTALITY or game._busy:
 		await process_frame
 	while game.sim.TOTALITY_S - game.t_game > game._totality_rate * 3.0 / FPS:
