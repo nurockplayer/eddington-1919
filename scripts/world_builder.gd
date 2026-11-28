@@ -320,16 +320,19 @@ var engraving_pilot := false
 var _pilot_materials := {}
 
 
-func _pilot_surface(mesh: MeshInstance3D, surface: int, swatch: int, stock: Color, earth := false) -> void:
+func _pilot_surface(mesh: MeshInstance3D, surface: int, swatch: int, stock: Color,
+		earth := false, daylight_stock := Color.WHITE, daylight_pitch := 0.0) -> void:
 	if not engraving_pilot:
 		return
-	var key := [swatch, stock, earth]
+	var key := [swatch, stock, earth, daylight_stock, daylight_pitch]
 	if not _pilot_materials.has(key):
 		var material := ShaderMaterial.new()
 		material.shader = ENGRAVING_SURFACE
 		material.set_shader_parameter("swatch", swatch)
 		material.set_shader_parameter("stock", stock)
 		material.set_shader_parameter("earth", earth)
+		material.set_shader_parameter("daylight_stock", daylight_stock)
+		material.set_shader_parameter("daylight_pitch", daylight_pitch)
 		_pilot_materials[key] = material
 	var original := mesh.material_override if surface < 0 else mesh.get_surface_override_material(surface)
 	var materials: Array = mesh.get_meta(PILOT_MATERIALS, [])
@@ -732,17 +735,37 @@ func _plantation_house() -> void:
 
 	if engraving_pilot:
 		var stock := {
-			"whitewash": [Swatch.PAPER, LAND],
-			"stone": [Swatch.PAPER, Color("bdb29c")],
-			"roof_tile": [Swatch.TIMBER, Color("ae9278")],
-			"teak": [Swatch.TIMBER, Color("b4a089")],
-			"teak_dark": [Swatch.TIMBER, Color("87725d")],
-			"iron": [Swatch.TIMBER, Color("625549")],
+			"whitewash": [Swatch.PAPER, LAND, LAND, 0.34],
+			"stone": [Swatch.PAPER, Color("bdb29c"), Color("b3b0a7"), 0.30],
+			"roof_tile": [Swatch.TIMBER, Color("ae9278"), Color("55534e"), 0.42],
+			"teak": [Swatch.TIMBER, Color("b4a089"), Color("827f78"), 0.0],
+			"teak_dark": [Swatch.TIMBER, Color("87725d"), Color("6b6963"), 0.0],
+			"iron": [Swatch.TIMBER, Color("625549"), Color("62605a"), 0.0],
 		}
 		for mesh: MeshInstance3D in house.find_children("*", "MeshInstance3D", true, false):
+			mesh.add_to_group(&"sundy_print")
 			for i in mesh.mesh.get_surface_count():
 				var name_ := mesh.mesh.surface_get_material(i).resource_name.trim_prefix("E1919_")
-				_pilot_surface(mesh, i, stock[name_][0], stock[name_][1])
+				var swatch: Array = stock[name_]
+				_pilot_surface(mesh, i, swatch[0], swatch[1], false, swatch[2], swatch[3])
+
+	# The board is fixed to the verandah fascia above the entrance.
+	var board := box(Vector3(4.15, 0.56, 0.09), Vector3(0, 3.70, 6.735), LAND, house, false) as MeshInstance3D
+	board.name = "Nameboard"
+	_pilot_surface(board, -1, Swatch.PAPER, LAND)
+	var sign := Label3D.new()
+	sign.name = "PaintedName"
+	sign.text = "ROÇA SUNDY"
+	sign.font = Fonts.paper_serif(Fonts.cjk())
+	sign.font_size = 96
+	sign.pixel_size = 0.0055
+	sign.position = Vector3(0, 0, 0.047)
+	sign.modulate = Color("221c18")
+	sign.outline_size = 0
+	sign.shaded = true
+	sign.double_sided = false
+	sign.alpha_cut = Label3D.ALPHA_CUT_DISCARD
+	board.add_child(sign)
 
 	# Closed masonry shell, raised verandah, and rails with a gap at the stair.
 	var yaw := house.rotation_degrees.y

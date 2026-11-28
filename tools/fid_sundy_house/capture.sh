@@ -22,6 +22,7 @@ for variant in main candidate; do
     cmd=("$godot" --path "$project" --resolution 1280x720 --fixed-fps 60 --always-on-top
         --script res://tools/fid_sundy_house/capture.gd -- "$out/$variant" --seed=7
         --bench-quality=standard --bench-size=1280x720 --bench-cloud-t=215)
+    if [ "$variant" = candidate ]; then cmd+=(--capture-sundy-sign); fi
     printf 'EDD_SETTINGS_PATH=%q EDD_LOCALE=en ' "$EDD_SETTINGS_PATH" > "$out/$variant/command.txt"
     printf '%q ' "${cmd[@]}" >> "$out/$variant/command.txt"
     printf '\n' >> "$out/$variant/command.txt"
@@ -50,10 +51,16 @@ with (out / "index.md").open("a") as index:
         index.write(f"```sh\n{(folder / 'command.txt').read_text()}```\n\n")
         index.write("| Image | State | Size | Written |\n|---|---|---|---|\n")
         files = sorted(folder.glob("*.png"))
-        if len(files) != 126:
-            raise RuntimeError(f"{variant}: expected 126 PNGs, found {len(files)}")
+        expected = 128 if variant == "candidate" else 126
+        if len(files) != expected:
+            raise RuntimeError(f"{variant}: expected {expected} PNGs, found {len(files)}")
         for png in files:
-            state = "daylight turn" if png.stem.startswith("turn-") else png.stem.split("-", 1)[1]
+            if png.stem.startswith("turn-"):
+                state = "daylight turn"
+            elif png.stem.startswith("sign-"):
+                state = "daylight nameboard"
+            else:
+                state = png.stem.split("-", 1)[1]
             t = datetime.fromtimestamp(png.stat().st_mtime, ZoneInfo("Asia/Tokyo"))
             index.write(f"| [{png.name}]({variant}/{png.name}) | {state} | 1280×720 | {t:%F %T %Z} |\n")
     index.write("\n## Frame cost\n\n")
@@ -70,5 +77,11 @@ with (out / "index.md").open("a") as index:
         values = [r["forced_draw_ms_p95"] for k, r in result.items() if k.startswith("shelter-totality")]
         worst = 3 * max(values)
         index.write(f"| {variant} | {', '.join(f'{v:.2f}' for v in values)} | {worst:.2f} | {'Yes' if worst <= 33.33 else 'No'} |\n")
+    prior_worst = 8.45
+    candidate_worst = max(r["forced_draw_ms_p95"] for k, r in rows["candidate"].items()
+                          if k.startswith("shelter-totality"))
+    delta = candidate_worst - prior_worst
+    index.write(f"\nWorst p95 vs. the b8c80332 capture: {delta:+.2f} ms. ")
+    index.write(f"Within the +0.30 ms limit: {'yes' if round(delta, 2) <= 0.30 else 'no'}.\n")
 PY
-touch "$out/.archive-ready"
+printf '637\n' > "$out/.archive-pr"

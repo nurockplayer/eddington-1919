@@ -158,6 +158,9 @@ func _run() -> void:
 	var house := game.get_node_or_null("SundyHouse") as Node3D
 	check(house != null and house.scene_file_path == "res://assets/models/sundy_house.glb",
 		"the Sundy house in the camp is the imported model")
+	var sign := game.get_node_or_null("SundyHouse/Nameboard/PaintedName") as Label3D
+	check(sign != null and sign.text == "ROÇA SUNDY" and sign.shaded and not sign.fixed_size
+		and not sign.no_depth_test, "the house name is painted in the lit, depth-tested world")
 	if house != null:
 		await physics_frame
 		var space := house.get_world_3d().direct_space_state

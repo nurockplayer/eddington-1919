@@ -46,6 +46,7 @@ const HudPaper := preload("res://scripts/hud_paper.gd")
 var hud_paper := HudPaper.new()
 var pilot_meshes: Array[MeshInstance3D] = []
 var pilot_day := false
+var sundy_print: Array[MeshInstance3D] = []
 
 const DIALOGUE := {
 	"portrait": "res://assets/portraits/eddington_engraving.jpg",
@@ -85,17 +86,22 @@ func apply(main: Node, style: RefCounted) -> void:
 	for mesh: MeshInstance3D in main.find_children("*", "MeshInstance3D", true, false):
 		if mesh.has_meta(World.PILOT_MATERIALS):
 			pilot_meshes.append(mesh)
+		if mesh.is_in_group(&"sundy_print"):
+			sundy_print.append(mesh)
 	print_pilot(true)
 	hud_paper.setup(main.ui, PAGES)
 	style.set_post(main, p.vignette, 0.0)
 
 
-func light(main: Node, style: RefCounted, _contact: float, darkness: float, night: float) -> void:
+func light(main: Node, style: RefCounted, contact: float, darkness: float, night: float) -> void:
 	if style.quad_material == null:
 		return
 	# Switch the daylight materials under the second-contact fade. Recovery
 	# grades the live scene, whose totality materials carry through to night.
 	print_pilot(night <= 0.5 and (main.phase == main.Phase.PREP or darkness < 1.0 and not main.tot_done))
+	var full_daylight := 1.0 - smoothstep(0.0, 0.62, contact)
+	for mesh: MeshInstance3D in sundy_print:
+		mesh.set_instance_shader_parameter(&"sundy_daylight", full_daylight)
 	hud_paper.light(0.0 if main.phase == main.Phase.PREP else darkness, night, style.params)
 	style.quad_material.set_shader_parameter("darkness", darkness)
 	style.quad_material.set_shader_parameter("night", night)

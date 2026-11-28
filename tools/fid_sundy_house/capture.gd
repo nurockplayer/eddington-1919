@@ -16,10 +16,7 @@ class HouseBenchmark extends "res://tests/benchmark.gd":
 			tag.visible = not tag.fixed_size
 		var stats: Array = []
 		for view in POSITIONS:
-			main.player.global_position = POSITIONS[view]
-			main.player.look_at_point(TARGET)
-			main.player.rotation.y = main.player.yaw
-			main.player.camera.rotation.x = main.player.pitch
+			_aim(POSITIONS[view], TARGET)
 			for state in ["daylight", "early-partial", "totality"]:
 				_house_light(state)
 				var label: String = view + "-" + state
@@ -58,8 +55,32 @@ class HouseBenchmark extends "res://tests/benchmark.gd":
 					get_tree().quit(1)
 					return
 			await get_tree().process_frame
-		print("F1: 6 stills, 120 turn frames, 3 shelter-totality samples")
+		if OS.get_cmdline_user_args().has("--capture-sundy-sign"):
+			var house := main.get_node("SundyHouse") as Node3D
+			var sign := house.get_node("Nameboard/PaintedName") as Label3D
+			var target := sign.global_position
+			var eye_height: float = 0.05 + main.player.camera.position.y
+			var distance_along_ground := sqrt(9.0 - pow(target.y - eye_height, 2.0))
+			var close := target + house.global_transform.basis.z * distance_along_ground
+			close.y = 0.05
+			var sign_views := {"sign-shelter-daylight": POSITIONS.shelter, "sign-3m-daylight": close}
+			for label in sign_views:
+				_aim(sign_views[label], target)
+				await _frames(SETTLE_FRAMES)
+				var saved := await _shot(out_dir.path_join(label + ".png"))
+				if not saved or last_image.get_size() != Vector2i(1280, 720):
+					push_error("Failed to capture 1280x720 " + label)
+					get_tree().quit(1)
+					return
+			print("F1: nameboard stills from the shelter and 3 m")
+		print("F1: 6 paired stills, 120 turn frames, 3 shelter-totality samples")
 		get_tree().quit()
+
+	func _aim(position: Vector3, target: Vector3) -> void:
+		main.player.global_position = position
+		main.player.look_at_point(target)
+		main.player.rotation.y = main.player.yaw
+		main.player.camera.rotation.x = main.player.pitch
 
 	func _house_light(state: String) -> void:
 		if state == "daylight":
