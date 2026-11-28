@@ -2416,3 +2416,13 @@ What I looked at: Liverpool (en 1.2), Sobral square (ja 1.0), London news (en 1.
 ![London news](slice_principe/accept/636-2b98e80/london-news-v2-plate-en-1.0.jpg)
 ![forest text sheet after its plate](slice_principe/accept/636-2b98e80/forest-road-v1-following-en-1.2.jpg)
 
+## #650 · AA 20 settings scroll: accepted at c858906 (2026-11-29 01:02 JST)
+
+What I looked at: en, ja, zh-TW, ko at 1280x720, text scale 1.2, Language focused. Not looked at: scale 1.0, mid-list focus, pause menu.
+
+- **Technical regression:** none seen.
+- **The change: accepted.** The last row is reached and whole in view in all four locales; nothing clipped; the long Korean row wraps cleanly.
+- **Whole-scene readiness: not accepted.** Top row cut in half under the title box after scrolling; the list runs to the screen edge; slider rows left-set among centred rows. Backlog.
+
+Also: edd-lead's fact-check on #636 says the Sobral church must be the Patrocínio; redraw vis-gen-sobral-patrocinio dispatched, the square plate is replaced before #636 merges.
+
