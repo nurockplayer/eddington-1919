@@ -101,10 +101,10 @@ func _run() -> void:
 	main.phase = main.Phase.TOTALITY
 	ui.lock_totality_pace()
 	main._apply_light(1.0, 1.0, 0.0, 0.0)
-	check_overlay_paper(main, help, Engraving.PAGES.tot_paper, Engraving.PAPER, "totality")
+	check_overlay_paper(main, help, Engraving.PAGES.tot_paper, Engraving.HudPaper.TOTALITY_INK, "totality")
 	main.phase = main.Phase.NIGHT
 	main._apply_light(0.0, 0.0, 400.0, 1.0)
-	check_overlay_paper(main, help, Engraving.PAGES.safe_paper, Engraving.PAGES.safe_light, "darkroom")
+	check_overlay_paper(main, help, Engraving.HudPaper.NIGHT_PAPER, Engraving.HudPaper.NIGHT_INK, "darkroom")
 	main.phase = main.Phase.PREP
 	main._apply_light(0.0, 0.0, 0.0, 0.0)
 	check_overlay_paper(main, help, Engraving.PAPER, Engraving.INK, "return to daylight")

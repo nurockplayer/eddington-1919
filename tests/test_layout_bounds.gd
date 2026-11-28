@@ -1181,10 +1181,10 @@ func _test_printed_slips() -> void:
 				check(ui.text_label.get_content_height() <= ui.text_label.size.y + 1, "dialogue glyphs fit")
 				if language == "ko":
 					check(ui.text_label.autowrap_mode == TextServer.AUTOWRAP_WORD and ui.objectives.autowrap_mode == TextServer.AUTOWRAP_WORD, "Korean wraps at words")
-				for phase in [[0.0, 0.0, engraving.PAPER], [1.0, 0.0, engraving.PAGES.tot_paper], [0.0, 1.0, engraving.PAGES.safe_paper]]:
+				for phase in [[0.0, 0.0, engraving.PAPER], [1.0, 0.0, engraving.PAGES.tot_paper], [0.0, 1.0, Color("4d1714")]]:
 					paper.light(phase[0], phase[1], engraving.PARAMS)
 					for background in paper.slips:
-						check(background.bg_color == phase[2], "slips use the scene's opaque paper")
+						check(background.bg_color == phase[2], "slips use the phase's opaque HUD paper")
 					var stock := _slip_luminance(phase[2])
 					var ink := _slip_luminance(paper.foreground)
 					check((maxf(stock, ink) + 0.05) >= 4.5 * (minf(stock, ink) + 0.05), "slip contrast is at least 4.5 to 1")
