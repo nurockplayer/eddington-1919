@@ -1,18 +1,48 @@
 import unittest
+import json
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
 
-from contrast import contrast_ratio, measure, control_evidence_gaps
+from PIL import Image
+
+from contrast import contrast_ratio, measure
 
 
 class ContrastTests(unittest.TestCase):
     def test_unsampled_control_gap_is_reported_alongside_sampled_sibling(self):
-        sampled = {"surface": "dialog", "text": "Visible title"}
-        unsampled = {"surface": "dialog", "text": "Nearly invisible label"}
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            frame = Image.new("RGB", (32, 16), "white")
+            for x in range(2, 8):
+                for y in range(2, 10):
+                    frame.putpixel((x, y), (0, 0, 0))
+            frame.save(out / "frame.png")
+            Image.new("RGB", (32, 16), "white").save(out / "background.png")
+            frame.save(out / "repeat.png")
+            (out / "commands.tsv").write_text("cfg\tfixture command\n")
+            (out / "sheets").mkdir()
+            (out / ".work").mkdir()
+            (out / ".work" / "completed.txt").write_text("720-100\n1080-100\n720-120\n")
+            row = {
+                "config": "cfg", "state": "state", "case": "case", "clause": "text",
+                "frame": "frame.png", "background": "background.png", "repeat": "repeat.png",
+                "text": [
+                    {"surface": "dialog", "text": "Visible title", "rect": [0, 0, 15, 12], "node": "a"},
+                    {"surface": "dialog", "text": "Nearly invisible label", "rect": [16, 0, 32, 12], "node": "b"},
+                ],
+            }
+            (out / "receipts-fixture.jsonl").write_text(json.dumps(row) + "\n")
+            sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 
-        gaps = control_evidence_gaps("cfg state case", (sampled, unsampled), ((4.8,), None))
+            subprocess.run(
+                [sys.executable, str(Path(__file__).with_name("report.py")), str(out), sha],
+                check=True,
+            )
 
-        self.assertEqual(gaps, [
-            "cfg state case / dialog / Nearly invisible label: no differing glyph pixels in the visible bounds."
-        ])
+            expected = "cfg state case / dialog / Nearly invisible label: no differing glyph pixels in the visible bounds."
+            self.assertIn(expected, (out / "index.md").read_text())
 
     def test_wcag_ratio(self):
         self.assertAlmostEqual(contrast_ratio((0, 0, 0), (255, 255, 255)), 21)
