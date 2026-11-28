@@ -1,0 +1,44 @@
+import unittest
+
+from contrast import contrast_ratio, measure
+
+
+class ContrastTests(unittest.TestCase):
+    def test_wcag_ratio(self):
+        self.assertAlmostEqual(contrast_ratio((0, 0, 0), (255, 255, 255)), 21)
+        self.assertEqual(contrast_ratio((12, 34, 56), (12, 34, 56)), 1)
+        self.assertAlmostEqual(contrast_ratio((255, 255, 255), (119, 119, 119)), 4.47808945)
+        self.assertAlmostEqual(contrast_ratio((10, 0, 0), (0, 0, 0)), 1.0129059673)
+
+    def test_changed_paper_and_small_edge_fragment(self):
+        paper, ink = (239, 230, 210), (34, 28, 24)
+        visible = [paper] * 96
+        for y in range(1, 6):
+            visible[y * 12 + 2:y * 12 + 4] = [ink, ink]
+        visible[65] = (170, 162, 148)
+        hidden = [(200, 180, 160)] * len(visible)
+
+        sample = measure(visible, hidden, visible, 12)
+
+        self.assertEqual(sample[:3], (contrast_ratio(ink, paper), ink, paper))
+        self.assertEqual(sample[4], 2)
+
+    def test_weak_rendered_glyphs_still_count(self):
+        paper, gray, bright = (13, 11, 10), (95, 90, 82), (239, 230, 210)
+        hidden = [paper] * 96
+        visible = hidden.copy()
+        for y in range(1, 6):
+            visible[y * 12 + 2:y * 12 + 4] = [gray, gray]
+            visible[y * 12 + 7:y * 12 + 9] = [bright, bright]
+        visible[0] = bright  # This change does not persist in the repeat.
+        restored = [paper, *visible[1:]]
+
+        sample = measure(visible, hidden, restored, 12)
+
+        self.assertLess(sample[0], 4.5)
+        self.assertEqual(sample[1:3], (gray, paper))
+        self.assertEqual(sample[4], 2)
+
+
+if __name__ == "__main__":
+    unittest.main()
