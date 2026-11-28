@@ -2403,3 +2403,16 @@ What I looked at: turn frames 700-703 stepped, walk frame 300 main vs candidate,
 - **The change:** lines now travel with the cloud (slip p95 6.0 → 0.04 px/frame) and the contour map is gone; but the ruling fans in perspective into long diagonals that read as rain.
 - **Readiness:** not judged. Row 2 count unchanged. Follow-up vis-row2-sky-fu1 sent.
 
+## #636 · F3 journey plates, ten wired: change accepted at 2b98e80 (2026-11-29 00:55 JST)
+
+What I looked at: Liverpool (en 1.2), Sobral square (ja 1.0), London news (en 1.0), Santo António (en 1.0), the forest text sheet after its plate (en 1.2). Not looked at: the other 55 frames.
+
+- **Technical regression:** none seen. The wrapper's test rerun failed on my brief's Test line (no import step); CI decides.
+- **The change: accepted.** Ten places open on their engraving, inked on the paper, one localized serif caption. The Atlantic has no sheet and was rightly left out.
+- **Whole-scene readiness: not accepted.** Plate sheet ~840 px wide, text sheet ~1075 px: the book jumps at each turn; text sheets after plates are often near-empty. Follow-up 2 sent: Cambridge v2 and Sundy v3 plates, one page size, the four figures and chapter marks.
+
+![Liverpool](slice_principe/accept/636-2b98e80/liverpool-v1-plate-en-1.2.jpg)
+![Sobral square, ja](slice_principe/accept/636-2b98e80/sobral-square-v1-plate-ja-1.0.jpg)
+![London news](slice_principe/accept/636-2b98e80/london-news-v2-plate-en-1.0.jpg)
+![forest text sheet after its plate](slice_principe/accept/636-2b98e80/forest-road-v1-following-en-1.2.jpg)
+
