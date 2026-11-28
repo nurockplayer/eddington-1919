@@ -136,7 +136,10 @@ func _viewer_case(chapter) -> void:
 	ui.mic_btn.button_pressed = true
 	var reading: float = chapter.sim.reading_for_value(1.75)
 	ui.set_micrometer_reading(reading)
-	await create_timer(0.06, true, false, true).timeout
+	# The tick debounce uses wall time, while this suite accelerates scene time.
+	var next_tick_at := Time.get_ticks_msec() + 50
+	while Time.get_ticks_msec() < next_tick_at:
+		await process_frame
 	ui._nudge_micrometer(1.0, false)
 	ui.mic_record_btn.pressed.emit()
 	check(chapter.sim.plates[0].read and chapter.sim.plates[0].reading > reading,
