@@ -13,6 +13,7 @@ var log_index := 0
 var route := ""
 var verdict := -1
 var submitted := false
+var viewer_signature: Array = []
 
 
 func _initialize() -> void:
@@ -119,6 +120,91 @@ func _departure(chapter) -> void:
 			chapter.Beat.FAREWELL: chapter._interact("mentor")
 
 
+func _viewer_case(chapter) -> void:
+	var ui = chapter.ui
+	var label := "%s verdict=%d" % [route, verdict]
+	check(ui.viewer.visible and not ui.blink_btn.disabled, label + ": playable plate viewer")
+	var start: int = ui.viewer_sfx_log.size()
+	ui.thumbs.get_child(1).pressed.emit()
+	ui.blink_btn.button_pressed = true
+	var blink_delta := 1.0 if GameSettings.reduced_motion else 0.5
+	ui._process(blink_delta)
+	check(ui._blink_oxford, label + ": blink swaps to Oxford")
+	ui._process(4.0 * blink_delta)
+	ui.blink_btn.button_pressed = false
+	ui.include_box.button_pressed = true
+	ui.mic_btn.button_pressed = true
+	var reading: float = chapter.sim.reading_for_value(1.75)
+	ui.set_micrometer_reading(reading)
+	await create_timer(0.06, true, false, true).timeout
+	ui._nudge_micrometer(1.0, false)
+	ui.mic_record_btn.pressed.emit()
+	check(chapter.sim.plates[0].read and chapter.sim.plates[0].reading > reading,
+		label + ": micrometer moved and recorded a reading")
+	ui.measure_btn.pressed.emit()
+	ui.report_btn.pressed.emit()
+	check(ui._viewer_reporting and ui.dialog_active(), label + ": open report for silent reading")
+	var before_reading: int = ui.viewer_sfx_log.size()
+	await create_timer(2.0).timeout
+	check(ui.viewer_sfx_log.size() == before_reading, label + ": no sound while reading the report")
+
+	var events: Array = ui.viewer_sfx_log.slice(start)
+	check(events == ["plate", "blink", "mark", "tick", "tick", "mark", "measure"],
+		label + ": one manual blink cue and identical ticks toward and away from the reading; got " + str(events))
+	var signature := []
+	var measurements: Array[Dictionary] = []
+	for event in events:
+		var player: AudioStreamPlayer = ui._viewer_sfx[event]
+		var wav := player.stream as AudioStreamWAV
+		var gain := db_to_linear(player.volume_db)
+		var onset := -1
+		var peak := 0.0
+		var pcm := wav.data
+		for i in range(0, pcm.size(), 2):
+			var sample := absf(pcm.decode_s16(i) / 32768.0) * gain
+			if onset < 0 and sample >= 0.001:
+				onset = i / 2
+			peak = maxf(peak, sample)
+		var sample_id := pcm.hex_encode().sha256_text().left(12)
+		signature.append([event, sample_id])
+		measurements.append({
+			"event": event, "sample": sample_id,
+			"onset_ms": snappedf(1000.0 * onset / wav.mix_rate, 0.001),
+			"peak_dbfs": snappedf(linear_to_db(peak), 0.01),
+		})
+	print("[F27 VIEWER] ", label, " ", JSON.stringify(measurements))
+	if viewer_signature.is_empty():
+		viewer_signature = signature
+	check(signature == viewer_signature, label + ": matching viewer events and samples")
+	var tools := {}
+	for entry in signature:
+		if entry[0] in ["plate", "blink", "tick"]:
+			tools[entry[1]] = true
+	check(tools.size() == 3, label + ": each tool has its own sample")
+	var clip_path := OS.get_environment("EDD_VIEWER_CLIP")
+	if not clip_path.is_empty() and route == "direct" and verdict == 0 and tools.size() == 3:
+		_export_viewer_clip(ui, clip_path)
+
+
+func _export_viewer_clip(ui, path: String) -> void:
+	var clip := AudioStreamWAV.new()
+	clip.format = AudioStreamWAV.FORMAT_16_BITS
+	clip.mix_rate = ui._viewer_sfx.plate.stream.mix_rate
+	var pcm := PackedByteArray()
+	pcm.resize(clip.mix_rate / 2 * 2)
+	# Audition the three actions once, at their player gains, with space between them.
+	for event in ["plate", "blink", "tick"]:
+		var player: AudioStreamPlayer = ui._viewer_sfx[event]
+		var sample: PackedByteArray = player.stream.data
+		var gain := db_to_linear(player.volume_db)
+		for i in range(0, sample.size(), 2):
+			sample.encode_s16(i, roundi(sample.decode_s16(i) * gain))
+		pcm.append_array(sample)
+		pcm.resize(pcm.size() + clip.mix_rate / 2 * 2)
+	clip.data = pcm
+	check(clip.save_to_wav(path) == OK, "write viewer audition clip")
+
+
 func _principe(chapter) -> void:
 	# Advance the real totality clock explicitly; this avoids waiting minutes or
 	# depending on random clouds. Only the exposure's sky sample is fixed clear.
@@ -151,10 +237,7 @@ func _principe(chapter) -> void:
 				_talk(chapter)
 				chapter._interact("measure")
 				_talk(chapter)
-				chapter.ui.plate_toggled.emit(0, true)
-				chapter.ui.reading_set.emit(0, chapter.sim.reading_for_value(1.75))
-				chapter.ui.measure_pressed.emit()
-				chapter.ui.report_pressed.emit()
+				await _viewer_case(chapter)
 		chapter.Phase.CODA:
 			match chapter.coda_step:
 				chapter.CodaStep.WORKBOOK: chapter._interact("departure_workbook")
@@ -211,7 +294,7 @@ func _case(full: bool, choice: int) -> void:
 			match script:
 				CAMBRIDGE: _cambridge(chapter)
 				DEPARTURE: _departure(chapter)
-				MAIN: _principe(chapter)
+				MAIN: await _principe(chapter)
 				OCTOBER: _october(chapter)
 		_capture()
 	var label := "%s verdict=%d" % [route, verdict]

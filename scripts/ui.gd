@@ -1166,6 +1166,7 @@ func _set_blink(on: bool) -> void:
 	_blink_oxford = false
 	blink_label.visible = on
 	if on:
+		_viewer_sound("blink")
 		_blink_had_loupe = loupe_btn.button_pressed
 		if not _blink_had_loupe:
 			loupe_btn.set_pressed_no_signal(true)
@@ -1528,8 +1529,8 @@ func _build_viewer_sfx() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1919
 	var rate := 22050
-	for name in ["plate", "mark", "measure"]:
-		var duration: float = {"plate": 0.22, "mark": 0.07, "measure": 0.9}[name]
+	for name in ["plate", "blink", "mark", "measure"]:
+		var duration: float = {"plate": 0.16, "blink": 0.09, "mark": 0.07, "measure": 0.9}[name]
 		var samples := PackedFloat32Array()
 		samples.resize(int(duration * rate))
 		var previous_noise := 0.0
@@ -1537,7 +1538,12 @@ func _build_viewer_sfx() -> void:
 			var t := float(i) / rate
 			match name:
 				"plate":
-					samples[i] = (0.38 * sin(TAU * 2900.0 * t) + 0.22 * sin(TAU * 4400.0 * t)) * exp(-25.0 * t) + 0.18 * sin(TAU * 120.0 * t) * exp(-40.0 * t)
+					# A single low contact as the plate settles into its seat.
+					samples[i] = (0.48 * sin(TAU * 180.0 * t) + 0.21 * sin(TAU * 380.0 * t)) * exp(-34.0 * t)
+				"blink":
+					# A soft, short flick when comparison is switched on.
+					var attack := minf(t / 0.004, 1.0)
+					samples[i] = attack * (0.42 * sin(TAU * 950.0 * t) + 0.2 * sin(TAU * 1470.0 * t)) * exp(-58.0 * t)
 				"mark":
 					var noise := rng.randf_range(-1.0, 1.0)
 					samples[i] = 0.35 * (noise - previous_noise) * exp(-90.0 * t)
