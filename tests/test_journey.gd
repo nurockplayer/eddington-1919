@@ -241,9 +241,9 @@ func _run() -> void:
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
 	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
-		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
-		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
-		temp_settings = directory.path_join("settings.cfg")
+		var directory := DirAccess.create_temp("edd-journey", true)
+		expect(directory != null, "create isolated checkpoint directory: " + error_string(DirAccess.get_open_error()))
+		temp_settings = directory.get_current_dir().path_join("settings.cfg")
 		OS.set_environment("EDD_SETTINGS_PATH", temp_settings)
 		var settings := ConfigFile.new()
 		settings.set_value("ui", "text_scale", 1.2)
