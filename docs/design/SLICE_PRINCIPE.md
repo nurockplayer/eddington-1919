@@ -2026,3 +2026,17 @@ Whole scene: closer, not yet a climax. Still to come from other briefs: a drawn 
 ![axis](slice_principe/accept/622/3a4b2f0/london_arrival_040_en.png)
 ![arrived](slice_principe/accept/622/3a4b2f0/london_arrival_238_en.png)
 ![1.2 cut](slice_principe/accept/622/3a4b2f0/london_principal_principe_en_scale_1_2.png)
+
+### 2026-11-28 15:38 JST · #611 (journey sheets, my lane, Refs #551) at 2533d41: accepted
+
+Opened whole at 1280×720: en at text scale 1.2: 077 (letter), 090 (onward passage), 106 (drive check, first view), 063 (Funchal worktable); ja at 1.0: 237 (letter), 272 (drive check, clouded). The other 296 by the index only: 21 sheet states scroll (Funchal worktable at en 1.2, drive check at en 1.2 and its clouded attempt in ja), the rest fit. English at 1.0 was seen at 9df8510. No main pair.
+
+- Technical regression: none seen.
+- This change: accepted. At 1.2 the letter and the onward passage fit with nothing cut and no scroll; ports are named on the strips; the drive check's record buttons are in the first view beside the action and can be read when disabled; Japanese sets cleanly. Where a sheet still scrolls it has more than a line to show and the fold falls between entries.
+- Small, not held: on the drive check at 1.2 the fold shaves the top edge of the reference-button row.
+
+Not covered by this capture (it stops at I3): the I4 sheets (#620), the I2 letter state changed by #610, and the London hold sheet, where the fold cuts a line. I look at those after this is rebased on main.
+
+![letter 1.2](slice_principe/accept/611/2533d41/077_en_first.png)
+![onward 1.2](slice_principe/accept/611/2533d41/090_en_first.png)
+![drive check 1.2](slice_principe/accept/611/2533d41/106_en_first.png)
