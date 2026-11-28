@@ -97,3 +97,14 @@ func show_entry(entry: Dictionary) -> void:
 	var path: String = variants.get(str(entry.get("mood", "neutral")), variants.neutral)
 	image.texture = load(path) as Texture2D
 	visible = image.texture != null
+
+
+static func paper_oval(texture: Texture2D) -> ImageTexture:
+	var pixels := texture.get_image()
+	pixels.convert(Image.FORMAT_RGBA8)
+	pixels.resize(96, 128)
+	for y in 128:
+		for x in 96:
+			if Vector2((x - 47.5) / 47.5, (y - 63.5) / 63.5).length_squared() > 1.0:
+				pixels.set_pixel(x, y, Color.TRANSPARENT)
+	return ImageTexture.create_from_image(pixels)
