@@ -2077,3 +2077,29 @@ Frames kept in `docs/design/slice_principe/accept/624/19427c7/`.
 ![illustration](slice_principe/accept/624/19427c7/I5-22_en.png)
 
 **Count stays 7/9.**
+
+## Journey plates · first generated batch: the hand holds (2026-11-28 17:50 JST)
+
+Owner, 2026-11-28 16:4x JST via edd-lead: many more generated images for the game. This is the style batch for VISUAL_FIDELITY F3: six plates (Funchal, Santo António, Burlington House, two variants each) from Codex's built-in image generation, in the recipe of `eddington_engraving.jpg`. Raw files, prompts and hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28/manifest.json`.
+
+What I looked at: the contact sheet, all six raws whole at native size (1672x941), and the Santo António mock.
+
+**Verdict: accepted as a style. Generated plates carry the places.** Line, not wash: hills and water are built from hatching that follows form, the sky is ruled, the edges fade as a vignette, the paper is the portraits' cream. Beside the Eddington portrait they read as the same book. Against the 190 px slips they replace there is no comparison: the player now arrives somewhere.
+
+Picks for wiring:
+- **Funchal: variant 1.** The steamer at anchor is the subject and the town climbs behind it. Variant 2 is a fishing-boat picture with the ship as a detail; kept in reserve.
+- **Santo António: variant 1.** Quay with steps, the ship's boat coming in, low houses, the peaks. Variant 2 repeats Funchal 2's bollard foreground.
+- **Burlington House: variant 2.** A man reading a paper to a full room, seen from behind, light from the tall windows; no face anywhere. Variant 1 has six faces at the table and a readable portrait: closer to depicting real people than I want.
+
+Stated limits (they are reconstructions and are captioned so): ship silhouettes, quay construction, the room's ornament and the audience are not from sources. Variant 2 of Burlington House shows a woman's hat in the pews; unverified for this meeting, to fact-check before it ships.
+
+For the wiring brief: the mock puts the plate over the whole sheet and leaves a caption only, so the plate is the chapter's opening sheet and the text starts on the next; the plate's cream is lighter than the sheet's paper and must be laid onto the paper (multiply), not pasted as a pale box. In-engine frames decide the rest.
+
+Next: wire these three; a second batch for the chapters still without a place (Liverpool, Sobral, the voyage, Roça Sundy as seen on arrival).
+
+![contact sheet](slice_principe/plates/journey-20261128/contact-sheet.png)
+![Funchal](slice_principe/plates/journey-20261128/funchal-v1.jpg)
+![Santo António](slice_principe/plates/journey-20261128/santo-antonio-v1.jpg)
+![Burlington House](slice_principe/plates/journey-20261128/burlington-house-v2.jpg)
+
+**Count stays 7/9.**
