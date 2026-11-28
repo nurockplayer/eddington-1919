@@ -269,12 +269,13 @@ func _input(event: InputEvent) -> void:
 func _board(focus: String, correction: String) -> void:
 	_show("M14")
 	page_id = "M20"
-	_ink(paper.body, "hotel", 0, false, 126)
+	_ink(paper.body, "hotel", 0, false, 100)
 	var complete := filed.size() == Content.LOOSE.size()
 	var columns: HBoxContainer = paper.columns(paper.body)
 	var controls := {}
 	if not complete:
 		var tray: VBoxContainer = paper.column(columns)
+		tray.add_theme_constant_override("separation", 6)
 		_line(tray, "M20", 19)
 		for id in Content.LOOSE:
 			if filed.has(id):
@@ -286,6 +287,7 @@ func _board(focus: String, correction: String) -> void:
 			controls[id] = loose
 	for folder in Content.COPIES:
 		var copy: VBoxContainer = paper.column(columns)
+		copy.add_theme_constant_override("separation", 6)
 		_line(copy, "M19", 17)
 		if complete:
 			_line(copy, folder, 25)

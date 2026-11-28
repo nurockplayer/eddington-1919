@@ -182,6 +182,7 @@ func _remember(speaker: String, ids: Array) -> void:
 
 func _rehearse(pair: Dictionary) -> void:
 	_show("S44")
+	paper.body.add_theme_constant_override("separation", 6)
 	page_id = pair.label
 	_line(_layout, "S45", 18)
 	_layout.move_child(_layout.get_child(-1), 1)

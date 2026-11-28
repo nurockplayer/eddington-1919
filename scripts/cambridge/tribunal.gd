@@ -258,6 +258,7 @@ func _choose_heading(card: String) -> String:
 func _armistice() -> void:
 	for i in Content.ARMISTICE.size():
 		_show_page("I01" if i == 0 else "I08")
+		paper.body.add_theme_constant_override("separation", 6)
 		paper.heading(_text.I03, 18)
 		paper.heading(_text.I01, 40)
 		paper.label(paper.body, _text.I02, 23)
