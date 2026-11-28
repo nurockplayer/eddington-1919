@@ -37,6 +37,7 @@ var fold_captures := false
 var fold_check := false
 var fold_baseline := false
 var i4_captures := false
+var tribunal_captures := false
 var temp_settings := ""
 
 
@@ -77,10 +78,17 @@ func tap_pad(button_index: JoyButton) -> void:
 	await process_frame
 
 
-func press(button: Button) -> void:
+func press(button: Button, pad := false) -> void:
 	expect(not button.disabled and button.is_visible_in_tree(), "enabled button: " + button.text)
 	button.grab_focus()
-	await tap(KEY_ENTER)
+	await accept(pad)
+
+
+func accept(pad: bool) -> void:
+	if pad:
+		await tap_pad(JOY_BUTTON_A)
+	else:
+		await tap(KEY_ENTER)
 
 
 func button(paper: Control, text: String) -> Button:
@@ -224,15 +232,18 @@ func _run() -> void:
 		elif arg.begins_with("--fold-captures="):
 			capture_dir = arg.trim_prefix("--fold-captures=")
 			fold_captures = true
+		elif arg.begins_with("--tribunal-captures="):
+			capture_dir = arg.trim_prefix("--tribunal-captures=")
+			tribunal_captures = true
 	fold_check = fold_captures or OS.get_cmdline_user_args().has("--fold-check")
 	# Headless routes assert the transitions and controls, so advance presentation
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
-	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures else Vector2i(1920, 1080)
 	if capture_dir.is_empty():
-		var directory := "%s/edd-journey-%d" % [OS.get_temp_dir(), OS.get_process_id()]
-		expect(DirAccess.make_dir_absolute(directory) == OK, "create isolated checkpoint directory")
-		temp_settings = directory.path_join("settings.cfg")
+		var directory := DirAccess.create_temp("edd-journey", true)
+		expect(directory != null, "create isolated checkpoint directory: " + error_string(DirAccess.get_open_error()))
+		temp_settings = directory.get_current_dir().path_join("settings.cfg")
 		OS.set_environment("EDD_SETTINGS_PATH", temp_settings)
 		var settings := ConfigFile.new()
 		settings.set_value("ui", "text_scale", 1.2)
@@ -242,6 +253,8 @@ func _run() -> void:
 	var locales := ["en", "ja", "zh_TW", "ko"] if enabled else ["zh_TW"]
 	if madeira_captures or sundy_captures or sobral_captures or london_captures or london_only or i4_captures:
 		locales = ["en", "ja"]
+	elif tribunal_captures:
+		locales = ["en"]
 	# Retain the packed resources across locales. The directors still create fresh scenes.
 	var route: Array[PackedScene] = [load(CAMBRIDGE), load(DEPARTURE), load(OBSERVATION_DAY)]
 	if enabled and capture_dir.is_empty() and not london_only and not fold_check:
@@ -381,6 +394,7 @@ func _departure_opening() -> void:
 func _tribunal(director: Node, misfile: bool) -> void:
 	var journey: Node = director.tribunal
 	var paper: Control = journey.paper
+	var pad := misfile or OS.get_cmdline_user_args().has("--tribunal-pad")
 	var strings := Content.strings()
 	var bench_speakers := {
 		"T77": "T76", "T78": Content.Cast.MENTOR, "T79": Content.Cast.YOU,
@@ -397,12 +411,12 @@ func _tribunal(director: Node, misfile: bool) -> void:
 			expect(director.ui.speaker_label.text == (strings.T76 if speaker == "T76" else L.t(speaker))
 				and director.ui.text_label.text == strings[id],
 				"private bench exchange shows its speaker and line: " + id)
-			await tap(KEY_ENTER)
+			await accept(pad)
 		elif director.ui.dialog_active():
 			if id == "T19":
 				expect(has_text(paper, strings.T11) and has_text(paper, strings.T13), "both claims stay in view")
 			while director.ui.dialog_active() and journey.page_id == id:
-				await tap(KEY_ENTER)
+				await accept(pad)
 		else:
 			if id == "T29":
 				check_paper_focus(button(paper, strings.T22))
@@ -410,38 +424,40 @@ func _tribunal(director: Node, misfile: bool) -> void:
 					await capture("hearing", paper)
 			if id == "T54":
 				expect(has_text(paper, strings.T54), "July condition has its own page")
-			await press(button(paper, strings[id] if id in ["T24", "T45"] else strings.T22))
+			await press(button(paper, strings[id] if id in ["T24", "T45"] else strings.T22), pad)
 		if PASS_AFTER.has(id):
-			await _tribunal_pass(director, journey, strings, PASS_AFTER[id], misfile)
+			await _tribunal_pass(director, journey, strings, PASS_AFTER[id], misfile, pad)
 	expect(journey.filed.size() == TRAY.size(), "nine distinct extracts before the verdict")
 	for id in ["T71", "T72", "T74", "T75"]:
 		expect(journey.page_id == id, "ledger sequence: " + id)
 		if id == "T72":
 			expect(has_text(paper, Content.ledger(strings, root.get_node("Story").bet_1917)), "ledger uses saved uncertain prediction")
 			expect(has_text(paper, strings.T73), "ledger displays Ashby's own entry")
-			await press(button(paper, strings.T22))
+			await press(button(paper, strings.T22), pad)
 		else:
-			await tap(KEY_ENTER)
+			await accept(pad)
 	expect(journey.page_id == "T82" and director.ui.dialog_active(), "Ashby returns to the ledger after the packet")
 	expect(paper.visible and has_text(paper, strings.T73)
 		and has_text(paper, Content.ledger(strings, root.get_node("Story").bet_1917)), "both entries stay open")
 	for id in ["T82", "T83"]:
 		expect(director.ui.speaker_label.text == L.t(Content.Cast.MENTOR)
 			and director.ui.text_label.text == strings[id], "Ashby speaks beside the ledger: " + id)
-		await tap(KEY_ENTER)
+		await accept(pad)
 	expect(journey.page_id == "I01" and has_text(paper, strings.I05), "Armistice begins with the public report")
 	expect(Checkpoint.peek() == "", "first Armistice page still has no checkpoint")
 	await check_paper_layout(paper, "armistice")
 	check_paper_focus(button(paper, strings.T22))
 	await capture("armistice", paper)
-	await press(button(paper, strings.T22))
+	if tribunal_captures:
+		await capture("tribunal_armistice", paper)
+	await press(button(paper, strings.T22), pad)
 	expect(journey.page_id == "I08" and has_text(paper, strings.I11), "Armistice ends with the Observatory's loss")
 	await check_paper_layout(paper, "second armistice page")
 	check_paper_focus(button(paper, strings.I12))
-	await press(button(paper, strings.I12))
+	await press(button(paper, strings.I12), pad)
 
 
-func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_index: int, misfile: bool) -> void:
+func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_index: int, misfile: bool, pad: bool) -> void:
 	var paper: Control = journey.paper
 	var first := pass_index * 3
 	var limit := first + 3
@@ -462,7 +478,7 @@ func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_ind
 		await capture("packet", paper)
 	if pass_index == 2 and L.current() == "en":
 		expect(not strings.values().any(func(line): return "’" in line), "use proportional English apostrophes on the tribunal and Armistice pages")
-		if not capture_dir.is_empty() and not madeira_captures and not sundy_captures and not fold_captures:
+		if not capture_dir.is_empty() and not madeira_captures and not sundy_captures and not fold_captures and not tribunal_captures:
 			root.size = Vector2i(1280, 720)
 			Settings.text_scale = 1.2
 			Settings.refresh_fonts(self)
@@ -478,8 +494,9 @@ func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_ind
 		var title: String = strings[extract.lines[0]]
 		var source: String = strings[extract.source]
 		var tray_card := button(paper, title)
-		expect(tray_card.has_focus(), "next tray card has focus: " + card)
-		await press(button(paper, strings.T57))
+		if not tray_card.button_pressed:
+			await press(tray_card, pad)
+		await press(button(paper, strings.T57), pad)
 		expect(has_text(paper, source), "extract carries its source: " + card)
 		expect(button(paper, strings.T59).disabled, "file waits for a heading")
 		if i == 1:
@@ -487,40 +504,61 @@ func _tribunal_pass(director: Node, journey: Node, strings: Dictionary, pass_ind
 			if L.current() == "en" and not capture_dir.is_empty():
 				await capture("packet_open", paper)
 		if i == 0:
-			await press(button(paper, strings.T58))
+			if tribunal_captures:
+				await capture("tribunal_open", paper)
+			await press(button(paper, strings.T58), pad)
 			expect(journey.filed.is_empty() and button(paper, title).has_focus(), "back leaves the extract in the tray")
-			await press(button(paper, strings.T57))
-		if misfile:
+			expect(button(paper, title).button_pressed and has_text(paper, source), "back keeps the selected extract and its source: " + card)
+			if tribunal_captures:
+				await capture("tribunal_back", paper)
+			await press(button(paper, strings.T57), pad)
+			expect(journey.page_id == card and has_text(paper, source), "reread opens the same sourced extract: " + card)
+			if tribunal_captures:
+				await capture("tribunal_reread", paper)
+		if misfile or i == 0:
 			var wrong: Array = ["T04", "T05", "T06"].filter(func(slot): return slot != SLOTS[i])
-			for slot in wrong:
-				await press(button(paper, strings[slot]))
-				await press(button(paper, strings.T59))
+			for slot in (wrong if misfile else wrong.slice(0, 1)):
+				await press(button(paper, strings[slot]), pad)
+				await press(button(paper, strings.T59), pad)
 				expect(journey.page_id == extract.hint and director.ui.text_label.text == strings[extract.hint],
 					"wrong heading has the matching Kit hint: " + card)
-				await tap(KEY_ENTER)
+				if tribunal_captures and i == 0:
+					await capture("tribunal_misfile", paper)
+				await accept(pad)
 				expect(journey.filed.size() == i and button(paper, title).has_focus(),
 					"wrong heading leaves the tray and focus unchanged: " + card)
-				await press(button(paper, strings.T57))
-			await press(button(paper, strings[wrong[0]]))
-		await press(button(paper, strings[SLOTS[i]]))
-		await press(button(paper, strings.T59))
+				expect(button(paper, title).button_pressed and has_text(paper, source), "correction keeps the selected extract and its source: " + card)
+				if tribunal_captures and i == 0:
+					await capture("tribunal_correction", paper)
+				await press(button(paper, strings.T57), pad)
+			await press(button(paper, strings[wrong[0]]), pad)
+		await press(button(paper, strings[SLOTS[i]]), pad)
+		await press(button(paper, strings.T59), pad)
 		expect(journey.filed.get(card) == SLOTS[i] and has_text(paper, strings.T60),
 			"correct heading files the extract: " + card)
+		var filed_card := button(paper, title)
+		expect(filed_card.button_pressed and filed_card.has_focus() and has_text(paper, source), "filing keeps the selected extract and its source: " + card)
 		if i == 0 and L.current() == "en" and not capture_dir.is_empty():
 			await capture("packet_filed", paper)
+			if tribunal_captures:
+				await capture("tribunal_filed", paper)
 		expect(paper.find_children("*", "Button", true, false).any(func(b): return b.text == strings.T70) == (i == limit - 1),
 			"close becomes available after the three extracts in this pass")
 	if pass_index == 2:
-		await press(button(paper, strings.T52))
-		await press(button(paper, strings.T57))
+		await press(button(paper, strings.T52), pad)
+		await press(button(paper, strings.T57), pad)
 		expect(has_text(paper, strings.L) and has_text(paper, strings.T54), "rereading the ruling retains its citation and condition")
 		expect(not paper.find_children("*", "Button", true, false).any(func(b): return b.text == strings.T59),
 			"filed extract is read-only")
-		await press(button(paper, strings.T58))
-	await press(button(paper, strings.T70))
+		await press(button(paper, strings.T58), pad)
+	await press(button(paper, strings.T70), pad)
 
 
 func capture(state: String, paper: Control, suffix := "", dimensions := Vector2i(1920, 1080)) -> void:
+	if tribunal_captures:
+		if not state.begins_with("tribunal_"):
+			return
+		dimensions = Vector2i(1280, 720)
 	await frames(3)
 	for action in paper.actions.get_children():
 		expect(root.get_visible_rect().grow(1.0).encloses(action.get_global_rect()), "paper controls stay in bounds: " + state)

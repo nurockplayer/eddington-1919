@@ -135,10 +135,11 @@ func _packet(extracts: Array) -> void:
 	var selected: String = extracts[0]
 	var filed_feedback := false
 	while true:
-		_show_packet(extracts, selected, filed_feedback)
+		var source := _show_packet(extracts, selected, filed_feedback)
 		var action: String = await paper.action
 		while action in Content.EXTRACTS:
 			selected = action
+			source.text = _text[Content.EXTRACTS[selected].source]
 			action = await paper.action
 		paper.hide()
 		if action == "close":
@@ -151,16 +152,11 @@ func _packet(extracts: Array) -> void:
 		if heading == card.heading:
 			filed[selected] = heading
 			filed_feedback = true
-			selected = ""
-			for remaining in extracts:
-				if not filed.has(remaining):
-					selected = remaining
-					break
 		else:
 			await _dialogue({"speaker": Content.Cast.KIT, "lines": [card.hint]})
 
 
-func _show_packet(extracts: Array, selected: String, filed_feedback: bool) -> void:
+func _show_packet(extracts: Array, selected: String, filed_feedback: bool) -> Label:
 	_show_page("packet", true)
 	paper.label(paper.body, _text.T07, 32, true)
 	paper.label(paper.body, _text.T56, 22, true)
@@ -184,16 +180,17 @@ func _show_packet(extracts: Array, selected: String, filed_feedback: bool) -> vo
 				card_buttons[card] = _card_button(slot, buttons, card, selected)
 	if filed_feedback:
 		paper.label(paper.body, _text.T60, 21, true)
+	# Keep the citation visible while the tray scrolls.
+	var layout: Container = paper.actions.get_parent()
+	paper.label(layout, _text[Content.EXTRACTS[selected].source], 18, true)
+	var source: Label = layout.get_child(-1)
+	layout.move_child(source, paper.actions.get_index())
 	paper.actions.show()
-	var read: Button = paper.button(paper.actions, _text.T57, "read")
-	read.disabled = selected.is_empty()
-	buttons.pressed.connect(func(_button): read.disabled = false)
+	paper.button(paper.actions, _text.T57, "read")
 	if extracts.all(func(card): return filed.has(card)):
-		var close: Button = paper.button(paper.actions, _text.T70, "close")
-		if selected.is_empty():
-			close.grab_focus()
-	if not selected.is_empty():
-		card_buttons[selected].grab_focus()
+		paper.button(paper.actions, _text.T70, "close")
+	card_buttons[selected].grab_focus()
+	return source
 
 
 func _card_button(parent: Container, group: ButtonGroup, card: String, selected: String) -> Button:
