@@ -251,11 +251,13 @@ func _run() -> void:
 	# time faster to keep all four locales inside the suite's wall-clock deadline.
 	Engine.time_scale = 20.0 if capture_dir.is_empty() else 2.0
 	root.size = Vector2i(1280, 720) if capture_dir.is_empty() or sobral_captures or london_captures or fold_captures or i4_captures or tribunal_captures or print_captures or madeira_filing else Vector2i(1920, 1080)
-	if capture_dir.is_empty():
+	if capture_dir.is_empty() or london_captures:
 		var directory := DirAccess.create_temp("edd-journey", true)
-		expect(directory != null, "create isolated checkpoint directory: " + error_string(DirAccess.get_open_error()))
+		expect(directory != null, "create isolated journey directory: " + error_string(DirAccess.get_open_error()))
 		temp_settings = directory.get_current_dir().path_join("settings.cfg")
 		OS.set_environment("EDD_SETTINGS_PATH", temp_settings)
+		expect(Settings.settings_path() == temp_settings, "journey settings are isolated from user://settings.cfg")
+	if capture_dir.is_empty():
 		var settings := ConfigFile.new()
 		settings.set_value("ui", "text_scale", 1.2)
 		settings.set_value("ui", "reduced_motion", true)
@@ -289,7 +291,7 @@ func _run() -> void:
 				var settings := ConfigFile.new()
 				settings.set_value("ui", "text_scale", scale)
 				settings.set_value("ui", "reduced_motion", false)
-				expect(settings.save(Settings.settings_path()) == OK, "save isolated capture settings")
+				expect(settings.save(temp_settings) == OK, "save isolated capture settings")
 				await _london_setup()
 		elif london_only:
 			await _london_setup()
@@ -306,11 +308,10 @@ func _run() -> void:
 		if capture_dir.is_empty():
 			Checkpoint.clear()
 	if london_captures:
-		DirAccess.remove_absolute(Settings.settings_path())
 		var ready := FileAccess.open(capture_dir.path_join(".archive-ready"), FileAccess.WRITE)
 		ready.close()
-	if capture_dir.is_empty():
-		DirAccess.remove_absolute(Settings.settings_path())
+	if capture_dir.is_empty() or london_captures:
+		DirAccess.remove_absolute(temp_settings)
 		DirAccess.remove_absolute(temp_settings.get_base_dir())
 	print("test_journey %s: %d checks, 0 failures" % ["on" if enabled else "off", checks])
 	quit()
