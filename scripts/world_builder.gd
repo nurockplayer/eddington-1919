@@ -1338,4 +1338,13 @@ func _person(id: String, body: Node3D) -> bool:
 		look.duration = 0.6
 		look.influence = 0.0
 		sk.add_child(look)
+		if observer:
+			var hat := fig.find_child("eddington_hat", true, false) as Node3D
+			# Follow the crown of the head through the work poses, with a level brim.
+			var attachment := hat.get_parent() as Node3D
+			var authored_basis := hat.basis
+			sk.skeleton_updated.connect(func() -> void:
+				var heading := (attachment.global_basis * authored_basis).z.slide(Vector3.UP)
+				hat.global_basis = Basis.looking_at(-heading, Vector3.UP)
+			)
 	return true
