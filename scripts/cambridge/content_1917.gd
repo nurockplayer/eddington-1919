@@ -106,18 +106,19 @@ static func examine(id: String) -> Array:
 			return [{"s": L.t("%s的帳簿") % L.t(K), "t": L.t("同一顆變星，一行一行的亮度估計，字跡工整得近乎固執。\n最新一頁的角落，畫著一個很小的問號。")}]
 		"orrery":
 			return orrery_check()
-		"gramophone":
+		"gramophone", "gramophone_again":
 			# Music round 2 (proposal). Fact check (Sonnet, 2026-10-31): table-top hornless
 			# machines existed by 1917, and Victor and Gramophone Co. discs are both lateral-cut;
 			# the disc is shellac with a black batwing label with gold print (1914–26);
 			# transatlantic post ran through 1917. No machine make, ship or person is named.
+			var song := {"s": L.t("留聲機"), "t": L.t("〈Keep the Home-Fires Burning〉。開戰頭幾個月寫的歌，到現在英國還有很多人在唱：把家裡的爐火燒著，等孩子們回家。")}
+			if id == "gramophone_again":
+				return [song]
 			return [
 				{"s": L.t("留聲機"), "t": L.t("一台桌上型留聲機。唱盤旁放著一張蟲膠唱片，黑色標籤上印著金字，是美國 Victor 公司的。\n信封還夾在一旁——一位美國同行隨信寄來的，說「給雨天的劍橋」。")},
-				{"s": L.t("留聲機"), "t": L.t("〈Keep the Home-Fires Burning〉。開戰頭幾個月寫的歌，到現在英國還有很多人在唱：把家裡的爐火燒著，等孩子們回家。")},
+				song,
 				{"s": L.t("留聲機"), "t": L.t("[color=#b8ad98]你放下唱針。[/color]")},
 			]
-		"gramophone_again":
-			return [{"s": L.t("留聲機"), "t": L.t("[color=#b8ad98]你又放了一次。[/color]")}]
 		"gramophone_stop":
 			return [{"s": L.t("留聲機"), "t": L.t("[color=#b8ad98]你抬起唱針。房間裡又只剩下雨聲。[/color]")}]
 		"notebook_before":
