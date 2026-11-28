@@ -33,11 +33,7 @@ func setup(target: Node, colours: Dictionary) -> void:
 	ink_crossover = sqrt((light_ink.srgb_to_linear().get_luminance() + 0.05)
 		* (dark_ink.srgb_to_linear().get_luminance() + 0.05)) - 0.05
 	ui.paper_hud = true
-	var face := SystemFont.new()
-	face.font_names = PackedStringArray(["Baskerville", "Georgia", "serif"])
-	face.fallbacks = [ui.font]
-	if Fonts.SERIF_FACES.has(L.current()):
-		face.fallbacks = [Fonts.SERIF_FACES[L.current()], ui.font]
+	var face := Fonts.book_serif(ui.font)
 	serif = face
 	for variant in ["bold_font", "italics_font", "bold_italics_font"]:
 		var emphasis: SystemFont = face.duplicate()
