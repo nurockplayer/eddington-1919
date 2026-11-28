@@ -2451,3 +2451,11 @@ What I looked at: after-totality 1 candidate and main, night prediction 1, night
 ![candidate](slice_principe/accept/644-4b588b5/after-totality-1-candidate.jpg)
 ![night](slice_principe/accept/644-4b588b5/night-prediction-1.jpg)
 
+## #641 · row 2 daylight sky, follow-up 1: not accepted at 23d3d154, close (2026-11-29 01:42 JST)
+
+What I looked at: clear/thin/thick/totality stills main vs candidate, turn frames 700-703 stepped. Not looked at: the MP4s, walk frames.
+
+- **Technical regression:** none; the three cover states now read apart at a glance.
+- **The change:** at the horizon the ruling is near-horizontal and travels with the cloud. Looking up, thick and thin cover turn into concentric rings round the zenith with no cloud shape: a target, in the view the player holds through the eclipse.
+- **Readiness:** not judged. Follow-up 2 sent.
+
