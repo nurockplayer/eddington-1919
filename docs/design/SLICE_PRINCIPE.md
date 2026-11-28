@@ -2344,3 +2344,18 @@ The Roça Sundy arrival plate I held in the journey batch: it shows a two-storey
 ![candidate arrival](slice_principe/accept/637/b8c8033/candidate-arrival-daylight.jpg)
 ![main arrival](slice_principe/accept/637/b8c8033/main-arrival-daylight.jpg)
 ![candidate totality](slice_principe/accept/637/b8c8033/candidate-arrival-totality.jpg)
+
+## Cambridge Observatory plate · redraw: v2 accepted (2026-11-28 22:20 JST)
+
+Redraw of the batch-two plate whose dome sat on a wing. Two generations from a written description of the real front (worker sources: Historic England list entry 1126156, a public south-front photograph). Raws, prompts, hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b3/manifest.json`.
+
+What I looked at: v2 and v3 whole at native size. Not looked at: the contact sheet.
+
+**Verdict: v2 goes to wiring.** A raised two-storey centre with the four-column portico and the dome straight above it, lower wings stepping down either side: the massing of the real house. The hand is the batch's: framing tree, engraved cloud, lawn running to the gravel.
+**v3 not accepted:** a single flat block with the dome tucked behind the pediment; it reads as an architect's elevation, and the sky is thinner than the rest of the set.
+
+Next: wired on #636 as its second follow-up, after the eight-plate follow-up reports (same sheets, so not in parallel).
+
+![Cambridge v2, accepted](slice_principe/plates/journey-20261128-b3/cambridge-observatory-v2.jpg)
+![Cambridge v3, not accepted](slice_principe/plates/journey-20261128-b3/cambridge-observatory-v3.jpg)
+
