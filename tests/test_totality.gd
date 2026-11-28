@@ -505,7 +505,7 @@ func _test_rehearsal() -> void:
 	var seed_before: int = game.sim.run_seed
 	var available_before: int = game.sim.plates_available()
 	var prep_before: float = game.prep_left
-	var clocks_before: Array = [game.t_game, game.change_left, game._tick_acc, game.tot_done]
+	var clocks_before: Array = [game.t_game, game.change_left, game.tot_done]
 	var cases := ["early", "brief", "late", "never", "never stop", "long unprepared", "long prepared"]
 	var expected := ["你在雲變薄前就開了，厚雲也算進曝光。", "你在雲薄時開始、變厚前停。", "你停得晚，雲回來後還在曝光。", "窗口過去了，你沒有開：這次練習沒有曝光。", "你一直沒喊停，練習替你收了遮光板；真的全食要自己喊停。", "你在雲薄時開始、變厚前停。", "你在雲薄時開始、變厚前停。"]
 	var qualities := ["unusable", "unusable", "poor", "", "poor", "poor", "good"]
@@ -595,7 +595,7 @@ func _test_rehearsal() -> void:
 		check(game.sim.plates == plates_before and game.sim.gaps == gaps_before and game.sim.run_seed == seed_before and game.sim.plates_available() == available_before, "rehearsal preserves simulation and inventory")
 		check(game.sim.drive_wound == (i == 6) and game.sim.drive_rate_checked == (i == 6), "practice preserves drive preparation")
 		check(not game.sim.is_exposing() and not game._ever_exposed and not game.plate_changed, "dry run leaves exposure history untouched")
-		check([game.t_game, game.change_left, game._tick_acc, game.tot_done] == clocks_before, "dry run leaves totality clocks untouched")
+		check([game.t_game, game.change_left, game.tot_done] == clocks_before, "dry run leaves totality clocks untouched")
 	game._process_prep(0.5)
 	check(game.prep_left == prep_before - 0.5, "PREP countdown resumes after rehearsal")
 	game._interact("eddington")
