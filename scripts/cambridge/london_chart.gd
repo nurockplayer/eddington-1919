@@ -22,7 +22,7 @@ var labels: Dictionary
 var pick: int
 var beat := 0
 var stroke := 1.0
-var _elapsed := 0.0
+var _elapsed := -1.0
 
 
 func _ready() -> void:
@@ -37,7 +37,8 @@ func refresh_fonts() -> void:
 
 
 func _process(delta: float) -> void:
-	_update_arrival(_elapsed + delta)
+	# The first frame's delta includes time before the chart appeared.
+	_update_arrival(0.0 if _elapsed < 0.0 else _elapsed + delta)
 
 
 func finish_arrival() -> void:

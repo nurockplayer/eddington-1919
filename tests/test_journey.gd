@@ -1000,7 +1000,8 @@ func _london_arrival(meeting: Control, text: Dictionary) -> void:
 	expect(chart.custom_minimum_size.y >= 450.0 and advance.disabled,
 		"London starts on a half-screen plate and holds Continue for the result")
 	expect(chart.beat == 0 and not has_text(paper, text.L22) and not has_text(paper, text.L23),
-		"the axes precede both reports")
+		"the axes precede both reports (beat %d at %.3f s, Sobral %s, Príncipe %s)" % [
+			chart.beat, chart._elapsed, has_text(paper, text.L22), has_text(paper, text.L23)])
 	if london_captures:
 		var dimensions := Vector2i(1280, 720)
 		var stills := {60: "axis", 180: "sobral", 330: "principe"}
