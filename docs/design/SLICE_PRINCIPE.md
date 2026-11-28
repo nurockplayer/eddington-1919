@@ -2344,3 +2344,75 @@ The Roça Sundy arrival plate I held in the journey batch: it shows a two-storey
 ![candidate arrival](slice_principe/accept/637/b8c8033/candidate-arrival-daylight.jpg)
 ![main arrival](slice_principe/accept/637/b8c8033/main-arrival-daylight.jpg)
 ![candidate totality](slice_principe/accept/637/b8c8033/candidate-arrival-totality.jpg)
+
+## Cambridge Observatory plate · redraw: v2 accepted (2026-11-28 22:20 JST)
+
+Redraw of the batch-two plate whose dome sat on a wing. Two generations from a written description of the real front (worker sources: Historic England list entry 1126156, a public south-front photograph). Raws, prompts, hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-28-b3/manifest.json`.
+
+What I looked at: v2 and v3 whole at native size. Not looked at: the contact sheet.
+
+**Verdict: v2 goes to wiring.** A raised two-storey centre with the four-column portico and the dome straight above it, lower wings stepping down either side: the massing of the real house. The hand is the batch's: framing tree, engraved cloud, lawn running to the gravel.
+**v3 not accepted:** a single flat block with the dome tucked behind the pediment; it reads as an architect's elevation, and the sky is thinner than the rest of the set.
+
+Next: wired on #636 as its second follow-up, after the eight-plate follow-up reports (same sheets, so not in parallel).
+
+![Cambridge v2, accepted](slice_principe/plates/journey-20261128-b3/cambridge-observatory-v2.jpg)
+![Cambridge v3, not accepted](slice_principe/plates/journey-20261128-b3/cambridge-observatory-v3.jpg)
+
+## #635 · F4 title page, follow-up: accepted at 80048ac (2026-11-29 00:30 JST)
+
+What I looked at: en 1.0, en 1.2, ja 1.2, ko 1.2 whole at 1280x720. Not looked at: the other four locale/scale frames and the focus frames (layout script reports all pass). Tests 93/0 and 1408/0.
+
+- **Technical regression:** none seen.
+- **The change: accepted.** Closed rule, even inset, a line of air under the plate, one left margin for heading and body.
+- **Whole-scene readiness: not accepted.** The plate is a flat posterized blue render, a screenshot in a frame rather than a print; the button row is centred under a left-set page. Both stay on F4.
+
+![en 1.0](slice_principe/accept/635-80048ac/en-1.0.jpg)
+![ja 1.2](slice_principe/accept/635-80048ac/ja-1.2.jpg)
+
+## #637 · F1 Roça Sundy house, follow-up: accepted at d20a25b3, row 8a met (2026-11-29 00:38 JST)
+
+What I looked at: candidate arrival daylight and totality, the nameboard from the shelter and at 3 m, main arrival daylight. Not looked at: early-partial, the turn frames, the shelter stills. Story suite 64/0; row 9 worst p95 −0.22 ms.
+
+- **Technical regression:** none seen.
+- **The change: accepted; row 8a met.** A grey box with a clipped sans sign becomes a single-storey hipped-roof verandah house in ink-grey, ruled boards, shutters, steps, and ROÇA SUNDY in the book serif.
+- **Whole-scene readiness: not accepted.** The house stands on bare paper; no yard or path meets it. Next F1 item: ground dressing. The held arrival plate is now redrawn to this model.
+
+![candidate](slice_principe/accept/637-d20a25b/candidate-arrival-daylight.jpg)
+![main](slice_principe/accept/637-d20a25b/main-arrival-daylight.jpg)
+![from the shelter](slice_principe/accept/637-d20a25b/candidate-sign-shelter-daylight.jpg)
+![at 3 m](slice_principe/accept/637-d20a25b/candidate-sign-3m-daylight.jpg)
+
+## Roça Sundy arrival plate · redrawn to the #637 house: v3 accepted (2026-11-29 00:46 JST)
+
+Raws, prompts, hashes: `/Volumes/KIOXIA/eddington-1919-cache/director/plates/journey/2026-11-29-b4/manifest.json`. What I looked at: v2 and v3 whole at native size. Not looked at: the contact sheet.
+
+- **v2: house right, people wrong.** Hipped roof, raised plinth, six bracketed posts, turned balusters, louvred shutters, central steps and the ROÇA SUNDY board all agree with the accepted model. But the party was four, one a woman, in military jackets and puttees; the Príncipe party was Eddington and Cottingham.
+- **v3: accepted.** The same plate with only the party redrawn: two men in light civilian suits and soft hats, a case each. Their hatching is lighter than the ground's, which their pale suits justify.
+
+Next: wired with Cambridge v2 as the second follow-up on #636.
+
+![v3, accepted](slice_principe/plates/journey-20261129-b4/sundy-arrival-v3.jpg)
+![v2, party wrong](slice_principe/plates/journey-20261129-b4/sundy-arrival-v2.jpg)
+
+## #641 · row 2 daylight sky: not accepted at ce5a4efd (2026-11-29 00:50 JST)
+
+What I looked at: turn frames 700-703 stepped, walk frame 300 main vs candidate, clear/thin/thick/totality stills main vs candidate. Not looked at: the MP4s (I step frames), other walk frames.
+
+- **Technical regression: blocker.** Clear, thin and thick daylight skies render alike, near-blank paper; cloud cover no longer reads (the sim-truth rule).
+- **The change:** lines now travel with the cloud (slip p95 6.0 → 0.04 px/frame) and the contour map is gone; but the ruling fans in perspective into long diagonals that read as rain.
+- **Readiness:** not judged. Row 2 count unchanged. Follow-up vis-row2-sky-fu1 sent.
+
+## #636 · F3 journey plates, ten wired: change accepted at 2b98e80 (2026-11-29 00:55 JST)
+
+What I looked at: Liverpool (en 1.2), Sobral square (ja 1.0), London news (en 1.0), Santo António (en 1.0), the forest text sheet after its plate (en 1.2). Not looked at: the other 55 frames.
+
+- **Technical regression:** none seen. The wrapper's test rerun failed on my brief's Test line (no import step); CI decides.
+- **The change: accepted.** Ten places open on their engraving, inked on the paper, one localized serif caption. The Atlantic has no sheet and was rightly left out.
+- **Whole-scene readiness: not accepted.** Plate sheet ~840 px wide, text sheet ~1075 px: the book jumps at each turn; text sheets after plates are often near-empty. Follow-up 2 sent: Cambridge v2 and Sundy v3 plates, one page size, the four figures and chapter marks.
+
+![Liverpool](slice_principe/accept/636-2b98e80/liverpool-v1-plate-en-1.2.jpg)
+![Sobral square, ja](slice_principe/accept/636-2b98e80/sobral-square-v1-plate-ja-1.0.jpg)
+![London news](slice_principe/accept/636-2b98e80/london-news-v2-plate-en-1.0.jpg)
+![forest text sheet after its plate](slice_principe/accept/636-2b98e80/forest-road-v1-following-en-1.2.jpg)
+

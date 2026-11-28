@@ -27,7 +27,7 @@ static func cjk() -> Font:
 	return for_locale(L.current())
 
 
-static func book_serif(fallback: Font) -> SystemFont:
+static func paper_serif(fallback: Font) -> SystemFont:
 	var face := SystemFont.new()
 	face.font_names = PackedStringArray(["Baskerville", "Georgia", "serif"])
 	face.fallbacks = [fallback]

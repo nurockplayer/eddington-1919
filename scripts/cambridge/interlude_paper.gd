@@ -105,7 +105,7 @@ func begin_plate(texture: Texture2D, place_date: String) -> void:
 	contents.resized.connect(func(): image.custom_minimum_size.y = ceilf(contents.size.x * aspect))
 	label(body, L.t("%s・歷史重建") % place_date, 18, true)
 	var caption: Label = body.get_child(-1)
-	caption.add_theme_font_override("font", Fonts.book_serif(get_theme_default_font()))
+	caption.add_theme_font_override("font", Fonts.paper_serif(get_theme_default_font()))
 
 
 func label(parent: Container, text: String, font_size: int, centered := false) -> void:

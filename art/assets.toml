@@ -179,6 +179,20 @@ max_texture_px = 0
 history = "RECONSTRUCTION: no in-situ photograph of the Príncipe station is known (docs/PROVENANCE.md); open timber shelter with a canvas roof rolled back before totality."
 status = "in-game"
 
+[asset.sundy_house]
+category = "architecture"
+source = "blender_procedural"
+build = "art/pipeline/blender/build_sundy_house.py"
+export = "assets/models/sundy_house.glb"
+dims_m = [15.4, 12.8, 7.7]
+dims_tolerance = 0.15
+bounds_centre_offset_m = [0.0, -1.7]
+tri_budget = 15000
+max_materials = 6
+max_texture_px = 0
+history = "RECONSTRUCTION: docs/research/story_factcheck_2026-11-13.md §5 records the site and host. Whitewashed masonry, a stone plinth, hipped clay tiles, timber verandah, louvered shutters and a central stair are generic design assumptions. Original geometry; no external assets."
+status = "in-game"
+
 [asset.principe_ridges]
 category = "architecture"
 source = "blender_procedural"

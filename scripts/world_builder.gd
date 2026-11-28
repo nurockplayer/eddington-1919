@@ -1,5 +1,5 @@
 extends RefCounted
-## Builds the Roça Sundy observing site from primitives.
+## Builds the Roça Sundy observing site.
 ## RECONSTRUCTION: no photographs of the Príncipe station in situ are known; the
 ## layout (sun-shelter over a horizontal tube fed by a coelostat, a darkroom hut,
 ## the plantation house) is a plausible stage, not a documented plan.
@@ -320,16 +320,19 @@ var engraving_pilot := false
 var _pilot_materials := {}
 
 
-func _pilot_surface(mesh: MeshInstance3D, surface: int, swatch: int, stock: Color, earth := false) -> void:
+func _pilot_surface(mesh: MeshInstance3D, surface: int, swatch: int, stock: Color,
+		earth := false, daylight_stock := Color.WHITE, daylight_pitch := 0.0) -> void:
 	if not engraving_pilot:
 		return
-	var key := [swatch, stock, earth]
+	var key := [swatch, stock, earth, daylight_stock, daylight_pitch]
 	if not _pilot_materials.has(key):
 		var material := ShaderMaterial.new()
 		material.shader = ENGRAVING_SURFACE
 		material.set_shader_parameter("swatch", swatch)
 		material.set_shader_parameter("stock", stock)
 		material.set_shader_parameter("earth", earth)
+		material.set_shader_parameter("daylight_stock", daylight_stock)
+		material.set_shader_parameter("daylight_pitch", daylight_pitch)
 		_pilot_materials[key] = material
 	var original := mesh.material_override if surface < 0 else mesh.get_surface_override_material(surface)
 	var materials: Array = mesh.get_meta(PILOT_MATERIALS, [])
@@ -724,29 +727,71 @@ func _safelight_lantern(safe: OmniLight3D) -> MeshInstance3D:
 
 
 func _plantation_house() -> void:
-	var c := Vector3(-15, 0, -20)
-	var wall := P("whitewash")
-	box(Vector3(14, 5, 8), c + Vector3(0, 2.5, 0), wall)
-	var roof := MeshInstance3D.new()
-	var pr := PrismMesh.new()
-	pr.size = Vector3(15, 2.4, 9)
-	roof.mesh = pr
-	roof.material_override = mat(P("roof_tile"))
-	roof.position = c + Vector3(0, 6.2, 0)
-	root.add_child(roof)
-	for i in 7:
-		box(Vector3(1.0, 1.6, 0.05), c + Vector3(-6 + i * 2, 3.1, 4.03), Color(0.22, 0.3, 0.28), null, false)
-		cyl(0.1, 2.5, c + Vector3(-6.5 + i * 2.2, 1.25, 6.2), Color(0.9, 0.88, 0.82), null, true)
-	box(Vector3(15, 0.2, 2.6), c + Vector3(0, 2.6, 5.3), P("roof_tile"), null, false)
-	box(Vector3(15, 0.3, 2.6), c + Vector3(0, 0.15, 5.3), Color(0.6, 0.55, 0.5))
+	var house := (preload("res://assets/models/sundy_house.glb") as PackedScene).instantiate() as Node3D
+	house.name = "SundyHouse"
+	house.position = Vector3(-15, 0, -20)
+	house.rotation_degrees.y = 24.0
+	root.add_child(house)
+
+	if engraving_pilot:
+		var stock := {
+			"whitewash": [Swatch.PAPER, LAND, LAND, 0.34],
+			"stone": [Swatch.PAPER, Color("bdb29c"), Color("b3b0a7"), 0.30],
+			"roof_tile": [Swatch.TIMBER, Color("ae9278"), Color("55534e"), 0.42],
+			"teak": [Swatch.TIMBER, Color("b4a089"), Color("827f78"), 0.0],
+			"teak_dark": [Swatch.TIMBER, Color("87725d"), Color("6b6963"), 0.0],
+			"iron": [Swatch.TIMBER, Color("625549"), Color("62605a"), 0.0],
+		}
+		for mesh: MeshInstance3D in house.find_children("*", "MeshInstance3D", true, false):
+			mesh.add_to_group(&"sundy_print")
+			for i in mesh.mesh.get_surface_count():
+				var name_ := mesh.mesh.surface_get_material(i).resource_name.trim_prefix("E1919_")
+				var swatch: Array = stock[name_]
+				_pilot_surface(mesh, i, swatch[0], swatch[1], false, swatch[2], swatch[3])
+
+	# The board is fixed to the verandah fascia above the entrance.
+	var board := box(Vector3(4.15, 0.56, 0.09), Vector3(0, 3.70, 6.735), LAND, house, false) as MeshInstance3D
+	board.name = "Nameboard"
+	_pilot_surface(board, -1, Swatch.PAPER, LAND)
 	var sign := Label3D.new()
+	sign.name = "PaintedName"
 	sign.text = "ROÇA SUNDY"
-	sign.font_size = 160
-	sign.pixel_size = 0.006
-	sign.position = c + Vector3(0, 4.4, 4.1)
-	sign.modulate = Color(0.25, 0.2, 0.15)
-	root.add_child(sign)
-	var sundy := hotspot(Vector3(2.0, 2.5, 0.5), c + Vector3(0, 1.5, 5.8), "sundy", L.t("Roça Sundy"))
+	sign.font = Fonts.paper_serif(Fonts.cjk())
+	sign.font_size = 96
+	sign.pixel_size = 0.0055
+	sign.position = Vector3(0, 0, 0.047)
+	sign.modulate = Color("221c18")
+	sign.outline_size = 0
+	sign.shaded = true
+	sign.double_sided = false
+	sign.alpha_cut = Label3D.ALPHA_CUT_DISCARD
+	board.add_child(sign)
+
+	# Closed masonry shell, raised verandah, and rails with a gap at the stair.
+	var yaw := house.rotation_degrees.y
+	collider(Vector3(14, 5.05, 8), house.to_global(Vector3(0, 2.525, 0)), yaw)
+	collider(Vector3(14.48, 0.9, 2.44), house.to_global(Vector3(0, 0.45, 5.22)), yaw)
+	for side in [-1, 1]:
+		collider(Vector3(5.82, 1.05, 0.22), house.to_global(Vector3(side * 4.25, 1.425, 6.23)), yaw)
+		collider(Vector3(0.22, 1.05, 2.23), house.to_global(Vector3(side * 7.05, 1.425, 5.115)), yaw)
+
+	# The player has no step-up motion. A slope through the tread nosings
+	# connects grade to the deck while the visual stairs keep their risers.
+	var stair := StaticBody3D.new()
+	stair.name = "Stair"
+	var cs := CollisionShape3D.new()
+	var ramp := ConvexPolygonShape3D.new()
+	var points := PackedVector3Array()
+	for x in [-1.34, 1.34]:
+		for point in [Vector2(0.0, 6.4), Vector2(0.0, 8.04), Vector2(0.90, 6.4)]:
+			points.append(Vector3(x, point.x, point.y))
+	ramp.points = points
+	cs.shape = ramp
+	stair.add_child(cs)
+	house.add_child(stair)
+
+	var sundy := hotspot(Vector3(2.0, 2.5, 0.5), house.to_global(Vector3(0, 1.5, 5.8)), "sundy", L.t("Roça Sundy"))
+	sundy.rotation_degrees.y = yaw
 	sundy.name = "SundyHotspot"
 
 
