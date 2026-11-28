@@ -2359,3 +2359,14 @@ Next: wired on #636 as its second follow-up, after the eight-plate follow-up rep
 ![Cambridge v2, accepted](slice_principe/plates/journey-20261128-b3/cambridge-observatory-v2.jpg)
 ![Cambridge v3, not accepted](slice_principe/plates/journey-20261128-b3/cambridge-observatory-v3.jpg)
 
+## #635 · F4 title page, follow-up: accepted at 80048ac (2026-11-29 00:30 JST)
+
+What I looked at: en 1.0, en 1.2, ja 1.2, ko 1.2 whole at 1280x720. Not looked at: the other four locale/scale frames and the focus frames (layout script reports all pass). Tests 93/0 and 1408/0.
+
+- **Technical regression:** none seen.
+- **The change: accepted.** Closed rule, even inset, a line of air under the plate, one left margin for heading and body.
+- **Whole-scene readiness: not accepted.** The plate is a flat posterized blue render, a screenshot in a frame rather than a print; the button row is centred under a left-set page. Both stay on F4.
+
+![en 1.0](slice_principe/accept/635-80048ac/en-1.0.jpg)
+![ja 1.2](slice_principe/accept/635-80048ac/ja-1.2.jpg)
+
