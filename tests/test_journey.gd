@@ -850,9 +850,9 @@ func _london(chapter: Node, combined: Dictionary, tone: String, strong: bool) ->
 	var text := London.strings()
 	var locale := L.current()
 	await check_opening_plate(paper, "burlington-house-v2.png", text.L14)
-	var reaction := {"en": "L07", "ja": "L10", "zh_TW": "L11", "ko": "L07"}
+	var reaction := "L07" if strong else ("L11" if combined.n == 0 else "L10")
 	var read := [
-		["prediction", ["L02", "L03", "L04", reaction[locale]], "L14"],
+		["prediction", ["L02", "L03", "L04", reaction], "L14"],
 		["simulation", ["L15"], "L14"],
 		["threshold", ["L85", "L86", "L87", "L12"], "L13"],
 		["proceedings", ["L18", "L19", "L20", "L21", "L22", "L23"], "L14"],
