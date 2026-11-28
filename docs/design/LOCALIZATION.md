@@ -28,8 +28,8 @@ No unwrapped CJK literal outside an allowlist; every msgid present in en, ja, ko
 | 日全食 | total eclipse | 皆既日食 | 개기일식 |
 | 底片 | plate | 乾板 | 건판 |
 | 看片台 | light box | 乾板観察台 (check) | 건판 관찰대 (check) |
-| 顯微測微器 | micrometer | 測微計 | 측미계 (check) |
-| 定天鏡 | coelostat | シーロスタット | 코엘로스타트 (check) |
+| 顯微測微器 | micrometer | 測微計 | 측미기 |
+| 定天鏡 | coelostat | シーロスタット | 실로스탯 |
 | 遮光板 | shutter (matches the store text) | 遮光板 | 차광판 |
 | 時鐘驅動 | clock drive | 時計駆動 | 시계 구동 장치 |
 | 比較星 | comparison star | 比較星 | 비교성 |
