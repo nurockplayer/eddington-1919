@@ -133,6 +133,7 @@ One row per function that turns computed samples into a sound.
 | `scripts/audio/score.gd::_envelope_resolution` | stereo PCM for `coda_resolution`, with attack and release applied to the shipped OGG listed above | Eddington 1919 project; samples by Versilian Studios | Original + CC0 1.0 samples |
 | `scripts/cambridge/director.gd::_build_audio` | Cambridge study: click, rain bed | Eddington 1919 project | Original |
 | `scripts/cambridge/director.gd::_build_foley` | Cambridge light box: paper flip, plate nudge, star fields settling, pencil mark | Eddington 1919 project | Original |
+| `scripts/cambridge/london.gd::_excerpt` | London results: gain-adjusted, enveloped excerpts from the shipped departure motif and coda resolution samples | Eddington 1919 project; samples by Versilian Studios | Original + CC0 1.0 samples |
 | `scripts/cambridge/departure_director.gd::_build_audio` | departure: clock tick, street bed | Eddington 1919 project | Original |
 | `scripts/cambridge/epilogue_director.gd::_build_audio` | epilogue: clock tick, street bed | Eddington 1919 project | Original |
 | `tools/render_score.gd::_run` | none in play: a developer tool that writes the score cues to WAV for audition; it ships because the export presets do not exclude `tools/` | Eddington 1919 project | Original |
