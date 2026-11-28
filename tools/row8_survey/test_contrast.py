@@ -1,9 +1,19 @@
 import unittest
 
-from contrast import contrast_ratio, measure
+from contrast import contrast_ratio, measure, missing_control_gap
 
 
 class ContrastTests(unittest.TestCase):
+    def test_unsampled_control_gap_is_reported_alongside_sampled_sibling(self):
+        sampled = {"surface": "dialog", "text": "Visible title"}
+        unsampled = {"surface": "dialog", "text": "Nearly invisible label"}
+
+        gaps = [missing_control_gap("cfg state case", control) for control in (sampled, unsampled)[1:]]
+
+        self.assertEqual(gaps, [
+            "cfg state case / dialog / Nearly invisible label: no differing glyph pixels in the visible bounds."
+        ])
+
     def test_wcag_ratio(self):
         self.assertAlmostEqual(contrast_ratio((0, 0, 0), (255, 255, 255)), 21)
         self.assertEqual(contrast_ratio((12, 34, 56), (12, 34, 56)), 1)
