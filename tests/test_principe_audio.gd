@@ -40,6 +40,8 @@ func _run() -> void:
 		and not game.score.layers.get("totality_glass", {}).get("playing", false),
 		"second contact holds both music layers silent")
 	game._process_totality(1.9)
+	check(game.audio_tick.playing and game.audio_tick.bus == &"Totality Actions",
+		"the first second sounds once on the action submix")
 	check(not game.score.layers.get("totality_drone", {}).get("playing", false)
 		and not game.score.layers.get("totality_glass", {}).get("playing", false),
 		"both music layers remain silent at 1.9 real seconds")
@@ -190,19 +192,14 @@ func _second_contact_gap(hold_log := false) -> void:
 	var surf_rising := true
 	var max_step := 0.0
 	var near_s := -1.0
-	var tick_second := floori(game.t_game) + 1
-	var tick_started := false
+	var tick_repeated := false
+	game.audio_tick.stop()
 	for step in range(500):
 		if hold_log and step == 200:
 			# Start a real exposure fade so score progress is observable at the hold.
 			game._toggle_shutter()
-		var crosses_tick: bool = game.t_game < tick_second and game.t_game + STEP_S * game._totality_rate >= tick_second
-		if crosses_tick:
-			# Clear any earlier one-shot, then observe the new tick in the step that starts it.
-			game.audio_tick.stop()
 		_step_totality(game, driven)
-		if crosses_tick:
-			tick_started = game.audio_tick.playing and game.audio_tick.bus == &"Totality Actions"
+		tick_repeated = tick_repeated or game.audio_tick.playing
 		if step == 200:
 			if hold_log:
 				check(game.sim.is_exposing() and game.audio_open.playing and game.audio_open.bus == &"Totality Actions",
@@ -246,7 +243,7 @@ func _second_contact_gap(hold_log := false) -> void:
 		surf_prev = surf
 		if near_s < 0.0 and surf >= surf_db - 1.0:
 			near_s = game.t_game / game.sim.TIME_SCALE - score_s
-	check(tick_started, "the metronome counts on the action submix over the score")
+	check(not tick_repeated, "the metronome does not knock again over the score")
 	check(surf_rising and max_step <= 2.0, "the surf swells back without an audible step (largest frame step %.2f dB)" % max_step)
 	check(near_s >= 2.0, "the surf takes more than two seconds to come back (%.2f s)" % near_s)
 	check(game.audio_surf.playing and is_equal_approx(game.audio_surf.volume_db, surf_db),
