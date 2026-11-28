@@ -18,6 +18,21 @@ def contrast_ratio(ink, paper):
     return (high + 0.05) / (low + 0.05)
 
 
+def control_evidence_gaps(prefix, controls, samples):
+    gaps = []
+    for control, sample in zip(controls, samples):
+        if sample is None:
+            gaps.append(missing_control_gap(prefix, control))
+    return gaps
+
+
+def missing_control_gap(prefix, control):
+    excerpt = " ".join(control["text"].split())
+    if len(excerpt) > 90:
+        excerpt = excerpt[:87] + "..."
+    return f'{prefix} / {control["surface"]} / {excerpt}: no differing glyph pixels in the visible bounds.'
+
+
 def difference(first, second):
     return max(
         abs(first[0] - second[0]),
